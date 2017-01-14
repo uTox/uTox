@@ -1,9 +1,9 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
-#include <time.h>
-
 #include "ui.h"
+
+#include <time.h>
 
 // Type for indexing into MSG_DATA->data array of messages
 typedef struct messages {
@@ -157,8 +157,8 @@ typedef struct {
     char   file_name[128];
     size_t name_length;
 
-    char  *path;
-    size_t path_length;
+    uint8_t *path;
+    size_t   path_length;
 
     uint32_t speed;
     uint64_t size, progress;

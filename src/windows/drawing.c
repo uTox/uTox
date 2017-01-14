@@ -1,8 +1,9 @@
-#include "../draw.h"
-
 #include "main.h"
 
 #include "window.h"
+
+#include "../logging_native.h"
+#include "../draw.h"
 
 #include "../ui/svg.h"
 
@@ -305,7 +306,7 @@ void loadalpha(int bm, void *data, int UNUSED(width), int UNUSED(height)) {
     bitmap[bm] = data;
 }
 
-bool draw_set_target(UTOX_WINDOW *window) {
+bool native_window_set_target(UTOX_WINDOW *window) {
     if (curr != window) {
         curr = window;
         return true;

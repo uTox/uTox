@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "../flist.h"
+#include "../logging_native.h"
 
 typedef struct {
     IDropTarget dt;

@@ -2,6 +2,9 @@
 
 #include "gtk.h"
 
+#include "../chatlog.h"
+#include "../logging_native.h"
+
 #if 0 // commented because this function is deprecated, but I'm not ready to delete all this code yet
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
 size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
@@ -197,9 +200,9 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 }
 
 // TODO: This function has the worst name.
-void savefiledata(FILE_TRANSFER *file) {
+void file_save_inline(FILE_TRANSFER *file) {
     if (libgtk) {
-        ugtk_savefiledata(file);
+        ugtk_file_save_inline(file);
     } else {
         // fall back to working dir inline.png
         FILE *fp = fopen("inline.png", "wb");

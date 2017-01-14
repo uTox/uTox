@@ -1,6 +1,7 @@
 #include "main.h"
 #include "cursor.h"
 #include "../avatar.h"
+#include "../chatlog.h"
 #include "../file_transfers.h"
 #include "../flist.h"
 #include "../messages.h"
@@ -883,14 +884,15 @@ void native_export_chatlog_init(uint32_t fid) {
     }
 }
 
-void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
+void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
-    NSString *fname     = [[NSString alloc] initWithBytesNoCopy:file->file_name
-                                                     length:file->name_length
-                                                   encoding:NSUTF8StringEncoding
-                                               freeWhenDone:NO];
-    picker.message = [NSString
-        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->file_name];
+    NSString    *fname  = [[NSString alloc] initWithBytesNoCopy:file->name
+                                                         length:file->name_length
+                                                       encoding:NSUTF8StringEncoding
+                                                   freeWhenDone:NO];
+    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT),
+                               file->name_length,
+                               file->name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];
@@ -898,7 +900,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     if (ret == NSFileHandlingPanelOKButton) {
         NSURL *destination = picker.URL;
         // FIXME: might be leaking
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, strdup(destination.path.UTF8String));
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, num, strdup(destination.path.UTF8String));
     }
 }
 
@@ -917,7 +919,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 }
 
 //@"Where do you want to save \"%.*s\"?"
-void savefiledata(FILE_TRANSFER *file) {
+void file_save_inline(FILE_TRANSFER *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
     NSString *fname =
         [[NSString alloc] initWithBytes:file->name length:file->name_length encoding:NSUTF8StringEncoding];

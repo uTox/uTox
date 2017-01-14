@@ -4,7 +4,7 @@
 
 #include "../commands.h"
 #include "../flist.h"
-#include "../tox.h"
+#include "../logging_native.h"
 #include "../util.h"
 
 static char edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4],

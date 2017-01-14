@@ -7,8 +7,13 @@
 #include "main.h"
 
 #include "../main.h"
-#include "../tox.h"
+
+#include "../chatlog.h"
+#include "../filesys.h"
+#include "../file_transfers.h"
 #include "../friend.h"
+#include "../logging_native.h"
+#include "../tox.h"
 
 #include <shlobj.h>
 
@@ -43,13 +48,13 @@ void native_export_chatlog_init(uint32_t friend_number) {
     }
 }
 
-void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
+ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file){
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL){
         debug("SelectDir:\t Could not allocate memory for path.\n");
         return;
     }
-    memcpy(path, file->file_name, file->name_length);
+    memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
 
     OPENFILENAME ofn = {
@@ -60,7 +65,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     };
 
     if (GetSaveFileName(&ofn)) {
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, num, path);
     } else {
         debug("GetSaveFileName() failed\n");
     }

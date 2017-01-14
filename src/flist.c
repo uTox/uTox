@@ -1,12 +1,15 @@
 #include "flist.h"
 
+// FIXME: Separate from UI or include in UI.
 
+#include "logging_native.h"
 #include "theme.h"
 #include "util.h"
 #include "utox.h"
 
 #include "ui/buttons.h"
 #include "ui/contextmenu.h"
+#include "ui/draw.h"
 #include "ui/dropdowns.h"
 #include "ui/scrollable.h"
 #include "ui/svg.h"

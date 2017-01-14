@@ -3,16 +3,17 @@
 #include "main.h"
 #include "window.h"
 
-#include "../main.h"
 #include "../draw.h"
+#include "../logging_native.h"
+
 #include "../ui.h"
-#include "../ui/layout_notify.h"
+// #include "../ui/layout_notify.h"
 
 #include <windowsx.h>
 
 static void redraw_notify(UTOX_WINDOW *win) {
     debug("redraw start\n");
-    draw_set_target(win);
+    native_window_set_target(win);
     panel_draw(win->_.panel, 0, 0, win->_.w, win->_.h);
     SelectObject(win->draw_DC, win->draw_BM);
     BitBlt(win->window_DC, win->_.x, win->_.y, win->_.w, win->_.h, win->draw_DC, win->_.x, win->_.y, SRCCOPY);

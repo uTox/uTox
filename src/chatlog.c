@@ -1,6 +1,6 @@
 #include "chatlog.h"
 
-#include "main_native.h"
+#include "logging_native.h"
 #include "messages.h"
 #include "util.h"
 

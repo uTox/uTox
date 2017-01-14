@@ -23,18 +23,7 @@
  * uTox Versions and header information
  *
  *********************************************************/
-#define TITLE "uTox"
-#define SUB_TITLE "(Alpha)"
-#define RELEASE_TITLE "GOLD MEMBERS"
-#define VERSION "0.11.1"
-#define VER_MAJOR 0
-#define VER_MINOR 11
-#define VER_PATCH 1
-#define UTOX_VERSION_NUMBER (VER_MAJOR * 1000 * 1000 + VER_MINOR * 1000 + VER_PATCH)
-// Defaults
-#define DEFAULT_NAME "uTox User"
-#define DEFAULT_STATUS "Toxing on uTox, from the future!"
-#define DEFAULT_SCALE 11
+#include "branding.h"
 
 /**********************************************************
  *
@@ -83,13 +72,6 @@
 #ifndef __OBJC__
 #define volatile(x)(x)
 #endif
-
-#define SCALE(x) (((int)((ui_scale / 10.0) * ((double)x))) ?: 1)
-#define UI_FSCALE(x) (((ui_scale / 10.0) * ((double)x)) ?: 1)
-
-#define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
-#define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char *)str, sizeof(str) - 1)
-#define strwidth(x) textwidth((char *)x, sizeof(x) - 1)
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
@@ -237,16 +219,6 @@ uint16_t video_width, video_height, max_video_width, max_video_height;
 char     proxy_address[256]; /* Magic Number inside toxcore */
 
 // Enums
-/* uTox debug levels */
-enum {
-    VERBOSITY_OFF,
-    VERBOSITY_ERROR,
-    VERBOSITY_WARNING,
-    VERBOSITY_NOTICE,
-    VERBOSITY_INFO,
-    VERBOSITY_DEBUG,
-};
-
 enum {
     CURSOR_NONE,
     CURSOR_TEXT,
@@ -467,34 +439,6 @@ bool get_ptt_key(void);
 bool set_ptt_key(void);
 bool check_ptt_key(void);
 void exit_ptt(void);
-
-/* draw functions*/
-void drawtext(int x, int y, const char *str, uint16_t length);
-int drawtext_getwidth(int x, int y, const char *str, uint16_t length);
-void drawtextwidth(int x, int width, int y, const char *str, uint16_t length);
-void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length);
-void drawtextrange(int x, int x2, int y, const char *str, uint16_t length);
-void drawtextrangecut(int x, int x2, int y, const char *str, uint16_t length);
-
-int textwidth(const char *str, uint16_t length);
-int textfit(const char *str, uint16_t length, int width);
-int textfit_near(const char *str, uint16_t length, int width);
-// TODO: Seems to be unused. Remove?
-int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen, uint16_t lineheight);
-
-void drawrect(int x, int y, int right, int bottom, uint32_t color);
-void draw_rect_frame(int x, int y, int width, int height, uint32_t color);
-void draw_rect_fill(int x, int y, int width, int height, uint32_t color);
-
-void drawhline(int x, int y, int x2, uint32_t color);
-void drawvline(int x, int y, int y2, uint32_t color);
-#define drawpixel(x, y, color) drawvline(x, y, (y) + 1, color)
-
-void setfont(int id);
-uint32_t setcolor(uint32_t color);
-void pushclip(int x, int y, int width, int height);
-void popclip(void);
-void enddraw(int x, int y, int width, int height);
 
 /* OS interface replacements */
 void flush_file(FILE *file);

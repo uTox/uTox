@@ -1,11 +1,13 @@
 #include "notify.h"
 
 #include "main.h"
-#include "main_native.h"
+#include "logging_native.h"
 
 #include "draw.h"
 #include "ui.h"
 #include "window.h"
+
+// #include "ui/layout_notify.h"
 
 static uint16_t notification_number = 0;
 
@@ -38,7 +40,7 @@ UTOX_WINDOW *notify_new(NOTIFY_TYPE type) {
 
     UTOX_WINDOW *w = window_create_notify(x, y, notify_w, notify_h, panel);
 
-    draw_set_target(w);
+    native_window_set_target(w);
 
     return w;
 }

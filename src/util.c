@@ -6,7 +6,7 @@
 #include "util.h"
 
 #include "flist.h"
-#include "main_native.h"
+#include "logging_native.h"
 #include "ui/dropdowns.h"
 #include "ui/switches.h"
 
@@ -602,37 +602,6 @@ void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height
             new_rgbx[a * 4 + 2] = old_rgbx[b * 4 + 2];
         }
     }
-}
-
-uint8_t *load_data(uint8_t *filepath, size_t *out_size) {
-    size_t size = 0;
-
-    FILE *fp = native_get_file(filepath, &size, UTOX_FILE_OPTS_READ);
-    if (fp == NULL) {
-        debug("Util:\tCould not open file for reading: %s\n", filepath);
-        return NULL;
-    }
-
-    uint8_t *data = calloc(size, 1);
-    if (data == NULL) {
-        debug("Util:\tCould not allocate memory for file of size %zu.\n", size);
-        fclose(fp);
-        return NULL;
-    }
-
-    if (fread(data, 1, size, fp) != size) {
-        debug("Util:\tCould not read file: %s\n", filepath);
-        fclose(fp);
-        free(data);
-        return NULL;
-    }
-
-    fclose(fp);
-    if (out_size) {
-        *out_size = size;
-    }
-
-    return data;
 }
 
 UTOX_SAVE *config_load(void) {

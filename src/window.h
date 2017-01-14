@@ -16,20 +16,24 @@ struct utox_window {
     void *panel;
 };
 
-
-bool window_init(void);
-
 void window_raze(UTOX_WINDOW *window);
 
-void window_create_video();
+void window_create_video(int x, int y, int w, int h);
 
 UTOX_WINDOW *window_find_notify(void *window);
 
 UTOX_WINDOW *window_create_notify(int x, int y, int w, int h, void *panel);
 
-void window_tween(void);
+void window_tween(UTOX_WINDOW *win);
 
 void window_create_screen_select(void);
 
+/**
+ * Sets the target of the next series of drawing commands.
+ *
+ * Returns true if the window was changed.
+ *         false if the window is the same.
+ */
+bool native_window_set_target(UTOX_WINDOW *new_win);
 
 #endif

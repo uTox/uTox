@@ -1,3 +1,6 @@
+
+#include "../logging_native.h"
+
 typedef struct {
     int16_t  x, y;
     uint16_t tx, ty;

@@ -1,4 +1,5 @@
 #include "../commands.h"
+#include "../logging_native.h"
 #include "../theme.h"
 #include "../ui.h"
 #include "../ui/dropdowns.h"
@@ -22,8 +23,9 @@ struct thread_call {
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
+// TODO move these function to a logging.m file to provide implementation for what is declared in logging.h
 void debug(const char *fmt, ...) {
-    if (settings.verbose < VERBOSITY_DEBUG) {
+    if (utox_verbosity() < VERBOSITY_DEBUG) {
         return;
     }
     va_list l;
@@ -33,7 +35,7 @@ void debug(const char *fmt, ...) {
 }
 
 void debug_info(const char *fmt, ...) {
-    if (settings.verbose < VERBOSITY_INFO) {
+    if (utox_verbosity() < VERBOSITY_INFO) {
         return;
     }
     va_list l;
@@ -43,7 +45,7 @@ void debug_info(const char *fmt, ...) {
 }
 
 void debug_notice(const char *fmt, ...) {
-    if (settings.verbose < VERBOSITY_NOTICE) {
+    if (utox_verbosity() < VERBOSITY_NOTICE) {
         return;
     }
     va_list l;
@@ -53,7 +55,7 @@ void debug_notice(const char *fmt, ...) {
 }
 
 void debug_error(const char *fmt, ...) {
-    if (settings.verbose < VERBOSITY_ERROR) {
+    if (utox_verbosity() < VERBOSITY_ERROR) {
         return;
     }
     va_list l;
@@ -161,6 +163,9 @@ int systemlang(void) {
     }
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
+
+#include <mach/clock.h>
+#include <mach/mach.h>
 
 uint64_t get_time(void) {
     struct timespec ts;

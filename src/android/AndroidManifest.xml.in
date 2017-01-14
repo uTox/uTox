@@ -1,0 +1,37 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        package="tox.client.utox"
+        android:versionName="@PROJECT_VERSION@"
+        android:versionCode="3"> <!-- versionCode must int. inc for patches -->
+
+    <!-- This is the platform API where NativeActivity was introduced. -->
+    <uses-sdk android:minSdkVersion="12" />
+
+    <uses-feature android:glEsVersion="0x00020000"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- This .apk has no Java code itself, so set hasCode to false. -->
+    <application android:label="μTox"
+            android:icon="@drawable/i"
+            android:hasCode="false">
+        <!-- Our activity is the built-in NativeActivity framework class.
+             This will take care of integrating with our NDK code. -->
+        <activity android:name="android.app.NativeActivity"
+                android:label="μTox"
+                android:configChanges="orientation"
+                android:screenOrientation="sensor"
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <!-- Tell NativeActivity the name of or .so -->
+            <meta-data android:name="android.app.lib_name"
+                    android:value="uTox" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

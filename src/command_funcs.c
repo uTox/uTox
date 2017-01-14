@@ -1,7 +1,7 @@
 #include "command_funcs.h"
-#include "tox.h"
-#include "friend.h"
+
 #include "groups.h"
+#include "logging_native.h"
 #include "util.h"
 
 bool slash_send_file(void *object, char *filepath, int UNUSED(arg_length)) {

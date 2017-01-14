@@ -3,7 +3,7 @@
 #include "../buttons.h"
 
 #include "../../ui.h"
-#include "../../main_native.h"
+#include "../../logging_native.h"
 
 static void btn_notify_one_mup(void) {
     debug_error("Button 1 pressed\n");

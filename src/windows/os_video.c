@@ -1,20 +1,19 @@
-#include "main.h"
+#include "window.h"
 
-#include "../main.h"
+#include "../logging_native.h"
+#include "../util.h"
 
 #include "../../langs/i18n_decls.h"
 
-
 #ifdef __CRT__NO_INLINE
 #undef __CRT__NO_INLINE
-#define DID_UNDEFINE__CRT__NO_INLINE
 #include <dshow.h>
-#include <qedit.h>
-#ifdef DID_UNDEFINE__CRT__NO_INLINE
 #define __CRT__NO_INLINE
-#endif
+#else
+#include <dshow.h>
 #endif
 
+#include <qedit.h>
 // amvideo.h must be included after dshow
 #include <amvideo.h>
 #include <windows.h>
@@ -35,12 +34,6 @@ bool    capturedesktop;
 void *  dibits;
 
 static uint16_t video_x, video_y;
-
-// TODO this is in main.c too, probably want to decide how to handle this. FIXME!
-static int utf8tonative(char *str, wchar_t *out, int length) {
-    return MultiByteToWideChar(CP_UTF8, 0, (char *)str, length, out, length);
-}
-
 
 void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
     if (video_hwnd[id]) {
@@ -98,7 +91,7 @@ HRESULT STDMETHODCALLTYPE test_SampleCB(ISampleGrabberCB *lpMyObj, double Sample
 
     /*pSample->GetTime(&tStart, &tStop);
     */
-    if (length == (uint32_t)video_width * video_height * 3) {
+    if (length == video_width * video_height * 3) {
         uint8_t *p = frame_data + video_width * video_height * 3;
         int      y;
         for (y = 0; y != video_height; y++) {

@@ -1,14 +1,13 @@
-// ui.c
 #include "ui.h"
 
 #include "flist.h"
-#include "friend.h"
 #include "inline_video.h"
 #include "main.h"
 #include "theme.h"
 
 #include "ui/buttons.h"
 #include "ui/contextmenu.h"
+#include "ui/draw.h"
 #include "ui/draw_helpers.h"
 #include "ui/dropdowns.h"
 #include "ui/layout_all.h"
@@ -273,7 +272,7 @@ void ui_set_scale(uint8_t scale) {
     /* Friend Add Page      */
     CREATE_BUTTON(send_friend_request, SCALE(-10) - BM_SBUTTON_WIDTH, MAIN_TOP + SCALE(168), BM_SBUTTON_WIDTH,
                   BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(accept_friend, SCALE(10), MAIN_TOP + SCALE(10), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(accept_friend, SCALE(-60), SCALE(-80), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     /* Friend Settings Page */
     CREATE_BUTTON(export_chatlog, SCALE(10), SCALE(220), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);

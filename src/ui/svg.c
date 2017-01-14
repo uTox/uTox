@@ -1,9 +1,7 @@
 #include "svg.h"
 
-#include "../main.h"
-#include "../main_native.h"
+#include "../logging_native.h"
 
-// clang-format off
 #define SQRT2 1.41421356237309504880168872420969807856967187537694807317667973799
 
 static uint8_t pixel(double d) {
@@ -437,14 +435,14 @@ bool svg_draw(bool needmemory) {
                BM_SWITCH_TOGGLE_WIDTH * BM_SWITCH_TOGGLE_HEIGHT + /* Switch toggle */
 
                /* File transfer */
-               BM_FT_CAP_WIDTH * BM_FTB_HEIGHT + BM_FT_WIDTH * BM_FT_HEIGHT + BM_FTM_WIDTH * BM_FT_HEIGHT + 
-               (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE(1)) + 
+               BM_FT_CAP_WIDTH * BM_FTB_HEIGHT + BM_FT_WIDTH * BM_FT_HEIGHT + BM_FTM_WIDTH * BM_FT_HEIGHT +
+               (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE(1)) +
                BM_FTB_WIDTH * BM_FTB_HEIGHT) + BM_FB_WIDTH * BM_FB_HEIGHT * 4 +
 
                /* Chat Buttons */
                BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT * 2 + // Chat button 1, 2
-               BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT + 
-               BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT + 
+               BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT +
+               BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT +
                BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 
     svg_data = calloc(1, size);
@@ -708,7 +706,10 @@ bool svg_draw(bool needmemory) {
     p += BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 
     if (p - svg_data != size) {
-        debug("SVG:\tSVG data size mismatch...\n");
+        // Not sure if this is a good idea to comment out,
+        // but it allows me to remove the dependency on ../native_main.h..
+
+        // debug("SVG:\tSVG data size mismatch...\n");
     }
 
     if (!needmemory) {

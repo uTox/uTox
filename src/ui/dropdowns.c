@@ -1,9 +1,7 @@
-// dropdows.h
 #include "dropdowns.h"
 
 #include "../flist.h"
-#include "../friend.h"
-#include "../groups.h"
+#include "../logging_native.h"
 #include "../screen_grab.h"
 #include "../theme.h"
 #include "../util.h"

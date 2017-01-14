@@ -3,9 +3,8 @@
 #include "main.h"
 #include "window.h"
 
-#include "../main.h"
-
 // I'm getting tired, and lazy, all of these are probably not needed
+#include "../commands.h"
 #include "../draw.h"
 #include "../flist.h"
 #include "../friend.h"
@@ -13,6 +12,7 @@
 #include "../tox.h"
 #include "../util.h"
 #include "../utox.h"
+#include "../logging_native.h"
 
 #include "../av/utox_av.h"
 #include "../ui/buttons.h"
@@ -34,6 +34,51 @@ static TRACKMOUSEEVENT tme = {
 static bool mouse_tracked = false;
 
 bool  havefocus;
+
+/** Toggles the main window to/from hidden to tray/shown. */
+static void togglehide(int show) {
+    if (hidden || show) {
+        ShowWindow(main_window.window, SW_RESTORE);
+        SetForegroundWindow(main_window.window);
+        redraw();
+        hidden = false;
+    } else {
+        ShowWindow(main_window.window, SW_HIDE);
+        hidden = true;
+    }
+}
+
+/** Right click context menu for the tray icon */
+static void ShowContextMenu(void) {
+    POINT pt;
+    GetCursorPos(&pt);
+    HMENU hMenu = CreatePopupMenu();
+    if (hMenu) {
+        InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_SHOWHIDE, hidden ? "Restore" : "Hide");
+
+        InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
+
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_NONE) ? MF_CHECKED : 0),
+                   TRAY_STATUS_AVAILABLE, "Available");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_AWAY) ? MF_CHECKED : 0),
+                   TRAY_STATUS_AWAY, "Away");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_BUSY) ? MF_CHECKED : 0),
+                   TRAY_STATUS_BUSY, "Busy");
+
+        InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
+
+        InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_EXIT, "Exit");
+
+        // note:    must set window to the foreground or the
+        //          menu won't disappear when it should
+        SetForegroundWindow(main_window.window);
+
+        TrackPopupMenu(hMenu, TPM_BOTTOMALIGN, pt.x, pt.y, 0, main_window.window, NULL);
+        DestroyMenu(hMenu);
+    }
+}
+
+
 
 /* TODO should this be moved to window.c? */
 static void move_window(int x, int y){

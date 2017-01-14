@@ -2,7 +2,9 @@
 
 #include "main.h"
 
-#include "../draw.h"
+#include "../ui/draw.h"
+
+#include "../logging_native.h"
 
 bool native_window_init(void) {
     if ((display = XOpenDisplay(NULL)) == NULL) {
@@ -122,7 +124,7 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **argv, 
     uint pid = getpid();
     XChangeProperty(display, main_window.window, a_pid, XA_CARDINAL, 32, PropModeReplace, (uint8_t *)&pid, 1);
 
-    draw_set_target(&main_window);
+    native_window_set_target(&main_window);
 
     return &main_window;
 }
@@ -254,8 +256,8 @@ void window_set_focus(UTOX_WINDOW *win) {
     focus = win;
 }
 
-void native_window_tween(void) {
-    thread(notify_tween_thread, focus);
+void native_window_tween(UTOX_WINDOW *win) {
+    thread(notify_tween_thread, win);
 }
 
 
@@ -263,3 +265,11 @@ void native_window_create_screen_select() {
     return;
 }
 
+bool native_window_set_target(UTOX_WINDOW *new_win) {
+    if (new_win == curr) {
+        return false;
+    }
+
+    curr = new_win;
+    return true;
+}

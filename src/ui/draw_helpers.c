@@ -1,8 +1,7 @@
-// draw_helpers.c
-
 #include "draw_helpers.h"
 
 #include "buttons.h"
+#include "draw.h"
 #include "text.h"
 #include "svg.h"
 
@@ -207,16 +206,16 @@ void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
 }
 
 /* Draw an invite to be a friend window */
-void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+void draw_friend_request(int x, int y, int w, int h) {
     FRIENDREQ *req = (flist_get_selected()->data);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FRIENDREQUEST);
 
-    setcolor(COLOR_MAIN_TEXT_SUBTEXT);
-    setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + SCALE(10), settings.window_width, SCALE(40), req->msg, req->length);
+    setfont(FONT_TEXT);
+    utox_draw_text_multiline_within_box(x + SCALE(10), y + SCALE(70), w + x, y, y + h, font_small_lineheight,
+                                        req->msg, req->length, ~0, ~0, 0, 0, true);
 }
 
 /* Draw add a friend window */
@@ -243,11 +242,20 @@ void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
         setcolor(C_RED);
 
         STRING *str;
+
         switch (addfriend_status) {
-            case ADDF_SENT: str     = SPTR(REQ_SENT); break;
-            case ADDF_DISCOVER: str = SPTR(REQ_RESOLVE); break;
-            case ADDF_BADNAME: str  = SPTR(REQ_INVALID_ID); break;
-            case ADDF_NONAME: str   = SPTR(REQ_EMPTY_ID); break;
+            case ADDF_SENT:
+                str = SPTR(REQ_SENT);
+                break;
+            case ADDF_DISCOVER:
+                str = SPTR(REQ_RESOLVE);
+                break;
+            case ADDF_BADNAME:
+                str = SPTR(REQ_INVALID_ID);
+                break;
+            case ADDF_NONAME:
+                str = SPTR(REQ_EMPTY_ID);
+                break;
             case ADDF_TOOLONG: // if message length is too long.
                 str = SPTR(REQ_LONG_MSG);
                 break;
@@ -271,12 +279,14 @@ void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
                 break;
             case ADDF_UNKNOWN: // for unknown error.
             case ADDF_NONE:    // this case must never be rendered, but if it does, assume it's an error
-            default: str = SPTR(REQ_UNKNOWN); break;
+            default:
+                str = SPTR(REQ_UNKNOWN);
+                break;
         }
 
-        utox_draw_text_multiline_compat(MAIN_LEFT + SCALE(10), settings.window_width - BM_SBUTTON_WIDTH - SCALE(10),
-                                        MAIN_TOP + SCALE(166), 0, height, font_small_lineheight, str->str, str->length,
-                                        0xFFFF, 0, 0, 0, 1);
+        utox_draw_text_multiline_within_box(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(166),
+                                            settings.window_width - BM_SBUTTON_WIDTH - SCALE(10), 0, height,
+                                            font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
     }
 }
 

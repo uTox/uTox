@@ -43,12 +43,6 @@
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-#define debug(...) ((settings.verbose >= VERBOSITY_DEBUG) ? printf(__VA_ARGS__) : (0))
-#define debug_info(...) ((settings.verbose >= VERBOSITY_INFO) ? printf(__VA_ARGS__) : (0))
-#define debug_notice(...) ((settings.verbose >= VERBOSITY_NOTICE) ? printf(__VA_ARGS__) : (0))
-#define debug_warning(...) ((settings.verbose >= VERBOSITY_WARNING) ? printf(__VA_ARGS__) : (0))
-#define debug_error(...) ((settings.verbose >= VERBOSITY_ERROR) ? printf(__VA_ARGS__) : (0))
-
 #define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
 #define KEY_BACK XK_BackSpace

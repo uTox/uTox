@@ -3,6 +3,8 @@
  * play(does it make a difference?)
  */
 
+#include "../logging_native.h"
+
 static SLObjectItf engineObject = NULL;
 static SLEngineItf engineEngine;
 

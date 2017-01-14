@@ -3,14 +3,14 @@
 #include "contextmenu.h"
 #include "svg.h"
 
+#include "../chatlog.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
+#include "../logging_native.h"
 #include "../notify.h"
 #include "../screen_grab.h"
 #include "../theme.h"
-
-/* buttons */
 #ifdef UNITY
 #include "xlib/mmenu.h"
 extern bool unity_running;

@@ -3,6 +3,7 @@
 #include "main.h"
 
 #include "window.h"
+#include "../logging_native.h"
 
 #define UTOX_FONT_XLIB "Roboto"
 

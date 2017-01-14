@@ -20,6 +20,10 @@ int     def_screen_num;
 Window  root_window;
 Visual  *default_visual;
 
+
+// TODO move
+UTOX_WINDOW *curr;
+
 int default_depth;
 
 struct native_window {
@@ -57,7 +61,7 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel
 
 void window_set_focus(UTOX_WINDOW *win);
 
-void native_window_tween(void);
+void native_window_tween(UTOX_WINDOW *win);
 
 void native_window_create_screen_select();
 

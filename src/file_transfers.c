@@ -1,7 +1,7 @@
 #include "file_transfers.h"
 
 #include "friend.h"
-#include "main.h"
+#include "logging_native.h"
 #include "util.h"
 #include "utox.h"
 
@@ -60,7 +60,7 @@ static void calculate_speed(FILE_TRANSFER *file) {
         return;
     }
 
-    // TODO repalce magic number with something real. (grayhatter> I things it's cpu clock ticks)
+    // TODO replace magic number with something real. (grayhatter> I think it's cpu clock ticks)
     if (time - file->last_check_time >= 1000 * 1000 * 100) {
         file->speed = (((double)(file->current_size - file->last_check_transferred) * 1000.0 * 1000.0 * 1000.0)
                        / (double)(time - file->last_check_time))
@@ -250,6 +250,10 @@ static void kill_file(FILE_TRANSFER *file) {
 
 /* Break active file, (when a friend goes offline). */
 static void break_file(FILE_TRANSFER *file) {
+    if (!file) {
+        return;
+    }
+
     if (file->status == FILE_TRANSFER_STATUS_NONE) {
         return kill_file(file); /* We don't save unstarted files */
     } else if (file->status == FILE_TRANSFER_STATUS_COMPLETED
@@ -340,26 +344,32 @@ static void utox_pause_file(FILE_TRANSFER *file, uint8_t us) {
 
 /* Start/Resume active file. */
 static void run_file_local(FILE_TRANSFER *file) {
-    if (file->status == FILE_TRANSFER_STATUS_ACTIVE) {
-        return;
-    }
-    if (file->status == FILE_TRANSFER_STATUS_NONE) {
-        file->status = FILE_TRANSFER_STATUS_ACTIVE;
-
-        if (!file->resumeable && file->incoming) {
-            /* Set resuming info TODO MOVE TO AFTER FILE IS ACCEPED BY USER */
-            file->resumeable = ft_init_resumable(file);
+    switch (file->status) {
+        case FILE_TRANSFER_STATUS_NONE: {
+            file->status = FILE_TRANSFER_STATUS_ACTIVE;
+            if (!file->resumeable && file->incoming) {
+                file->resumeable = ft_init_resumable(file);
+            }
+            break;
         }
-    } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_US) {
-        file->status = FILE_TRANSFER_STATUS_ACTIVE;
-    } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH) {
-        file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
-    } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
-        // Do nothing;
-    } else if (file->status == FILE_TRANSFER_STATUS_BROKEN) {
-        file->status = FILE_TRANSFER_STATUS_ACTIVE;
-    } else {
-        debug_error("FileTransfer:\tWe tried to run file from an unknown state! (%u)\n", file->status);
+        case FILE_TRANSFER_STATUS_PAUSED_US: {
+            file->status = FILE_TRANSFER_STATUS_ACTIVE;
+            break;
+        }
+        case FILE_TRANSFER_STATUS_PAUSED_BOTH: {
+            file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+            break;
+        }
+        case FILE_TRANSFER_STATUS_ACTIVE:
+        case FILE_TRANSFER_STATUS_PAUSED_THEM: {
+            return;
+        }
+        case FILE_TRANSFER_STATUS_BROKEN:
+        case FILE_TRANSFER_STATUS_COMPLETED:
+        case FILE_TRANSFER_STATUS_KILLED: {
+            debug_error("FileTransfer:\tWe tried to run file from an unknown state! (%u)\n", file->status);
+            return;
+        }
     }
 
     postmessage_utox(FILE_UPDATE_STATUS, 0, 0, file);

@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "../main.h"
+#include "../logging_native.h"
 
 #include <stdbool.h>
 #include <stddef.h>

@@ -1,5 +1,7 @@
 #include "main.h"
 
+#include "../logging_native.h"
+
 int utox_v4l_fd = -1;
 
 #include <sys/mman.h>

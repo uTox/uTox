@@ -1,5 +1,7 @@
 #include "devices.h"
 
+#include "logging_native.h"
+
 #ifdef ENABLE_MULTIDEVICE
 
 static bool realloc_devices_list(uint16_t new_size) {

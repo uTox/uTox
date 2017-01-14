@@ -4,7 +4,8 @@
 #include "notify.h"
 #include "events.h"
 
-#include "../main.h"
+#include "../branding.h"
+#include "../logging_native.h"
 
 #include <windows.h>
 
@@ -72,7 +73,6 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h) {
 
 HWND native_window_create_video(int x, int y, int w, int h) {
     return CreateWindowExW(0, L"uTox Video", "TEMP TITLE CHANGE ME", WS_OVERLAPPEDWINDOW, x, y, w, h, NULL, NULL, curr_instance, NULL);
-
 }
 
 UTOX_WINDOW *popup = NULL;

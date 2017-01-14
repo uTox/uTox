@@ -1,9 +1,9 @@
-// tooltip.c
-
 #include "tooltip.h"
 
+#include "draw.h"
+
 #include "../theme.h"
-#include "../tox.h"
+#include "../ui.h"
 #include "../utox.h"
 
 static TOOLTIP tooltip;

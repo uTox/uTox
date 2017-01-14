@@ -8,9 +8,12 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../theme.h"
-#include "../ui/dropdowns.h"
+#include "../logging_native.h"
 #include "../util.h"
 #include "../utox.h"
+
+#include "../ui/dropdowns.h"
+#include "../ui/draw.h"
 
 bool hidden = false;
 
@@ -20,7 +23,7 @@ void *ugtk_load(void);
 void  ugtk_openfilesend(void);
 void  ugtk_openfileavatar(void);
 void ugtk_native_select_dir_ft(uint32_t fid, FILE_TRANSFER *file);
-void ugtk_savefiledata(FILE_TRANSFER *file);
+void ugtk_file_save_inline(FILE_TRANSFER *file);
 
 void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, main_window.window, CurrentTime);
@@ -49,7 +52,7 @@ void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data
 }
 
 #include <linux/input.h>
-FILE *   ptt_keyboard_handle;
+FILE    *ptt_keyboard_handle;
 Display *ptt_display;
 void     init_ptt(void) {
     settings.push_to_talk = 1;
@@ -652,7 +655,7 @@ int main(int argc, char *argv[]) {
     utox_init();
 
     XInitThreads();
-    if (!window_init()) {
+    if (!native_window_init()) {
         return 2;
     }
 
@@ -771,7 +774,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     /* draw */
-    draw_set_target(&main_window);
+    native_window_set_target(&main_window);
     panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 
     /* event loop */
@@ -787,7 +790,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (_redraw) {
-            draw_set_target(&main_window);
+            native_window_set_target(&main_window);
             panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
             _redraw = 0;
         }

@@ -1,12 +1,14 @@
-#include "main.h"
-
 #include "window.h"
 
 #include "../draw.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../logging_native.h"
 #include "../notify.h"
 #include "../utox.h"
+
+// Needed for enddraw. This should probably be changed.
+#include "../ui/draw.h"
 
 #include "keysym2ucs.h"
 
@@ -177,7 +179,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
     switch (event.type) {
         case Expose: {
             debug("Main window expose\n");
-            draw_set_target(win);
+            native_window_set_target(win);
             panel_draw(win->_.panel , 0, 0, win->_.w, win->_.h);
             XCopyArea(display, win->drawbuf, win->window, win->gc, 0, 0, win->_.w, win->_.h, 0, 0);
             break;
@@ -235,7 +237,8 @@ bool doevent(XEvent event) {
     if (event.xany.window && event.xany.window != main_window.window) {
 
         if (native_window_find_notify(event.xany.window)) {
-            return popup_event(event, native_window_find_notify(event.xany.window)); // TODO perhaps we should roll this into one?
+            // TODO perhaps we should roll this into one?
+            return popup_event(event, native_window_find_notify(event.xany.window));
             // return true;
         }
 
@@ -273,7 +276,6 @@ bool doevent(XEvent event) {
         case Expose: {
             enddraw(0, 0, settings.window_width, settings.window_height);
             draw_tray_icon();
-            // debug("expose\n");
             break;
         }
 
@@ -312,7 +314,6 @@ bool doevent(XEvent event) {
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
             if (settings.window_width != (uint32_t)ev->width || settings.window_height != (uint32_t)ev->height) {
-                // debug("resize\n");
 
                 if (ev->width > drawwidth || ev->height > drawheight) {
                     drawwidth  = ev->width + 10;
@@ -337,6 +338,7 @@ bool doevent(XEvent event) {
 
         case LeaveNotify: {
             ui_mouseleave();
+            break;
         }
 
         case MotionNotify: {

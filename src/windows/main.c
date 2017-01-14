@@ -4,13 +4,16 @@
 #include "screen_grab.h"
 #include "window.h"
 
+#include "../commands.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../logging_native.h"
 #include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../util.h"
 #include "../utox.h"
+#include "../util.h"
 
 #include "../av/utox_av.h"
 #include "../ui/buttons.h"
@@ -130,10 +133,10 @@ void openfileavatar(void) {
     SetCurrentDirectoryW(dir);
 }
 
-void savefiledata(FILE_TRANSFER *file) {
+void file_save_inline(FILE_TRANSFER *file) {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
-        debug("savefiledata:\t Could not allocate memory for path.\n");
+        debug("file_save_inline:\t Could not allocate memory for path.\n");
         return;
     }
     strcpy(path, (char *)file->path);
@@ -226,49 +229,6 @@ void openurl(char *str) {
 }
 
 void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {}
-
-/** Toggles the main window to/from hidden to tray/shown. */
-void togglehide(int show) {
-    if (hidden || show) {
-        ShowWindow(main_window.window, SW_RESTORE);
-        SetForegroundWindow(main_window.window);
-        redraw();
-        hidden = false;
-    } else {
-        ShowWindow(main_window.window, SW_HIDE);
-        hidden = true;
-    }
-}
-
-/** Right click context menu for the tray icon */
-void ShowContextMenu(void) {
-    POINT pt;
-    GetCursorPos(&pt);
-    HMENU hMenu = CreatePopupMenu();
-    if (hMenu) {
-        InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_SHOWHIDE, hidden ? "Restore" : "Hide");
-
-        InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
-
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_NONE) ? MF_CHECKED : 0),
-                   TRAY_STATUS_AVAILABLE, "Available");
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_AWAY) ? MF_CHECKED : 0),
-                   TRAY_STATUS_AWAY, "Away");
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_BUSY) ? MF_CHECKED : 0),
-                   TRAY_STATUS_BUSY, "Busy");
-
-        InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
-
-        InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_EXIT, "Exit");
-
-        // note:    must set window to the foreground or the
-        //          menu won't disappear when it should
-        SetForegroundWindow(main_window.window);
-
-        TrackPopupMenu(hMenu, TPM_BOTTOMALIGN, pt.x, pt.y, 0, main_window.window, NULL);
-        DestroyMenu(hMenu);
-    }
-}
 
 void copy(int value) {
     char data[32768]; //! TODO: De-hardcode this value.
@@ -528,7 +488,7 @@ void edit_will_deactivate(void) {}
 
 /* Redraws the main UI window */
 void redraw(void) {
-    draw_set_target(&main_window);
+    native_window_set_target(&main_window);
 
     SelectObject(main_window.draw_DC, main_window.draw_BM);
 

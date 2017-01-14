@@ -2,6 +2,7 @@
 
 #include "../flist.h"
 #include "../tox.h"
+#include "../logging_native.h"
 
 #include <windowsx.h>
 

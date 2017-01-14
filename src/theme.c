@@ -1,5 +1,6 @@
 #include "theme.h"
 
+#include "logging_native.h"
 #include "main.h"
 #include "main_native.h"
 
@@ -497,14 +498,16 @@ void theme_load(const char loadtheme) {
 }
 
 uint32_t *find_colour_pointer(char *color) {
-    while (*color == 0 || *color == ' ' || *color == '\t')
-        color++;
+    while (*color == 0 || *color == ' ' || *color == '\t') {
+        ++color;
+    }
 
     int l = strlen(color) - 1;
-    for (; l > 0; --l)
-        if (color[l] != ' ' && color[l] != '\t')
+    for (; l > 0; --l) {
+        if (color[l] != ' ' && color[l] != '\t') {
             break;
-
+        }
+    }
 
     color[l + 1] = '\0';
 
@@ -513,53 +516,53 @@ uint32_t *find_colour_pointer(char *color) {
         color += 6;
     }
 
-    debug("'%s'\n", color);
-
     for (int i = 0;; ++i) {
         const char *s = COLOUR_NAME_TABLE[i];
-        if (!s)
+
+        if (!s) {
             break;
-        if (!strcmp(color, s))
+        }
+
+        if (!strcmp(color, s)) {
             return COLOUR_POINTER_TABLE[i];
+        }
     }
     return NULL;
 }
 
 uint32_t try_parse_hex_colour(char *color, int *error) {
-    while (*color == 0 || *color == ' ' || *color == '\t')
+    while (*color == 0 || *color == ' ' || *color == '\t') {
         color++;
+    }
 
     int l = strlen(color) - 1;
-    for (; l > 0; --l)
-        if (color[l] != ' ' && color[l] != '\n')
+    for (; l > 0; --l) {
+        if (color[l] != ' ' && color[l] != '\n') {
             break;
+        }
+    }
 
     color[++l] = '\0';
 
-    debug("'%s'\n", color);
     if (l != 6) {
         *error = 1;
         return 0;
     }
 
-    unsigned char red, green, blue;
-    char          hex[3] = { 0 };
+    char hex[3] = { 0 };
 
     memcpy(hex, color, 2);
-    red = strtol(hex, NULL, 16);
+    unsigned char red = strtol(hex, NULL, 16);
     memcpy(hex, color + 2, 2);
-    green = strtol(hex, NULL, 16);
+    unsigned char green = strtol(hex, NULL, 16);
     memcpy(hex, color + 4, 2);
-    blue = strtol(hex, NULL, 16);
+    unsigned char blue = strtol(hex, NULL, 16);
 
     return RGB(red, green, blue);
 }
 
 void read_custom_theme(const uint8_t *data, size_t length) {
-    debug("Loading custom theme\n");
-
     while (length) {
-
         char *line = (char *)data;
         while (*line != 0) {
             if (*line == '#') {
@@ -583,17 +586,14 @@ void read_custom_theme(const uint8_t *data, size_t length) {
             continue;
         }
 
-        int      err = 0;
+        int err = 0;
         uint32_t col = try_parse_hex_colour(color, &err);
 
         if (err) {
-            debug("error: parsing hex color failed\n");
+            debug_error("error: parsing hex color failed\n");
             continue;
         } else {
             *colorp = COLOR_PROC(col);
-            debug("set color...\n");
         }
     }
-
-    return;
 }

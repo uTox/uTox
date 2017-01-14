@@ -1,5 +1,7 @@
 #import "main.h"
 #import "../ui/svg.h"
+#import "../logging_native.h"
+
 
 #ifdef UTOX_COCOA_BRAVE
 #define DRAW_TARGET_CHK()

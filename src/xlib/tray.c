@@ -1,7 +1,8 @@
 #include "tray.h"
 
-#include "main.h"
 #include "window.h"
+
+#include "../logging_native.h"
 
 #include <string.h>
 #include <inttypes.h>

@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.2)
 project(uTox LANGUAGES C)
 
+#######################################################################
+#
+# project version
+#
+#######################################################################
+
 # This version is for the entire project. All libraries (core, av, ...) move in
 # versions in a synchronised way.
 set(PROJECT_VERSION_MAJOR "0")
@@ -8,14 +14,73 @@ set(PROJECT_VERSION_MINOR "11")
 set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+# make version available in C files
+configure_file(${uTox_SOURCE_DIR}/src/branding.h.in
+               ${uTox_SOURCE_DIR}/src/branding.h)
+configure_file(${uTox_SOURCE_DIR}/src/cocoa/Info.plist.in
+               ${uTox_SOURCE_DIR}/src/cocoa/Info.plist)
+configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
+               ${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml)
 
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
+#######################################################################
+#
+# C compiler flags
+#
+#######################################################################
+
+set(CMAKE_C_STANDARD 99) # this requires at least cmake 3.1
+
+include(CheckCCompilerFlag)
+
+# add compiler flag for all build types
+function(add_cflag flag)
+    string(REGEX REPLACE "[^a-zA-Z0-9_]" "_" var ${flag})
+    if(NOT DEFINED HAVE_C${var})
+        message(STATUS "checking for C compiler flag: ${flag}")
+    endif()
+    set(CMAKE_REQUIRED_QUIET TRUE)
+
+    check_c_compiler_flag("${flag}" HAVE_C${var} QUIET)
+    if(HAVE_C${var})
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}" PARENT_SCOPE)
+    endif()
+endfunction()
+
+# Warn on non-ISO C.
+#add_cflag("-pedantic") # throws a lot of warning, quite sure we do not want this at current state.
+
+# Add all warning flags we can.
+add_cflag("-Wall")
+add_cflag("-Wextra")
+# Warnings we don't tolerate
+add_cflag("-Werror=implicit-function-declaration")
+
+# Everything Else
+add_cflag("-fno-strict-aliasing")
+
+# sanitize memory issues in Debug builds
+# https://gcc.gnu.org/gcc-4.8/changes.html
+# https://github.com/google/sanitizers/wiki/AddressSanitizer
+option(ENABLE_ASAN "Enable Address Sanitizer on debug builds" ON)
+if (ENABLE_ASAN)
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
+endif()
+
+message("C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
+message("C flags for all types: ${CMAKE_C_FLAGS}")
+message("C flags for Debug: ${CMAKE_C_FLAGS_DEBUG}")
+message("C flags for Release: ${CMAKE_C_FLAGS_RELEASE}")
+
+#######################################################################
+#
+# Build options
+#
+#######################################################################
 
 option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAUDIO_FILTERING")
+    add_cflag("-DAUDIO_FILTERING")
 endif()
 
 option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
@@ -48,8 +113,12 @@ message("Build options:")
 message("- Filter Audio: ${FILTER_AUDIO}")
 message("- Toxcore Static: ${TOXCORE_STATIC}")
 
-
+#######################################################################
+#
+# :: uTox native
 # include utoxNATIVE dependend on the OS
+#
+#######################################################################
 if(WIN32)
     ############################################################
     ## This is a hack, that we can remove once we have better
@@ -110,6 +179,7 @@ add_executable(utox
     src/groups.h
     src/inline_video.c
     src/inline_video.h
+    src/logging.c
     src/main.c
     src/main.h
     src/main_native.h
