@@ -59,6 +59,11 @@ add_cflag("-Werror=implicit-function-declaration")
 # Everything Else
 add_cflag("-fno-strict-aliasing")
 
+#######################################################################
+#
+# Build options
+#
+#######################################################################
 # sanitize memory issues in Debug builds
 # https://gcc.gnu.org/gcc-4.8/changes.html
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
@@ -67,15 +72,14 @@ if (ENABLE_ASAN)
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
-#######################################################################
-#
-# Build options
-#
-#######################################################################
-
 option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
     add_cflag("-DAUDIO_FILTERING")
+endif()
+
+option(UTOX_STATIC "Link uTox staticlly" OFF)
+if(UTOX_STATIC)
+    add_cflag("-static")
 endif()
 
 option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
@@ -107,6 +111,7 @@ endif()
 message("Build options:")
 message("- Add ASAN:        ${ENABLE_ASAN}")
 message("- Filter Audio:    ${FILTER_AUDIO}")
+message("- uTox Static:     ${UTOX_STATIC}")
 message("- Toxcore Static:  ${TOXCORE_STATIC}")
 message("- Windows Legacy:  ${WIN_XP_LEGACY}")
 
