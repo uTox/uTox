@@ -1,4 +1,3 @@
-
 void drawtext(int x, int y, const char *str, uint16_t length) {
     _drawtext(x, INT_MAX, y, str, length);
 }
@@ -19,7 +18,7 @@ void drawtextwidth(int x, int width, int y, const char *str, uint16_t length) {
 }
 
 void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length) {
-    int w = textwidth(str, length);
+    const int w = textwidth(str, length);
     if (w <= width) {
         drawtext(x + width - w, y, str, length);
     } else {
@@ -28,35 +27,34 @@ void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t leng
 }
 
 int textwidth(const char *str, uint16_t length) {
-    GLYPH *  g;
-    uint8_t  len;
-    uint32_t ch;
-    int      x = 0;
+    int x = 0;
+
     while (length) {
-        len = utf8_len_read(str, &ch);
+        uint32_t ch;
+        const uint8_t len = utf8_len_read(str, &ch);
         str += len;
         length -= len;
 
-        g = font_getglyph(sfont, ch);
+        const GLYPH *g = font_getglyph(sfont, ch);
         if (g) {
             x += g->xadvance;
         }
     }
+
     return x;
 }
 
+// FIXME: The next two functions are identical. Delete one?
 int textfit(const char *str, uint16_t length, int width) {
-    GLYPH *  g;
-    uint8_t  len;
-    uint32_t ch;
-    int      x = 0;
-
+    int x = 0;
     uint16_t i = 0;
+
     while (i != length) {
-        len = utf8_len_read(str, &ch);
+        uint32_t ch;
+        const uint8_t len = utf8_len_read(str, &ch);
         str += len;
 
-        g = font_getglyph(sfont, ch);
+        const GLYPH *g = font_getglyph(sfont, ch);
         if (g) {
             x += g->xadvance;
             if (x > width) {
@@ -71,28 +69,7 @@ int textfit(const char *str, uint16_t length, int width) {
 }
 
 int textfit_near(const char *str, uint16_t length, int width) {
-    GLYPH *  g;
-    uint8_t  len;
-    uint32_t ch;
-    int      x = 0;
-
-    uint16_t i = 0;
-    while (i != length) {
-        len = utf8_len_read(str, &ch);
-        str += len;
-
-        g = font_getglyph(sfont, ch);
-        if (g) {
-            x += g->xadvance;
-            if (x > width) {
-                return i;
-            }
-        }
-
-        i += len;
-    }
-
-    return length;
+    return textfit(str, length, width);
 }
 
 void setfont(int id) {

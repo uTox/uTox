@@ -2,6 +2,7 @@
 
 #include "gtk.h"
 
+#include "../ui/draw.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../theme.h"
@@ -37,7 +38,7 @@ void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data
 }
 
 #include <linux/input.h>
-FILE *   ptt_keyboard_handle;
+FILE    *ptt_keyboard_handle;
 Display *ptt_display;
 void     init_ptt(void) {
     settings.push_to_talk = 1;

@@ -1,10 +1,7 @@
-// switch.c
-
 #include "switch.h"
 
+#include "draw.h"
 #include "tooltip.h"
-
-#include "../main.h"
 
 static void calculate_pos_and_width(UISWITCH *s, int *x, int *w) {
     int old_w = *w;

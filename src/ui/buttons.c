@@ -1,7 +1,7 @@
-// buttons.c
 #include "buttons.h"
 
 #include "contextmenu.h"
+#include "svg.h"
 
 #include "../chatlog.h"
 #include "../flist.h"
@@ -9,9 +9,6 @@
 #include "../groups.h"
 #include "../theme.h"
 
-#include "../ui/svg.h"
-
-/* buttons */
 #ifdef UNITY
 #include "xlib/mmenu.h"
 extern bool unity_running;

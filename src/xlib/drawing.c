@@ -1,42 +1,48 @@
-/* xlib drawing.c */
 #include "../util.h"
+#include "../ui/draw.h"
 
 void redraw(void) {
     _redraw = 1;
 }
 
 void force_redraw(void) {
-    XEvent ev = {.xclient = {.type         = ClientMessage,
-                             .display      = display,
-                             .window       = window,
-                             .message_type = XRedraw,
-                             .format       = 8,
-                             .data = {.s = { 0, 0 } } } };
+    XEvent ev = {
+        .xclient = {
+            .type         = ClientMessage,
+            .display      = display,
+            .window       = window,
+            .message_type = XRedraw,
+            .format       = 8,
+            .data = {
+                .s = { 0, 0 }
+            }
+        }
+    };
+
     _redraw = 1;
     XSendEvent(display, window, 0, 0, &ev);
     XFlush(display);
 }
 
-void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
-    XRenderComposite(display, PictOpOver, image->rgb, image->alpha, renderpic, imgx, imgy, imgx, imgy, x, y, width,
-                     height);
+void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width,
+                uint32_t height, uint32_t imgx, uint32_t imgy) {
+    XRenderComposite(display, PictOpOver, image->rgb, image->alpha, renderpic,
+                     imgx, imgy, imgx, imgy, x, y, width, height);
 }
 
 void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
-    uint8_t *rgba_data = img_data;
+    const uint8_t *rgba_data = img_data;
 
     // we don't need to free this, that's done by XDestroyImage()
     uint8_t *out = malloc(size);
 
-    // colors are read into red, blue and green and written into the target pointer
-    uint8_t   red, blue, green;
     uint32_t *target;
 
-    uint32_t i;
-    for (i = 0; i < size; i += 4) {
-        red   = (rgba_data + i)[0] & 0xFF;
-        green = (rgba_data + i)[1] & 0xFF;
-        blue  = (rgba_data + i)[2] & 0xFF;
+    for (uint32_t i = 0; i < size; i += 4) {
+        // colors are read into red, blue and green and written into the target pointer
+        const uint8_t red   = (rgba_data + i)[0] & 0xFF;
+        const uint8_t green = (rgba_data + i)[1] & 0xFF;
+        const uint8_t blue  = (rgba_data + i)[2] & 0xFF;
 
         target  = (uint32_t *)(out + i);
         *target = (red | (red << 8) | (red << 16) | (red << 24)) & visual->red_mask;
@@ -99,7 +105,7 @@ static int _drawtext(int x, int xmax, int y, const char *str, uint16_t length) {
     return x;
 }
 
-// TODO: Moing this to the top throws errors, find out why
+// Needs to be included after ../ui/draw.h
 #include "../shared/freetype-text.c"
 
 void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {

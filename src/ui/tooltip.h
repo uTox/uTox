@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "../ui.h"
+typedef struct maybe_i18nal_string MAYBE_I18NAL_STRING;
 
 typedef struct tooltip {
     int  x, y, width, height;
