@@ -2,7 +2,8 @@
 
 TAG=$(git describe --abbrev=0 --tags)
 
-curl -O "https://github.com/uTox/uTox/archive/$TAG.zip" -O "https://github.com/uTox/uTox/archive/$TAG.tar.gz"
+curl -LOs "https://github.com/uTox/uTox/archive/$TAG.zip"
+curl -LOs "https://github.com/uTox/uTox/archive/$TAG.tar.gz"
 
 echo
 echo "md5"
