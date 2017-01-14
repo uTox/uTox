@@ -1,9 +1,10 @@
 #ifndef UI_H
 #define UI_H
 
-#include "../langs/i18n_decls.h"
 #include "main.h"
 #include "sized_string.h"
+
+#include "../langs/i18n_decls.h"
 
 #define DEFAULT_LANG LANG_EN
 #define S(x) (ui_gettext(LANG, (STR_##x))->str)

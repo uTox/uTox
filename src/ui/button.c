@@ -3,7 +3,6 @@
 #include "draw.h"
 #include "tooltip.h"
 
-
 static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
     int old_w = *w;
 

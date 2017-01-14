@@ -5,6 +5,7 @@
 #include "friend.h"
 #include "flist.h"
 #include "commands.h"
+#include "logging_native.h"
 
 #include "ui/dropdowns.h"
 #include "ui/tooltip.h"

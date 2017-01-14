@@ -1,5 +1,6 @@
 #include "main.h"
 
+#include "../logging_native.h"
 #include "../main.h"
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {

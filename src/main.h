@@ -214,16 +214,6 @@ uint16_t video_width, video_height, max_video_width, max_video_height;
 char     proxy_address[256]; /* Magic Number inside toxcore */
 
 // Enums
-/* uTox debug levels */
-enum {
-    VERBOSITY_OFF,
-    VERBOSITY_ERROR,
-    VERBOSITY_WARNING,
-    VERBOSITY_NOTICE,
-    VERBOSITY_INFO,
-    VERBOSITY_DEBUG,
-};
-
 enum {
     CURSOR_NONE,
     CURSOR_TEXT,

@@ -2,6 +2,7 @@
 #include "../file_transfers.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../logging_native.h"
 #include "../util.h"
 #include "../utox.h"
 

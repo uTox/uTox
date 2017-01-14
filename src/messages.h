@@ -1,9 +1,9 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
-#include <time.h>
-
 #include "ui.h"
+
+#include <time.h>
 
 // Type for indexing into MSG_DATA->data array of messages
 typedef struct messages {

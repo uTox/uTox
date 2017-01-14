@@ -1,10 +1,10 @@
 #ifndef INLINE_VIDEO_H
 #define INLINE_VIDEO_H
 
+#include "ui.h"
+
 #include <inttypes.h>
 #include <stdbool.h>
-
-#include "ui.h"
 
 typedef struct inline_vid { PANEL panel; } INLINE_VID;
 
