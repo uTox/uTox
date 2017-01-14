@@ -8,7 +8,7 @@ set(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc )
 # set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++ )
 set(CMAKE_RC_COMPILER  x86_64-w64-mingw32-windres )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static -g -std=gnu99 -DAL_LIBTYPE_STATIC")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static -std=gnu99 -DAL_LIBTYPE_STATIC")
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static -O3 -s -std=gnu99 -w -DAL_LIBTYPE_STATIC")
 
 # set(CMAKE_STATIC_LINKER_FLAGS "")
@@ -22,5 +22,8 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-set(WIN32 TRUE)
+set(WIN32 TRUE) # This is for cmake
+set(WIN64 TRUE) # This is for uTox lib dirs
 set(UNIX FALSE)
+
+

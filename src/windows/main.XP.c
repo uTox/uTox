@@ -2,6 +2,7 @@
 
 #include "main.h"
 
+#include "../chatlog.h"
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../main.h"
@@ -41,9 +42,13 @@ void native_export_chatlog_init(uint32_t friend_number) {
     }
 }
 
-void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
-    char *path = malloc(UTOX_FILE_NAME_LENGTH);
-    memcpy(path, file->file_name, file->name_length);
+void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (!path) {
+        debug_error("WinXP:\tUnable to calloc when selecting file directory\n");
+        return NULL;
+    }
+    memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
 
     OPENFILENAME ofn = {
@@ -55,9 +60,9 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     };
 
     if (GetSaveFileName(&ofn)) {
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, num, path);
     } else {
-        debug("GetSaveFileName() failed\n");
+        debug_error("GetSaveFileName() failed\n");
     }
 }
 
