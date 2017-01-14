@@ -3,6 +3,7 @@
 #include "../logging_native.h"
 
 #ifdef __OBJC__
+#include "../main.h"
 #include "../cocoa/main.h"
 #else
 #include "../xlib/main.h"

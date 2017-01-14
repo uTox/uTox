@@ -23,6 +23,47 @@ struct thread_call {
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
+// TODO move these function to a logging.m file to provide implementation for what is declared in logging.h
+void debug(const char *fmt, ...) {
+    if (utox_verbosity() < VERBOSITY_DEBUG) {
+        return;
+    }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
+void debug_info(const char *fmt, ...) {
+    if (utox_verbosity() < VERBOSITY_INFO) {
+        return;
+    }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
+void debug_notice(const char *fmt, ...) {
+    if (utox_verbosity() < VERBOSITY_NOTICE) {
+        return;
+    }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
+void debug_error(const char *fmt, ...) {
+    if (utox_verbosity() < VERBOSITY_ERROR) {
+        return;
+    }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) {
     return img != NULL && img->image != nil;
 }
