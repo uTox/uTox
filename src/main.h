@@ -206,9 +206,6 @@ typedef struct utox_settings {
 /* This might need to be volatile type... */
 SETTINGS settings;
 
-// returns current logging verbosity
-int utox_verbosity();
-
 // add friend page
 uint8_t addfriend_status;
 

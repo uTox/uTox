@@ -12,7 +12,6 @@ enum {
 };
 
 // returns current logging verbosity
-// implemented in main.c
 int utox_verbosity();
 
 // define debugging macros in a platform specific way

@@ -179,6 +179,7 @@ add_executable(utox
     src/groups.h
     src/inline_video.c
     src/inline_video.h
+    src/logging.c
     src/main.c
     src/main.h
     src/main_native.h
