@@ -1,5 +1,10 @@
 project(utoxNATIVE LANGUAGES C)
 
+option(WIN_XP_LEGACY "Compile Legacy code for Windows XP" OFF)
+if(WIN_XP_LEGACY)
+    add_cflag("-D__WIN_LEGACY=1")
+endif()
+
 #########################################
 ## Native Icon data
 #########################################
@@ -13,12 +18,15 @@ add_library(utoxNATIVE STATIC
     dnd.c
     drawing.c
     filesys.c
-    main.7.c
     main.c
     main.h
-    main.XP.c
     os_video.c
     video.c
+
+    ## The following two have ifdef's for __WIN_LEGACY
+    #  We include them both here even though only one will compile with content
+    main.XP.c
+    main.7.c
     )
 
 target_link_libraries(utoxNATIVE

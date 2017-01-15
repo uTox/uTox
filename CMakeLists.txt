@@ -59,6 +59,11 @@ add_cflag("-Werror=implicit-function-declaration")
 # Everything Else
 add_cflag("-fno-strict-aliasing")
 
+#######################################################################
+#
+# Build options
+#
+#######################################################################
 # sanitize memory issues in Debug builds
 # https://gcc.gnu.org/gcc-4.8/changes.html
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
@@ -67,20 +72,14 @@ if (ENABLE_ASAN)
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
-message("C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
-message("C flags for all types: ${CMAKE_C_FLAGS}")
-message("C flags for Debug: ${CMAKE_C_FLAGS_DEBUG}")
-message("C flags for Release: ${CMAKE_C_FLAGS_RELEASE}")
-
-#######################################################################
-#
-# Build options
-#
-#######################################################################
-
 option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
     add_cflag("-DAUDIO_FILTERING")
+endif()
+
+option(UTOX_STATIC "Link uTox staticlly" OFF)
+if(UTOX_STATIC)
+    add_cflag("-static")
 endif()
 
 option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
@@ -110,8 +109,17 @@ endif()
 
 # print a summary of build options
 message("Build options:")
-message("- Filter Audio: ${FILTER_AUDIO}")
-message("- Toxcore Static: ${TOXCORE_STATIC}")
+message("- Add ASAN:        ${ENABLE_ASAN}")
+message("- Filter Audio:    ${FILTER_AUDIO}")
+message("- uTox Static:     ${UTOX_STATIC}")
+message("- Toxcore Static:  ${TOXCORE_STATIC}")
+message("- Windows Legacy:  ${WIN_XP_LEGACY}")
+
+message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
+message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
+message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
+message("* C flags for all types:   ${CMAKE_C_FLAGS}")
+
 
 #######################################################################
 #
@@ -126,7 +134,11 @@ if(WIN32)
     ## makes everything work.
     ############################################################
     include_directories( libs/toktok/include libs/windows-x64/include/ )
-    link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
+    if(WIN64)
+        link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
+    else()
+        link_directories( libs/toktok_32/lib /usr/i686-w64-mingw32/lib/ libs/windows-x32/lib )
+    endif()
 
     ## Needed to build the widows icon
     enable_language(RC)
