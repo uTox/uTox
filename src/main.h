@@ -171,7 +171,7 @@ bool tox_connected;
 
 /* Super global vars */
 volatile bool utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
-volatile enum {
+typedef enum {
     // tox_thread is not initialized yet
     UTOX_TOX_THREAD_INIT_NONE = 0,
     // tox_thread is initialized successfully
@@ -180,7 +180,9 @@ volatile enum {
     // tox_thread is initialized but not successfully
     // this means a tox instance may have not been created
     UTOX_TOX_THREAD_INIT_ERROR = 2,
-} tox_thread_init;
+} UTOX_TOX_THREAD_INIT;
+
+UTOX_TOX_THREAD_INIT tox_thread_init;
 
 
 double ui_scale;
