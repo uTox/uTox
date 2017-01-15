@@ -227,13 +227,13 @@ target_link_libraries(utox
         vpx           pthread         m )
 
 set_property(TARGET utox PROPERTY C_STANDARD 99)
-if(UNIX)
-    install(TARGETS utox
-        RUNTIME DESTINATION "bin"
-        )
-elseif(APPLE)
+if(APPLE)
     install(TARGETS utox
         RUNTIME DESTINATION "bin"
         BUNDLE  DESTINATION "resources"
         )
-    endif()
+elseif(UNIX)
+    install(TARGETS utox
+        RUNTIME DESTINATION "bin"
+        )
+endif()
