@@ -96,7 +96,8 @@ bool switch_mwheel(UISWITCH *UNUSED(s), int UNUSED(height), double UNUSED(d), bo
 }
 
 bool switch_mup(UISWITCH *s) {
-    if (s->mousedown) {
+    // ignore click when switch is disabled
+    if (s->mousedown && !s->disabled) {
         if (s->mouseover) {
             s->switch_on = !s->switch_on;
             s->on_mup();
@@ -104,6 +105,7 @@ bool switch_mup(UISWITCH *s) {
         s->mousedown = 0;
         return 1;
     }
+    s->mousedown = 0;
     return 0;
 }
 

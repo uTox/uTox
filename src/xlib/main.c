@@ -1008,7 +1008,7 @@ BREAK:
     }
 #endif
 
-    /* wait for threads to exit */
+    // wait for tox_thread to exit
     while (tox_thread_init) {
         yieldcpu(1);
     }

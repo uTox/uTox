@@ -730,6 +730,7 @@ static void android_main(struct android_app *state) {
     dropdown_dpi.selected = dropdown_dpi.over = 15;
     ui_set_scale(21);
 
+    /* wait for tox thread to start */
     while (!tox_thread_init) {
         yieldcpu(1);
     }

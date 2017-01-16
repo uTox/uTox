@@ -1,5 +1,7 @@
 #include "dropdowns.h"
 
+#include "switches.h"
+
 #include "../av/utox_av.h"
 #include "../flist.h"
 #include "../logging_native.h"
@@ -46,19 +48,26 @@ static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
         case 0: {
             settings.use_proxy   = 0;
             settings.force_proxy = 0;
+            switch_udp.disabled = 0;
             break;
         }
 
         case 1: {
             settings.use_proxy   = 1;
             settings.force_proxy = 0;
+            switch_udp.disabled = 0;
             break;
         }
 
         case 2: {
             settings.use_proxy   = 1;
             settings.force_proxy = 1;
-            settings.enable_udp  = 0;
+            // disable UDP in this case, proxy only allows TCP
+            if (settings.enable_udp) {
+                settings.enable_udp = 0;
+                switch_udp.switch_on = 0;
+            }
+            switch_udp.disabled = 1;
             break;
         }
     }
@@ -66,7 +75,7 @@ static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     proxy_address[edit_proxy_ip.length] = 0;
 
     edit_proxy_port.data[edit_proxy_port.length] = 0;
-    settings.proxy_port                          = strtol((char *)edit_proxy_port.data, NULL, 0);
+    settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
 
     tox_settingschanged();
 }

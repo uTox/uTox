@@ -296,8 +296,12 @@ static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL UNUSED(level), const ch
     }
 }
 
+// initialize toxcore based on current settings
+// returns 0 on success
+// returns -1 on temporary error (waiting for password encryption)
+// returns -2 on fatal error
 static int init_toxcore(Tox **tox) {
-    tox_thread_init = 0;
+    tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
     int save_status = 0;
 
     struct Tox_Options topt;
@@ -345,7 +349,7 @@ static int init_toxcore(Tox **tox) {
     }
 
     // Create main connection
-    debug("CORE:\tCreating New Toxcore instance.\n"
+    debug_notice("CORE:\tCreating New Toxcore instance.\n"
           "\t\tIPv6 : %u\n"
           "\t\tUDP  : %u\n"
           "\t\tProxy: %u %s %u\n",
@@ -357,22 +361,30 @@ static int init_toxcore(Tox **tox) {
     *tox = tox_new(&topt, &tox_new_err);
 
     if (*tox == NULL) {
-        debug("\t\tError #%u, Going to try without proxy.\n", tox_new_err);
+        if (settings.force_proxy) {
+            debug_error("\t\tError #%u, Not going to try without proxy because of user settings.\n", tox_new_err);
+            return -2;
+        }
+        debug_error("\t\tError #%u, Going to try without proxy.\n", tox_new_err);
 
-        topt.proxy_type         = TOX_PROXY_TYPE_NONE;
+        // reset proxy options as well as GUI and settings
+        topt.proxy_type = TOX_PROXY_TYPE_NONE;
+        settings.use_proxy = settings.force_proxy = 0;
         dropdown_proxy.selected = dropdown_proxy.over = 0;
 
         *tox = tox_new(&topt, &tox_new_err);
 
-        if (!topt.proxy_type || *tox == NULL) {
-            debug("\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
+        if (*tox == NULL) {
+            debug_error("\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
 
-            topt.ipv6_enabled     = 0;
-            switch_ipv6.switch_on = settings.enable_ipv6 = 1;
-            *tox                                         = tox_new(&topt, &tox_new_err);
+            // reset IPv6 options as well as GUI and settings
+            topt.ipv6_enabled = 0;
+            switch_ipv6.switch_on = settings.enable_ipv6 = 0;
 
-            if (!topt.ipv6_enabled || *tox == NULL) {
-                debug("\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
+            *tox = tox_new(&topt, &tox_new_err);
+
+            if (*tox == NULL) {
+                debug_error("\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
                 return -2;
             }
         }
@@ -430,11 +442,36 @@ void toxcore_thread(void *UNUSED(args)) {
         reconfig = 0;
 
         toxcore_init_err = init_toxcore(&tox);
-        if (toxcore_init_err) {
+        if (toxcore_init_err == -2) {
+            // fatal failure, unable to create tox instance
+            debug_error("Tox:\tUnable to create Tox Instance (%d)\n", toxcore_init_err);
+            // set init to true because other code is waiting for it.
+            // but indicate error state
+            tox_thread_init = UTOX_TOX_THREAD_INIT_ERROR;
+            while (!reconfig) {
+                // Waiting for a message triggering the next reconfigure
+                // avoid trying the creation of thousands of tox instances before user changes the settings
+                if (tox_thread_msg) {
+                    TOX_MSG *msg = &tox_msg;
+                    // If msg->msg is 0, reconfig
+                    if (!msg->msg) {
+                        reconfig = (bool) msg->param1;
+                        tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
+                    }
+                    // tox is not configured at this point ignore all other messages
+                    tox_thread_msg = 0;
+                } else {
+                    yieldcpu(300);
+                }
+            }
+            continue;
+        } else if (toxcore_init_err) {
             /* Couldn't init toxcore, probably waiting for user password */
             yieldcpu(300);
-            tox_thread_init = 0;
-            reconfig        = 1;
+            tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
+            // ignore all messages in this stage
+            tox_thread_msg = 0;
+            reconfig = 1;
             continue;
         } else {
             init_self(tox);
@@ -450,7 +487,7 @@ void toxcore_thread(void *UNUSED(args)) {
             // Give toxcore the av functions to call
             set_av_callbacks(av);
 
-            tox_thread_init = 1;
+            tox_thread_init = UTOX_TOX_THREAD_INIT_SUCCESS;
 
             /* init the friends list. */
             flist_start();
@@ -501,7 +538,7 @@ void toxcore_thread(void *UNUSED(args)) {
                 if (!msg->msg) {
                     reconfig        = msg->param1;
                     tox_thread_msg  = 0;
-                    tox_thread_init = 0;
+                    tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
                     break;
                 }
                 tox_thread_message(tox, av, time, msg->msg, msg->param1, msg->param2, msg->data);
@@ -533,7 +570,7 @@ void toxcore_thread(void *UNUSED(args)) {
         tox_kill(tox);
     }
 
-    tox_thread_init = 0;
+    tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
     debug("Tox thread:\tClean exit!\n");
 }
 

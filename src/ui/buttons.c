@@ -50,29 +50,47 @@ void button_setcolors_disabled(BUTTON *b) {
 
 /* On-press functions followed by the update functions when needed... */
 static void button_avatar_on_mup(void) {
-    if (tox_thread_init) {
+    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         openfileavatar();
     }
 }
 
 static void button_name_on_mup(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled = false;
-    panel_settings_devices.disabled = true;
-    panel_settings_net.disabled     = true;
-    panel_settings_ui.disabled      = true;
-    panel_settings_av.disabled      = true;
-    edit_setfocus(&edit_name);
+    if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
+        // jump to the network settings when unable to create tox instance
+        panel_settings_profile.disabled = true;
+        panel_settings_devices.disabled = true;
+        panel_settings_net.disabled = false;
+        panel_settings_ui.disabled = true;
+        panel_settings_av.disabled = true;
+    } else {
+        panel_settings_profile.disabled = false;
+        panel_settings_devices.disabled = true;
+        panel_settings_net.disabled = true;
+        panel_settings_ui.disabled = true;
+        panel_settings_av.disabled = true;
+        edit_setfocus(&edit_name);
+    }
 }
 
 static void button_statusmsg_on_mup(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled = false;
-    panel_settings_devices.disabled = true;
-    panel_settings_net.disabled     = true;
-    panel_settings_ui.disabled      = true;
-    panel_settings_av.disabled      = true;
-    edit_setfocus(&edit_status);
+    if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
+        // jump to the network settings when unable to create tox instance
+        panel_settings_profile.disabled = true;
+        panel_settings_devices.disabled = true;
+        panel_settings_net.disabled = false;
+        panel_settings_ui.disabled = true;
+        panel_settings_av.disabled = true;
+    } else {
+        panel_settings_profile.disabled = false;
+        panel_settings_devices.disabled = true;
+        panel_settings_net.disabled = true;
+        panel_settings_ui.disabled = true;
+        panel_settings_av.disabled = true;
+        edit_setfocus(&edit_status);
+    }
 }
 
 static void button_status_on_mup(void) {
@@ -104,7 +122,7 @@ static void button_menu_update(BUTTON *b) {
 }
 
 static void button_add_new_contact_on_mup(void) {
-    if (tox_thread_init) {
+    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         /* Only change if we're logged in! */
         edit_setstr(&edit_add_id, (char *)edit_search.data, edit_search.length);
         edit_setstr(&edit_search, (char *)"", 0);
@@ -578,7 +596,7 @@ BUTTON button_export_chatlog = {
 extern SCROLLABLE scrollbar_settings;
 
 static void button_settings_on_mup(void) {
-    if (tox_thread_init) {
+    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         flist_selectsettings();
     }
 }

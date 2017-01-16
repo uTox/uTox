@@ -160,6 +160,7 @@ typedef enum {
 
     // Status strings
     STR_NOT_CONNECTED,
+    STR_NOT_CONNECTED_SETTINGS,
 
     // Setting strings
     STR_OTHERSETTINGS,
