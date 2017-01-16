@@ -3,8 +3,10 @@
 
 #include "messages.h"
 
-#include "av/utox_av.h"
-#include "ui/edit.h"
+#include "av/audio.h"
+// #include "ui/edit.h"
+
+typedef struct edit_change EDIT_CHANGE;
 
 #define MAX_GROUP_PEERS 256
 

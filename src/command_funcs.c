@@ -2,6 +2,7 @@
 
 #include "groups.h"
 #include "logging_native.h"
+#include "tox.h"
 #include "util.h"
 
 bool slash_send_file(void *object, char *filepath, int UNUSED(arg_length)) {

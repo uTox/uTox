@@ -1,7 +1,9 @@
 #include "main.h"
 
 #include "../flist.h"
+#include "../friend.h"
 #include "../logging_native.h"
+#include "../tox.h"
 
 typedef struct {
     IDropTarget dt;

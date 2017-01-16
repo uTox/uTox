@@ -3,6 +3,7 @@
 #include "flist.h"
 #include "inline_video.h"
 #include "main.h"
+#include "messages.h"
 #include "theme.h"
 
 #include "ui/buttons.h"

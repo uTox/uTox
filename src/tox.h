@@ -8,8 +8,6 @@ before the main thread receives the message for the old one?
 #ifndef UTOX_TOX_H
 #define UTOX_TOX_H
 
-#include <tox/tox.h>
-
 #include "main.h"
 
 typedef struct {

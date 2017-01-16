@@ -1,7 +1,10 @@
 #ifndef AVATAR_H
 #define AVATAR_H
 
-#include "main.h"
+#include <tox/tox.h>
+
+typedef struct native_image NATIVE_IMAGE;
+typedef struct avatar AVATAR;
 
 // TODO: remove?
 #define UTOX_AVATAR_MAX_DATA_LENGTH (64 * 1024) // NOTE: increasing this above 64k might cause

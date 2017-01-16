@@ -2,6 +2,7 @@
 
 #include "friend.h"
 #include "logging_native.h"
+#include "tox.h"
 #include "util.h"
 #include "utox.h"
 

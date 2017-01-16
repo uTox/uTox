@@ -2,16 +2,14 @@
 #define FRIEND_H
 
 #include "avatar.h"
-#include "dns.h"
-#include "file_transfers.h"
-#include "main.h"
-#include "main_native.h"
 #include "messages.h"
-#include "tox.h"
 
-#include "av/utox_av.h"
-#include "ui/edit.h"
-#include "ui/edits.h"
+#include "av/audio.h"
+
+#include <tox/tox.h>
+
+typedef struct edit_change EDIT_CHANGE;
+typedef struct file_transfer FILE_TRANSFER;
 
 typedef struct friend_meta_data {
     uint8_t version;
@@ -87,7 +85,7 @@ typedef struct utox_friend {
     uint16_t        file_transfers_outgoing_active_count;
 } FRIEND;
 
-typedef struct {
+typedef struct utox_friend_request {
     uint16_t length;
     uint8_t  id[TOX_FRIEND_ADDRESS_SIZE];
 

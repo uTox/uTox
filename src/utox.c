@@ -1,13 +1,18 @@
 #include "utox.h"
 
-#include "tox.h"
-#include "filesys.h"
-#include "friend.h"
-#include "flist.h"
 #include "commands.h"
+#include "dns.h"
+#include "file_transfers.h"
+#include "filesys.h"
+#include "flist.h"
+#include "friend.h"
+#include "groups.h"
 #include "logging_native.h"
+#include "tox.h"
 
+#include "av/utox_av.h"
 #include "ui/dropdowns.h"
+#include "ui/edit.h"
 #include "ui/tooltip.h"
 
 /** Translates status code to text then sends back to the user */

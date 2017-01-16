@@ -1,4 +1,9 @@
-#include "tox.h"
+#ifndef CHATLOG_H
+#define CHATLOG_H
+
+#include <tox/tox.h>
+
+#include <stdio.h>
 
 /**
  * Saves chat log for friend with id hex
@@ -37,3 +42,5 @@ void utox_export_chatlog_init(uint32_t friend_number);
  * Export the chat log to plain text
  */
 void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file);
+
+#endif

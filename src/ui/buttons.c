@@ -9,6 +9,9 @@
 #include "../groups.h"
 #include "../logging_native.h"
 #include "../theme.h"
+#include "../tox.h"
+#include "../av/utox_av.h"
+#include "../ui/edits.h"
 
 #ifdef UNITY
 #include "xlib/mmenu.h"

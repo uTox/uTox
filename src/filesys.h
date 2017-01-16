@@ -3,10 +3,7 @@
 
 #include <inttypes.h>
 
-#ifndef FILE_TRANSFER_DEFINED
-#define FILE_TRANSFER_DEFINED
 typedef struct file_transfer FILE_TRANSFER;
-#endif
 
 void file_save_inline(FILE_TRANSFER *file);
 

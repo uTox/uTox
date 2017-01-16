@@ -1,10 +1,15 @@
 #include "friend.h"
 
 #include "chatlog.h"
+#include "dns.h"
 #include "flist.h"
 #include "logging_native.h"
+#include "tox.h"
 #include "util.h"
 #include "utox.h"
+
+#include "av/utox_av.h"
+#include "ui/edits.h"
 
 FRIEND* get_friend(uint32_t friend_number){
     if (friend_number >= 128) {

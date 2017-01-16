@@ -18,17 +18,22 @@
 #include <time.h>
 #include <tox/tox.h>
 
+
 /**********************************************************
- *
  * uTox Versions and header information
- *
  *********************************************************/
 #include "branding.h"
 
+
 /**********************************************************
- *
+ * Forward-declares
+ *********************************************************/
+
+typedef struct avatar AVATAR;
+
+
+/**********************************************************
  * UI and Toxcore Limits
- *
  *********************************************************/
 
 #if TOX_VERSION_IS_API_COMPATIBLE(0, 1, 0)
@@ -277,8 +282,6 @@ enum {
     USER_STATUS_DO_NOT_DISTURB,
 };
 
-typedef struct avatar AVATAR;
-// me
 struct utox_self {
     uint8_t status;
     char    name[TOX_MAX_NAME_LENGTH];

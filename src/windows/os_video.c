@@ -2,6 +2,7 @@
 
 #include "../main.h"
 
+#include "../av/video.h"
 #include "../logging_native.h"
 #include "../util.h"
 

@@ -1,14 +1,14 @@
-// util.c
-
-#include <inttypes.h>
-#include <stdbool.h>
-
 #include "util.h"
 
 #include "flist.h"
 #include "logging_native.h"
+
 #include "ui/dropdowns.h"
+#include "ui/edits.h"
 #include "ui/switches.h"
+
+#include <inttypes.h>
+#include <stdbool.h>
 
 void *file_raw(char *path, uint32_t *size) {
     FILE *file;

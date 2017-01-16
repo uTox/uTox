@@ -2,6 +2,7 @@
 
 #include "../flist.h"
 #include "../theme.h"
+#include "../tox.h"
 
 static void switch_set_colors(UISWITCH *s) {
     if (s->switch_on) {

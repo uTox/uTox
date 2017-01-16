@@ -2,6 +2,7 @@
 #define UI_H
 
 #include "main.h"
+#include "main_native.h"
 #include "sized_string.h"
 
 #include "../langs/i18n_decls.h"

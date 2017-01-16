@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "../commands.h"
+#include "../file_transfers.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
@@ -12,6 +13,7 @@
 
 #include "../av/utox_av.h"
 #include "../ui/dropdowns.h"
+#include "../ui/edit.h"
 #include "../ui/svg.h"
 
 #include <windowsx.h>
@@ -46,7 +48,7 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
 void openfilesend(void) {
     char *filepath = calloc(10, UTOX_FILE_NAME_LENGTH); /* lets pick 10 as the number of files we want to work with. */
     if (filepath == NULL) {
-        debug("openfilesend:\t Could not allocate memory for path.\n");
+        debug_error("Windows:\t Could not allocate memory for path.\n");
         return;
     }
 

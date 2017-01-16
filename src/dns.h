@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-enum {
+typedef enum dns_state {
     ADDF_NONE,
     ADDF_SENT,
     ADDF_DISCOVER,
@@ -17,7 +17,7 @@ enum {
     ADDF_BADCHECKSUM,  // if bad checksum in address.
     ADDF_SETNEWNOSPAM, // if the friend was already there but the nospam was different.
     ADDF_NOMEM,        // if increasing the friend list size fails.
-};
+} DNS_STATE;
 
 void dns_request(char *name, size_t length);
 

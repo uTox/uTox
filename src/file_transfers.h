@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <tox/tox.h>
 
+typedef struct file_transfer FILE_TRANSFER;
+
 #define MAX_FILE_TRANSFERS 32
 
 typedef enum {
@@ -65,12 +67,6 @@ struct file_transfer {
     // Don't really want this to be void ... MSG_FILE is better, but dependency hell
     void *ui_data;
 };
-
-// TODO sort the headers and includes better so we can drop this #ifndef from here and main_native
-#ifndef FILE_TRANSFER_DEFINED
-#define FILE_TRANSFER_DEFINED
-typedef struct file_transfer FILE_TRANSFER;
-#endif
 
 void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
 

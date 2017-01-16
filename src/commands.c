@@ -4,6 +4,7 @@
 #include "flist.h"
 #include "logging_native.h"
 #include "util.h"
+#include "ui/edits.h"
 
 struct Command commands[MAX_NUM_CMDS] = {
     { "alias",    5, slash_alias     },

@@ -1,13 +1,15 @@
 #include "dropdowns.h"
 
+#include "edits.h"
 #include "switches.h"
 
-#include "../av/utox_av.h"
 #include "../flist.h"
+#include "../groups.h"
 #include "../logging_native.h"
 #include "../theme.h"
+#include "../tox.h"
 #include "../util.h"
-
+#include "../av/utox_av.h"
 
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
     DROP_ELEMENT *e      = &((DROP_ELEMENT *)dm->userdata)[i];

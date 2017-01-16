@@ -2,6 +2,7 @@
 
 #include "avatar.h"
 #include "commands.h"
+#include "dns.h"
 #include "file_transfers.h"
 #include "flist.h"
 #include "friend.h"
