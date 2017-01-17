@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+int font_small_lineheight, font_msg_lineheight;
+
 void drawtext(int x, int y, const char *str, uint16_t length);
 int drawtext_getwidth(int x, int y, const char *str, uint16_t length);
 void drawtextwidth(int x, int width, int y, const char *str, uint16_t length);

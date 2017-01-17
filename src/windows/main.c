@@ -13,6 +13,7 @@
 
 #include "../av/utox_av.h"
 #include "../ui/dropdowns.h"
+#include "../ui/draw.h"
 #include "../ui/edit.h"
 #include "../ui/svg.h"
 

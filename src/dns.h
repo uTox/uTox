@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-typedef enum dns_state {
+typedef enum {
     ADDF_NONE,
     ADDF_SENT,
     ADDF_DISCOVER,

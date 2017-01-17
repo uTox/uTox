@@ -202,7 +202,6 @@ SETTINGS settings;
 // add friend page
 uint8_t addfriend_status;
 
-int      font_small_lineheight, font_msg_lineheight;
 uint16_t video_width, video_height, max_video_width, max_video_height;
 char     proxy_address[256]; /* Magic Number inside toxcore */
 

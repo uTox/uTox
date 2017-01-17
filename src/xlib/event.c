@@ -2,26 +2,31 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
+#include "../tox.h"
 #include "../utox.h"
+
+#include "../av/utox_av.h"
+#include "../ui/edit.h"
 
 // Needed for enddraw. This should probably be changed.
 #include "../ui/draw.h"
 
 #include "keysym2ucs.h"
 
+#include <assert.h>
 #include <stddef.h>
 
 extern XIC xic;
 
 bool doevent(XEvent event) {
     if (XFilterEvent(&event, None)) {
-        return 1;
+        return true;
     }
 
     if (event.xany.window && event.xany.window != window) {
         if (event.xany.window == tray_window) {
             tray_window_event(event);
-            return 1;
+            return true;
         }
 
         if (event.type == ClientMessage) {
@@ -29,7 +34,7 @@ bool doevent(XEvent event) {
             if ((Atom)event.xclient.data.l[0] == wm_delete_window) {
                 if (ev->window == video_win[0]) {
                     postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
-                    return 1;
+                    return true;
                 }
 
                 int i;
@@ -40,13 +45,11 @@ bool doevent(XEvent event) {
                         break;
                     }
                 }
-                if (i == countof(friend)) {
-                    debug("this should not happen\n");
-                }
+                assert(i != countof(friend));
             }
         }
 
-        return 1;
+        return true;
     }
 
     switch (event.type) {
