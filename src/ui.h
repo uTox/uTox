@@ -1,7 +1,7 @@
 #ifndef UI_H
 #define UI_H
 
-#include "main.h"
+// #include "main.h"
 #include "main_native.h"
 #include "sized_string.h"
 
@@ -15,6 +15,17 @@
  * the size of. Either store the size before changing, or swap it -> run UTOX_STR_WIDTH() -> swap back. */
 #define UTOX_STR_WIDTH(x) (textwidth((ui_gettext(LANG, (STR_##x))->str), (ui_gettext(LANG, (STR_##x))->length)))
 #define SPTRFORLANG(l, x) (ui_gettext((l), (x)))
+
+enum {
+    FONT_TEXT,
+    FONT_TITLE,
+    FONT_SELF_NAME,
+    FONT_STATUS,
+    FONT_LIST_NAME,
+    FONT_MISC,
+
+    FONT_END,
+};
 
 typedef enum {
     PANEL_NONE,
@@ -99,6 +110,7 @@ bool panel_mleave(PANEL *p);
 
 char search_data[128];
 
+double ui_scale;
 
 #define SCALE(x) (((int)((ui_scale / 10.0) * ((double)x))) ?: 1)
 #define UI_FSCALE(x) (((ui_scale / 10.0) * ((double)x)) ?: 1)

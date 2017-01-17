@@ -10,10 +10,11 @@
 #include "dbus.h"
 #endif
 
+#include "freetype.h"
+
 #include "../main.h"
 
 #include "../ui/svg.h"
-#include "freetype.h"
 
 #include <X11/X.h>
 #include <X11/Xatom.h>

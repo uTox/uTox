@@ -10,6 +10,7 @@
 
 typedef struct edit_change EDIT_CHANGE;
 typedef struct file_transfer FILE_TRANSFER;
+typedef uint8_t *UTOX_IMAGE;
 
 typedef struct friend_meta_data {
     uint8_t version;
@@ -87,7 +88,7 @@ typedef struct utox_friend {
 
 typedef struct utox_friend_request {
     uint16_t length;
-    uint8_t  id[TOX_FRIEND_ADDRESS_SIZE];
+    uint8_t  id[TOX_ADDRESS_SIZE];
 
     char msg[0];
 } FRIENDREQ;

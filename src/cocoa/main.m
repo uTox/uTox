@@ -1,10 +1,13 @@
 #include "../commands.h"
 #include "../logging_native.h"
 #include "../theme.h"
+#include "../tox.h"
 #include "../ui.h"
-#include "../ui/dropdowns.h"
 #include "../util.h"
 #include "../utox.h"
+
+#include "../av/utox_av.h"
+#include "../ui/dropdowns.h"
 
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>

@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "../logging_native.h"
+#include "../main.h"
 #include "../ui/svg.h"
 
 void *bitmap[BM_ENDMARKER + 1];

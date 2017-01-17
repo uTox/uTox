@@ -28,4 +28,7 @@ void pushclip(int x, int y, int width, int height);
 void popclip(void);
 void enddraw(int x, int y, int width, int height);
 
+void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
+void loadalpha(int bm, void *data, int width, int height);
+
 #endif

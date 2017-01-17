@@ -181,9 +181,6 @@ uint8_t *utox_data_load_custom_theme(size_t *out) {
     return data;
 
 }
-bool utox_remove_file(const uint8_t *full_name, size_t length) {
-    return native_remove_file(full_name, length);
-}
 
 /* Shared function between all four platforms */
 void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,

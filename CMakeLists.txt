@@ -170,51 +170,27 @@ add_subdirectory(src/av)
 #######################################################################
 add_executable(utox ${GUI_TYPE}
     src/avatar.c
-    src/avatar.h
     src/chatlog.c
-    src/chatlog.h
     src/command_funcs.c
-    src/command_funcs.h
     src/commands.c
-    src/commands.h
     src/devices.c
-    src/devices.h
     src/dns.c
-    src/dns.h
     src/file_transfers.c
-    src/file_transfers.h
+    src/filesys.c
     src/flist.c
-    src/flist.h
     src/friend.c
-    src/friend.h
     src/groups.c
-    src/groups.h
     src/inline_video.c
-    src/inline_video.h
     src/logging.c
     src/main.c
-    src/main.h
-    src/main_native.h
     src/messages.c
-    src/messages.h
-    src/sized_string.h
-    src/stb_image.h
-    src/stb_image_write.h
     src/theme.c
-    src/theme.h
-    src/theme_tables.h
     src/tox.c
-    src/tox.h
-    src/utox.c
-    src/utox.h
     src/tox_callbacks.c
-    src/tox_callbacks.h
     src/ui.c
-    src/ui.h
     src/ui_i18n.c
-    src/ui_i18n.h
     src/util.c
-    src/util.h
+    src/utox.c
 
     ${WINDOWS_ICON}
     ${APPLE_ICON}

@@ -18,6 +18,8 @@
 #include <time.h>
 #include <tox/tox.h>
 
+#include "filesys.h"
+
 
 /**********************************************************
  * uTox Versions and header information
@@ -86,17 +88,9 @@ typedef struct avatar AVATAR;
 #define ENABLE_MULTIDEVICE 1
 #endif
 
-typedef enum UTOX_FILE_OPTS {
-    UTOX_FILE_OPTS_READ   = 1 << 0,
-    UTOX_FILE_OPTS_WRITE  = 1 << 1,
-    UTOX_FILE_OPTS_APPEND = 1 << 2,
-    UTOX_FILE_OPTS_MKDIR  = 1 << 3,
-    UTOX_FILE_OPTS_DELETE = 1 << 7,
-} UTOX_FILE_OPTS;
-
 /* House keeping for uTox save file. */
 #define UTOX_SAVE_VERSION 3
-typedef struct {
+typedef struct utox_save {
     uint8_t save_version;
     uint8_t scale;
     uint8_t enableipv6;
@@ -134,23 +128,6 @@ typedef struct {
     uint8_t  proxy_ip[];
 } UTOX_SAVE;
 
-#define LOGFILE_SAVE_VERSION 3
-typedef struct {
-    uint8_t log_version;
-
-    time_t time;
-    size_t author_length;
-    size_t msg_length;
-
-    uint8_t author : 1;
-    uint8_t receipt : 1;
-    uint8_t flags : 5;
-    uint8_t deleted : 1;
-
-    uint8_t msg_type;
-
-    uint8_t zeroes[2];
-} LOG_FILE_MSG_HEADER;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 
@@ -171,8 +148,6 @@ typedef enum {
 
 UTOX_TOX_THREAD_INIT tox_thread_init;
 
-
-double ui_scale;
 
 typedef struct utox_settings {
     // uTox versions settings
@@ -241,17 +216,6 @@ enum {
     CURSOR_ZOOM_OUT,
 };
 
-enum {
-    FONT_TEXT,
-    FONT_TITLE,
-    FONT_SELF_NAME,
-    FONT_STATUS,
-    FONT_LIST_NAME,
-    FONT_MISC,
-
-    FONT_END,
-};
-
 typedef enum {
     FILEDATA_OVERWRITE = 0,
     FILEDATA_APPEND    = 1,
@@ -315,21 +279,6 @@ uint8_t cursor;
 bool    mdown;
 
 /**
- * Takes a null-terminated utf8 filepath and creates it with permissions 0700
- * (in posix environments) if it doesn't already exist. In Windows environments
- * there are no security settings applied to the created folder.
- *
- * Returns a bool indicating if the path exists or not.
- */
-bool native_create_dir(const uint8_t *filepath);
-
-
-FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts);
-
-/** given a filename, native_remove_file will delete that file from the local config dir */
-bool native_remove_file(const uint8_t *name, size_t length);
-
-/**
  * Takes data and the size of data and writes it to the disk
  *
  * Returns a bool indicating whether a save is needed
@@ -367,10 +316,7 @@ UTOX_SAVE *utox_data_load_utox(void);
  */
 uint8_t *utox_data_load_custom_theme(size_t *out);
 
-/**
- * TODO DOCUMENTATION
- */
-bool utox_remove_file(const uint8_t *full_name, size_t length);
+
 
 /* TODO: sort everything below this line! */
 
@@ -392,8 +338,6 @@ void utox_init(void);
 // inserts/deletes a value into the registry to launch uTox after boot
 void launch_at_startup(int is_launch_at_startup);
 
-void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
-void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(bool video);
 void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object, bool is_group);
 void setscale(void);

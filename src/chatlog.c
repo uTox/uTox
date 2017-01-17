@@ -1,5 +1,6 @@
 #include "chatlog.h"
 
+#include "filesys.h"
 #include "logging_native.h"
 #include "messages.h"
 #include "util.h"
@@ -50,7 +51,7 @@ static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
     }
 
     LOG_FILE_MSG_HEADER header;
-    size_t              records_count = 0;
+    size_t records_count = 0;
 
     while (fread(&header, sizeof(header), 1, file) == 1) {
         fseeko(file, header.author_length + header.msg_length + 1, SEEK_CUR);

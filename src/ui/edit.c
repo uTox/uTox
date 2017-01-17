@@ -7,6 +7,9 @@
 #include "../theme.h"
 #include "../util.h"
 
+// FIXME: Required for UNUSED()
+#include "../main.h"
+
 static EDIT *active_edit;
 
 static struct {

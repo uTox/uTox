@@ -67,7 +67,7 @@ void openfilesend(void) {
         FRIEND *f = flist_get_selected()->data;
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, ofn.nFileOffset, filepath);
     } else {
-        debug("GetOpenFileName() failed\n");
+        debug_error("GetOpenFileName() failed\n");
     }
 
     SetCurrentDirectoryW(dir);
@@ -1080,7 +1080,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     };
     config_save(&d);
 
-    printf("uTox:\tClean exit.\n");
+    debug_info("uTox:\tClean exit.\n");
 
     return false;
 }

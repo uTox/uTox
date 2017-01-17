@@ -3,6 +3,7 @@
 #include "command_funcs.h"
 #include "flist.h"
 #include "logging_native.h"
+#include "main.h"
 #include "util.h"
 #include "ui/edits.h"
 
@@ -130,7 +131,9 @@ void do_tox_url(uint8_t *url_string, int len) {
                 break;
             }
 
-            default: { return; }
+            default: {
+                return;
+            }
         }
         a++;
     }

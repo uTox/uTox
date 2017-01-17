@@ -6,6 +6,9 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
+
+typedef struct utox_save UTOX_SAVE;
+
 /*todo: sprint_bytes */
 
 /* read a whole file from a path,

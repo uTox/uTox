@@ -5,6 +5,9 @@
 #include "sized_string.h"
 #include "util.h"
 
+// FIXME: Required for UNUSED()
+#include "main.h"
+
 #ifdef msgid
 #error "msgid is already defined"
 #endif

@@ -2,6 +2,7 @@
 
 #include "flist.h"
 #include "logging_native.h"
+#include "main.h"
 
 #include "ui/dropdowns.h"
 #include "ui/edits.h"

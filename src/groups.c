@@ -2,6 +2,7 @@
 
 #include "flist.h"
 #include "logging_native.h"
+#include "main.h"
 #include "util.h"
 
 #include "ui/edit.h"

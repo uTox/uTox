@@ -6,6 +6,9 @@
 #include "../ui.h"
 #include "../utox.h"
 
+// FIXME: Required for UNUSED()
+#include "../main.h"
+
 static TOOLTIP tooltip;
 
 #define TOOLTIP_WIDTH SCALE(24)

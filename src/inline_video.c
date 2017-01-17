@@ -17,6 +17,9 @@
 
 #include "av/utox_av.h"
 
+// FIXME: Required for UNUSED()
+#include "main.h"
+
 static UTOX_FRAME_PKG current_frame = { 0 };
 
 bool inline_set_frame(uint16_t w, uint16_t h, size_t size, void *img) {

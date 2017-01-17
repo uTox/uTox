@@ -32,4 +32,4 @@ set(WIN32 TRUE) # This is for cmake
 set(WIN64 TRUE) # This is for uTox lib dirs
 set(UNIX FALSE)
 
-
+set(ENABLE_ASAN OFF)

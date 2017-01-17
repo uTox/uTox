@@ -1,5 +1,3 @@
-// Enums
-/* uTox debug levels */
 #ifndef NATIVE_MAIN_H
 #define NATIVE_MAIN_H
 
@@ -13,10 +11,8 @@
 #include "xlib/main.h"
 #endif
 
-#ifndef FILE_TRANSFER_DEFINED
-#define FILE_TRANSFER_DEFINED
 typedef struct file_transfer FILE_TRANSFER;
-#endif
+
 
 void native_export_chatlog_init(uint32_t friend_number);
 

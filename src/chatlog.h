@@ -5,6 +5,26 @@
 
 #include <stdio.h>
 
+
+#define LOGFILE_SAVE_VERSION 3
+typedef struct {
+    uint8_t log_version;
+
+    time_t time;
+    size_t author_length;
+    size_t msg_length;
+
+    uint8_t author : 1;
+    uint8_t receipt : 1;
+    uint8_t flags : 5;
+    uint8_t deleted : 1;
+
+    uint8_t msg_type;
+
+    uint8_t zeroes[2];
+} LOG_FILE_MSG_HEADER;
+
+
 /**
  * Saves chat log for friend with id hex
  *
