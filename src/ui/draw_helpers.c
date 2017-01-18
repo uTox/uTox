@@ -11,6 +11,8 @@
 #include "../groups.h"
 #include "../theme.h"
 
+// FIXME: Required for UNUSED()
+#include "../main.h"
 
 void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
                        uint32_t targetheight) {

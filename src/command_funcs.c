@@ -5,6 +5,9 @@
 #include "tox.h"
 #include "util.h"
 
+// FIXME: Required for UNUSED()
+#include "main.h"
+
 bool slash_send_file(void *object, char *filepath, int UNUSED(arg_length)) {
     if (filepath) {
         FRIEND *f = object;

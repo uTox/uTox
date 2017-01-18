@@ -6,6 +6,9 @@
 #include "util.h"
 #include "utox.h"
 
+// FIXME: Required for UNUSED()
+#include "main.h"
+
 #define MAX_INLINE_FILESIZE (1024 * 1024 * 4)
 
 static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number) {

@@ -11,6 +11,9 @@
 #include "../util.h"
 #include "../utox.h"
 
+// FIXME: Required for UNUSED()
+#include "../main.h"
+
 bool hidden = false;
 
 uint32_t tray_width = 32, tray_height = 32;

@@ -11,6 +11,9 @@
 #include "../util.h"
 #include "../av/utox_av.h"
 
+// FIXME: Required for UNUSED()
+#include "../main.h"
+
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
     DROP_ELEMENT *e      = &((DROP_ELEMENT *)dm->userdata)[i];
     void *        handle = e->handle;

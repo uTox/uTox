@@ -9,6 +9,9 @@
 #include "../tox.h"
 #include "../util.h"
 
+// FIXME: Required for UNUSED()
+#include "../main.h"
+
 static char edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4],
     edit_add_self_device_data[TOX_FRIEND_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535],
     edit_search_data[127], edit_proxy_ip_data[256], edit_proxy_port_data[8], edit_profile_password_data[65535],

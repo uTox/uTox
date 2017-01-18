@@ -23,7 +23,10 @@
 extern bool unity_running;
 #endif
 
-/* I think these are pointers to the panel's they're named after. */
+// FIXME: Required for UNUSED()
+#include "main.h"
+
+/* I think these are pointers to the panels they're named after. */
 static ITEM item_add, item_settings, item_transfer;
 
 // full list of friends and group chats

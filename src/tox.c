@@ -24,7 +24,6 @@
 
 #include <tox/toxencryptsave.h>
 
-
 static bool save_needed = 1;
 
 enum {

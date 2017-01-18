@@ -5,6 +5,9 @@
 #include "../logging_native.h"
 #include "../tox.h"
 
+// FIXME: Required for UNUSED()
+#include "../main.h"
+
 typedef struct {
     IDropTarget dt;
     LONG ref;

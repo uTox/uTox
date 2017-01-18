@@ -10,6 +10,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+// FIXME: Required for UNUSED()
+#include "../main.h"
+
 #define LIBGTK_FILENAME "libgtk-3.so.0"
 
 #define GTK_FILE_CHOOSER_ACTION_OPEN 0
