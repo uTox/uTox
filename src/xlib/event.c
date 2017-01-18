@@ -1,3 +1,4 @@
+#include "main.h"
 
 #include "../flist.h"
 #include "../friend.h"
