@@ -3,6 +3,7 @@
 #include "logging_native.h"
 #include "main.h"
 #include "main_native.h"
+#include "ui.h"
 
 #include "theme_tables.h"
 
