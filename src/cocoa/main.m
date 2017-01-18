@@ -1,3 +1,5 @@
+#include "main.h"
+
 #include "../commands.h"
 #include "../logging_native.h"
 #include "../theme.h"
