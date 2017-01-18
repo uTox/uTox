@@ -3,7 +3,9 @@
 
 #include <tox/tox.h>
 
+#include <stddef.h>
 #include <stdio.h>
+#include <time.h>
 
 
 #define LOGFILE_SAVE_VERSION 3
