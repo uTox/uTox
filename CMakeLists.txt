@@ -189,6 +189,7 @@ add_executable(utox ${GUI_TYPE}
     src/tox_callbacks.c
     src/ui.c
     src/ui_i18n.c
+    src/updater.c
     src/util.c
     src/utox.c
 

@@ -9,6 +9,7 @@
 #include "logging_native.h"
 #include "theme.h"
 #include "util.h"
+#include "updater.h"
 
 #include <getopt.h>
 
@@ -17,18 +18,25 @@ SETTINGS settings = {
     // .last_version                // included here to match the full struct
     .show_splash = false,
 
-    .use_proxy      = false,
-    .force_proxy    = false,
-    .enable_udp     = true,
-    .enable_ipv6    = true,
-    .use_encryption = true,
+    // Low level settings (network, profile, portable-mode)
     // .portable_mode               // included here to match the full struct
 
-    .proxy_port = 0,
+    .save_encryption    = true,
 
+    .auto_update        = false,
+    .update_to_develop  = false,
+    .send_version       = false,
+
+    .force_proxy        = false,
+    .enable_udp         = true,
+    .enable_ipv6        = true,
+
+    .use_proxy          = false,
+    .proxy_port         = 0,
+
+    // User interface settings
     .close_to_tray          = false,
     .logging_enabled        = true,
-    .ringtone_enabled       = true,
     .audiofilter_enabled    = true,
     .start_in_tray          = false,
     .start_with_system      = false,
@@ -40,15 +48,21 @@ SETTINGS settings = {
     // .inline_video                // included here to match the full struct
     .use_long_time_msg      = true,
     .accept_inline_images   = true,
-    .status_notifications   = true,
 
+    // Notifications / Alerts
+    .ringtone_enabled       = true,
+    .status_notifications   = true,
     .group_notifications    = GNOTIFY_ALWAYS,
 
     .verbose = 1,
 
+    // .theme                       // included here to match the full struct
+
+    // OS interface settings
     .window_height        = 600,
     .window_width         = 800,
     .window_baseline      = 0,
+
     .window_maximized     = 0,
 };
 
@@ -314,6 +328,10 @@ void utox_init(void) {
     /* Called by the native main for every platform after loading utox setting, before showing/drawing any windows. */
     if (settings.curr_version != settings.last_version) {
         settings.show_splash = 1;
+    }
+
+    if (settings.auto_update) {
+        updater_check();
     }
 }
 

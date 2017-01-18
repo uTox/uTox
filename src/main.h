@@ -114,11 +114,11 @@ typedef struct utox_save {
 
     uint8_t theme;
 
-    uint8_t push_to_talk : 1;
-    uint8_t use_mini_flist : 1;
-    uint8_t group_notifications : 4;
+    uint8_t push_to_talk         : 1;
+    uint8_t use_mini_flist       : 1;
+    uint8_t group_notifications  : 4;
     uint8_t status_notifications : 1;
-    uint8_t zero : 1;
+    uint8_t auto_update          : 1;
 
     uint32_t utox_last_version; // I don't like this here either,
                                 // but I'm not ready to rewrite and update this struct yet.
@@ -155,19 +155,24 @@ typedef struct utox_settings {
     bool     show_splash;
 
     // Low level settings (network, profile, portable-mode)
-    bool use_proxy;
+    bool portable_mode;
+
+    bool save_encryption;
+
+    bool auto_update;
+    bool update_to_develop;
+    bool send_version;
+
     bool force_proxy;
     bool enable_udp;
     bool enable_ipv6;
-    bool use_encryption;
-    bool portable_mode;
 
+    bool use_proxy;
     uint16_t proxy_port;
 
     // User interface settings
     bool close_to_tray;
     bool logging_enabled;
-    bool ringtone_enabled;
     bool audiofilter_enabled;
     bool start_in_tray;
     bool start_with_system;
@@ -179,8 +184,10 @@ typedef struct utox_settings {
     bool inline_video;
     bool use_long_time_msg;
     bool accept_inline_images;
-    bool status_notifications;
 
+    // Notifications / Alerts
+    bool    ringtone_enabled;
+    bool    status_notifications;
     uint8_t group_notifications;
 
     uint8_t verbose;
