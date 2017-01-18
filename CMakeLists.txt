@@ -215,6 +215,7 @@ add_executable(utox ${GUI_TYPE}
     src/ui_i18n.h
     src/util.c
     src/util.h
+    src/updater.c
 
     ${WINDOWS_ICON}
     ${APPLE_ICON}

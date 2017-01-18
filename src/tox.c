@@ -244,7 +244,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
 }
 
 static int load_toxcore_save(struct Tox_Options *options) {
-    settings.use_encryption = 0;
+    settings.save_encryption = 0;
     size_t   raw_length;
     uint8_t *raw_data = utox_data_load_tox(&raw_length);
 
@@ -253,7 +253,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
         if (tox_is_data_encrypted(raw_data)) {
             size_t   cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
             uint8_t *clear_data       = calloc(1, cleartext_length);
-            settings.use_encryption   = 1;
+            settings.save_encryption   = 1;
             debug("Using encrypted data, trying password: ");
 
             UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);

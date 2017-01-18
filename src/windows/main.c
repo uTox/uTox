@@ -819,6 +819,32 @@ PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
     return argv;
 }
 
+static void auto_update(void) {
+    char path[MAX_PATH + 20];
+    int  len = GetModuleFileName(NULL, path, MAX_PATH);
+
+    /* Is the uTox exe named like the updater one. */
+    if (len > sizeof(UTOX_EXE)
+        && memcmp(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_EXE, sizeof(UTOX_EXE)) == 0)
+    {
+        memcpy(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_VERSION_FILE, sizeof(UTOX_VERSION_FILE));
+        FILE *fp = fopen(path, "rb");
+        if (fp) {
+            fclose(fp);
+            /* Updater is here. */
+            memcpy(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_UPDATER_EXE, sizeof(UTOX_UPDATER_EXE));
+            FILE *fp = fopen(path, "rb");
+            if (fp) {
+                fclose(fp);
+                CloseHandle(utox_mutex);
+                /* This is an updater build not being run by the updater. Run the updater and exit. */
+                ShellExecute(NULL, "open", path, cmd, NULL, SW_SHOW);
+                return false;
+            }
+        }
+    }
+}
+
 /** client main()
  *
  * Main thread
@@ -882,49 +908,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         launch_at_startup(0);
     }
 
-#ifdef UPDATER_BUILD
-#define UTOX_EXE "\\uTox.exe"
-#define UTOX_UPDATER_EXE "\\utox_runner.exe"
-#define UTOX_VERSION_FILE "\\version"
-
     if (!no_updater) {
-
-        char path[MAX_PATH + 20];
-        int  len = GetModuleFileName(NULL, path, MAX_PATH);
-
-        /* Is the uTox exe named like the updater one. */
-        if (len > sizeof(UTOX_EXE) && memcmp(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_EXE, sizeof(UTOX_EXE)) == 0) {
-            memcpy(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_VERSION_FILE, sizeof(UTOX_VERSION_FILE));
-            FILE *fp = fopen(path, "rb");
-            if (fp) {
-                fclose(fp);
-                /* Updater is here. */
-                memcpy(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_UPDATER_EXE, sizeof(UTOX_UPDATER_EXE));
-                FILE *fp = fopen(path, "rb");
-                if (fp) {
-                    fclose(fp);
-                    CloseHandle(utox_mutex);
-                    /* This is an updater build not being run by the updater. Run the updater and exit. */
-                    ShellExecute(NULL, "open", path, cmd, NULL, SW_SHOW);
-                    return false;
-                }
-            }
-        }
+        auto_update();
     }
-#endif
 
-#ifdef __WIN_LEGACY
-    debug("Legacy windows build\n");
-#else
-    debug("Normal windows build\n");
-#endif
+    #ifdef __WIN_LEGACY
+        debug("Legacy windows build\n");
+    #else
+        debug("Normal windows build\n");
+    #endif
 
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
 
-#ifdef GIT_VERSION
-    debug_notice("uTox version %s \n", GIT_VERSION);
-#endif
+    #ifdef GIT_VERSION
+        debug_notice("uTox version %s \n", GIT_VERSION);
+    #endif
 
     /* */
     MSG msg;
@@ -1020,7 +1019,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     thread(toxcore_thread, NULL);
 
     // wait for tox_thread init
-    while (!tox_thread_init && !settings.use_encryption) {
+    while (!tox_thread_init && !settings.save_encryption) {
         yieldcpu(1);
     }
 
