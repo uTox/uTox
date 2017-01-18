@@ -1,4 +1,4 @@
-#include <inttypes.h>
+#include "tox_callbacks.h"
 
 #include "file_transfers.h"
 #include "friend.h"
@@ -10,6 +10,8 @@
 #include "utox.h"
 
 #include "av/utox_av.h"
+
+#include <stdint.h>
 
 static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length,
                                     void *UNUSED(userdata)) {

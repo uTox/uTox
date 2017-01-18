@@ -1,14 +1,12 @@
-// layout_tree.h
-//
-// uTox user interface layout.
-
 #ifndef LAYOUT_TREE_H
 #define LAYOUT_TREE_H
+// uTox user interface layout.
 
 #include "buttons.h"
 #include "draw_helpers.h"
 #include "dropdowns.h"
 #include "edits.h"
+#include "scrollable.h"
 #include "switches.h"
 
 // clang-format off

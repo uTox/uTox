@@ -6,6 +6,7 @@
 #include "util.h"
 
 #include "ui/edit.h"
+#include "ui/scrollable.h"
 #include "av/utox_av.h"
 
 // FIXME: Required for UNUSED()

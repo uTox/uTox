@@ -1,6 +1,7 @@
 #include "switches.h"
 
 #include "../flist.h"
+#include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
 

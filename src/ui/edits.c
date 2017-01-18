@@ -1,6 +1,7 @@
 #include "edits.h"
 
 #include "buttons.h"
+#include "scrollable.h"
 
 #include "../commands.h"
 #include "../flist.h"

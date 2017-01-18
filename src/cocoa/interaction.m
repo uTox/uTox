@@ -5,6 +5,7 @@
 #include "../file_transfers.h"
 #include "../filesys.h"
 #include "../flist.h"
+#include "../friend.h"
 #include "../messages.h"
 #include "../tox.h"
 #include "../ui.h"

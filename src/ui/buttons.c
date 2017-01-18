@@ -1,6 +1,7 @@
 #include "buttons.h"
 
 #include "contextmenu.h"
+#include "scrollable.h"
 #include "svg.h"
 
 #include "../chatlog.h"
@@ -8,6 +9,7 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../logging_native.h"
+#include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../av/utox_av.h"

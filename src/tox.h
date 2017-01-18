@@ -8,7 +8,13 @@ before the main thread receives the message for the old one?
 #ifndef UTOX_TOX_H
 #define UTOX_TOX_H
 
-#include "main.h"
+#include <tox/tox.h>
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+typedef uint8_t *UTOX_IMAGE;
 
 typedef struct {
     uint8_t  msg;

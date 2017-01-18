@@ -2,14 +2,15 @@
 
 #include "buttons.h"
 #include "draw.h"
-#include "text.h"
 #include "svg.h"
+#include "text.h"
 
 #include "../dns.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
 #include "../theme.h"
+#include "../ui.h"
 
 // FIXME: Required for UNUSED()
 #include "../main.h"

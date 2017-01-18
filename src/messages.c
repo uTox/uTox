@@ -15,11 +15,12 @@
 #include "util.h"
 #include "utox.h"
 
+#include "ui/contextmenu.h"
 #include "ui/draw.h"
 #include "ui/edit.h"
+#include "ui/scrollable.h"
 #include "ui/svg.h"
 #include "ui/text.h"
-#include "ui/contextmenu.h"
 
 /** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;

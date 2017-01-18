@@ -5,6 +5,7 @@
 #include "filesys.h"
 #include "flist.h"
 #include "logging_native.h"
+#include "main.h"
 #include "main_native.h"
 #include "tox.h"
 #include "util.h"
@@ -12,6 +13,7 @@
 
 #include "av/utox_av.h"
 #include "ui/edits.h"
+#include "ui/scrollable.h"
 
 FRIEND* get_friend(uint32_t friend_number){
     if (friend_number >= 128) {

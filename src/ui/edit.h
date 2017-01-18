@@ -1,13 +1,15 @@
 #ifndef EDIT_H
 #define EDIT_H
 
-#include "scrollable.h"
+#include "../ui.h"
 /*todo: replace windows functions, multiline edits, add missing edit functions (ex: double click to select word)*/
+
+typedef struct scrollable SCROLLABLE;
 
 typedef struct edit_change {
     bool     remove, padding;
     uint16_t start, length;
-    char     data[0];
+    char     data[];
 } EDIT_CHANGE;
 
 typedef struct edit EDIT;

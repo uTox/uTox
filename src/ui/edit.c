@@ -2,6 +2,7 @@
 
 #include "contextmenu.h"
 #include "draw.h"
+#include "scrollable.h"
 #include "text.h"
 
 #include "../main_native.h"
