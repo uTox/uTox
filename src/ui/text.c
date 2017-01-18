@@ -5,6 +5,8 @@
 #include "../theme.h"
 #include "../util.h"
 
+#include <limits.h>
+
 static void text_draw_word_hl(int x, int y, const char *str, uint16_t length, int d, int h, int hlen,
                               uint16_t lineheight) {
     // Draw cursor
