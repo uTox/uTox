@@ -2,14 +2,17 @@
 
 #include "gtk.h"
 
-#include "../ui/draw.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../theme.h"
 #include "../logging_native.h"
-#include "../ui/dropdowns.h"
+#include "../theme.h"
+#include "../tox.h"
 #include "../util.h"
 #include "../utox.h"
+#include "../av/utox_av.h"
+#include "../ui/draw.h"
+#include "../ui/dropdowns.h"
+#include "../ui/edit.h"
 
 // FIXME: Required for UNUSED()
 #include "../main.h"
