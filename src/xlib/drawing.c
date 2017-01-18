@@ -1,5 +1,8 @@
+#include "main.h"
 #include "../util.h"
 #include "../ui/draw.h"
+
+#include <stdlib.h>
 
 void redraw(void) {
     _redraw = 1;
