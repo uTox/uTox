@@ -1,8 +1,6 @@
 #ifndef LOGGING_NATIVE_H
 #define LOGGING_NATIVE_H
 
-#include <stdio.h>
-
 /* uTox debug levels */
 enum {
     VERBOSITY_OFF,
