@@ -2,6 +2,7 @@
 
 #include "filesys.h"
 #include "logging_native.h"
+#include "main_native.h"
 #include "messages.h"
 #include "util.h"
 

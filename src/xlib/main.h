@@ -16,6 +16,7 @@
 
 #include "../ui/svg.h"
 
+// TODO: Remove the includes not needed. (E.g. stdio.h)
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -46,7 +47,6 @@
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-#define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
 #define KEY_BACK XK_BackSpace
 #define KEY_RETURN XK_Return

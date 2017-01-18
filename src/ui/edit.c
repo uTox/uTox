@@ -4,6 +4,7 @@
 #include "draw.h"
 #include "text.h"
 
+#include "../main_native.h"
 #include "../theme.h"
 #include "../util.h"
 

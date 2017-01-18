@@ -1,11 +1,13 @@
 #ifndef UI_H
 #define UI_H
 
-// #include "main.h"
-#include "main_native.h"
 #include "sized_string.h"
 
 #include "../langs/i18n_decls.h"
+
+#include <stdbool.h>
+
+typedef struct native_image NATIVE_IMAGE;
 
 #define DEFAULT_LANG LANG_EN
 #define S(x) (ui_gettext(LANG, (STR_##x))->str)
@@ -15,6 +17,24 @@
  * the size of. Either store the size before changing, or swap it -> run UTOX_STR_WIDTH() -> swap back. */
 #define UTOX_STR_WIDTH(x) (textwidth((ui_gettext(LANG, (STR_##x))->str), (ui_gettext(LANG, (STR_##x))->length)))
 #define SPTRFORLANG(l, x) (ui_gettext((l), (x)))
+
+
+// TODO: Create ui_native headers or something.
+// This is hard to read. I know. I'm sorry.
+// This is to stop a circular dependency between svg.c and xlib/main.h.
+#if defined __WIN32__
+// Windows supplies its own RGB function.
+#include <windows.h>
+#elif defined __ANDROID__
+#define RGB(r, g, b) ((r) | ((g) << 8) | ((b) << 16))
+#elif defined __OBJC__
+// xlib and cocoa use the same format for this, but I left both cases here
+// in case I want to use this #ifdef construct elsewhere.
+#define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
+#else
+#define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
+#endif
+
 
 enum {
     FONT_TEXT,

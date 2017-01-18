@@ -20,9 +20,6 @@
 #include "ui/text.h"
 #include "ui/contextmenu.h"
 
-// FIXME: Required for UNUSED()
-#include "main.h"
-
 /** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;
  *
