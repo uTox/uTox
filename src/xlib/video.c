@@ -1,6 +1,9 @@
+#include "main.h"
 #include "../logging_native.h"
 #include "../util.h"
 #include "../av/video.h"
+
+#include <stdio.h>
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     if (!video_win[id]) {
