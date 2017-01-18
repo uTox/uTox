@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "../commands.h"
+#include "../filesys.h"
 #include "../logging_native.h"
 #include "../theme.h"
 #include "../tox.h"

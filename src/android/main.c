@@ -1,4 +1,5 @@
 
+#include "../filesys.h"
 #include "../logging_native.h"
 
 #include <pthread.h>

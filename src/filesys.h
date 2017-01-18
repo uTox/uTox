@@ -7,6 +7,8 @@
 
 typedef struct file_transfer FILE_TRANSFER;
 
+#define UTOX_FILE_NAME_LENGTH 1024
+
 typedef enum UTOX_FILE_OPTS {
     UTOX_FILE_OPTS_READ   = 1 << 0,
     UTOX_FILE_OPTS_WRITE  = 1 << 1,

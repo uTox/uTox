@@ -2,6 +2,7 @@
 
 #include "../commands.h"
 #include "../file_transfers.h"
+#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"

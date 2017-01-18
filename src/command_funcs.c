@@ -1,5 +1,6 @@
 #include "command_funcs.h"
 
+#include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
 #include "tox.h"

@@ -1,15 +1,14 @@
 #include "util.h"
 
+#include "filesys.h"
 #include "flist.h"
+#include "friend.h"
 #include "logging_native.h"
 #include "main.h"
 
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
 #include "ui/switches.h"
-
-#include <inttypes.h>
-#include <stdbool.h>
 
 void *file_raw(char *path, uint32_t *size) {
     FILE *file;

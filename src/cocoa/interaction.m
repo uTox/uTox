@@ -3,14 +3,16 @@
 #include "../avatar.h"
 #include "../chatlog.h"
 #include "../file_transfers.h"
+#include "../filesys.h"
 #include "../flist.h"
 #include "../messages.h"
-#include "../av/utox_av.h"
 #include "../tox.h"
 #include "../ui.h"
-#include "../ui/edit.h"
 #include "../util.h"
 #include "../utox.h"
+
+#include "../av/utox_av.h"
+#include "../ui/edit.h"
 
 NSCursor *cursors[8];
 

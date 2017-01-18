@@ -4,6 +4,7 @@
 
 #include "../chatlog.h"
 #include "../file_transfers.h"
+#include "../filesys.h"
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../main.h"

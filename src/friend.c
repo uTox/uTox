@@ -2,6 +2,7 @@
 
 #include "chatlog.h"
 #include "dns.h"
+#include "filesys.h"
 #include "flist.h"
 #include "logging_native.h"
 #include "main_native.h"

@@ -4,6 +4,7 @@
 
 #include "../commands.h"
 #include "../flist.h"
+#include "../friend.h"
 #include "../groups.h"
 #include "../logging_native.h"
 #include "../tox.h"
