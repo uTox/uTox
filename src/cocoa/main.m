@@ -3,6 +3,7 @@
 #include "../commands.h"
 #include "../filesys.h"
 #include "../logging_native.h"
+#include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../ui.h"
