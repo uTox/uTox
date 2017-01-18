@@ -8,6 +8,7 @@
 #include "../utox.h"
 
 #include <dlfcn.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
