@@ -3,7 +3,6 @@
 
 #include "../langs/i18n_decls.h"
 #include "sized_string.h"
-#include "util.h"
 
 // FIXME: Required for UNUSED()
 #include "main.h"

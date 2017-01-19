@@ -9,7 +9,6 @@
 #include "../logging_native.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../util.h"
 #include "../av/utox_av.h"
 
 // FIXME: Required for UNUSED()

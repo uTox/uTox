@@ -6,7 +6,6 @@
 #include "../logging_native.h"
 #include "../tox.h"
 #include "../utox.h"
-#include "../util.h"
 
 // FIXME: Required for UNUSED()
 #include "../main.h"

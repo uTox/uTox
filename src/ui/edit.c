@@ -6,8 +6,8 @@
 #include "text.h"
 
 #include "../main_native.h"
+#include "../text.h"
 #include "../theme.h"
-#include "../util.h"
 
 // FIXME: Required for UNUSED()
 #include "../main.h"

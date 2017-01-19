@@ -121,4 +121,9 @@ void postmessage_toxcore(uint8_t msg, uint32_t param1, uint32_t param2, void *da
 
 void tox_settingschanged(void);
 
+/* convert tox id to string
+ *  notes: dest must be (TOX_FRIEND_ADDRESS_SIZE * 2) bytes large, src must be TOX_FRIEND_ADDRESS_SIZE bytes large
+ */
+void id_to_string(char *dest, uint8_t *src);
+
 #endif

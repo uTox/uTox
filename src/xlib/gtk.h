@@ -1,5 +1,3 @@
-#include "../util.h"
-
 void ugtk_openfilesend(void);
 
 void ugtk_openfileavatar(void);

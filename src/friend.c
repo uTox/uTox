@@ -7,8 +7,8 @@
 #include "logging_native.h"
 #include "main.h"
 #include "main_native.h"
+#include "text.h"
 #include "tox.h"
-#include "util.h"
 #include "utox.h"
 
 #include "av/utox_av.h"
@@ -21,6 +21,39 @@ FRIEND* get_friend(uint32_t friend_number){
     }
 
     return &friend[friend_number];
+}
+
+void utox_write_metadata(FRIEND *f) {
+    /* Create path */
+    uint8_t dest[UTOX_FILE_NAME_LENGTH];
+    snprintf((char *)dest, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+
+    FILE *file = native_get_file((uint8_t *)dest, NULL, UTOX_FILE_OPTS_WRITE);
+    if (file) {
+
+        FRIEND_META_DATA metadata;
+        memset(&metadata, 0, sizeof(metadata));
+        size_t total_size = sizeof(metadata);
+
+        metadata.version          = METADATA_VERSION;
+        metadata.ft_autoaccept    = f->ft_autoaccept;
+        metadata.skip_msg_logging = f->skip_msg_logging;
+
+        if (f->alias && f->alias_length) {
+            metadata.alias_length = f->alias_length;
+            total_size += metadata.alias_length;
+        }
+
+        uint8_t *data = calloc(1, total_size);
+        if (data) {
+            memcpy(data, &metadata, sizeof(metadata));
+            memcpy(data + sizeof(metadata), f->alias, metadata.alias_length);
+
+            fwrite(data, total_size, 1, file);
+            free(data);
+        }
+        fclose(file);
+    }
 }
 
 static void friend_meta_data_read(FRIEND *f) {
@@ -376,4 +409,41 @@ void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char
     } else {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_ONLINE, 0, NULL);
     }
+}
+
+bool string_to_id(uint8_t *w, char *a) {
+    uint8_t *end = w + TOX_FRIEND_ADDRESS_SIZE;
+    while (w != end) {
+        char c, v;
+
+        c = *a++;
+        if (c >= '0' && c <= '9') {
+            v = (c - '0') << 4;
+        } else if (c >= 'A' && c <= 'F') {
+            v = (c - 'A' + 10) << 4;
+        } else if (c >= 'a' && c <= 'f') {
+            v = (c - 'a' + 10) << 4;
+        } else {
+            return false;
+        }
+
+        c = *a++;
+        if (c >= '0' && c <= '9') {
+            v |= (c - '0');
+        } else if (c >= 'A' && c <= 'F') {
+            v |= (c - 'A' + 10);
+        } else if (c >= 'a' && c <= 'f') {
+            v |= (c - 'a' + 10);
+        } else {
+            return false;
+        }
+
+        *w++ = v;
+    }
+
+    return true;
+}
+
+void cid_to_string(char *dest, uint8_t *src) {
+    to_hex(dest, src, TOX_PUBLIC_KEY_SIZE);
 }

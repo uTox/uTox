@@ -133,4 +133,18 @@ FRIEND *find_friend_by_name(uint8_t *name);
 /* Notifies the user that a friend is online or offline */
 void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char *state);
 
+// Saves user meta data to disk
+void utox_write_metadata(FRIEND *f);
+
+/** convert string to tox id
+ *  on success: returns 1
+ *  on failure: returns 0
+ *  notes: dest must be TOX_FRIEND_ADDRESS_SIZE bytes large, some data may be written to dest even on failure
+ */
+bool string_to_id(uint8_t *dest, char *src);
+
+/* same as id_to_string(), but for TOX_PUBLIC_KEY_SIZE
+ */
+void cid_to_string(char *dest, uint8_t *src);
+
 #endif

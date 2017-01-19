@@ -1,5 +1,7 @@
 #include "main.h"
-#include "../util.h"
+
+#include "../text.h"
+
 #include "../ui/draw.h"
 
 #include <stdlib.h>

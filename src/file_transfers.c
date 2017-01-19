@@ -3,14 +3,20 @@
 #include "friend.h"
 #include "logging_native.h"
 #include "main_native.h"
+#include "text.h"
 #include "tox.h"
-#include "util.h"
 #include "utox.h"
 
 // FIXME: Required for UNUSED()
 #include "main.h"
 
 #define MAX_INLINE_FILESIZE (1024 * 1024 * 4)
+
+static void fid_to_string(char *dest, uint8_t *src);
+
+static void fid_to_string(char *dest, uint8_t *src) {
+    to_hex(dest, src, TOX_FILE_ID_LENGTH);
+}
 
 static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number) {
     FRIEND *f = get_friend(friend_number);

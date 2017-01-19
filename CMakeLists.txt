@@ -190,13 +190,13 @@ add_executable(utox ${GUI_TYPE}
     src/logging.c
     src/main.c
     src/messages.c
+    src/text.c
     src/theme.c
     src/tox.c
     src/tox_callbacks.c
     src/ui.c
     src/ui_i18n.c
     src/updater.c
-    src/util.c
     src/utox.c
 
     ${WINDOWS_ICON}

@@ -9,9 +9,9 @@
 #include "groups.h"
 #include "main.h"
 #include "logging_native.h"
+#include "text.h"
 #include "tox_bootstrap.h"
 #include "tox_callbacks.h"
-#include "util.h"
 #include "utox.h"
 
 #include "av/utox_av.h"
@@ -23,6 +23,8 @@
 #include "ui/tooltip.h"
 
 #include <tox/toxencryptsave.h>
+
+#include <stdint.h>
 
 static bool save_needed = 1;
 
@@ -1108,4 +1110,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             postmessage_utox(GROUP_AUDIO_END, param1, 0, NULL);
         }
     } // End of switch.
+}
+
+void id_to_string(char *dest, uint8_t *src) {
+    to_hex(dest, src, TOX_FRIEND_ADDRESS_SIZE);
 }
