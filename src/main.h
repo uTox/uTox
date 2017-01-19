@@ -118,12 +118,17 @@ typedef struct utox_save {
     uint8_t use_mini_flist       : 1;
     uint8_t group_notifications  : 4;
     uint8_t status_notifications : 1;
-    uint8_t auto_update          : 1;
+    uint8_t zero                 : 1;
 
     uint32_t utox_last_version; // I don't like this here either,
                                 // but I'm not ready to rewrite and update this struct yet.
 
-    uint16_t unused[29];
+    uint8_t auto_update         : 1;
+    uint8_t send_version        : 1;
+    uint8_t zero_2              : 6;
+    uint8_t zero_3              : 8;
+
+    uint16_t unused[28];
     uint8_t  proxy_ip[];
 } UTOX_SAVE;
 

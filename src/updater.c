@@ -43,11 +43,11 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
     struct addrinfo *root;
 
     if (getaddrinfo(host, "80", NULL, &root)) {
+        debug_error("Updater:\tNo host found at [%s]", host);
         return NULL;
     }
 
     int32_t sock = 0;
-
     for (struct addrinfo *info = root; info; info = info->ai_next) {
         if (info->ai_socktype && info->ai_socktype != SOCK_STREAM) {
             continue;
@@ -130,6 +130,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
 
             if (real_len + len > header_len) {
                 debug_error("Updater:\tCorrupt download, can't continue with update.\n");
+                free(buffer);
                 return NULL;
             }
 
@@ -142,10 +143,12 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
             }
             return data;
         }
-
         debug_error("Updater:\tbad download from host [%s]\n", host);
+        free(buffer);
+        return NULL;
     }
 
+    debug_error("Updater:\tGeneric error in updater. (This should never happen!)\n");
     return NULL;
 }
 
@@ -178,6 +181,7 @@ static uint32_t download_version(void) {
     uint8_t *raw = download("downloads.utox.io", "utox_version_stable", &len);
     if (!raw) {
         debug_error("Updater:\tDownload failed.\n");
+        return 0;
     }
 
     size_t msg_len = 0;
@@ -191,13 +195,14 @@ static uint32_t download_version(void) {
 
     if (msg_len < 8) {
         free(data);
-        return false;
+        return 0;
     }
 
     uint32_t v;
     memcpy(&v, data + 4, sizeof(v));
     uint32_t version = ntohl(v);
 
+    free(data);
     return version;
 }
 

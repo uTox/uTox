@@ -604,6 +604,7 @@ void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height
     }
 }
 
+// TODO refactor to match same order in main.h
 UTOX_SAVE *config_load(void) {
     UTOX_SAVE *save;
     save = utox_data_load_utox();
@@ -706,6 +707,7 @@ UTOX_SAVE *config_load(void) {
     return save;
 }
 
+// TODO refactor to match order in main.h
 void config_save(UTOX_SAVE *save_in) {
     UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + 256);
 
@@ -741,6 +743,9 @@ void config_save(UTOX_SAVE *save_in) {
     save->utox_last_version    = settings.curr_version;
     save->group_notifications  = settings.group_notifications;
     save->status_notifications = settings.status_notifications;
+
+    save->auto_update           = settings.auto_update;
+    save->send_version          = settings.send_version;
 
     memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */
 
