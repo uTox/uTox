@@ -714,19 +714,24 @@ int main(int argc, char *argv[]) {
     bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   no_updater;
+    bool   skip_updater, signal_updater;
 
 #ifdef HAVE_DBUS
     debug_info("Compiled with dbus support!\n");
 #endif
 
-    parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
+    parse_args(argc, argv,
+               &skip_updater,
+               &signal_updater,
+               &theme_was_set_on_argv,
+               &should_launch_at_startup,
+               &set_show_window);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         debug_notice("Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
 
-    if (no_updater == true) {
+    if (skip_updater == true) {
         debug_notice("Disabling the updater is not supported on this OS. Updates are managed by your distro's package "
                      "manager.\n");
     }

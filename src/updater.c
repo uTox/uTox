@@ -11,12 +11,17 @@
 #include <unistd.h>
 #include <string.h>
 
-// FIXME <winsock2.h> here, or write native wrappers?
+#include <sodium.h>
+
+#ifdef __WIN32__
+#include <ws2tcpip.h>
+#include <winsock2.h>
+#else
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
+#endif
 
-#include <sodium.h>
 
 static const uint8_t pk[crypto_sign_ed25519_PUBLICKEYBYTES] = {
     0x64, 0x3B, 0xF6, 0xEF, 0x40, 0xAF, 0x61, 0x94,

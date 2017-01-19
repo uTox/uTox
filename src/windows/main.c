@@ -823,30 +823,25 @@ PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
     return argv;
 }
 
-static void auto_update(void) {
+static bool auto_update(PSTR cmd) {
     char path[MAX_PATH + 20];
     int  len = GetModuleFileName(NULL, path, MAX_PATH);
 
     /* Is the uTox exe named like the updater one. */
-    if (len > sizeof(UTOX_EXE)
-        && memcmp(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_EXE, sizeof(UTOX_EXE)) == 0)
-    {
-        memcpy(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_VERSION_FILE, sizeof(UTOX_VERSION_FILE));
+    char *file = path + len - (sizeof("uTox.exe") - 1);
+    if (len > sizeof("uTox.exe")) {
+        memcpy(file, "uTox_updater.exe", sizeof("uTox_updater.exe"));
         FILE *fp = fopen(path, "rb");
         if (fp) {
+            char real_cmd[strlen(cmd) * 2];
+            snprintf(real_cmd, strlen(cmd) * 2, "%s %S %2x%2x%2x", cmd, "--version ", VER_MAJOR, VER_MINOR, VER_PATCH);
             fclose(fp);
-            /* Updater is here. */
-            memcpy(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_UPDATER_EXE, sizeof(UTOX_UPDATER_EXE));
-            FILE *fp = fopen(path, "rb");
-            if (fp) {
-                fclose(fp);
-                CloseHandle(utox_mutex);
-                /* This is an updater build not being run by the updater. Run the updater and exit. */
-                ShellExecute(NULL, "open", path, cmd, NULL, SW_SHOW);
-                return false;
-            }
+            /* This is an updater build not being run by the updater. Run the updater and exit. */
+            ShellExecute(NULL, "open", path, real_cmd, NULL, SW_SHOW);
+            return true;
         }
     }
+    return false;
 }
 
 /** client main()
@@ -889,9 +884,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   no_updater;
+    bool   skip_updater, signal_updater;
 
-    parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
+    parse_args(argc, argv, &skip_updater, &signal_updater, &theme_was_set_on_argv,
+               &should_launch_at_startup, &set_show_window );
 
     if (settings.portable_mode == true) {
         /* force the working directory if opened with portable command */
@@ -899,8 +895,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         char         path[MAX_PATH];
         int          len = GetModuleFileName(hModule, path, MAX_PATH);
         unsigned int i;
-        for (i = (len - 1); path[i] != '\\'; --i)
-            ;
+        for (i = (len - 1); path[i] != '\\'; --i);
         path[i] = 0; //!
         SetCurrentDirectory(path);
         strcpy(portable_mode_save_path, (char *)path);
@@ -912,8 +907,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         launch_at_startup(0);
     }
 
-    if (!no_updater) {
-        auto_update();
+    debug_error("skip updater\n");
+    if (!skip_updater) {
+        debug_error("don't skip updater\n");
+        if (auto_update(cmd)) {
+            CloseHandle(utox_mutex);
+            return 0;
+        }
     }
 
     #ifdef __WIN_LEGACY

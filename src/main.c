@@ -197,20 +197,37 @@ uint8_t *utox_data_load_custom_theme(size_t *out) {
 }
 
 /* Shared function between all four platforms */
-void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,
-                int8_t *set_show_window, bool *no_updater) {
+void parse_args(int argc, char *argv[],
+                bool *skip_updater,
+                bool *signal_updater,
+                bool *theme_was_set_on_argv,
+                int8_t *should_launch_at_startup,
+                int8_t *set_show_window
+                ) {
     // set default options
     settings.theme            = THEME_DEFAULT;
     settings.portable_mode    = false;
-    *theme_was_set_on_argv    = false;
-    *should_launch_at_startup = 0;
-    *set_show_window          = 0;
-    *no_updater               = false;
+    if (skip_updater) {
+        *skip_updater = false;
+    }
+    if (signal_updater) {
+        *signal_updater = false;
+    }
+    if (theme_was_set_on_argv) {
+        *theme_was_set_on_argv = false;
+    }
+    if (should_launch_at_startup) {
+        *should_launch_at_startup = 0;
+    }
+    if (set_show_window) {
+        *set_show_window = 0;
+    }
 
     static struct option long_options[] = {
-        { "theme", required_argument, NULL, 't' }, { "portable", no_argument, NULL, 'p' },
-        { "set", required_argument, NULL, 's' },   { "unset", required_argument, NULL, 'u' },
-        { "no-updater", no_argument, NULL, 'n' },  { "version", no_argument, NULL, 0 },
+        { "theme", required_argument, NULL, 't' },  { "portable", no_argument, NULL, 'p' },
+        { "set", required_argument, NULL, 's' },    { "unset", required_argument, NULL, 'u' },
+        { "skip-updater", no_argument, NULL, 'N' }, { "signal-updater", no_argument, NULL, 'S' },
+        { "version", no_argument, NULL, 0 },
         { "silent", no_argument, NULL, 1 },        { "verbose", no_argument, NULL, 'v' },
         { "help", no_argument, NULL, 'h' },        { 0, 0, 0, 0 }
     };
@@ -276,8 +293,16 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 break;
             }
 
-            case 'n': {
-                *no_updater = 1;
+            case 'N': {
+                if (skip_updater) {
+                    *skip_updater = true;
+                }
+                break;
+            }
+            case 'S': {
+                if (signal_updater) {
+                    *signal_updater = true;
+                }
                 break;
             }
 

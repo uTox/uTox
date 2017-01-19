@@ -693,9 +693,15 @@ static void android_main(struct android_app *state) {
     bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   no_updater;
+    bool   skip_updater, signal_updater;
 
-    parse_args(NULL, NULL, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
+    parse_args(NULL, NULL,
+               &skip_updater,
+               &signal_updater,
+               &theme_was_set_on_argv,
+               &should_launch_at_startup,
+               &set_show_window
+               );
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         debug("Start on boot not supported on this OS!\n");
@@ -705,7 +711,7 @@ static void android_main(struct android_app *state) {
         debug("Showing/hiding windows not supported on this OS!\n");
     }
 
-    if (no_updater == true) {
+    if (skip_updater == true) {
         debug("Disabling the updater is not supported on this OS.\n");
     }
 
