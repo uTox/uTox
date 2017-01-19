@@ -29,7 +29,7 @@ configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
 #
 #######################################################################
 
-set(CMAKE_C_STANDARD 99) # this requires at least cmake 3.1
+set(CMAKE_C_STANDARD 11) # this requires at least cmake 3.1
 
 include(CheckCCompilerFlag)
 
@@ -203,7 +203,7 @@ target_link_libraries(utox
         ${TOX_LIBS}   ${LIBRARIES}    sodium
         vpx           pthread         m )
 
-set_property(TARGET utox PROPERTY C_STANDARD 99)
+set_property(TARGET utox PROPERTY C_STANDARD 11)
 if(APPLE)
     install(TARGETS utox
         RUNTIME DESTINATION "bin"
