@@ -2,8 +2,9 @@
 
 #include "draw.h"
 #include "scrollable.h"
+
+#include "../text.h"
 #include "../theme.h"
-#include "../util.h"
 
 #include <limits.h>
 #include <string.h>

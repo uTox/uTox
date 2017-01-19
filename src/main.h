@@ -324,6 +324,10 @@ uint8_t *utox_data_load_tox(size_t *size);
  */
 UTOX_SAVE *utox_data_load_utox(void);
 
+// TODO: Documentation
+UTOX_SAVE *config_load(void);
+void config_save(UTOX_SAVE *save);
+
 /**
  * Loads a custom theme and sets out to the size of the data
  *

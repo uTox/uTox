@@ -8,8 +8,8 @@
 #include "../logging_native.h"
 #include "../main.h"
 #include "../theme.h"
+#include "../text.h"
 #include "../tox.h"
-#include "../util.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"

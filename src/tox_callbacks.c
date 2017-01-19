@@ -5,8 +5,8 @@
 #include "groups.h"
 #include "logging_native.h"
 #include "main.h"
+#include "text.h"
 #include "tox.h"
-#include "util.h"
 #include "utox.h"
 
 #include "av/utox_av.h"

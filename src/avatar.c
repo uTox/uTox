@@ -6,7 +6,6 @@
 #include "main.h"
 #include "main_native.h"
 #include "tox.h"
-#include "util.h"
 
 /* frees the image of an avatar, does nothing if image is NULL */
 static void avatar_free_image(AVATAR *avatar) {

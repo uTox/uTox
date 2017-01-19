@@ -10,9 +10,9 @@
 #include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
+#include "text.h"
 #include "theme.h"
 #include "tox.h"
-#include "util.h"
 #include "utox.h"
 
 #include "ui/contextmenu.h"

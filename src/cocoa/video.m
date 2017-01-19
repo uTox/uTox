@@ -5,7 +5,6 @@
 #include "../logging_native.h"
 #include "../main.h"
 #include "../tox.h"
-#include "../util.h"
 
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>

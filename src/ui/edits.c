@@ -8,8 +8,8 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../logging_native.h"
+#include "../text.h"
 #include "../tox.h"
-#include "../util.h"
 
 // FIXME: Required for UNUSED()
 #include "../main.h"

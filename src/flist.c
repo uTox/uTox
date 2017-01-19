@@ -6,8 +6,8 @@
 #include "groups.h"
 #include "logging_native.h"
 #include "theme.h"
+#include "text.h"
 #include "tox.h"
-#include "util.h"
 #include "utox.h"
 
 #include "ui/buttons.h"
