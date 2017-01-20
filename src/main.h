@@ -184,6 +184,7 @@ typedef struct utox_settings {
     uint8_t group_notifications;
 
     uint8_t verbose;
+    bool    testing_mode;
 
     uint32_t theme;
 

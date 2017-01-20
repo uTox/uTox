@@ -44,7 +44,8 @@ SETTINGS settings = {
 
     .group_notifications    = GNOTIFY_ALWAYS,
 
-    .verbose = 1,
+    .verbose                = 1,
+    .testing_mode           = true,
 
     .window_height        = 600,
     .window_width         = 800,
@@ -56,7 +57,7 @@ SETTINGS settings = {
  * if you need to localize them to a specific platform, move them from here, to each
  * src/<platform>/main.x and change from utox_ to native_ */
 bool utox_data_save_tox(uint8_t *data, size_t length) {
-    FILE *  fp     = native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *  fp     = native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
     if (fp == NULL) {
         debug("Can not open tox_save.tox to write to it.\n");
         return true;
@@ -194,11 +195,12 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
     *no_updater               = false;
 
     static struct option long_options[] = {
-        { "theme", required_argument, NULL, 't' }, { "portable", no_argument, NULL, 'p' },
-        { "set", required_argument, NULL, 's' },   { "unset", required_argument, NULL, 'u' },
-        { "no-updater", no_argument, NULL, 'n' },  { "version", no_argument, NULL, 0 },
-        { "silent", no_argument, NULL, 1 },        { "verbose", no_argument, NULL, 'v' },
-        { "help", no_argument, NULL, 'h' },        { 0, 0, 0, 0 }
+        { "theme", required_argument, NULL, 't' }, { "portable",  no_argument,       NULL, 'p' },
+        { "set", required_argument,   NULL, 's' }, { "unset",     required_argument, NULL, 'u' },
+        { "no-updater", no_argument,  NULL, 'n' }, { "version",   no_argument,       NULL, 0 },
+        { "silent", no_argument,      NULL, 1 },   { "verbose",   no_argument,       NULL, 'v' },
+        { "help", no_argument,        NULL, 'h' }, { "run-tests", no_argument,       NULL, 2 },
+        { 0, 0, 0, 0 }
     };
 
     int opt, long_index = 0;
@@ -278,6 +280,12 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
 
             case 1: {
                 settings.verbose = 0;
+                break;
+            }
+
+            case 2: {
+                debug_error("uTox Testing mode enabled\n");
+                settings.testing_mode = 1;
                 break;
             }
 

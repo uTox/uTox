@@ -344,6 +344,11 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             /* data: pointer to FRIENDREQ structure
              */
             flist_addfriendreq(data);
+            if (settings.testing_mode) {
+                FRIENDREQ *req = flist_get_selected()->data;
+                postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
+                panel_friend_request.disabled = true;
+            }
             redraw();
             break;
         }

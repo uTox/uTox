@@ -438,6 +438,8 @@ void toxcore_thread(void *UNUSED(args)) {
     bool   reconfig         = 1;
     int    toxcore_init_err = 0;
 
+    static size_t testing_iterations = 10000;
+
     while (reconfig) {
         reconfig = 0;
 
@@ -508,6 +510,17 @@ void toxcore_thread(void *UNUSED(args)) {
         while (1) {
             // Put toxcore to work
             tox_iterate(tox, NULL);
+
+            if (settings.testing_mode && testing_iterations) {
+                if (testing_iterations % 100 == 0) {
+                    debug("Toxcore:\tIterations remaining %lu\n", testing_iterations);
+                }
+                if (!--testing_iterations) {
+                    debug_error("Toxcore:\tTest count reached\n");
+                    debug_error("Toxcore:\tExiting...\n");
+                    postmessage_utox(FORCE_EXIT, 0, 0, NULL);
+                }
+            }
 
             // Check currents connection
             if (!!tox_self_get_connection_status(tox) != connected) {
