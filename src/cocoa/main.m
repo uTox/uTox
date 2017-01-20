@@ -61,6 +61,16 @@ void debug_notice(const char *fmt, ...) {
     va_end(l);
 }
 
+void debug_warning(const char *fmt, ...) {
+    if (utox_verbosity() < VERBOSITY_WARNING) {
+        return;
+    }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
 void debug_error(const char *fmt, ...) {
     if (utox_verbosity() < VERBOSITY_ERROR) {
         return;
