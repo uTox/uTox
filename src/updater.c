@@ -222,6 +222,11 @@ bool updater_check(void) {
         debug_warning("Updater:\tNew version of uTox available [%u.%u.%u]\n",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
         return true;
+    } else if (version == UTOX_VERSION_NUMBER) {
+        debug_warning("Updater:\tRunning the latest version of uTox [%u.%u.%u]\n",
+                      (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
+
     }
+
     return false;
 }
