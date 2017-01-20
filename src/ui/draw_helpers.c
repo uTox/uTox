@@ -493,7 +493,9 @@ void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heig
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(90), PROXY);
     drawtext(MAIN_LEFT + SCALE(264), y + SCALE(114), ":", 1);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(150), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(150), AUTO_UPDATE);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(180), PROFILE_PASSWORD);
 
 }
 

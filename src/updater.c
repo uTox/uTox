@@ -69,6 +69,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
         if (size >= 1024) {
             debug_error("Updater:\tOVERRUN DETECTED!\n");
             close(sock);
+            freeaddrinfo(root);
             return NULL;
         }
 
@@ -77,6 +78,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
             close(sock);
             continue;
         }
+        freeaddrinfo(root);
 
         uint8_t *data = NULL;
 
@@ -216,7 +218,7 @@ bool updater_check(void) {
     uint32_t version = download_version();
     debug_info("Updater:\tCurrent version %u, newest version version %u.\n", UTOX_VERSION_NUMBER, version);
 
-    if (version >= UTOX_VERSION_NUMBER) {
+    if (version > UTOX_VERSION_NUMBER) {
         debug_warning("Updater:\tNew version of uTox available [%u.%u.%u]\n",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
         return true;

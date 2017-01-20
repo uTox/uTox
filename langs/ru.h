@@ -241,8 +241,6 @@ msgstr("Профиль")
 msgid(DEVICES_BUTTON)
 msgstr("Устройства")
 
-msgid(NETWORK_BUTTON)
-msgstr("Сеть")
 
 msgid(USER_INTERFACE_BUTTON)
 msgstr("Интерфейс")

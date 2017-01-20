@@ -395,6 +395,7 @@ panel_main = {
                     (PANEL*)&dropdown_proxy,
                     (PANEL*)&switch_ipv6,
                     (PANEL*)&switch_udp,
+                    (PANEL*)&switch_auto_update,
                     (PANEL*)&button_show_password_settings,
                     &panel_profile_password_settings,
                     NULL,

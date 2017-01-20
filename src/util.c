@@ -642,6 +642,7 @@ UTOX_SAVE *config_load(void) {
     switch_save_chat_history.switch_on  = save->logging_enabled;
     switch_mini_contacts.switch_on      = save->use_mini_flist;
     switch_auto_startup.switch_on       = save->auto_startup;
+    switch_auto_update.switch_on        = save->auto_update;
 
     switch_close_to_tray.switch_on = save->close_to_tray;
     switch_start_in_tray.switch_on = save->start_in_tray;
@@ -699,9 +700,10 @@ UTOX_SAVE *config_load(void) {
     loaded_audio_out_device = save->audio_device_out;
     loaded_audio_in_device  = save->audio_device_in;
 
-    settings.auto_update        = save->auto_update;
-    settings.update_to_develop  = save->update_to_develop;
-    settings.send_version       = save->send_version;
+    settings.auto_update            = save->auto_update;
+    switch_auto_update.switch_on    = save->auto_update;
+    settings.update_to_develop      = save->update_to_develop;
+    settings.send_version           = save->send_version;
 
 
     if (save->push_to_talk) {

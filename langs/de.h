@@ -200,8 +200,6 @@ msgstr("Profil")
 msgid(DEVICES_BUTTON)
 msgstr("Geräte")
 
-msgid(NETWORK_BUTTON)
-msgstr("Netzwerk")
 
 msgid(USER_INTERFACE_BUTTON)
 msgstr("Benutzeroberfläche")
