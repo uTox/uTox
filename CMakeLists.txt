@@ -69,6 +69,12 @@ add_cflag("-fno-strict-aliasing")
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
 option(ENABLE_ASAN "Enable Address Sanitizer on debug builds" ON)
 if (ENABLE_ASAN)
+
+    message("")
+    message("  TIP: You may want to set the env variable  ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer  for ASAN to show nicer stack traces.")
+    message("       See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.")
+    message("")
+
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
