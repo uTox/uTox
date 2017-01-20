@@ -83,7 +83,7 @@ Visual *           visual;
 Pixmap             drawbuf;
 Picture            renderpic;
 Picture            colorpic;
-bool               hidden;
+extern bool        hidden;
 XRenderPictFormat *pictformat;
 
 /* Tray icon window */
@@ -91,7 +91,7 @@ Window   tray_window;
 Pixmap   trayicon_drawbuf;
 Picture  trayicon_renderpic;
 GC       trayicon_gc;
-uint32_t tray_width, tray_height;
+extern uint32_t tray_width, tray_height;
 
 Picture bitmap[BM_ENDMARKER];
 Cursor  cursors[8];

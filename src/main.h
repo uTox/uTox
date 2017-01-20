@@ -195,8 +195,7 @@ typedef struct utox_settings {
     bool    window_maximized;
 } SETTINGS;
 
-/* This might need to be volatile type... */
-SETTINGS settings;
+extern SETTINGS settings;
 
 // add friend page
 uint8_t addfriend_status;
