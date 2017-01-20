@@ -124,8 +124,9 @@ typedef struct utox_save {
                                 // but I'm not ready to rewrite and update this struct yet.
 
     uint8_t auto_update         : 1;
+    uint8_t update_to_develop   : 1;
     uint8_t send_version        : 1;
-    uint8_t zero_2              : 6;
+    uint8_t zero_2              : 5;
     uint8_t zero_3              : 8;
 
     uint16_t unused[28];

@@ -699,6 +699,10 @@ UTOX_SAVE *config_load(void) {
     loaded_audio_out_device = save->audio_device_out;
     loaded_audio_in_device  = save->audio_device_in;
 
+    settings.auto_update        = save->auto_update;
+    settings.update_to_develop  = save->update_to_develop;
+    settings.send_version       = save->send_version;
+
 
     if (save->push_to_talk) {
         init_ptt();
@@ -745,6 +749,7 @@ void config_save(UTOX_SAVE *save_in) {
     save->status_notifications = settings.status_notifications;
 
     save->auto_update           = settings.auto_update;
+    save->update_to_develop     = settings.update_to_develop;
     save->send_version          = settings.send_version;
 
     memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */

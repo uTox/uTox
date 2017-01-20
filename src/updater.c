@@ -5,7 +5,7 @@
 #include "branding.h"
 
 #include <stddef.h>
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -47,13 +47,12 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
         return NULL;
     }
 
-    int32_t sock = 0;
     for (struct addrinfo *info = root; info; info = info->ai_next) {
         if (info->ai_socktype && info->ai_socktype != SOCK_STREAM) {
             continue;
         }
 
-        sock = socket(info->ai_family, SOCK_STREAM, IPPROTO_TCP);
+        int32_t sock = socket(info->ai_family, SOCK_STREAM, IPPROTO_TCP);
         if (sock < 0) {
             debug_error("Updater:\tCan't get socket!\n");
             continue;
@@ -83,6 +82,10 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
 
         uint32_t len = 0, real_len = 0, header_len = 0;
         uint8_t *buffer = calloc(1, 0x10000);
+        if (!buffer) {
+            debug_error("Updater:\tUnable to malloc for the updater\n");
+            return NULL;
+        }
         bool have_header = false;
         while ((len = recv(sock, (char *)buffer, 0xffff, 0)) > 0) {
             if (!have_header) {
@@ -131,6 +134,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
             if (real_len + len > header_len) {
                 debug_error("Updater:\tCorrupt download, can't continue with update.\n");
                 free(buffer);
+                free(data);
                 return NULL;
             }
 
@@ -141,6 +145,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
             if (out_len) {
                 *out_len = real_len;
             }
+            free(buffer);
             return data;
         }
         debug_error("Updater:\tbad download from host [%s]\n", host);
