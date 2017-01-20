@@ -325,20 +325,21 @@ static int init_toxcore(Tox **tox) {
     if (save_status == -1) {
         /* Save file exist, couldn't decrypt, don't start a tox instance
         TODO: throw an error to the UI! */
-        panel_profile_password.disabled = 0;
-        panel_settings_master.disabled  = 1;
+        panel_profile_password.disabled = false;
+        panel_settings_master.disabled  = true;
         edit_setfocus(&edit_profile_password);
+        postmessage_utox(REDRAW, 0, 0, NULL);
         return -1;
     } else if (save_status == -2) {
         /* New profile! */
-        panel_profile_password.disabled = 1;
-        panel_settings_master.disabled  = 0;
+        panel_profile_password.disabled = true;
+        panel_settings_master.disabled  = false;
     } else {
-        panel_profile_password.disabled = 1;
+        panel_profile_password.disabled = true;
         if (settings.show_splash) {
-            panel_splash_page.disabled = 0;
+            panel_splash_page.disabled = false;
         } else {
-            panel_settings_master.disabled = 0;
+            panel_settings_master.disabled = false;
         }
         edit_resetfocus();
     }

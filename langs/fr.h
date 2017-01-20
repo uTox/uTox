@@ -329,7 +329,7 @@ msgstr("UDP :")
 msgid(WARNING)
 msgstr("Modifier les paramètres Réseau/Proxy vous déconnectera temporairement du réseau Tox")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Historique")
 
 msgid(AUDIONOTIFICATIONS)

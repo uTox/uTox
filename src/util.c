@@ -637,11 +637,11 @@ UTOX_SAVE *config_load(void) {
     dropdown_dpi.selected = dropdown_dpi.over = save->scale - 5;
     dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
 
-    switch_ipv6.switch_on          = save->enableipv6;
-    switch_udp.switch_on           = !save->disableudp;
-    switch_logging.switch_on       = save->logging_enabled;
-    switch_mini_contacts.switch_on = save->use_mini_flist;
-    switch_auto_startup.switch_on  = save->auto_startup;
+    switch_ipv6.switch_on               = save->enableipv6;
+    switch_udp.switch_on                = !save->disableudp;
+    switch_save_chat_history.switch_on  = save->logging_enabled;
+    switch_mini_contacts.switch_on      = save->use_mini_flist;
+    switch_auto_startup.switch_on       = save->auto_startup;
 
     switch_close_to_tray.switch_on = save->close_to_tray;
     switch_start_in_tray.switch_on = save->start_in_tray;

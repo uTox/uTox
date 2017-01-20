@@ -394,7 +394,7 @@ msgstr("Sieć")
 msgid(WARNING)
 msgstr("Zmiana ustawień sieci/proxy na chwilę rozłączy cię z siecią Tox")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Zapisuj historię")
 
 msgid(AUDIONOTIFICATIONS)

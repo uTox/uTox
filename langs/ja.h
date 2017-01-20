@@ -140,7 +140,7 @@ msgstr("プロキシ (SOCKS 5)")
 msgid(WARNING)
 msgstr("ネットワークやプロキシの設定を変えるとToxネットワークの接続が切断されます")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("ロギング")
 
 //TODO: Same as in English? Localize or remove.

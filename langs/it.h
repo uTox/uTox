@@ -160,7 +160,7 @@ msgstr("Rete")
 msgid(WARNING)
 msgstr("Cambiando le impostazioni della Rete o del Proxy, verrai temporaneamente disconnesso dalla rete Tox")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Salvare cronologia chat?")
 
 msgid(AUDIONOTIFICATIONS)

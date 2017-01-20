@@ -538,7 +538,7 @@ static void messages_draw_timestamp(int x, int y, const time_t *time) {
     uint16_t len;
     if (settings.use_long_time_msg) {
         len = snprintf(timestr, sizeof(timestr), "%.2u:%.2u:%.2u", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
-        x -= SCALE(8);
+        x -= SCALE(10);
     } else {
         len = snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
     }

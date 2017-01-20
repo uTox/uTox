@@ -331,7 +331,7 @@ msgstr("Netzwerk")
 msgid(WARNING)
 msgstr("Das Verändern von Netzwerk-/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk.")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Chatverläufe speichern")
 
 msgid(AUDIONOTIFICATIONS)

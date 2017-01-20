@@ -121,7 +121,7 @@ msgstr("Starpniekserveris (SOCKS 5)")
 msgid(WARNING)
 msgstr("Mainot starpniekservera iestatījumus, jūs tiksit īslaicīgi atvienots no Tox tīkla")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Žurnāli")
 
 msgid(IS_TYPING)

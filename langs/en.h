@@ -269,6 +269,11 @@ msgstr("User Interface")
 msgid(AUDIO_VIDEO_BUTTON)
 msgstr("Audio & Video")
 
+msgid(ADVANCED_BUTTON)
+msgstr("Advanced")
+
+msgid(NOTIFICATIONS_BUTTON)
+msgstr("Notifications")
 
 
 
@@ -433,8 +438,8 @@ msgstr("Proxy (SOCKS 5)")
 msgid(WARNING)
 msgstr("Changing Network/Proxy settings will temporarily disconnect you from the Tox network")
 
-msgid(LOGGING)
-msgstr("Logging")
+msgid(SAVE_CHAT_HISTORY)
+msgstr("Save Chat History")
 
 msgid(AUDIONOTIFICATIONS)
 msgstr("Enable Audible Notification (Ringtone)")

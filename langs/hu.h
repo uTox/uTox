@@ -139,7 +139,7 @@ msgstr("Proxy (SOCKS 5)")
 msgid(WARNING)
 msgstr("A hálózati-, vagy proxybeállítások megváltoztatása miatt Ön átmenetileg nem lesz elérhető a Tox hálózatán")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Naplózás")
 
 msgid(AUDIONOTIFICATIONS)

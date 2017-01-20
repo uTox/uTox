@@ -238,7 +238,7 @@ msgstr("代理 (SOCKS 5)")
 msgid(WARNING)
 msgstr("修改网络或代理设置将会暂时断开Tox的网络连接")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("保留记录")
 
 msgid(AUDIONOTIFICATIONS)

@@ -99,8 +99,7 @@ extern PANEL panel_root, panel_side_bar, panel_self, panel_quick_buttons, panel_
     panel_lower_buttons, panel_main, panel_chat, panel_group, panel_group_chat, panel_group_video, panel_group_settings,
     panel_friend, panel_friend_chat, panel_friend_video, panel_friend_settings, panel_friend_request, panel_overhead,
     panel_splash_page, panel_profile_password, panel_add_friend, panel_settings_master, panel_settings_subheader,
-    panel_settings_profile, panel_profile_password_settings, panel_settings_devices, panel_settings_net,
-    panel_settings_ui, panel_settings_av, messages_friend, messages_group;
+    panel_settings_profile, panel_profile_password_settings, panel_settings_devices, panel_settings_ui, panel_settings_av, panel_settings_notifications, panel_settings_adv, messages_friend, messages_group;
 
 /* draws an image in the style of an avatar at within rect (x,y,targetwidth,targetheight)
  * this means: resize the image while keeping proportion so that the dimension(width or height) that has the smallest
@@ -217,7 +216,7 @@ double ui_scale;
 #define LIST_BUTTON_Y SCALE(-26)
 #define MESSAGES_SPACING SCALE(4)
 #define MESSAGES_X SCALE(110)
-#define TIME_WIDTH SCALE(40)
+#define TIME_WIDTH SCALE(42)
 #define ACTUAL_TIME_WIDTH SCALE(32)
 #define NAME_OFFSET SCALE(14)
 
