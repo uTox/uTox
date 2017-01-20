@@ -1073,6 +1073,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
     if (!ft) {
         debug_error("FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
                     friend_number, file_number);
+        return -1;
     }
 
     snprintf((char *)ft->path, UTOX_FILE_NAME_LENGTH, "%s", filepath);
