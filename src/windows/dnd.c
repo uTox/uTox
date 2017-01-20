@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "../filesys.h"
+#include "../file_transfers.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
@@ -84,8 +85,8 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
         debug_info("%u files dropped\n", count);
 
         for(int i = 0; i < count; i++) {
-            debug_notice("WINDND:\tSending file number %i\n", i);
-            UTOX_MSG_FT *msg = calloc(count, sizeof(UTOX_MSG_FT));
+            debug_notice ("WINDND:\tSending file number %i\n", i);
+            UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
             if (!msg) {
                 debug_error("WINDND:\tUnable to alloc for UTOX_MSG_FT\n");
                 return 0;
@@ -95,6 +96,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
             if (!path) {
                 debug_error("WINDND:\tUnable to alloc for UTOX_MSG_FT\n");
                 return 0;
+                free(msg);
             }
 
             DragQueryFile(h, i, path, UTOX_FILE_NAME_LENGTH);
@@ -102,6 +104,8 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
             msg->file = fopen(path, "rb");
             if (!msg->file) {
                 debug_error("WINDND:\tUnable to read file %s\n", path);
+                free(msg);
+                free(path);
                 return 0;
             }
 
