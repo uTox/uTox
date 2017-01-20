@@ -207,7 +207,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
 
     ft->name_length = 0;
     uint8_t *p = ft->path + strlen((char *)ft->path);
-    while (*--p != '/' || *p == '\\') {
+    while (*--p != '/' || *p != '\\') {
         ++ft->name_length;
     }
     ++p;
@@ -883,7 +883,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
     const uint8_t *name;
     size_t name_length = 0;
     name = path + path_length;
-    while (*--name != '/' || *name == '\\') { // TODO remove widows style path support from uTox.
+    while (*--name != '/' || *name != '\\') { // TODO remove widows style path support from uTox.
         ++name_length;
     }
     ++name;
