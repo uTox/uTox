@@ -109,14 +109,6 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
                 return 0;
             }
 
-            // Convert windows paths to Unix style;
-            uint8_t *p = path;
-            while (*++p != 0) {
-                if (*p == '\\') {
-                    *p = '/';
-                }
-            }
-
             msg->name = path;
             postmessage_toxcore(TOX_FILE_SEND_NEW, ((FRIEND*)flist_get_selected()->data)->number, 0, msg);
             debug_info("WINDND:\tFile number %i sent!\n", i);
