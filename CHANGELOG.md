@@ -2,18 +2,95 @@
 
 ## [Unreleased](https://github.com/uTox/uTox/tree/HEAD)
 
-[Full Changelog](https://github.com/uTox/uTox/compare/v0.11.0...HEAD)
+[Full Changelog](https://github.com/uTox/uTox/compare/v0.11.1...HEAD)
+
+**Implemented enhancements:**
+
+- \[feature request\] Ability to change «nospam» part of ToxID from µTox UI. [\#406](https://github.com/uTox/uTox/issues/406)
+
+**Fixed bugs:**
+
+- filetransfer resume has UI errors [\#620](https://github.com/uTox/uTox/issues/620)
+- Segfault on any contact going offline \(current nightly, Linux\) [\#616](https://github.com/uTox/uTox/issues/616)
+- File transfers crash, 0.11.1 [\#601](https://github.com/uTox/uTox/issues/601)
+- Tox ID isn't displayed [\#592](https://github.com/uTox/uTox/issues/592)
+- time display is missing the last digit [\#581](https://github.com/uTox/uTox/issues/581)
+- UI glitch with password field [\#570](https://github.com/uTox/uTox/issues/570)
+- GUI freeze when I try to change network settings 0.9.7 [\#544](https://github.com/uTox/uTox/issues/544)
+- Problems in the Video Preview [\#251](https://github.com/uTox/uTox/issues/251)
 
 **Closed issues:**
 
+- segfault on exporting changelog [\#630](https://github.com/uTox/uTox/issues/630)
+- Linker warning, related to forward declares? [\#628](https://github.com/uTox/uTox/issues/628)
+- uTox is prevented from starting on windows with some McAffee thingy installed [\#621](https://github.com/uTox/uTox/issues/621)
+- uTox making random noises [\#585](https://github.com/uTox/uTox/issues/585)
+- chat history is lost after changing network settings [\#582](https://github.com/uTox/uTox/issues/582)
+- Wrong text when hovering on buttons [\#576](https://github.com/uTox/uTox/issues/576)
+- \[binaries\] Linux static x32 binary is not static and not x32 [\#567](https://github.com/uTox/uTox/issues/567)
+- Language selector shows multiple options for english [\#563](https://github.com/uTox/uTox/issues/563)
+- DPI and Can't Connect [\#459](https://github.com/uTox/uTox/issues/459)
+
+**Merged pull requests:**
+
+- Merge nospam into develop. \(Merge conflict with changes\) [\#635](https://github.com/uTox/uTox/pull/635) ([GrayHatter](https://github.com/GrayHatter))
+- Don't segv when exporting chat history [\#631](https://github.com/uTox/uTox/pull/631) ([GrayHatter](https://github.com/GrayHatter))
+- Change some variables over to being declared rather than defined in .h files. [\#629](https://github.com/uTox/uTox/pull/629) ([robinlinden](https://github.com/robinlinden))
+- Allow uTox to check for updates [\#627](https://github.com/uTox/uTox/pull/627) ([GrayHatter](https://github.com/GrayHatter))
+- Reduce and make includes explicit. [\#626](https://github.com/uTox/uTox/pull/626) ([robinlinden](https://github.com/robinlinden))
+- Build fixes for windows [\#624](https://github.com/uTox/uTox/pull/624) ([GrayHatter](https://github.com/GrayHatter))
+- WIP commit for fixing file sending on windows [\#622](https://github.com/uTox/uTox/pull/622) ([GrayHatter](https://github.com/GrayHatter))
+- Add .gitattribute file [\#619](https://github.com/uTox/uTox/pull/619) ([GrayHatter](https://github.com/GrayHatter))
+- WinXP support [\#618](https://github.com/uTox/uTox/pull/618) ([GrayHatter](https://github.com/GrayHatter))
+- separated out logging from main.h [\#617](https://github.com/uTox/uTox/pull/617) ([cebe](https://github.com/cebe))
+- Make UI less dependent on the rest of uTox. [\#610](https://github.com/uTox/uTox/pull/610) ([robinlinden](https://github.com/robinlinden))
+- Friend request improvements [\#608](https://github.com/uTox/uTox/pull/608) ([endoffile78](https://github.com/endoffile78))
+- Add sign-release.sh and checksum.sh [\#607](https://github.com/uTox/uTox/pull/607) ([endoffile78](https://github.com/endoffile78))
+- enable address sanitizer in cmake debug builds [\#606](https://github.com/uTox/uTox/pull/606) ([cebe](https://github.com/cebe))
+- port the add\_cflags makefile function from toxcore [\#605](https://github.com/uTox/uTox/pull/605) ([cebe](https://github.com/cebe))
+- Fix avatars, and mkdir for posix [\#604](https://github.com/uTox/uTox/pull/604) ([GrayHatter](https://github.com/GrayHatter))
+- Use find\_package to find X11 and Xrender [\#599](https://github.com/uTox/uTox/pull/599) ([endoffile78](https://github.com/endoffile78))
+- Fix defects detected by coverity [\#596](https://github.com/uTox/uTox/pull/596) ([endoffile78](https://github.com/endoffile78))
+- fix utox clobbering chatlogs [\#595](https://github.com/uTox/uTox/pull/595) ([GrayHatter](https://github.com/GrayHatter))
+- Delete .clang-format [\#594](https://github.com/uTox/uTox/pull/594) ([GrayHatter](https://github.com/GrayHatter))
+- configure version in one place [\#593](https://github.com/uTox/uTox/pull/593) ([cebe](https://github.com/cebe))
+- fixes build for linux [\#591](https://github.com/uTox/uTox/pull/591) ([cebe](https://github.com/cebe))
+- Refactor postmessages\(\) [\#590](https://github.com/uTox/uTox/pull/590) ([GrayHatter](https://github.com/GrayHatter))
+- Fix uTox not using the MAIN\_HEIGHT & WIDTH defines. [\#579](https://github.com/uTox/uTox/pull/579) ([robinlinden](https://github.com/robinlinden))
+- Apply irungentoo's fixes for the XP build and AUDIO\_FILTERING [\#578](https://github.com/uTox/uTox/pull/578) ([robinlinden](https://github.com/robinlinden))
+- Fix switches [\#577](https://github.com/uTox/uTox/pull/577) ([cebe](https://github.com/cebe))
+- Split CMakeLists.txt into multiple files [\#575](https://github.com/uTox/uTox/pull/575) ([endoffile78](https://github.com/endoffile78))
+- Fix friend notification sounds [\#573](https://github.com/uTox/uTox/pull/573) ([GrayHatter](https://github.com/GrayHatter))
+- Fixed Hanging GUI when changing network settings [\#569](https://github.com/uTox/uTox/pull/569) ([cebe](https://github.com/cebe))
+- Fix names of links to Linux/Posix builds. [\#568](https://github.com/uTox/uTox/pull/568) ([robinlinden](https://github.com/robinlinden))
+- Fix when and where we fflush. [\#566](https://github.com/uTox/uTox/pull/566) ([robinlinden](https://github.com/robinlinden))
+- Update BUILD.md [\#565](https://github.com/uTox/uTox/pull/565) ([cebe](https://github.com/cebe))
+- Fix language-selection dropdown having multiple English languages and none of others. [\#564](https://github.com/uTox/uTox/pull/564) ([robinlinden](https://github.com/robinlinden))
+
+## [v0.11.1](https://github.com/uTox/uTox/tree/v0.11.1) (2016-12-21)
+[Full Changelog](https://github.com/uTox/uTox/compare/v0.11.0...v0.11.1)
+
+**Closed issues:**
+
+- passing a null pointer for dereference, presumably not intentional [\#556](https://github.com/uTox/uTox/issues/556)
 - GPG signatures for source validation [\#502](https://github.com/uTox/uTox/issues/502)
 
 **Merged pull requests:**
 
+- Rename onpress to on\_mup [\#589](https://github.com/uTox/uTox/pull/589) ([GrayHatter](https://github.com/GrayHatter))
+- Hotfix: drop a bad attempt at secure erase [\#562](https://github.com/uTox/uTox/pull/562) ([GrayHatter](https://github.com/GrayHatter))
+- Hotfix: drop a bad attempt at secure erase [\#561](https://github.com/uTox/uTox/pull/561) ([GrayHatter](https://github.com/GrayHatter))
+- v0.11.1 to master [\#560](https://github.com/uTox/uTox/pull/560) ([GrayHatter](https://github.com/GrayHatter))
+- Write '\0' instead of 0 in ft\_decon\_resumeable [\#559](https://github.com/uTox/uTox/pull/559) ([robinlinden](https://github.com/robinlinden))
+- Updated changelog for 0.11.1 [\#557](https://github.com/uTox/uTox/pull/557) ([robinlinden](https://github.com/robinlinden))
 - Fix Windows native\_get\_file folder creation. [\#552](https://github.com/uTox/uTox/pull/552) ([robinlinden](https://github.com/robinlinden))
 - Move chatlog-related functions to their own file. [\#551](https://github.com/uTox/uTox/pull/551) ([robinlinden](https://github.com/robinlinden))
+- Update OS X plist to use the correct version number. [\#548](https://github.com/uTox/uTox/pull/548) ([robinlinden](https://github.com/robinlinden))
+- Update tools [\#547](https://github.com/uTox/uTox/pull/547) ([endoffile78](https://github.com/endoffile78))
 - Fix segv in ft\_find\_resumeable in file\_transfer.c on Windows [\#546](https://github.com/uTox/uTox/pull/546) ([robinlinden](https://github.com/robinlinden))
 - Force toxcore \>= v0.1 [\#542](https://github.com/uTox/uTox/pull/542) ([GrayHatter](https://github.com/GrayHatter))
+- Version tick [\#541](https://github.com/uTox/uTox/pull/541) ([endoffile78](https://github.com/endoffile78))
+- Add skel checklist for new versions [\#523](https://github.com/uTox/uTox/pull/523) ([GrayHatter](https://github.com/GrayHatter))
 
 ## [v0.11.0](https://github.com/uTox/uTox/tree/v0.11.0) (2016-12-13)
 [Full Changelog](https://github.com/uTox/uTox/compare/v0.9.8...v0.11.0)
@@ -71,6 +148,7 @@
 - Merge branch [\#519](https://github.com/uTox/uTox/pull/519) ([endoffile78](https://github.com/endoffile78))
 - Update BUILD.md [\#517](https://github.com/uTox/uTox/pull/517) ([cebe](https://github.com/cebe))
 - Update .gitignore [\#514](https://github.com/uTox/uTox/pull/514) ([endoffile78](https://github.com/endoffile78))
+- Add ability to change nospam [\#513](https://github.com/uTox/uTox/pull/513) ([endoffile78](https://github.com/endoffile78))
 - Add xlib native\_get\_file option to delete file. [\#512](https://github.com/uTox/uTox/pull/512) ([robinlinden](https://github.com/robinlinden))
 - Lots of native function things. [\#511](https://github.com/uTox/uTox/pull/511) ([robinlinden](https://github.com/robinlinden))
 - Avatar refactor [\#510](https://github.com/uTox/uTox/pull/510) ([robinlinden](https://github.com/robinlinden))
@@ -108,6 +186,7 @@
 - Friend list now responds to mup \(from mdown\) [\#455](https://github.com/uTox/uTox/pull/455) ([GrayHatter](https://github.com/GrayHatter))
 - On going Refactor [\#454](https://github.com/uTox/uTox/pull/454) ([GrayHatter](https://github.com/GrayHatter))
 - Updated russian translation [\#451](https://github.com/uTox/uTox/pull/451) ([katyo](https://github.com/katyo))
+- Updated changelog [\#447](https://github.com/uTox/uTox/pull/447) ([endoffile78](https://github.com/endoffile78))
 - .travis Fix travis builds to work with the new toktok/toxcore [\#446](https://github.com/uTox/uTox/pull/446) ([GrayHatter](https://github.com/GrayHatter))
 - Notify the user when a friend comes online and goes offline [\#444](https://github.com/uTox/uTox/pull/444) ([endoffile78](https://github.com/endoffile78))
 - Update the manual page [\#443](https://github.com/uTox/uTox/pull/443) ([tsudoko](https://github.com/tsudoko))
