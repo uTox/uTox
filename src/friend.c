@@ -185,9 +185,11 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     f->name[f->name_length] = 0;
 
     if (!f->alias_length) {
-        FRIEND *selected = flist_get_selected()->data;
-        if (selected && f->number == selected->number) {
-            maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
+        if (flist_get_selected()->item == ITEM_FRIEND) {
+            FRIEND *selected = flist_get_selected()->data;
+            if (selected && f->number == selected->number) {
+                maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
+            }
         }
     }
 

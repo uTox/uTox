@@ -1283,7 +1283,7 @@ bool messages_mdown(PANEL *panel) {
                 }
 
                 FRIEND *f = get_friend(m->id);
-                FILE_TRANSFER *ft = &(f->file_transfers_incoming[file->file_number]);
+                FILE_TRANSFER *ft = &(f->file_transfers_incoming[file->file_number]); // TODO, abstraction needed
 
                 if (file->file_status == FILE_TRANSFER_STATUS_COMPLETED) {
                     if (m->cursor_over_position) {
@@ -1303,12 +1303,12 @@ bool messages_mdown(PANEL *panel) {
                     }
 
                     if (file->file_status == FILE_TRANSFER_STATUS_ACTIVE) {
-                        postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->file_number, NULL);
+                        postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->file_number, ft);
                     } else {
-                        postmessage_toxcore(TOX_FILE_RESUME, m->id, file->file_number, NULL);
+                        postmessage_toxcore(TOX_FILE_RESUME, m->id, file->file_number, ft);
                     }
                 } else if (m->cursor_over_position == 1) { // Should be cancel
-                    postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
+                    postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, ft);
                 }
                 return true;
             }

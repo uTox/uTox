@@ -802,7 +802,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             if (param2 == 0) {
                 // This is the new default. Where the caller sends an opened file.
                 UTOX_MSG_FT *msg = data;
-                ft_send_file(tox, param1, msg->file, msg->name, strlen((char*)msg->name));
+                ft_send_file(tox, param1, msg->file, msg->name, strlen((char*)msg->name), NULL);
                 free(msg->name);
                 free(msg);
                 break;
@@ -829,9 +829,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * data: path to write file */
             if (utox_file_start_write(param1, param2, data) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
             break;
             free(data);
@@ -842,24 +842,33 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * data: path to write file */
             if (utox_file_start_write(param1, param2, data) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
             break;
             free(data);
         }
         case TOX_FILE_RESUME: {
             /*                              friend#, file# */
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+            if (data) {
+                param2 = ((FILE_TRANSFER*)data)->file_number;
+            }
+            ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             break;
         }
         case TOX_FILE_PAUSE: {
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
+            if (data) {
+                param2 = ((FILE_TRANSFER*)data)->file_number;
+            }
+            ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
             break;
         }
         case TOX_FILE_CANCEL: {
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+            if (data) {
+                param2 = ((FILE_TRANSFER*)data)->file_number;
+            }
+            ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             break;
         }
 
