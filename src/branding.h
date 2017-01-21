@@ -9,11 +9,11 @@
 #define SUB_TITLE "(Alpha)"
 
 // The updater relies on these version numbers, and values greater than an octet were never tested
-#define RELEASE_TITLE "GOLD MEMBERS"
-#define VERSION "0.11.1"
+#define RELEASE_TITLE "Make uTox Great Again"
+#define VERSION "0.12.0"
 #define VER_MAJOR 0
-#define VER_MINOR 11
-#define VER_PATCH 1
+#define VER_MINOR 12
+#define VER_PATCH 0
 #define UTOX_VERSION_NUMBER (VER_MAJOR << 16 | VER_MINOR << 8 | VER_PATCH)
 
 // Defaults
