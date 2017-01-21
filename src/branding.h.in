@@ -8,7 +8,7 @@
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
 
-#define RELEASE_TITLE "GOLD MEMBERS"
+#define RELEASE_TITLE "Make uTox Great Again"
 #define VERSION "@PROJECT_VERSION@"
 #define VER_MAJOR @PROJECT_VERSION_MAJOR@
 #define VER_MINOR @PROJECT_VERSION_MINOR@
