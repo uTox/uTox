@@ -427,8 +427,8 @@ void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
 void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(206), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(220), PROFILE_PW_NO_RECOVER);
+    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(230), PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(244), PROFILE_PW_NO_RECOVER);
 }
 
 void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
@@ -496,7 +496,6 @@ void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heig
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(150), AUTO_UPDATE);
 
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(180), PROFILE_PASSWORD);
-
 }
 
 
