@@ -121,10 +121,10 @@ static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
 }
 
 static bool ft_update_resumable(FILE_TRANSFER *ft) {
-    if (ft->resume_data) {
-        fseeko(ft->resume_data, SEEK_SET, 0);
-        if (fwrite(ft, 1, sizeof(FILE_TRANSFER), ft->resume_data) == sizeof(FILE_TRANSFER)) {
-            fflush(ft->resume_data);
+    if (ft->resume_file) {
+        fseeko(ft->resume_file, SEEK_SET, 0);
+        if (fwrite(ft, 1, sizeof(FILE_TRANSFER), ft->resume_file) == sizeof(FILE_TRANSFER)) {
+            fflush(ft->resume_file);
             return true;
         }
     }
@@ -141,8 +141,8 @@ static bool ft_init_resumable(FILE_TRANSFER *ft) {
         return false;
     }
 
-    ft->resume_data = native_get_file(name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
-    if (ft->resume_data) {
+    ft->resume_file = native_get_file(name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+    if (ft->resume_file) {
         debug("FileTransfer:\t.ftinfo for file %.*s set; ready to resume!\n", (uint32_t)ft->name_length, ft->name);
         return ft_update_resumable(ft);
     }
@@ -175,9 +175,9 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     }
 
     size_t size = 0;
-    FILE *resume_file = native_get_file((uint8_t *)resume_name, &size, UTOX_FILE_OPTS_READ);
+    FILE *resume_disk = native_get_file((uint8_t *)resume_name, &size, UTOX_FILE_OPTS_READ);
 
-    if (!resume_file) {
+    if (!resume_disk) {
         if (ft->incoming) {
             debug("FileTransfer:\tUnable to load saved info... uTox can't resume file %.*s\n",
                   (uint32_t)ft->name_length, ft->name);
@@ -188,23 +188,23 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
 
     if (size != sizeof(FILE_TRANSFER)) {
         debug_error("FileTransfer:\tUnable to resume this file, size mismatch\n");
-        fclose(resume_file);
+        fclose(resume_disk);
         return false;
     }
 
-    FILE_TRANSFER resume_data;
-    fread(&resume_data, 1, size, resume_file);
-    fclose(resume_file);
+    FILE_TRANSFER resume_file;
+    fread(&resume_file, 1, size, resume_disk);
+    fclose(resume_disk);
 
-    if (!resume_data.resumeable
-        || !resume_data.in_use
-        || resume_data.in_memory
-        || resume_data.avatar
-        || resume_data.inline_img) {
+    if (!resume_file.resumeable
+        || !resume_file.in_use
+        || resume_file.in_memory
+        || resume_file.avatar
+        || resume_file.inline_img) {
         return false;
     }
 
-    memcpy(ft, &resume_data, sizeof(FILE_TRANSFER));
+    memcpy(ft, &resume_file, sizeof(FILE_TRANSFER));
 
     ft->name_length = 0;
     uint8_t *p = ft->path + strlen((char *)ft->path);
@@ -218,7 +218,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     snprintf((char *)ft->name, ft->name_length + 1, "%s", p);
 
     ft->via.file = NULL;
-    ft->resume_data = NULL;
+    ft->resume_file = NULL;
     ft->ui_data = NULL;
 
     return true;
@@ -702,7 +702,6 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     if (ft_find_resumeable(ft)) {
         debug_notice("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
         FILE *   file = fopen((const char *)ft->path, "rb+");
-        uint64_t size = 0;
         if (file) {
             debug_info("FileTransfer:\tCool file exists, let try to restart it.\n");
             ft->in_use = 1;
@@ -725,6 +724,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                 ft->status = FILE_TRANSFER_STATUS_NONE;
                 ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
             }
+            ft->resumeable = ft_init_resumable(ft);
             return;
         }
         debug_error("FileTransfer:\tUnable to open file suggested by resume!\n");
@@ -735,6 +735,8 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     ft->file_number   = file_number;
 
     ft->target_size = size;
+
+    ft->resumeable = ft_init_resumable(ft);
 
     postmessage_utox(FILE_INCOMING_NEW, friend_number, file_number, ft);
     /* The file doesn't exist on disk where we expected, let's prompt the user to accept it as a new file */
@@ -916,10 +918,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
     snprintf((char *)ft->path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)path_length, path);
 
     ft->via.file = file;
-
-    if (!hash) {
-        tox_file_get_file_id(tox, friend_number, file_number, ft->data_hash, NULL);
-    }
+    tox_file_get_file_id(tox, friend_number, file_number, ft->data_hash, NULL);
     ft->resumeable = ft_init_resumable(ft);
 
     ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
