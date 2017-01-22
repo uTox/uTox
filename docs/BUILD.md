@@ -27,7 +27,7 @@ make install
 
 
 But if the hard way is more your thing, this might work:
-```clang -o utox *.c png/png.c -g -Wall -Wshadow -pthread -std=gnu99 `pkg-config --libs --cflags fontconfig freetype2 libtoxav libtoxcore openal vpx x11 xext xrender dbus-1 libv4lconvert filteraudio` -pthread -lm  -lresolv -ldl```
+```clang -o utox *.c png/png.c -g -Wall -Wshadow -pthread `pkg-config --libs --cflags fontconfig freetype2 libtoxav libtoxcore openal vpx x11 xext xrender dbus-1 libv4lconvert filteraudio` -pthread -lm  -lresolv -ldl```
 
 or if you built toxcore statically, less likely to work:
 

@@ -15,7 +15,7 @@ else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s ")
 endif()
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static -O3 -s -std=gnu99 -w -DAL_LIBTYPE_STATIC")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static -O3 -s -w -DAL_LIBTYPE_STATIC")
 
 # set(CMAKE_STATIC_LINKER_FLAGS "")
 

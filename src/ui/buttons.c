@@ -64,17 +64,19 @@ static void button_name_on_mup(void) {
     flist_selectsettings();
     if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
         // jump to the network settings when unable to create tox instance
-        panel_settings_profile.disabled = true;
-        panel_settings_devices.disabled = true;
-        panel_settings_net.disabled = false;
-        panel_settings_ui.disabled = true;
-        panel_settings_av.disabled = true;
+        panel_settings_adv.disabled             = false;
+        panel_settings_profile.disabled         = true;
+        panel_settings_devices.disabled         = true;
+        panel_settings_ui.disabled              = true;
+        panel_settings_av.disabled              = true;
+        panel_settings_notifications.disabled   = true;
     } else {
-        panel_settings_profile.disabled = false;
-        panel_settings_devices.disabled = true;
-        panel_settings_net.disabled = true;
-        panel_settings_ui.disabled = true;
-        panel_settings_av.disabled = true;
+        panel_settings_profile.disabled         = false;
+        panel_settings_devices.disabled         = true;
+        panel_settings_ui.disabled              = true;
+        panel_settings_av.disabled              = true;
+        panel_settings_adv.disabled             = true;
+        panel_settings_notifications.disabled   = true;
         edit_setfocus(&edit_name);
     }
 }
@@ -83,17 +85,19 @@ static void button_statusmsg_on_mup(void) {
     flist_selectsettings();
     if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
         // jump to the network settings when unable to create tox instance
-        panel_settings_profile.disabled = true;
-        panel_settings_devices.disabled = true;
-        panel_settings_net.disabled = false;
-        panel_settings_ui.disabled = true;
-        panel_settings_av.disabled = true;
+        panel_settings_profile.disabled         = true;
+        panel_settings_devices.disabled         = true;
+        panel_settings_ui.disabled              = true;
+        panel_settings_av.disabled              = true;
+        panel_settings_adv.disabled             = true;
+        panel_settings_notifications.disabled   = true;
     } else {
-        panel_settings_profile.disabled = false;
-        panel_settings_devices.disabled = true;
-        panel_settings_net.disabled = true;
-        panel_settings_ui.disabled = true;
-        panel_settings_av.disabled = true;
+        panel_settings_profile.disabled         = false;
+        panel_settings_devices.disabled         = true;
+        panel_settings_ui.disabled              = true;
+        panel_settings_av.disabled              = true;
+        panel_settings_adv.disabled             = true;
+        panel_settings_notifications.disabled   = true;
         edit_setfocus(&edit_status);
     }
 }
@@ -412,6 +416,8 @@ static void button_lock_uTox_on_mup(void) {
         panel_settings_master.disabled  = true;
         tox_settingschanged();
     }
+    button_show_password_settings.disabled = false;
+    button_show_password_settings.nodraw = false;
 }
 
 static void button_show_password_settings_on_mup(void) {
@@ -608,31 +614,24 @@ static void button_settings_on_mup(void) {
 
 static void disable_all_setting_sub(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled = true;
-    panel_settings_devices.disabled = true;
-    panel_settings_net.disabled     = true;
-    panel_settings_ui.disabled      = true;
-    panel_settings_av.disabled      = true;
+    panel_settings_profile.disabled         = true;
+    panel_settings_devices.disabled         = true;
+    panel_settings_ui.disabled              = true;
+    panel_settings_av.disabled              = true;
+    panel_settings_adv.disabled             = true;
+    panel_settings_notifications.disabled   = true;
 }
 
 static void button_settings_sub_profile_on_mup(void) {
     scrollbar_settings.content_height = SCALE(260);
     disable_all_setting_sub();
     panel_settings_profile.disabled = false;
-    button_show_password_settings.disabled = false;
-    button_show_password_settings.nodraw = false;
 }
 
 static void button_settings_sub_devices_on_mup(void) {
     scrollbar_settings.content_height = SCALE(260);
     disable_all_setting_sub();
     panel_settings_devices.disabled = false;
-}
-
-static void button_settings_sub_net_on_mup(void) {
-    scrollbar_settings.content_height = SCALE(180);
-    disable_all_setting_sub();
-    panel_settings_net.disabled = false;
 }
 
 static void button_settings_sub_ui_on_mup(void) {
@@ -642,9 +641,23 @@ static void button_settings_sub_ui_on_mup(void) {
 }
 
 static void button_settings_sub_av_on_mup(void) {
-    scrollbar_settings.content_height = SCALE(300);
+    scrollbar_settings.content_height = SCALE(350);
     disable_all_setting_sub();
     panel_settings_av.disabled = false;
+}
+
+static void button_settings_sub_adv_onpress(void) {
+    scrollbar_settings.content_height = SCALE(300);
+    disable_all_setting_sub();
+    panel_settings_adv.disabled = false;
+    button_show_password_settings.disabled = false;
+    button_show_password_settings.nodraw = false;
+}
+
+static void button_settings_sub_notifications_onpress(void){
+    scrollbar_settings.content_height = SCALE(300);
+    disable_all_setting_sub();
+    panel_settings_notifications.disabled = false;
 }
 
 static void button_bottommenu_update(BUTTON *b) {
@@ -691,12 +704,6 @@ BUTTON
         .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
     },
 
-    button_settings_sub_net = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_net_on_mup,
-        .tooltip_text = {.i18nal = STR_NETWORK_SETTINGS },
-    },
-
     button_settings_sub_ui = {
         .nodraw = true,
         .on_mup = button_settings_sub_ui_on_mup,
@@ -708,6 +715,19 @@ BUTTON
         .on_mup = button_settings_sub_av_on_mup,
         .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
     },
+
+    button_settings_sub_adv = {
+        .nodraw = true,
+        .on_mup = button_settings_sub_adv_onpress,
+        .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
+    },
+
+    button_settings_sub_notifications = {
+        .nodraw = true,
+        .on_mup = button_settings_sub_notifications_onpress,
+        .tooltip_text = {.i18nal = STR_NOTIFICATIONS_BUTTON },
+    },
+
 
     button_add_new_device_to_self = {
         .bm          = BM_SBUTTON,

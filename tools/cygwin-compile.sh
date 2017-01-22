@@ -104,18 +104,18 @@ rm utox.exe 2> /dev/null
 "$WINDOWS_TOOLCHAIN"-windres icons/icon.rc -O coff -o icon.o
 
 # Compile
-"$WINDOWS_TOOLCHAIN"-gcc -o utox.exe  "$COMP_OPTs"                       \
-    -I libs/toktok/include/                                              \
-    -DGIT_VERSION=\"$GIT_V\" -DAL_LIBTYPE_STATIC                         \
-    src/*.c src/ui/*.c src/av/*.c src/windows/*.c icon.o                 \
-    $LIBTOXCORE/lib/libtoxcore.a                                         \
-    $LIBTOXCORE/lib/libtoxav.a                                           \
-    $LIBTOXCORE/lib/libtoxdns.a                                          \
-    $LIBTOXCORE/lib/libtoxencryptsave.a                                  \
-    $LIBNACL/lib/libsodium.a             -I $LIBNACL/include/            \
-    $LIBVPX/lib/libvpx.a                 -I $LIBVPX/include/             \
-    $LIBOPUS/lib/libopus.a               -I $LIBOPUS/include/            \
-    $LIBOPENAL/lib/libOpenAL32.a         -I $LIBOPENAL/include/          \
-    $MINGW32_LIB_DIR/libwinpthread.a                                     \
-    -std=gnu99 -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 \
+"$WINDOWS_TOOLCHAIN"-gcc -o utox.exe  "$COMP_OPTs"                  \
+    -I libs/toktok/include/                                         \
+    -DGIT_VERSION=\"$GIT_V\" -DAL_LIBTYPE_STATIC                    \
+    src/*.c src/ui/*.c src/av/*.c src/windows/*.c icon.o            \
+    $LIBTOXCORE/lib/libtoxcore.a                                    \
+    $LIBTOXCORE/lib/libtoxav.a                                      \
+    $LIBTOXCORE/lib/libtoxdns.a                                     \
+    $LIBTOXCORE/lib/libtoxencryptsave.a                             \
+    $LIBNACL/lib/libsodium.a             -I $LIBNACL/include/       \
+    $LIBVPX/lib/libvpx.a                 -I $LIBVPX/include/        \
+    $LIBOPUS/lib/libopus.a               -I $LIBOPUS/include/       \
+    $LIBOPENAL/lib/libOpenAL32.a         -I $LIBOPENAL/include/     \
+    $MINGW32_LIB_DIR/libwinpthread.a                                \
+    -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32       \
     -Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 -lstrmiids

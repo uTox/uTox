@@ -139,7 +139,7 @@ msgstr("Netværk")
 msgid(WARNING)
 msgstr("Ændring af Netværk/Proxy indstillinger vil midlertidigt afbryde din forbindelse til Tox netværket")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Logger")
 
 msgid(AUDIONOTIFICATIONS)

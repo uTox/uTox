@@ -136,7 +136,7 @@ msgstr("Proxy (SOCKS 5)")
 msgid(WARNING)
 msgstr("Změna nastavení sítě/Proxy Vás dočasně odpojí od sítě Tox.")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Logování")
 
 msgid(IS_TYPING)

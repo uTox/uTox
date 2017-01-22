@@ -1,5 +1,5 @@
 // Återkommande ord:
-// Tox ID 
+// Tox ID
 // Vän
 // Begäran
 // Vänlista
@@ -150,7 +150,7 @@ msgstr("Proxy (SOCKS 5)")
 msgid(WARNING)
 msgstr("Om du ändrar Network/Proxy så kommer du att tillfälligt tappa din anslutning till Toxnätverket")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Loggning")
 
 msgid(AUDIONOTIFICATIONS)

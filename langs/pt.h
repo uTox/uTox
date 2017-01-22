@@ -157,7 +157,7 @@ msgstr("Proxy (SOCKS 5)")
 msgid(WARNING)
 msgstr("Alterar as configurações de Rede/Proxy irá temporariamente desconecta-lo da rede Tox")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Registos de Conversação")
 
 msgid(AUDIONOTIFICATIONS)

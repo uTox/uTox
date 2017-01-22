@@ -238,7 +238,7 @@ msgstr("Проксі (SOCKS 5)")
 msgid(WARNING)
 msgstr("Зміна налаштувань мережі або проксі-сервера потребує від'єднання від мережі Tox")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Зберігати історію чату")
 
 msgid(AUDIONOTIFICATIONS)

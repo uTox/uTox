@@ -142,7 +142,7 @@ msgstr("Internet")
 msgid(WARNING)
 msgstr("Schimbarea setărilor Network/Proxy te vor deconecta de la internetul Tox")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Logare")
 
 //TODO: Same as in English? Localize or remove.

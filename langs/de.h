@@ -200,8 +200,6 @@ msgstr("Profil")
 msgid(DEVICES_BUTTON)
 msgstr("Geräte")
 
-msgid(NETWORK_BUTTON)
-msgstr("Netzwerk")
 
 msgid(USER_INTERFACE_BUTTON)
 msgstr("Benutzeroberfläche")
@@ -331,7 +329,7 @@ msgstr("Netzwerk")
 msgid(WARNING)
 msgstr("Das Verändern von Netzwerk-/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk.")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Chatverläufe speichern")
 
 msgid(AUDIONOTIFICATIONS)

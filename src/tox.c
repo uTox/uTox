@@ -244,7 +244,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
 }
 
 static int load_toxcore_save(struct Tox_Options *options) {
-    settings.use_encryption = 0;
+    settings.save_encryption = 0;
     size_t   raw_length;
     uint8_t *raw_data = utox_data_load_tox(&raw_length);
 
@@ -253,7 +253,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
         if (tox_is_data_encrypted(raw_data)) {
             size_t   cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
             uint8_t *clear_data       = calloc(1, cleartext_length);
-            settings.use_encryption   = 1;
+            settings.save_encryption   = 1;
             debug("Using encrypted data, trying password: ");
 
             UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
@@ -325,20 +325,21 @@ static int init_toxcore(Tox **tox) {
     if (save_status == -1) {
         /* Save file exist, couldn't decrypt, don't start a tox instance
         TODO: throw an error to the UI! */
-        panel_profile_password.disabled = 0;
-        panel_settings_master.disabled  = 1;
+        panel_profile_password.disabled = false;
+        panel_settings_master.disabled  = true;
         edit_setfocus(&edit_profile_password);
+        postmessage_utox(REDRAW, 0, 0, NULL);
         return -1;
     } else if (save_status == -2) {
         /* New profile! */
-        panel_profile_password.disabled = 1;
-        panel_settings_master.disabled  = 0;
+        panel_profile_password.disabled = true;
+        panel_settings_master.disabled  = false;
     } else {
-        panel_profile_password.disabled = 1;
+        panel_profile_password.disabled = true;
         if (settings.show_splash) {
-            panel_splash_page.disabled = 0;
+            panel_splash_page.disabled = false;
         } else {
-            panel_settings_master.disabled = 0;
+            panel_settings_master.disabled = false;
         }
         edit_resetfocus();
     }
@@ -801,7 +802,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             if (param2 == 0) {
                 // This is the new default. Where the caller sends an opened file.
                 UTOX_MSG_FT *msg = data;
-                ft_send_file(tox, param1, msg->file, msg->name, strlen((char*)msg->name));
+                ft_send_file(tox, param1, msg->file, msg->name, strlen((char*)msg->name), NULL);
                 free(msg->name);
                 free(msg);
                 break;
@@ -828,9 +829,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * data: path to write file */
             if (utox_file_start_write(param1, param2, data) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
             break;
             free(data);
@@ -841,24 +842,33 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * data: path to write file */
             if (utox_file_start_write(param1, param2, data) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
             break;
             free(data);
         }
         case TOX_FILE_RESUME: {
             /*                              friend#, file# */
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+            if (data) {
+                param2 = ((FILE_TRANSFER*)data)->file_number;
+            }
+            ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             break;
         }
         case TOX_FILE_PAUSE: {
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
+            if (data) {
+                param2 = ((FILE_TRANSFER*)data)->file_number;
+            }
+            ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
             break;
         }
         case TOX_FILE_CANCEL: {
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+            if (data) {
+                param2 = ((FILE_TRANSFER*)data)->file_number;
+            }
+            ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             break;
         }
 

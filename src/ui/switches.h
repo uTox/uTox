@@ -4,7 +4,7 @@
 #include "switch.h"
 
 
-extern UISWITCH switch_logging,
+extern UISWITCH switch_save_chat_history,
                 switch_mini_contacts,
                 switch_ipv6,
                 switch_udp,
@@ -15,6 +15,7 @@ extern UISWITCH switch_logging,
                 switch_audible_notifications,
                 switch_push_to_talk,
                 switch_audio_filtering,
-                switch_status_notifications;
+                switch_status_notifications,
+                switch_auto_update;
 
 #endif

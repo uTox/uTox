@@ -72,29 +72,136 @@ bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
     };                                                                   \
     dropdown_##n.panel = d_##n
 
-void ui_set_scale(uint8_t scale) {
-    if (ui_scale == scale) {
-        return;
-    }
-
-    ui_scale = scale;
-    flist_re_scale();
-    setscale_fonts();
-    setfont(FONT_SELF_NAME);
-
-    /* DEFAULT positions */
+/***********************************************************************
+ *                                                                     *
+ * Panel layout size set functions.                                    *
+ *                                                                     *
+ **********************************************************************/
+static void sidepanel_USERBADGE(void) {
     panel_side_bar.x     = 0;
     panel_side_bar.y     = 0;
     panel_side_bar.width = SIDEBAR_WIDTH;
 
-    scrollbar_flist.panel.y      = ROSTER_TOP;
+    CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    CREATE_BUTTON(name, SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - SCALE(2));
+    CREATE_BUTTON(status_msg, SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_TOP,
+                  (SELF_STATUS_ICON_LEFT - SIDEBAR_STATUSMSG_LEFT - SCALE(2)), SIDEBAR_STATUSMSG_HEIGHT - SCALE(2));
+    CREATE_BUTTON(usr_state, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
+}
+
+static void sidepanel_FLIST(void) {
+    scrollbar_flist.panel.y      = 0;
     scrollbar_flist.panel.width  = MAIN_LEFT;
     scrollbar_flist.panel.height = ROSTER_BOTTOM;
+
 
     panel_flist.x      = 0;
     panel_flist.y      = ROSTER_TOP;
     panel_flist.width  = MAIN_LEFT;
     panel_flist.height = ROSTER_BOTTOM;
+
+
+    CREATE_BUTTON(filter_friends, SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_TOP, SIDEBAR_FILTER_FRIENDS_WIDTH,
+                  SIDEBAR_FILTER_FRIENDS_HEIGHT);
+
+    CREATE_EDIT(search, SIDEBAR_SEARCH_LEFT, SIDEBAR_SEARCH_TOP, SIDEBAR_SEARCH_WIDTH, SIDEBAR_SEARCH_HEIGHT);
+
+    CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
+    CREATE_BUTTON(add_new_contact, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
+    b_add_new_contact.disabled = true;
+}
+
+
+static void settings_PROFILE(void) {
+    panel_settings_profile.y       = SCALE(32);
+
+    CREATE_EDIT(name, SCALE(10), SCALE(27), SCALE(-10), SCALE(24));
+
+    CREATE_EDIT(status, SCALE(10), SCALE(76), SCALE(-10), SCALE(24));
+
+    CREATE_EDIT(toxid, SCALE(10), SCALE(126), SCALE(-10), SCALE(24));
+    CREATE_BUTTON(copyid, SCALE(66), SCALE(106), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+
+    CREATE_DROPDOWN(language, SCALE(10), SCALE(177), SCALE(24), SCALE(-10));
+}
+
+static void settings_UI(void) {
+    panel_settings_ui.y            = SCALE(32);
+
+    CREATE_DROPDOWN(theme, SCALE(10), SCALE(30), SCALE(24), SCALE(120));
+    CREATE_DROPDOWN(dpi,   SCALE(150), SCALE(30), SCALE(24), SCALE(200));
+
+    CREATE_SWITCH(save_chat_history, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(close_to_tray,     SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(start_in_tray,     SCALE(-10) - BM_SWITCH_WIDTH, SCALE(120), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(auto_startup,      SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(mini_contacts,     SCALE(-10) - BM_SWITCH_WIDTH, SCALE(180), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+}
+
+static void settings_AV(void) {
+    panel_settings_av.y            = SCALE(32);
+
+    CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(5), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+
+    #ifndef AUDIO_FILTERING
+        const uint16_t start_draw_y = 30;
+        const uint16_t preview_button_pos_y = 245;
+    #else
+        const uint16_t start_draw_y = 60;
+        const uint16_t preview_button_pos_y = 275;
+        CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(35), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    #endif
+
+
+    const uint16_t draw_y_vect = 30;
+    CREATE_DROPDOWN(audio_in,  SCALE(10), SCALE(start_draw_y + draw_y_vect), SCALE(24), SCALE(360));
+    CREATE_DROPDOWN(audio_out, SCALE(10), SCALE(start_draw_y + draw_y_vect + 60), SCALE(24), SCALE(360));
+    CREATE_DROPDOWN(video,     SCALE(10), SCALE(start_draw_y + draw_y_vect + 120), SCALE(24), SCALE(360));
+
+    CREATE_BUTTON(callpreview, SCALE(10), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(videopreview, SCALE(70), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+}
+
+
+static void settings_NOTIFY(void) {
+    panel_settings_notifications.y = SCALE(32);
+
+    CREATE_SWITCH(audible_notifications,        SCALE(-10) - BM_SWITCH_WIDTH, SCALE( 10), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(status_notifications,         SCALE(-10) - BM_SWITCH_WIDTH, SCALE( 40), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(typing_notes,                 SCALE(-10) - BM_SWITCH_WIDTH, SCALE( 70), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_DROPDOWN(global_group_notifications, SCALE( 10),                   SCALE(120),       SCALE(24),       SCALE(100));
+}
+
+static void settings_ADV(void) {
+    panel_settings_adv.y = SCALE(32);
+
+    CREATE_SWITCH(ipv6, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(udp,  SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+
+    CREATE_DROPDOWN(proxy,  SCALE(10), SCALE(110), SCALE(24), SCALE(120));
+    CREATE_EDIT(proxy_ip,   SCALE(140), SCALE(110), SCALE(120), SCALE(24));
+    CREATE_EDIT(proxy_port, SCALE(270), SCALE(110), SCALE(60), SCALE(24));
+
+    CREATE_SWITCH(auto_update, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+
+    CREATE_BUTTON(show_password_settings, SCALE(140), SCALE(180), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_EDIT(profile_password,         SCALE(10),  SCALE(88) + (SCALE(115) * panel_profile_password.disabled), SCALE(-10), SCALE(24));
+    CREATE_BUTTON(lock_uTox,              SCALE(10),  SCALE(235), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+}
+
+
+void ui_set_scale(uint8_t scale) {
+    if (scale >= 6 && scale <= 26) {
+        ui_scale = scale;
+    } else if (scale != 0) {
+        return ui_set_scale(10);
+    }
+
+    flist_re_scale();
+    setscale_fonts();
+    setfont(FONT_SELF_NAME);
+
+    /* DEFAULT positions */
 
     panel_main.x = MAIN_LEFT;
     panel_main.y = 0;
@@ -102,12 +209,9 @@ void ui_set_scale(uint8_t scale) {
     scrollbar_settings.panel.y        = SCALE(32);  /* TODO magic numbers are bad */
     scrollbar_settings.content_height = SCALE(300); /* TODO magic numbers are bad */
 
-    panel_settings_master.y  = MAIN_TOP_FRAME_THIN;
-    panel_settings_profile.y = SCALE(32);
-    panel_settings_devices.y = SCALE(32);
-    panel_settings_net.y     = SCALE(32);
-    panel_settings_ui.y      = SCALE(32);
-    panel_settings_av.y      = SCALE(32);
+    panel_settings_master.y        = MAIN_TOP_FRAME_THIN;
+    panel_settings_devices.y       = SCALE(32);
+    panel_settings_adv.y           = SCALE(32);
 
     scrollbar_friend.panel.y      = MAIN_TOP;
     scrollbar_friend.panel.height = CHAT_BOX_TOP;
@@ -123,68 +227,36 @@ void ui_set_scale(uint8_t scale) {
 
     setfont(FONT_SELF_NAME);
 
-    /* TODO MOVE THIS */
+    sidepanel_USERBADGE();
+    sidepanel_FLIST();
 
-    // User Interface tab
-
-    CREATE_SWITCH(logging, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(close_to_tray, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(start_in_tray, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(120), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(auto_startup, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(typing_notes, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(180), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(mini_contacts, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(210), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    settings_PROFILE();
+    settings_UI();
+    settings_AV();
+    settings_NOTIFY();
+    settings_ADV();
 
 
-    // Network tab
-    CREATE_SWITCH(ipv6, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(udp, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-
-
-    // Audio & Video tab
-    CREATE_SWITCH(audible_notifications, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(0), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(status_notifications, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-#ifdef AUDIO_FILTERING
-    CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-#endif
-
-    /* User Badge & Roster  */
-    CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-    CREATE_BUTTON(name, SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - SCALE(2));
-    CREATE_BUTTON(status_msg, SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_TOP,
-                  (SELF_STATUS_ICON_LEFT - SIDEBAR_STATUSMSG_LEFT - SCALE(2)), SIDEBAR_STATUSMSG_HEIGHT - SCALE(2));
-    CREATE_BUTTON(usr_state, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
-    CREATE_BUTTON(filter_friends, SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_TOP, SIDEBAR_FILTER_FRIENDS_WIDTH,
-                  SIDEBAR_FILTER_FRIENDS_HEIGHT);
-    CREATE_BUTTON(add_new_contact, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
-    b_add_new_contact.disabled = true;
-    CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
-
-    /* Setting pages        */
+    /* Setting pages */
     CREATE_BUTTON(settings_sub_profile, 1, 1, SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON), SCALE(28));
-    uint32_t settings_tab_x = 1 + UTOX_STR_WIDTH(PROFILE_BUTTON);
+    uint32_t settings_tab_x = SCALE(22) + UTOX_STR_WIDTH(PROFILE_BUTTON);
 
 #ifdef ENABLE_MULTIDEVICE
     CREATE_BUTTON(settings_sub_devices, settings_tab_x, 1, SCALE(22) + UTOX_STR_WIDTH(DEVICES_BUTTON), SCALE(28));
     settings_tab_x += SCALE(22) + UTOX_STR_WIDTH(DEVICES_BUTTON);
 #endif
 
-    CREATE_BUTTON(settings_sub_net, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(NETWORK_BUTTON), SCALE(28));
-    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(NETWORK_BUTTON);
-
     CREATE_BUTTON(settings_sub_ui, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON), SCALE(28));
     settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
 
     CREATE_BUTTON(settings_sub_av, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON), SCALE(28));
+    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
 
-    /* Profile              */
-    CREATE_BUTTON(copyid, SCALE(66), SCALE(106), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(show_password_settings, SCALE(145), SCALE(206), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(lock_uTox, SCALE(10), SCALE(260), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(settings_sub_notifications, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON), SCALE(28));
+    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
 
-    CREATE_EDIT(name, SCALE(10), SCALE(27), SCALE(-10), SCALE(24));
-    CREATE_EDIT(status, SCALE(10), SCALE(76), SCALE(-10), SCALE(24));
-    CREATE_EDIT(toxid, SCALE(10), SCALE(126), SCALE(-10), SCALE(24));
+    CREATE_BUTTON(settings_sub_adv, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(ADVANCED_BUTTON), SCALE(28));
+
 
     /* Devices              */
     CREATE_BUTTON(add_new_device_to_self, SCALE(-10) - BM_SBUTTON_WIDTH, SCALE(28), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
@@ -192,20 +264,6 @@ void ui_set_scale(uint8_t scale) {
     CREATE_EDIT(add_new_device_to_self, SCALE(10), SCALE(27), SCALE(0) - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH,
                 SCALE(24));
 
-    /* Network              */
-
-    /* User Interface       */
-
-    /* Audio/Video          */
-    {
-#ifdef AUDIO_FILTERING
-        const uint16_t preview_button_pos_y = 390;
-#else
-        const uint16_t preview_button_pos_y = 360;
-#endif
-        CREATE_BUTTON(callpreview, SCALE(10), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-        CREATE_BUTTON(videopreview, SCALE(70), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    }
 
     /* Friend Add Page      */
     CREATE_BUTTON(send_friend_request, SCALE(-10) - BM_SBUTTON_WIDTH, MAIN_TOP + SCALE(168), BM_SBUTTON_WIDTH,
@@ -222,8 +280,6 @@ void ui_set_scale(uint8_t scale) {
     /* Group Settings */
     CREATE_EDIT(group_topic, SCALE(10), SCALE(95), SCALE(-10), SCALE(24));
 
-    CREATE_DROPDOWN(global_group_notifications, SCALE(10), SCALE(155), SCALE(24), SCALE(85));
-
     /* Friend / Group Page  */
     CREATE_BUTTON(call_decline, SCALE(-186), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
     CREATE_BUTTON(call_audio, SCALE(-124), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
@@ -238,53 +294,17 @@ void ui_set_scale(uint8_t scale) {
 
     setfont(FONT_TEXT);
 
-    // Profile tab
-
-    CREATE_DROPDOWN(language, SCALE(10), SCALE(177), SCALE(24), SCALE(-10));
-
-
-    // Network tab
-
-    CREATE_DROPDOWN(proxy, SCALE(10), SCALE(110), SCALE(24), SCALE(120));
-
-
-    // User Interface tab
-
-    CREATE_DROPDOWN(theme, SCALE(10), SCALE(30), SCALE(24), SCALE(120));
-    CREATE_DROPDOWN(dpi, SCALE(150), SCALE(30), SCALE(24), SCALE(200));
-
-
-    // Audio & Video tab
-    {
-        // Each element is draw_pos_y_inc units apart and they start draw_pos_y down.
-#ifdef AUDIO_FILTERING
-        const uint16_t start_draw_y = 150;
-#else
-        const uint16_t start_draw_y = 120;
-#endif
-
-        const uint16_t draw_y_vect = 60;
-        CREATE_DROPDOWN(global_group_notifications, SCALE(10), SCALE(start_draw_y + draw_y_vect * 0),
-                        SCALE(24), SCALE(100));
-        CREATE_DROPDOWN(audio_in, SCALE(10), SCALE(start_draw_y + draw_y_vect * 1), SCALE(24), SCALE(360));
-        CREATE_DROPDOWN(audio_out, SCALE(10), SCALE(start_draw_y + draw_y_vect * 2), SCALE(24), SCALE(360));
-        CREATE_DROPDOWN(video, SCALE(10), SCALE(start_draw_y + draw_y_vect * 3), SCALE(24), SCALE(360));
-    }
 
     // Add friend panel
 
     CREATE_EDIT(add_id, SCALE(10), SCALE(28) + MAIN_TOP, SCALE(-10), SCALE(24));
     CREATE_EDIT(add_msg, SCALE(10), SCALE(76) + MAIN_TOP, SCALE(-10), SCALE(84));
-    CREATE_EDIT(profile_password, SCALE(10), SCALE(88) + (SCALE(140) * panel_profile_password.disabled), SCALE(-10), SCALE(24));
 
     /* Message entry box for friends and groups */
     CREATE_EDIT(msg, SCALE(10) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
                 SCALE(-46), SCALE(-64), SCALE(40)); /* text is 8 high. 8 * 2.5 = 20. */
 
     CREATE_EDIT(msg_group, SCALE(6), SCALE(-46), SCALE(-10) - BM_CHAT_SEND_WIDTH, SCALE(40));
-    CREATE_EDIT(search, SIDEBAR_SEARCH_LEFT, SIDEBAR_SEARCH_TOP, SIDEBAR_SEARCH_WIDTH, SIDEBAR_SEARCH_HEIGHT);
-    CREATE_EDIT(proxy_ip, SCALE(140), SCALE(110), SCALE(120), SCALE(24));
-    CREATE_EDIT(proxy_port, SCALE(270), SCALE(110), SCALE(60), SCALE(24));
 
     setscale();
 }
@@ -504,8 +524,10 @@ void panel_mdown(PANEL *p) {
         return;
     }
 
-    bool    draw = edit_active();
-    PANEL **pp   = p->child, *subp;
+    bool draw = edit_active();
+
+    PANEL **pp = p->child, *subp;
+
     if (pp) {
         while ((subp = *pp++)) {
             if (!subp->disabled) {
@@ -516,10 +538,7 @@ void panel_mdown(PANEL *p) {
             }
         }
     }
-
-    if (draw) {
-        redraw();
-    }
+    draw ? redraw() : 0;
 }
 
 bool panel_dclick(PANEL *p, bool triclick) {

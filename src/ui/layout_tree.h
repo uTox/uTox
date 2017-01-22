@@ -9,6 +9,8 @@
 #include "scrollable.h"
 #include "switches.h"
 
+#include <stddef.h>
+
 // clang-format off
 // Scrollbar or friend list
 SCROLLABLE scrollbar_flist = {
@@ -282,15 +284,17 @@ panel_main = {
                 .child = (PANEL*[]) {
                     (PANEL*)&button_settings_sub_profile,
                     (PANEL*)&button_settings_sub_devices,
-                    (PANEL*)&button_settings_sub_net,
                     (PANEL*)&button_settings_sub_ui,
                     (PANEL*)&button_settings_sub_av,
+                    (PANEL*)&button_settings_sub_notifications,
+                    (PANEL*)&button_settings_sub_adv,
                     (PANEL*)&scrollbar_settings,
                     &panel_settings_profile,
                     &panel_settings_devices,
-                    &panel_settings_net,
                     &panel_settings_ui,
                     &panel_settings_av,
+                    &panel_settings_notifications,
+                    &panel_settings_adv,
                     NULL
                 }
             },
@@ -308,8 +312,6 @@ panel_main = {
                     (PANEL*)&edit_toxid,
                     (PANEL*)&button_copyid,
                     (PANEL*)&dropdown_language,
-                    (PANEL*)&button_show_password_settings,
-                    &panel_profile_password_settings,
                     NULL
                 }
             },
@@ -334,22 +336,6 @@ panel_main = {
                 .child = NULL,
             },
 
-            panel_settings_net = {
-                .type = PANEL_NONE,
-                /* Disabled by default, enabled by network button */
-                .disabled = 1,
-                .drawfunc = draw_settings_text_network,
-                .content_scroll = &scrollbar_settings,
-                .child = (PANEL*[]) {
-                    (PANEL*)&edit_proxy_ip,
-                    (PANEL*)&edit_proxy_port,
-                    (PANEL*)&dropdown_proxy,
-                    (PANEL*)&switch_ipv6,
-                    (PANEL*)&switch_udp,
-                    NULL
-                }
-            },
-
             panel_settings_ui = {
                 .type = PANEL_NONE,
                 .drawfunc = draw_settings_text_ui,
@@ -358,11 +344,10 @@ panel_main = {
                 .child = (PANEL*[]) {
                     (PANEL*)&dropdown_dpi,
                     (PANEL*)&dropdown_theme,
-                    (PANEL*)&switch_logging,
+                    (PANEL*)&switch_save_chat_history,
                     (PANEL*)&switch_close_to_tray,
                     (PANEL*)&switch_start_in_tray,
                     (PANEL*)&switch_auto_startup,
-                    (PANEL*)&switch_typing_notes,
                     (PANEL*)&switch_mini_contacts,
                     NULL
                 }
@@ -380,13 +365,45 @@ panel_main = {
                     (PANEL*)&dropdown_audio_in,
                     (PANEL*)&dropdown_audio_out,
                     (PANEL*)&dropdown_video,
-                    (PANEL*)&switch_audible_notifications,
                     (PANEL*)&switch_audio_filtering,
-                    (PANEL*)&dropdown_global_group_notifications,
-                    (PANEL*)&switch_status_notifications,
                     NULL
                 }
-            };
+            },
+
+            panel_settings_notifications = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_settings_text_notifications,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&dropdown_global_group_notifications,
+                    (PANEL*)&switch_status_notifications,
+                    (PANEL*)&switch_typing_notes,
+                    (PANEL*)&switch_audible_notifications,
+                    NULL
+                 }
+            },
+
+            panel_settings_adv = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_settings_text_adv,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&edit_proxy_ip,
+                    (PANEL*)&edit_proxy_port,
+                    (PANEL*)&dropdown_proxy,
+                    (PANEL*)&switch_ipv6,
+                    (PANEL*)&switch_udp,
+                    (PANEL*)&switch_auto_update,
+                    (PANEL*)&button_show_password_settings,
+                    &panel_profile_password_settings,
+                    NULL,
+                }
+             };
+
+
+
 // clang-format on
 
 #endif
