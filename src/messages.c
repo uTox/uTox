@@ -1264,7 +1264,7 @@ bool messages_mdown(PANEL *panel) {
             }
 
             case MSG_TYPE_IMAGE: {
-                MSG_IMG *img = (void *)msg;
+                MSG_IMG *img = msg;
                 if (m->cursor_over_position) {
                     if (!img->zoom) {
                         img->zoom = 1;
@@ -1277,7 +1277,7 @@ bool messages_mdown(PANEL *panel) {
             }
 
             case MSG_TYPE_FILE: {
-                MSG_FILE *file = (void *)msg;
+                MSG_FILE *file = msg;
                 if (m->cursor_over_position == 0) {
                     break;
                 }
