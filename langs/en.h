@@ -15,13 +15,21 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.11.1! Release name: [uTox GOLD Members Only]")
+msgstr("You have just upgraded to version 0.12.0! Release name: [Make uTox Great Again]")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.11.1")
+msgstr("Changes in v0.12.0")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
+"    Bug Fixes\n"
+"    Fixed building on Windows XP\n"
+"    Friend request improvements\n"
+"    Added the ability to change nospam\n"
+"    Added notifications and advanced tab to settings\n"
+"    New updater\n"
+"    Started seperating the core and the UI\n"
+"\nv0.11.1\n"
 "    Feature: Export chatlog\n"
 "    Feature: Added ability to decline an incoming call\n"
 "    Various security fixes\n"
