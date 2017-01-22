@@ -199,7 +199,7 @@ uint8_t *utox_data_load_custom_theme(size_t *out) {
 /* Shared function between all four platforms */
 void parse_args(int argc, char *argv[],
                 bool *skip_updater,
-                bool *signal_updater,
+                bool *from_updater,
                 bool *theme_was_set_on_argv,
                 int8_t *should_launch_at_startup,
                 int8_t *set_show_window
@@ -210,8 +210,8 @@ void parse_args(int argc, char *argv[],
     if (skip_updater) {
         *skip_updater = false;
     }
-    if (signal_updater) {
-        *signal_updater = false;
+    if (from_updater) {
+        *from_updater = false;
     }
     if (theme_was_set_on_argv) {
         *theme_was_set_on_argv = false;
@@ -300,8 +300,8 @@ void parse_args(int argc, char *argv[],
                 break;
             }
             case 'S': {
-                if (signal_updater) {
-                    *signal_updater = true;
+                if (from_updater) {
+                    *from_updater = true;
                 }
                 break;
             }

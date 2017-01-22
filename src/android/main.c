@@ -693,11 +693,11 @@ static void android_main(struct android_app *state) {
     bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   skip_updater, signal_updater;
+    bool   skip_updater, from_updater;
 
     parse_args(NULL, NULL,
                &skip_updater,
-               &signal_updater,
+               &from_updater,
                &theme_was_set_on_argv,
                &should_launch_at_startup,
                &set_show_window
