@@ -203,7 +203,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case FILE_INCOMING_NEW: {
             FILE_TRANSFER *file = data;
 
-            FRIEND *f    = get_friend(param1);
+            FRIEND *f = get_friend(param1);
 
             if (f->ft_autoaccept) {
                 debug("Toxcore:\tAuto Accept enabled for this friend: sending accept to system\n");

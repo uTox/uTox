@@ -137,7 +137,7 @@ typedef struct {
     NATIVE_IMAGE *image;
 } MSG_IMG;
 
-typedef struct {
+typedef struct msg_file {
     bool    our_msg;
     bool    from_disk;
     uint8_t msg_type;

@@ -3,6 +3,7 @@
 #include "friend.h"
 #include "logging_native.h"
 #include "main_native.h"
+#include "messages.h"
 #include "tox.h"
 #include "util.h"
 #include "utox.h"
@@ -28,10 +29,10 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
             if (new_ftlist) {
                 f->file_transfers_incoming = new_ftlist;
                 f->file_transfers_incoming_size = file_number + 1;
-                return &(f->file_transfers_incoming[file_number]);
+                return &f->file_transfers_incoming[file_number];
             }
         } else {
-            return &(f->file_transfers_incoming[file_number]);
+            return &f->file_transfers_incoming[file_number];
         }
     } else {
         if (f->file_transfers_outgoing_size <= file_number) {
@@ -41,10 +42,10 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
             if (new_ftlist) {
                 f->file_transfers_outgoing = new_ftlist;
                 f->file_transfers_outgoing_size = file_number + 1;
-                return &(f->file_transfers_outgoing[file_number]);
+                return &f->file_transfers_outgoing[file_number];
             }
         } else {
-            return &(f->file_transfers_outgoing[file_number]);
+            return &f->file_transfers_outgoing[file_number];
         }
     }
     return NULL;
@@ -235,8 +236,8 @@ static void kill_file(FILE_TRANSFER *file) {
     } else {
         file->status = FILE_TRANSFER_STATUS_KILLED;
 
-        if (((MSG_FILE *)file->ui_data)) {
-            ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_KILLED;
+        if (file->ui_data) {
+            file->ui_data->file_status = FILE_TRANSFER_STATUS_KILLED;
         }
     }
 
@@ -270,8 +271,8 @@ static void break_file(FILE_TRANSFER *file) {
 
     file->status = FILE_TRANSFER_STATUS_BROKEN;
 
-    if (((MSG_FILE *)file->ui_data)) {
-        ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_BROKEN;
+    if (file->ui_data) {
+        file->ui_data->file_status = FILE_TRANSFER_STATUS_BROKEN;
     }
 
     postmessage_utox(FILE_UPDATE_STATUS, 0, 0, file);
@@ -418,18 +419,18 @@ static void utox_complete_file(FILE_TRANSFER *ft) {
             } else if (ft->avatar) {
                 postmessage_utox(FRIEND_AVATAR_SET, ft->friend_number, ft->current_size, ft->via.avatar);
             } else { // Is a file
-                ((MSG_FILE *)ft->ui_data)->path = strdup((const char *)ft->path);
+                ft->ui_data->path = strdup((const char *)ft->path);
             }
         } else {
             if (ft->in_memory) {
                 // TODO, might want to do something here.
             } else { // Is a file
-                ((MSG_FILE *)ft->ui_data)->path = strdup((const char *)ft->path);
+                ft->ui_data->path = strdup((const char *)ft->path);
             }
         }
         ft->status = FILE_TRANSFER_STATUS_COMPLETED;
-        if (((MSG_FILE *)ft->ui_data)) {
-            ((MSG_FILE *)ft->ui_data)->file_status = FILE_TRANSFER_STATUS_COMPLETED;
+        if (ft->ui_data) {
+            ft->ui_data->file_status = FILE_TRANSFER_STATUS_COMPLETED;
         }
         postmessage_utox(FILE_UPDATE_STATUS, 0, 0, ft);
     } else {
@@ -531,12 +532,27 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
         }
     }
     /* Do something with the error! */
-    if (error) {
-        if (error == TOX_ERR_FILE_CONTROL_FRIEND_NOT_CONNECTED) {
-            debug("FileTransfer:\tUnable to send command, Friend (%u) offline!\n", info->friend_number);
-        } else {
-            debug("FileTransfer:\tThere was an error(%u) sending the command, you probably want to see to that!\n",
-                  error);
+    switch (error) {
+        case TOX_ERR_FILE_CONTROL_OK: {
+            // Everything's fine.
+            break;
+        }
+        case TOX_ERR_FILE_CONTROL_FRIEND_NOT_FOUND: {
+            debug_error("FileTransfer:\tUnable to send command, Friend (%u) doesn't exist!\n", info->friend_number);
+            break;
+        }
+        case TOX_ERR_FILE_CONTROL_FRIEND_NOT_CONNECTED: {
+            debug_error("FileTransfer:\tUnable to send command, Friend (%u) offline!\n", info->friend_number);
+            break;
+        }
+        case TOX_ERR_FILE_CONTROL_NOT_FOUND: {
+            debug_error("FileTransfer:\tUnable to send command, ft (%u) doesn't exist!\n", info->friend_number);
+            break;
+        }
+        default: {
+            debug_error("FileTransfer:\tThere was an error(%u) sending the command."
+                        "You probably want to see to that!\n", error);
+            break;
         }
     }
 }
@@ -932,6 +948,10 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
     ft->target_size = size;
 
     ft->name = (uint8_t*)strdup((char*)name);
+    if (!ft->name) {
+        debug_error("FileTransfer:\tError, couldn't allocate memory for ft->name.\n");
+        return UINT32_MAX;
+    }
     ft->name_length = name_length;
     snprintf((char *)ft->path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)path_length, path);
 

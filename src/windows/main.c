@@ -132,13 +132,12 @@ void openfileavatar(void) {
 }
 
 void file_save_inline(FILE_TRANSFER *file) {
-    char *path = malloc(UTOX_FILE_NAME_LENGTH);
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
-        debug("file_save_inline:\t Could not allocate memory for path.\n");
+        debug_error("file_save_inline:\tCould not allocate memory for path.\n");
         return;
     }
     strcpy(path, file->path);
-    path[file->name_length] = 0;
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
@@ -155,9 +154,11 @@ void file_save_inline(FILE_TRANSFER *file) {
             fclose(fp);
 
             snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
+        } else {
+            debug_error("file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
         }
     } else {
-        debug("GetSaveFileName() failed\n");
+        debug_error("GetSaveFileName() failed\n");
     }
     free(path);
 }

@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <tox/tox.h>
 
-typedef struct file_transfer FILE_TRANSFER;
+typedef struct msg_file MSG_FILE;
 
 #define MAX_FILE_TRANSFERS 32
 
@@ -28,7 +28,7 @@ typedef struct {
     uint8_t *name;
 } UTOX_MSG_FT;
 
-struct file_transfer {
+typedef struct file_transfer {
     bool in_use;
     bool incoming;
     bool in_memory;
@@ -64,9 +64,8 @@ struct file_transfer {
     FILE    *resume_file;
     uint8_t  resume_update;
 
-    // Don't really want this to be void ... MSG_FILE is better, but dependency hell
-    void *ui_data;
-};
+    MSG_FILE *ui_data;
+} FILE_TRANSFER;
 
 void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
 
