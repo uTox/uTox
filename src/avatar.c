@@ -149,7 +149,7 @@ bool avatar_set_self(const uint8_t *data, size_t size) {
 
 void avatar_unset(AVATAR *avatar) {
     if (avatar == NULL) {
-        debug_warning("Avatars:\t avatar is null\n");
+        debug("Avatars:\t avatar is null\n");
         return;
     }
 
