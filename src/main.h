@@ -55,7 +55,7 @@ typedef struct avatar AVATAR;
 
 #define BORDER 1
 #define CAPTION 26
-#define MAIN_WIDTH 800
+#define MAIN_WIDTH 1000
 #define MAIN_HEIGHT 600
 
 #define inrect(x, y, rx, ry, width, height) \
@@ -173,6 +173,8 @@ typedef struct utox_settings {
     bool enable_udp;
     bool enable_ipv6;
 
+    bool block_friend_requests;
+
     bool use_proxy;
     uint16_t proxy_port;
 
@@ -275,6 +277,10 @@ struct utox_self {
     size_t id_str_length;
 
     uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
+
+    uint32_t nospam;
+    uint32_t old_nospam;
+    char nospam_str[(sizeof(uint32_t) * 2) + 1];
 
     AVATAR *avatar;
     void  *png_data;

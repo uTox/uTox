@@ -74,6 +74,9 @@ static void switchfxn_status_notifications(void) { settings.status_notifications
 
 static void switchfxn_auto_update(void) { settings.auto_update = !settings.auto_update; }
 
+static void switchfxn_block_friend_requests(void) { settings.block_friend_requests = !settings.block_friend_requests; }
+
+
 UISWITCH switch_save_chat_history = {
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
@@ -201,5 +204,15 @@ UISWITCH switch_auto_update = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .on_mup         = switchfxn_auto_update,
-    .tooltip_text = {.i18nal = STR_AUTO_UPDATE },
+    .tooltip_text = {.i18nal = STR_AUTO_UPDATE }
+};
+
+UISWITCH switch_block_friend_requests = {
+    .style_outer    = BM_SWITCH,
+    .style_toggle   = BM_SWITCH_TOGGLE,
+    .style_icon_off = BM_NO,
+    .style_icon_on  = BM_YES,
+    .update         = switch_update,
+    .on_mup         = switchfxn_block_friend_requests,
+    .tooltip_text   = {.i18nal = STR_BLOCK_FRIEND_REQUESTS },
 };

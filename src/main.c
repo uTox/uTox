@@ -19,6 +19,12 @@ SETTINGS settings = {
     .show_splash = false,
 
     // Low level settings (network, profile, portable-mode)
+    .use_proxy      = false,
+    .force_proxy    = false,
+    .enable_udp     = true,
+    .enable_ipv6    = true,
+    .save_encryption = true,
+    .block_friend_requests = false,
     // .portable_mode               // included here to match the full struct
 
     .save_encryption    = true,
@@ -57,10 +63,9 @@ SETTINGS settings = {
     .verbose = 1,
 
     // .theme                       // included here to match the full struct
-
     // OS interface settings
-    .window_height        = 600,
-    .window_width         = 800,
+    .window_height        = MAIN_HEIGHT,
+    .window_width         = MAIN_WIDTH,
     .window_baseline      = 0,
 
     .window_maximized     = 0,

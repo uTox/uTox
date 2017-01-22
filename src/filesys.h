@@ -41,4 +41,6 @@ bool native_remove_file(const uint8_t *name, size_t length);
  */
 bool utox_remove_file(const uint8_t *full_name, size_t length);
 
+bool utox_move_file(const uint8_t *current_name, const uint8_t *new_name);
+
 #endif

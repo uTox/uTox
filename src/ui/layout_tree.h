@@ -11,7 +11,6 @@
 
 #include <stddef.h>
 
-// clang-format off
 // Scrollbar or friend list
 SCROLLABLE scrollbar_flist = {
     .panel = { .type = PANEL_SCROLLABLE, },
@@ -372,7 +371,7 @@ panel_main = {
 
             panel_settings_notifications = {
                 .type = PANEL_NONE,
-                .disabled = 1,
+                .disabled = true,
                 .drawfunc = draw_settings_text_notifications,
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
@@ -381,12 +380,25 @@ panel_main = {
                     (PANEL*)&switch_typing_notes,
                     (PANEL*)&switch_audible_notifications,
                     NULL
+                }
+            },
+
+            panel_nospam_settings = {
+                .type = PANEL_NONE,
+                .disabled = true,
+                .drawfunc = draw_nospam_settings,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&edit_nospam,
+                    (PANEL*)&button_change_nospam,
+                    (PANEL*)&button_revert_nospam,
+                    NULL
                  }
             },
 
             panel_settings_adv = {
                 .type = PANEL_NONE,
-                .disabled = 1,
+                .disabled = true,
                 .drawfunc = draw_settings_text_adv,
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
@@ -398,12 +410,13 @@ panel_main = {
                     (PANEL*)&switch_auto_update,
                     (PANEL*)&button_show_password_settings,
                     &panel_profile_password_settings,
+
+                    (PANEL*)&switch_block_friend_requests,
+                    (PANEL*)&button_show_nospam,
+                    &panel_nospam_settings,
                     NULL,
                 }
-             };
+            };
 
-
-
-// clang-format on
 
 #endif

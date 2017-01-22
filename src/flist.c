@@ -388,7 +388,8 @@ static void page_close(ITEM *i) {
                 panel_settings_master.disabled = 1;
                 panel_overhead.disabled        = 1;
 
-                panel_profile_password_settings.disabled = 1;
+                panel_profile_password_settings.disabled = true;
+                panel_nospam_settings.disabled = true;
 
                 button_settings.disabled = 0;
             }

@@ -176,6 +176,7 @@ typedef enum {
     STR_LOCK_UTOX,
     STR_LOCK,
     STR_SHOW_UI_PASSWORD,
+    STR_SHOW_UI_PASSWORD_TOOLTIP,
 
     STR_DPI,
     STR_SAVELOCATION,
@@ -192,6 +193,12 @@ typedef enum {
     STR_CLOSE_TO_TRAY,
     STR_START_IN_TRAY,
     STR_AUTO_STARTUP,
+    STR_RANDOMIZE_NOSPAM,
+    STR_REVERT_NOSPAM,
+    STR_NOSPAM,
+    STR_NOSPAM_WARNING,
+    STR_SHOW_NOSPAM,
+    STR_BLOCK_FRIEND_REQUESTS,
 
 
     // Interact with texts / clipboard

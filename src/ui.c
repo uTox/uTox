@@ -182,11 +182,18 @@ static void settings_ADV(void) {
     CREATE_EDIT(proxy_ip,   SCALE(140), SCALE(110), SCALE(120), SCALE(24));
     CREATE_EDIT(proxy_port, SCALE(270), SCALE(110), SCALE(60), SCALE(24));
 
-    CREATE_SWITCH(auto_update, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(auto_update, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(140), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(block_friend_requests, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(170), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
-    CREATE_BUTTON(show_password_settings, SCALE(140), SCALE(180), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_EDIT(profile_password,         SCALE(10),  SCALE(88) + (SCALE(115) * panel_profile_password.disabled), SCALE(-10), SCALE(24));
-    CREATE_BUTTON(lock_uTox,              SCALE(10),  SCALE(235), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_password_settings, SCALE(10),  SCALE(200), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_nospam,            SCALE(170), SCALE(200), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+
+    CREATE_EDIT(nospam,           SCALE(10),  SCALE(245), SCALE(-10), SCALE(24));
+    CREATE_BUTTON(change_nospam,  SCALE(10),  SCALE(275), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(revert_nospam,  SCALE(200), SCALE(275), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+
+    CREATE_EDIT(profile_password, SCALE(10),  SCALE(88) + (SCALE(157) * panel_profile_password.disabled), SCALE(-10), SCALE(24));
+    CREATE_BUTTON(lock_uTox,      SCALE(10),  SCALE(275), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 }
 
 
@@ -236,7 +243,6 @@ void ui_set_scale(uint8_t scale) {
     settings_NOTIFY();
     settings_ADV();
 
-
     /* Setting pages */
     CREATE_BUTTON(settings_sub_profile, 1, 1, SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON), SCALE(28));
     uint32_t settings_tab_x = SCALE(22) + UTOX_STR_WIDTH(PROFILE_BUTTON);
@@ -263,7 +269,6 @@ void ui_set_scale(uint8_t scale) {
 
     CREATE_EDIT(add_new_device_to_self, SCALE(10), SCALE(27), SCALE(0) - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH,
                 SCALE(24));
-
 
     /* Friend Add Page      */
     CREATE_BUTTON(send_friend_request, SCALE(-10) - BM_SBUTTON_WIDTH, MAIN_TOP + SCALE(168), BM_SBUTTON_WIDTH,
@@ -294,9 +299,7 @@ void ui_set_scale(uint8_t scale) {
 
     setfont(FONT_TEXT);
 
-
     // Add friend panel
-
     CREATE_EDIT(add_id, SCALE(10), SCALE(28) + MAIN_TOP, SCALE(-10), SCALE(24));
     CREATE_EDIT(add_msg, SCALE(10), SCALE(76) + MAIN_TOP, SCALE(-10), SCALE(84));
 

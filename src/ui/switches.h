@@ -16,6 +16,7 @@ extern UISWITCH switch_save_chat_history,
                 switch_push_to_talk,
                 switch_audio_filtering,
                 switch_status_notifications,
-                switch_auto_update;
+                switch_auto_update,
+                switch_block_friend_requests;
 
 #endif
