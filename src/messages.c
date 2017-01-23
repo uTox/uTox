@@ -1,6 +1,5 @@
 #include "messages.h"
 
-#include "main.h"
 #include "main_native.h"
 
 #include "chatlog.h"
@@ -14,6 +13,8 @@
 #include "tox.h"
 #include "util.h"
 #include "utox.h"
+#include "macros.h"
+#include "main.h"
 
 #include "ui/contextmenu.h"
 #include "ui/draw.h"

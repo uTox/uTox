@@ -1,7 +1,9 @@
 #include "main.h"
+
 #include "../logging_native.h"
 #include "../util.h"
 #include "../av/video.h"
+#include "../macros.h"
 
 #include <stdio.h>
 

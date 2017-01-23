@@ -5,6 +5,7 @@
 #include "main_native.h"
 #include "tox.h"
 #include "utox.h"
+#include "macros.h"
 
 #include <tox/toxdns.h>
 

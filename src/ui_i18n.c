@@ -4,9 +4,7 @@
 #include "../langs/i18n_decls.h"
 #include "sized_string.h"
 #include "util.h"
-
-// FIXME: Required for UNUSED()
-#include "main.h"
+#include "macros.h"
 
 #ifdef msgid
 #error "msgid is already defined"

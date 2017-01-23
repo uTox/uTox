@@ -10,13 +10,12 @@
 #include "../tox.h"
 #include "../util.h"
 #include "../utox.h"
+#include "../macros.h"
+
 #include "../av/utox_av.h"
 #include "../ui/draw.h"
 #include "../ui/dropdowns.h"
 #include "../ui/edit.h"
-
-// FIXME: Required for UNUSED()
-#include "../main.h"
 
 bool hidden = false;
 

@@ -9,6 +9,8 @@
 #include "tox.h"
 #include "util.h"
 #include "utox.h"
+#include "macros.h"
+#include "main.h"
 
 #include "ui/buttons.h"
 #include "ui/contextmenu.h"
@@ -23,9 +25,6 @@
 #include "xlib/mmenu.h"
 extern bool unity_running;
 #endif
-
-// FIXME: Required for UNUSED()
-#include "main.h"
 
 /* I think these are pointers to the panels they're named after. */
 static ITEM item_add, item_settings, item_transfer;

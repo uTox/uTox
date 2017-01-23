@@ -3,8 +3,8 @@
 #include "draw.h"
 #include "../theme.h"
 
-// FIXME: Required for UNUSED()
 #include "../main.h"
+#include "../macros.h"
 
 static CONTEXTMENU context_menu;
 

@@ -5,6 +5,7 @@
 #include "friend.h"
 #include "logging_native.h"
 #include "main.h"
+#include "macros.h"
 
 #include "ui/dropdowns.h"
 #include "ui/edits.h"

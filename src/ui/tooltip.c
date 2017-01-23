@@ -5,8 +5,7 @@
 #include "../theme.h"
 #include "../ui.h"
 #include "../utox.h"
-
-// FIXME: Required for UNUSED()
+#include "../macros.h"
 #include "../main.h"
 
 static TOOLTIP tooltip;

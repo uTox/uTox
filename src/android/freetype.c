@@ -1,6 +1,8 @@
 #include <freetype.h>
 #include <ft2build.h>
 
+#include "../macros.h"
+
 #define PIXELS(x) (((x) + 32) / 64)
 
 typedef struct {

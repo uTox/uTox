@@ -10,10 +10,10 @@
 #include "../theme.h"
 #include "../tox.h"
 #include "../util.h"
-#include "../av/utox_av.h"
-
-// FIXME: Required for UNUSED()
 #include "../main.h"
+#include "../macros.h"
+
+#include "../av/utox_av.h"
 
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
     DROP_ELEMENT *e      = &((DROP_ELEMENT *)dm->userdata)[i];

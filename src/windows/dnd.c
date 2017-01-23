@@ -6,8 +6,7 @@
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../tox.h"
-
-// FIXME: Required for UNUSED()
+#include "../macros.h"
 #include "../main.h"
 
 typedef struct {

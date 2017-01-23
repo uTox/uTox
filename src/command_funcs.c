@@ -5,9 +5,10 @@
 #include "logging_native.h"
 #include "tox.h"
 #include "util.h"
+#include "macros.h"
 
-// FIXME: Required for UNUSED()
-#include "main.h"
+#include <stdlib.h>
+#include <string.h>
 
 bool slash_send_file(void *object, char *filepath, int UNUSED(arg_length)) {
     if (filepath) {
@@ -23,12 +24,12 @@ bool slash_send_file(void *object, char *filepath, int UNUSED(arg_length)) {
 
 bool slash_device(void *object, char *arg, int UNUSED(arg_length)) {
     FRIEND *f =  object;
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
+    uint8_t id[TOX_ADDRESS_SIZE * 2];
     string_to_id(id, arg);
-    void *data = malloc(TOX_FRIEND_ADDRESS_SIZE * sizeof(char));
+    void *data = malloc(TOX_ADDRESS_SIZE * sizeof(char));
 
     if (data) {
-        memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
+        memcpy(data, id, TOX_ADDRESS_SIZE);
         postmessage_toxcore(TOX_FRIEND_NEW_DEVICE, f->number, 0, data);
         return true;
     }

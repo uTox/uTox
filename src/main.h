@@ -58,16 +58,6 @@ typedef struct avatar AVATAR;
 #define MAIN_WIDTH 1000
 #define MAIN_HEIGHT 600
 
-#define inrect(x, y, rx, ry, width, height) \
-    ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
-
-#define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
-#define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
-
-#define isdesktop(x) ((size_t)(x) == 1)
-
-#define countof(x) (sizeof(x) / sizeof(*(x)))
-
 //  fixes compile with apple headers
 /*** This breaks both android and Windows video... but it's needed to fix complation in clang (Cocoa & asan)
  ***  TODO fix them?
@@ -233,17 +223,6 @@ typedef enum {
     FILEDATA_APPEND    = 1,
 } FILEDATA_SAVETYPE;
 
-#ifdef UNUSED
-#undef UNUSED
-#endif
-
-#ifdef __GNUC__
-#define UNUSED(x) UNUSED_##x __attribute__((__unused__))
-#elif defined(__LCLINT__)
-#define UNUSED(x) /*@unused@*/ x
-#else
-#define UNUSED(x) x
-#endif
 
 #include "stb_image.h"
 #include "stb_image_write.h"

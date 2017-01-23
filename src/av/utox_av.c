@@ -7,8 +7,7 @@
 #include "../tox.h"
 #include "../utox.h"
 #include "../util.h"
-
-// FIXME: Required for UNUSED()
+#include "../macros.h"
 #include "../main.h"
 
 bool toxav_thread_msg = 0;

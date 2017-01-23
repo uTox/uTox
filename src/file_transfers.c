@@ -7,9 +7,8 @@
 #include "tox.h"
 #include "util.h"
 #include "utox.h"
-
-// FIXME: Required for UNUSED()
 #include "main.h"
+#include "macros.h"
 
 #define MAX_INLINE_FILESIZE (1024 * 1024 * 4)
 

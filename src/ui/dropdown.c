@@ -3,8 +3,7 @@
 #include "draw.h"
 
 #include "../theme.h"
-
-// FIXME: Required for UNUSED()
+#include "../macros.h"
 #include "../main.h"
 
 static DROPDOWN *active_dropdown;

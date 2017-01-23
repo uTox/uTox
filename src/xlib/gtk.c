@@ -7,14 +7,13 @@
 #include "../tox.h"
 #include "../util.h"
 #include "../utox.h"
+#include "../macros.h"
+#include "../main.h"
 
 #include <dlfcn.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
-
-// FIXME: Required for UNUSED()
-#include "../main.h"
 
 #define LIBGTK_FILENAME "libgtk-3.so.0"
 

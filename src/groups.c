@@ -2,8 +2,8 @@
 
 #include "flist.h"
 #include "logging_native.h"
-#include "main.h"
 #include "util.h"
+#include "macros.h"
 
 #include "ui/edit.h"
 #include "ui/scrollable.h"

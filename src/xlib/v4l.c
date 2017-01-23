@@ -2,8 +2,7 @@
 
 #include "../logging_native.h"
 
-// FIXME: Required for UNUSED()
-#include "../main.h"
+#include "../macros.h"
 
 int utox_v4l_fd = -1;
 

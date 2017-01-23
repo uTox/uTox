@@ -8,8 +8,7 @@
 #include "../main_native.h"
 #include "../theme.h"
 #include "../util.h"
-
-// FIXME: Required for UNUSED()
+#include "../macros.h"
 #include "../main.h"
 
 static EDIT *active_edit;

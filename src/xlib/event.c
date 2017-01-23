@@ -5,6 +5,7 @@
 #include "../logging_native.h"
 #include "../tox.h"
 #include "../utox.h"
+#include "../macros.h"
 
 #include "../av/utox_av.h"
 #include "../ui/edit.h"
