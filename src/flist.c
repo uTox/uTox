@@ -27,8 +27,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "main.h" // get_time
-
 #ifdef UNITY
 #include "xlib/mmenu.h"
 extern bool unity_running;

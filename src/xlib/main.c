@@ -2,7 +2,6 @@
 
 #include "gtk.h"
 
-#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"

@@ -3,7 +3,8 @@
 #include "command_funcs.h"
 #include "flist.h"
 #include "logging_native.h"
-#include "main.h"
+#include "main_native.h"
+
 #include "ui/edits.h"
 
 struct Command commands[MAX_NUM_CMDS] = {
