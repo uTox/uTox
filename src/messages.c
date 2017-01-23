@@ -325,7 +325,12 @@ MSG_FILE *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incoming
     msg->progress   = current_size;
     msg->speed      = 0;
     msg->inline_png = image;
-    msg->path       = NULL;
+
+    if (image) {
+        msg->path = NULL;
+    } else { // It's a file
+        msg->path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    }
 
     message_add(m, (MSG_VOID *)msg);
 

@@ -231,29 +231,20 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             if (!data) {
                 break;
             }
-
             FILE_TRANSFER *file = data;
-            FRIEND        *f    = &friend[file->friend_number];
-            MSG_FILE      *msg  = file->ui_data;
 
-            if (!msg) {
-                break;
+            if (file->ui_data) {
+                ((MSG_FILE*)file->ui_data)->progress = file->current_size;
+                ((MSG_FILE*)file->ui_data)->speed    = file->speed;
+
+                if (file->in_memory) {
+                    ((MSG_FILE*)file->ui_data)->path = file->via.memory;
+                } else {
+                    memcpy(((MSG_FILE*)file->ui_data)->path, file->path, UTOX_FILE_NAME_LENGTH);
+                }
             }
 
-            if (msg->file_status != file->status) {
-                file_notify(f, msg);
-                msg->file_status = file->status;
-            }
-            msg->progress = file->current_size;
-            msg->speed    = file->speed;
-
-            if (file->in_memory) {
-                msg->path = file->via.memory;
-            } else {
-                msg->path = file->path;
-            }
             redraw();
-            // free(file);
             break;
         }
         case FILE_INLINE_IMAGE: {
