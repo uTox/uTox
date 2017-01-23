@@ -468,7 +468,7 @@ static void page_open(ITEM *i) {
             g->msg.id     = g - group;
             g->unread_msg = 0;
             /* We use the MESSAGES struct from the group, but we need the info from the panel. */
-            messages_group.object = ((void *)&g->msg);
+            messages_group.object = &g->msg;
             messages_updateheight((MESSAGES *)messages_group.object, current_width);
 
             ((MESSAGES *)messages_group.object)->cursor_over_msg      = UINT32_MAX;
@@ -576,7 +576,7 @@ void flist_addfriend2(FRIEND *f, FRIENDREQ *req) {
                 // panel_item[selected_item->item - 1].disabled = 1;
                 // panel_item[ITEM_FRIEND - 1].disabled = 0;
 
-                messages_friend.object                                = (void *)&f->msg;
+                messages_friend.object                                = &f->msg;
                 ((MESSAGES *)messages_friend.object)->cursor_over_msg = UINT32_MAX;
                 messages_friend.content_scroll->content_height        = f->msg.height;
                 messages_friend.content_scroll->d                     = f->msg.scroll;

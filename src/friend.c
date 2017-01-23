@@ -57,7 +57,7 @@ static void friend_meta_data_read(FRIEND *f) {
         }
 
         if (((FRIEND_META_DATA_OLD *)metadata)->alias_length) {
-            friend_set_alias(f, (void *)metadata + sizeof(size_t),
+            friend_set_alias(f, metadata + sizeof(size_t),
                              ((FRIEND_META_DATA_OLD *)metadata)->alias_length);
         } else {
             friend_set_alias(f, NULL, 0);
@@ -328,7 +328,7 @@ void friend_free(FRIEND *f) {
 
     uint32_t i = 0;
     while (i < f->msg.number) {
-        MSG_TEXT *msg = f->msg.data[i];
+        MSG_HEADER *msg = f->msg.data[i];
         message_free(msg);
         i++;
     }
