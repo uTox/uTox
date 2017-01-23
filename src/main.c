@@ -9,6 +9,7 @@
 #include "logging_native.h"
 #include "theme.h"
 #include "util.h"
+#include "updater.h"
 
 #include <getopt.h>
 
@@ -17,18 +18,31 @@ SETTINGS settings = {
     // .last_version                // included here to match the full struct
     .show_splash = false,
 
+    // Low level settings (network, profile, portable-mode)
     .use_proxy      = false,
     .force_proxy    = false,
     .enable_udp     = true,
     .enable_ipv6    = true,
-    .use_encryption = true,
+    .save_encryption = true,
+    .block_friend_requests = false,
     // .portable_mode               // included here to match the full struct
 
-    .proxy_port = 0,
+    .save_encryption    = true,
 
+    .auto_update        = false,
+    .update_to_develop  = false,
+    .send_version       = false,
+
+    .force_proxy        = false,
+    .enable_udp         = true,
+    .enable_ipv6        = true,
+
+    .use_proxy          = false,
+    .proxy_port         = 0,
+
+    // User interface settings
     .close_to_tray          = false,
     .logging_enabled        = true,
-    .ringtone_enabled       = true,
     .audiofilter_enabled    = true,
     .start_in_tray          = false,
     .start_with_system      = false,
@@ -40,15 +54,20 @@ SETTINGS settings = {
     // .inline_video                // included here to match the full struct
     .use_long_time_msg      = true,
     .accept_inline_images   = true,
-    .status_notifications   = true,
 
+    // Notifications / Alerts
+    .ringtone_enabled       = true,
+    .status_notifications   = true,
     .group_notifications    = GNOTIFY_ALWAYS,
 
     .verbose = 1,
 
+    // .theme                       // included here to match the full struct
+    // OS interface settings
     .window_height        = MAIN_HEIGHT,
     .window_width         = MAIN_WIDTH,
     .window_baseline      = 0,
+
     .window_maximized     = 0,
 };
 
@@ -181,25 +200,39 @@ uint8_t *utox_data_load_custom_theme(size_t *out) {
     return data;
 
 }
-bool utox_remove_file(const uint8_t *full_name, size_t length) {
-    return native_remove_file(full_name, length);
-}
 
 /* Shared function between all four platforms */
-void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,
-                int8_t *set_show_window, bool *no_updater) {
+void parse_args(int argc, char *argv[],
+                bool *skip_updater,
+                bool *from_updater,
+                bool *theme_was_set_on_argv,
+                int8_t *should_launch_at_startup,
+                int8_t *set_show_window
+                ) {
     // set default options
     settings.theme            = THEME_DEFAULT;
     settings.portable_mode    = false;
-    *theme_was_set_on_argv    = false;
-    *should_launch_at_startup = 0;
-    *set_show_window          = 0;
-    *no_updater               = false;
+    if (skip_updater) {
+        *skip_updater = false;
+    }
+    if (from_updater) {
+        *from_updater = false;
+    }
+    if (theme_was_set_on_argv) {
+        *theme_was_set_on_argv = false;
+    }
+    if (should_launch_at_startup) {
+        *should_launch_at_startup = 0;
+    }
+    if (set_show_window) {
+        *set_show_window = 0;
+    }
 
     static struct option long_options[] = {
-        { "theme", required_argument, NULL, 't' }, { "portable", no_argument, NULL, 'p' },
-        { "set", required_argument, NULL, 's' },   { "unset", required_argument, NULL, 'u' },
-        { "no-updater", no_argument, NULL, 'n' },  { "version", no_argument, NULL, 0 },
+        { "theme", required_argument, NULL, 't' },  { "portable", no_argument, NULL, 'p' },
+        { "set", required_argument, NULL, 's' },    { "unset", required_argument, NULL, 'u' },
+        { "skip-updater", no_argument, NULL, 'N' }, { "signal-updater", no_argument, NULL, 'S' },
+        { "version", no_argument, NULL, 0 },
         { "silent", no_argument, NULL, 1 },        { "verbose", no_argument, NULL, 'v' },
         { "help", no_argument, NULL, 'h' },        { 0, 0, 0, 0 }
     };
@@ -265,8 +298,16 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 break;
             }
 
-            case 'n': {
-                *no_updater = 1;
+            case 'N': {
+                if (skip_updater) {
+                    *skip_updater = true;
+                }
+                break;
+            }
+            case 'S': {
+                if (from_updater) {
+                    *from_updater = true;
+                }
                 break;
             }
 
@@ -317,6 +358,10 @@ void utox_init(void) {
     /* Called by the native main for every platform after loading utox setting, before showing/drawing any windows. */
     if (settings.curr_version != settings.last_version) {
         settings.show_splash = 1;
+    }
+
+    if (settings.auto_update) {
+        updater_check();
     }
 }
 

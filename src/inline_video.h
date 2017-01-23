@@ -5,6 +5,7 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef struct inline_vid { PANEL panel; } INLINE_VID;
 

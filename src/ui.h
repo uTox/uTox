@@ -1,10 +1,13 @@
 #ifndef UI_H
 #define UI_H
 
-#include "main.h"
 #include "sized_string.h"
 
 #include "../langs/i18n_decls.h"
+
+#include <stdbool.h>
+
+typedef struct native_image NATIVE_IMAGE;
 
 #define DEFAULT_LANG LANG_EN
 #define S(x) (ui_gettext(LANG, (STR_##x))->str)
@@ -14,6 +17,35 @@
  * the size of. Either store the size before changing, or swap it -> run UTOX_STR_WIDTH() -> swap back. */
 #define UTOX_STR_WIDTH(x) (textwidth((ui_gettext(LANG, (STR_##x))->str), (ui_gettext(LANG, (STR_##x))->length)))
 #define SPTRFORLANG(l, x) (ui_gettext((l), (x)))
+
+
+// TODO: Create ui_native headers or something.
+// This is hard to read. I know. I'm sorry.
+// This is to stop a circular dependency between svg.c and xlib/main.h.
+#if defined __WIN32__
+// Windows supplies its own RGB function.
+#include <windows.h>
+#elif defined __ANDROID__
+#define RGB(r, g, b) ((r) | ((g) << 8) | ((b) << 16))
+#elif defined __OBJC__
+// xlib and cocoa use the same format for this, but I left both cases here
+// in case I want to use this #ifdef construct elsewhere.
+#define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
+#else
+#define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
+#endif
+
+
+enum {
+    FONT_TEXT,
+    FONT_TITLE,
+    FONT_SELF_NAME,
+    FONT_STATUS,
+    FONT_LIST_NAME,
+    FONT_MISC,
+
+    FONT_END,
+};
 
 typedef enum {
     PANEL_NONE,
@@ -69,9 +101,19 @@ extern PANEL panel_notify_generic;
 extern PANEL panel_root, panel_side_bar, panel_self, panel_quick_buttons, panel_flist, panel_flist_list,
     panel_lower_buttons, panel_main, panel_chat, panel_group, panel_group_chat, panel_group_video, panel_group_settings,
     panel_friend, panel_friend_chat, panel_friend_video, panel_friend_settings, panel_friend_request, panel_overhead,
-    panel_splash_page, panel_profile_password, panel_add_friend, panel_settings_master, panel_settings_subheader,
-    panel_settings_profile, panel_profile_password_settings, panel_settings_devices, panel_settings_net,
-    panel_settings_ui, panel_settings_av, panel_settings_notifications, panel_settings_adv, messages_friend, messages_group;
+    panel_splash_page, panel_profile_password, panel_add_friend,
+    messages_friend,
+    messages_group,
+    panel_settings_master,
+        panel_settings_subheader,
+        panel_settings_profile,
+        panel_profile_password_settings,
+        panel_settings_devices,
+        panel_settings_ui,
+        panel_settings_av,
+        panel_settings_notifications,
+        panel_settings_adv,
+        panel_nospam_settings;
 
 /* draws an image in the style of an avatar at within rect (x,y,targetwidth,targetheight)
  * this means: resize the image while keeping proportion so that the dimension(width or height) that has the smallest
@@ -101,6 +143,7 @@ bool panel_mleave(PANEL *p);
 
 char search_data[128];
 
+double ui_scale;
 
 #define SCALE(x) (((int)((ui_scale / 10.0) * ((double)x))) ?: 1)
 #define UI_FSCALE(x) (((ui_scale / 10.0) * ((double)x)) ?: 1)
@@ -187,7 +230,7 @@ char search_data[128];
 #define LIST_BUTTON_Y SCALE(-26)
 #define MESSAGES_SPACING SCALE(4)
 #define MESSAGES_X SCALE(110)
-#define TIME_WIDTH SCALE(40)
+#define TIME_WIDTH SCALE(45)
 #define ACTUAL_TIME_WIDTH SCALE(32)
 #define NAME_OFFSET SCALE(14)
 

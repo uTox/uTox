@@ -1,8 +1,9 @@
-// audio.c
 #include "utox_av.h"
 
 #include "../friend.h"
 #include "../logging_native.h"
+#include "../main.h"
+#include "../tox.h"
 #include "../utox.h"
 
 static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {

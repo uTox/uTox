@@ -147,6 +147,7 @@ msgstr("Eingehende Dateiübertragungen ohne Nachfrage akzeptieren")
 msgid(FRIEND_EXPORT_CHATLOG)
 msgstr("Chatverlauf als Text exportieren")
 
+
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
@@ -190,7 +191,6 @@ msgstr("Aus")
 msgid(GROUP_TOPIC)
 msgstr("Thema der Gruppe festlegen")
 
-
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
@@ -200,13 +200,22 @@ msgstr("Profil")
 msgid(DEVICES_BUTTON)
 msgstr("Geräte")
 
-msgid(NETWORK_BUTTON)
-msgstr("Netzwerk")
 
 msgid(USER_INTERFACE_BUTTON)
 msgstr("Benutzeroberfläche")
 
-/***     	Profile                                                         ***/
+msgid(AUDIO_VIDEO_BUTTON)
+msgstr("Audio & Video")
+
+msgid(ADVANCED_BUTTON)
+msgstr("Fortgeschritten")
+
+msgid(NOTIFICATIONS_BUTTON)
+msgstr("Benachrichtigungen")
+
+msgid(AUTO_UPDATE)
+msgstr("uTox automatisch aktualisieren")
+
 msgid(PROFILE_SETTINGS)
 msgstr("Profileinstellungen")
 
@@ -215,6 +224,10 @@ msgstr("WARNUNG: µTox wird automatisch beginnen mit diesem Passwort zu verschl�
 
 msgid(PROFILE_PW_NO_RECOVER)
 msgstr("Es ist nicht möglich verlorene Passwörter wiederherzustellen.")
+
+
+
+/***     	Profile                                                         ***/
 
 /***     	Devices                                                       ***/
 msgid(DEVICES_ADD_NEW)
@@ -234,6 +247,9 @@ msgstr("Anzahl der verknüpften Geräte")
  ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Neuen Kontakt hinzufügen")
+
+msgid(TOXID)
+msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("Nachricht")
@@ -289,6 +305,9 @@ msgstr("Kompakte Kontaktliste verwenden")
 msgid(NOT_CONNECTED)
 msgstr("Nicht verbunden")
 
+msgid(NOT_CONNECTED_SETTINGS)
+msgstr("Netzwerk Einstellungen anpassen")
+
 msgid(OTHERSETTINGS)
 msgstr("Andere Einstellungen")
 
@@ -311,7 +330,10 @@ msgid(LOCK_UTOX)
 msgstr("Trennt die Verbindung zu Tox und sperrt dieses Profil.")
 
 msgid(SHOW_UI_PASSWORD)
-msgstr("Passwortfeld des Profils zeigen. Änderungen werden sofort angewendet!")
+msgstr("Passwortfeld anzeigen")
+
+msgid(SHOW_UI_PASSWORD_TOOLTIP)
+msgstr("Hier klicken, um Passwortfeld anzuzeigen. Änderungen werden sofort angewendet!")
 
 msgid(LOCK)
 msgstr("Sperren")
@@ -328,7 +350,7 @@ msgstr("Netzwerk")
 msgid(WARNING)
 msgstr("Das Verändern von Netzwerk-/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk.")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Chatverläufe speichern")
 
 msgid(AUDIONOTIFICATIONS)
@@ -507,3 +529,21 @@ msgstr("Mitteilen, ob getippt wird")
 
 msgid(STATUS_NOTIFICATIONS)
 msgstr("Statusbenachrichtigungen")
+
+msgid(RANDOMIZE_NOSPAM)
+msgstr("Zufälligen Nospam setzen")
+
+msgid(NOSPAM)
+msgstr("Nospam")
+
+msgid(REVERT_NOSPAM)
+msgstr("Nospam zurücksetzen")
+
+msgid(NOSPAM_WARNING)
+msgstr("Änderungen am Nospam machen die alte Tox ID ungültig. uTox wird die ID nicht auf Namensservern aktualisieren.")
+
+msgid(BLOCK_FRIEND_REQUESTS)
+msgstr("Freundschaftsanfragen blockieren")
+
+msgid(SHOW_NOSPAM)
+msgstr("Nospam Einstellungen anzeigen")

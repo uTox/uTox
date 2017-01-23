@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+int font_small_lineheight, font_msg_lineheight;
+
 void drawtext(int x, int y, const char *str, uint16_t length);
 
 int drawtext_getwidth(int x, int y, const char *str, uint16_t length);
@@ -43,5 +45,7 @@ void popclip(void);
 
 void enddraw(int x, int y, int width, int height);
 
+void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
+void loadalpha(int bm, void *data, int width, int height);
 
 #endif

@@ -169,7 +169,7 @@ msgstr("भाषा")
 //msgstr("Changing Network/Proxy settings will temporarily disconnect you from the Tox network")
 
 //TODO: Same as in English? Localize or remove.
-//msgid(LOGGING)
+//msgid(SAVE_CHAT_HISTORY)
 //msgstr("Logging")
 
 //TODO: Same as in English? Localize or remove.

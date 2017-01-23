@@ -1,10 +1,17 @@
+#include "main.h"
+
 #include "../commands.h"
+#include "../filesys.h"
 #include "../logging_native.h"
+#include "../main.h"
 #include "../theme.h"
+#include "../tox.h"
 #include "../ui.h"
-#include "../ui/dropdowns.h"
 #include "../util.h"
 #include "../utox.h"
+
+#include "../av/utox_av.h"
+#include "../ui/dropdowns.h"
 
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
@@ -46,6 +53,16 @@ void debug_info(const char *fmt, ...) {
 
 void debug_notice(const char *fmt, ...) {
     if (utox_verbosity() < VERBOSITY_NOTICE) {
+        return;
+    }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
+void debug_warning(const char *fmt, ...) {
+    if (utox_verbosity() < VERBOSITY_WARNING) {
         return;
     }
     va_list l;
@@ -562,9 +579,14 @@ int main(int argc, char const *argv[]) {
     bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   no_updater;
+    bool   skip_updater, from_updater;
 
-    parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
+    parse_args(argc, argv,
+               &skip_updater,
+               &from_updater,
+               &theme_was_set_on_argv,
+               &should_launch_at_startup,
+               &set_show_window);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         debug("Start on boot not supported on this OS!\n");
@@ -574,7 +596,7 @@ int main(int argc, char const *argv[]) {
         debug("Showing/hiding windows not supported on this OS!\n");
     }
 
-    if (no_updater == true) {
+    if (skip_updater == true) {
         debug("Disabling the updater is not supported on this OS. Updates are managed by the app store.\n");
     }
 

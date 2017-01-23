@@ -43,7 +43,6 @@
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-#define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
 #define KEY_BACK XK_BackSpace
 #define KEY_RETURN XK_Return

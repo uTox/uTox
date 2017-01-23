@@ -38,6 +38,8 @@
 
 #include <inttypes.h>
 
+#include <X11/keysymdef.h>
+
 struct codepair {
     unsigned short keysym;
     unsigned short ucs;

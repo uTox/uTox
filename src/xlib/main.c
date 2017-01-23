@@ -5,12 +5,21 @@
 #include "tray.h"
 #include "window.h"
 
+#include "../av/utox_av.h"
+#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../theme.h"
 #include "../logging_native.h"
+#include "../theme.h"
+#include "../tox.h"
+#include "../ui/draw.h"
+#include "../ui/dropdowns.h"
+#include "../ui/edit.h"
 #include "../util.h"
 #include "../utox.h"
+
+// FIXME: Required for UNUSED()
+#include "../main.h"
 
 #include "../ui/dropdowns.h"
 #include "../ui/draw.h"
@@ -626,19 +635,24 @@ int main(int argc, char *argv[]) {
     bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   no_updater;
+    bool   skip_updater, from_updater;
 
     #ifdef HAVE_DBUS
     debug_info("Compiled with dbus support!\n");
     #endif
 
-    parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
+    parse_args(argc, argv,
+               &skip_updater,
+               &from_updater,
+               &theme_was_set_on_argv,
+               &should_launch_at_startup,
+               &set_show_window);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         debug_notice("Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
 
-    if (no_updater == true) {
+    if (skip_updater == true) {
         debug_notice("Disabling the updater is not supported on this OS. Updates are managed by your distro's package "
                      "manager.\n");
     }
@@ -849,7 +863,7 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    /* wait for threads to exit */
+    // wait for tox_thread to exit
     while (tox_thread_init) {
         yieldcpu(1);
     }

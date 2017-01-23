@@ -1,12 +1,19 @@
 #include "utox.h"
 
 #include "commands.h"
+#include "dns.h"
+#include "file_transfers.h"
 #include "filesys.h"
 #include "flist.h"
 #include "friend.h"
+#include "groups.h"
 #include "logging_native.h"
+#include "main.h"
+#include "tox.h"
 
+#include "av/utox_av.h"
 #include "ui/dropdowns.h"
+#include "ui/edit.h"
 #include "ui/tooltip.h"
 
 /** Translates status code to text then sends back to the user */
@@ -141,7 +148,11 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
         /* Client/User Interface messages. */
         case REDRAW: {
-            ui_set_scale(ui_scale);
+            if (param1) {
+                ui_set_scale(ui_scale);
+            } else {
+                ui_set_scale(0);
+            }
             redraw();
             break;
         }
@@ -174,7 +185,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
         /* File transfer messages */
         case FILE_SEND_NEW: {
-            FRIEND *       f    = &friend[param1];
+            FRIEND *f = &friend[param1];
             FILE_TRANSFER *file = data;
 
             MSG_FILE *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
@@ -192,7 +203,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case FILE_INCOMING_NEW: {
             FILE_TRANSFER *file = data;
 
-            FRIEND *f    = get_friend(param1);
+            FRIEND *f = get_friend(param1);
 
             if (f->ft_autoaccept) {
                 debug("Toxcore:\tAuto Accept enabled for this friend: sending accept to system\n");
@@ -220,29 +231,33 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             if (!data) {
                 break;
             }
-
             FILE_TRANSFER *file = data;
-            FRIEND        *f    = &friend[file->friend_number];
-            MSG_FILE      *msg  = file->ui_data;
 
-            if (!msg) {
-                break;
+            if (file->ui_data) {
+                ((MSG_FILE*)file->ui_data)->progress = file->current_size;
+                ((MSG_FILE*)file->ui_data)->speed    = file->speed;
+
+                if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
+                    file->ui_data->file_status = FILE_TRANSFER_STATUS_COMPLETED;
+
+                    if (file->in_memory) {
+                        file->ui_data->path = file->via.memory;
+                    } else {
+                        memcpy(file->ui_data->path, file->path, UTOX_FILE_NAME_LENGTH);
+                    }
+
+                    /* File Tranfers won't decon the file while we're still accessing the UI info */
+                    file->ui_data = NULL;
+                } else if (param1 == FILE_TRANSFER_STATUS_BROKEN) {
+                    file->ui_data->file_status = FILE_TRANSFER_STATUS_BROKEN;
+                    file->ui_data = NULL;
+                } else if (param1 == FILE_TRANSFER_STATUS_KILLED) {
+                    file->ui_data->file_status = FILE_TRANSFER_STATUS_KILLED;
+                    file->ui_data = NULL;
+                }
             }
 
-            if (msg->file_status != file->status) {
-                file_notify(f, msg);
-                msg->file_status = file->status;
-            }
-            msg->progress = file->current_size;
-            msg->speed    = file->speed;
-
-            if (file->in_memory) {
-                msg->path = file->via.memory;
-            } else {
-                msg->path = file->path;
-            }
             redraw();
-            // free(file);
             break;
         }
         case FILE_INLINE_IMAGE: {

@@ -1,6 +1,8 @@
 #import "main.h"
-#import "../ui/svg.h"
 #import "../logging_native.h"
+#import "../main.h"
+#import "../ui/draw.h"
+#import "../ui/svg.h"
 
 
 #ifdef UTOX_COCOA_BRAVE

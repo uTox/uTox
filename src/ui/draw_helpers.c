@@ -2,12 +2,19 @@
 
 #include "buttons.h"
 #include "draw.h"
-#include "text.h"
 #include "svg.h"
+#include "text.h"
 
+#include "../dns.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../groups.h"
 #include "../theme.h"
+#include "../ui.h"
+
+// FIXME: Required for UNUSED()
+#include "../main.h"
+
 
 void draw_notification(int x, int y, int w, int h) {
     if (!tox_thread_init) {
@@ -51,7 +58,7 @@ void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
 void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
-    if (tox_thread_init) {
+    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         /* Only draw the user badge if toxcore is running */
         /*draw avatar or default image */
         if (self_has_avatar()) {
@@ -93,7 +100,13 @@ void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED
 
         setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
         setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED));
+        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_WIDTH - SIDEBAR_AVATAR_LEFT, SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED));
+
+        if (tox_thread_init == UTOX_TOX_THREAD_INIT_ERROR) {
+            setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
+            setfont(FONT_STATUS);
+            drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_WIDTH, SIDEBAR_STATUSMSG_TOP, S(NOT_CONNECTED_SETTINGS), SLEN(NOT_CONNECTED_SETTINGS));
+        }
     }
 }
 
@@ -279,7 +292,6 @@ void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
                 break;
             case ADDF_UNKNOWN: // for unknown error.
             case ADDF_NONE:    // this case must never be rendered, but if it does, assume it's an error
-            default:
                 str = SPTR(REQ_UNKNOWN);
                 break;
         }
@@ -354,19 +366,6 @@ void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
     drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
 #endif
 
-    /* Draw the text and bars for network settings */
-    setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(NETWORK_BUTTON) + SCALE(10);
-    drawstr(x + SCALE(10), y + SCALE(10), NETWORK_BUTTON);
-
-    if (panel_settings_net.disabled) {
-        DRAW_UNDERLINE();
-    } else {
-        DRAW_OVERLINE();
-    }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
-
     /* Draw the text and bars for User interface settings */
     setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
     x            = x_right_edge;
@@ -433,9 +432,9 @@ void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), STATUSMESSAGE);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(110), TOXID);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), LANGUAGE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(210), PROFILE_PASSWORD);
 }
 
+// Devices settings page
 void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -450,38 +449,41 @@ void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
 }
 
 void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(225), PROFILE_PASSWORD);
+
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(256), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(270), PROFILE_PW_NO_RECOVER);
+    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(275), PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(289), PROFILE_PW_NO_RECOVER);
 }
 
-void draw_settings_text_network(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+void draw_nospam_settings(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), WARNING);
+    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(230), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(30), IPV6);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), UDP);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(90), PROXY);
-    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(114), ":", 1);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(225), NOSPAM);
 }
 
+// UI settings page
 void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(150), y + SCALE(10), DPI);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), THEME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(65), LOGGING);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(65), SAVE_CHAT_HISTORY);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(95), CLOSE_TO_TRAY);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(125), START_IN_TRAY);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(155), AUTO_STARTUP);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
 }
 
+// Audio/Video settings page
 void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -496,8 +498,8 @@ void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
     draw_pos_y += draw_pos_y_inc;
 #endif
-    // These are 60 apart as there needs to be room for a dropdown between them.
 
+    // These are 60 apart as there needs to be room for a dropdown between them.
     draw_pos_y_inc = 60;
 
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
@@ -509,6 +511,7 @@ void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
 }
 
+// Notification settings page
 void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -520,9 +523,22 @@ void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int U
 }
 
 void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+    setfont(FONT_MISC);
+    setcolor(C_RED);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), WARNING);
+
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(30), IPV6);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), UDP);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(90), PROXY);
+    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(114), ":", 1);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(140), AUTO_UPDATE);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(170), BLOCK_FRIEND_REQUESTS);
 }
+
 
 void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);

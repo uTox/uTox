@@ -35,7 +35,6 @@
 #define KEY_PAGEUP CARBON_K(kVK_PageUp)
 #define KEY_PAGEDOWN CARBON_K(kVK_PageDown)
 
-#define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
 typedef struct native_image NATIVE_IMAGE;
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img);

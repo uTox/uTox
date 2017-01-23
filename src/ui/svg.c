@@ -1,6 +1,13 @@
 #include "svg.h"
 
+#include "draw.h"
+
 #include "../logging_native.h"
+
+#include <math.h>
+
+// FIXME: Required for UNUSED()
+#include "../main.h"
 
 #define SQRT2 1.41421356237309504880168872420969807856967187537694807317667973799
 

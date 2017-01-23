@@ -142,7 +142,7 @@ msgstr("Ağ")
 msgid(WARNING)
 msgstr("Ağ veya Proxy ayarlarını değiştirmek sizi Tox ağından koparır.")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Loglama")
 
 //TODO: Same as in English? Localize or remove.

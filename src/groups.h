@@ -3,8 +3,9 @@
 
 #include "messages.h"
 
-#include "av/utox_av.h"
-#include "ui/edit.h"
+#include "av/audio.h"
+
+typedef struct edit_change EDIT_CHANGE;
 
 #define MAX_GROUP_PEERS 256
 
@@ -19,7 +20,7 @@ typedef struct group_peer {
     uint32_t id;
     uint32_t name_color;
     size_t name_length;
-    uint8_t name[0];
+    uint8_t name[];
 } GROUP_PEER;
 
 typedef struct groupchat {

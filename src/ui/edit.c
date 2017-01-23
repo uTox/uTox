@@ -2,10 +2,15 @@
 
 #include "contextmenu.h"
 #include "draw.h"
+#include "scrollable.h"
 #include "text.h"
 
+#include "../main_native.h"
 #include "../theme.h"
 #include "../util.h"
+
+// FIXME: Required for UNUSED()
+#include "../main.h"
 
 static EDIT *active_edit;
 

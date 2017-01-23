@@ -2,6 +2,7 @@
 
 #include "main.h"
 
+#include "../main.h" // branding and max width
 #include "../ui/draw.h"
 
 #include "../logging_native.h"

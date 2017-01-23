@@ -1,14 +1,20 @@
 #include "../chatlog.h"
 #include "../file_transfers.h"
+#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
+#include "../tox.h"
 #include "../util.h"
 #include "../utox.h"
 
 #include <dlfcn.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
+
+// FIXME: Required for UNUSED()
+#include "../main.h"
 
 #define LIBGTK_FILENAME "libgtk-3.so.0"
 
@@ -293,10 +299,10 @@ static void ugtk_save_data_thread(void *args) {
 }
 
 static void ugtk_save_chatlog_thread(void *args) {
-    uint32_t friend_number = *(uint32_t *)args;
+    uint32_t friend_number = (uint32_t)args;
 
-    char name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
-    snprintf(name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length, friend[friend_number].name);
+    char name[UTOX_MAX_NAME_LENGTH + sizeof ".txt"];
+    snprintf(name, sizeof name, "%.*s.txt", (int)friend[friend_number].name_length, friend[friend_number].name);
 
     void *dialog = utoxGTK_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
                                                    "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
@@ -359,7 +365,7 @@ void ugtk_save_chatlog(uint32_t friend_number) {
     }
 
     utoxGTK_open = true;
-    thread(ugtk_save_chatlog_thread, &friend_number);
+    thread(ugtk_save_chatlog_thread, friend_number); // No need to create and pass a pointer for a single u32
 }
 
 /* macro to link and test each of the gtk functions we need.

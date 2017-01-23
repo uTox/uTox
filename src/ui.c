@@ -3,6 +3,7 @@
 #include "flist.h"
 #include "inline_video.h"
 #include "main.h"
+#include "messages.h"
 #include "theme.h"
 
 #include "ui/buttons.h"
@@ -11,6 +12,7 @@
 #include "ui/draw_helpers.h"
 #include "ui/dropdowns.h"
 #include "ui/layout_all.h"
+#include "ui/scrollable.h"
 #include "ui/switches.h"
 #include "ui/text.h"
 #include "ui/tooltip.h"
@@ -101,8 +103,6 @@ static void sidepanel_FLIST(void) {
 
     CREATE_BUTTON(filter_friends, SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_TOP, SIDEBAR_FILTER_FRIENDS_WIDTH,
                   SIDEBAR_FILTER_FRIENDS_HEIGHT);
-
-
     CREATE_EDIT(search, SIDEBAR_SEARCH_LEFT, SIDEBAR_SEARCH_TOP, SIDEBAR_SEARCH_WIDTH, SIDEBAR_SEARCH_HEIGHT);
 
     CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
@@ -122,54 +122,41 @@ static void settings_PROFILE(void) {
     CREATE_BUTTON(copyid, SCALE(66), SCALE(106), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     CREATE_DROPDOWN(language, SCALE(10), SCALE(177), SCALE(24), SCALE(-10));
-
-    CREATE_BUTTON(show_password_settings, SCALE(145), SCALE(206), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(lock_uTox, SCALE(10), SCALE(260), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-}
-
-static void settings_NETWORK(void) {
-    panel_settings_net.y           = SCALE(32);
-
-    CREATE_SWITCH(ipv6, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(udp, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-
-    CREATE_DROPDOWN(proxy, SCALE(10), SCALE(110), SCALE(24), SCALE(120));
-    CREATE_EDIT(proxy_ip, SCALE(140), SCALE(110), SCALE(120), SCALE(24));
-    CREATE_EDIT(proxy_port, SCALE(270), SCALE(110), SCALE(60), SCALE(24));
 }
 
 static void settings_UI(void) {
     panel_settings_ui.y            = SCALE(32);
 
     CREATE_DROPDOWN(theme, SCALE(10), SCALE(30), SCALE(24), SCALE(120));
-    CREATE_DROPDOWN(dpi, SCALE(150), SCALE(30), SCALE(24), SCALE(200));
 
-    CREATE_SWITCH(logging, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(close_to_tray, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(start_in_tray, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(120), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(auto_startup, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(mini_contacts, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(180), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_DROPDOWN(dpi,   SCALE(150), SCALE(30), SCALE(24), SCALE(200));
+
+    CREATE_SWITCH(save_chat_history, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(close_to_tray,     SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(start_in_tray,     SCALE(-10) - BM_SWITCH_WIDTH, SCALE(120), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(auto_startup,      SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(mini_contacts,     SCALE(-10) - BM_SWITCH_WIDTH, SCALE(180), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
 }
 
 static void settings_AV(void) {
     panel_settings_av.y            = SCALE(32);
 
-    CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(5), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
     #ifndef AUDIO_FILTERING
         const uint16_t start_draw_y = 30;
-        const uint16_t preview_button_pos_y = 250;
+        const uint16_t preview_button_pos_y = 245;
     #else
         const uint16_t start_draw_y = 60;
-        const uint16_t preview_button_pos_y = 280;
-        CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+        const uint16_t preview_button_pos_y = 275;
+        CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(35), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     #endif
 
 
     const uint16_t draw_y_vect = 30;
-    CREATE_DROPDOWN(audio_in, SCALE(10), SCALE(start_draw_y + draw_y_vect), SCALE(24), SCALE(360));
+    CREATE_DROPDOWN(audio_in,  SCALE(10), SCALE(start_draw_y + draw_y_vect), SCALE(24), SCALE(360));
     CREATE_DROPDOWN(audio_out, SCALE(10), SCALE(start_draw_y + draw_y_vect + 60), SCALE(24), SCALE(360));
-    CREATE_DROPDOWN(video, SCALE(10), SCALE(start_draw_y + draw_y_vect + 120), SCALE(24), SCALE(360));
+    CREATE_DROPDOWN(video,     SCALE(10), SCALE(start_draw_y + draw_y_vect + 120), SCALE(24), SCALE(360));
 
     CREATE_BUTTON(callpreview, SCALE(10), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
     CREATE_BUTTON(videopreview, SCALE(70), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
@@ -184,12 +171,37 @@ static void settings_NOTIFY(void) {
     CREATE_DROPDOWN(global_group_notifications, SCALE( 10),                   SCALE(120),       SCALE(24),       SCALE(100));
 }
 
+static void settings_ADV(void) {
+    panel_settings_adv.y = SCALE(32);
+
+    CREATE_SWITCH(ipv6, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(udp,  SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+
+    CREATE_DROPDOWN(proxy,  SCALE(10), SCALE(110), SCALE(24), SCALE(120));
+    CREATE_EDIT(proxy_ip,   SCALE(140), SCALE(110), SCALE(120), SCALE(24));
+    CREATE_EDIT(proxy_port, SCALE(270), SCALE(110), SCALE(60), SCALE(24));
+
+    CREATE_SWITCH(auto_update, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(140), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(block_friend_requests, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(170), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+
+    CREATE_BUTTON(show_password_settings, SCALE(10),  SCALE(200), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_nospam,            SCALE(170), SCALE(200), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+
+    CREATE_EDIT(nospam,           SCALE(10),  SCALE(245), SCALE(-10), SCALE(24));
+    CREATE_BUTTON(change_nospam,  SCALE(10),  SCALE(275), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(revert_nospam,  SCALE(200), SCALE(275), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+
+    CREATE_EDIT(profile_password, SCALE(10),  SCALE(88) + (SCALE(157) * panel_profile_password.disabled), SCALE(-10), SCALE(24));
+    CREATE_BUTTON(lock_uTox,      SCALE(10),  SCALE(275), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+}
+
 void ui_set_scale(uint8_t scale) {
-    if (ui_scale == scale) {
-        return;
+    if (scale >= 6 && scale <= 26) {
+        ui_scale = scale;
+    } else if (scale != 0) {
+        return ui_set_scale(10);
     }
 
-    ui_scale = scale;
     flist_re_scale();
     setscale_fonts();
     setfont(FONT_SELF_NAME);
@@ -224,11 +236,10 @@ void ui_set_scale(uint8_t scale) {
     sidepanel_FLIST();
 
     settings_PROFILE();
-    settings_NETWORK();
     settings_UI();
     settings_AV();
     settings_NOTIFY();
-
+    settings_ADV();
 
     // FIXME for testing, remove
     CREATE_BUTTON(notify_create, SCALE(2), SCALE(2), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
@@ -236,19 +247,17 @@ void ui_set_scale(uint8_t scale) {
     CREATE_BUTTON(notify_two, SCALE(200), SCALE(-50), SCALE(40), SCALE(50));
     CREATE_BUTTON(notify_three, SCALE(-40), SCALE(-50), SCALE(40), SCALE(50));
 
-    /* Setting pages */
     CREATE_BUTTON(move_notify, SCALE(-40), SCALE(-40), SCALE(40), SCALE(40));
 
+
+    /* Setting pages */
     CREATE_BUTTON(settings_sub_profile, 1, 1, SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON), SCALE(28));
-    uint32_t settings_tab_x = 1 + UTOX_STR_WIDTH(PROFILE_BUTTON);
+    uint32_t settings_tab_x = SCALE(22) + UTOX_STR_WIDTH(PROFILE_BUTTON);
 
 #ifdef ENABLE_MULTIDEVICE
     CREATE_BUTTON(settings_sub_devices, settings_tab_x, 1, SCALE(22) + UTOX_STR_WIDTH(DEVICES_BUTTON), SCALE(28));
     settings_tab_x += SCALE(22) + UTOX_STR_WIDTH(DEVICES_BUTTON);
 #endif
-
-    CREATE_BUTTON(settings_sub_net, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(NETWORK_BUTTON), SCALE(28));
-    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(NETWORK_BUTTON);
 
     CREATE_BUTTON(settings_sub_ui, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON), SCALE(28));
     settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
@@ -298,12 +307,9 @@ void ui_set_scale(uint8_t scale) {
 
     setfont(FONT_TEXT);
 
-
     // Add friend panel
-
     CREATE_EDIT(add_id, SCALE(10), SCALE(28) + MAIN_TOP, SCALE(-10), SCALE(24));
     CREATE_EDIT(add_msg, SCALE(10), SCALE(76) + MAIN_TOP, SCALE(-10), SCALE(84));
-    CREATE_EDIT(profile_password, SCALE(10), SCALE(88) + (SCALE(140) * panel_profile_password.disabled), SCALE(-10), SCALE(24));
 
     /* Message entry box for friends and groups */
     CREATE_EDIT(msg, SCALE(10) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
@@ -543,6 +549,7 @@ void panel_mdown(PANEL *p) {
             }
         }
     }
+    draw ? redraw() : 0;
 }
 
 bool panel_dclick(PANEL *p, bool triclick) {

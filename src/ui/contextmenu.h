@@ -3,6 +3,9 @@
 
 #include "../ui.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+
 typedef struct contextmenu {
     int     x, y, width, height;
     bool    open;

@@ -143,7 +143,7 @@ msgstr("Netwerk")
 msgid(WARNING)
 msgstr("Het veranderen van Netwerk/Proxy instellingen zal de verbinding met het Tox netwerk tijdelijk verbreken")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Logboek registratie")
 
 msgid(IS_TYPING)

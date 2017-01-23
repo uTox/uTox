@@ -5,9 +5,11 @@
 #include "draw_helpers.h"
 #include "dropdowns.h"
 #include "edits.h"
+#include "scrollable.h"
 #include "switches.h"
 
-// clang-format off
+#include <stddef.h>
+
 // Scrollbar or friend list
 SCROLLABLE scrollbar_flist = {
     .panel = { .type = PANEL_SCROLLABLE, },
@@ -281,7 +283,6 @@ panel_main = {
                 .child = (PANEL*[]) {
                     (PANEL*)&button_settings_sub_profile,
                     (PANEL*)&button_settings_sub_devices,
-                    (PANEL*)&button_settings_sub_net,
                     (PANEL*)&button_settings_sub_ui,
                     (PANEL*)&button_settings_sub_av,
                     (PANEL*)&button_settings_sub_notifications,
@@ -289,7 +290,6 @@ panel_main = {
                     (PANEL*)&scrollbar_settings,
                     &panel_settings_profile,
                     &panel_settings_devices,
-                    &panel_settings_net,
                     &panel_settings_ui,
                     &panel_settings_av,
                     &panel_settings_notifications,
@@ -311,8 +311,6 @@ panel_main = {
                     (PANEL*)&edit_toxid,
                     (PANEL*)&button_copyid,
                     (PANEL*)&dropdown_language,
-                    (PANEL*)&button_show_password_settings,
-                    &panel_profile_password_settings,
                     NULL
                 }
             },
@@ -337,22 +335,6 @@ panel_main = {
                 .child = NULL,
             },
 
-            panel_settings_net = {
-                .type = PANEL_NONE,
-                /* Disabled by default, enabled by network button */
-                .disabled = 1,
-                .drawfunc = draw_settings_text_network,
-                .content_scroll = &scrollbar_settings,
-                .child = (PANEL*[]) {
-                    (PANEL*)&edit_proxy_ip,
-                    (PANEL*)&edit_proxy_port,
-                    (PANEL*)&dropdown_proxy,
-                    (PANEL*)&switch_ipv6,
-                    (PANEL*)&switch_udp,
-                    NULL
-                }
-            },
-
             panel_settings_ui = {
                 .type = PANEL_NONE,
                 .drawfunc = draw_settings_text_ui,
@@ -361,7 +343,7 @@ panel_main = {
                 .child = (PANEL*[]) {
                     (PANEL*)&dropdown_dpi,
                     (PANEL*)&dropdown_theme,
-                    (PANEL*)&switch_logging,
+                    (PANEL*)&switch_save_chat_history,
                     (PANEL*)&switch_close_to_tray,
                     (PANEL*)&switch_start_in_tray,
                     (PANEL*)&switch_auto_startup,
@@ -389,7 +371,7 @@ panel_main = {
 
             panel_settings_notifications = {
                 .type = PANEL_NONE,
-                .disabled = 1,
+                .disabled = true,
                 .drawfunc = draw_settings_text_notifications,
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
@@ -399,19 +381,42 @@ panel_main = {
                     (PANEL*)&switch_audible_notifications,
                     NULL
                 }
+            },
 
+            panel_nospam_settings = {
+                .type = PANEL_NONE,
+                .disabled = true,
+                .drawfunc = draw_nospam_settings,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&edit_nospam,
+                    (PANEL*)&button_change_nospam,
+                    (PANEL*)&button_revert_nospam,
+                    NULL
+                 }
             },
 
             panel_settings_adv = {
                 .type = PANEL_NONE,
-                .disabled = 1,
+                .disabled = true,
                 .drawfunc = draw_settings_text_adv,
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
-                    NULL
-                }
+                    (PANEL*)&edit_proxy_ip,
+                    (PANEL*)&edit_proxy_port,
+                    (PANEL*)&dropdown_proxy,
+                    (PANEL*)&switch_ipv6,
+                    (PANEL*)&switch_udp,
+                    (PANEL*)&switch_auto_update,
+                    (PANEL*)&button_show_password_settings,
+                    &panel_profile_password_settings,
 
+                    (PANEL*)&switch_block_friend_requests,
+                    (PANEL*)&button_show_nospam,
+                    &panel_nospam_settings,
+                    NULL,
+                }
             };
-// clang-format on
+
 
 #endif

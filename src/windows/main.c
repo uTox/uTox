@@ -5,6 +5,8 @@
 #include "window.h"
 
 #include "../commands.h"
+#include "../file_transfers.h"
+#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
@@ -13,11 +15,12 @@
 #include "../tox.h"
 #include "../util.h"
 #include "../utox.h"
-#include "../util.h"
 
 #include "../av/utox_av.h"
 #include "../ui/buttons.h"
+#include "../ui/draw.h"
 #include "../ui/dropdowns.h"
+#include "../ui/edit.h"
 #include "../ui/svg.h"
 
 #include <windowsx.h>
@@ -26,7 +29,6 @@ static bool flashing;
 static bool hidden;
 
 static TRACKMOUSEEVENT tme           = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0 };
-static bool            mouse_tracked = false;
 
 bool  draw      = false;
 float scale     = 1.0;
@@ -52,7 +54,7 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
 void openfilesend(void) {
     char *filepath = calloc(10, UTOX_FILE_NAME_LENGTH); /* lets pick 10 as the number of files we want to work with. */
     if (filepath == NULL) {
-        debug("openfilesend:\t Could not allocate memory for path.\n");
+        debug_error("Windows:\t Could not allocate memory for path.\n");
         return;
     }
 
@@ -71,7 +73,7 @@ void openfilesend(void) {
         FRIEND *f = flist_get_selected()->data;
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, ofn.nFileOffset, filepath);
     } else {
-        debug("GetOpenFileName() failed\n");
+        debug_error("GetOpenFileName() failed\n");
     }
 
     SetCurrentDirectoryW(dir);
@@ -134,9 +136,9 @@ void openfileavatar(void) {
 }
 
 void file_save_inline(FILE_TRANSFER *file) {
-    char *path = malloc(UTOX_FILE_NAME_LENGTH);
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
-        debug("file_save_inline:\t Could not allocate memory for path.\n");
+        debug_error("file_save_inline:\tCould not allocate memory for path.\n");
         return;
     }
     strcpy(path, (char *)file->path);
@@ -157,9 +159,11 @@ void file_save_inline(FILE_TRANSFER *file) {
             fclose(fp);
 
             snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
+        } else {
+            debug_error("file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
         }
     } else {
-        debug("GetSaveFileName() failed\n");
+        debug_error("GetSaveFileName() failed\n");
     }
     free(path);
 }
@@ -711,6 +715,27 @@ static void cursors_init(void) {
 #define UTOX_UPDATER_EXE "\\utox_runner.exe"
 #define UTOX_VERSION_FILE "\\version"
 
+static bool auto_update(PSTR cmd) {
+    char path[MAX_PATH + 20];
+    int  len = GetModuleFileName(NULL, path, MAX_PATH);
+
+    /* Is the uTox exe named like the updater one. */
+    char *file = path + len - (sizeof("uTox.exe") - 1);
+    if (len > sizeof("uTox.exe")) {
+        memcpy(file, "uTox_updater.exe", sizeof("uTox_updater.exe"));
+        FILE *fp = fopen(path, "rb");
+        if (fp) {
+            char real_cmd[strlen(cmd) * 2];
+            snprintf(real_cmd, strlen(cmd) * 2, "%s %S %2x%2x%2x", cmd, "--version ", VER_MAJOR, VER_MINOR, VER_PATCH);
+            fclose(fp);
+            /* This is an updater build not being run by the updater. Run the updater and exit. */
+            ShellExecute(NULL, "open", path, real_cmd, NULL, SW_SHOW);
+            return true;
+        }
+    }
+    return false;
+}
+
 /** client main()
  *
  * Main thread
@@ -751,9 +776,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   no_updater;
+    bool   skip_updater, from_updater;
 
-    parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
+    parse_args(argc, argv, &skip_updater, &from_updater, &theme_was_set_on_argv,
+               &should_launch_at_startup, &set_show_window );
 
     if (settings.portable_mode == true) {
         /* force the working directory if opened with portable command */
@@ -761,8 +787,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         char         path[MAX_PATH];
         int          len = GetModuleFileName(hModule, path, MAX_PATH);
         unsigned int i;
-        for (i = (len - 1); path[i] != '\\'; --i)
-            ;
+        for (i = (len - 1); path[i] != '\\'; --i);
         path[i] = 0; //!
         SetCurrentDirectory(path);
         strcpy(portable_mode_save_path, (char *)path);
@@ -774,33 +799,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         launch_at_startup(0);
     }
 
-    #ifdef UPDATER_BUILD
 
-    if (!no_updater) {
-
-        char path[MAX_PATH + 20];
-        int  len = GetModuleFileName(NULL, path, MAX_PATH);
-
-        /* Is the uTox exe named like the updater one. */
-        if (len > sizeof(UTOX_EXE) && memcmp(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_EXE, sizeof(UTOX_EXE)) == 0) {
-            memcpy(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_VERSION_FILE, sizeof(UTOX_VERSION_FILE));
-            FILE *fp = fopen(path, "rb");
-            if (fp) {
-                fclose(fp);
-                /* Updater is here. */
-                memcpy(path + (len - (sizeof(UTOX_EXE) - 1)), UTOX_UPDATER_EXE, sizeof(UTOX_UPDATER_EXE));
-                FILE *fp = fopen(path, "rb");
-                if (fp) {
-                    fclose(fp);
-                    CloseHandle(utox_mutex);
-                    /* This is an updater build not being run by the updater. Run the updater and exit. */
-                    ShellExecute(NULL, "open", path, cmd, NULL, SW_SHOW);
-                    return false;
-                }
-            }
+    debug_error("skip updater\n");
+    if (!skip_updater) {
+        debug_error("don't skip updater\n");
+        if (auto_update(cmd)) {
+            CloseHandle(utox_mutex);
+            return 0;
         }
     }
-    #endif
 
     #ifdef __WIN_LEGACY
         debug("Legacy windows build\n");
@@ -811,7 +818,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
 
-    MSG msg;
+    #ifdef GIT_VERSION
+        debug_notice("uTox version %s \n", GIT_VERSION);
+    #endif
 
     cursors_init();
 
@@ -820,6 +829,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     screen_grab_init(hInstance);
 
     OleInitialize(NULL);
+
 
     uint16_t langid = GetUserDefaultUILanguage() & 0xFFFF;
 
@@ -863,7 +873,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     thread(toxcore_thread, NULL);
 
     // wait for tox_thread init
-    while (!tox_thread_init && !settings.use_encryption) {
+    while (!tox_thread_init && !settings.save_encryption) {
         yieldcpu(1);
     }
 
@@ -892,6 +902,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         ShowWindow(main_window.window, nCmdShow);
     }
 
+    MSG msg;
     while (GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -905,7 +916,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     tray_icon_decon(main_window.window);
 
-    /* wait for threads to exit */
+    // wait for tox_thread to exit
     while (tox_thread_init) {
         yieldcpu(10);
     }
@@ -920,7 +931,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     };
     config_save(&d);
 
-    printf("uTox:\tClean exit.\n");
+    debug_info("uTox:\tClean exit.\n");
 
     return false;
 }

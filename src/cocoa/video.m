@@ -1,9 +1,12 @@
 #include "main.h"
+
+#include "../av/utox_av.h"
 #include "../friend.h"
 #include "../logging_native.h"
+#include "../main.h"
 #include "../tox.h"
 #include "../util.h"
-#include "../av/utox_av.h"
+
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
 #include <pthread.h>

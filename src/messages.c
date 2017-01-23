@@ -7,15 +7,20 @@
 #include "file_transfers.h"
 #include "filesys.h"
 #include "flist.h"
+#include "friend.h"
+#include "groups.h"
 #include "logging_native.h"
 #include "theme.h"
+#include "tox.h"
 #include "util.h"
 #include "utox.h"
 
+#include "ui/contextmenu.h"
 #include "ui/draw.h"
+#include "ui/edit.h"
+#include "ui/scrollable.h"
 #include "ui/svg.h"
 #include "ui/text.h"
-#include "ui/contextmenu.h"
 
 /** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;
@@ -320,7 +325,12 @@ MSG_FILE *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incoming
     msg->progress   = current_size;
     msg->speed      = 0;
     msg->inline_png = image;
-    msg->path       = NULL;
+
+    if (image) {
+        msg->path = NULL;
+    } else { // It's a file
+        msg->path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    }
 
     message_add(m, (MSG_VOID *)msg);
 
@@ -531,11 +541,14 @@ static void messages_draw_timestamp(int x, int y, const time_t *time) {
 
     char     timestr[9];
     uint16_t len;
+
+
     if (settings.use_long_time_msg) {
         len = snprintf(timestr, sizeof(timestr), "%.2u:%.2u:%.2u", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
-        x -= SCALE(8);
+        x -= textwidth("24:60:00", sizeof "24:60:00" - 1);
     } else {
         len = snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
+        x -= textwidth("24:60", sizeof "24:60" - 1);
     }
 
     if (len >= sizeof(timestr)) {
@@ -870,7 +883,7 @@ static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t curr_msg_i,
     }
 
     messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->msg, msg->author_length, msg->author_color);
-    messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
+    messages_draw_timestamp(x + width, y, &msg->time);
     return messages_draw_text(msg->msg + msg->author_length, msg->length, msg->height, msg->msg_type, msg->our_msg, 1,
                               h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height)
            + MESSAGES_SPACING;
@@ -920,7 +933,6 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
         if (m->is_groupchat) {
             y = messages_draw_group(m, (MSG_GROUP *)msg, curr_msg_i, x, y, width, height);
             continue;
-
         } else {
             FRIEND *f           = &friend[m->id];
             bool    draw_author = 1;
@@ -962,7 +974,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             case MSG_TYPE_ACTION_TEXT:
             case MSG_TYPE_NOTICE: {
                 // Draw timestamps
-                messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
+                messages_draw_timestamp(x + width, y, &msg->time);
                 /* intentional fall through */
             }
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
@@ -1257,7 +1269,7 @@ bool messages_mdown(PANEL *panel) {
             }
 
             case MSG_TYPE_IMAGE: {
-                MSG_IMG *img = (void *)msg;
+                MSG_IMG *img = msg;
                 if (m->cursor_over_position) {
                     if (!img->zoom) {
                         img->zoom = 1;
@@ -1270,13 +1282,13 @@ bool messages_mdown(PANEL *panel) {
             }
 
             case MSG_TYPE_FILE: {
-                MSG_FILE *file = (void *)msg;
+                MSG_FILE *file = msg;
                 if (m->cursor_over_position == 0) {
                     break;
                 }
 
                 FRIEND *f = get_friend(m->id);
-                FILE_TRANSFER *ft = &(f->file_transfers_incoming[file->file_number]);
+                FILE_TRANSFER *ft = &(f->file_transfers_incoming[file->file_number]); // TODO, abstraction needed
 
                 if (file->file_status == FILE_TRANSFER_STATUS_COMPLETED) {
                     if (m->cursor_over_position) {
@@ -1296,12 +1308,12 @@ bool messages_mdown(PANEL *panel) {
                     }
 
                     if (file->file_status == FILE_TRANSFER_STATUS_ACTIVE) {
-                        postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->file_number, NULL);
+                        postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->file_number, ft);
                     } else {
-                        postmessage_toxcore(TOX_FILE_RESUME, m->id, file->file_number, NULL);
+                        postmessage_toxcore(TOX_FILE_RESUME, m->id, file->file_number, ft);
                     }
                 } else if (m->cursor_over_position == 1) { // Should be cancel
-                    postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
+                    postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, ft);
                 }
                 return true;
             }

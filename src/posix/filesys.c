@@ -1,6 +1,7 @@
-#include <assert.h>
+#include "../filesys.h"
 
 #include "../logging_native.h"
+#include "../main.h"
 
 #ifdef __OBJC__
 #include "../main.h"
@@ -8,6 +9,8 @@
 #else
 #include "../xlib/main.h"
 #endif
+
+#include <assert.h>
 
 bool native_create_dir(const uint8_t *filepath) {
     const int status = mkdir((char *)filepath, S_IRWXU);
@@ -105,4 +108,12 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     return fp;
+}
+
+bool native_move_file(const uint8_t *current_name, const uint8_t *new_name) {
+    if(!current_name || !new_name) {
+        return false;
+    }
+
+    return rename((char *)current_name, (char *)new_name);
 }

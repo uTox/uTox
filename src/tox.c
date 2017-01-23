@@ -2,6 +2,7 @@
 
 #include "avatar.h"
 #include "commands.h"
+#include "dns.h"
 #include "file_transfers.h"
 #include "flist.h"
 #include "friend.h"
@@ -22,7 +23,6 @@
 #include "ui/tooltip.h"
 
 #include <tox/toxencryptsave.h>
-
 
 static bool save_needed = 1;
 
@@ -244,7 +244,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
 }
 
 static int load_toxcore_save(struct Tox_Options *options) {
-    settings.use_encryption = 0;
+    settings.save_encryption = 0;
     size_t   raw_length;
     uint8_t *raw_data = utox_data_load_tox(&raw_length);
 
@@ -253,7 +253,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
         if (tox_is_data_encrypted(raw_data)) {
             size_t   cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
             uint8_t *clear_data       = calloc(1, cleartext_length);
-            settings.use_encryption   = 1;
+            settings.save_encryption   = 1;
             debug("Using encrypted data, trying password: ");
 
             UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
@@ -296,8 +296,12 @@ static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL UNUSED(level), const ch
     }
 }
 
+// initialize toxcore based on current settings
+// returns 0 on success
+// returns -1 on temporary error (waiting for password encryption)
+// returns -2 on fatal error
 static int init_toxcore(Tox **tox) {
-    tox_thread_init = 0;
+    tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
     int save_status = 0;
 
     struct Tox_Options topt;
@@ -321,20 +325,21 @@ static int init_toxcore(Tox **tox) {
     if (save_status == -1) {
         /* Save file exist, couldn't decrypt, don't start a tox instance
         TODO: throw an error to the UI! */
-        panel_profile_password.disabled = 0;
-        panel_settings_master.disabled  = 1;
+        panel_profile_password.disabled = false;
+        panel_settings_master.disabled  = true;
         edit_setfocus(&edit_profile_password);
+        postmessage_utox(REDRAW, 0, 0, NULL);
         return -1;
     } else if (save_status == -2) {
         /* New profile! */
-        panel_profile_password.disabled = 1;
-        panel_settings_master.disabled  = 0;
+        panel_profile_password.disabled = true;
+        panel_settings_master.disabled  = false;
     } else {
-        panel_profile_password.disabled = 1;
+        panel_profile_password.disabled = true;
         if (settings.show_splash) {
-            panel_splash_page.disabled = 0;
+            panel_splash_page.disabled = false;
         } else {
-            panel_settings_master.disabled = 0;
+            panel_settings_master.disabled = false;
         }
         edit_resetfocus();
     }
@@ -345,7 +350,7 @@ static int init_toxcore(Tox **tox) {
     }
 
     // Create main connection
-    debug("CORE:\tCreating New Toxcore instance.\n"
+    debug_notice("CORE:\tCreating New Toxcore instance.\n"
           "\t\tIPv6 : %u\n"
           "\t\tUDP  : %u\n"
           "\t\tProxy: %u %s %u\n",
@@ -357,22 +362,30 @@ static int init_toxcore(Tox **tox) {
     *tox = tox_new(&topt, &tox_new_err);
 
     if (*tox == NULL) {
-        debug("\t\tError #%u, Going to try without proxy.\n", tox_new_err);
+        if (settings.force_proxy) {
+            debug_error("\t\tError #%u, Not going to try without proxy because of user settings.\n", tox_new_err);
+            return -2;
+        }
+        debug_error("\t\tError #%u, Going to try without proxy.\n", tox_new_err);
 
-        topt.proxy_type         = TOX_PROXY_TYPE_NONE;
+        // reset proxy options as well as GUI and settings
+        topt.proxy_type = TOX_PROXY_TYPE_NONE;
+        settings.use_proxy = settings.force_proxy = 0;
         dropdown_proxy.selected = dropdown_proxy.over = 0;
 
         *tox = tox_new(&topt, &tox_new_err);
 
-        if (!topt.proxy_type || *tox == NULL) {
-            debug("\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
+        if (*tox == NULL) {
+            debug_error("\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
 
-            topt.ipv6_enabled     = 0;
-            switch_ipv6.switch_on = settings.enable_ipv6 = 1;
-            *tox                                         = tox_new(&topt, &tox_new_err);
+            // reset IPv6 options as well as GUI and settings
+            topt.ipv6_enabled = 0;
+            switch_ipv6.switch_on = settings.enable_ipv6 = 0;
 
-            if (!topt.ipv6_enabled || *tox == NULL) {
-                debug("\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
+            *tox = tox_new(&topt, &tox_new_err);
+
+            if (*tox == NULL) {
+                debug_error("\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
                 return -2;
             }
         }
@@ -408,8 +421,11 @@ static void init_self(Tox *tox) {
     self.id_str_length = TOX_FRIEND_ADDRESS_SIZE * 2;
     debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
 
-    char hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
-    id_to_string(hex_id, self.id_binary);
+    /* Get nospam */
+    self.nospam = tox_self_get_nospam(tox);
+    self.old_nospam = self.nospam;
+    sprintf(self.nospam_str, "%08X", self.nospam);
+
     avatar_init_self();
 }
 
@@ -430,11 +446,36 @@ void toxcore_thread(void *UNUSED(args)) {
         reconfig = 0;
 
         toxcore_init_err = init_toxcore(&tox);
-        if (toxcore_init_err) {
+        if (toxcore_init_err == -2) {
+            // fatal failure, unable to create tox instance
+            debug_error("Tox:\tUnable to create Tox Instance (%d)\n", toxcore_init_err);
+            // set init to true because other code is waiting for it.
+            // but indicate error state
+            tox_thread_init = UTOX_TOX_THREAD_INIT_ERROR;
+            while (!reconfig) {
+                // Waiting for a message triggering the next reconfigure
+                // avoid trying the creation of thousands of tox instances before user changes the settings
+                if (tox_thread_msg) {
+                    TOX_MSG *msg = &tox_msg;
+                    // If msg->msg is 0, reconfig
+                    if (!msg->msg) {
+                        reconfig = (bool) msg->param1;
+                        tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
+                    }
+                    // tox is not configured at this point ignore all other messages
+                    tox_thread_msg = 0;
+                } else {
+                    yieldcpu(300);
+                }
+            }
+            continue;
+        } else if (toxcore_init_err) {
             /* Couldn't init toxcore, probably waiting for user password */
             yieldcpu(300);
-            tox_thread_init = 0;
-            reconfig        = 1;
+            tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
+            // ignore all messages in this stage
+            tox_thread_msg = 0;
+            reconfig = 1;
             continue;
         } else {
             init_self(tox);
@@ -450,7 +491,7 @@ void toxcore_thread(void *UNUSED(args)) {
             // Give toxcore the av functions to call
             set_av_callbacks(av);
 
-            tox_thread_init = 1;
+            tox_thread_init = UTOX_TOX_THREAD_INIT_SUCCESS;
 
             /* init the friends list. */
             flist_start();
@@ -501,7 +542,7 @@ void toxcore_thread(void *UNUSED(args)) {
                 if (!msg->msg) {
                     reconfig        = msg->param1;
                     tox_thread_msg  = 0;
-                    tox_thread_init = 0;
+                    tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
                     break;
                 }
                 tox_thread_message(tox, av, time, msg->msg, msg->param1, msg->param2, msg->data);
@@ -533,7 +574,7 @@ void toxcore_thread(void *UNUSED(args)) {
         tox_kill(tox);
     }
 
-    tox_thread_init = 0;
+    tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
     debug("Tox thread:\tClean exit!\n");
 }
 
@@ -576,6 +617,33 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              */
             tox_self_set_status(tox, param1);
             save_needed = 1;
+            break;
+        }
+
+        case TOX_SELF_CHANGE_NOSPAM: {
+            /* param1: 0 for revert to old_nospam 1 for random nospam
+             */
+            char *old_id = self.id_str;
+
+            if (param1 == 0){
+                self.nospam = self.old_nospam;
+            } else {
+                long int newspam = rand();
+                self.nospam = (uint32_t)newspam;
+            }
+
+            sprintf(self.nospam_str, "%08X", self.nospam);
+            tox_self_set_nospam(tox, self.nospam);
+
+            /* update tox id */
+            tox_self_get_address(tox, self.id_binary);
+            id_to_string(self.id_str, self.id_binary);
+            debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
+
+            /* Update avatar */
+            avatar_move((uint8_t *)old_id, (uint8_t *)self.id_str);
+
+            save_needed = true;
             break;
         }
 
@@ -764,7 +832,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             if (param2 == 0) {
                 // This is the new default. Where the caller sends an opened file.
                 UTOX_MSG_FT *msg = data;
-                ft_send_file(tox, param1, msg->file, msg->name, strlen((char*)msg->name));
+                ft_send_file(tox, param1, msg->file, msg->name, strlen((char*)msg->name), NULL);
                 free(msg->name);
                 free(msg);
                 break;
@@ -791,9 +859,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * data: path to write file */
             if (utox_file_start_write(param1, param2, data) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
             break;
             free(data);
@@ -804,24 +872,33 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * data: path to write file */
             if (utox_file_start_write(param1, param2, data) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
-                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+                ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
             break;
             free(data);
         }
         case TOX_FILE_RESUME: {
             /*                              friend#, file# */
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+            if (data) {
+                param2 = ((FILE_TRANSFER*)data)->file_number;
+            }
+            ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             break;
         }
         case TOX_FILE_PAUSE: {
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
+            if (data) {
+                param2 = ((FILE_TRANSFER*)data)->file_number;
+            }
+            ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
             break;
         }
         case TOX_FILE_CANCEL: {
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+            if (data) {
+                param2 = ((FILE_TRANSFER*)data)->file_number;
+            }
+            ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             break;
         }
 

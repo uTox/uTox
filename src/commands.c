@@ -3,7 +3,9 @@
 #include "command_funcs.h"
 #include "flist.h"
 #include "logging_native.h"
+#include "main.h"
 #include "util.h"
+#include "ui/edits.h"
 
 struct Command commands[MAX_NUM_CMDS] = {
     { "alias",    5, slash_alias     },
@@ -129,12 +131,14 @@ void do_tox_url(uint8_t *url_string, int len) {
                 break;
             }
 
-            default: { return; }
+            default: {
+                return;
+            }
         }
         a++;
     }
 
-    if (!tox_thread_init) {
+    if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
         // if we receive a URL event before the profile is loaded, save it for later.
         // this usually happens when we are launched as the result of a URL click.
         g_select_add_friend_later = 1;

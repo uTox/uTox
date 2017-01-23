@@ -10,7 +10,11 @@ before the main thread receives the message for the old one?
 
 #include <tox/tox.h>
 
-#include "main.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+typedef uint8_t *UTOX_IMAGE;
 
 typedef struct {
     uint8_t  msg;
@@ -36,6 +40,7 @@ enum {
     TOX_SELF_SET_NAME,
     TOX_SELF_SET_STATUS,
     TOX_SELF_SET_STATE,
+    TOX_SELF_CHANGE_NOSPAM,
 
     TOX_SELF_NEW_DEVICE,
 

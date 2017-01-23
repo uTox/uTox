@@ -241,8 +241,6 @@ msgstr("Профиль")
 msgid(DEVICES_BUTTON)
 msgstr("Устройства")
 
-msgid(NETWORK_BUTTON)
-msgstr("Сеть")
 
 msgid(USER_INTERFACE_BUTTON)
 msgstr("Интерфейс")
@@ -411,7 +409,7 @@ msgstr("Прокси (SOCKS 5)")
 msgid(WARNING)
 msgstr("Изменение сетевых настроек приведёт к временному отключению от сети Tox")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Сохранять историю чата")
 
 msgid(AUDIONOTIFICATIONS)

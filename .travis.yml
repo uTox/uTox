@@ -55,6 +55,26 @@ matrix:
       env: BUILD=windows
       compiler: x86_64-w64-mingw32-gcc
 
+    - os: linux
+      sudo: required
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-5
+            - mingw-w64
+            - gcc-mingw-w64
+            - mingw-w64-common
+            - binutils-mingw-w64
+            - yasm
+            - libopenal-dev
+            - libopenal-data
+            - libopenal1
+      env: BUILD=windows_legacy
+      compiler: i686-w64-mingw32-gcc
+
     - os: osx
       compiler: clang
       env: BUILD=osx TOXCORE_REPO=TokTok/c-toxcore

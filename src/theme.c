@@ -3,6 +3,7 @@
 #include "logging_native.h"
 #include "main.h"
 #include "main_native.h"
+#include "ui.h"
 
 #include "theme_tables.h"
 
@@ -515,6 +516,8 @@ uint32_t *find_colour_pointer(char *color) {
     if (!strncmp(color, "COLOR_", 6)) {
         color += 6;
     }
+
+    debug_info("Theme:\tColour: %s\n", color);
 
     for (int i = 0;; ++i) {
         const char *s = COLOUR_NAME_TABLE[i];

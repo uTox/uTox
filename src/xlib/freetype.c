@@ -1,9 +1,10 @@
 #include "freetype.h"
 
 #include "main.h"
-
 #include "window.h"
+
 #include "../logging_native.h"
+#include "../main.h" // countof()
 
 #define UTOX_FONT_XLIB "Roboto"
 

@@ -1,10 +1,19 @@
 #include "friend.h"
 
 #include "chatlog.h"
+#include "dns.h"
+#include "filesys.h"
 #include "flist.h"
 #include "logging_native.h"
+#include "main.h"
+#include "main_native.h"
+#include "tox.h"
 #include "util.h"
 #include "utox.h"
+
+#include "av/utox_av.h"
+#include "ui/edits.h"
+#include "ui/scrollable.h"
 
 FRIEND* get_friend(uint32_t friend_number){
     if (friend_number >= 128) {
@@ -176,9 +185,11 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     f->name[f->name_length] = 0;
 
     if (!f->alias_length) {
-        FRIEND *selected = flist_get_selected()->data;
-        if (selected && f->number == selected->number) {
-            maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
+        if (flist_get_selected()->item == ITEM_FRIEND) {
+            FRIEND *selected = flist_get_selected()->data;
+            if (selected && f->number == selected->number) {
+                maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
+            }
         }
     }
 
@@ -206,14 +217,12 @@ void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
 
 void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
                       size_t png_size) {
-    message_add_type_image(&f->msg, 1, native_image, width, height, 0);
-
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
-
     tsim->image      = png_image;
     tsim->image_size = png_size;
-
     postmessage_toxcore(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
+
+    message_add_type_image(&f->msg, 1, native_image, width, height, 0);
 }
 
 void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height) {

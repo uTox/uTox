@@ -214,7 +214,7 @@ msgstr("Mreža")
 msgid(WARNING)
 msgstr("Promjena mrežnih/proxy postavki će vas privremeno odspojiti od Tox mreže")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Evidencije")
 
 msgid(AUDIONOTIFICATIONS)

@@ -1,10 +1,13 @@
 #include "../draw.h"
 
 #include "freetype.h"
+#include "main.h"
 #include "window.h"
 
 #include "../util.h"
 #include "../ui/draw.h"
+
+#include <stdlib.h>
 
 static uint32_t scolor;
 

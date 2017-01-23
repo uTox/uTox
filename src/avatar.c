@@ -1,8 +1,11 @@
 #include "avatar.h"
 
+#include "file_transfers.h"
 #include "friend.h"
 #include "logging_native.h"
 #include "main.h"
+#include "main_native.h"
+#include "tox.h"
 #include "util.h"
 
 /* frees the image of an avatar, does nothing if image is NULL */
@@ -146,6 +149,7 @@ bool avatar_set_self(const uint8_t *data, size_t size) {
 
 void avatar_unset(AVATAR *avatar) {
     if (avatar == NULL) {
+        debug("Avatars:\t avatar is null\n");
         return;
     }
 
@@ -194,4 +198,16 @@ bool avatar_on_friend_online(Tox *tox, uint32_t friend_number) {
     ft_send_avatar(tox, friend_number);
     free(avatar_data);
     return true;
+}
+
+bool avatar_move(const uint8_t *source, const uint8_t *dest) {
+    uint8_t current_name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
+    uint8_t new_name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
+
+    snprintf((char *)current_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, source);
+    snprintf((char *)new_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, dest);
+
+    return utox_move_file(current_name, new_name);
 }

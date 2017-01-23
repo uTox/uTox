@@ -1,7 +1,10 @@
 #ifndef AVATAR_H
 #define AVATAR_H
 
-#include "main.h"
+#include <tox/tox.h>
+
+typedef struct native_image NATIVE_IMAGE;
+typedef struct avatar AVATAR;
 
 // TODO: remove?
 #define UTOX_AVATAR_MAX_DATA_LENGTH (64 * 1024) // NOTE: increasing this above 64k might cause
@@ -100,5 +103,8 @@ bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]);
 
 /* Helper function to intialize the users avatar */
 bool avatar_init_self(void);
+
+/* Moves the avatar to its new name */
+bool avatar_move(const uint8_t *source, const uint8_t *dest);
 
 #endif

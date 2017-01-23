@@ -1,12 +1,14 @@
 #ifndef FILE_TRANSFERS_H
 #define FILE_TRANSFERS_H
 
-#include "main.h"
+#include "filesys.h"
 
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <tox/tox.h>
+
+typedef struct msg_file MSG_FILE;
 
 #define MAX_FILE_TRANSFERS 32
 
@@ -26,7 +28,7 @@ typedef struct {
     uint8_t *name;
 } UTOX_MSG_FT;
 
-struct file_transfer {
+typedef struct file_transfer {
     bool in_use;
     bool incoming;
     bool in_memory;
@@ -59,24 +61,17 @@ struct file_transfer {
     uint32_t speed, num_packets;
     uint64_t last_check_time, last_check_transferred;
 
-    FILE    *resume_data;
+    FILE    *resume_file;
     uint8_t  resume_update;
 
-    // Don't really want this to be void ... MSG_FILE is better, but dependency hell
-    void *ui_data;
-};
+    MSG_FILE *ui_data;
+} FILE_TRANSFER;
 
-// TODO sort the headers and includes better so we can drop this #ifndef from here and main_native
-#ifndef FILE_TRANSFER_DEFINED
-#define FILE_TRANSFER_DEFINED
-typedef struct file_transfer FILE_TRANSFER;
-#endif
-
-void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
+void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
 
 uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number);
 
-uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *name, size_t name_length);
+uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *name, size_t name_length, uint8_t *hash);
 
 uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t size, uint8_t *name, size_t name_length);
 

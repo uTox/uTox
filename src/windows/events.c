@@ -8,15 +8,17 @@
 #include "../draw.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../logging_native.h"
+#include "../main.h" // redraw
 #include "../theme.h"
 #include "../tox.h"
 #include "../util.h"
 #include "../utox.h"
-#include "../logging_native.h"
 
 #include "../av/utox_av.h"
 #include "../ui/buttons.h"
 #include "../ui/dropdowns.h"
+#include "../ui/edits.h"
 #include "../ui/svg.h"
 
 #include <windowsx.h>

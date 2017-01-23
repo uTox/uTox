@@ -10,7 +10,7 @@ project(uTox LANGUAGES C)
 # This version is for the entire project. All libraries (core, av, ...) move in
 # versions in a synchronised way.
 set(PROJECT_VERSION_MAJOR "0")
-set(PROJECT_VERSION_MINOR "11")
+set(PROJECT_VERSION_MINOR "12")
 set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
@@ -29,7 +29,7 @@ configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
 #
 #######################################################################
 
-set(CMAKE_C_STANDARD 99) # this requires at least cmake 3.1
+set(CMAKE_C_STANDARD 11) # this requires at least cmake 3.1
 
 include(CheckCCompilerFlag)
 
@@ -59,28 +59,32 @@ add_cflag("-Werror=implicit-function-declaration")
 # Everything Else
 add_cflag("-fno-strict-aliasing")
 
-# sanitize memory issues in Debug builds
-# https://gcc.gnu.org/gcc-4.8/changes.html
-# https://github.com/google/sanitizers/wiki/AddressSanitizer
-option(ENABLE_ASAN "Enable Address Sanitizer on debug builds" ON)
-if (ENABLE_ASAN)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
-endif()
-
-message("C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
-message("C flags for all types: ${CMAKE_C_FLAGS}")
-message("C flags for Debug: ${CMAKE_C_FLAGS_DEBUG}")
-message("C flags for Release: ${CMAKE_C_FLAGS_RELEASE}")
-
 #######################################################################
 #
 # Build options
 #
 #######################################################################
+# sanitize memory issues in Debug builds
+# https://gcc.gnu.org/gcc-4.8/changes.html
+# https://github.com/google/sanitizers/wiki/AddressSanitizer
+option(ENABLE_ASAN "Enable Address Sanitizer on debug builds" ON)
+if (ENABLE_ASAN)
+    message("")
+    message("  TIP: You may want to set the env variable  ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer  for ASAN to show nicer stack traces.")
+    message("       See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.")
+    message("")
+
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
+endif()
 
 option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
     add_cflag("-DAUDIO_FILTERING")
+endif()
+
+option(UTOX_STATIC "Link uTox staticlly" OFF)
+if(UTOX_STATIC)
+    add_cflag("-static")
 endif()
 
 option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
@@ -110,23 +114,34 @@ endif()
 
 # print a summary of build options
 message("Build options:")
-message("- Filter Audio: ${FILTER_AUDIO}")
-message("- Toxcore Static: ${TOXCORE_STATIC}")
+message("- Add ASAN:        ${ENABLE_ASAN}")
+message("- Filter Audio:    ${FILTER_AUDIO}")
+message("- uTox Static:     ${UTOX_STATIC}")
+message("- Toxcore Static:  ${TOXCORE_STATIC}")
+message("- Windows Legacy:  ${WIN_XP_LEGACY}")
 
-#######################################################################
-#
-# :: uTox native
-# include utoxNATIVE dependend on the OS
-#
-#######################################################################
+message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
+message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
+message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
+message("* C flags for all types:   ${CMAKE_C_FLAGS}")
+
+
+# Protip, you must use a different directory for each build target...
+# -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
+# 1.5 hours to learn this...
 if(WIN32)
+    set(GUI_TYPE WIN32)
     ############################################################
     ## This is a hack, that we can remove once we have better
     ## separation of the sections of uTox, until then, this
     ## makes everything work.
     ############################################################
     include_directories( libs/toktok/include libs/windows-x64/include/ )
-    link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
+    if(WIN64)
+        link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
+    else()
+        link_directories( libs/toktok_32/lib /usr/i686-w64-mingw32/lib/ libs/windows-x32/lib )
+    endif()
 
     ## Needed to build the widows icon
     enable_language(RC)
@@ -134,6 +149,8 @@ if(WIN32)
 
     add_subdirectory(src/windows)
 elseif(APPLE)
+    set(GUI_TYPE MACOSX_BUNDLE)
+    set(MACOSX_BUNDLE_INFO_PLIST src/cocoa/Info.plist)
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
 elseif(UNIX)
@@ -156,55 +173,35 @@ add_subdirectory(src/av)
 # :: uTox main
 #
 #######################################################################
-add_executable(utox
+add_executable(utox ${GUI_TYPE}
     src/avatar.c
-    src/avatar.h
     src/chatlog.c
-    src/chatlog.h
     src/command_funcs.c
-    src/command_funcs.h
     src/commands.c
-    src/commands.h
     src/devices.c
-    src/devices.h
     src/dns.c
-    src/dns.h
     src/file_transfers.c
-    src/file_transfers.h
+    src/filesys.c
     src/flist.c
-    src/flist.h
     src/friend.c
-    src/friend.h
     src/groups.c
-    src/groups.h
     src/inline_video.c
-    src/inline_video.h
     src/logging.c
     src/main.c
-    src/main.h
-    src/main_native.h
     src/messages.c
-    src/messages.h
     src/notify.c
     src/screen_grab.c
     src/sized_string.h
     src/stb_image.h
     src/stb_image_write.h
     src/theme.c
-    src/theme.h
-    src/theme_tables.h
     src/tox.c
-    src/tox.h
     src/tox_callbacks.c
-    src/tox_callbacks.h
     src/ui.c
-    src/ui.h
     src/ui_i18n.c
-    src/ui_i18n.h
+    src/updater.c
     src/util.c
-    src/util.h
     src/utox.c
-    src/utox.h
     src/window.c
 
     ${WINDOWS_ICON}
@@ -217,7 +214,14 @@ target_link_libraries(utox
         ${TOX_LIBS}   ${LIBRARIES}    sodium
         vpx           pthread         m )
 
-set_property(TARGET utox PROPERTY C_STANDARD 99)
-if(UNIX)
-    install(TARGETS utox RUNTIME DESTINATION "bin")
+set_property(TARGET utox PROPERTY C_STANDARD 11)
+if(APPLE)
+    install(TARGETS utox
+        RUNTIME DESTINATION "bin"
+        BUNDLE  DESTINATION "resources"
+        )
+elseif(UNIX)
+    install(TARGETS utox
+        RUNTIME DESTINATION "bin"
+        )
 endif()

@@ -1,8 +1,12 @@
 #include "main.h"
 
 #include "../flist.h"
-#include "../tox.h"
+#include "../friend.h"
 #include "../logging_native.h"
+#include "../main.h" // stbi
+#include "../tox.h"
+
+#include "../av/utox_av.h"
 
 #include <windowsx.h>
 

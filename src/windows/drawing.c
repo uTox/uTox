@@ -4,7 +4,7 @@
 
 #include "../logging_native.h"
 #include "../draw.h"
-
+#include "../main.h"
 #include "../ui/svg.h"
 
 UTOX_WINDOW *curr = NULL;

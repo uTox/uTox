@@ -226,7 +226,7 @@ msgstr("Prokurilo (SOCKS 5)")
 msgid(WARNING)
 msgstr("Ŝanĝante agordojn de reto aŭ prokurilo nedaŭre malkonektos vin el la Tox-reto")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Protokolado")
 
 msgid(AUDIONOTIFICATIONS)

@@ -2,6 +2,7 @@
 
 #include "../friend.h"
 #include "../logging_native.h"
+#include "../tox.h"
 #include "../utox.h"
 
 #include "../ui/dropdowns.h"
@@ -10,6 +11,9 @@
 #include <pthread.h>
 #include <vpx/vpx_codec.h>
 #include <vpx/vpx_image.h>
+
+// FIXME: Required for UNUSED()
+#include "../main.h"
 
 static void *   video_device[16]     = { NULL }; /* TODO; magic number */
 static int16_t  video_device_count   = 0;

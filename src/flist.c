@@ -2,8 +2,11 @@
 
 // FIXME: Separate from UI or include in UI.
 
+#include "friend.h"
+#include "groups.h"
 #include "logging_native.h"
 #include "theme.h"
+#include "tox.h"
 #include "util.h"
 #include "utox.h"
 
@@ -11,6 +14,7 @@
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
 #include "ui/dropdowns.h"
+#include "ui/edits.h"
 #include "ui/scrollable.h"
 #include "ui/svg.h"
 #include "ui/tooltip.h"
@@ -20,7 +24,10 @@
 extern bool unity_running;
 #endif
 
-/* I think these are pointers to the panel's they're named after. */
+// FIXME: Required for UNUSED()
+#include "main.h"
+
+/* I think these are pointers to the panels they're named after. */
 static ITEM item_add, item_settings, item_transfer;
 
 // full list of friends and group chats
@@ -381,7 +388,8 @@ static void page_close(ITEM *i) {
                 panel_settings_master.disabled = 1;
                 panel_overhead.disabled        = 1;
 
-                panel_profile_password_settings.disabled = 1;
+                panel_profile_password_settings.disabled = true;
+                panel_nospam_settings.disabled = true;
 
                 button_settings.disabled = 0;
             }

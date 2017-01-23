@@ -1,11 +1,18 @@
 #include "edits.h"
 
 #include "buttons.h"
+#include "scrollable.h"
 
 #include "../commands.h"
 #include "../flist.h"
+#include "../friend.h"
+#include "../groups.h"
 #include "../logging_native.h"
+#include "../tox.h"
 #include "../util.h"
+
+// FIXME: Required for UNUSED()
+#include "../main.h"
 
 static char edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4],
     edit_add_self_device_data[TOX_FRIEND_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535],
@@ -417,7 +424,7 @@ static void edit_search_onenter(EDIT *edit) {
         friend_add(data, length, (char *)"", 0);
         edit_setstr(&edit_search, (char *)"", 0);
     } else {
-        if (tox_thread_init) {
+        if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
             /* Only change if we're logged in! */
             edit_setstr(&edit_add_id, data, length);
             edit_setstr(&edit_search, (char *)"", 0);
@@ -596,7 +603,13 @@ EDIT edit_name =
                          .onenter         = edit_group_topic_onenter,
                          .onlosefocus     = edit_group_topic_onenter,
                          .noborder        = 0,
-                         .empty_str.plain = STRING_INIT("") };
+                         .empty_str.plain = STRING_INIT("") },
+
+    edit_nospam = {.length            = sizeof(uint32_t) * 2,
+                   .data              = self.nospam_str,
+                   .readonly          = true,
+                   .noborder          = false,
+                   .select_completely = true, };
 
 static char edit_add_new_device_to_self_data[TOX_FRIEND_ADDRESS_SIZE * 4];
 

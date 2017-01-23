@@ -1,5 +1,7 @@
 #include "../util.h"
 
+typedef struct file_transfer FILE_TRANSFER;
+
 void ugtk_openfilesend(void);
 
 void ugtk_openfileavatar(void);

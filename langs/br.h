@@ -136,7 +136,7 @@ msgstr("Rede")
 msgid(WARNING)
 msgstr("Mudar as configurações de rede/proxy te desconectará temporariamente da rede Tox")
 
-msgid(LOGGING)
+msgid(SAVE_CHAT_HISTORY)
 msgstr("Logar conversas")
 
 msgid(IS_TYPING)

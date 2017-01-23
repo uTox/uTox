@@ -2,18 +2,19 @@
  * uTox Versions and header information
  *
  * This file contains defines regarding uTox branding and version information
- * It is a template from which cmake will generate branding.h
+ * It is generated from branding.h.in which cmake will generate to branding.h
  */
 
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
 
-#define RELEASE_TITLE "GOLD MEMBERS"
+// The updater relies on these version numbers, and values greater than an octet were never tested
+#define RELEASE_TITLE "Make uTox Great Again"
 #define VERSION "@PROJECT_VERSION@"
 #define VER_MAJOR @PROJECT_VERSION_MAJOR@
 #define VER_MINOR @PROJECT_VERSION_MINOR@
 #define VER_PATCH @PROJECT_VERSION_PATCH@
-#define UTOX_VERSION_NUMBER (VER_MAJOR * 1000 * 1000 + VER_MINOR * 1000 + VER_PATCH)
+#define UTOX_VERSION_NUMBER (VER_MAJOR << 16 | VER_MINOR << 8 | VER_PATCH)
 
 // Defaults
 #define DEFAULT_NAME "uTox User"

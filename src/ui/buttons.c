@@ -1,6 +1,7 @@
 #include "buttons.h"
 
 #include "contextmenu.h"
+#include "scrollable.h"
 #include "svg.h"
 
 #include "../chatlog.h"
@@ -11,6 +12,11 @@
 #include "../notify.h"
 #include "../screen_grab.h"
 #include "../theme.h"
+#include "../tox.h"
+#include "../main.h"
+#include "../ui/edits.h"
+#include "../av/utox_av.h"
+
 #ifdef UNITY
 #include "xlib/mmenu.h"
 extern bool unity_running;
@@ -51,33 +57,51 @@ void button_setcolors_disabled(BUTTON *b) {
 
 /* On-press functions followed by the update functions when needed... */
 static void button_avatar_on_mup(void) {
-    if (tox_thread_init) {
+    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         openfileavatar();
     }
 }
 
 static void button_name_on_mup(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled       = false;
-    panel_settings_devices.disabled       = true;
-    panel_settings_net.disabled           = true;
-    panel_settings_ui.disabled            = true;
-    panel_settings_av.disabled            = true;
-    panel_settings_adv.disabled           = true;
-    panel_settings_notifications.disabled = true;
-    edit_setfocus(&edit_name);
+    if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
+        // jump to the network settings when unable to create tox instance
+        panel_settings_adv.disabled             = false;
+        panel_settings_profile.disabled         = true;
+        panel_settings_devices.disabled         = true;
+        panel_settings_ui.disabled              = true;
+        panel_settings_av.disabled              = true;
+        panel_settings_notifications.disabled   = true;
+    } else {
+        panel_settings_profile.disabled         = false;
+        panel_settings_devices.disabled         = true;
+        panel_settings_ui.disabled              = true;
+        panel_settings_av.disabled              = true;
+        panel_settings_adv.disabled             = true;
+        panel_settings_notifications.disabled   = true;
+        edit_setfocus(&edit_name);
+    }
 }
 
 static void button_statusmsg_on_mup(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled       = false;
-    panel_settings_devices.disabled       = true;
-    panel_settings_net.disabled           = true;
-    panel_settings_ui.disabled            = true;
-    panel_settings_av.disabled            = true;
-    panel_settings_adv.disabled           = true;
-    panel_settings_notifications.disabled = true;
-    edit_setfocus(&edit_status);
+    if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
+        // jump to the network settings when unable to create tox instance
+        panel_settings_profile.disabled         = true;
+        panel_settings_devices.disabled         = true;
+        panel_settings_ui.disabled              = true;
+        panel_settings_av.disabled              = true;
+        panel_settings_adv.disabled             = true;
+        panel_settings_notifications.disabled   = true;
+    } else {
+        panel_settings_profile.disabled         = false;
+        panel_settings_devices.disabled         = true;
+        panel_settings_ui.disabled              = true;
+        panel_settings_av.disabled              = true;
+        panel_settings_adv.disabled             = true;
+        panel_settings_notifications.disabled   = true;
+        edit_setfocus(&edit_status);
+    }
 }
 
 static void button_status_on_mup(void) {
@@ -109,7 +133,7 @@ static void button_menu_update(BUTTON *b) {
 }
 
 static void button_add_new_contact_on_mup(void) {
-    if (tox_thread_init) {
+    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         /* Only change if we're logged in! */
         edit_setstr(&edit_add_id, (char *)edit_search.data, edit_search.length);
         edit_setstr(&edit_search, (char *)"", 0);
@@ -394,18 +418,37 @@ static void button_lock_uTox_on_mup(void) {
         panel_settings_master.disabled  = true;
         tox_settingschanged();
     }
+    button_show_password_settings.disabled = false;
+    button_show_password_settings.nodraw = false;
 }
 
 static void button_show_password_settings_on_mup(void) {
-    button_show_password_settings.disabled = true;
-    button_show_password_settings.nodraw = true;
-    panel_profile_password_settings.disabled = false;
+    panel_nospam_settings.disabled = true;
+    panel_profile_password_settings.disabled = !panel_profile_password_settings.disabled;
 }
 
 static void button_export_chatlog_on_mup(void) {
     utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
 }
 
+static void button_change_nospam_on_mup(void) {
+    button_revert_nospam.disabled = false;
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 1, 0, NULL);
+}
+
+static void button_revert_nospam_on_mup(void) {
+    if (self.old_nospam == 0 || self.nospam == self.old_nospam) { //nospam can not be 0
+        debug_error("Invalid or current nospam: %u.\n", self.old_nospam);
+        return;
+    }
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 0, 0, NULL);
+    button_revert_nospam.disabled = true;
+}
+
+static void button_show_nospam_on_mup(void) {
+    panel_profile_password_settings.disabled = true;
+    panel_nospam_settings.disabled = !panel_nospam_settings.disabled;
+}
 
 BUTTON button_avatar = {
     .nodraw = true, .on_mup = button_avatar_on_mup, .onright = button_avatar_onright,
@@ -568,8 +611,8 @@ BUTTON button_show_password_settings = {
     .bm          = BM_SBUTTON,
     .update      = button_setcolors_success,
     .on_mup     = button_show_password_settings_on_mup,
-    .button_text = {.i18nal = STR_SHOW },
-    .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD },
+    .button_text = {.i18nal = STR_SHOW_UI_PASSWORD },
+    .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD_TOOLTIP },
 };
 
 BUTTON button_export_chatlog = {
@@ -580,43 +623,59 @@ BUTTON button_export_chatlog = {
     .disabled = false,
 };
 
+BUTTON button_change_nospam = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .button_text  = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .on_mup       = button_change_nospam_on_mup,
+};
+
+BUTTON button_revert_nospam = {
+    .disabled     = true,
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_REVERT_NOSPAM},
+    .button_text  = {.i18nal = STR_REVERT_NOSPAM},
+    .on_mup       = button_revert_nospam_on_mup,
+};
+
+BUTTON button_show_nospam = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_SHOW_NOSPAM},
+    .button_text  = {.i18nal = STR_SHOW_NOSPAM},
+    .on_mup       = button_show_nospam_on_mup,
+};
+
 extern SCROLLABLE scrollbar_settings;
 
 static void button_settings_on_mup(void) {
-    if (tox_thread_init) {
+    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         flist_selectsettings();
     }
 }
 
 static void disable_all_setting_sub(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled       = true;
-    panel_settings_devices.disabled       = true;
-    panel_settings_net.disabled           = true;
-    panel_settings_ui.disabled            = true;
-    panel_settings_av.disabled            = true;
-    panel_settings_adv.disabled           = true;
-    panel_settings_notifications.disabled = true;
+    panel_settings_profile.disabled         = true;
+    panel_settings_devices.disabled         = true;
+    panel_settings_ui.disabled              = true;
+    panel_settings_av.disabled              = true;
+    panel_settings_notifications.disabled   = true;
+    panel_settings_adv.disabled             = true;
 }
 
 static void button_settings_sub_profile_on_mup(void) {
     scrollbar_settings.content_height = SCALE(260);
     disable_all_setting_sub();
     panel_settings_profile.disabled = false;
-    button_show_password_settings.disabled = false;
-    button_show_password_settings.nodraw = false;
 }
 
 static void button_settings_sub_devices_on_mup(void) {
     scrollbar_settings.content_height = SCALE(260);
     disable_all_setting_sub();
     panel_settings_devices.disabled = false;
-}
-
-static void button_settings_sub_net_on_mup(void) {
-    scrollbar_settings.content_height = SCALE(180);
-    disable_all_setting_sub();
-    panel_settings_net.disabled = false;
 }
 
 static void button_settings_sub_ui_on_mup(void) {
@@ -626,18 +685,18 @@ static void button_settings_sub_ui_on_mup(void) {
 }
 
 static void button_settings_sub_av_on_mup(void) {
-    scrollbar_settings.content_height = SCALE(300);
+    scrollbar_settings.content_height = SCALE(350);
     disable_all_setting_sub();
     panel_settings_av.disabled = false;
 }
 
-static void button_settings_sub_adv_onpress(void) {
+static void button_settings_sub_adv_on_mup(void) {
     scrollbar_settings.content_height = SCALE(300);
     disable_all_setting_sub();
     panel_settings_adv.disabled = false;
 }
 
-static void button_settings_sub_notifications_onpress(void){
+static void button_settings_sub_notifications_on_mup(void){
     scrollbar_settings.content_height = SCALE(300);
     disable_all_setting_sub();
     panel_settings_notifications.disabled = false;
@@ -687,12 +746,6 @@ BUTTON
         .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
     },
 
-    button_settings_sub_net = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_net_on_mup,
-        .tooltip_text = {.i18nal = STR_NETWORK_SETTINGS },
-    },
-
     button_settings_sub_ui = {
         .nodraw = true,
         .on_mup = button_settings_sub_ui_on_mup,
@@ -707,13 +760,13 @@ BUTTON
 
     button_settings_sub_adv = {
         .nodraw = true,
-        .on_mup = button_settings_sub_adv_onpress,
+        .on_mup = button_settings_sub_adv_on_mup,
         .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
     },
 
     button_settings_sub_notifications = {
         .nodraw = true,
-        .on_mup = button_settings_sub_notifications_onpress,
+        .on_mup = button_settings_sub_notifications_on_mup,
         .tooltip_text = {.i18nal = STR_NOTIFICATIONS_BUTTON },
     },
 

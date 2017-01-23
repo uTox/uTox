@@ -1,11 +1,13 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include "friend.h"
-
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
+
+typedef struct utox_friend FRIEND;
+typedef struct utox_save UTOX_SAVE;
+
 /*todo: sprint_bytes */
 
 /* read a whole file from a path,

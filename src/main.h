@@ -18,17 +18,24 @@
 #include <time.h>
 #include <tox/tox.h>
 
+#include "filesys.h"
+
+
 /**********************************************************
- *
  * uTox Versions and header information
- *
  *********************************************************/
 #include "branding.h"
 
+
 /**********************************************************
- *
+ * Forward-declares
+ *********************************************************/
+
+typedef struct avatar AVATAR;
+
+
+/**********************************************************
  * UI and Toxcore Limits
- *
  *********************************************************/
 
 #if TOX_VERSION_IS_API_COMPATIBLE(0, 1, 0)
@@ -41,7 +48,6 @@
 #define UTOX_MAX_CALLS 16
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 #define UTOX_MAX_NUM_GROUPS 512
-#define UTOX_FILE_NAME_LENGTH 1024
 
 #define UTOX_MAX_NAME_LENGTH TOX_MAX_NAME_LENGTH
 
@@ -81,17 +87,9 @@
 #define ENABLE_MULTIDEVICE 1
 #endif
 
-typedef enum UTOX_FILE_OPTS {
-    UTOX_FILE_OPTS_READ   = 1 << 0,
-    UTOX_FILE_OPTS_WRITE  = 1 << 1,
-    UTOX_FILE_OPTS_APPEND = 1 << 2,
-    UTOX_FILE_OPTS_MKDIR  = 1 << 3,
-    UTOX_FILE_OPTS_DELETE = 1 << 7,
-} UTOX_FILE_OPTS;
-
 /* House keeping for uTox save file. */
 #define UTOX_SAVE_VERSION 3
-typedef struct {
+typedef struct utox_save {
     uint8_t save_version;
     uint8_t scale;
     uint8_t enableipv6;
@@ -116,45 +114,45 @@ typedef struct {
 
     uint8_t theme;
 
-    uint8_t push_to_talk : 1;
-    uint8_t use_mini_flist : 1;
-    uint8_t group_notifications : 4;
+    uint8_t push_to_talk         : 1;
+    uint8_t use_mini_flist       : 1;
+    uint8_t group_notifications  : 4;
     uint8_t status_notifications : 1;
-    uint8_t zero : 1;
+    uint8_t zero                 : 1;
 
     uint32_t utox_last_version; // I don't like this here either,
                                 // but I'm not ready to rewrite and update this struct yet.
 
-    uint16_t unused[29];
+    uint8_t auto_update         : 1;
+    uint8_t update_to_develop   : 1;
+    uint8_t send_version        : 1;
+    uint8_t zero_2              : 5;
+    uint8_t zero_3              : 8;
+
+    uint16_t unused[28];
     uint8_t  proxy_ip[];
 } UTOX_SAVE;
 
-#define LOGFILE_SAVE_VERSION 3
-typedef struct {
-    uint8_t log_version;
-
-    time_t time;
-    size_t author_length;
-    size_t msg_length;
-
-    uint8_t author : 1;
-    uint8_t receipt : 1;
-    uint8_t flags : 5;
-    uint8_t deleted : 1;
-
-    uint8_t msg_type;
-
-    uint8_t zeroes[2];
-} LOG_FILE_MSG_HEADER;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 
 bool tox_connected;
 
 /* Super global vars */
-volatile bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
+volatile bool utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
+typedef enum {
+    // tox_thread is not initialized yet
+    UTOX_TOX_THREAD_INIT_NONE = 0,
+    // tox_thread is initialized successfully
+    // this means a tox instance has been created
+    UTOX_TOX_THREAD_INIT_SUCCESS = 1,
+    // tox_thread is initialized but not successfully
+    // this means a tox instance may have not been created
+    UTOX_TOX_THREAD_INIT_ERROR = 2,
+} UTOX_TOX_THREAD_INIT;
 
-double ui_scale;
+UTOX_TOX_THREAD_INIT tox_thread_init;
+
 
 bool move_window_down;
 
@@ -165,19 +163,26 @@ typedef struct utox_settings {
     bool     show_splash;
 
     // Low level settings (network, profile, portable-mode)
-    bool use_proxy;
+    bool portable_mode;
+
+    bool save_encryption;
+
+    bool auto_update;
+    bool update_to_develop;
+    bool send_version;
+
     bool force_proxy;
     bool enable_udp;
     bool enable_ipv6;
-    bool use_encryption;
-    bool portable_mode;
 
+    bool block_friend_requests;
+
+    bool use_proxy;
     uint16_t proxy_port;
 
     // User interface settings
     bool close_to_tray;
     bool logging_enabled;
-    bool ringtone_enabled;
     bool audiofilter_enabled;
     bool start_in_tray;
     bool start_with_system;
@@ -189,8 +194,10 @@ typedef struct utox_settings {
     bool inline_video;
     bool use_long_time_msg;
     bool accept_inline_images;
-    bool status_notifications;
 
+    // Notifications / Alerts
+    bool    ringtone_enabled;
+    bool    status_notifications;
     uint8_t group_notifications;
 
     uint8_t verbose;
@@ -208,13 +215,11 @@ typedef struct utox_settings {
     bool    window_maximized;
 } SETTINGS;
 
-/* This might need to be volatile type... */
-SETTINGS settings;
+extern SETTINGS settings;
 
 // add friend page
 uint8_t addfriend_status;
 
-int      font_small_lineheight, font_msg_lineheight;
 uint16_t video_width, video_height, max_video_width, max_video_height;
 char     proxy_address[256]; /* Magic Number inside toxcore */
 
@@ -226,17 +231,6 @@ enum {
     CURSOR_SELECT,
     CURSOR_ZOOM_IN,
     CURSOR_ZOOM_OUT,
-};
-
-enum {
-    FONT_TEXT,
-    FONT_TITLE,
-    FONT_SELF_NAME,
-    FONT_STATUS,
-    FONT_LIST_NAME,
-    FONT_MISC,
-
-    FONT_END,
 };
 
 typedef enum {
@@ -269,8 +263,6 @@ enum {
     USER_STATUS_DO_NOT_DISTURB,
 };
 
-typedef struct avatar AVATAR;
-// me
 struct utox_self {
     uint8_t status;
     char    name[TOX_MAX_NAME_LENGTH];
@@ -291,6 +283,10 @@ struct utox_self {
 
     uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
 
+    uint32_t nospam;
+    uint32_t old_nospam;
+    char nospam_str[(sizeof(uint32_t) * 2) + 1];
+
     AVATAR *avatar;
     void  *png_data;
     size_t png_size;
@@ -301,21 +297,6 @@ struct utox_mouse {
 } mouse;
 
 uint8_t cursor;
-
-/**
- * Takes a null-terminated utf8 filepath and creates it with permissions 0700
- * (in posix environments) if it doesn't already exist. In Windows environments
- * there are no security settings applied to the created folder.
- *
- * Returns a bool indicating if the path exists or not.
- */
-bool native_create_dir(const uint8_t *filepath);
-
-
-FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts);
-
-/** given a filename, native_remove_file will delete that file from the local config dir */
-bool native_remove_file(const uint8_t *name, size_t length);
 
 /**
  * Takes data and the size of data and writes it to the disk
@@ -355,10 +336,7 @@ UTOX_SAVE *utox_data_load_utox(void);
  */
 uint8_t *utox_data_load_custom_theme(size_t *out);
 
-/**
- * TODO DOCUMENTATION
- */
-bool utox_remove_file(const uint8_t *full_name, size_t length);
+
 
 /* TODO: sort everything below this line! */
 
@@ -366,8 +344,12 @@ bool utox_remove_file(const uint8_t *full_name, size_t length);
 /**
  * Parses the arguments passed to uTox
  */
-void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,
-               int8_t *set_show_window, bool *no_updater);
+void parse_args(int argc, char *argv[],
+                bool *skip_updater,
+                bool *from_updater,
+                bool *theme_was_set_on_argv,
+                int8_t *should_launch_at_startup,
+                int8_t *set_show_window);
 
 
 /**
@@ -383,6 +365,8 @@ void launch_at_startup(int is_launch_at_startup);
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 
 void loadalpha(int bm, void *data, int width, int height);
+
+void desktopgrab(bool video);
 
 void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object, bool is_group);
 

@@ -1,4 +1,5 @@
 
+#include "../filesys.h"
 #include "../logging_native.h"
 
 #include <pthread.h>
@@ -274,6 +275,14 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     return fp;
+}
+
+bool native_move_file(const uint8_t *current_name, const uint8_t *new_name) {
+    if(!current_name || !new_name) {
+        return false;
+    }
+
+    return rename((char *)current_name, (char *)new_name);
 }
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
@@ -692,9 +701,15 @@ static void android_main(struct android_app *state) {
     bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   no_updater;
+    bool   skip_updater, from_updater;
 
-    parse_args(NULL, NULL, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
+    parse_args(NULL, NULL,
+               &skip_updater,
+               &from_updater,
+               &theme_was_set_on_argv,
+               &should_launch_at_startup,
+               &set_show_window
+               );
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         debug("Start on boot not supported on this OS!\n");
@@ -704,7 +719,7 @@ static void android_main(struct android_app *state) {
         debug("Showing/hiding windows not supported on this OS!\n");
     }
 
-    if (no_updater == true) {
+    if (skip_updater == true) {
         debug("Disabling the updater is not supported on this OS.\n");
     }
 
@@ -730,6 +745,7 @@ static void android_main(struct android_app *state) {
     dropdown_dpi.selected = dropdown_dpi.over = 15;
     ui_set_scale(21);
 
+    /* wait for tox thread to start */
     while (!tox_thread_init) {
         yieldcpu(1);
     }

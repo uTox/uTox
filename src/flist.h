@@ -1,8 +1,12 @@
 #ifndef FLIST_H
 #define FLIST_H
 
-#include "friend.h"
-#include "groups.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+typedef struct groupchat GROUPCHAT;
+typedef struct utox_friend FRIEND;
+typedef struct utox_friend_request FRIENDREQ;
 
 // call to switch to previous or next friend in list
 void flist_previous_tab(void);

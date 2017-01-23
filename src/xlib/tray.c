@@ -3,6 +3,7 @@
 #include "window.h"
 
 #include "../logging_native.h"
+#include "../main.h" // utox_image_to_native
 
 #include <string.h>
 #include <inttypes.h>

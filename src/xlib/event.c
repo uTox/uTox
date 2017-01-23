@@ -1,3 +1,4 @@
+#include "main.h"
 #include "window.h"
 
 #include "../draw.h"
@@ -5,13 +6,19 @@
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../notify.h"
+#include "../tox.h"
 #include "../utox.h"
+
+#include "../av/utox_av.h"
+#include "../ui/edit.h"
+#include "../main.h" // needed for cursor, TODO move cursor elsewhere
 
 // Needed for enddraw. This should probably be changed.
 #include "../ui/draw.h"
 
 #include "keysym2ucs.h"
 
+#include <assert.h>
 #include <stddef.h>
 
 extern XIC xic;
@@ -263,9 +270,7 @@ bool doevent(XEvent event) {
                         break;
                     }
                 }
-                if (i == countof(friend)) {
-                    debug("this should not happen\n");
-                }
+                assert(i != countof(friend));
             }
         }
 

@@ -3,7 +3,11 @@
 #include "gtk.h"
 
 #include "../chatlog.h"
+#include "../file_transfers.h"
+#include "../friend.h"
 #include "../logging_native.h"
+#include "../main.h" // settings
+#include "../tox.h"
 
 #if 0 // commented because this function is deprecated, but I'm not ready to delete all this code yet
 /** Takes data from µTox and saves it, just how the OS likes it saved! */

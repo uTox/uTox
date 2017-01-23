@@ -15,13 +15,22 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.11.1! Release name: [uTox GOLD Members Only]")
+msgstr("You have just upgraded to version 0.12.1! Release name: [Make uTox Great Again]")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.11.1")
+msgstr("Changes in v0.12.1")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
+"    Fixed crash with some transfers.\n"
+"    Bug Fixes\n"
+"    Fixed building on Windows XP\n"
+"    Friend request improvements\n"
+"    Added the ability to change nospam\n"
+"    Added notifications and advanced tab to settings\n"
+"    New updater\n"
+"    Started seperating the core and the UI\n"
+"\nv0.11.1\n"
 "    Feature: Export chatlog\n"
 "    Feature: Added ability to decline an incoming call\n"
 "    Various security fixes\n"
@@ -260,9 +269,6 @@ msgstr("Profile")
 msgid(DEVICES_BUTTON)
 msgstr("Devices")
 
-msgid(NETWORK_BUTTON)
-msgstr("Network")
-
 msgid(USER_INTERFACE_BUTTON)
 msgstr("User Interface")
 
@@ -275,8 +281,8 @@ msgstr("Advanced")
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Notifications")
 
-
-
+msgid(AUTO_UPDATE)
+msgstr("Automatically Update uTox")
 
 msgid(PROFILE_SETTINGS)
 msgstr("Profile Settings")
@@ -382,6 +388,9 @@ msgstr("Use mini contact list")
 msgid(NOT_CONNECTED)
 msgstr("Not Connected")
 
+msgid(NOT_CONNECTED_SETTINGS)
+msgstr("Adjust network settings")
+
 msgid(OTHERSETTINGS)
 msgstr("Other Settings")
 
@@ -404,6 +413,9 @@ msgid(LOCK_UTOX)
 msgstr("Disconnects from Tox and locks this profile.")
 
 msgid(SHOW_UI_PASSWORD)
+msgstr("Show password field")
+
+msgid(SHOW_UI_PASSWORD_TOOLTIP)
 msgstr("Click to show profile password field. Changes made here will be instant!")
 
 msgid(LOCK)
@@ -436,8 +448,8 @@ msgstr("Proxy (SOCKS 5)")
 msgid(WARNING)
 msgstr("Changing Network/Proxy settings will temporarily disconnect you from the Tox network")
 
-msgid(LOGGING)
-msgstr("Logging")
+msgid(SAVE_CHAT_HISTORY)
+msgstr("Save Chat History")
 
 msgid(AUDIONOTIFICATIONS)
 msgstr("Enable Audible Notification (Ringtone)")
@@ -711,3 +723,21 @@ msgstr("Send typing notifications")
 
 msgid(STATUS_NOTIFICATIONS)
 msgstr("Status Notifications")
+
+msgid(RANDOMIZE_NOSPAM)
+msgstr("Randomize Nospam")
+
+msgid(NOSPAM)
+msgstr("Nospam")
+
+msgid(REVERT_NOSPAM)
+msgstr("Revert Nospam")
+
+msgid(NOSPAM_WARNING)
+msgstr("Changing your nospam will cause your old tox ID to no longer work. uTox does not update your ID on name servers.")
+
+msgid(BLOCK_FRIEND_REQUESTS)
+msgstr("Block Friend Requests")
+
+msgid(SHOW_NOSPAM)
+msgstr("Show Nospam Settings")
