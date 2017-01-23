@@ -18,10 +18,22 @@
 
 #include "../main.h" // self
 
-static char edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_ADDRESS_SIZE * 4],
-    edit_add_self_device_data[TOX_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535],
-    edit_search_data[127], edit_proxy_ip_data[256], edit_proxy_port_data[8], edit_profile_password_data[65535],
-    edit_friend_alias_data[128], edit_id_str[TOX_PUBLIC_KEY_SIZE * 2], edit_group_topic_data[128];
+static char edit_name_data[128],
+            edit_status_data[128],
+            edit_addid_data[TOX_ADDRESS_SIZE * 4],
+            edit_addmsg_data[1024],
+            edit_msg_data[65535],
+            edit_search_data[127],
+            edit_proxy_ip_data[256],
+            edit_proxy_port_data[8],
+            edit_profile_password_data[65535],
+            edit_friend_alias_data[128],
+            edit_id_str[TOX_PUBLIC_KEY_SIZE * 2],
+            edit_group_topic_data[128];
+
+#ifdef ENABLE_MULTIDEVICE
+static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4];
+#endif
 
 static void edit_name_onenter(EDIT *edit) {
     char *   data   = edit->data;
@@ -134,7 +146,7 @@ void edit_msg_onenter(EDIT *edit) {
     edit->length      = 0;
 }
 
-static uint32_t peers_deduplicate(char **dedup, size_t *dedup_size, void **peers, uint32_t peer_count) {
+static uint32_t peers_deduplicate(char **dedup, size_t *dedup_size, GROUP_PEER **peers, uint32_t peer_count) {
     uint32_t count = 0;
     for (size_t peer = 0; peer < peer_count; peer++) {
 
