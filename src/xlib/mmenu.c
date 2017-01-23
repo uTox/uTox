@@ -1,4 +1,7 @@
 #ifdef UNITY
+
+#include "../self.h"
+
 #include <messaging-menu/messaging-menu.h>
 #include <unity.h>
 

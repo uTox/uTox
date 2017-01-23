@@ -6,9 +6,10 @@
 #include "groups.h"
 #include "logging_native.h"
 #include "macros.h"
+#include "self.h"
 #include "settings.h"
-#include "theme.h"
 #include "text.h"
+#include "theme.h"
 #include "tox.h"
 #include "utox.h"
 
@@ -25,7 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "main.h" // get_time, self
+#include "main.h" // get_time
 
 #ifdef UNITY
 #include "xlib/mmenu.h"

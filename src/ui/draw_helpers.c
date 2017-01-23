@@ -10,6 +10,7 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../macros.h"
+#include "../self.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../ui.h"

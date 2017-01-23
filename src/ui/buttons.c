@@ -10,6 +10,7 @@
 #include "../groups.h"
 #include "../logging_native.h"
 #include "../macros.h"
+#include "../self.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"

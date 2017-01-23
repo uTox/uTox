@@ -3,6 +3,7 @@
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../macros.h"
+#include "../self.h"
 #include "../settings.h"
 #include "../tox.h"
 #include "../utox.h"
