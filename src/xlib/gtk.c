@@ -342,7 +342,7 @@ void ugtk_openfileavatar(void) {
     thread(ugtk_openavatarthread, NULL);
 }
 
-void ugtk_native_select_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+void ugtk_native_select_dir_ft(uint32_t UNUSED(fid), FILE_TRANSFER *file) {
     if (utoxGTK_open) {
         return;
     }
@@ -363,8 +363,10 @@ void ugtk_save_chatlog(uint32_t friend_number) {
         return;
     }
 
+    // We just care about sending a single uint, but we don't want to overflow a buffer
+    size_t fnum = friend_number;
     utoxGTK_open = true;
-    thread(ugtk_save_chatlog_thread, friend_number); // No need to create and pass a pointer for a single u32
+    thread(ugtk_save_chatlog_thread, (void *)fnum); // No need to create and pass a pointer for a single u32
 }
 
 /* macro to link and test each of the gtk functions we need.
