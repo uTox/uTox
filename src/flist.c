@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "main.h" // get_time
+#include "main.h" // addfriend_status
 
 #ifdef UNITY
 #include "xlib/mmenu.h"
