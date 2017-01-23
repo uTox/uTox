@@ -72,7 +72,7 @@ bool doevent(XEvent event) {
 #endif
 
             havefocus      = 1;
-            XWMHints hints = { 0 };
+            XWMHints hints = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             XSetWMHints(display, window, &hints);
             break;
         }
@@ -94,7 +94,7 @@ bool doevent(XEvent event) {
 
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
-            if (settings.window_width != ev->width || settings.window_height != ev->height) {
+            if (settings.window_width != (unsigned)ev->width || settings.window_height != (unsigned)ev->height) {
                 // Resize
 
                 if (ev->width > drawwidth || ev->height > drawheight) {
@@ -416,7 +416,7 @@ bool doevent(XEvent event) {
                         edit_char(buffer[i], (ev->state & 4) != 0, ev->state);
                 }
                 uint32_t key = keysym2ucs(sym);
-                if (key != ~0) {
+                if (key != ~0u) {
                     edit_char(key, (ev->state & 4) != 0, ev->state);
                 } else {
                     edit_char(sym, 1, ev->state);
@@ -545,7 +545,7 @@ bool doevent(XEvent event) {
                     break;
                 }
 
-                if (pastebuf.left < len) {
+                if (pastebuf.left > 0 && (unsigned)pastebuf.left < len) {
                     pastebuf.len += len - pastebuf.left;
                     pastebuf.data = realloc(pastebuf.data, pastebuf.len);
                     pastebuf.left = len;
