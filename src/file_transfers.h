@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <tox/tox.h>
 
-typedef struct msg_file MSG_FILE;
+typedef struct msg_header MSG_HEADER;
 
 #define MAX_FILE_TRANSFERS 32
 
@@ -64,7 +64,7 @@ typedef struct file_transfer {
     FILE    *resume_file;
     uint8_t  resume_update;
 
-    MSG_FILE *ui_data;
+    MSG_HEADER *ui_data;
 } FILE_TRANSFER;
 
 void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
