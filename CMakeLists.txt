@@ -55,6 +55,8 @@ add_cflag("-Wall")
 add_cflag("-Wextra")
 # Warnings we don't tolerate
 add_cflag("-Werror=implicit-function-declaration")
+# Warnings we don't care about
+add_cflag("-Wformat=0")
 
 # Everything Else
 add_cflag("-fno-strict-aliasing")

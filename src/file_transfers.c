@@ -151,7 +151,7 @@ static bool ft_init_resumable(FILE_TRANSFER *ft) {
         return false;
     }
 
-    ft->resume_file = native_get_file(name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+    ft->resume_file = native_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
     if (ft->resume_file) {
         debug("FileTransfer:\t.ftinfo for file %.*s set; ready to resume!\n", (uint32_t)ft->name_length, ft->name);
         return ft_update_resumable(ft);
@@ -169,13 +169,13 @@ static void ft_decon_resumable(FILE_TRANSFER *ft) {
 
     debug_info("FileTransfer:\tGoing to decon file %s.\n", name);
     size_t size = 0;
-    FILE *file = native_get_file(name, &size, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE);
+    FILE *file = native_get_file((uint8_t *)name, &size, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE);
     if (!file) {
         return;
     }
 
     fclose(file);
-    file = native_get_file(name, &size, UTOX_FILE_OPTS_DELETE);
+    file = native_get_file((uint8_t *)name, &size, UTOX_FILE_OPTS_DELETE);
 }
 
 static bool ft_find_resumeable(FILE_TRANSFER *ft) {
