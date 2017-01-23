@@ -270,8 +270,8 @@ static ITEM *item_hit(int mx, int my, int UNUSED(height)) {
 
     /* Mouse is outsite the list */
     if (mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH || my < 0
-        || my >= showncount * real_height) { /* TODO: Height is a bit buggy, Height needs /2
-                                                 * figure out why!  */
+        || my >= (int)(showncount * real_height)) { /* TODO: Height is a bit buggy, Height needs /2
+                                                     * figure out why!  */
         mouse_in_list = 0;
         return NULL;
     }
@@ -702,7 +702,7 @@ void flist_freeall(void) {
 }
 
 void flist_selectchat(int index) {
-    if (index >= 0 && index < showncount) {
+    if (index >= 0 && (unsigned)index < showncount) {
         show_page(&item[shown_list[index]]);
     }
 }
