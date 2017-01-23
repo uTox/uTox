@@ -8,6 +8,7 @@
 #include "../logging_native.h"
 #include "../macros.h"
 #include "../main.h"
+#include "../main_native.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../text.h"

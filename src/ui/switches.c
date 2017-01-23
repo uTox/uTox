@@ -2,9 +2,10 @@
 
 #include "../flist.h"
 #include "../main.h"
+#include "../main_native.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../settings.h"
 
 static void switch_set_colors(UISWITCH *s) {
     if (s->switch_on) {

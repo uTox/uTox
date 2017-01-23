@@ -11,6 +11,8 @@
 #include "../text.h"
 #include "../theme.h"
 
+#include "../main.h" // cursor
+
 static EDIT *active_edit;
 
 static struct {

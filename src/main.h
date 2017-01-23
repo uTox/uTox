@@ -8,7 +8,6 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>
-#include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -166,8 +165,6 @@ typedef enum {
 extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
 typedef uint8_t *UTOX_IMAGE;
 
-pthread_mutex_t messages_lock; // TODO move to messages.h
-
 enum {
     USER_STATUS_AVAILABLE,
     USER_STATUS_AWAY_IDLE,
@@ -280,90 +277,17 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
 void setscale(void);
 void setscale_fonts(void);
 
-enum {
-    FILTER_NEAREST, // ugly and quick filtering
-    FILTER_BILINEAR // prettier and a bit slower filtering
-};
-
-typedef struct native_image NATIVE_IMAGE;
-
-/* set filtering method used when resizing given image to one of above enum */
-void image_set_filter(NATIVE_IMAGE *image, uint8_t filter);
-
-/* set scale of image so that when it's drawn it will be `scale' times as large(2.0 for double size, 0.5 for half, etc.)
- *  notes: theoretically lowest possible scale is (1.0/65536.0), highest is 65536.0, values outside of this range will
- * create weird issues
- *         scaling will be rounded to pixels, so it might not be exact
- */
-void image_set_scale(NATIVE_IMAGE *image, double scale);
-
-/* draws an utox image with or without alpha channel into the rect of (x,y,width,height) on the screen,
- * starting at position (imgx,imgy) of the image
- * WARNING: Windows can fail to show the image at all if the rect (imgx,imgy,width,height) contains even 1 pixel outside
- * of
- * the image's size AFTER SCALING, so be careful.
- * TODO: improve this so this function is safer to use */
-void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
-
-/* Native wrapper to ready and call draw_image */
-void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y);
-
-/* converts a png to a NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
-NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha);
-
-/* free an image created by utox_image_to_native */
-void image_free(NATIVE_IMAGE *image);
-
-void showkeyboard(bool show);
-void redraw(void);
 void update_tray(void);
 void force_redraw(void); // TODO: as parameter for redraw()?
 
-void flush_file(FILE *file);
-int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
 
-/** returns 0 if push to talk is enabled, and the button is up, else returns 1. */
-void init_ptt(void);
-bool get_ptt_key(void);
-bool set_ptt_key(void);
-bool check_ptt_key(void);
-void exit_ptt(void);
-
-/* OS interface replacements */
-void flush_file(FILE *file);
-int ch_mod(uint8_t *file);
-int file_lock(FILE *file, uint64_t start, size_t length);
-int file_unlock(FILE *file, uint64_t start, size_t length);
-
-/* OS-specific cleanup function for when edits are defocused. Commit IME state, etc. */
-void edit_will_deactivate(void);
-
-/* other */
-void thread(void func(void *), void *args);
-void yieldcpu(uint32_t ms);
-uint64_t get_time(void);
-
-void copy(int value);
-void paste(void);
-
-void openurl(char *str);
-void openfilesend(void);
+// TODO: A lot of these functions belong in main_native.h
 
 /* use the file chooser to pick an avatar and set it as the user's */
 void openfileavatar(void);
 
-void setselection(char *data, uint16_t length);
-
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize);
-void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height);
-void video_end(uint32_t id);
-
-void audio_detect(void);
-bool audio_init(void *handle);
-bool audio_close(void *handle);
-bool audio_frame(int16_t *buffer);
-
+// Android audio
 void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels);
 void audio_begin(int32_t call_index);
 void audio_end(int32_t call_index);

@@ -10,11 +10,12 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../macros.h"
+#include "../main_native.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../ui.h"
 
-#include "../main.h" // image_*
+#include "../main.h" // self, tox_thread, tox_connected, addfriend_status
 
 void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
                        uint32_t targetheight) {
