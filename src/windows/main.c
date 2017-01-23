@@ -57,7 +57,7 @@ void openfilesend(void) {
     }
 
     wchar_t dir[UTOX_FILE_NAME_LENGTH];
-    GetCurrentDirectoryW(countof(dir), dir);
+    GetCurrentDirectoryW(COUNTOF(dir), dir);
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
@@ -82,7 +82,7 @@ void openfileavatar(void) {
     filepath[0]    = 0;
 
     wchar_t dir[UTOX_FILE_NAME_LENGTH];
-    GetCurrentDirectoryW(countof(dir), dir);
+    GetCurrentDirectoryW(COUNTOF(dir), dir);
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
@@ -683,7 +683,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 void freefonts() {
-    for (size_t i = 0; i != countof(font); i++) {
+    for (size_t i = 0; i != COUNTOF(font); i++) {
         if (font[i]) {
             DeleteObject(font[i]);
         }
@@ -1108,14 +1108,14 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             int i;
-            for (i = 0; i != countof(friend); i++) {
+            for (i = 0; i != COUNTOF(friend); i++) {
                 if (video_hwnd[i + 1] == hwn) {
                     FRIEND *f = &friend[i];
                     postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
                     break;
                 }
             }
-            if (i == countof(friend)) {
+            if (i == COUNTOF(friend)) {
                 debug("this should not happen\n");
             }
         }

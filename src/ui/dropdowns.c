@@ -143,7 +143,7 @@ DROPDOWN dropdown_video = {
 
 DROPDOWN dropdown_dpi = {.ondisplay = simple_dropdown_ondisplay,
                          .onselect  = dropdown_dpi_onselect,
-                         .dropcount = countof(dpidrops),
+                         .dropcount = COUNTOF(dpidrops),
                          .userdata  = dpidrops };
 
 DROPDOWN dropdown_language = {
@@ -152,25 +152,25 @@ DROPDOWN dropdown_language = {
 
 DROPDOWN dropdown_proxy = {.ondisplay = simple_dropdown_ondisplay,
                            .onselect  = dropdown_proxy_onselect,
-                           .dropcount = countof(proxydrops),
+                           .dropcount = COUNTOF(proxydrops),
                            .userdata  = proxydrops };
 
 DROPDOWN dropdown_theme = {.ondisplay = simple_dropdown_ondisplay,
                            .onselect  = dropdown_theme_onselect,
-                           .dropcount = countof(themedrops),
+                           .dropcount = COUNTOF(themedrops),
                            .userdata  = themedrops };
 
 DROPDOWN dropdown_friend_autoaccept_ft = {.ondisplay = simple_dropdown_ondisplay,
                                           .onselect  = dropdown_friend_autoaccept_ft_onselect,
-                                          .dropcount = countof(noyesdrops),
+                                          .dropcount = COUNTOF(noyesdrops),
                                           .userdata  = noyesdrops };
 
 DROPDOWN dropdown_notify_groupchats = {.ondisplay = simple_dropdown_ondisplay,
                                        .onselect  = dropdown_notify_groupchats_onselect,
-                                       .dropcount = countof(notifydrops),
+                                       .dropcount = COUNTOF(notifydrops),
                                        .userdata  = notifydrops };
 
 DROPDOWN dropdown_global_group_notifications = {.ondisplay = simple_dropdown_ondisplay,
                                                 .onselect  = dropdown_global_group_notifications_onselect,
-                                                .dropcount = countof(notifydrops),
+                                                .dropcount = COUNTOF(notifydrops),
                                                 .userdata  = notifydrops };

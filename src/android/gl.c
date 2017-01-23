@@ -341,7 +341,7 @@ bool gl_init(void) {
     } while (i);
 #endif
 
-    glGenTextures(countof(bitmap), bitmap);
+    glGenTextures(COUNTOF(bitmap), bitmap);
 
     svg_draw(0);
     loadfonts();

@@ -341,7 +341,7 @@ static void contextmenu_avatar_onselect(uint8_t i) {
 static void button_avatar_onright(void) {
     if (self_has_avatar()) {
         static UTOX_I18N_STR menu[] = { STR_REMOVE };
-        contextmenu_new(countof(menu), menu, contextmenu_avatar_onselect);
+        contextmenu_new(COUNTOF(menu), menu, contextmenu_avatar_onselect);
     }
 }
 

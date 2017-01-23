@@ -1395,7 +1395,7 @@ bool messages_mright(PANEL *panel) {
     switch (msg->msg_type) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
-            contextmenu_new(countof(menu_copy), menu_copy, contextmenu_messages_onselect);
+            contextmenu_new(COUNTOF(menu_copy), menu_copy, contextmenu_messages_onselect);
             return 1;
         }
     }
@@ -1609,7 +1609,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
     if (m->data) {
         messages_clear_all(m);
     }
-    memset(m, 0, sizeof(*m) * countof(m));
+    memset(m, 0, sizeof(*m) * COUNTOF(m));
 
     m->data = calloc(20, sizeof(void *));
     if (!m->data) {

@@ -654,7 +654,7 @@ static void deleteitem(ITEM *i) {
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
 
-    if (i != selected_item && selected_item > i && selected_item >= item && selected_item < item + countof(item)) {
+    if (i != selected_item && selected_item > i && selected_item >= item && selected_item < item + COUNTOF(item)) {
         selected_item--;
     }
 
@@ -663,13 +663,13 @@ static void deleteitem(ITEM *i) {
 }
 
 void flist_deletesitem(void) {
-    if (selected_item >= item && selected_item < item + countof(item)) {
+    if (selected_item >= item && selected_item < item + COUNTOF(item)) {
         deleteitem(selected_item);
     }
 }
 
 void flist_delete_rmouse_item(void) {
-    if (right_mouse_item >= item && right_mouse_item < item + countof(item)) {
+    if (right_mouse_item >= item && right_mouse_item < item + COUNTOF(item)) {
         deleteitem(right_mouse_item);
     }
 }
@@ -1045,7 +1045,7 @@ bool flist_mright(void *UNUSED(n)) {
         right_mouse_item = mouseover_item;
         switch (mouseover_item->item) {
             case ITEM_FRIEND: {
-                contextmenu_new(countof(menu_friend), menu_friend, contextmenu_list_onselect);
+                contextmenu_new(COUNTOF(menu_friend), menu_friend, contextmenu_list_onselect);
                 show_page(mouseover_item);
                 break;
             }
@@ -1054,24 +1054,24 @@ bool flist_mright(void *UNUSED(n)) {
                 GROUPCHAT *g = mouseover_item->data;
                 if (g->av_group) {
                     if (g->muted) {
-                        contextmenu_new(countof(menu_group_muted), menu_group_muted, contextmenu_list_onselect);
+                        contextmenu_new(COUNTOF(menu_group_muted), menu_group_muted, contextmenu_list_onselect);
                     } else {
-                        contextmenu_new(countof(menu_group_unmuted), menu_group_unmuted, contextmenu_list_onselect);
+                        contextmenu_new(COUNTOF(menu_group_unmuted), menu_group_unmuted, contextmenu_list_onselect);
                     }
                 } else {
-                    contextmenu_new(countof(menu_group), menu_group, contextmenu_list_onselect);
+                    contextmenu_new(COUNTOF(menu_group), menu_group, contextmenu_list_onselect);
                 }
                 show_page(mouseover_item);
                 break;
             }
 
             case ITEM_GROUP_CREATE: {
-                contextmenu_new(countof(menu_create_group), menu_create_group, contextmenu_list_onselect);
+                contextmenu_new(COUNTOF(menu_create_group), menu_create_group, contextmenu_list_onselect);
                 break;
             }
 
             case ITEM_FRIEND_ADD: {
-                contextmenu_new(countof(menu_request), menu_request, contextmenu_list_onselect);
+                contextmenu_new(COUNTOF(menu_request), menu_request, contextmenu_list_onselect);
                 break;
             }
 

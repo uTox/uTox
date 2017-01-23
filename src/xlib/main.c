@@ -412,7 +412,7 @@ void pastebestformat(const Atom atoms[], size_t len, Atom selection) {
     }
 
     for (i = 0; i < len; i++) {
-        for (j = 0; j < countof(supported); j++) {
+        for (j = 0; j < COUNTOF(supported); j++) {
             if (atoms[i] == supported[j]) {
                 XConvertSelection(display, selection, supported[j], targets, window, CurrentTime);
                 return;
@@ -614,7 +614,7 @@ void flush_file(FILE *file) {
 
 void setscale(void) {
     unsigned int i;
-    for (i = 0; i != countof(bitmap); i++) {
+    for (i = 0; i != COUNTOF(bitmap); i++) {
         if (bitmap[i]) {
             XRenderFreePicture(display, bitmap[i]);
         }

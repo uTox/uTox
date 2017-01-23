@@ -270,7 +270,7 @@ bool edit_mright(EDIT *edit) {
             edit_select                                = 1;
         }
 
-        contextmenu_new(countof(menu_edit), menu_edit, contextmenu_edit_onselect);
+        contextmenu_new(COUNTOF(menu_edit), menu_edit, contextmenu_edit_onselect);
 
         return true;
     } else if (active_edit == edit) {

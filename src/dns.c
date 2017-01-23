@@ -25,7 +25,7 @@ static struct tox3 {
 
 static void *istox3(char *name, size_t name_length) {
     int i;
-    for (i = 0; i != countof(tox3_server); i++) {
+    for (i = 0; i != COUNTOF(tox3_server); i++) {
         struct tox3 *t = &tox3_server[i];
         if (memcmp(name, t->name, name_length) == 0 && t->name[name_length] == 0) {
             // what if two threads reach this point at the same time?->initialize all dns3 at start instead

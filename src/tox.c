@@ -120,7 +120,7 @@ static void toxcore_bootstrap(Tox *tox) {
 
     int i = 0;
     while (i < 4) {
-        struct bootstrap_node *d = &bootstrap_nodes[j % countof(bootstrap_nodes)];
+        struct bootstrap_node *d = &bootstrap_nodes[j % COUNTOF(bootstrap_nodes)];
         tox_bootstrap(tox, d->address, d->port, d->key, 0);
         tox_add_tcp_relay(tox, d->address, d->port, d->key, 0);
         i++;

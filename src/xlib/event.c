@@ -39,14 +39,14 @@ bool doevent(XEvent event) {
                 }
 
                 int i;
-                for (i = 0; i != countof(friend); i++) {
+                for (i = 0; i != COUNTOF(friend); i++) {
                     if (video_win[i + 1] == ev->window) {
                         FRIEND *f = &friend[i];
                         postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
                         break;
                     }
                 }
-                assert(i != countof(friend));
+                assert(i != COUNTOF(friend));
             }
         }
 
@@ -514,7 +514,7 @@ bool doevent(XEvent event) {
             } else if (ev->target == targets) {
                 Atom supported[] = { XA_STRING, XA_UTF8_STRING };
                 XChangeProperty(display, ev->requestor, ev->property, XA_ATOM, 32, PropModeReplace, (void *)&supported,
-                                countof(supported));
+                                COUNTOF(supported));
             } else {
                 debug_notice("XLIB selection request: unknown request\n");
                 resp.xselection.property = None;
