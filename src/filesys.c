@@ -1,7 +1,7 @@
 #include "filesys.h"
 
 #include "main_native.h"
-#include "logging_native.h"
+#include "debug.h"
 
 #include <stdlib.h>
 

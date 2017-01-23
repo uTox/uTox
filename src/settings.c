@@ -1,9 +1,9 @@
 #include "settings.h"
 
-#include "main_native.h"
-#include "logging_native.h"
+#include "debug.h"
 #include "flist.h"
 #include "groups.h"
+#include "main_native.h"
 
 #include "ui/dropdowns.h"
 #include "ui/edits.h"

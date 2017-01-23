@@ -1,10 +1,10 @@
 #include "commands.h"
 
 #include "command_funcs.h"
+#include "debug.h"
 #include "flist.h"
-#include "logging_native.h"
-#include "main_native.h"
 #include "main.h" // tox_thread_init
+#include "main_native.h"
 
 #include "ui/edits.h"
 

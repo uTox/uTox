@@ -1,5 +1,4 @@
-
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../settings.h"
 
 typedef struct {

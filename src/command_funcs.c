@@ -2,7 +2,7 @@
 
 #include "friend.h"
 #include "groups.h"
-#include "logging_native.h"
+#include "debug.h"
 #include "tox.h"
 #include "macros.h"
 

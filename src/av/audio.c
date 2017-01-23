@@ -2,14 +2,14 @@
 
 #include "utox_av.h"
 
+#include "../debug.h"
 #include "../friend.h"
-#include "../logging_native.h"
 #include "../main.h" // utox_audio_thread_init, self, USER_STATUS_*, UTOX_MAX_CALLS
 #include "../main_native.h"
+#include "../self.h"
+#include "../settings.h"
 #include "../tox.h"
 #include "../utox.h"
-#include "../settings.h"
-#include "../self.h"
 
 #include <tox/toxav.h>
 

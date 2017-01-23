@@ -1,6 +1,6 @@
 #include "main.h"
 
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../main.h"
 

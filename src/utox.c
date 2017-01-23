@@ -1,12 +1,12 @@
 #include "utox.h"
 
 #include "commands.h"
+#include "debug.h"
 #include "dns.h"
 #include "file_transfers.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
-#include "logging_native.h"
 #include "main.h" // addfriend_status
 #include "main_native.h"
 #include "tox.h"

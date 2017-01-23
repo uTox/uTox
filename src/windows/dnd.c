@@ -4,7 +4,7 @@
 #include "../file_transfers.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../tox.h"
 #include "../macros.h"
 #include "../main.h"

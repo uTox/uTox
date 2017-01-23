@@ -3,10 +3,10 @@
 #include "audio.h"
 #include "video.h"
 
+#include "../debug.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../inline_video.h"
-#include "../logging_native.h"
 #include "../macros.h"
 #include "../main_native.h"
 #include "../tox.h"

@@ -1,6 +1,6 @@
 #include "theme.h"
 
-#include "logging_native.h"
+#include "debug.h"
 #include "main.h" // utox_data_load_custom_theme
 #include "main_native.h"
 #include "ui.h"

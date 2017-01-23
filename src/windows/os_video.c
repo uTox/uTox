@@ -1,6 +1,6 @@
 #include "main.h"
 
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../main_native.h"
 
 #include "../av/video.h"
