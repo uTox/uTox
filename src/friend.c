@@ -217,14 +217,12 @@ void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
 
 void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
                       size_t png_size) {
-    message_add_type_image(&f->msg, 1, native_image, width, height, 0);
-
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
-
     tsim->image      = png_image;
     tsim->image_size = png_size;
-
     postmessage_toxcore(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
+
+    message_add_type_image(&f->msg, 1, native_image, width, height, 0);
 }
 
 void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height) {

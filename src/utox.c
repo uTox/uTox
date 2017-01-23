@@ -234,14 +234,20 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FILE_TRANSFER *file = data;
 
             if (file->ui_data) {
-                ((MSG_FILE*)file->ui_data)->progress = file->current_size;
-                ((MSG_FILE*)file->ui_data)->speed    = file->speed;
+                if (file->status == FILE_TRANSFER_STATUS_COMPLETED) {
+                    file->ui_data->file_status = FILE_TRANSFER_STATUS_COMPLETED;
 
-                if (file->in_memory) {
-                    ((MSG_FILE*)file->ui_data)->path = file->via.memory;
-                } else {
-                    memcpy(((MSG_FILE*)file->ui_data)->path, file->path, UTOX_FILE_NAME_LENGTH);
+                    if (file->in_memory) {
+                        file->ui_data->path = file->via.memory;
+                    } else {
+                        memcpy(file->ui_data->path, file->path, UTOX_FILE_NAME_LENGTH);
+                    }
+                } else if (file->status == FILE_TRANSFER_STATUS_BROKEN) {
+                    file->ui_data->file_status = FILE_TRANSFER_STATUS_BROKEN;
                 }
+
+                file->ui_data->progress = file->current_size;
+                file->ui_data->speed    = file->speed;
             }
 
             redraw();
