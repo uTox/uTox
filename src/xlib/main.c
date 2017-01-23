@@ -669,10 +669,12 @@ void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_
 
 #ifdef HAVE_DBUS
     char *str = tohtml(msg, msg_length);
-
     dbus_notify(title, str, f_cid);
-
     free(str);
+#else
+    (void)title; // I don't like this either, but this is all going away soon!
+    (void)msg;
+    (void)msg_length;
 #endif
 
 #ifdef UNITY
