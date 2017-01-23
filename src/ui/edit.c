@@ -9,7 +9,7 @@
 #include "../theme.h"
 #include "../util.h"
 #include "../macros.h"
-#include "../main.h"
+#include "../settings.h"
 
 static EDIT *active_edit;
 

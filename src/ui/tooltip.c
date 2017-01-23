@@ -2,11 +2,13 @@
 
 #include "draw.h"
 
+#include "../macros.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../ui.h"
 #include "../utox.h"
-#include "../macros.h"
-#include "../main.h"
+
+#include "../main.h" // mouse, gettime, thread
 
 static TOOLTIP tooltip;
 

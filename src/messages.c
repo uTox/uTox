@@ -9,12 +9,12 @@
 #include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
+#include "macros.h"
+#include "settings.h"
 #include "theme.h"
 #include "tox.h"
 #include "util.h"
 #include "utox.h"
-#include "macros.h"
-#include "main.h"
 
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
@@ -22,6 +22,7 @@
 #include "ui/scrollable.h"
 #include "ui/svg.h"
 #include "ui/text.h"
+
 
 /** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;

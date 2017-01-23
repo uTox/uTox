@@ -14,6 +14,7 @@
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../tox.h"
+#include "../settings.h"
 
 #include <shlobj.h>
 

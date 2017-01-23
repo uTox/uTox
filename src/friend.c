@@ -5,8 +5,8 @@
 #include "filesys.h"
 #include "flist.h"
 #include "logging_native.h"
-#include "main.h"
 #include "main_native.h"
+#include "settings.h"
 #include "tox.h"
 #include "util.h"
 #include "utox.h"
@@ -14,6 +14,7 @@
 #include "av/utox_av.h"
 #include "ui/edits.h"
 #include "ui/scrollable.h"
+
 
 FRIEND* get_friend(uint32_t friend_number){
     if (friend_number >= 128) {
@@ -269,9 +270,9 @@ void friend_set_typing(FRIEND *f, int typing) {
 }
 
 void friend_addid(uint8_t *id, char *msg, uint16_t msg_length) {
-    void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char));
-    memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
-    memcpy(data + TOX_FRIEND_ADDRESS_SIZE, msg, msg_length * sizeof(char));
+    void *data = malloc(TOX_ADDRESS_SIZE + msg_length * sizeof(char));
+    memcpy(data, id, TOX_ADDRESS_SIZE);
+    memcpy(data + TOX_ADDRESS_SIZE, msg, msg_length * sizeof(char));
 
     postmessage_toxcore(TOX_FRIEND_NEW, msg_length, 0, data);
 }
@@ -298,8 +299,8 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
         return;
     }
 
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
-    if (length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, (char *)name_cleaned)) {
+    uint8_t id[TOX_ADDRESS_SIZE];
+    if (length_cleaned == TOX_ADDRESS_SIZE * 2 && string_to_id(id, (char *)name_cleaned)) {
         friend_addid(id, msg, msg_length);
     } else {
         /* not a regular id, try DNS discovery */

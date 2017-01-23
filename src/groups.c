@@ -2,15 +2,20 @@
 
 #include "flist.h"
 #include "logging_native.h"
-#include "util.h"
 #include "macros.h"
+#include "settings.h"
+#include "util.h"
 
+#include "av/utox_av.h"
 #include "ui/edit.h"
 #include "ui/scrollable.h"
-#include "av/utox_av.h"
 
-// FIXME: Required for UNUSED()
-#include "main.h"
+#include <pthread.h>
+#include <stdlib.h>
+#include <string.h>
+#include <tox/tox.h>
+
+#include "main.h" // self, msg_lock
 
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */

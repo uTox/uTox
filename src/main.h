@@ -49,10 +49,6 @@ typedef struct avatar AVATAR;
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 #define UTOX_MAX_NUM_GROUPS 512
 
-#define UTOX_MAX_NAME_LENGTH TOX_MAX_NAME_LENGTH
-
-#define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
-
 #define BORDER 1
 #define CAPTION 26
 #define MAIN_WIDTH 1000
@@ -143,65 +139,6 @@ typedef enum {
 
 UTOX_TOX_THREAD_INIT tox_thread_init;
 
-
-typedef struct utox_settings {
-    // uTox versions settings
-    uint32_t curr_version;
-    uint32_t last_version;
-    bool     show_splash;
-
-    // Low level settings (network, profile, portable-mode)
-    bool portable_mode;
-
-    bool save_encryption;
-
-    bool auto_update;
-    bool update_to_develop;
-    bool send_version;
-
-    bool force_proxy;
-    bool enable_udp;
-    bool enable_ipv6;
-
-    bool block_friend_requests;
-
-    bool use_proxy;
-    uint16_t proxy_port;
-
-    // User interface settings
-    bool close_to_tray;
-    bool logging_enabled;
-    bool audiofilter_enabled;
-    bool start_in_tray;
-    bool start_with_system;
-    bool push_to_talk;
-    bool audio_preview;
-    bool video_preview;
-    bool send_typing_status;
-    bool use_mini_flist;
-    bool inline_video;
-    bool use_long_time_msg;
-    bool accept_inline_images;
-
-    // Notifications / Alerts
-    bool    ringtone_enabled;
-    bool    status_notifications;
-    uint8_t group_notifications;
-
-    uint8_t verbose;
-
-    uint32_t theme;
-
-    // OS interface settings
-    uint32_t window_height;
-    uint32_t window_width;
-    uint32_t window_baseline;
-
-    bool    window_maximized;
-} SETTINGS;
-
-extern SETTINGS settings;
-
 // add friend page
 uint8_t addfriend_status;
 
@@ -229,7 +166,7 @@ typedef enum {
 extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
 typedef uint8_t *UTOX_IMAGE;
 
-pthread_mutex_t messages_lock;
+pthread_mutex_t messages_lock; // TODO move to messages.h
 
 enum {
     USER_STATUS_AVAILABLE,
@@ -252,10 +189,10 @@ struct utox_self {
     size_t device_list_count;
     size_t device_list_size;
 
-    char   id_str[TOX_FRIEND_ADDRESS_SIZE * 2];
+    char   id_str[TOX_ADDRESS_SIZE * 2];
     size_t id_str_length;
 
-    uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
+    uint8_t id_binary[TOX_ADDRESS_SIZE];
 
     uint32_t nospam;
     uint32_t old_nospam;

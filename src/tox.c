@@ -7,13 +7,13 @@
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
-#include "main.h"
 #include "logging_native.h"
+#include "macros.h"
+#include "settings.h"
 #include "tox_bootstrap.h"
 #include "tox_callbacks.h"
 #include "util.h"
 #include "utox.h"
-#include "macros.h"
 
 #include "av/utox_av.h"
 #include "ui/dropdown.h"
@@ -23,7 +23,11 @@
 #include "ui/switches.h"
 #include "ui/tooltip.h"
 
+#include <stdlib.h>
+#include <string.h>
 #include <tox/toxencryptsave.h>
+
+#include "main.h" // self, thread
 
 static bool save_needed = 1;
 
@@ -419,7 +423,7 @@ static void init_self(Tox *tox) {
     /* Get tox id, and gets the hex version for utox */
     tox_self_get_address(tox, self.id_binary);
     id_to_string(self.id_str, self.id_binary);
-    self.id_str_length = TOX_FRIEND_ADDRESS_SIZE * 2;
+    self.id_str_length = TOX_ADDRESS_SIZE * 2;
     debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
 
     /* Get nospam */
@@ -652,7 +656,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         #ifdef ENABLE_MULTIDEVICE
 
             TOX_ERR_DEVICE_ADD error = 0;
-            tox_self_add_device(tox, data + TOX_FRIEND_ADDRESS_SIZE, param1, data, &error);
+            tox_self_add_device(tox, data + TOX_ADDRESS_SIZE, param1, data, &error);
 
             if (error) {
                 debug_error("Toxcore:\tproblem with adding device to self %u\n", error);
@@ -693,7 +697,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 STRING *default_add_msg = SPTR(DEFAULT_FRIEND_REQUEST_MESSAGE);
                 fid = tox_friend_add(tox, data, (const uint8_t *)default_add_msg->str, default_add_msg->length, &f_err);
             } else {
-                fid = tox_friend_add(tox, data, data + TOX_FRIEND_ADDRESS_SIZE, param1, &f_err);
+                fid = tox_friend_add(tox, data, data + TOX_ADDRESS_SIZE, param1, &f_err);
             }
 
             if (f_err != TOX_ERR_FRIEND_ADD_OK) {
@@ -738,7 +742,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 postmessage_utox(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
                             (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
             } else {
-                char hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
+                char hex_id[TOX_ADDRESS_SIZE * 2];
                 id_to_string(hex_id, self.id_binary);
                 debug("Toxcore:\tUnable to accept friend %s, error num = %i\n", hex_id, fid);
             }

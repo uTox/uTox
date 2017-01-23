@@ -9,13 +9,16 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../logging_native.h"
-#include "../main.h"
+#include "../macros.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../macros.h"
 
 #include "../av/utox_av.h"
 #include "../ui/edits.h"
+
+
+#include "../main.h" // uTox_thread
 
 #ifdef UNITY
 #include "xlib/mmenu.h"

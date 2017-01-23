@@ -6,11 +6,12 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
+#include "../macros.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../util.h"
 #include "../utox.h"
-#include "../macros.h"
 
 #include "../av/utox_av.h"
 #include "../ui/draw.h"

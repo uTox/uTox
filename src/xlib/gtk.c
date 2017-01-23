@@ -300,7 +300,7 @@ static void ugtk_save_data_thread(void *args) {
 static void ugtk_save_chatlog_thread(void *args) {
     uint32_t friend_number = (uint32_t)args;
 
-    char name[UTOX_MAX_NAME_LENGTH + sizeof ".txt"];
+    char name[TOX_MAX_NAME_LENGTH + sizeof ".txt"];
     snprintf(name, sizeof name, "%.*s.txt", (int)friend[friend_number].name_length, friend[friend_number].name);
 
     void *dialog = utoxGTK_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,

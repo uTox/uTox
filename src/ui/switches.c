@@ -4,6 +4,7 @@
 #include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
+#include "../settings.h"
 
 static void switch_set_colors(UISWITCH *s) {
     if (s->switch_on) {

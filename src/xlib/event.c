@@ -3,15 +3,14 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
+#include "../macros.h"
+#include "../settings.h"
 #include "../tox.h"
 #include "../utox.h"
-#include "../macros.h"
 
 #include "../av/utox_av.h"
+#include "../ui/draw.h" // Needed for enddraw. This should probably be changed.
 #include "../ui/edit.h"
-
-// Needed for enddraw. This should probably be changed.
-#include "../ui/draw.h"
 
 #include "keysym2ucs.h"
 

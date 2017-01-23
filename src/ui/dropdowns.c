@@ -7,13 +7,17 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../logging_native.h"
+#include "../macros.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../util.h"
-#include "../main.h"
-#include "../macros.h"
 
 #include "../av/utox_av.h"
+
+#include <string.h>
+
+#include "../main.h" // desktop grab
 
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
     DROP_ELEMENT *e      = &((DROP_ELEMENT *)dm->userdata)[i];

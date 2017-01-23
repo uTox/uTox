@@ -8,13 +8,18 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../logging_native.h"
+#include "../macros.h"
+#include "../settings.h"
 #include "../tox.h"
 #include "../util.h"
-#include "../macros.h"
-#include "../main.h"
 
-static char edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4],
-    edit_add_self_device_data[TOX_FRIEND_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535],
+#include <string.h>
+#include <tox/tox.h>
+
+#include "../main.h" // self
+
+static char edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_ADDRESS_SIZE * 4],
+    edit_add_self_device_data[TOX_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535],
     edit_search_data[127], edit_proxy_ip_data[256], edit_proxy_port_data[8], edit_profile_password_data[65535],
     edit_friend_alias_data[128], edit_id_str[TOX_PUBLIC_KEY_SIZE * 2], edit_group_topic_data[128];
 
@@ -493,7 +498,7 @@ EDIT edit_name =
 
      edit_toxid =
          {
-           .length = TOX_FRIEND_ADDRESS_SIZE * 2, .data = self.id_str, .readonly = 1, .noborder = 0, .select_completely = 1,
+           .length = TOX_ADDRESS_SIZE * 2, .data = self.id_str, .readonly = 1, .noborder = 0, .select_completely = 1,
          },
 
      edit_friend_pubkey =
@@ -610,7 +615,7 @@ EDIT edit_name =
                    .noborder          = false,
                    .select_completely = true, };
 
-static char edit_add_new_device_to_self_data[TOX_FRIEND_ADDRESS_SIZE * 4];
+static char edit_add_new_device_to_self_data[TOX_ADDRESS_SIZE * 4];
 
 static void edit_add_new_device_to_self_onenter(EDIT *UNUSED(edit)) {
 #ifdef ENABLE_MULTIDEVICE

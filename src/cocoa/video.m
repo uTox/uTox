@@ -6,6 +6,7 @@
 #include "../main.h"
 #include "../tox.h"
 #include "../util.h"
+#include "../settings.h"
 
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>

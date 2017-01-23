@@ -2,13 +2,14 @@
 
 #include "friend.h"
 #include "logging_native.h"
+#include "macros.h"
 #include "main_native.h"
 #include "messages.h"
+#include "settings.h"
 #include "tox.h"
 #include "util.h"
 #include "utox.h"
-#include "main.h"
-#include "macros.h"
+
 
 #define MAX_INLINE_FILESIZE (1024 * 1024 * 4)
 

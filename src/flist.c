@@ -5,12 +5,12 @@
 #include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
+#include "macros.h"
+#include "settings.h"
 #include "theme.h"
 #include "tox.h"
 #include "util.h"
 #include "utox.h"
-#include "macros.h"
-#include "main.h"
 
 #include "ui/buttons.h"
 #include "ui/contextmenu.h"
@@ -20,6 +20,12 @@
 #include "ui/scrollable.h"
 #include "ui/svg.h"
 #include "ui/tooltip.h"
+
+#include <limits.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "main.h" // get_time, self
 
 #ifdef UNITY
 #include "xlib/mmenu.h"
@@ -185,7 +191,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         case ITEM_FRIEND_ADD: {
             FRIENDREQ *f = i->data;
 
-            char name[TOX_FRIEND_ADDRESS_SIZE * 2];
+            char name[TOX_ADDRESS_SIZE * 2];
             id_to_string(name, f->id);
 
             drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w,

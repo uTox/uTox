@@ -15,9 +15,15 @@
 
 #include "logging_native.h"
 #include "macros.h"
-#include "main.h"
+#include "settings.h"
 
 #include "av/utox_av.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+#include "main.h" // draw_inline
+
 
 static UTOX_FRAME_PKG current_frame = { 0 };
 

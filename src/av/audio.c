@@ -5,6 +5,7 @@
 #include "../main.h"
 #include "../tox.h"
 #include "../utox.h"
+#include "../settings.h"
 
 static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {
 #ifdef AUDIO_FILTERING

@@ -1,6 +1,8 @@
 #include "contextmenu.h"
 
 #include "draw.h"
+
+#include "../settings.h"
 #include "../theme.h"
 
 #include "../main.h"

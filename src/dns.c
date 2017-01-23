@@ -1,11 +1,12 @@
 #include "dns.h"
 
 #include "logging_native.h"
+#include "macros.h"
 #include "main.h"
 #include "main_native.h"
+#include "settings.h"
 #include "tox.h"
 #include "utox.h"
-#include "macros.h"
 
 #include <tox/toxdns.h>
 
@@ -453,7 +454,7 @@ void dns_request(char *name, size_t length) {
         return;
     }
 
-    void *data = malloc((sizeof(length) + length < TOX_FRIEND_ADDRESS_SIZE) ? TOX_FRIEND_ADDRESS_SIZE :
+    void *data = malloc((sizeof(length) + length < TOX_ADDRESS_SIZE) ? TOX_ADDRESS_SIZE :
                                                                               2u + length * sizeof(char));
     memcpy(data, &length, sizeof(length));
     memcpy(data + sizeof(length), name, length * sizeof(char));

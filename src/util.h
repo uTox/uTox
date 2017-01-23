@@ -6,7 +6,6 @@
 #include <stddef.h>
 
 typedef struct utox_friend FRIEND;
-typedef struct utox_save UTOX_SAVE;
 
 /*todo: sprint_bytes */
 
@@ -28,7 +27,7 @@ void *file_text(char *path);
 bool strstr_case(const char *a, const char *b);
 
 /* convert tox id to string
- *  notes: dest must be (TOX_FRIEND_ADDRESS_SIZE * 2) bytes large, src must be TOX_FRIEND_ADDRESS_SIZE bytes large
+ *  notes: dest must be (TOX_ADDRESS_SIZE * 2) bytes large, src must be TOX_ADDRESS_SIZE bytes large
  */
 void id_to_string(char *dest, uint8_t *src);
 
@@ -48,7 +47,7 @@ void hash_to_string(char *dest, uint8_t *src);
 /** convert string to tox id
  *  on success: returns 1
  *  on failure: returns 0
- *  notes: dest must be TOX_FRIEND_ADDRESS_SIZE bytes large, some data may be written to dest even on failure
+ *  notes: dest must be TOX_ADDRESS_SIZE bytes large, some data may be written to dest even on failure
  */
 bool string_to_id(uint8_t *dest, char *src);
 
@@ -102,12 +101,6 @@ void bgrxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t 
  */
 void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height, uint8_t *new_rgbx, uint16_t new_width,
                       uint16_t new_height);
-
-
-// TODO FIXME this needs to me moved out of here so we can drop the ".h" includes above
-UTOX_SAVE *config_load(void);
-void config_save(UTOX_SAVE *save);
-
 
 // TODO FIXME this needs to me moved out of here so we can drop the ".h" includes above
 /*

@@ -7,6 +7,7 @@
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../tox.h"
+#include "../settings.h"
 
 #if 0 // commented because this function is deprecated, but I'm not ready to delete all this code yet
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
@@ -126,7 +127,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     if (libgtk) {
         ugtk_save_chatlog(friend_number);
     } else {
-        char name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
+        char name[TOX_MAX_NAME_LENGTH + sizeof(".txt")];
         snprintf((char *)name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length,
                  friend[friend_number].name);
 

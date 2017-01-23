@@ -2,9 +2,12 @@
 
 #include "draw.h"
 
-#include "../theme.h"
 #include "../macros.h"
-#include "../main.h"
+#include "../settings.h"
+#include "../theme.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 static DROPDOWN *active_dropdown;
 static int       active_x, active_y, active_width, active_height;
