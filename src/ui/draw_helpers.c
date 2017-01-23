@@ -11,6 +11,7 @@
 #include "../groups.h"
 #include "../theme.h"
 #include "../ui.h"
+#include "../settings.h"
 
 // FIXME: Required for UNUSED()
 #include "../main.h"

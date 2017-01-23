@@ -7,6 +7,7 @@
 #include "tox.h"
 #include "util.h"
 #include "utox.h"
+#include "settings.h"
 
 // FIXME: Required for UNUSED()
 #include "main.h"

@@ -7,6 +7,7 @@
 
 #include "../ui/dropdowns.h"
 #include "../util.h"
+#include "../settings.h"
 
 #include <pthread.h>
 #include <vpx/vpx_codec.h>

@@ -1,7 +1,7 @@
 #include "updater.h"
 
 #include "logging_native.h"
-#include "main.h" // settings.*
+#include "settings.h"
 #include "branding.h"
 
 #include <stddef.h>

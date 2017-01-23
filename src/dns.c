@@ -1,5 +1,6 @@
 #include "dns.h"
 
+#include "settings.h"
 #include "logging_native.h"
 #include "main.h"
 #include "main_native.h"

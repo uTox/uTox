@@ -8,6 +8,7 @@
 #include "../main_native.h"
 #include "../theme.h"
 #include "../util.h"
+#include "../settings.h"
 
 // FIXME: Required for UNUSED()
 #include "../main.h"

@@ -13,6 +13,7 @@
 #include "tox_callbacks.h"
 #include "util.h"
 #include "utox.h"
+#include "settings.h"
 
 #include "av/utox_av.h"
 #include "ui/dropdown.h"

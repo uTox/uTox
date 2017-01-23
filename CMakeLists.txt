@@ -190,6 +190,7 @@ add_executable(utox ${GUI_TYPE}
     src/logging.c
     src/main.c
     src/messages.c
+    src/settings.c
     src/theme.c
     src/tox.c
     src/tox_callbacks.c

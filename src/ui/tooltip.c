@@ -5,6 +5,7 @@
 #include "../theme.h"
 #include "../ui.h"
 #include "../utox.h"
+#include "../settings.h"
 
 // FIXME: Required for UNUSED()
 #include "../main.h"

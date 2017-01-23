@@ -7,6 +7,7 @@
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../tox.h"
+#include "../settings.h"
 
 #if 0 // commented because this function is deprecated, but I'm not ready to delete all this code yet
 /** Takes data from µTox and saves it, just how the OS likes it saved! */

@@ -12,6 +12,8 @@
 #include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
+#include "../settings.h"
+
 #include "../av/utox_av.h"
 #include "../ui/edits.h"
 

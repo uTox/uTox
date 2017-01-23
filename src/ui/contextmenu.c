@@ -1,6 +1,8 @@
 #include "contextmenu.h"
 
 #include "draw.h"
+
+#include "../settings.h"
 #include "../theme.h"
 
 // FIXME: Required for UNUSED()

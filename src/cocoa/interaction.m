@@ -1,5 +1,6 @@
 #include "main.h"
 #include "cursor.h"
+
 #include "../avatar.h"
 #include "../chatlog.h"
 #include "../file_transfers.h"
@@ -12,6 +13,7 @@
 #include "../ui.h"
 #include "../util.h"
 #include "../utox.h"
+#include "../settings.h"
 
 #include "../av/utox_av.h"
 #include "../ui/edit.h"

@@ -3,6 +3,7 @@
 #include "draw.h"
 
 #include "../theme.h"
+#include "../settings.h"
 
 // FIXME: Required for UNUSED()
 #include "../main.h"

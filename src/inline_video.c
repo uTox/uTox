@@ -14,6 +14,7 @@
 #include "inline_video.h"
 
 #include "logging_native.h"
+#include "settings.h"
 
 #include "av/utox_av.h"
 

@@ -9,6 +9,7 @@
 #include "../logging_native.h"
 #include "../main.h"
 #include "../tox.h"
+#include "../settings.h"
 
 void native_export_chatlog_init(uint32_t friend_number) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);

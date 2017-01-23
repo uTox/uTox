@@ -9,6 +9,7 @@
 #include "tox.h"
 #include "util.h"
 #include "utox.h"
+#include "settings.h"
 
 #include "ui/buttons.h"
 #include "ui/contextmenu.h"

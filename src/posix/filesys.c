@@ -1,6 +1,7 @@
 #include <assert.h>
 
 #include "../logging_native.h"
+#include "../settings.h"
 
 #ifdef __OBJC__
 #include "../main.h"
