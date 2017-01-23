@@ -81,28 +81,7 @@ static void friend_meta_data_read(FRIEND *f) {
     fread(metadata, size, 1, file);
     fclose(file);
 
-    /* Compatibility code for original version of meta_data... TODO: Remove in version >= 0.10 */
-    if (metadata->version >= 2) { /* Version 2 chosen because alias length (the original value at *
-                                   * metadata[0] should be > 2 (hopefully)                        */
-        if (size < sizeof(FRIEND_META_DATA_OLD)) {
-            debug("Metadata:\tMeta Data was incomplete\n");
-            free(metadata);
-            return;
-        }
-
-        if (((FRIEND_META_DATA_OLD *)metadata)->alias_length) {
-            friend_set_alias(f, metadata + sizeof(size_t),
-                             ((FRIEND_META_DATA_OLD *)metadata)->alias_length);
-        } else {
-            friend_set_alias(f, NULL, 0);
-        }
-
-        debug("Metadata:\tConverting old metadata file to new!\n");
-        utox_write_metadata(f);
-
-        free(metadata);
-        return;
-    } else if (metadata->version != 0) {
+    if (metadata->version != 0) {
         debug_notice("Metadata:\tWARNING! This version of utox does not support this metadata file version.\n");
         free(metadata);
         return;
