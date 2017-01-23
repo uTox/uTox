@@ -234,7 +234,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FILE_TRANSFER *file = data;
 
             if (file->ui_data) {
-                if (file->status == FILE_TRANSFER_STATUS_COMPLETED) {
+                if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
                     ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_COMPLETED;
 
                     if (file->in_memory) {
@@ -242,7 +242,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                     } else {
                         memcpy(((MSG_FILE*)file->ui_data)->path, file->path, UTOX_FILE_NAME_LENGTH);
                     }
-                } else if (file->status == FILE_TRANSFER_STATUS_BROKEN) {
+                } else if (param1 == FILE_TRANSFER_STATUS_BROKEN) {
                     ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_BROKEN;
                 }
 
