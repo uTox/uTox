@@ -8,9 +8,10 @@
 #include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
+#include "main_native.h"
+#include "settings.h"
 #include "theme.h"
 #include "updater.h"
-#include "settings.h"
 
 #include "ui/dropdowns.h"
 #include "ui/edits.h"

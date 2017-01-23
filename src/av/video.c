@@ -6,7 +6,6 @@
 #include "../main_native.h"
 #include "../settings.h"
 #include "../tox.h"
-#include "../util.h"
 #include "../utox.h"
 
 #include "../ui/dropdowns.h"

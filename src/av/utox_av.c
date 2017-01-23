@@ -5,12 +5,13 @@
 #include "../inline_video.h"
 #include "../logging_native.h"
 #include "../macros.h"
+#include "../main_native.h"
 #include "../tox.h"
 #include "../utox.h"
 
 #include <stdlib.h>
 
-#include "../main.h" // threading
+#include "../main.h" // utox_av_ctrl_init, utox_video_thread_init, utox_audio_thread_init
 
 
 bool toxav_thread_msg = 0;

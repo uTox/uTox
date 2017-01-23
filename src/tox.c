@@ -1,7 +1,5 @@
 #include "tox.h"
 
-#include "avatar.h" // unneeded?
-#include "commands.h" // unneeded?
 #include "dns.h"
 #include "file_transfers.h"
 #include "flist.h"
@@ -9,6 +7,7 @@
 #include "groups.h"
 #include "logging_native.h"
 #include "macros.h"
+#include "main_native.h"
 #include "settings.h"
 #include "text.h"
 #include "tox_bootstrap.h"
@@ -29,7 +28,7 @@
 #include <tox/toxencryptsave.h>
 
 
-#include "main.h" // self, thread
+#include "main.h" // self
 
 static bool save_needed = 1;
 

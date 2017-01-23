@@ -1,7 +1,5 @@
 #include "messages.h"
 
-#include "main_native.h"
-
 #include "chatlog.h"
 #include "file_transfers.h"
 #include "filesys.h"
@@ -10,6 +8,7 @@
 #include "groups.h"
 #include "logging_native.h"
 #include "macros.h"
+#include "main_native.h"
 #include "settings.h"
 #include "text.h"
 #include "theme.h"
@@ -23,6 +22,9 @@
 #include "ui/svg.h"
 #include "ui/text.h"
 
+#include "main.h" // self,
+
+#define UTOX_MAX_BACKLOG_MESSAGES 256
 
 /** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;

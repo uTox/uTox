@@ -6,7 +6,7 @@
 #include <time.h>
 #include <pthread.h>
 
-extern pthread_mutex_t messages_lock;
+pthread_mutex_t messages_lock;
 
 typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_NULL,

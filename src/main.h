@@ -45,7 +45,6 @@ typedef struct avatar AVATAR;
 
 // Limits and sizes
 #define UTOX_MAX_CALLS 16
-#define UTOX_MAX_BACKLOG_MESSAGES 256
 #define UTOX_MAX_NUM_GROUPS 512
 
 #define BORDER 1
