@@ -4,7 +4,6 @@
 #include "logging_native.h"
 #include "macros.h"
 #include "main_native.h"
-#include "messages.h"
 #include "settings.h"
 #include "text.h"
 #include "tox.h"
@@ -244,10 +243,6 @@ static void kill_file(FILE_TRANSFER *file) {
         return;
     } else {
         file->status = FILE_TRANSFER_STATUS_KILLED;
-
-        if (file->ui_data) {
-            file->ui_data->file_status = FILE_TRANSFER_STATUS_KILLED;
-        }
     }
 
     postmessage_utox(FILE_UPDATE_STATUS, file->status, 0, file);
@@ -667,6 +662,13 @@ static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t fil
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
     }
 
+    ft->name = (uint8_t *)strdup("utox-inline.png");
+    ft->name_length = strlen("utox-inline.png");
+    if (!ft->name) {
+        debug_error("FileTransfer:\tError, couldn't allocate memory for ft->name.\n");
+        ft->name_length = 0;
+    }
+
     postmessage_utox(FILE_INCOMING_NEW, friend_number, 0, ft);
     return;
 }
@@ -724,7 +726,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
             ft->via.file     = file;
 
-            postmessage_utox(FILE_SEND_NEW, friend_number, 0, ft);
+            postmessage_utox(FILE_SEND_NEW, friend_number, file_number, ft);
             TOX_ERR_FILE_SEEK error = 0;
             tox_file_seek(tox, friend_number, file_number, ft->current_size, &error);
             if (error) {
@@ -940,12 +942,14 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
 
     ft->target_size = size;
 
-    ft->name = (uint8_t*)strdup((char*)name);
+    ft->name = calloc(1, name_length + 1);
     if (!ft->name) {
         debug_error("FileTransfer:\tError, couldn't allocate memory for ft->name.\n");
         return UINT32_MAX;
     }
     ft->name_length = name_length;
+    snprintf((char *)ft->name, name_length + 1, "%.*s", (int)name_length, name);
+
     snprintf((char *)ft->path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)path_length, path);
 
     ft->via.file = file;
@@ -1001,15 +1005,21 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     ft->in_memory  = true;
     ft->inline_img = true;
 
+    ft->name = calloc(1, name_length + 1);
+    if (!ft->name) {
+        debug_error("FileTransfer:\tError, couldn't allocate memory for ft->name.\n");
+        return UINT32_MAX;
+    }
+    ft->name_length = name_length;
+    snprintf((char *)ft->name, name_length + 1, "%.*s", (int)name_length, name);
+
     ft->friend_number = friend_number;
     ft->file_number = file_number;
 
     memcpy(ft->data_hash, hash, TOX_HASH_LENGTH);
 
     ft->via.memory = data;
-
     ft->target_size = size;
-
     ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
 
     postmessage_utox(FILE_SEND_NEW, friend_number, file_number, ft);

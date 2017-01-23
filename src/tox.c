@@ -771,8 +771,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * param2: message length
              * data: message
              */
-            MSG_TEXT *message = (void *)data;
-            void *    p       = message->msg;
+            MSG_HEADER *mmsg = (MSG_HEADER *)data;
 
             TOX_MESSAGE_TYPE type;
             if (msg == TOX_SEND_ACTION) {
@@ -781,20 +780,21 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 type = TOX_MESSAGE_TYPE_NORMAL;
             }
 
+            uint8_t *next = (uint8_t *)mmsg->via.txt.msg;
             while (param2 > TOX_MAX_MESSAGE_LENGTH) {
-                uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen(p + TOX_MAX_MESSAGE_LENGTH);
-                tox_friend_send_message(tox, param1, type, p, len, 0);
+                uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen((char *)next + TOX_MAX_MESSAGE_LENGTH);
+                tox_friend_send_message(tox, param1, type, next, len, 0);
                 param2 -= len;
-                p += len;
+                next += len;
             }
 
             TOX_ERR_FRIEND_SEND_MESSAGE error = 0;
 
             // Send last or only message
-            message->receipt      = tox_friend_send_message(tox, param1, type, p, param2, &error);
-            message->receipt_time = 0;
+            mmsg->receipt      = tox_friend_send_message(tox, param1, type, next, param2, &error);
+            mmsg->receipt_time = 0;
 
-            debug_info("Toxcore:\tSending message, receipt %u\n", message->receipt);
+            debug_info("Toxcore:\tSending message, receipt %u\n", mmsg->receipt);
             if (error) {
                 debug_error("Toxcore:\tError sending message... %u\n", error);
             }
@@ -851,12 +851,11 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend id
                data: pointer to a TOX_SEND_INLINE_MSG struct
              */
-            debug("Toxcore:\tSending picture inline.\n");
+            debug_info("Toxcore:\tSending picture inline.\n");
 
-            ft_send_data(tox, param1, ((struct TOX_SEND_INLINE_MSG *)data)->image,
-                                      ((struct TOX_SEND_INLINE_MSG *)data)->image_size,
-                                      (uint8_t*)"utox-inline.png",
-                                      sizeof("utox-inline.png") - 1);
+            struct TOX_SEND_INLINE_MSG *img = data;
+            uint8_t name[] = "utox-inline.png";
+            ft_send_data(tox, param1, img->image, img->image_size, name, strlen((char *)name));
             free(data);
             break;
         }

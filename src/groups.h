@@ -32,11 +32,14 @@ typedef struct groupchat {
 
     GNOTIFY_TYPE notify;
 
-    volatile bool muted;
-    ALuint        audio_dest;
+    bool   muted;
+    ALuint audio_dest;
 
-    uint16_t name_length, topic_length, typed_length;
-    char     name[128], topic[128]; /* TODO magic numbers */
+    char     name[128];
+    uint16_t name_length;
+    char     topic[256]; /* TODO magic numbers */
+    uint16_t topic_length;
+    uint16_t typed_length;
 
     char *typed;
 
@@ -50,7 +53,7 @@ typedef struct groupchat {
     uint16_t      edit_history_cur, edit_history_length;
 
     uint32_t peer_count;
-    void **  peer;
+    GROUP_PEER **peer;
 } GROUPCHAT;
 
 // #pragma message "GROUPCHAT needs to become dynamic"
@@ -58,7 +61,7 @@ GROUPCHAT group[64];
 
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group);
 
-uint32_t group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t length, uint8_t m_type);
+uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type);
 
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool our_peer_number, uint32_t name_color);
 

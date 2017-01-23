@@ -17,9 +17,9 @@
 #include "ui/tooltip.h"
 
 /** Translates status code to text then sends back to the user */
-static void file_notify(FRIEND *f, MSG_FILE *msg) {
+static void file_notify(FRIEND *f, MSG_HEADER *msg) {
     STRING *str;
-    switch (msg->file_status) {
+    switch (msg->via.ft.file_status) {
         case FILE_TRANSFER_STATUS_NONE: {
             str = SPTR(TRANSFER_NEW);
             break;
@@ -188,15 +188,11 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FRIEND *f = &friend[param1];
             FILE_TRANSFER *file = data;
 
-            MSG_FILE *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
-                                                file->name, file->name_length,
-                                                file->target_size, file->current_size);
+            MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
+                                                  file->name, file->name_length,
+                                                  file->target_size, file->current_size);
             file_notify(f, m);
-
-            // Give File Trasfers the ablity to update the message
-            // TODO, make message references a thing, and add callback instead
             file->ui_data = m;
-
             redraw();
             break;
         }
@@ -210,16 +206,11 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 native_autoselect_dir_ft(param1, file);
             }
 
-            MSG_FILE *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
-                                   file->name, file->name_length,
-                                   file->target_size, file->current_size);
+            MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
+                                                  file->name, file->name_length,
+                                                  file->target_size, file->current_size);
             file_notify(f, m);
-
-
-            // Give File Trasfers the ablity to update the message
-            // TODO, make message references a thing, and add callback instead
             file->ui_data = m;
-
             redraw();
             break;
         }
@@ -234,25 +225,20 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FILE_TRANSFER *file = data;
 
             if (file->ui_data) {
-                ((MSG_FILE*)file->ui_data)->progress = file->current_size;
-                ((MSG_FILE*)file->ui_data)->speed    = file->speed;
+                file->ui_data->via.ft.progress = file->current_size;
+                file->ui_data->via.ft.speed    = file->speed;
+                file->ui_data->via.ft.file_status = param1;
 
                 if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
-                    file->ui_data->file_status = FILE_TRANSFER_STATUS_COMPLETED;
-
                     if (file->in_memory) {
-                        file->ui_data->path = file->via.memory;
+                        file->ui_data->via.ft.path = file->via.memory;
                     } else {
-                        memcpy(file->ui_data->path, file->path, UTOX_FILE_NAME_LENGTH);
+                        memcpy(file->ui_data->via.ft.path, file->path, UTOX_FILE_NAME_LENGTH);
                     }
 
-                    /* File Tranfers won't decon the file while we're still accessing the UI info */
+                    /* File Transfers won't decon the file while we're still accessing the UI info */
                     file->ui_data = NULL;
-                } else if (param1 == FILE_TRANSFER_STATUS_BROKEN) {
-                    file->ui_data->file_status = FILE_TRANSFER_STATUS_BROKEN;
-                    file->ui_data = NULL;
-                } else if (param1 == FILE_TRANSFER_STATUS_KILLED) {
-                    file->ui_data->file_status = FILE_TRANSFER_STATUS_KILLED;
+                } else if (param1 == FILE_TRANSFER_STATUS_BROKEN || param1 == FILE_TRANSFER_STATUS_KILLED) {
                     file->ui_data = NULL;
                 }
             }
