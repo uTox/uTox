@@ -294,12 +294,15 @@ static int load_toxcore_save(struct Tox_Options *options) {
     return -2;
 }
 
-static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL UNUSED(level), const char *UNUSED(file), uint32_t UNUSED(line), const char *func,
-                         const char *message, void *UNUSED(user_data)) {
-    if (message) {
-        debug("TOXCORE LOGGING ERROR: %s\n", message);
+static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file, uint32_t line,
+                         const char *func, const char *message, void *UNUSED(user_data)) {
+    if (message && file && line) {
+        debug("TOXCORE LOGGING ERROR (%u): %s\n", level, message);
+        debug("     in: %s:%u\n", file, line);
     } else if (func) {
         debug("TOXCORE LOGGING ERROR: %s\n", func);
+    } else {
+        debug_warning("TOXCORE LOGGING is broken!!:\tOpen an bug upstream\n");
     }
 }
 
@@ -315,6 +318,8 @@ static int init_toxcore(Tox **tox) {
     tox_options_default(&topt);
     // tox_options_set_start_port(&topt, 0);
     // tox_options_set_end_port(&topt, 0);
+
+    tox_options_set_log_callback(&topt, log_callback);
 
     tox_options_set_ipv6_enabled(&topt, settings.enable_ipv6);
     tox_options_set_udp_enabled(&topt, settings.enable_udp);
@@ -402,8 +407,6 @@ static int init_toxcore(Tox **tox) {
 
     /* Give toxcore the functions to call */
     set_callbacks(*tox);
-
-    // tox_callback_log(*tox, &log_callback, NULL);
 
     /* Connect to bootstrapped nodes in "tox_bootstrap.h" */
     toxcore_bootstrap(*tox);
