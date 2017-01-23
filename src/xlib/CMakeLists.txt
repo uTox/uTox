@@ -48,5 +48,5 @@ install(FILES
 
 install(FILES
     ../utox.1
-    DESTINATION "man/man1"
+    DESTINATION "share/man/man1"
     )
