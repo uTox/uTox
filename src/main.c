@@ -19,26 +19,24 @@ SETTINGS settings = {
     .show_splash = false,
 
     // Low level settings (network, profile, portable-mode)
-    .use_proxy      = false,
-    .force_proxy    = false,
     .enable_udp     = true,
     .enable_ipv6    = true,
-    .save_encryption = true,
-    .block_friend_requests = false,
-    // .portable_mode               // included here to match the full struct
 
-    .save_encryption    = true,
+    .use_proxy      = false,
+    .force_proxy    = false,
+    .proxy_port     = 0,
 
+    // Tox level settings
+    .block_friend_requests  = false,
+    .save_encryption        = true,
+
+    // uTox internals
     .auto_update        = false,
     .update_to_develop  = false,
     .send_version       = false,
 
-    .force_proxy        = false,
-    .enable_udp         = true,
-    .enable_ipv6        = true,
+    // .portable_mode               // included here to match the full struct
 
-    .use_proxy          = false,
-    .proxy_port         = 0,
 
     // User interface settings
     .close_to_tray          = false,
