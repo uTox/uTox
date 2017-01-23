@@ -269,11 +269,6 @@ static void break_file(FILE_TRANSFER *file) {
     }
 
     file->status = FILE_TRANSFER_STATUS_BROKEN;
-
-    if (((MSG_FILE *)file->ui_data)) {
-        ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_BROKEN;
-    }
-
     postmessage_utox(FILE_UPDATE_STATUS, 0, 0, file);
     ft_update_resumable(file);
     if (file->in_use) {
@@ -398,7 +393,7 @@ static void run_file_remote(FILE_TRANSFER *file) {
 
 static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) {
     // TODO: start a new thread and decode the png in it.
-    uint16_t      width, height;
+    uint16_t width, height;
     NATIVE_IMAGE *native_image = utox_image_to_native((UTOX_IMAGE)data, size, &width, &height, 0);
     if (NATIVE_IMAGE_IS_VALID(native_image)) {
         void *msg = malloc(sizeof(uint16_t) * 2 + sizeof(uint8_t *));
@@ -412,25 +407,15 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) 
 /* Complete active file, (when the whole file transfer is successful). */
 static void utox_complete_file(FILE_TRANSFER *ft) {
     if (ft->status == FILE_TRANSFER_STATUS_ACTIVE) {
+        ft->status = FILE_TRANSFER_STATUS_COMPLETED;
         if (ft->incoming) {
             if (ft->inline_img) {
                 decode_inline_png(ft->friend_number, ft->via.memory, ft->current_size);
             } else if (ft->avatar) {
                 postmessage_utox(FRIEND_AVATAR_SET, ft->friend_number, ft->current_size, ft->via.avatar);
-            } else { // Is a file
-                ((MSG_FILE *)ft->ui_data)->path = strdup((const char *)ft->path);
-            }
-        } else {
-            if (ft->in_memory) {
-                // TODO, might want to do something here.
-            } else { // Is a file
-                ((MSG_FILE *)ft->ui_data)->path = strdup((const char *)ft->path);
             }
         }
-        ft->status = FILE_TRANSFER_STATUS_COMPLETED;
-        if (((MSG_FILE *)ft->ui_data)) {
-            ((MSG_FILE *)ft->ui_data)->file_status = FILE_TRANSFER_STATUS_COMPLETED;
-        }
+
         postmessage_utox(FILE_UPDATE_STATUS, 0, 0, ft);
     } else {
         debug_error("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", ft->file_number);
