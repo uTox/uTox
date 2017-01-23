@@ -4,7 +4,7 @@
 #include "logging_native.h"
 #include "main_native.h"
 #include "messages.h"
-#include "util.h"
+#include "text.h"
 
 #include <stdint.h>
 

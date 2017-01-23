@@ -253,6 +253,7 @@ uint8_t *utox_data_load_custom_theme(size_t *out);
 /* TODO: sort everything below this line! */
 
 
+
 /**
  * Parses the arguments passed to uTox
  */

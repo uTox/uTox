@@ -5,11 +5,11 @@
 #include "scrollable.h"
 #include "text.h"
 
-#include "../main_native.h"
-#include "../theme.h"
-#include "../util.h"
 #include "../macros.h"
+#include "../main_native.h"
 #include "../settings.h"
+#include "../text.h"
+#include "../theme.h"
 
 static EDIT *active_edit;
 

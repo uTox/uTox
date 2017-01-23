@@ -8,8 +8,8 @@
 #include "macros.h"
 #include "settings.h"
 #include "theme.h"
+#include "text.h"
 #include "tox.h"
-#include "util.h"
 #include "utox.h"
 
 #include "ui/buttons.h"

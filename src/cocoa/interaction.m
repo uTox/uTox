@@ -9,9 +9,9 @@
 #include "../friend.h"
 #include "../main.h"
 #include "../messages.h"
+#include "../text.h"
 #include "../tox.h"
 #include "../ui.h"
-#include "../util.h"
 #include "../utox.h"
 #include "../settings.h"
 

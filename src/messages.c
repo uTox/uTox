@@ -11,9 +11,9 @@
 #include "logging_native.h"
 #include "macros.h"
 #include "settings.h"
+#include "text.h"
 #include "theme.h"
 #include "tox.h"
-#include "util.h"
 #include "utox.h"
 
 #include "ui/contextmenu.h"

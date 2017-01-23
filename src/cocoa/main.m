@@ -7,7 +7,6 @@
 #include "../theme.h"
 #include "../tox.h"
 #include "../ui.h"
-#include "../util.h"
 #include "../utox.h"
 #include "../settings.h"
 

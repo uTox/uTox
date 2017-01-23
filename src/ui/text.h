@@ -1,5 +1,5 @@
-#ifndef TEXT_H
-#define TEXT_H
+#ifndef UI_TEXT_H
+#define UI_TEXT_H
 
 #include <stdint.h>
 #include <stdbool.h>

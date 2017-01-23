@@ -4,7 +4,7 @@
 #include "logging_native.h"
 #include "macros.h"
 #include "settings.h"
-#include "util.h"
+#include "text.h"
 
 #include "av/utox_av.h"
 #include "ui/edit.h"

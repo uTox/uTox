@@ -4,7 +4,6 @@
 #include "groups.h"
 #include "logging_native.h"
 #include "tox.h"
-#include "util.h"
 #include "macros.h"
 
 #include <stdlib.h>

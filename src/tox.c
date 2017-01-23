@@ -1,7 +1,7 @@
 #include "tox.h"
 
-#include "avatar.h"
-#include "commands.h"
+#include "avatar.h" // unneeded?
+#include "commands.h" // unneeded?
 #include "dns.h"
 #include "file_transfers.h"
 #include "flist.h"
@@ -10,9 +10,9 @@
 #include "logging_native.h"
 #include "macros.h"
 #include "settings.h"
+#include "text.h"
 #include "tox_bootstrap.h"
 #include "tox_callbacks.h"
-#include "util.h"
 #include "utox.h"
 
 #include "av/utox_av.h"
@@ -23,9 +23,11 @@
 #include "ui/switches.h"
 #include "ui/tooltip.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <tox/toxencryptsave.h>
+
 
 #include "main.h" // self, thread
 
@@ -1113,4 +1115,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             postmessage_utox(GROUP_AUDIO_END, param1, 0, NULL);
         }
     } // End of switch.
+}
+
+void id_to_string(char *dest, uint8_t *src) {
+    to_hex(dest, src, TOX_ADDRESS_SIZE);
 }

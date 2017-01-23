@@ -1,10 +1,10 @@
+#include "../langs/i18n_decls.h"
+
+#include "sized_string.h"
+#include "macros.h"
+
 #include <stdint.h>
 #include <string.h>
-
-#include "../langs/i18n_decls.h"
-#include "sized_string.h"
-#include "util.h"
-#include "macros.h"
 
 #ifdef msgid
 #error "msgid is already defined"

@@ -4,13 +4,17 @@
 
 #include "main.h"
 
+#include "flist.h"
 #include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
 #include "theme.h"
-#include "util.h"
 #include "updater.h"
 #include "settings.h"
+
+#include "ui/dropdowns.h"
+#include "ui/edits.h"
+#include "ui/switches.h"
 
 #include <getopt.h>
 
@@ -120,13 +124,12 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
 
 uint8_t *utox_data_load_custom_theme(size_t *out) {
     FILE *fp = native_get_file((uint8_t *)"utox_theme.ini", out, UTOX_FILE_OPTS_READ);
-    uint8_t *data;
 
     if (fp == NULL) {
         return NULL;
     }
 
-    data = calloc(*out + 1, 1);
+    uint8_t *data = calloc(*out + 1, 1);
     if (data == NULL) {
         fclose(fp);
         return NULL;
@@ -141,7 +144,6 @@ uint8_t *utox_data_load_custom_theme(size_t *out) {
     fclose(fp);
 
     return data;
-
 }
 
 /* Shared function between all four platforms */
@@ -153,8 +155,8 @@ void parse_args(int argc, char *argv[],
                 int8_t *set_show_window
                 ) {
     // set default options
-    settings.theme            = THEME_DEFAULT;
-    settings.portable_mode    = false;
+    settings.theme = THEME_DEFAULT;
+    settings.portable_mode = false;
     if (skip_updater) {
         *skip_updater = false;
     }

@@ -6,8 +6,7 @@
 #include "logging_native.h"
 #include "macros.h"
 #include "settings.h"
-#include "tox.h"
-#include "util.h"
+#include "text.h"
 #include "utox.h"
 
 #include "av/utox_av.h"

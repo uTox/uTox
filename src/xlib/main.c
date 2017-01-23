@@ -10,7 +10,6 @@
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../util.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"

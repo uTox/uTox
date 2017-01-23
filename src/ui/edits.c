@@ -10,8 +10,8 @@
 #include "../logging_native.h"
 #include "../macros.h"
 #include "../settings.h"
+#include "../text.h"
 #include "../tox.h"
-#include "../util.h"
 
 #include <string.h>
 #include <tox/tox.h>

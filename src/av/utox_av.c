@@ -6,9 +6,12 @@
 #include "../logging_native.h"
 #include "../tox.h"
 #include "../utox.h"
-#include "../util.h"
 #include "../macros.h"
-#include "../main.h"
+
+#include <stdlib.h>
+
+#include "../main.h" // threading
+
 
 bool toxav_thread_msg = 0;
 void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
@@ -477,4 +480,3 @@ void set_av_callbacks(ToxAV *av) {
     /* Data type change callbacks. */
     toxav_callback_bit_rate_status(av, &utox_incoming_rate_change, NULL);
 }
-// TODO
