@@ -80,6 +80,11 @@ static void calculate_speed(FILE_TRANSFER *file) {
 static void ft_decon(uint32_t friend_number, uint32_t file_number) {
     debug_info("FileTransfer:\tCleaning up file transfers! (%u & %u)\n", friend_number, file_number);
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    /* If the UI is reading this data, we need to wait */
+    while (ft->ui_data != NULL) {
+        yieldcpu(1);
+    }
+
     if (ft && ft->in_use) {
         if (ft->name) {
             free(ft->name);
@@ -872,7 +877,6 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
         ++name_length;
     }
     ++name;
-    ++name_length;
 
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, hash, name, name_length, &error);

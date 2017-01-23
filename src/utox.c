@@ -185,7 +185,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
         /* File transfer messages */
         case FILE_SEND_NEW: {
-            FRIEND *       f    = &friend[param1];
+            FRIEND *f = &friend[param1];
             FILE_TRANSFER *file = data;
 
             MSG_FILE *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
@@ -203,7 +203,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case FILE_INCOMING_NEW: {
             FILE_TRANSFER *file = data;
 
-            FRIEND *f    = get_friend(param1);
+            FRIEND *f = get_friend(param1);
 
             if (f->ft_autoaccept) {
                 debug("Toxcore:\tAuto Accept enabled for this friend: sending accept to system\n");
@@ -234,6 +234,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FILE_TRANSFER *file = data;
 
             if (file->ui_data) {
+                ((MSG_FILE*)file->ui_data)->progress = file->current_size;
+                ((MSG_FILE*)file->ui_data)->speed    = file->speed;
+
                 if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
                     ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_COMPLETED;
 
@@ -242,12 +245,16 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                     } else {
                         memcpy(((MSG_FILE*)file->ui_data)->path, file->path, UTOX_FILE_NAME_LENGTH);
                     }
+
+                    /* File Tranfers won't decon the file while we're still accessing the UI info */
+                    file->ui_data = NULL;
                 } else if (param1 == FILE_TRANSFER_STATUS_BROKEN) {
                     ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_BROKEN;
+                    file->ui_data = NULL;
+                } else if (param1 == FILE_TRANSFER_STATUS_KILLED) {
+                    ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_KILLED;
+                    file->ui_data = NULL;
                 }
-
-                ((MSG_FILE*)file->ui_data)->progress = file->current_size;
-                ((MSG_FILE*)file->ui_data)->speed    = file->speed;
             }
 
             redraw();
