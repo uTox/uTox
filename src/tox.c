@@ -16,12 +16,9 @@
 #include "utox.h"
 
 #include "av/utox_av.h"
-#include "ui/dropdown.h"
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
-#include "ui/switch.h"
 #include "ui/switches.h"
-#include "ui/tooltip.h"
 
 #include <stdint.h>
 #include <stdlib.h>

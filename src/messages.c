@@ -2,7 +2,6 @@
 
 #include "chatlog.h"
 #include "file_transfers.h"
-#include "filesys.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
@@ -19,12 +18,9 @@
 
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
-#include "ui/edit.h"
 #include "ui/scrollable.h"
 #include "ui/svg.h"
 #include "ui/text.h"
-
-#include "main.h" // self,
 
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 

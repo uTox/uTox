@@ -7,6 +7,7 @@
 #include "settings.h"
 #include "tox.h"
 #include "utox.h"
+#include "main.h"
 
 #include <tox/toxdns.h>
 
