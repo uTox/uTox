@@ -8,6 +8,7 @@
 #include "../groups.h"
 #include "../logging_native.h"
 #include "../macros.h"
+#include "../main_native.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
@@ -16,7 +17,7 @@
 
 #include <string.h>
 
-#include "../main.h" // desktop grab
+#include "../main.h" // proxy_address
 
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
     DROP_ELEMENT *e      = &((DROP_ELEMENT *)dm->userdata)[i];

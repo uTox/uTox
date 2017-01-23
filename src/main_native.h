@@ -13,6 +13,7 @@
 
 typedef struct file_transfer FILE_TRANSFER;
 typedef struct native_image NATIVE_IMAGE;
+typedef struct utox_save UTOX_SAVE;
 typedef uint8_t *UTOX_IMAGE;
 
 enum {
@@ -34,9 +35,20 @@ void openurl(char *str);
 
 void setselection(char *data, uint16_t length);
 
-void redraw(void);
+void update_tray(void);
 
-uint64_t get_time(void);
+void redraw(void);
+void force_redraw(void); // TODO: as parameter for redraw()?
+
+// inserts/deletes a value into the registry to launch uTox after boot
+void launch_at_startup(int is_launch_at_startup);
+
+void desktopgrab(bool video);
+void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object, bool is_group);
+void setscale(void);
+void setscale_fonts(void);
+
+void config_osdefaults(UTOX_SAVE *r);
 
 /* set filtering method used when resizing given image to one of above enum */
 void image_set_filter(NATIVE_IMAGE *image, uint8_t filter);
@@ -65,6 +77,19 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE, size_t size, uint16_t *w, u
 /* free an image created by utox_image_to_native */
 void image_free(NATIVE_IMAGE *image);
 
+void openfilesend(void);
+
+uint64_t get_time(void);
+
+/* use the file chooser to pick an avatar and set it as the user's */
+void openfileavatar(void);
+
+void native_export_chatlog_init(uint32_t friend_number);
+
+void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file);
+
+bool native_move_file(const uint8_t *current_name, const uint8_t *new_name);
+
 // Push-to-talk
 /** returns 0 if push to talk is enabled, and the button is up, else returns 1. */
 void init_ptt(void);
@@ -82,6 +107,13 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height);
 void video_end(uint32_t id);
 
+uint16_t native_video_detect(void);
+bool native_video_init(void *handle);
+void native_video_close(void *handle);
+int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
+bool  native_video_startread(void);
+bool  native_video_endread(void);
+
 // Audio
 void audio_detect(void);
 bool audio_init(void *handle);
@@ -93,13 +125,5 @@ void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 int file_lock(FILE *file, uint64_t start, size_t length);
 int file_unlock(FILE *file, uint64_t start, size_t length);
-
-void openfilesend(void);
-
-void native_export_chatlog_init(uint32_t friend_number);
-
-void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file);
-
-bool native_move_file(const uint8_t *current_name, const uint8_t *new_name);
 
 #endif

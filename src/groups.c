@@ -3,6 +3,7 @@
 #include "flist.h"
 #include "logging_native.h"
 #include "macros.h"
+#include "main_native.h"
 #include "settings.h"
 #include "text.h"
 
@@ -15,7 +16,7 @@
 #include <string.h>
 #include <tox/tox.h>
 
-#include "main.h" // self, msg_lock
+#include "main.h" // self
 
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */

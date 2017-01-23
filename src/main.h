@@ -244,12 +244,6 @@ UTOX_SAVE *utox_data_load_utox(void);
  */
 uint8_t *utox_data_load_custom_theme(size_t *out);
 
-
-
-/* TODO: sort everything below this line! */
-
-
-
 /**
  * Parses the arguments passed to uTox
  */
@@ -266,37 +260,9 @@ void parse_args(int argc, char *argv[],
  */
 void utox_init(void);
 
-/* TODO: Consider sorting the functions below this line */
-
-// inserts/deletes a value into the registry to launch uTox after boot
-void launch_at_startup(int is_launch_at_startup);
-
-void desktopgrab(bool video);
-void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object, bool is_group);
-void setscale(void);
-void setscale_fonts(void);
-
-void update_tray(void);
-void force_redraw(void); // TODO: as parameter for redraw()?
-
-void config_osdefaults(UTOX_SAVE *r);
-
-// TODO: A lot of these functions belong in main_native.h
-
-/* use the file chooser to pick an avatar and set it as the user's */
-void openfileavatar(void);
-
 // Android audio
 void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels);
 void audio_begin(int32_t call_index);
 void audio_end(int32_t call_index);
-
-uint16_t native_video_detect(void);
-bool native_video_init(void *handle);
-void native_video_close(void *handle);
-int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
-bool  native_video_startread(void);
-bool  native_video_endread(void);
-
 
 #endif
