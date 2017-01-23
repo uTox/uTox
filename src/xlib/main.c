@@ -894,7 +894,7 @@ int main(int argc, char *argv[]) {
     /* Xft draw context/color */
     renderpic = XRenderCreatePicture(display, drawbuf, pictformat, 0, NULL);
 
-    XRenderColor xrcolor = { 0 };
+    XRenderColor xrcolor = { 0, 0, 0, 0 };
     colorpic             = XRenderCreateSolidFill(display, &xrcolor);
 
     /*xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
