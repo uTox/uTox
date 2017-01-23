@@ -33,7 +33,7 @@ struct thread_call {
 
 // TODO move these function to a logging.m file to provide implementation for what is declared in logging.h
 void debug(const char *fmt, ...) {
-    if (utox_verbosity() < VERBOSITY_DEBUG) {
+    if (utox_verbosity() < LOG_LVL_DEBUG) {
         return;
     }
     va_list l;
@@ -43,7 +43,7 @@ void debug(const char *fmt, ...) {
 }
 
 void debug_info(const char *fmt, ...) {
-    if (utox_verbosity() < VERBOSITY_INFO) {
+    if (utox_verbosity() < LOG_LVL_INFO) {
         return;
     }
     va_list l;
@@ -53,7 +53,7 @@ void debug_info(const char *fmt, ...) {
 }
 
 void debug_notice(const char *fmt, ...) {
-    if (utox_verbosity() < VERBOSITY_NOTICE) {
+    if (utox_verbosity() < LOG_LVL_NOTICE) {
         return;
     }
     va_list l;
@@ -63,7 +63,7 @@ void debug_notice(const char *fmt, ...) {
 }
 
 void debug_warning(const char *fmt, ...) {
-    if (utox_verbosity() < VERBOSITY_WARNING) {
+    if (utox_verbosity() < LOG_LVL_WARNING) {
         return;
     }
     va_list l;
@@ -73,7 +73,7 @@ void debug_warning(const char *fmt, ...) {
 }
 
 void debug_error(const char *fmt, ...) {
-    if (utox_verbosity() < VERBOSITY_ERROR) {
+    if (utox_verbosity() < LOG_LVL_ERROR) {
         return;
     }
     va_list l;

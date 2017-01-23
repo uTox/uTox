@@ -1,15 +1,17 @@
-#ifndef LOGGING_NATIVE_H
-#define LOGGING_NATIVE_H
+#ifndef DEBUG_H
+#define DEBUG_H
 
 /* uTox debug levels */
-enum {
-    VERBOSITY_OFF,
-    VERBOSITY_ERROR,
-    VERBOSITY_WARNING,
-    VERBOSITY_NOTICE,
-    VERBOSITY_INFO,
-    VERBOSITY_DEBUG,
-};
+typedef enum {
+    LOG_LVL_OFF,
+    LOG_LVL_FATAL,
+    LOG_LVL_ERROR,
+    LOG_LVL_WARNING,
+    LOG_LVL_NOTICE,
+    LOG_LVL_INFO,
+    LOG_LVL_DEBUG,
+    LOG_LVL_TRACE,
+} LOG_LVL;
 
 // returns current logging verbosity
 int utox_verbosity();
@@ -26,4 +28,7 @@ int utox_verbosity();
 #include "xlib/logging.h"
 #endif
 
-#endif // LOGGING_NATIVE_H
+#define LOG_LVL_ERROR(title, text, ...) debug_error("%s:\t%s\n", title, )
+
+
+#endif // DEBUG_H
