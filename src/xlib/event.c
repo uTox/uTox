@@ -4,8 +4,10 @@
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../macros.h"
+#include "../main_native.h"
 #include "../settings.h"
 #include "../tox.h"
+#include "../ui.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"

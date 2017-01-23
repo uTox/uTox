@@ -10,8 +10,7 @@
 #include "../settings.h"
 #include "../text.h"
 #include "../theme.h"
-
-#include "../main.h" // cursor
+#include "../ui.h"
 
 static EDIT *active_edit;
 

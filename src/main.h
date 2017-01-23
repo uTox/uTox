@@ -31,6 +31,7 @@
  *********************************************************/
 
 typedef struct avatar AVATAR;
+typedef uint8_t *UTOX_IMAGE;
 
 
 /**********************************************************
@@ -44,7 +45,7 @@ typedef struct avatar AVATAR;
 #endif
 
 // Limits and sizes
-#define UTOX_MAX_CALLS 16
+// UTOX_MAX_NUM_GROUPS is never used. Remove?
 #define UTOX_MAX_NUM_GROUPS 512
 
 #define BORDER 1
@@ -143,26 +144,9 @@ uint8_t addfriend_status;
 uint16_t video_width, video_height, max_video_width, max_video_height;
 char     proxy_address[256]; /* Magic Number inside toxcore */
 
-// Enums
-enum {
-    CURSOR_NONE,
-    CURSOR_TEXT,
-    CURSOR_HAND,
-    CURSOR_SELECT,
-    CURSOR_ZOOM_IN,
-    CURSOR_ZOOM_OUT,
-};
-
-typedef enum {
-    FILEDATA_OVERWRITE = 0,
-    FILEDATA_APPEND    = 1,
-} FILEDATA_SAVETYPE;
-
-
 #include "stb_image.h"
 #include "stb_image_write.h"
 extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
-typedef uint8_t *UTOX_IMAGE;
 
 enum {
     USER_STATUS_AVAILABLE,
@@ -198,13 +182,6 @@ struct utox_self {
     void  *png_data;
     size_t png_size;
 } self;
-
-struct utox_mouse {
-    int x, y;
-} mouse;
-
-uint8_t cursor;
-bool    mdown;
 
 /**
  * Takes data and the size of data and writes it to the disk

@@ -13,6 +13,7 @@
 #include "text.h"
 #include "theme.h"
 #include "tox.h"
+#include "ui.h"
 #include "utox.h"
 
 #include "ui/contextmenu.h"

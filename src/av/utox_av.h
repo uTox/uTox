@@ -7,6 +7,8 @@
 #include "audio.h"
 #include "video.h"
 
+#define UTOX_MAX_CALLS 16
+// UTOX_MAX_VIDEO_CALLS is never used. Remove?
 #define UTOX_MAX_VIDEO_CALLS 32
 /* utox av thread commands */
 enum {

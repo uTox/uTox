@@ -1,8 +1,10 @@
 #include "main.h"
 
 #include "../logging_native.h"
-#include "../av/video.h"
 #include "../macros.h"
+#include "../ui.h"
+
+#include "../av/video.h"
 
 #include <stdio.h>
 
