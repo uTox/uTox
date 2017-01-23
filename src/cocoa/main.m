@@ -2,7 +2,7 @@
 
 #include "../commands.h"
 #include "../filesys.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../main.h"
 #include "../theme.h"
 #include "../tox.h"

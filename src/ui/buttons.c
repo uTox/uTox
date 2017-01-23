@@ -8,7 +8,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../settings.h"
 #include "../theme.h"

@@ -1,6 +1,6 @@
 #include "devices.h"
 
-#include "logging_native.h"
+#include "debug.h"
 
 #ifdef ENABLE_MULTIDEVICE
 

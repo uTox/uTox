@@ -7,7 +7,7 @@
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
-#include "logging_native.h"
+#include "debug.h"
 #include "theme.h"
 #include "updater.h"
 #include "settings.h"

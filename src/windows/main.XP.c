@@ -6,7 +6,7 @@
 #include "../file_transfers.h"
 #include "../filesys.h"
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../main.h"
 #include "../tox.h"
 #include "../settings.h"

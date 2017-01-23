@@ -1,7 +1,7 @@
 #include "settings.h"
 
 #include "main.h"
-#include "logging_native.h"
+#include "debug.h"
 #include "flist.h"
 #include "groups.h"
 

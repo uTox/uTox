@@ -1,6 +1,6 @@
 
 #include "../filesys.h"
-#include "../logging_native.h"
+#include "../debug.h"
 
 #include <pthread.h>
 #include <stdint.h>

@@ -3,7 +3,7 @@
 #include "../main.h"
 
 #include "../av/video.h"
-#include "../logging_native.h"
+#include "../debug.h"
 
 #include "../../langs/i18n_decls.h"
 

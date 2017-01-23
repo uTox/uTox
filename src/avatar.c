@@ -2,7 +2,7 @@
 
 #include "file_transfers.h"
 #include "friend.h"
-#include "logging_native.h"
+#include "debug.h"
 #include "main.h"
 #include "main_native.h"
 #include "tox.h"

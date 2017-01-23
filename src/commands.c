@@ -2,7 +2,7 @@
 
 #include "command_funcs.h"
 #include "flist.h"
-#include "logging_native.h"
+#include "debug.h"
 #include "main.h"
 #include "ui/edits.h"
 

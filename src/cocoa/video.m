@@ -2,7 +2,7 @@
 
 #include "../av/utox_av.h"
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../main.h"
 #include "../tox.h"
 #include "../settings.h"

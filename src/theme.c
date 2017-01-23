@@ -1,6 +1,6 @@
 #include "theme.h"
 
-#include "logging_native.h"
+#include "debug.h"
 #include "main.h"
 #include "main_native.h"
 #include "ui.h"

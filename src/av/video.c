@@ -1,7 +1,7 @@
 #include "utox_av.h"
 
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../settings.h"
 #include "../tox.h"

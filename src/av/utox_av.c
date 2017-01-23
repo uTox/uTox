@@ -3,7 +3,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../inline_video.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../tox.h"
 #include "../utox.h"
 #include "../macros.h"
