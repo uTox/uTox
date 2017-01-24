@@ -9,11 +9,12 @@
 #include "../friend.h"
 #include "../main.h"
 #include "../messages.h"
+#include "../self.h"
+#include "../settings.h"
 #include "../text.h"
 #include "../tox.h"
 #include "../ui.h"
 #include "../utox.h"
-#include "../settings.h"
 
 #include "../av/utox_av.h"
 #include "../ui/edit.h"
