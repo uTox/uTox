@@ -853,8 +853,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             } else {
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
-            break;
             free(data);
+            break;
         }
         case TOX_FILE_ACCEPT_AUTO: {
             /* param1: friend #
@@ -866,8 +866,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             } else {
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
-            break;
             free(data);
+            break;
         }
         case TOX_FILE_RESUME: {
             /*                              friend#, file# */
