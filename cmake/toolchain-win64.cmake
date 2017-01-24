@@ -1,3 +1,9 @@
+# This file has a lot of CACHE STRING "" FORCE because cmake likes caching
+# things and won't use what we do in here unless we CACHE FORCE it.
+#
+# See: https://cmake.org/pipermail/cmake/2012-January/048429.html
+#      http://stackoverflow.com/a/30217088
+
 # the name of the target operating system
 set(CMAKE_SYSTEM_NAME Windows)
 
@@ -8,14 +14,9 @@ set(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc )
 # set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++ )
 set(CMAKE_RC_COMPILER  x86_64-w64-mingw32-windres )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static -DAL_LIBTYPE_STATIC")
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 ")
-else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s ")
-endif()
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static -DAL_LIBTYPE_STATIC" CACHE STRING "" FORCE)
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static -O3 -s -w -DAL_LIBTYPE_STATIC")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static -O3 -s -w -DAL_LIBTYPE_STATIC" CACHE STRING "" FORCE)
 
 # set(CMAKE_STATIC_LINKER_FLAGS "")
 
@@ -32,4 +33,4 @@ set(WIN32 TRUE) # This is for cmake
 set(WIN64 TRUE) # This is for uTox lib dirs
 set(UNIX FALSE)
 
-set(ENABLE_ASAN OFF)
+set(ENABLE_ASAN OFF CACHE STRING "" FORCE)
