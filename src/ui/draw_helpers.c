@@ -16,6 +16,8 @@
 #include "../theme.h"
 #include "../ui.h"
 
+#include "../main.h"
+
 void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
                        uint32_t targetheight) {
     /* get smallest of width or height */

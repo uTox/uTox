@@ -18,6 +18,8 @@
 #include <string.h>
 #include <tox/tox.h>
 
+#include "../main.h"
+
 static char edit_name_data[128],
             edit_status_data[128],
             edit_addid_data[TOX_ADDRESS_SIZE * 4],

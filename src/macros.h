@@ -1,7 +1,12 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#include <sys/param.h>
+#ifdef __WIN32__ // Windows likes to be broken
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#else
+#include <sys/param.h> // Provides MAX/MIN
+#endif
 
 // True if x and y are within the supplied rectangle
 #define inrect(x, y, rx, ry, width, height) \

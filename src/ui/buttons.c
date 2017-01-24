@@ -19,6 +19,8 @@
 #include "../av/utox_av.h"
 #include "../ui/edits.h"
 
+#include "../main.h"
+
 #ifdef UNITY
 #include "xlib/mmenu.h"
 extern bool unity_running;

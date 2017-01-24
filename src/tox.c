@@ -28,6 +28,8 @@
 #include <string.h>
 #include <tox/toxencryptsave.h>
 
+#include "main.h"
+
 static bool save_needed = 1;
 
 enum {

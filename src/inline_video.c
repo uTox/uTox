@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "main.h"
 
 static UTOX_FRAME_PKG current_frame = { 0, 0, 0, 0 };
 
