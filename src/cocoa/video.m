@@ -4,6 +4,7 @@
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../main.h"
+#include "../main_native.h"
 #include "../tox.h"
 #include "../settings.h"
 

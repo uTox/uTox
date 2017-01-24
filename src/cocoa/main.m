@@ -4,6 +4,7 @@
 #include "../filesys.h"
 #include "../logging_native.h"
 #include "../main.h"
+#include "../main_native.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../ui.h"
