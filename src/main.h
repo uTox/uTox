@@ -50,8 +50,8 @@ typedef uint8_t *UTOX_IMAGE;
 
 #define BORDER 1
 #define CAPTION 26
-#define MAIN_WIDTH 1000
-#define MAIN_HEIGHT 600
+#define MAIN_WIDTH 800
+#define MAIN_HEIGHT 500
 
 //  fixes compile with apple headers
 /*** This breaks both android and Windows video... but it's needed to fix complation in clang (Cocoa & asan)
