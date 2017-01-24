@@ -2,11 +2,12 @@
 
 #include "draw.h"
 
+#include "../macros.h"
 #include "../settings.h"
 #include "../theme.h"
+#include "../ui.h"
 
 #include "../main.h"
-#include "../macros.h"
 
 static CONTEXTMENU context_menu;
 

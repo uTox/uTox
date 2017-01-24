@@ -2,10 +2,12 @@
 
 #include "../friend.h"
 #include "../logging_native.h"
-#include "../main.h"
+#include "../main.h" // utox_audio_thread_init, self, USER_STATUS_*, UTOX_MAX_CALLS
+#include "../main_native.h"
 #include "../tox.h"
 #include "../utox.h"
 #include "../settings.h"
+#include "../self.h"
 
 static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {
 #ifdef AUDIO_FILTERING

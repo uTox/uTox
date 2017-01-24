@@ -35,6 +35,23 @@ typedef struct native_image NATIVE_IMAGE;
 #define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 #endif
 
+// Mouse stuff
+enum {
+    CURSOR_NONE,
+    CURSOR_TEXT,
+    CURSOR_HAND,
+    CURSOR_SELECT,
+    CURSOR_ZOOM_IN,
+    CURSOR_ZOOM_OUT,
+};
+
+struct utox_mouse {
+    int x, y;
+} mouse;
+
+uint8_t cursor;
+bool mdown;
+
 
 enum {
     FONT_TEXT,

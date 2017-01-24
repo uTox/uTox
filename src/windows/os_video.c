@@ -1,11 +1,13 @@
 #include "main.h"
 
-#include "../main.h"
+#include "../logging_native.h"
+#include "../main_native.h"
 
 #include "../av/video.h"
-#include "../logging_native.h"
 
 #include "../../langs/i18n_decls.h"
+
+#include "../main.h"
 
 #include <windows.h>
 

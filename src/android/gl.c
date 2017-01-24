@@ -1,5 +1,6 @@
 
 #include "../logging_native.h"
+#include "../settings.h"
 
 typedef struct {
     int16_t  x, y;

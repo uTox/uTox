@@ -1,6 +1,6 @@
 #include "settings.h"
 
-#include "main.h"
+#include "main_native.h"
 #include "logging_native.h"
 #include "flist.h"
 #include "groups.h"
@@ -8,6 +8,8 @@
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
 #include "ui/switches.h"
+
+#include "main.h" // UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
 
 SETTINGS settings = {
     .curr_version = UTOX_VERSION_NUMBER,
