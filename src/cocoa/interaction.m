@@ -10,6 +10,7 @@
 #include "../main.h"
 #include "../main_native.h"
 #include "../messages.h"
+#include "../self.h"
 #include "../settings.h"
 #include "../text.h"
 #include "../tox.h"

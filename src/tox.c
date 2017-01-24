@@ -8,6 +8,7 @@
 #include "logging_native.h"
 #include "macros.h"
 #include "main_native.h"
+#include "self.h"
 #include "settings.h"
 #include "text.h"
 #include "tox_bootstrap.h"
@@ -26,9 +27,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <tox/toxencryptsave.h>
-
-
-#include "main.h" // self
 
 static bool save_needed = 1;
 
@@ -416,24 +414,6 @@ static int init_toxcore(Tox **tox) {
     return 0;
 }
 
-static void init_self(Tox *tox) {
-    /* Set local info for self */
-    edit_setstr(&edit_name, self.name, self.name_length);
-    edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
-
-    /* Get tox id, and gets the hex version for utox */
-    tox_self_get_address(tox, self.id_binary);
-    id_to_string(self.id_str, self.id_binary);
-    self.id_str_length = TOX_ADDRESS_SIZE * 2;
-    debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
-
-    /* Get nospam */
-    self.nospam = tox_self_get_nospam(tox);
-    self.old_nospam = self.nospam;
-    sprintf(self.nospam_str, "%08X", self.nospam);
-
-    avatar_init_self();
-}
 
 /** void toxcore_thread(void)
  *

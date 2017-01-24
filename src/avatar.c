@@ -5,6 +5,7 @@
 #include "logging_native.h"
 #include "main.h"
 #include "main_native.h"
+#include "self.h"
 #include "tox.h"
 
 /* frees the image of an avatar, does nothing if image is NULL */

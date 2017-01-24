@@ -3,8 +3,8 @@
 #include "friend.h"
 #include "logging_native.h"
 #include "macros.h"
-#include "main.h" // self
 #include "main_native.h"
+#include "self.h"
 #include "settings.h"
 #include "text.h"
 #include "tox.h"

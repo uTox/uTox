@@ -10,14 +10,13 @@
 #include "../logging_native.h"
 #include "../macros.h"
 #include "../main_native.h"
+#include "../self.h"
 #include "../settings.h"
 #include "../text.h"
 #include "../tox.h"
 
 #include <string.h>
 #include <tox/tox.h>
-
-#include "../main.h" // self
 
 static char edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_ADDRESS_SIZE * 4],
     edit_add_self_device_data[TOX_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535],

@@ -192,6 +192,7 @@ add_executable(utox ${GUI_TYPE}
     src/logging.c
     src/main.c
     src/messages.c
+    src/self.c
     src/settings.c
     src/text.c
     src/theme.c

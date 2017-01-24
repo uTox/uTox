@@ -11,15 +11,13 @@
 #include "../logging_native.h"
 #include "../macros.h"
 #include "../main_native.h"
+#include "../self.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
 
 #include "../av/utox_av.h"
 #include "../ui/edits.h"
-
-
-#include "../main.h" // uTox_thread
 
 #ifdef UNITY
 #include "xlib/mmenu.h"
