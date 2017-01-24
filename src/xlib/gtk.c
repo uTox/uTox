@@ -4,10 +4,12 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
+#include "../macros.h"
+#include "../main_native.h"
 #include "../text.h"
 #include "../tox.h"
 #include "../utox.h"
-#include "../macros.h"
+
 #include "../main.h"
 
 #include <dlfcn.h>

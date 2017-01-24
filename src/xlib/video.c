@@ -2,6 +2,7 @@
 
 #include "../logging_native.h"
 #include "../macros.h"
+#include "../main_native.h"
 #include "../ui.h"
 
 #include "../av/video.h"
