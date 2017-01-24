@@ -9,11 +9,6 @@ set(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc )
 set(CMAKE_RC_COMPILER  x86_64-w64-mingw32-windres )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static -DAL_LIBTYPE_STATIC")
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 ")
-else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s ")
-endif()
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static -O3 -s -w -DAL_LIBTYPE_STATIC")
 
