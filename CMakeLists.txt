@@ -85,7 +85,7 @@ if(FILTER_AUDIO)
     add_cflag("-DAUDIO_FILTERING")
 endif()
 
-option(UTOX_STATIC "Link uTox staticlly" OFF)
+option(UTOX_STATIC "Link uTox statically" OFF)
 if(UTOX_STATIC)
     add_cflag("-static")
 endif()
