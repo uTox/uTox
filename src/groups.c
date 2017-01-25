@@ -84,7 +84,8 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
 
     GROUP_PEER *peer = g->peer[peer_id];
 
-    peer = calloc(1, sizeof(GROUP_PEER));
+    // Allocate space for the struct and the dynamic array holding the peer's name.
+    peer = calloc(1, sizeof(GROUP_PEER) + 10); // 10 is strlen("<unknown>") + \0
     strcpy2(peer->name, "<unknown>");
     peer->name_length = 0;
     peer->name_color  = name_color;
