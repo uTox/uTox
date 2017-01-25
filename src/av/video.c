@@ -1,3 +1,5 @@
+#include "video.h"
+
 #include "utox_av.h"
 
 #include "../friend.h"
@@ -10,6 +12,8 @@
 #include "../utox.h"
 
 #include "../ui/dropdowns.h"
+
+#include <tox/toxav.h>
 
 #include <pthread.h>
 #include <vpx/vpx_codec.h>

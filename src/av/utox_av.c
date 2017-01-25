@@ -1,5 +1,8 @@
 #include "utox_av.h"
 
+#include "audio.h"
+#include "video.h"
+
 #include "../flist.h"
 #include "../friend.h"
 #include "../inline_video.h"

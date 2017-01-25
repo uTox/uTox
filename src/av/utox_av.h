@@ -2,10 +2,9 @@
 #ifndef UTOX_AV_H
 #define UTOX_AV_H
 
-#include <tox/toxav.h>
+#include <tox/toxav.h> // if it weren't for TOXAV_CALL_CONTROL we could move this to the .c
 
-#include "audio.h"
-#include "video.h"
+#include <stdint.h>
 
 #define UTOX_MAX_CALLS 16
 // UTOX_MAX_VIDEO_CALLS is never used. Remove?

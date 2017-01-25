@@ -1,3 +1,5 @@
+#include "audio.h"
+
 #include "utox_av.h"
 
 #include "../friend.h"
@@ -8,6 +10,8 @@
 #include "../utox.h"
 #include "../settings.h"
 #include "../self.h"
+
+#include <tox/toxav.h>
 
 #ifdef __APPLE__
 #include <OpenAL/al.h>

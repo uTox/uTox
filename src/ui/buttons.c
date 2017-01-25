@@ -16,7 +16,9 @@
 #include "../theme.h"
 #include "../tox.h"
 
+#include "../av/audio.h"
 #include "../av/utox_av.h"
+#include "../av/video.h"
 #include "../ui/edits.h"
 
 #include "../main.h"

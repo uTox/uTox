@@ -9,6 +9,7 @@
 #include "text.h"
 #include "utox.h"
 
+#include "av/audio.h"
 #include "av/utox_av.h"
 
 #include <stdint.h>
