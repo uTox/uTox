@@ -26,6 +26,26 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
     if (file_number >= (1 << 16)) {
         // it's an incoming file ( this is some toxcore magic we know about )
         file_number = (file_number >> 16) - 1;
+        if (f->file_transfers_incoming_size && f->file_transfers_incoming_size >= file_number) {
+            return &f->file_transfers_incoming[file_number];
+        }
+    } else {
+        if (f->file_transfers_outgoing_size && f->file_transfers_outgoing_size >= file_number) {
+            return &f->file_transfers_outgoing[file_number];
+        }
+    }
+    return NULL;
+}
+
+static FILE_TRANSFER *make_file_transfer(uint32_t friend_number, uint32_t file_number) {
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        return NULL;
+    }
+
+    if (file_number >= (1 << 16)) {
+        // it's an incoming file ( this is some toxcore magic we know about )
+        file_number = (file_number >> 16) - 1;
         if (f->file_transfers_incoming_size <= file_number) {
             debug("FileTransfer:\tRealloc incoming %u|%u\n", friend_number, file_number + 1);
             FILE_TRANSFER *new_ftlist = realloc(f->file_transfers_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
@@ -87,9 +107,11 @@ static void ft_decon(uint32_t friend_number, uint32_t file_number) {
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft) {
         debug_error("FileTransfer:\tCan't decon a FT that doesn't exist!\n");
+        return;
     }
     /* If the UI is reading this data, we need to wait */
-    while (ft->ui_data != NULL) {
+    unsigned wait = 100;
+    while (ft->ui_data != NULL && --wait) {
         debug("FileTransfer:\tERROR in decon, sleeping!\n");
         yieldcpu(1);
     }
@@ -615,7 +637,7 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
         return;
     }
 
-    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     memset(ft, 0, sizeof(FILE_TRANSFER));
     ft->in_use = true;
 
@@ -644,7 +666,7 @@ static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t fil
     debug_info("FileTransfer:\tGetting an incoming inline image\n");
 
 
-    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
         debug_error("FileTransfer:\tUnable to malloc ft to accept incoming inline image!\n");
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
@@ -700,7 +722,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         return incoming_inline_image(tox, friend_number, file_number, size);
     }
 
-    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
         debug_error("FileTransfer:\tUnable to get memory handle for transfer, canceling friend/file number (%u/%u)\n",
               friend_number, file_number);
@@ -860,7 +882,7 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
         return UINT32_MAX;
     };
 
-    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
         // This is the noisy case noted above.
         debug_error("FileTransfer:\tUnable to malloc to actually send avatar!\n");
@@ -934,7 +956,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
         return UINT32_MAX;
     }
 
-    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
         // This is the noisy case noted above.
         debug_error("FileTransfer:\tUnable to malloc to actually send file!\n");
@@ -1000,7 +1022,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
         return UINT32_MAX;
     };
 
-    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
         // This is the noisy case noted above.
         debug_error("FileTransfer:\tUnable to malloc to actually send data!\n");
