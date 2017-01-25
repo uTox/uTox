@@ -1,27 +1,26 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#include <inttypes.h>
+#include <stdint.h>
 
-#ifdef __APPLE__
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
-#else
-#include <AL/al.h>
-#include <AL/alc.h>
+typedef struct ALCdevice_struct ALCdevice;
 
-#ifdef AUDIO_FILTERING
-#include <AL/alext.h>
-#endif
-/* include for compatibility with older versions of OpenAL */
-#ifndef ALC_ALL_DEVICES_SPECIFIER
-#include <AL/alext.h>
-#endif
-#endif
+enum {
+    // kill the audio thread
+    UTOXAUDIO_KILL,
 
-#ifdef AUDIO_FILTERING
-#include <filter_audio.h>
-#endif
+    UTOXAUDIO_START_FRIEND,
+    UTOXAUDIO_STOP_FRIEND,
+
+    UTOXAUDIO_START_PREVIEW,
+    UTOXAUDIO_STOP_PREVIEW,
+
+    UTOXAUDIO_PLAY_RINGTONE,
+    UTOXAUDIO_STOP_RINGTONE,
+
+    UTOXAUDIO_PLAY_NOTIFICATION,
+    UTOXAUDIO_STOP_NOTIFICATION,
+};
 
 enum {
     NOTIFY_TONE_NONE,

@@ -3,8 +3,7 @@
 
 #include "messages.h"
 
-#include "av/audio.h"
-
+typedef unsigned int ALuint;
 typedef struct edit_change EDIT_CHANGE;
 
 #define MAX_GROUP_PEERS 256

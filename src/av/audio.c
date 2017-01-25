@@ -9,6 +9,26 @@
 #include "../settings.h"
 #include "../self.h"
 
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
+#include <AL/al.h>
+#include <AL/alc.h>
+
+#ifdef AUDIO_FILTERING
+#include <AL/alext.h>
+#endif
+/* include for compatibility with older versions of OpenAL */
+#ifndef ALC_ALL_DEVICES_SPECIFIER
+#include <AL/alext.h>
+#endif
+#endif
+
+#ifdef AUDIO_FILTERING
+#include <filter_audio.h>
+#endif
+
 static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {
 #ifdef AUDIO_FILTERING
     kill_filter_audio(filter_audio_handle);

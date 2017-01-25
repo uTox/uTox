@@ -4,13 +4,12 @@
 #include "avatar.h"
 #include "messages.h"
 
-#include "av/audio.h"
-
 #include <tox/tox.h>
 
 typedef struct edit_change EDIT_CHANGE;
 typedef struct file_transfer FILE_TRANSFER;
 typedef uint8_t *UTOX_IMAGE;
+typedef unsigned int ALuint;
 
 typedef struct friend_meta_data {
     uint8_t version;
