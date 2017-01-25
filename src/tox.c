@@ -295,6 +295,10 @@ static int load_toxcore_save(struct Tox_Options *options) {
 
 static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file, uint32_t line,
                          const char *func, const char *message, void *UNUSED(user_data)) {
+    if (utox_verbosity() <= 8 ) {
+        return;
+    }
+
     if (message && file && line) {
         debug("TOXCORE LOGGING ERROR (%u): %s\n", level, message);
         debug("     in: %s:%u\n", file, line);
@@ -870,7 +874,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             free(data);
         }
         case TOX_FILE_RESUME: {
-            /*                              friend#, file# */
             if (data) {
                 param2 = ((FILE_TRANSFER*)data)->file_number;
             }

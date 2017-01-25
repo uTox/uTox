@@ -1295,7 +1295,13 @@ bool messages_mdown(PANEL *panel) {
                 }
 
                 FRIEND *f = get_friend(m->id);
-                FILE_TRANSFER *ft = &(f->file_transfers_incoming[msg->via.ft.file_number]); // TODO, abstraction needed
+                FILE_TRANSFER *ft;
+                uint32_t ft_number = msg->via.ft.file_number;
+                if (ft_number >= (1 << 16)) {
+                    ft = &(f->file_transfers_incoming[ft_number]); // TODO, abstraction needed
+                } else {
+                    ft = &(f->file_transfers_outgoing[ft_number]); // TODO, abstraction needed
+                }
 
                 if (msg->via.ft.file_status == FILE_TRANSFER_STATUS_COMPLETED) {
                     if (m->cursor_over_position) {

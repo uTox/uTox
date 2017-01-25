@@ -85,8 +85,12 @@ static void calculate_speed(FILE_TRANSFER *file) {
 static void ft_decon(uint32_t friend_number, uint32_t file_number) {
     debug_info("FileTransfer:\tCleaning up file transfers! (%u & %u)\n", friend_number, file_number);
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    if (!ft) {
+        debug_error("FileTransfer:\tCan't decon a FT that doesn't exist!\n");
+    }
     /* If the UI is reading this data, we need to wait */
     while (ft->ui_data != NULL) {
+        debug("FileTransfer:\tERROR in decon, sleeping!\n");
         yieldcpu(1);
     }
 
@@ -471,9 +475,13 @@ void ft_friend_offline(Tox *UNUSED(tox), uint32_t friend_number) {
 
 /* Local command callback to change a file status. */
 void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control) {
-    TOX_ERR_FILE_CONTROL error = 0;
     FILE_TRANSFER *info  = get_file_transfer(friend_number, file_number);
+    if (!info) {
+        debug_error("FileTransfer:\tWe know nothing of this file. This is probably an error.\n");
+        return;
+    }
 
+    TOX_ERR_FILE_CONTROL error = 0;
     switch (control) {
         case TOX_FILE_CONTROL_RESUME: {
             if (info->status != FILE_TRANSFER_STATUS_ACTIVE) {
