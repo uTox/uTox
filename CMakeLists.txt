@@ -61,6 +61,13 @@ add_cflag("-Wformat=0")
 # Everything Else
 add_cflag("-fno-strict-aliasing")
 
+# Fix GNU stack
+IF(CMAKE_C_COMPILER_ID MATCHES "GNU")
+    IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack")
+    endif()
+endif()
+
 #######################################################################
 #
 # Build options
