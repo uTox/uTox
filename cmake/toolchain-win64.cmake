@@ -9,16 +9,24 @@ set(CMAKE_SYSTEM_NAME Windows)
 
 set(COMPILER_PREFIX "x86_64-w64-mingw32")
 
-# which compilers to use for C and C++
+# Which compilers to use for C and C++
 set(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc )
-# set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++ )
 set(CMAKE_RC_COMPILER  x86_64-w64-mingw32-windres )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static -DAL_LIBTYPE_STATIC" CACHE STRING "" FORCE)
+# Required to prevent duplication of flags from this file.
+UNSET(CMAKE_C_FLAGS CACHE)
+UNSET(CMAKE_C_FLAGS_DEBUG CACHE)
+UNSET(CMAKE_C_FLAGS_RELWITHDEBINFO CACHE)
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static -O3 -s -w -DAL_LIBTYPE_STATIC" CACHE STRING "" FORCE)
 
-# set(CMAKE_STATIC_LINKER_FLAGS "")
+# Windows only compiles statically.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAL_LIBTYPE_STATIC" CACHE STRING "" FORCE)
+set(UTOX_STATIC ON CACHE STRING "" FORCE)
+
+# Required for line numbers in gdb on Windows.
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3" CACHE STRING "" FORCE)
+
 
 set(INCLUDE_DIRECTORIES SYSTEM /usr/share/mingw-w64/include/)
 
