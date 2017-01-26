@@ -561,6 +561,10 @@ void utox_audio_thread(void *args) {
 
     #define PREVIEW_BUFFER_SIZE (UTOX_DEFAULT_SAMPLE_RATE_A / 2)
     int16_t *preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
+    if (!preview_buffer) {
+        debug_error("uToxAudio:\tUnable to allocate memory for preview buffer.");
+        return;
+    }
     unsigned int preview_buffer_index = 0;
     bool preview_on = false;
 
