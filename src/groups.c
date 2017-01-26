@@ -68,6 +68,16 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
     msg->via.grp.author_color  = peer->name_color;
     time(&msg->time);
 
+    msg->via.grp.author = calloc(1, peer->name_length);
+    if (!msg->via.grp.author) {
+        debug_error("Groupchat:\tUnable to allocate space for author nickname.\n");
+    }
+
+    msg->via.grp.msg = calloc(1, length);
+    if (!msg->via.grp.msg) {
+        debug_error("Groupchat:\tUnable to allocate space for message.\n");
+    }
+
     memcpy(msg->via.grp.author, nick,    peer->name_length);
     memcpy(msg->via.grp.msg,    message, length);
 
