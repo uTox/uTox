@@ -61,6 +61,7 @@ GROUPCHAT group[64];
 
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group);
 
+// Returns the message number on success, returns UINT32_MAX on failure.
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type);
 
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool our_peer_number, uint32_t name_color);

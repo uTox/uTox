@@ -195,6 +195,11 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
         || (ltime_year == msg_time->tm_year && ltime_mon == msg_time->tm_mon && ltime_day < msg_time->tm_mday))
     {
         MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+        if (!msg) {
+            debug_error("Messages:\tCouldn't allocate memory for day notice.\n");
+            return false;
+        }
+
         time(&msg->time);
         msg->our_msg       = 0;
         msg->msg_type      = MSG_TYPE_NOTICE_DAY_CHANGE;
@@ -286,6 +291,10 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
 
 uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log) {
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        debug_error("Messages:\tCouldn't allocate memory for notice.\n");
+        return UINT32_MAX;
+    }
 
     time(&msg->time);
     msg->our_msg       = 0;
@@ -885,7 +894,7 @@ static int messages_draw_group(MESSAGES *m, MSG_HEADER *msg, uint32_t curr_msg_i
         h2 = UINT32_MAX;
     }
 
-    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->via.grp.msg, msg->via.grp.author_length, msg->via.grp.author_color);
+    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->via.grp.author, msg->via.grp.author_length, msg->via.grp.author_color);
     messages_draw_timestamp(x + width, y, &msg->time);
     return messages_draw_text(msg->via.grp.msg, msg->via.grp.length, msg->height, msg->msg_type, msg->our_msg, 1,
                               h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height)
