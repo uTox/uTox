@@ -109,12 +109,6 @@ static void ft_decon(uint32_t friend_number, uint32_t file_number) {
         debug_error("FileTransfer:\tCan't decon a FT that doesn't exist!\n");
         return;
     }
-    // /* If the UI is reading this data, we need to wait */
-    // unsigned wait = 100;
-    // while (ft->ui_data != NULL && --wait) {
-    //     debug("FileTransfer:\tERROR in decon, sleeping!\n");
-    //     yieldcpu(1);
-    // }
 
     if (ft && ft->in_use) {
         if (ft->name) {
