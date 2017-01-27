@@ -375,7 +375,6 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
 
     LOG_FILE_MSG_HEADER header;
     memset(&header, 0, sizeof(header));
-    uint8_t *data = NULL;
 
     switch (msg->msg_type) {
         case MSG_TYPE_TEXT:
@@ -401,21 +400,22 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
 
             size_t length = sizeof(header) + msg->via.txt.length + author_length + 1; /* extra \n char*/
 
-            data = calloc(1, length);
+            uint8_t *data = calloc(1, length);
             memcpy(data, &header, sizeof(header));
             memcpy(data + sizeof(header), author, author_length);
             memcpy(data + sizeof(header) + author_length, msg->via.txt.msg, msg->via.txt.length);
             strcpy2(data + length - 1, "\n");
 
             msg->disk_offset = utox_save_chatlog(f->id_str, data, length);
-            break;
+
+            free(data);
+            return true;
         }
         default: {
             debug_notice("uTox Logging:\tUnsupported message type %i\n", msg->msg_type);
         }
     }
-    free(data);
-    return true;
+    return false;
 }
 
 bool messages_read_from_log(uint32_t friend_number) {
@@ -438,11 +438,12 @@ bool messages_read_from_log(uint32_t friend_number) {
                 message_add(&friend[friend_number].msg, msg);
             }
         }
+        free(data);
+        return true;
     } else if (actual_count > 0) {
         debug_error("uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
     }
 
-    free(data);
     return false;
 }
 

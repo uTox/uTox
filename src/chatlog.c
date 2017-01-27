@@ -166,13 +166,30 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
 
             msg->via.txt.length        = header.msg_length;
             msg->via.txt.msg = calloc(1, msg->via.txt.length);
+            if (!msg->via.txt.msg) {
+                debug_error("Chatlog:\tUnable to malloc for via.txt.msg... sorry!\n");
+                free(msg);
+                fclose(file);
+                return NULL;
+            }
 
             msg->via.txt.author_length = header.author_length;
-            msg->via.txt.author = calloc(1, msg->via.txt.author_length);
+            // TODO: msg->via.txt.author used to be allocated but left empty. Commented out for now.
+            // msg->via.txt.author = calloc(1, msg->via.txt.author_length);
+            // if (!msg->via.txt.author) {
+            //     debug_error("Chatlog:\tUnable to malloc for via.txt.author... sorry!\n");
+            //     free(msg->via.txt.msg);
+            //     free(msg);
+            //     fclose(file);
+            //     return NULL;
+            // }
 
             if (fread(msg->via.txt.msg, msg->via.txt.length, 1, file) != 1) {
                 debug_error("Log read:\tError reading record %u of length %u at offset %lu: stopping.\n",
                             count, msg->via.txt.length, msg->disk_offset);
+                // free(msg->via.txt.author);
+                free(msg->via.txt.msg);
+                free(msg);
                 break;
             }
             msg->via.txt.length = utf8_validate((uint8_t *)msg->via.txt.msg, msg->via.txt.length);
