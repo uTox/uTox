@@ -1,12 +1,14 @@
 #include "main.h"
 
-#include "../av/utox_av.h"
 #include "../friend.h"
 #include "../logging_native.h"
 #include "../main.h"
 #include "../main_native.h"
-#include "../tox.h"
 #include "../settings.h"
+#include "../tox.h"
+
+#include "../av/utox_av.h"
+#include "../av/video.h"
 
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
