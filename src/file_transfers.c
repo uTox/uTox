@@ -295,7 +295,8 @@ static void break_file(FILE_TRANSFER *file) {
     if (file->status == FILE_TRANSFER_STATUS_NONE) {
         return kill_file(file); /* We don't save unstarted files */
     } else if (file->status == FILE_TRANSFER_STATUS_COMPLETED
-        || file->status == FILE_TRANSFER_STATUS_KILLED) {
+               || file->status == FILE_TRANSFER_STATUS_KILLED)
+        {
             /* We don't touch these files! */
             return;
     }
@@ -843,12 +844,13 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
             ft_local_control(tox, friend_number, file_number, TOX_FILE_CANCEL);
             return;
         }
+        calculate_speed(ft);
     } else {
         debug("FileTransfer:\tFile Handle failed!\n");
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CANCEL);
         return;
     }
-    calculate_speed(ft);
+
     ft->current_size += length;
     if (ft->resume_update) {
         --ft->resume_update;
@@ -1094,6 +1096,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
             debug_error("FileTransfer:\tERROR READING FROM MEMORY! (%u & %u)\n", friend_number, file_number);
             return;
         }
+        calculate_speed(ft);
     } else if (ft->avatar) {
         if (self.png_data) {
             tox_file_send_chunk(tox, friend_number, file_number, position,
@@ -1122,10 +1125,10 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
                 debug_error("FileTransfer:\tOutgoing chunk error on file (%u)\n", error);
             }
         }
+        calculate_speed(ft);
     }
 
     ft->current_size += length;
-    calculate_speed(ft);
 }
 
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file) {
@@ -1155,7 +1158,6 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
 
     return 0;
 }
-
 
 void utox_set_callbacks_file_transfer(Tox *tox) {
     /* Incoming files */
