@@ -216,6 +216,33 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             redraw();
             break;
         }
+        case FILE_INCOMING_NEW_INLINE: {
+            FRIEND *f = get_friend(param1);
+
+            // Process image data
+            uint16_t width, height;
+            uint8_t *image;
+            memcpy(&width, data, sizeof(uint16_t));
+            memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
+            memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
+            // Save and store image
+            friend_recvimage(f, (NATIVE_IMAGE *)image, width, height);
+            redraw();
+            free(data);
+            break;
+        }
+        case FILE_INCOMING_NEW_INLINE_DONE: {
+            // Add file transfer message so user can save the inline.
+            FRIEND *f = get_friend(param1);
+            FILE_TRANSFER *file = data;
+            MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
+                                                  file->name, file->name_length,
+                                                  file->target_size, file->current_size);
+            file_notify(f, m);
+            file->ui_data = m;
+            redraw();
+            break;
+        }
         case FILE_INCOMING_ACCEPT: {
             postmessage_toxcore(TOX_FILE_ACCEPT, param1, param2 << 16, data);
             break;
@@ -245,18 +272,6 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 }
             }
 
-            redraw();
-            break;
-        }
-        case FILE_INLINE_IMAGE: {
-            FRIEND * f = &friend[param1];
-            uint16_t width, height;
-            uint8_t *image;
-            memcpy(&width, data, sizeof(uint16_t));
-            memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
-            memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
-            free(data);
-            friend_recvimage(f, (NATIVE_IMAGE *)image, width, height);
             redraw();
             break;
         }

@@ -109,12 +109,12 @@ static void ft_decon(uint32_t friend_number, uint32_t file_number) {
         debug_error("FileTransfer:\tCan't decon a FT that doesn't exist!\n");
         return;
     }
-    /* If the UI is reading this data, we need to wait */
-    unsigned wait = 100;
-    while (ft->ui_data != NULL && --wait) {
-        debug("FileTransfer:\tERROR in decon, sleeping!\n");
-        yieldcpu(1);
-    }
+    // /* If the UI is reading this data, we need to wait */
+    // unsigned wait = 100;
+    // while (ft->ui_data != NULL && --wait) {
+    //     debug("FileTransfer:\tERROR in decon, sleeping!\n");
+    //     yieldcpu(1);
+    // }
 
     if (ft && ft->in_use) {
         if (ft->name) {
@@ -426,13 +426,14 @@ static void run_file_remote(FILE_TRANSFER *file) {
 static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) {
     // TODO: start a new thread and decode the png in it.
     uint16_t width, height;
+    // TODO: move the decode out of file_transfers.c
     NATIVE_IMAGE *native_image = utox_image_to_native((UTOX_IMAGE)data, size, &width, &height, 0);
     if (NATIVE_IMAGE_IS_VALID(native_image)) {
         void *msg = malloc(sizeof(uint16_t) * 2 + sizeof(uint8_t *));
         memcpy(msg, &width, sizeof(uint16_t));
         memcpy(msg + sizeof(uint16_t), &height, sizeof(uint16_t));
         memcpy(msg + sizeof(uint16_t) * 2, &native_image, sizeof(uint8_t *));
-        postmessage_utox(FILE_INLINE_IMAGE, friend_id, 0, msg);
+        postmessage_utox(FILE_INCOMING_NEW_INLINE, friend_id, 0, msg);
     }
 }
 
@@ -443,6 +444,7 @@ static void utox_complete_file(FILE_TRANSFER *ft) {
         if (ft->incoming) {
             if (ft->inline_img) {
                 decode_inline_png(ft->friend_number, ft->via.memory, ft->current_size);
+                postmessage_utox(FILE_INCOMING_NEW_INLINE_DONE, ft->friend_number, 0, ft);
             } else if (ft->avatar) {
                 postmessage_utox(FRIEND_AVATAR_SET, ft->friend_number, ft->current_size, ft->via.avatar);
             }
@@ -691,6 +693,7 @@ static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t fil
     } else {
         debug_error("FileTransfer:\tUnable to malloc enough memory for incoming inline image of size %lu\n", size);
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+        return;
     }
 
     ft->name = (uint8_t *)strdup("utox-inline.png");
@@ -699,8 +702,6 @@ static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t fil
         debug_error("FileTransfer:\tError, couldn't allocate memory for ft->name.\n");
         ft->name_length = 0;
     }
-
-    postmessage_utox(FILE_INCOMING_NEW, friend_number, 0, ft);
     return;
 }
 
@@ -762,6 +763,9 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             tox_file_seek(tox, friend_number, file_number, ft->current_size, &error);
             if (error) {
                 debug_error("FileTransfer:\tseek error %i\n", error);
+                // TODO UI error here as well;
+                ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+                return;
             } else {
                 debug_info("FileTransfer:\tseek & resume\n");
                 ft->status = FILE_TRANSFER_STATUS_NONE;
@@ -771,6 +775,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             return;
         }
         debug_error("FileTransfer:\tUnable to open file suggested by resume!\n");
+        // This is fine-ish, we'll just fallback to new incoming file.
     }
     ft->in_use   = true;
 
@@ -798,6 +803,7 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft->in_use) {
         debug_error("FileTransfer:\tERROR incoming chunk for an out of use file transfer!\n");
+        return;
     }
 
     if (length == 0) {
@@ -812,6 +818,7 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
                 // this isn't a png header, just die
                 debug_error("FileTransfer:\tFriend %u sent an inline image thats' not a PNG\n", friend_number);
                 ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+                return;
             }
         }
         memcpy(ft->via.memory + position, data, length);
