@@ -47,6 +47,9 @@ function(add_cflag flag)
     endif()
 endfunction()
 
+# Grab environment CFLAGS.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
+
 # Warn on non-ISO C.
 #add_cflag("-pedantic") # throws a lot of warning, quite sure we do not want this at current state.
 
@@ -61,6 +64,10 @@ add_cflag("-Wformat=0")
 # Everything Else
 add_cflag("-fno-strict-aliasing")
 
+# Have ld strip the symbols from Release and MinSizeRel build types.
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
+set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -s")
+
 #######################################################################
 #
 # Build options
@@ -71,12 +78,10 @@ add_cflag("-fno-strict-aliasing")
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
 option(ENABLE_ASAN "Enable Address Sanitizer on debug builds" ON)
 if (ENABLE_ASAN)
-
     message("")
     message("  TIP: You may want to set the env variable  ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer  for ASAN to show nicer stack traces.")
     message("       See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.")
     message("")
-
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
@@ -85,7 +90,7 @@ if(FILTER_AUDIO)
     add_cflag("-DAUDIO_FILTERING")
 endif()
 
-option(UTOX_STATIC "Link uTox staticlly" OFF)
+option(UTOX_STATIC "Link uTox statically" OFF)
 if(UTOX_STATIC)
     add_cflag("-static")
 endif()
@@ -133,7 +138,9 @@ message("* C flags for all types:   ${CMAKE_C_FLAGS}")
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
 if(WIN32)
-    set(GUI_TYPE WIN32)
+    if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+        set(GUI_TYPE WIN32)
+    endif()
     ############################################################
     ## This is a hack, that we can remove once we have better
     ## separation of the sections of uTox, until then, this
