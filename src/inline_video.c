@@ -18,7 +18,7 @@
 #include "main_native.h"
 #include "settings.h"
 
-#include "av/utox_av.h"
+#include "av/video.h"
 
 #include <stdlib.h>
 #include <string.h>

@@ -1,3 +1,5 @@
+#include "video.h"
+
 #include "utox_av.h"
 
 #include "../friend.h"
@@ -11,6 +13,8 @@
 
 #include "../ui/dropdowns.h"
 
+#include <tox/toxav.h>
+
 #include <pthread.h>
 #include <vpx/vpx_codec.h>
 #include <vpx/vpx_image.h>
@@ -20,9 +24,11 @@
 static void *   video_device[16]     = { NULL }; /* TODO; magic number */
 static int16_t  video_device_count   = 0;
 static uint32_t video_device_current = 0;
-static bool     video_active         = 0;
+static bool     video_active         = false;
 
-static bool video_device_status = 1;
+static utox_av_video_frame utox_video_frame;
+
+static bool video_device_status = true;
 
 static vpx_image_t input;
 
@@ -34,12 +40,12 @@ static bool video_device_init(void *handle) {
     if (handle == (void *)1) {
         if (!native_video_init((void *)1)) {
             debug("uToxVideo:\tnative_video_init() failed for desktop\n");
-            return 0;
+            return false;
         }
     } else {
         if (!handle || !native_video_init(*(void **)handle)) {
             debug("uToxVideo:\tnative_video_init() failed webcam\n");
-            return 0;
+            return false;
         }
     }
     vpx_img_alloc(&input, VPX_IMG_FMT_I420, video_width, video_height, 1);
@@ -50,9 +56,9 @@ static bool video_device_init(void *handle) {
     utox_video_frame.h = input.d_h;
 
     debug_notice("uToxVideo:\tvideo init done!\n");
-    video_device_status = 1;
+    video_device_status = true;
 
-    return 1;
+    return true;
 }
 
 static void close_video_device(void *handle) {
@@ -60,27 +66,27 @@ static void close_video_device(void *handle) {
         native_video_close(*(void **)handle);
         vpx_img_free(&input);
     }
-    video_device_status = 0;
+    video_device_status = false;
 }
 
 static bool video_device_start(void) {
     if (video_device_status) {
         native_video_startread();
-        video_active = 1;
-        return 1;
+        video_active = true;
+        return true;
     }
-    video_active = 0;
-    return 0;
+    video_active = false;
+    return false;
 }
 
 static bool video_device_stop(void) {
     if (video_device_status) {
         native_video_endread();
-        video_active = 0;
-        return 1;
+        video_active = false;
+        return true;
     }
-    video_active = 0;
-    return 0;
+    video_active = false;
+    return false;
 }
 
 
@@ -108,7 +114,7 @@ void utox_video_append_device(void *device, bool localized, void *name, bool def
 bool utox_video_change_device(uint16_t device_number) {
     pthread_mutex_lock(&video_thread_lock);
 
-    static bool _was_active = 0;
+    static bool _was_active = false;
 
     if (!device_number) {
         video_device_current = 0;
@@ -116,21 +122,21 @@ bool utox_video_change_device(uint16_t device_number) {
             video_device_stop();
             close_video_device(video_device[video_device_current]);
             if (settings.video_preview) {
-                settings.video_preview = 0;
+                settings.video_preview = false;
                 postmessage_utox(AV_CLOSE_WINDOW, 0, 0, NULL);
             }
         }
         debug("uToxVideo:\tDisabled Video device (none)\n");
         pthread_mutex_unlock(&video_thread_lock);
-        return 0;
+        return false;
     }
 
     if (video_active) {
-        _was_active = 1;
+        _was_active = true;
         video_device_stop();
         close_video_device(video_device[video_device_current]);
     } else {
-        _was_active = 0;
+        _was_active = false;
     }
 
     video_device_current = device_number;
@@ -142,62 +148,62 @@ bool utox_video_change_device(uint16_t device_number) {
         if (!video_device_start()) {
             debug_error("uToxVideo:\tError, unable to start new device...\n");
             if (settings.video_preview) {
-                settings.video_preview = 0;
+                settings.video_preview = false;
                 postmessage_utox(AV_CLOSE_WINDOW, 0, 0, NULL);
             }
 
             pthread_mutex_unlock(&video_thread_lock);
-            return 0;
+            return false;
         }
         pthread_mutex_unlock(&video_thread_lock);
-        return 1;
+        return true;
     } else {
         /* Just grab the new frame size */
         close_video_device(video_device[video_device_current]);
     }
     pthread_mutex_unlock(&video_thread_lock);
-    return 0;
+    return false;
 }
 
 bool utox_video_start(bool preview) {
     if (video_active) {
         debug_notice("uToxVideo:\tvideo already running\n");
-        return 1;
+        return true;
     }
 
     if (!video_device_current) {
         debug_notice("uToxVideo:\tNot starting device None\n");
-        return 0;
+        return false;
     }
 
     if (preview) {
-        settings.video_preview = 1;
+        settings.video_preview = true;
     }
 
     if (video_device_init(video_device[video_device_current]) && video_device_start()) {
-        video_active = 1;
+        video_active = true;
         debug_notice("uToxVideo:\tstarted video\n");
-        return 1;
+        return true;
     }
 
     debug_error("uToxVideo:\tUnable to start video.\n");
-    return 0;
+    return false;
 }
 
 bool utox_video_stop(bool UNUSED(preview)) {
     if (!video_active) {
         debug("uToxVideo:\tvideo already stopped!\n");
-        return 0;
+        return false;
     }
 
-    video_active           = 0;
-    settings.video_preview = 0;
+    video_active           = false;
+    settings.video_preview = false;
     postmessage_utox(AV_CLOSE_WINDOW, 0, 0, NULL);
 
     video_device_stop();
     close_video_device(video_device[video_device_current]);
     debug("uToxVideo:\tstopped video\n");
-    return 1;
+    return true;
 }
 
 void postmessage_video(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
@@ -245,8 +251,8 @@ void utox_video_thread(void *args) {
         if (video_active) {
             pthread_mutex_lock(&video_thread_lock);
             // capturing is enabled, capture frames
-            int r = native_video_getframe(utox_video_frame.y, utox_video_frame.u, utox_video_frame.v,
-                                          utox_video_frame.w, utox_video_frame.h);
+            const int r = native_video_getframe(utox_video_frame.y, utox_video_frame.u, utox_video_frame.v,
+                                                utox_video_frame.w, utox_video_frame.h);
             if (r == 1) {
                 if (settings.video_preview) {
                     /* Make a copy of the video frame for uTox to display */
@@ -301,7 +307,7 @@ void utox_video_thread(void *args) {
 
             pthread_mutex_unlock(&video_thread_lock);
             yieldcpu(40); /* 60fps = 16.666ms || 25 fps = 40ms || the data quality is SO much better at 25... */
-            continue;     /* We're running video, so don't sleep for and extra 100 */
+            continue;     /* We're running video, so don't sleep for an extra 100 ms */
         }
 
         yieldcpu(100);
@@ -309,10 +315,9 @@ void utox_video_thread(void *args) {
 
     video_device_count   = 0;
     video_device_current = 0;
-    video_active         = 0;
+    video_active         = false;
 
-    int i;
-    for (i = 0; i < 16; ++i) {
+    for (uint8_t i = 0; i < 16; ++i) {
         video_device[i] = NULL;
     }
 
@@ -323,18 +328,17 @@ void utox_video_thread(void *args) {
 
 void yuv420tobgr(uint16_t width, uint16_t height, const uint8_t *y, const uint8_t *u, const uint8_t *v,
                  unsigned int ystride, unsigned int ustride, unsigned int vstride, uint8_t *out) {
-    unsigned long int i, j;
-    for (i = 0; i < height; ++i) {
-        for (j = 0; j < width; ++j) {
+    for (unsigned long int i = 0; i < height; ++i) {
+        for (unsigned long int j = 0; j < width; ++j) {
             uint8_t *point = out + 4 * ((i * width) + j);
-            int      t_y   = y[((i * ystride) + j)];
-            int      t_u   = u[(((i / 2) * ustride) + (j / 2))];
-            int      t_v   = v[(((i / 2) * vstride) + (j / 2))];
+            int       t_y   = y[((i * ystride) + j)];
+            const int t_u   = u[(((i / 2) * ustride) + (j / 2))];
+            const int t_v   = v[(((i / 2) * vstride) + (j / 2))];
             t_y            = t_y < 16 ? 16 : t_y;
 
-            int r = (298 * (t_y - 16) + 409 * (t_v - 128) + 128) >> 8;
-            int g = (298 * (t_y - 16) - 100 * (t_u - 128) - 208 * (t_v - 128) + 128) >> 8;
-            int b = (298 * (t_y - 16) + 516 * (t_u - 128) + 128) >> 8;
+            const int r = (298 * (t_y - 16) + 409 * (t_v - 128) + 128) >> 8;
+            const int g = (298 * (t_y - 16) - 100 * (t_u - 128) - 208 * (t_v - 128) + 128) >> 8;
+            const int b = (298 * (t_y - 16) + 516 * (t_u - 128) + 128) >> 8;
 
             point[2] = r > 255 ? 255 : r < 0 ? 0 : r;
             point[1] = g > 255 ? 255 : g < 0 ? 0 : g;
@@ -345,7 +349,7 @@ void yuv420tobgr(uint16_t width, uint16_t height, const uint8_t *y, const uint8_
 }
 
 void yuv422to420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *input, uint16_t width, uint16_t height) {
-    uint8_t *end = input + width * height * 2;
+    const uint8_t *end = input + width * height * 2;
     while (input != end) {
         uint8_t *line_end = input + width * 2;
         while (input != line_end) {
@@ -366,35 +370,34 @@ void yuv422to420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *
 }
 
 static uint8_t rgb_to_y(int r, int g, int b) {
-    int y = ((9798 * r + 19235 * g + 3736 * b) >> 15);
+    const int y = ((9798 * r + 19235 * g + 3736 * b) >> 15);
     return y > 255 ? 255 : y < 0 ? 0 : y;
 }
 
 static uint8_t rgb_to_u(int r, int g, int b) {
-    int u = ((-5538 * r + -10846 * g + 16351 * b) >> 15) + 128;
+    const int u = ((-5538 * r + -10846 * g + 16351 * b) >> 15) + 128;
     return u > 255 ? 255 : u < 0 ? 0 : u;
 }
 
 static uint8_t rgb_to_v(int r, int g, int b) {
-    int v = ((16351 * r + -13697 * g + -2664 * b) >> 15) + 128;
+    const int v = ((16351 * r + -13697 * g + -2664 * b) >> 15) + 128;
     return v > 255 ? 255 : v < 0 ? 0 : v;
 }
 
 void bgrtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height) {
-    uint16_t x, y;
     uint8_t *p;
     uint8_t  r, g, b;
 
-    for (y = 0; y != height; y += 2) {
+    for (uint16_t y = 0; y != height; y += 2) {
         p = rgb;
-        for (x = 0; x != width; x++) {
+        for (uint16_t x = 0; x != width; x++) {
             b          = *rgb++;
             g          = *rgb++;
             r          = *rgb++;
             *plane_y++ = rgb_to_y(r, g, b);
         }
 
-        for (x = 0; x != width / 2; x++) {
+        for (uint16_t x = 0; x != width / 2; x++) {
             b          = *rgb++;
             g          = *rgb++;
             r          = *rgb++;
@@ -421,13 +424,12 @@ void bgrtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *
 }
 
 void bgrxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height) {
-    uint16_t x, y;
     uint8_t *p;
     uint8_t  r, g, b;
 
-    for (y = 0; y != height; y += 2) {
+    for (uint16_t y = 0; y != height; y += 2) {
         p = rgb;
-        for (x = 0; x != width; x++) {
+        for (uint16_t x = 0; x != width; x++) {
             b = *rgb++;
             g = *rgb++;
             r = *rgb++;
@@ -436,7 +438,7 @@ void bgrxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t 
             *plane_y++ = rgb_to_y(r, g, b);
         }
 
-        for (x = 0; x != width / 2; x++) {
+        for (uint16_t x = 0; x != width / 2; x++) {
             b = *rgb++;
             g = *rgb++;
             r = *rgb++;
@@ -469,14 +471,13 @@ void bgrxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t 
 
 void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height, uint8_t *new_rgbx, uint16_t new_width,
                       uint16_t new_height) {
-    int x, y, x0, y0, a, b;
-    for (y = 0; y != new_height; y++) {
-        y0 = y * old_height / new_height;
-        for (x = 0; x != new_width; x++) {
-            x0 = x * old_width / new_width;
+    for (int y = 0; y != new_height; y++) {
+        const int y0 = y * old_height / new_height;
+        for (int x = 0; x != new_width; x++) {
+            const int x0 = x * old_width / new_width;
 
-            a                   = x + y * new_width;
-            b                   = x0 + y0 * old_width;
+            const int a         = x + y * new_width;
+            const int b         = x0 + y0 * old_width;
             new_rgbx[a * 4]     = old_rgbx[b * 4];
             new_rgbx[a * 4 + 1] = old_rgbx[b * 4 + 1];
             new_rgbx[a * 4 + 2] = old_rgbx[b * 4 + 2];

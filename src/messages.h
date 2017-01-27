@@ -146,8 +146,9 @@ uint32_t message_add_type_image(MESSAGES *m, bool auth, NATIVE_IMAGE *img, uint1
 
 MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incoming, bool image, uint8_t status,
                                 const uint8_t *name, size_t name_size, size_t target_size, size_t current_size);
-
+// Returns true if data was logged.
 bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg);
+// Returns true if data was read from log.
 bool messages_read_from_log(uint32_t friend_number);
 
 void messages_send_from_queue(MESSAGES *m, uint32_t friend_number);

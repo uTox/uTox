@@ -1,12 +1,13 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 
 #define UTOX_DEFAULT_BITRATE_V 5000
 #define UTOX_MIN_BITRATE_VIDEO 512
+// UTOX_DEFAULT_VID_WIDTH, HEIGHT are unused.
 #define UTOX_DEFAULT_VID_WIDTH 1280
 #define UTOX_DEFAULT_VID_HEIGHT 720
 
@@ -38,8 +39,6 @@ typedef struct utox_frame_pkg {
     void *   img;
 } UTOX_FRAME_PKG;
 
-utox_av_video_frame utox_video_frame;
-
 void utox_video_append_device(void *device, bool localized, void *name, bool default_);
 
 bool utox_video_change_device(uint16_t i);
@@ -63,6 +62,5 @@ void bgrxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t 
 // TODO: Documentation.
 void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height, uint8_t *new_rgbx, uint16_t new_width,
                       uint16_t new_height);
-
 
 #endif

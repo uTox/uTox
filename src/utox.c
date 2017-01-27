@@ -13,6 +13,7 @@
 #include "tox.h"
 
 #include "av/utox_av.h"
+#include "av/video.h"
 #include "ui/dropdowns.h"
 #include "ui/edit.h"
 #include "ui/tooltip.h"

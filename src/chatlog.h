@@ -37,10 +37,7 @@ typedef struct msg_header MSG_HEADER;
  */
 size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length);
 
-/** This one actually does the work of reading the logfile information.
- *
- * inside main.c is probably the wrong place for it, but I'll leave chosing
- * the correct location to someone else. */
+// This one actually does the work of reading the logfile information.
 MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uint32_t count, uint32_t skip);
 
 /** utox_update_chatlog Updates the data for this friend's history.

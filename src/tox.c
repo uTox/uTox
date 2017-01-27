@@ -15,7 +15,9 @@
 #include "tox_callbacks.h"
 #include "utox.h"
 
+#include "av/audio.h"
 #include "av/utox_av.h"
+#include "av/video.h"
 #include "ui/dropdown.h"
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
@@ -30,7 +32,7 @@
 
 #include "main.h"
 
-static bool save_needed = 1;
+static bool save_needed = true;
 
 enum {
     LOG_FILE_MSG_TYPE_TEXT   = 0,
