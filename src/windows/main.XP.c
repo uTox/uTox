@@ -91,13 +91,13 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, longname, file->name_length);
     swprintf(second, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", first, longname);
 
-    FILE *f = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+    FILE *f = _fdopen(_open_osfhandle((intptr_t)CreateFileW(second, GENERIC_WRITE, FILE_SHARE_READ, NULL,
                                                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
                                       0),
                       "wb");
 
-    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
-    debug_notice("Native:\tAuto Accept Directory: \"%s\"", send);
+    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
+    debug_notice("Native:\tAuto Accept Directory: \"%s\"", second);
 }
 
 void launch_at_startup(int is_launch_at_startup) {
