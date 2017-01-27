@@ -54,24 +54,41 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
 
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
-    MESSAGES   *m    = &g->msg;
-    GROUP_PEER *peer = g->peer[peer_id];
-    uint8_t    *nick = peer->name;
+    const GROUP_PEER *peer = g->peer[peer_id];
+    MESSAGES *m = &g->msg;
 
     MSG_HEADER *msg    = calloc(1, sizeof(MSG_HEADER));
-    msg->our_msg       = (g->our_peer_number == peer_id ? 1 : 0);
+    msg->our_msg       = (g->our_peer_number == peer_id ? true : false);
     msg->msg_type      = m_type;
 
     msg->via.grp.length        = length;
     msg->via.grp.author_id     = peer_id;
+
     msg->via.grp.author_length = peer->name_length;
     msg->via.grp.author_color  = peer->name_color;
     time(&msg->time);
 
-    memcpy(msg->via.grp.author, nick,    peer->name_length);
-    memcpy(msg->via.grp.msg,    message, length);
+    msg->via.grp.author = calloc(1, peer->name_length);
+    if (!msg->via.grp.author) {
+        debug_error("Groupchat:\tUnable to allocate space for author nickname.\n");
+
+        free(msg);
+        return UINT32_MAX;
+    }
+    memcpy(msg->via.grp.author, peer->name, peer->name_length);
+
+    msg->via.grp.msg = calloc(1, length);
+    if (!msg->via.grp.msg) {
+        debug_error("Groupchat:\tUnable to allocate space for message.\n");
+
+        free(msg->via.grp.author);
+        free(msg);
+        return UINT32_MAX;
+    }
+    memcpy(msg->via.grp.msg, message, length);
 
     pthread_mutex_unlock(&messages_lock);
+
     return message_add_group(m, msg);
 }
 
@@ -84,8 +101,15 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
 
     GROUP_PEER *peer = g->peer[peer_id];
 
-    peer = calloc(1, sizeof(GROUP_PEER));
-    strcpy2(peer->name, "<unknown>");
+    char *default_peer_name = "<unknown>";
+
+    // Allocate space for the struct and the dynamic array holding the peer's name.
+    peer = calloc(1, sizeof(GROUP_PEER) + strlen(default_peer_name) + 1);
+    if (!peer) {
+        debug_error("Groupchat:\tUnable to allocate space for group peer.\n");
+        exit(42); // TODO: Header file for exit codes. This is just silly.
+    }
+    strcpy2(peer->name, default_peer_name);
     peer->name_length = 0;
     peer->name_color  = name_color;
     peer->id          = peer_id;
@@ -130,12 +154,12 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
     if (peer && peer->name_length) {
         uint8_t old[TOX_MAX_NAME_LENGTH];
         uint8_t msg[TOX_MAX_NAME_LENGTH];
-        size_t  size = 0;
+        size_t size = 0;
 
         memcpy(old, peer->name, peer->name_length);
-        size = snprintf((char *)msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s", (int)peer->name_length,
-                        old);
-        peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(void) * length);
+        size = snprintf((char *)msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s",
+                        (int)peer->name_length, old);
+        peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
 
         if (peer) {
             peer->name_length = utf8_validate(name, length);
@@ -145,13 +169,12 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
             group_add_message(g, peer_id, msg, size, MSG_TYPE_NOTICE);
             return;
         } else {
-            debug("Fatal error:\t couldn't realloc for group peer name!\n");
+            debug_error("Groupchat:\t couldn't realloc for group peer name!\n");
             exit(40);
         }
-
     } else if (peer) {
         /* Hopefully, they just joined, because that's the UX message we're going with! */
-        peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(void) * length);
+        peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
         if (peer) {
             peer->name_length = utf8_validate(name, length);
             memcpy(peer->name, name, length);
@@ -161,7 +184,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
             return;
         }
     } else {
-        debug("Fatal error:\t we can't set a name for a null peer! %u\n", peer_id);
+        debug_error("Groupchat:\tWe can't set a name for a null peer! %u\n", peer_id);
         exit(41);
     }
 }
@@ -186,6 +209,8 @@ void group_free(GROUPCHAT *g) {
     group_reset_peerlist(g);
 
     for (size_t i = 0; i < g->msg.number; ++i) {
+        free(g->msg.data[i]->via.grp.author);
+        free(g->msg.data[i]->via.grp.msg);
         message_free(g->msg.data[i]);
     }
     free(g->msg.data);
