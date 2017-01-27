@@ -199,6 +199,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case FILE_INCOMING_NEW: {
+            debug_notice("Toxcore:\tNew incoming file %u from friend %u.\n", param2, param1);
             FILE_TRANSFER *file = data;
 
             FRIEND *f = get_friend(param1);
@@ -221,9 +222,16 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case FILE_UPDATE_STATUS: {
+            debug_notice("Toxcore:\tUpdating status for file %u to %u.\n", param2, param1);
             if (!data) {
                 break;
             }
+
+            if (param1 > UINT8_MAX) {
+                debug_error("Toxcore:\tTried setting a file transfer status to a ridiculous number. (%u)", param1);
+                break;
+            }
+
             FILE_TRANSFER *file = data;
 
             if (file->ui_data) {
