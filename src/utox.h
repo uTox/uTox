@@ -27,7 +27,9 @@ typedef enum utox_msg_id {
     FILE_INCOMING_NEW_INLINE,
     FILE_INCOMING_NEW_INLINE_DONE,
     FILE_INCOMING_ACCEPT,
-    FILE_UPDATE_STATUS,
+    FILE_STATUS_UPDATE,
+    FILE_STATUS_UPDATE_DATA,
+    FILE_STATUS_DONE,
 
     /* Friend interaction messages. */
     /* Handshake */

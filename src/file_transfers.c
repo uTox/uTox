@@ -99,7 +99,7 @@ static void calculate_speed(FILE_TRANSFER *file) {
         file->last_check_transferred = file->current_size;
     }
 
-    postmessage_utox(FILE_UPDATE_STATUS, file->status, 0, file);
+    postmessage_utox(FILE_STATUS_UPDATE, file->status, 0, file);
 }
 
 static void ft_decon(uint32_t friend_number, uint32_t file_number) {
@@ -266,7 +266,7 @@ static void kill_file(FILE_TRANSFER *file) {
         file->status = FILE_TRANSFER_STATUS_KILLED;
     }
 
-    postmessage_utox(FILE_UPDATE_STATUS, file->status, 0, file);
+    postmessage_utox(FILE_STATUS_DONE, file->status, 0, file->ui_data);
 
     if (!file->incoming && friend[file->friend_number].file_transfers_incoming_size) {
         // get_friend(file->friend_number)->file_transfers_incoming_active_count--;
@@ -296,7 +296,7 @@ static void break_file(FILE_TRANSFER *file) {
     }
 
     file->status = FILE_TRANSFER_STATUS_BROKEN;
-    postmessage_utox(FILE_UPDATE_STATUS, file->status, 0, file);
+    postmessage_utox(FILE_STATUS_DONE, file->status, 0, file->ui_data);
     ft_update_resumable(file);
     if (file->in_use) {
         ft_decon(file->friend_number, file->file_number);
@@ -366,7 +366,7 @@ static void utox_pause_file(FILE_TRANSFER *file, uint8_t us) {
             break;
         }
     }
-    postmessage_utox(FILE_UPDATE_STATUS, file->status, 0, file);
+    postmessage_utox(FILE_STATUS_UPDATE, file->status, 0, file);
     // TODO free not freed data.
 }
 
@@ -400,7 +400,7 @@ static void run_file_local(FILE_TRANSFER *file) {
         }
     }
 
-    postmessage_utox(FILE_UPDATE_STATUS, file->status, 0, file);
+    postmessage_utox(FILE_STATUS_UPDATE, file->status, 0, file);
 }
 
 static void run_file_remote(FILE_TRANSFER *file) {
@@ -415,7 +415,7 @@ static void run_file_remote(FILE_TRANSFER *file) {
     } else {
         debug_error("FileTransfer:\tThey tried to run file from an unknown state! (%u)\n", file->status);
     }
-    postmessage_utox(FILE_UPDATE_STATUS, file->status, 0, file);
+    postmessage_utox(FILE_STATUS_UPDATE, file->status, 0, file);
 }
 
 static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) {
@@ -436,6 +436,7 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) 
 static void utox_complete_file(FILE_TRANSFER *ft) {
     if (ft->status == FILE_TRANSFER_STATUS_ACTIVE) {
         ft->status = FILE_TRANSFER_STATUS_COMPLETED;
+        postmessage_utox(FILE_STATUS_UPDATE_DATA, ft->status, 0, ft); // Update twice to be sure the last data is correct
         if (ft->incoming) {
             if (ft->inline_img) {
                 decode_inline_png(ft->friend_number, ft->via.memory, ft->current_size);
@@ -447,8 +448,8 @@ static void utox_complete_file(FILE_TRANSFER *ft) {
     } else {
         debug_error("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", ft->file_number);
     }
-    postmessage_utox(FILE_UPDATE_STATUS, ft->status, 0, ft);
     debug_notice("FileTransfer:\tFile transfer is done (%u & %u)\n", ft->friend_number, ft->file_number);
+    postmessage_utox(FILE_STATUS_DONE, ft->status, 0, ft->ui_data);
 
     if (ft->resumeable) {
         ft_decon_resumable(ft);

@@ -247,7 +247,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             postmessage_toxcore(TOX_FILE_ACCEPT, param1, param2 << 16, data);
             break;
         }
-        case FILE_UPDATE_STATUS: {
+        case FILE_STATUS_UPDATE: {
             if (!data) {
                 break;
             }
@@ -257,21 +257,36 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 file->ui_data->via.ft.progress = file->current_size;
                 file->ui_data->via.ft.speed    = file->speed;
                 file->ui_data->via.ft.file_status = param1;
+            }
 
+            redraw();
+            break;
+        }
+        case FILE_STATUS_UPDATE_DATA: {
+            if (!data) {
+                break;
+            }
+            FILE_TRANSFER *file = data;
+
+            if (file->ui_data) {
                 if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
                     if (file->in_memory) {
                         file->ui_data->via.ft.path = file->via.memory;
                     } else {
                         memcpy(file->ui_data->via.ft.path, file->path, UTOX_FILE_NAME_LENGTH);
                     }
-
-                    /* File Transfers won't decon the file while we're still accessing the UI info */
-                    file->ui_data = NULL;
-                } else if (param1 == FILE_TRANSFER_STATUS_BROKEN || param1 == FILE_TRANSFER_STATUS_KILLED) {
-                    file->ui_data = NULL;
                 }
             }
 
+            redraw();
+            break;
+        }
+        case FILE_STATUS_DONE: {
+            // Could also be failed or broken
+            MSG_HEADER *msg = data;
+            if (msg) {
+                msg->via.ft.file_status = param1;
+            }
             redraw();
             break;
         }

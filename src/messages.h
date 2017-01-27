@@ -58,8 +58,12 @@ typedef struct msg_file {
     char   *file_name;
     size_t name_length;
 
+    // Location on disk
     uint8_t *path;
     size_t   path_length;
+    // In memory pointer
+    uint8_t *data;
+    size_t   data_length;
 
     uint32_t speed;
     uint64_t size, progress;
