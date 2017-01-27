@@ -449,12 +449,11 @@ static void utox_complete_file(FILE_TRANSFER *ft) {
                 postmessage_utox(FRIEND_AVATAR_SET, ft->friend_number, ft->current_size, ft->via.avatar);
             }
         }
-
-        postmessage_utox(FILE_UPDATE_STATUS, ft->status, 0, ft);
     } else {
         debug_error("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", ft->file_number);
     }
-    debug_notice("FileTransfer:\tIncoming transfer is done (%u & %u)\n", ft->friend_number, ft->file_number);
+    postmessage_utox(FILE_UPDATE_STATUS, ft->status, 0, ft);
+    debug_notice("FileTransfer:\tFile transfer is done (%u & %u)\n", ft->friend_number, ft->file_number);
 
     if (ft->resumeable) {
         ft_decon_resumable(ft);
@@ -786,7 +785,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
     ft->resumeable = ft_init_resumable(ft);
 
-    postmessage_utox(FILE_INCOMING_NEW, friend_number, file_number, ft);
+    postmessage_utox(FILE_INCOMING_NEW, friend_number, (file_number >> 16) - 1, ft);
     /* The file doesn't exist on disk where we expected, let's prompt the user to accept it as a new file */
     debug_notice("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n",
           friend_number, file_number, name);

@@ -50,7 +50,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     }
 }
 
- void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file){
+void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL){
         debug("SelectDir:\t Could not allocate memory for path.\n");

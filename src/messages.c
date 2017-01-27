@@ -1298,7 +1298,7 @@ bool messages_mdown(PANEL *panel) {
                 FILE_TRANSFER *ft;
                 uint32_t ft_number = msg->via.ft.file_number;
                 if (ft_number >= (1 << 16)) {
-                    ft = &f->file_transfers_incoming[ft_number]; // TODO, abstraction needed
+                    ft = &f->file_transfers_incoming[(ft_number >> 16) - 1]; // TODO, abstraction needed
                 } else {
                     ft = &f->file_transfers_outgoing[ft_number]; // TODO, abstraction needed
                 }

@@ -208,7 +208,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 native_autoselect_dir_ft(param1, file);
             }
 
-            MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
+            MSG_HEADER *m = message_add_type_file(&f->msg, (param2 + 1) << 16, file->incoming, file->inline_img, file->status,
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);

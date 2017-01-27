@@ -863,14 +863,13 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         case TOX_FILE_ACCEPT_AUTO: {
             /* param1: friend #
              * param2: file #
-             * data: path to write file */
+             * data: open handle to file */
             if (utox_file_start_write(param1, param2, data, 1) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
-            free(data);
             break;
         }
         case TOX_FILE_RESUME: {
