@@ -73,6 +73,10 @@ void openfilesend(void) {
     if (GetOpenFileName(&ofn)) {
         FRIEND *f = flist_get_selected()->data;
         UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
+        if (!msg) {
+            debug_error("Windows:\tUnable to calloc for file send msg\n");
+            return;
+        }
         msg->file = fopen(filepath, "rb");
         msg->name = (uint8_t *)filepath;
 
