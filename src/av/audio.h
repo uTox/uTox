@@ -1,27 +1,26 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#include <inttypes.h>
+#include <stdint.h>
 
-#ifdef __APPLE__
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
-#else
-#include <AL/al.h>
-#include <AL/alc.h>
+typedef struct ALCdevice_struct ALCdevice;
 
-#ifdef AUDIO_FILTERING
-#include <AL/alext.h>
-#endif
-/* include for compatibility with older versions of OpenAL */
-#ifndef ALC_ALL_DEVICES_SPECIFIER
-#include <AL/alext.h>
-#endif
-#endif
+enum {
+    // kill the audio thread
+    UTOXAUDIO_KILL,
 
-#ifdef AUDIO_FILTERING
-#include <filter_audio.h>
-#endif
+    UTOXAUDIO_START_FRIEND,
+    UTOXAUDIO_STOP_FRIEND,
+
+    UTOXAUDIO_START_PREVIEW,
+    UTOXAUDIO_STOP_PREVIEW,
+
+    UTOXAUDIO_PLAY_RINGTONE,
+    UTOXAUDIO_STOP_RINGTONE,
+
+    UTOXAUDIO_PLAY_NOTIFICATION,
+    UTOXAUDIO_STOP_NOTIFICATION,
+};
 
 enum {
     NOTIFY_TONE_NONE,
@@ -38,6 +37,7 @@ enum {
 
 /* Check self */
 #define UTOX_SENDING_AUDIO(f_number) (!!(friend[f_number].call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_A))
+// UTOX_ACCEPTING_AUDIO is unused. Delete?
 #define UTOX_ACCEPTING_AUDIO(f_number) (!!(friend[f_number].call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A))
 
 /* Check friend */
@@ -47,6 +47,7 @@ enum {
 #define UTOX_SEND_AUDIO(f_number)                                             \
     (!!(friend[f_number].call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_A) \
      && !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A))
+// UTOX_ACCEPT_AUDIO is unused. Delete?
 #define UTOX_ACCEPT_AUDIO(f_number)                                             \
     (!!(friend[f_number].call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) \
      && !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_A))
@@ -65,6 +66,7 @@ ALCdevice *utox_audio_in_device_get(void);
 void utox_audio_out_device_open(void);
 void utox_audio_out_device_close(void);
 void utox_audio_out_device_set(ALCdevice *new_device);
+// utox_audio_out_device_get is unused. Delete?
 ALCdevice *utox_audio_out_device_get(void);
 
 void sourceplaybuffer(unsigned int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate);
