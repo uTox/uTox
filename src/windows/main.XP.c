@@ -80,8 +80,6 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     if (settings.portable_mode) {
         snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
         debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", send);
-        postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
-        return;
     } else if (!SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, (char *)path)) {
         swprintf(first, UTOX_FILE_NAME_LENGTH, L"%ls%ls", *path, L"\\Tox_Auto_Accept");
         CreateDirectoryW(first, NULL);
@@ -93,11 +91,13 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, longname, file->name_length);
     swprintf(second, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", first, longname);
 
-    native_to_utf8str(second, send, UTOX_FILE_NAME_LENGTH);
-
-    debug_notice("Native:\tAuto Accept Directory: \"%s\"", send);
+    FILE *f = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+                                                            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
+                                      0),
+                      "wb");
 
     postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
+    debug_notice("Native:\tAuto Accept Directory: \"%s\"", send);
 }
 
 void launch_at_startup(int is_launch_at_startup) {

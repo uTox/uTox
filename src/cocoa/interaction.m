@@ -923,7 +923,8 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     NSString *dest = [downloads stringByAppendingPathComponent:fname];
     [fname release];
 
-    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, strdup(dest.UTF8String));
+    FILE *f = fopen(dest, "wb");
+    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
 }
 
 //@"Where do you want to save \"%.*s\"?"

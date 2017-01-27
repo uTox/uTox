@@ -1129,7 +1129,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     calculate_speed(ft);
 }
 
-int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const char *filepath) {
+int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file) {
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft) {
         debug_error("FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
@@ -1137,30 +1137,23 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
         return -1;
     }
 
-    snprintf((char *)ft->path, UTOX_FILE_NAME_LENGTH, "%s", filepath);
+    if (is_file && (FILE *)file) {
+        ft->via.file = file;
+        return 0;
+    } else {
+        snprintf((char *)ft->path, UTOX_FILE_NAME_LENGTH, "%s", file);
 
-    // TODO use native functions to open this file
-    ft->via.file = fopen(filepath, "wb");
-
-    if (!ft->via.file) {
-        debug_error("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n\t\t\"%s\"\n",
-                    ft->path);
-        break_file(ft);
-        return -1;
+        // TODO use native functions to open this file
+        ft->via.file = fopen(file, "wb");
+        if (!ft->via.file) {
+            debug_error("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n\t\t\"%s\"\n",
+                        ft->path);
+            break_file(ft);
+            return -1;
+        }
     }
 
-    // Removed until we can find a better way of working this in;
-    // if(ft->in_tmp_loc){
-    //     fseeko(ft->tmp_file, 0, SEEK_SET);
-    //     fseeko(ft->file, 0, SEEK_SET);
-    //     fwrite(ft->tmp_file, 1, ft->size_transferred, ft->file);
-    //     fflush(ft->file);
-    //     fclose(ft->tmp_file);
-    //     ft->in_tmp_loc = 0;
-    //     // free(ft->tmp_path); // Freed by xlib probably...
-    //     // TODO unlink();
-    //     debug("FileTransfer: Data copied from tmp_file to save_file\n");
-    // }
+
     return 0;
 }
 
