@@ -24,12 +24,6 @@ uint32_t tray_width = 32, tray_height = 32;
 
 XIC xic = NULL;
 
-void *ugtk_load(void);
-void  ugtk_openfilesend(void);
-void  ugtk_openfileavatar(void);
-void ugtk_native_select_dir_ft(uint32_t fid, FILE_TRANSFER *file);
-void ugtk_file_save_inline(FILE_TRANSFER *file);
-
 void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
 }

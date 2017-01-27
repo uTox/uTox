@@ -258,7 +258,6 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 file->ui_data->via.ft.speed    = file->speed;
                 file->ui_data->via.ft.file_status = param1;
             }
-
             redraw();
             break;
         }
@@ -271,13 +270,15 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             if (file->ui_data) {
                 if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
                     if (file->in_memory) {
-                        file->ui_data->via.ft.path = file->via.memory;
+                        file->ui_data->via.ft.data = file->via.memory;
+                        file->ui_data->via.ft.data_size = file->current_size;
                     } else {
                         memcpy(file->ui_data->via.ft.path, file->path, UTOX_FILE_NAME_LENGTH);
                     }
                 }
             }
-
+            file->decon_wait = false;
+            debug_notice("uTox:\tFT data was saved\n");
             redraw();
             break;
         }

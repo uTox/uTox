@@ -65,6 +65,7 @@ typedef struct file_transfer {
     uint8_t  resume_update;
 
     MSG_HEADER *ui_data;
+    bool decon_wait; // Used to pause decon/file cleanup, for the UI thread to copy the data;
 } FILE_TRANSFER;
 
 void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);

@@ -344,8 +344,8 @@ MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incomi
     msg->via.ft.inline_png = image;
 
     msg->via.ft.name_length = name_size;
-    msg->via.ft.file_name = calloc(1, name_size + 1);
-    memcpy(msg->via.ft.file_name, name, msg->via.ft.name_length);
+    msg->via.ft.name = calloc(1, name_size + 1);
+    memcpy(msg->via.ft.name, name, msg->via.ft.name_length);
 
     if (image) {
         msg->via.ft.path = NULL;
@@ -728,7 +728,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
     char ft_text[max];
     char *text = ft_text;
 
-    text += snprintf(text, max, "%.*s ", (int)file->name_length, file->file_name);
+    text += snprintf(text, max, "%.*s ", (int)file->name_length, file->name);
     text += sprint_humanread_bytes(text, text - ft_text, file->size);
 
     // progress rectangle
@@ -1306,7 +1306,7 @@ bool messages_mdown(PANEL *panel) {
                 if (msg->via.ft.file_status == FILE_TRANSFER_STATUS_COMPLETED) {
                     if (m->cursor_over_position) {
                         if (msg->via.ft.inline_png) {
-                            file_save_inline(ft);
+                            file_save_inline(msg);
                         } else {
                             openurl((char *)msg->via.ft.path);
                         }
@@ -1639,8 +1639,9 @@ void message_free(MSG_HEADER *msg) {
         }
         case MSG_TYPE_FILE: {
             // already gets free()d
-            free(msg->via.ft.file_name);
-            free(msg->via.ft.path);
+            free(msg->via.ft.name);
+            free(msg->via.ft.name);
+            free(msg->via.ft.data);
             break;
         }
     }

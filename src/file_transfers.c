@@ -109,6 +109,9 @@ static void ft_decon(uint32_t friend_number, uint32_t file_number) {
         debug_error("FileTransfer:\tCan't decon a FT that doesn't exist!\n");
         return;
     }
+    while (ft->decon_wait) {
+        yieldcpu(10);
+    }
 
     if (ft && ft->in_use) {
         if (ft->name) {
@@ -434,9 +437,9 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) 
 
 /* Complete active file, (when the whole file transfer is successful). */
 static void utox_complete_file(FILE_TRANSFER *ft) {
+    postmessage_utox(FILE_STATUS_UPDATE, ft->status, 0, ft);
     if (ft->status == FILE_TRANSFER_STATUS_ACTIVE) {
         ft->status = FILE_TRANSFER_STATUS_COMPLETED;
-        postmessage_utox(FILE_STATUS_UPDATE_DATA, ft->status, 0, ft); // Update twice to be sure the last data is correct
         if (ft->incoming) {
             if (ft->inline_img) {
                 decode_inline_png(ft->friend_number, ft->via.memory, ft->current_size);
@@ -445,6 +448,8 @@ static void utox_complete_file(FILE_TRANSFER *ft) {
                 postmessage_utox(FRIEND_AVATAR_SET, ft->friend_number, ft->current_size, ft->via.avatar);
             }
         }
+        ft->decon_wait = true;
+        postmessage_utox(FILE_STATUS_UPDATE_DATA, ft->status, 0, ft);
     } else {
         debug_error("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", ft->file_number);
     }

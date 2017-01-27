@@ -139,29 +139,32 @@ void openfileavatar(void) {
     SetCurrentDirectoryW(dir);
 }
 
-void file_save_inline(FILE_TRANSFER *file) {
+void file_save_inline(MSG_HEADER *msg) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
         debug_error("file_save_inline:\tCould not allocate memory for path.\n");
         return;
     }
-    strcpy(path, file->path);
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)msg->via.ft.name_length, (char *)msg->via.ft.name);
 
     OPENFILENAME ofn = {
-        .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner   = hwnd,
-        .lpstrFile   = path,
-        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
-        .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
+        .lStructSize    = sizeof(OPENFILENAME),
+        .hwndOwner      = hwnd,
+        .lpstrFile      = path,
+        .nMaxFile       = UTOX_FILE_NAME_LENGTH,
+        .lpstrDefExt    = "png",
+        .nFileExtension = strlen(path) - 3,
+        .Flags          = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
     };
 
     if (GetSaveFileName(&ofn)) {
         FILE *fp = fopen(path, "wb");
         if (fp) {
-            fwrite(file->via.memory, file->target_size, 1, fp);
+            fwrite(msg->via.ft.data, msg->via.ft.data_size, 1, fp);
             fclose(fp);
 
-            snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
+            snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", path);
+            msg->via.ft.inline_png = false;
         } else {
             debug_error("file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
         }

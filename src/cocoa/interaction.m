@@ -928,22 +928,23 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 }
 
 //@"Where do you want to save \"%.*s\"?"
-void file_save_inline(FILE_TRANSFER *file) {
+void file_save_inline(MSG_HEADER *msg) {
     NSSavePanel *picker = [NSSavePanel savePanel];
     NSString *fname =
-        [[NSString alloc] initWithBytes:file->name length:file->name_length encoding:NSUTF8StringEncoding];
+        [[NSString alloc] initWithBytes:msg->via.ft.name length:msg->via.ft.name_length encoding:NSUTF8StringEncoding];
     picker.message = [NSString
-        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->name];
+        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), msg->via.ft.name_length, msg->via.ft.name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];
 
     if (ret == NSFileHandlingPanelOKButton) {
-        NSURL * destination = picker.URL;
-        NSData *d           = [NSData dataWithBytesNoCopy:file->path length:file->target_size freeWhenDone:NO];
+        NSURL  *destination = picker.URL;
+        NSData *d = [NSData dataWithBytesNoCopy:msg->via.ft.data length:msg->via.ft.data_size freeWhenDone:NO];
         [d writeToURL:destination atomically:YES];
 
-        snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
+        snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "inline.png"); // TODO : this seems wrong
+        msg->via.ft.inline_png = false;
     }
 }
 //@"Select one or more files to send."
