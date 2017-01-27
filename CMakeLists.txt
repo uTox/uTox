@@ -68,6 +68,13 @@ add_cflag("-fno-strict-aliasing")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
 set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -s")
 
+# Fix GNU stack
+IF(CMAKE_C_COMPILER_ID MATCHES "GNU")
+    IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack")
+    endif()
+endif()
+
 #######################################################################
 #
 # Build options
