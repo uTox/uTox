@@ -3,6 +3,8 @@ project(utoxNATIVE LANGUAGES C)
 option(ENABLE_DBUS "Compile with dbus notification support" ON)
 
 if(ENABLE_DBUS)
+    include(../../cmake/FindDBus.cmake)
+    find_package(DBUS)
     include_directories(${DBUS_INCLUDE_DIR} "/usr/lib/dbus-1.0/include")
     add_cflag("-DHAVE_DBUS=1")
 else()
