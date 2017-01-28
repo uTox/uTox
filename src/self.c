@@ -1,8 +1,8 @@
 #include "self.h"
 
-#include "tox.h"
 #include "avatar.h"
-#include "logging_native.h"
+#include "debug.h"
+#include "tox.h"
 
 #include "ui/edit.h"
 

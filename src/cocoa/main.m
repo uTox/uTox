@@ -33,49 +33,6 @@ struct thread_call {
 
 // TODO move these function to a logging.m file to provide implementation for what is declared in logging.h
 void debug(const char *fmt, ...) {
-    if (utox_verbosity() < LOG_LVL_DEBUG) {
-        return;
-    }
-    va_list l;
-    va_start(l, fmt);
-    NSLogv(@(fmt), l);
-    va_end(l);
-}
-
-void debug_info(const char *fmt, ...) {
-    if (utox_verbosity() < LOG_LVL_INFO) {
-        return;
-    }
-    va_list l;
-    va_start(l, fmt);
-    NSLogv(@(fmt), l);
-    va_end(l);
-}
-
-void debug_notice(const char *fmt, ...) {
-    if (utox_verbosity() < LOG_LVL_NOTICE) {
-        return;
-    }
-    va_list l;
-    va_start(l, fmt);
-    NSLogv(@(fmt), l);
-    va_end(l);
-}
-
-void debug_warning(const char *fmt, ...) {
-    if (utox_verbosity() < LOG_LVL_WARNING) {
-        return;
-    }
-    va_list l;
-    va_start(l, fmt);
-    NSLogv(@(fmt), l);
-    va_end(l);
-}
-
-void debug_error(const char *fmt, ...) {
-    if (utox_verbosity() < LOG_LVL_ERROR) {
-        return;
-    }
     va_list l;
     va_start(l, fmt);
     NSLogv(@(fmt), l);
