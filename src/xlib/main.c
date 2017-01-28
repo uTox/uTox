@@ -97,7 +97,7 @@ bool check_ptt_key(void) {
         }
     }
     /* Couldn't access the keyboard directly, and XQuery failed, this is really bad! */
-    debug_error("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
+    LOG_ERR("XLIB", "Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
                 "keyboard.\nDisable push to talk to suppress this message.\n");
     return 0;
 }
@@ -363,11 +363,11 @@ void copy(int value) {
 }
 
 int hold_x11s_hand(Display *UNUSED(d), XErrorEvent *event) {
-    debug_error("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
-    debug_error("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
-    debug_error("    err:\tError code: %u || Request: %u || Minor: %u \n", event->error_code, event->request_code,
+    LOG_ERR("XLIB", "X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
+    LOG_ERR("XLIB", "    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
+    LOG_ERR("XLIB", "    err:\tError code: %u || Request: %u || Minor: %u \n", event->error_code, event->request_code,
                 event->minor_code);
-    debug_error("uTox:\tThis would be a great time to submit a bug!\n");
+    LOG_ERR("uTox", "This would be a great time to submit a bug!");
 
     return 0;
 }
@@ -537,7 +537,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
     // we don't need to free this, that's done by XDestroyImage()
     uint8_t *out = malloc(rgba_size);
     if (out == NULL) {
-        debug("utox_image_to_native:\t Could mot allocate memory.\n");
+        LOG_TRACE("utox_image_to_native", " Could mot allocate memory." );
         free(rgba_data);
         return NULL;
     }
@@ -571,7 +571,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
 
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        debug("utox_image_to_native:\t Could mot allocate memory for image.\n");
+        LOG_TRACE("utox_image_to_native", " Could mot allocate memory for image." );
         return NULL;
     }
     image->rgb   = rgb;
@@ -734,7 +734,7 @@ int main(int argc, char *argv[]) {
     XInitThreads();
 
     if ((display = XOpenDisplay(NULL)) == NULL) {
-        debug_error("Cannot open display, must exit\n");
+        LOG_ERR("XLIB", "Cannot open display, must exit\n");
         return 1;
     }
 
@@ -744,7 +744,7 @@ int main(int argc, char *argv[]) {
     setlocale(LC_ALL, "");
     XSetLocaleModifiers("");
     if ((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
-        debug_error("Cannot open input method\n");
+        LOG_ERR("XLIB", "Cannot open input method\n");
     }
 
     LANG                       = systemlang();
@@ -920,7 +920,7 @@ int main(int argc, char *argv[]) {
                              XNFocusWindow, window, NULL))) {
             XSetICFocus(xic);
         } else {
-            debug_error("Cannot open input method\n");
+            LOG_ERR("XLIB", "Cannot open input method\n");
             XCloseIM(xim);
             xim = 0;
         }
@@ -1020,7 +1020,7 @@ BREAK:
         yieldcpu(1);
     }
 
-    debug_error("XLIB main:\tClean exit\n");
+    LOG_ERR("XLIB", "XLIB main:\tClean exit\n");
 
     return 0;
 }

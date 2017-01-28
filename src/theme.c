@@ -517,7 +517,7 @@ uint32_t *find_colour_pointer(char *color) {
         color += 6;
     }
 
-    debug_info("Theme:\tColour: %s\n", color);
+    LOG_INFO("Theme", "Colour: %s" , color);
 
     for (int i = 0;; ++i) {
         const char *s = COLOUR_NAME_TABLE[i];

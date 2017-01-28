@@ -55,7 +55,7 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
 void openfilesend(void) {
     char *filepath = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (filepath == NULL) {
-        debug_error("Windows:\t Could not allocate memory for path.\n");
+        LOG_ERR("Windows", " Could not allocate memory for path.");
         return;
     }
 
@@ -74,7 +74,7 @@ void openfilesend(void) {
         FRIEND *f = flist_get_selected()->data;
         UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
         if (!msg) {
-            debug_error("Windows:\tUnable to calloc for file send msg\n");
+            LOG_ERR("Windows", "Unable to calloc for file send msg");
             return;
         }
         msg->file = fopen(filepath, "rb");
@@ -146,7 +146,7 @@ void openfileavatar(void) {
 void file_save_inline(MSG_HEADER *msg) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
-        debug_error("file_save_inline:\tCould not allocate memory for path.\n");
+        LOG_ERR("file_save_inline", "Could not allocate memory for path.");
         return;
     }
     snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)msg->via.ft.name_length, (char *)msg->via.ft.name);
@@ -292,7 +292,7 @@ void ShowContextMenu(void) {
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        debug("create_utox_image:\t Could not allocate memory for image.\n");
+        LOG_TRACE("create_utox_image", " Could not allocate memory for image." );
         return NULL;
     }
     image->bitmap        = bmp;
@@ -558,7 +558,7 @@ void update_tray(void) {
 
     tip = malloc(128 * sizeof(char)); // 128 is the max length of nid.szTip
     if (tip == NULL) {
-        debug("update_trip:\t Could not allocate memory.\n");
+        LOG_TRACE("update_trip", " Could not allocate memory." );
         return;
     }
 
@@ -1097,7 +1097,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     };
     config_save(&d);
 
-    debug_info("uTox:\tClean exit.\n");
+    LOG_INFO("uTox", "Clean exit." );
 
     return false;
 }

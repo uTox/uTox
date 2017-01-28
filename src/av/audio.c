@@ -96,7 +96,7 @@ void utox_audio_in_listen(void) {
         if (audio_in_handle) {
             alcCaptureStart(audio_in_handle);
         } else {
-            debug("uToxAudio:\tUnable to listen to device!\n");
+            LOG_TRACE("uToxAudio", "Unable to listen to device!" );
         }
     }
 
@@ -131,11 +131,11 @@ void utox_audio_in_ignore(void) {
 void utox_audio_in_device_set(ALCdevice *new_device) {
     if (new_device) {
         audio_in_device = new_device;
-        debug("uToxAudio:\tAudio in device changed.\n");
+        LOG_TRACE("uToxAudio", "Audio in device changed." );
     } else {
         audio_in_device = NULL;
         audio_in_handle = NULL;
-        debug("uToxAudio:\tAudio out device set to null.\n");
+        LOG_TRACE("uToxAudio", "Audio out device set to null." );
     }
 }
 
@@ -179,18 +179,18 @@ void utox_audio_out_device_open(void) {
     /* Create the buffers for the ringtone */
     alGenSources((ALuint)1, &preview);
     if ((error = alGetError()) != AL_NO_ERROR) {
-        debug("uToxAudio:\tError generating source with err %x\n", error);
+        LOG_TRACE("uToxAudio", "Error generating source with err %x" , error);
         return;
     }
     /* Create the buffers for incoming audio */
     alGenSources((ALuint)1, &ringtone);
     if ((error = alGetError()) != AL_NO_ERROR) {
-        debug("uToxAudio:\tError generating source with err %x\n", error);
+        LOG_TRACE("uToxAudio", "Error generating source with err %x" , error);
         return;
     }
     alGenSources((ALuint)1, &notifytone);
     if ((error = alGetError()) != AL_NO_ERROR) {
-        debug("uToxAudio:\tError generating source with err %x\n", error);
+        LOG_TRACE("uToxAudio", "Error generating source with err %x" , error);
         return;
     }
 }
@@ -218,11 +218,11 @@ void utox_audio_out_device_close(void) {
 void utox_audio_out_device_set(ALCdevice *new_device) {
     if (new_device) {
         audio_out_device = new_device;
-        debug("uToxAudio:\tAudio out device changed.\n");
+        LOG_TRACE("uToxAudio", "Audio out device changed." );
     } else {
         audio_out_device = NULL;
         audio_out_handle = NULL;
-        debug("uToxAudio:\tAudio in device set to null.\n");
+        LOG_TRACE("uToxAudio", "Audio in device set to null." );
     }
 }
 
@@ -282,7 +282,7 @@ static void audio_in_init(void) {
     audio_in_device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
     if (audio_in_device_list) {
         audio_in_device = (void *)audio_in_device_list;
-        debug("uToxAudio:\tinput device list:\n");
+        LOG_TRACE("uToxAudio", "input device list:" );
         while (*audio_in_device_list) {
             debug("\t%s\n", audio_in_device_list);
             postmessage_utox(AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void *)audio_in_device_list);
@@ -303,7 +303,7 @@ static void audio_out_init(void) {
 
     if (audio_out_device_list) {
         audio_out_device = (void *)audio_out_device_list;
-        debug("uToxAudio:\toutput device list:\n");
+        LOG_TRACE("uToxAudio", "output device list:" );
         while (*audio_out_device_list) {
             debug("\t%s\n", audio_out_device_list);
             postmessage_utox(AUDIO_OUT_DEVICE, 0, 0, (void *)audio_out_device_list);
@@ -331,13 +331,13 @@ static void audio_out_init(void) {
 
     // alGenSources((ALuint)1, &ringtone);
     // if ((error = alGetError()) != AL_NO_ERROR) {
-    //     debug("uToxAudio:\tError generating source with err %x\n", error);
+    //     LOG_TRACE("uToxAudio", "Error generating source with err %x" , error);
     //     return;
     // }
 
     // alGenSources((ALuint)1, &preview);
     // if ((error = alGetError()) != AL_NO_ERROR) {
-    //     debug("uToxAudio:\tError generating source with err %x\n", error);
+    //     LOG_TRACE("uToxAudio", "Error generating source with err %x" , error);
     //     return;
     // }
 
@@ -349,7 +349,7 @@ static void audio_source_init(ALuint *source) {
     alGetError();
     alGenSources((ALuint)1, source);
     if ((error = alGetError()) != AL_NO_ERROR) {
-        debug("uToxAudio:\tError generating source with err %x\n", error);
+        LOG_TRACE("uToxAudio", "Error generating source with err %x" , error);
     }
 }
 
@@ -466,7 +466,7 @@ static void generate_melody(MELODY melody[], uint32_t seconds, uint32_t notes_pe
     alGenBuffers((ALuint)1, target);
 
     if ((error = alGetError()) != AL_NO_ERROR) {
-        debug("uToxAudio:\tError generating buffer with err %i\n", error);
+        LOG_TRACE("uToxAudio", "Error generating buffer with err %i" , error);
         return;
     }
 
@@ -478,7 +478,7 @@ static void generate_melody(MELODY melody[], uint32_t seconds, uint32_t notes_pe
     int16_t *samples  = calloc(buf_size, sizeof(int16_t));
 
     if (!samples) {
-        debug("uToxAudio:\tUnable to generate ringtone buffer!\n");
+        LOG_TRACE("uToxAudio", "Unable to generate ringtone buffer!" );
         return;
     }
 
@@ -545,7 +545,7 @@ void utox_audio_thread(void *args) {
     uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS]; //, dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
     memset(buf, 0, sizeof(buf));
 
-    debug("uToxAudio:\tframe size: %u\n", perframe);
+    LOG_TRACE("uToxAudio", "frame size: %u" , perframe);
 
     /* init Microphone */
     audio_in_init();
@@ -607,7 +607,7 @@ void utox_audio_thread(void *args) {
                 }
                 case UTOXAUDIO_PLAY_RINGTONE: {
                     if (settings.ringtone_enabled && self.status != USER_STATUS_DO_NOT_DISTURB) {
-                        debug_info("uToxAudio:\tGoing to start ringtone!\n");
+                        LOG_INFO("uToxAudio", "Going to start ringtone!" );
 
                         utox_audio_out_device_open();
 
@@ -621,14 +621,14 @@ void utox_audio_thread(void *args) {
                     break;
                 }
                 case UTOXAUDIO_STOP_RINGTONE: {
-                    debug_info("uToxAudio:\tGoing to stop ringtone!\n");
+                    LOG_INFO("uToxAudio", "Going to stop ringtone!" );
                     alSourceStop(ringtone);
                     utox_audio_out_device_close();
                     break;
                 }
                 case UTOXAUDIO_PLAY_NOTIFICATION: {
                     if (settings.ringtone_enabled && self.status == USER_STATUS_AVAILABLE) {
-                        debug_info("uToxAudio:\tGoing to start notification tone!\n");
+                        LOG_INFO("uToxAudio", "Going to start notification tone!" );
 
                         if (close_device_in <= currtime) {
                             utox_audio_out_device_open();
@@ -660,7 +660,7 @@ void utox_audio_thread(void *args) {
 
                         time(&close_device_in);
                         close_device_in += 4;
-                        debug_info("uToxAudio:\tclose device set!\n");
+                        LOG_INFO("uToxAudio", "close device set!" );
                     }
                     break;
                 }
@@ -671,7 +671,7 @@ void utox_audio_thread(void *args) {
             audio_thread_msg = 0;
 
             if (close_device_in && close_device_in <= currtime) {
-                debug_info("uToxAudio:\tclose device triggered!\n");
+                LOG_INFO("uToxAudio", "close device triggered!" );
                 utox_audio_out_device_close();
                 close_device_in = 0;
             }
@@ -780,7 +780,7 @@ void utox_audio_thread(void *args) {
                         if (UTOX_SEND_AUDIO(i)) {
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;
-                            // debug("uToxAudio:\tSending audio frame!\n");
+                            // LOG_TRACE("uToxAudio", "Sending audio frame!" );
                             toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe,
                                                    UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, &error);
                             if (error) {
@@ -831,7 +831,7 @@ void utox_audio_thread(void *args) {
     audio_thread_msg       = 0;
     utox_audio_thread_init = 0;
     free(preview_buffer);
-    debug("uToxAudio:\tClean thread exit!\n");
+    LOG_TRACE("uToxAudio", "Clean thread exit!" );
 }
 
 // COMMENTED OUT FOR NEW GC

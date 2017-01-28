@@ -219,7 +219,7 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     }
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        LOG_TRACE("NATIVE", "File/directory name too long, unable to remove" );
         return 0;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
@@ -227,11 +227,11 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     }
 
     if (remove((const char *)path)) {
-        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        LOG_ERR("NATIVE", "Unable to delete file!\n\t\t%s" , path);
         return 0;
     } else {
-        debug_info("NATIVE:\tFile deleted!\n");
-        debug("NATIVE:\t\t%s\n", path);
+        LOG_INFO("NATIVE", "File deleted!" );
+        LOG_TRACE("NATIVE", "\t%s" , path);
     }
     return 1;
 }

@@ -179,7 +179,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
             } else {
                 g->peer = calloc(g->peer_count + 2, sizeof(void *));
             }
-            debug("Group:\tAdd (%u, %u)\n", gid, pid);
+            LOG_TRACE("Group", "Add (%u, %u)" , gid, pid);
             bool is_us = 0;
             if (tox_conference_peer_number_is_ours(tox, gid, pid, 0)) {
                 g->our_peer_number = pid;
@@ -226,7 +226,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
         }
 
         case TOX_CONFERENCE_STATE_CHANGE_PEER_EXIT: {
-            debug("Group:\tPeer Quit (%u, %u)\n", gid, pid);
+            LOG_TRACE("Group", "Peer Quit (%u, %u)" , gid, pid);
             group_add_message(g, pid, (const uint8_t *)"<- has Quit!", 12, MSG_TYPE_NOTICE);
 
             pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */

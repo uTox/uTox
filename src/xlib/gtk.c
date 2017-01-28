@@ -136,7 +136,7 @@ static void ugtk_opensendthread(void *args) {
                 utoxGTK_open = false;
                 return;
             }
-            debug_info("GTK:\tSending file %s\n", p->data);
+            LOG_INFO("GTK", "Sending file %s" , p->data);
             send->file = fopen(p->data, "rb");
             send->name = (uint8_t*)strdup(p->data);
             postmessage_toxcore(TOX_FILE_SEND_NEW, fid, 0, send);

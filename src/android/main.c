@@ -241,7 +241,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     if (strlen((char *)path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tLoad directory name too long\n");
+        LOG_TRACE("Android Native", "Load directory name too long" );
         return NULL;
     } else {
         snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "%s", name);
@@ -265,7 +265,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     if (fp == NULL) {
-        debug_error("NATIVE:\tCould not open %s\n", path);
+        LOG_NOTE("Android Native", "Could not open %s" , path);
         return NULL;
     }
 
@@ -311,7 +311,7 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     snprintf((char *)path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        LOG_TRACE("Android Native", "File/directory name too long, unable to remove" );
         return 0;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
@@ -319,11 +319,11 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     }
 
     if (remove((const char *)path)) {
-        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        LOG_ERR("Android Native", "Unable to delete file!\n\t\t%s" , path);
         return 0;
     } else {
-        debug_info("NATIVE:\tFile deleted!\n");
-        debug("NATIVE:\t\t%s\n", path);
+        LOG_INFO("Android Native", "File deleted!" );
+        LOG_TRACE("Android Native", "\t%s" , path);
     }
     return 1;
 }

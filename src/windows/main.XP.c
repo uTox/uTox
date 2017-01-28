@@ -15,7 +15,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
 
     if (path == NULL){
-        debug_error("NATIVE:\tCould not allocate memory.\n");
+        LOG_ERR("NATIVE", "Could not allocate memory.");
         return;
     }
 
@@ -48,7 +48,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!path) {
-        debug_error("WinXP:\tUnable to calloc when selecting file directory\n");
+        LOG_ERR("WinXP", "Unable to calloc when selecting file directory");
         return;
     }
     memcpy(path, file->name, file->name_length);
@@ -65,7 +65,7 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     if (GetSaveFileName(&ofn)) {
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, num, path);
     } else {
-        debug_error("WinXP:\tGetSaveFileName() failed\n");
+        LOG_ERR("WinXP", "GetSaveFileName() failed");
     }
 }
 
@@ -79,12 +79,12 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
     if (settings.portable_mode) {
         snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
-        debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", send);
+        LOG_NOTE("Native", "Auto Accept Directory: \"%s\"" , send);
     } else if (!SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, (char *)path)) {
         swprintf(first, UTOX_FILE_NAME_LENGTH, L"%ls%ls", *path, L"\\Tox_Auto_Accept");
         CreateDirectoryW(first, NULL);
     } else {
-        debug("NATIVE:\tUnable to auto save file!\n");
+        LOG_TRACE("NATIVE", "Unable to auto save file!" );
     }
 
 

@@ -192,7 +192,7 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
     {
         MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
         if (!msg) {
-            debug_error("Messages:\tCouldn't allocate memory for day notice.\n");
+            LOG_ERR("Messages", "Couldn't allocate memory for day notice.");
             return false;
         }
 
@@ -288,7 +288,7 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
 uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log) {
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
-        debug_error("Messages:\tCouldn't allocate memory for notice.\n");
+        LOG_ERR("Messages", "Couldn't allocate memory for notice.");
         return UINT32_MAX;
     }
 
@@ -532,13 +532,13 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
 
                     char *hex = friend[m->id].id_str;
                     if (msg->disk_offset) {
-                        debug("Messages:\tUpdating message -> disk_offset is %lu\n", msg->disk_offset);
+                        LOG_TRACE("Messages", "Updating message -> disk_offset is %lu" , msg->disk_offset);
                         utox_update_chatlog(hex, msg->disk_offset, data, length);
                     } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
                         /* This could get messy if receipt is 1 msg position is 0 and the offset is actually wrong,
                          * But I couldn't come up with any other way to verify the rare case of a bad offset
                          * start <= 1 to offset for the day change notification                                    */
-                        debug("Messages:\tUpdating first message -> disk_offset is %lu\n", msg->disk_offset);
+                        LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , msg->disk_offset);
                         utox_update_chatlog(hex, msg->disk_offset, data, length);
                     } else {
                         debug_error("Messages:\tUnable to update this message...\n"
@@ -554,7 +554,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
             }
         }
     }
-    debug_error("Messages:\tReceived a receipt for a message we don't have a record of. %u\n", receipt_number);
+    LOG_ERR("Messages", "Received a receipt for a message we don't have a record of. %u" , receipt_number);
     pthread_mutex_unlock(&messages_lock);
 }
 
@@ -980,7 +980,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
         // Draw message contents
         switch (msg->msg_type) {
             case MSG_TYPE_NULL: {
-                debug_error("Messages:\tError msg type is null\n");
+                LOG_ERR("Messages", "Error msg type is null");
                 break;
             }
 

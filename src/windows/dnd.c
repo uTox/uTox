@@ -63,7 +63,7 @@ HRESULT __stdcall dnd_DragLeave(IDropTarget *UNUSED(lpMyObj)) {
 HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObject,
                            DWORD UNUSED(grfKeyState), POINTL UNUSED(pt), DWORD *pdwEffect) {
     *pdwEffect = DROPEFFECT_COPY;
-    debug_notice("DnD:\tDroppped!\n");
+    LOG_NOTE("DnD", "Droppped!" );
 
     if (flist_get_selected()->item != ITEM_FRIEND) {
         return S_OK;
@@ -87,13 +87,13 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
             debug_notice ("WINDND:\tSending file number %i\n", i);
             UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
             if (!msg) {
-                debug_error("WINDND:\tUnable to alloc for UTOX_MSG_FT\n");
+                LOG_ERR("WINDND", "Unable to alloc for UTOX_MSG_FT");
                 return 0;
             }
 
             uint8_t *path = calloc(UTOX_FILE_NAME_LENGTH, sizeof(uint8_t));
             if (!path) {
-                debug_error("WINDND:\tUnable to alloc for UTOX_MSG_FT\n");
+                LOG_ERR("WINDND", "Unable to alloc for UTOX_MSG_FT");
                 free(msg);
                 return 0;
             }
@@ -102,7 +102,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
 
             msg->file = fopen(path, "rb");
             if (!msg->file) {
-                debug_error("WINDND:\tUnable to read file %s\n", path);
+                LOG_ERR("WINDND", "Unable to read file %s" , path);
                 free(msg);
                 free(path);
                 return 0;
@@ -110,7 +110,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
 
             msg->name = path;
             postmessage_toxcore(TOX_FILE_SEND_NEW, ((FRIEND*)flist_get_selected()->data)->number, 0, msg);
-            debug_info("WINDND:\tFile number %i sent!\n", i);
+            LOG_INFO("WINDND", "File number %i sent!" , i);
         }
 
         ReleaseStgMedium(&medium);

@@ -75,7 +75,7 @@ static void friend_meta_data_read(FRIEND *f) {
 
     FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);
     if (metadata == NULL) {
-        debug("Metadata:\tCould not allocate memory for metadata.\n");
+        LOG_TRACE("Metadata", "Could not allocate memory for metadata." );
         fclose(file);
         return;
     }
@@ -84,13 +84,13 @@ static void friend_meta_data_read(FRIEND *f) {
     fclose(file);
 
     if (metadata->version != 0) {
-        debug_notice("Metadata:\tWARNING! This version of utox does not support this metadata file version.\n");
+        LOG_NOTE("Metadata", "WARNING! This version of utox does not support this metadata file version." );
         free(metadata);
         return;
     }
 
     if (size < sizeof(*metadata)) {
-        debug_error("Metadata:\tMeta Data was incomplete\n");
+        LOG_ERR("Metadata", "Meta Data was incomplete");
         free(metadata);
         return;
     }

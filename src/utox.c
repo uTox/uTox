@@ -91,9 +91,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             /* param1: connection status (1 = connected, 0 = disconnected) */
             tox_connected = param1;
             if (tox_connected) {
-                debug_notice("uTox:\tConnected to DHT!\n");
+                LOG_NOTE("uTox", "Connected to DHT!" );
             } else {
-                debug_notice("uTox:\tDisconnected from DHT!\n");
+                LOG_NOTE("uTox", "Disconnected from DHT!" );
             }
             redraw();
             break;
@@ -204,7 +204,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FRIEND *f = get_friend(param1);
 
             if (f->ft_autoaccept) {
-                debug("Toxcore:\tAuto Accept enabled for this friend: sending accept to system\n");
+                LOG_TRACE("Toxcore", "Auto Accept enabled for this friend: sending accept to system" );
                 native_autoselect_dir_ft(param1, file);
             }
 
@@ -278,7 +278,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 }
             }
             file->decon_wait = false;
-            debug_notice("uTox:\tFT data was saved\n");
+            LOG_NOTE("uTox", "FT data was saved" );
             redraw();
             break;
         }
@@ -460,7 +460,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case AV_CLOSE_WINDOW: {
-            debug_info("uTox:\tClosing video feed\n");
+            LOG_INFO("uTox", "Closing video feed" );
             video_end(param1);
             redraw();
             break;

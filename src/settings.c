@@ -56,7 +56,7 @@ SETTINGS settings = {
     .status_notifications   = true,
     .group_notifications    = GNOTIFY_ALWAYS,
 
-    .verbose = 1,
+    .verbose = LOG_LVL_ERROR,
 
     // .theme                       // included here to match the full struct
     // OS interface settings
@@ -219,7 +219,7 @@ void config_save(UTOX_SAVE *save_in) {
 
     memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */
 
-    debug_notice("uTox:\tWriting uTox Save\n");
+    LOG_NOTE("uTox", "Writing uTox Save" );
     utox_data_save_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
     free(save);
 }

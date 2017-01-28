@@ -20,7 +20,7 @@ static bool realloc_devices_list(uint16_t new_size) {
     UTOX_DEVICE *tmp = realloc(devices, sizeof(UTOX_DEVICE) * new_size);
 
     if (!tmp) {
-        debug_error("Devices:\tcouldn't realloc for new_size %u\n", new_size);
+        LOG_ERR("Devices", "couldn't realloc for new_size %u" , new_size);
         return 0;
     }
 
@@ -31,7 +31,7 @@ static bool realloc_devices_list(uint16_t new_size) {
 
 void utox_devices_init(void) {
     if (devices) {
-        debug_error("Devices:\tUnable to init base devices, *devices exists\n");
+        LOG_ERR("Devices", "Unable to init base devices, *devices exists");
         exit(1);
     }
 
@@ -39,7 +39,7 @@ void utox_devices_init(void) {
     self.device_list_size = self.device_list_count;
 
     if (devices == NULL) {
-        debug_error("Devices:\tUnable to init base devices, *devices is null\n");
+        LOG_ERR("Devices", "Unable to init base devices, *devices is null");
         exit(2);
     }
 };
@@ -54,13 +54,13 @@ void utox_devices_decon(void) {
 void utox_device_init(Tox *tox, uint16_t dev_num) {
     if (dev_num >= self.device_list_size) {
         if (!realloc_devices_list(dev_num + 1)) {
-            debug_error("Devices:\tERROR, unable to realloc for a new device\n");
+            LOG_ERR("Devices", "ERROR, unable to realloc for a new device");
             return;
         }
     }
 
     if (!devices) {
-        debug_error("Devices:\tdevices is null\n");
+        LOG_ERR("Devices", "devices is null");
         return;
     }
 
@@ -69,7 +69,7 @@ void utox_device_init(Tox *tox, uint16_t dev_num) {
     tox_self_get_device(tox, dev_num, devices[dev_num].name, &devices[dev_num].status, devices[dev_num].pubkey, &error);
 
     if (error) {
-        debug_error("Devices:\tError getting device info dev_num %u error %u\n", dev_num, error);
+        LOG_ERR("Devices", "Error getting device info dev_num %u error %u" , dev_num, error);
     }
 
     cid_to_string(devices[dev_num].pubkey_hex, devices[dev_num].pubkey);
@@ -77,7 +77,7 @@ void utox_device_init(Tox *tox, uint16_t dev_num) {
 
 static void devices_self_add_submit(uint8_t *name, size_t length, uint8_t id[TOX_ADDRESS_SIZE]) {
     if (length >= UINT16_MAX) { /* Max size of postmsg */
-        debug_error("Devices:\tName length > UINT16_MAX\n");
+        LOG_ERR("Devices", "Name length > UINT16_MAX");
         /* TODO send error to GUI */
         return;
     }
