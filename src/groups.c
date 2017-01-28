@@ -17,6 +17,15 @@
 #include <string.h>
 #include <tox/tox.h>
 
+GROUPCHAT *get_group(uint32_t group_number) {
+    if (group_number >= UTOX_MAX_NUM_GROUPS) {
+        debug_error("get_group:\t index: %u is out of bounds.\n", group_number);
+        return NULL;
+    }
+
+    return &group[group_number];
+}
+
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
@@ -58,6 +67,10 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
     MESSAGES *m = &g->msg;
 
     MSG_HEADER *msg    = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        debug_error("Groupchats:\t Unable to allocate memory for message header.\n");
+        return UINT32_MAX;
+    }
     msg->our_msg       = (g->our_peer_number == peer_id ? true : false);
     msg->msg_type      = m_type;
 

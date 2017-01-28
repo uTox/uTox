@@ -1033,11 +1033,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
 
             if (g_num != -1) {
-                GROUPCHAT *g = &group[g_num];
+                GROUPCHAT *g = get_group(g_num);
+                if (!g) {
+                    return;
+                }
                 group_init(g, g_num, param2);
                 postmessage_utox(GROUP_ADD, g_num, param2, NULL);
             }
-            save_needed = 1;
+            save_needed = true;
             break;
         }
         case TOX_GROUP_JOIN: {
@@ -1049,7 +1052,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             TOX_ERR_CONFERENCE_DELETE error = 0;
             tox_conference_delete(tox, param1, &error);
-            save_needed = 1;
+            save_needed = true;
             break;
         }
         case TOX_GROUP_SEND_INVITE: {
@@ -1058,7 +1061,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              */
             TOX_ERR_CONFERENCE_INVITE error = 0;
             tox_conference_invite(tox, param2, param1, &error);
-            save_needed = 1;
+            save_needed = true;
             break;
         }
         case TOX_GROUP_SET_TOPIC: {
@@ -1070,7 +1073,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             tox_conference_set_title(tox, param1, data, param2, &error);
             postmessage_utox(GROUP_TOPIC, param1, param2, data);
-            save_needed = 1;
+            save_needed = true;
             break;
         }
         case TOX_GROUP_SEND_MESSAGE:
