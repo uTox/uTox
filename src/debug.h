@@ -37,7 +37,7 @@ int utox_verbosity();
 
 #define VERB(x) (utox_verbosity() >= LOG_LVL_##x)
 
-#define LOG_FATAL(ex, file, str, ...) (VERB(FATAL) ? debug("\n\n%s:\t%s\n" ## str, file, __VA_ARGS__ ) & exit(ex): ((void)(0)))
+#define LOG_ERR_FATAL(ex, file, str, ...) (VERB(FATAL) ? debug("\n\n%s:\t%s" str "\n\n", file ": ", __VA_ARGS__ ) & exit(ex): ((void)(0)))
 
 #define LOG_ERR(file, str, ...)       (VERB(ERROR)     ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
 #define LOG_WARN(file, str, ...)      (VERB(WARNING)   ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
@@ -49,6 +49,7 @@ int utox_verbosity();
 
 // User requested
 #define LOG_NORM(...)       (VERB(OFF) ? debug(__VA_ARGS__ ) : ((void)(0)))
+
 
 // TODO remove, here for backwards compat
 #define debug_warning(f, ...) LOG_WARN(__FILE__ "_OLD",  f, ## __VA_ARGS__)
