@@ -114,4 +114,3 @@ if ! ([ -f "$CACHE_DIR/filter_audio.sha" ] && diff "$CACHE_DIR/filter_audio.sha"
     mv filter_audio.sha "$CACHE_DIR/filter_audio.sha"
 fi
 rm -rf filter_audio
-
