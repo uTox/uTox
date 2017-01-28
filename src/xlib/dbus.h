@@ -1,10 +1,14 @@
 /* dbus.h */
-#ifndef DBUS_H
-#define DBUS_H
+#ifndef uDBUS_H
+#define uDBUS_H
+#ifdef HAVE_DBUS
 
-#include <dbus/dbus.h>
-#include <inttypes.h>
+#include "../text.h"
+
+#include <stdint.h>
+
 
 void dbus_notify(char *title, char *content, uint8_t *cid);
 
-#endif
+#endif // HAVE_DBUS
+#endif // uDBUS_H

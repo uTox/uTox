@@ -1,5 +1,14 @@
 project(utoxNATIVE LANGUAGES C)
 
+option(ENABLE_DBUS "Compile with dbus notification support" ON)
+
+if(ENABLE_DBUS)
+    include_directories(${DBUS_INCLUDE_DIR} "/usr/lib/dbus-1.0/include")
+    add_cflag("-DHAVE_DBUS=1")
+else()
+    add_cflag("-DNO_DBUS=1")
+endif()
+
 #########################################
 ## Native Icon data
 #########################################
@@ -34,12 +43,15 @@ add_library(utoxNATIVE STATIC
     )
 
 find_package(X11 REQUIRED)
-message("X include: ${X11_INCLUDE_DIR}")
-message("X library: ${X11_LIBRARIES}")
-message("Xrender include: ${X11_Xrender_INCLUDE_PATH}")
-message("Xrender library: ${X11_Xrender_LIB}")
+message("X include:         ${X11_INCLUDE_DIR}")
+message("X library:         ${X11_LIBRARIES}")
+message("Xrender include:   ${X11_Xrender_INCLUDE_PATH}")
+message("Xrender library:   ${X11_Xrender_LIB}")
 
-target_link_libraries(utoxNATIVE icon v4lconvert ${X11_LIBRARIES} ${X11_Xrender_LIB} fontconfig ${FREETYPE_LIBRARIES} resolv dl )
+message("DBus include:      ${DBUS_INCLUDE_DIR}")
+message("DBus library:      ${DBUS_LIBRARIES}")
+
+target_link_libraries(utoxNATIVE icon v4lconvert ${X11_LIBRARIES} ${X11_Xrender_LIB} fontconfig ${FREETYPE_LIBRARIES} resolv dl ${DBUS_LIBRARIES})
 
 install(FILES
     ../utox.desktop

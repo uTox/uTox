@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "gtk.h"
+#include "dbus.h"
 
 #include "../filesys.h"
 #include "../flist.h"
