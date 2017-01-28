@@ -85,10 +85,6 @@ endif()
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
 option(ENABLE_ASAN "Enable Address Sanitizer on debug builds" ON)
 if (ENABLE_ASAN)
-    message("")
-    message("  TIP: You may want to set the env variable  ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer  for ASAN to show nicer stack traces.")
-    message("       See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.")
-    message("")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
@@ -126,20 +122,6 @@ else()
         toxcore
         )
 endif()
-
-# print a summary of build options
-message("Build options:")
-message("- Add ASAN:        ${ENABLE_ASAN}")
-message("- Filter Audio:    ${FILTER_AUDIO}")
-message("- uTox Static:     ${UTOX_STATIC}")
-message("- Toxcore Static:  ${TOXCORE_STATIC}")
-message("- Windows Legacy:  ${WIN_XP_LEGACY}")
-
-message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
-message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
-message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
-message("* C flags for all types:   ${CMAKE_C_FLAGS}")
-
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -244,3 +226,26 @@ elseif(UNIX)
         RUNTIME DESTINATION "bin"
         )
 endif()
+
+# print a summary of build options
+message("Build options:")
+message("- Add ASAN:        ${ENABLE_ASAN}")
+message("- Filter Audio:    ${FILTER_AUDIO}")
+message("- uTox Static:     ${UTOX_STATIC}")
+message("- Toxcore Static:  ${TOXCORE_STATIC}")
+message("- Windows Legacy:  ${WIN_XP_LEGACY}")
+message("- Enable DBus:     ${ENABLE_DBUS}")
+
+message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
+message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
+message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
+message("* C flags for all types:   ${CMAKE_C_FLAGS}")
+
+if (ENABLE_ASAN)
+    message("")
+    message("  TIP: You may want to set the env variable  ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer  for ASAN to show nicer stack traces.")
+    message("       See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.")
+    message("")
+endif()
+
+

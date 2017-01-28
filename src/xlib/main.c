@@ -1,5 +1,6 @@
 #include "main.h"
 
+#include "dbus.h"
 #include "freetype.h"
 #include "gtk.h"
 #include "tray.h"
