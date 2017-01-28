@@ -9,6 +9,8 @@ stages:
 linux:
   image: gcc
   stage: build
+  variables:
+    TOXCORE_REPO: "TokTok/c-toxcore"
   before_script:
     - ./travis/linux-before.sh
   script:
