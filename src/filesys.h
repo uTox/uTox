@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 typedef struct file_transfer FILE_TRANSFER;
+typedef struct msg_header MSG_HEADER;
 
 #define UTOX_FILE_NAME_LENGTH 1024
 
@@ -17,7 +18,7 @@ typedef enum UTOX_FILE_OPTS {
     UTOX_FILE_OPTS_DELETE = 1 << 7,
 } UTOX_FILE_OPTS;
 
-void file_save_inline(FILE_TRANSFER *file);
+void file_save_inline(MSG_HEADER *msg);
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
 

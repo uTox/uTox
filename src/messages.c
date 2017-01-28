@@ -195,6 +195,11 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
         || (ltime_year == msg_time->tm_year && ltime_mon == msg_time->tm_mon && ltime_day < msg_time->tm_mday))
     {
         MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+        if (!msg) {
+            debug_error("Messages:\tCouldn't allocate memory for day notice.\n");
+            return false;
+        }
+
         time(&msg->time);
         msg->our_msg       = 0;
         msg->msg_type      = MSG_TYPE_NOTICE_DAY_CHANGE;
@@ -286,6 +291,10 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
 
 uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log) {
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        debug_error("Messages:\tCouldn't allocate memory for notice.\n");
+        return UINT32_MAX;
+    }
 
     time(&msg->time);
     msg->our_msg       = 0;
@@ -344,8 +353,8 @@ MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incomi
     msg->via.ft.inline_png = image;
 
     msg->via.ft.name_length = name_size;
-    msg->via.ft.file_name = calloc(1, name_size + 1);
-    memcpy(msg->via.ft.file_name, name, msg->via.ft.name_length);
+    msg->via.ft.name = calloc(1, name_size + 1);
+    memcpy(msg->via.ft.name, name, msg->via.ft.name_length);
 
     if (image) {
         msg->via.ft.path = NULL;
@@ -375,7 +384,6 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
 
     LOG_FILE_MSG_HEADER header;
     memset(&header, 0, sizeof(header));
-    uint8_t *data = NULL;
 
     switch (msg->msg_type) {
         case MSG_TYPE_TEXT:
@@ -401,21 +409,22 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
 
             size_t length = sizeof(header) + msg->via.txt.length + author_length + 1; /* extra \n char*/
 
-            data = calloc(1, length);
+            uint8_t *data = calloc(1, length);
             memcpy(data, &header, sizeof(header));
             memcpy(data + sizeof(header), author, author_length);
             memcpy(data + sizeof(header) + author_length, msg->via.txt.msg, msg->via.txt.length);
             strcpy2(data + length - 1, "\n");
 
             msg->disk_offset = utox_save_chatlog(f->id_str, data, length);
-            break;
+
+            free(data);
+            return true;
         }
         default: {
             debug_notice("uTox Logging:\tUnsupported message type %i\n", msg->msg_type);
         }
     }
-    free(data);
-    return true;
+    return false;
 }
 
 bool messages_read_from_log(uint32_t friend_number) {
@@ -438,11 +447,12 @@ bool messages_read_from_log(uint32_t friend_number) {
                 message_add(&friend[friend_number].msg, msg);
             }
         }
+        free(data);
+        return true;
     } else if (actual_count > 0) {
         debug_error("uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
     }
 
-    free(data);
     return false;
 }
 
@@ -728,7 +738,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
     char ft_text[max];
     char *text = ft_text;
 
-    text += snprintf(text, max, "%.*s ", (int)file->name_length, file->file_name);
+    text += snprintf(text, max, "%.*s ", (int)file->name_length, file->name);
     text += sprint_humanread_bytes(text, text - ft_text, file->size);
 
     // progress rectangle
@@ -885,7 +895,7 @@ static int messages_draw_group(MESSAGES *m, MSG_HEADER *msg, uint32_t curr_msg_i
         h2 = UINT32_MAX;
     }
 
-    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->via.grp.msg, msg->via.grp.author_length, msg->via.grp.author_color);
+    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->via.grp.author, msg->via.grp.author_length, msg->via.grp.author_color);
     messages_draw_timestamp(x + width, y, &msg->time);
     return messages_draw_text(msg->via.grp.msg, msg->via.grp.length, msg->height, msg->msg_type, msg->our_msg, 1,
                               h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height)
@@ -1295,12 +1305,18 @@ bool messages_mdown(PANEL *panel) {
                 }
 
                 FRIEND *f = get_friend(m->id);
-                FILE_TRANSFER *ft = &(f->file_transfers_incoming[msg->via.ft.file_number]); // TODO, abstraction needed
+                FILE_TRANSFER *ft;
+                uint32_t ft_number = msg->via.ft.file_number;
+                if (ft_number >= (1 << 16)) {
+                    ft = &f->file_transfers_incoming[(ft_number >> 16) - 1]; // TODO, abstraction needed
+                } else {
+                    ft = &f->file_transfers_outgoing[ft_number]; // TODO, abstraction needed
+                }
 
                 if (msg->via.ft.file_status == FILE_TRANSFER_STATUS_COMPLETED) {
                     if (m->cursor_over_position) {
                         if (msg->via.ft.inline_png) {
-                            file_save_inline(ft);
+                            file_save_inline(msg);
                         } else {
                             openurl((char *)msg->via.ft.path);
                         }
@@ -1633,8 +1649,9 @@ void message_free(MSG_HEADER *msg) {
         }
         case MSG_TYPE_FILE: {
             // already gets free()d
-            free(msg->via.ft.file_name);
-            free(msg->via.ft.path);
+            free(msg->via.ft.name);
+            free(msg->via.ft.name);
+            free(msg->via.ft.data);
             break;
         }
     }

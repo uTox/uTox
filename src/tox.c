@@ -15,7 +15,9 @@
 #include "tox_callbacks.h"
 #include "utox.h"
 
+#include "av/audio.h"
 #include "av/utox_av.h"
+#include "av/video.h"
 #include "ui/dropdown.h"
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
@@ -30,7 +32,7 @@
 
 #include "main.h"
 
-static bool save_needed = 1;
+static bool save_needed = true;
 
 enum {
     LOG_FILE_MSG_TYPE_TEXT   = 0,
@@ -295,6 +297,10 @@ static int load_toxcore_save(struct Tox_Options *options) {
 
 static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file, uint32_t line,
                          const char *func, const char *message, void *UNUSED(user_data)) {
+    if (utox_verbosity() <= 8 ) {
+        return;
+    }
+
     if (message && file && line) {
         debug("TOXCORE LOGGING ERROR (%u): %s\n", level, message);
         debug("     in: %s:%u\n", file, line);
@@ -847,7 +853,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend #
              * param2: file #
              * data: path to write file */
-            if (utox_file_start_write(param1, param2, data) == 0) {
+            if (utox_file_start_write(param1, param2, data, 0) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
@@ -859,18 +865,16 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         case TOX_FILE_ACCEPT_AUTO: {
             /* param1: friend #
              * param2: file #
-             * data: path to write file */
-            if (utox_file_start_write(param1, param2, data) == 0) {
+             * data: open handle to file */
+            if (utox_file_start_write(param1, param2, data, 1) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
-            free(data);
             break;
         }
         case TOX_FILE_RESUME: {
-            /*                              friend#, file# */
             if (data) {
                 param2 = ((FILE_TRANSFER*)data)->file_number;
             }

@@ -204,17 +204,18 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 }
 
 // TODO: This function has the worst name.
-void file_save_inline(FILE_TRANSFER *file) {
+void file_save_inline(MSG_HEADER *msg) {
     if (libgtk) {
-        ugtk_file_save_inline(file);
+        ugtk_file_save_inline(msg);
     } else {
         // fall back to working dir inline.png
         FILE *fp = fopen("inline.png", "wb");
         if (fp) {
-            fwrite(file->path, 1, file->target_size, fp);
+            fwrite(msg->via.ft.data, 1, msg->via.ft.data_size, fp);
             fclose(fp);
 
-            snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
+            snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "inline.png");
+            msg->via.ft.inline_png = false;
         }
     }
 }

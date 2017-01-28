@@ -2,10 +2,9 @@
 #ifndef UTOX_AV_H
 #define UTOX_AV_H
 
-#include <tox/toxav.h>
+#include <tox/toxav.h> // if it weren't for TOXAV_CALL_CONTROL we could move this to the .c
 
-#include "audio.h"
-#include "video.h"
+#include <stdint.h>
 
 #define UTOX_MAX_CALLS 16
 // UTOX_MAX_VIDEO_CALLS is never used. Remove?
@@ -38,23 +37,6 @@ enum {
 
     UTOXAV_SET_VIDEO_IN,
     UTOXAV_SET_VIDEO_OUT,
-};
-
-enum {
-    // kill the audio thread
-    UTOXAUDIO_KILL,
-
-    UTOXAUDIO_START_FRIEND,
-    UTOXAUDIO_STOP_FRIEND,
-
-    UTOXAUDIO_START_PREVIEW,
-    UTOXAUDIO_STOP_PREVIEW,
-
-    UTOXAUDIO_PLAY_RINGTONE,
-    UTOXAUDIO_STOP_RINGTONE,
-
-    UTOXAUDIO_PLAY_NOTIFICATION,
-    UTOXAUDIO_STOP_NOTIFICATION,
 };
 
 enum {

@@ -53,7 +53,7 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
 
 /** Open system file browser dialog */
 void openfilesend(void) {
-    char *filepath = calloc(10, UTOX_FILE_NAME_LENGTH); /* lets pick 10 as the number of files we want to work with. */
+    char *filepath = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (filepath == NULL) {
         debug_error("Windows:\t Could not allocate memory for path.\n");
         return;
@@ -66,17 +66,24 @@ void openfilesend(void) {
         .lStructSize = sizeof(OPENFILENAME),
         .hwndOwner   = hwnd,
         .lpstrFile   = filepath,
-        .nMaxFile    = UTOX_FILE_NAME_LENGTH * 10,
-        .Flags       = OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST,
+        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
+        .Flags       = OFN_EXPLORER | OFN_FILEMUSTEXIST,
     };
 
     if (GetOpenFileName(&ofn)) {
         FRIEND *f = flist_get_selected()->data;
-        postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, ofn.nFileOffset, filepath);
+        UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
+        if (!msg) {
+            debug_error("Windows:\tUnable to calloc for file send msg\n");
+            return;
+        }
+        msg->file = fopen(filepath, "rb");
+        msg->name = (uint8_t *)filepath;
+
+        postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
     } else {
         debug_error("GetOpenFileName() failed\n");
     }
-
     SetCurrentDirectoryW(dir);
 }
 
@@ -136,29 +143,32 @@ void openfileavatar(void) {
     SetCurrentDirectoryW(dir);
 }
 
-void file_save_inline(FILE_TRANSFER *file) {
+void file_save_inline(MSG_HEADER *msg) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
         debug_error("file_save_inline:\tCould not allocate memory for path.\n");
         return;
     }
-    strcpy(path, file->path);
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)msg->via.ft.name_length, (char *)msg->via.ft.name);
 
     OPENFILENAME ofn = {
-        .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner   = hwnd,
-        .lpstrFile   = path,
-        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
-        .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
+        .lStructSize    = sizeof(OPENFILENAME),
+        .hwndOwner      = hwnd,
+        .lpstrFile      = path,
+        .nMaxFile       = UTOX_FILE_NAME_LENGTH,
+        .lpstrDefExt    = "png",
+        .nFileExtension = strlen(path) - 3,
+        .Flags          = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
     };
 
     if (GetSaveFileName(&ofn)) {
         FILE *fp = fopen(path, "wb");
         if (fp) {
-            fwrite(file->via.memory, file->target_size, 1, fp);
+            fwrite(msg->via.ft.data, msg->via.ft.data_size, 1, fp);
             fclose(fp);
 
-            snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
+            snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", path);
+            msg->via.ft.inline_png = false;
         } else {
             debug_error("file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
         }

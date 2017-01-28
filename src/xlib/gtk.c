@@ -274,20 +274,28 @@ static void ugtk_savethread(void *args) {
 }
 
 static void ugtk_save_data_thread(void *args) {
-    MSG_FILE *file   = args;
-    void *    dialog = utoxGTK_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
+    MSG_HEADER *msg = args;
+    void *dialog = utoxGTK_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
                                                    "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
-    utoxGTK_file_chooser_set_current_name(dialog, "inline.png");
+    utoxGTK_file_chooser_set_current_name(dialog, msg->via.ft.name);
     int result = utoxGTK_dialog_run(dialog);
     if (result == GTK_RESPONSE_ACCEPT) {
         char *name = utoxGTK_file_chooser_get_filename(dialog);
 
         FILE *fp = fopen(name, "wb");
         if (fp) {
-            fwrite(file->path, file->size, 1, fp);
+            fwrite(msg->via.ft.data, msg->via.ft.data_size, 1, fp);
             fclose(fp);
 
-            snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
+            if (!msg->via.ft.path) {
+                msg->via.ft.path_length = strlen(name);
+                msg->via.ft.path = calloc(1, msg->via.ft.path_length + 1);
+            }
+
+            if (msg->via.ft.path) {
+                snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", name);
+            }
+            msg->via.ft.inline_png = false;
         }
     }
 
@@ -352,12 +360,12 @@ void ugtk_native_select_dir_ft(uint32_t UNUSED(fid), FILE_TRANSFER *file) {
     thread(ugtk_savethread, file);
 }
 
-void ugtk_file_save_inline(FILE_TRANSFER *file) {
+void ugtk_file_save_inline(MSG_HEADER *msg) {
     if (utoxGTK_open) {
         return;
     }
     utoxGTK_open = true;
-    thread(ugtk_save_data_thread, file);
+    thread(ugtk_save_data_thread, msg);
 }
 
 void ugtk_save_chatlog(uint32_t friend_number) {

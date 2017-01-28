@@ -13,6 +13,7 @@
 #include "tox.h"
 
 #include "av/utox_av.h"
+#include "av/video.h"
 #include "ui/dropdowns.h"
 #include "ui/edit.h"
 #include "ui/tooltip.h"
@@ -189,6 +190,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FRIEND *f = &friend[param1];
             FILE_TRANSFER *file = data;
 
+            // TODO(grayhatter) This can easily become a use after free (realloc) when a friend sends multiple files at once.
             MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
@@ -207,6 +209,33 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 native_autoselect_dir_ft(param1, file);
             }
 
+            MSG_HEADER *m = message_add_type_file(&f->msg, (param2 + 1) << 16, file->incoming, file->inline_img, file->status,
+                                                  file->name, file->name_length,
+                                                  file->target_size, file->current_size);
+            file_notify(f, m);
+            file->ui_data = m;
+            redraw();
+            break;
+        }
+        case FILE_INCOMING_NEW_INLINE: {
+            FRIEND *f = get_friend(param1);
+
+            // Process image data
+            uint16_t width, height;
+            uint8_t *image;
+            memcpy(&width, data, sizeof(uint16_t));
+            memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
+            memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
+            // Save and store image
+            friend_recvimage(f, (NATIVE_IMAGE *)image, width, height);
+            redraw();
+            free(data);
+            break;
+        }
+        case FILE_INCOMING_NEW_INLINE_DONE: {
+            // Add file transfer message so user can save the inline.
+            FRIEND *f = get_friend(param1);
+            FILE_TRANSFER *file = data;
             MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
@@ -219,7 +248,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             postmessage_toxcore(TOX_FILE_ACCEPT, param1, param2 << 16, data);
             break;
         }
-        case FILE_UPDATE_STATUS: {
+        case FILE_STATUS_UPDATE: {
             if (!data) {
                 break;
             }
@@ -229,33 +258,37 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 file->ui_data->via.ft.progress = file->current_size;
                 file->ui_data->via.ft.speed    = file->speed;
                 file->ui_data->via.ft.file_status = param1;
-
-                if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
-                    if (file->in_memory) {
-                        file->ui_data->via.ft.path = file->via.memory;
-                    } else {
-                        memcpy(file->ui_data->via.ft.path, file->path, UTOX_FILE_NAME_LENGTH);
-                    }
-
-                    /* File Transfers won't decon the file while we're still accessing the UI info */
-                    file->ui_data = NULL;
-                } else if (param1 == FILE_TRANSFER_STATUS_BROKEN || param1 == FILE_TRANSFER_STATUS_KILLED) {
-                    file->ui_data = NULL;
-                }
             }
-
             redraw();
             break;
         }
-        case FILE_INLINE_IMAGE: {
-            FRIEND * f = &friend[param1];
-            uint16_t width, height;
-            uint8_t *image;
-            memcpy(&width, data, sizeof(uint16_t));
-            memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
-            memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
-            free(data);
-            friend_recvimage(f, (NATIVE_IMAGE *)image, width, height);
+        case FILE_STATUS_UPDATE_DATA: {
+            if (!data) {
+                break;
+            }
+            FILE_TRANSFER *file = data;
+
+            if (file->ui_data) {
+                if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
+                    if (file->in_memory) {
+                        file->ui_data->via.ft.data = file->via.memory;
+                        file->ui_data->via.ft.data_size = file->current_size;
+                    } else {
+                        memcpy(file->ui_data->via.ft.path, file->path, UTOX_FILE_NAME_LENGTH);
+                    }
+                }
+            }
+            file->decon_wait = false;
+            debug_notice("uTox:\tFT data was saved\n");
+            redraw();
+            break;
+        }
+        case FILE_STATUS_DONE: {
+            // Could also be failed or broken
+            MSG_HEADER *msg = data;
+            if (msg) {
+                msg->via.ft.file_status = param1;
+            }
             redraw();
             break;
         }

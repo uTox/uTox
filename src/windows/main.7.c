@@ -50,7 +50,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     }
 }
 
- void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file){
+void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL){
         debug("SelectDir:\t Could not allocate memory for path.\n");
@@ -89,7 +89,6 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     if (settings.portable_mode) {
         snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
         debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", send);
-        postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
     } else if (!SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads, KF_FLAG_CREATE, 0, path)) {
         swprintf(sub_path, UTOX_FILE_NAME_LENGTH, L"%ls%ls", *path, L"\\Tox_Auto_Accept");
         CreateDirectoryW(sub_path, NULL);
@@ -102,14 +101,11 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, longname, UTOX_FILE_NAME_LENGTH);
     swprintf(fullpath, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", sub_path, longname);
     /* Windows doesn't like UTF-8 strings, so we have to hold it's hand. */
-    file->via.file = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
-                                                               CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
-                                              0),
-                             "wb");
-
-    /* Back to UTF8 for uTox */
-    native_to_utf8str(fullpath, send, UTOX_FILE_NAME_LENGTH);
-    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
+    FILE *f = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+                                                            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
+                                      0),
+                      "wb");
+    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
 }
 
 void launch_at_startup(int is_launch_at_startup) {

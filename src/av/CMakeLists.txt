@@ -1,11 +1,8 @@
 project(utoxAV LANGUAGES C)
 
 add_library(utoxAV STATIC
-    utox_av.h
     utox_av.c
     audio.c
-    audio.h
-    video.h
     video.c
     )
 

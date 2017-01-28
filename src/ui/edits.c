@@ -613,7 +613,7 @@ EDIT edit_name =
            .data            = edit_friend_alias_data,
            .onenter         = edit_friend_alias_onenter,
            .onlosefocus     = edit_friend_alias_onenter,
-           .empty_str.plain = STRING_INIT(""), // set dynamically to the friend's name
+           .empty_str       = {.plain = STRING_INIT("") }, // set dynamically to the friend's name
          },
 
      edit_group_topic = {.maxlength       = 128,
@@ -621,7 +621,7 @@ EDIT edit_name =
                          .onenter         = edit_group_topic_onenter,
                          .onlosefocus     = edit_group_topic_onenter,
                          .noborder        = 0,
-                         .empty_str.plain = STRING_INIT("") },
+                         .empty_str       = {.plain = STRING_INIT("") } },
 
     edit_nospam = {.length            = sizeof(uint32_t) * 2,
                    .data              = self.nospam_str,
