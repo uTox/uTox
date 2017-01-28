@@ -115,7 +115,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
 
         ReleaseStgMedium(&medium);
     } else {
-        debug_error("itz failed! %lX\n", r);
+        LOG_ERR(__FILE__, "itz failed! %lX\n", r);
     }
 
     return S_OK;

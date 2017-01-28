@@ -485,7 +485,7 @@ void launch_at_startup(int should) {
         yieldcpu(1);
     }
 
-    debug("clean exit\n");
+    LOG_TRACE(__FILE__, "clean exit" );
 }
 
 - (void)soilWindowContents {
@@ -547,15 +547,15 @@ int main(int argc, char const *argv[]) {
                &set_show_window);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        debug("Start on boot not supported on this OS!\n");
+        LOG_TRACE(__FILE__, "Start on boot not supported on this OS!" );
     }
 
     if (set_show_window == 1 || set_show_window == -1) {
-        debug("Showing/hiding windows not supported on this OS!\n");
+        LOG_TRACE(__FILE__, "Showing/hiding windows not supported on this OS!" );
     }
 
     if (skip_updater == true) {
-        debug("Disabling the updater is not supported on this OS. Updates are managed by the app store.\n");
+        LOG_TRACE(__FILE__, "Disabling the updater is not supported on this OS. Updates are managed by the app store." );
     }
 
     setlocale(LC_ALL, "");

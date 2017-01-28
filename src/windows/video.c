@@ -5,7 +5,7 @@
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     if (!video_hwnd[id]) {
-        debug("frame for null window\n");
+        LOG_TRACE(__FILE__, "frame for null window" );
         return;
     }
 

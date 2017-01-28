@@ -95,7 +95,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     if (fp == NULL) {
-        LOG_INFO("Filesys", "Could not open %s" , path);
+        LOG_TRACE("Filesys", "Could not open %s" , path);
         return NULL;
     }
 

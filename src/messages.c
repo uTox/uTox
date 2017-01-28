@@ -70,7 +70,7 @@ static int msgheight_group(MSG_HEADER *msg, int width) {
                                       msg->via.grp.msg, msg->via.grp.length);
             return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
         }
-        default: { debug("Error, can't set this group message height\n"); }
+        default: { LOG_TRACE(__FILE__, "Error, can't set this group message height" ); }
     }
 
     return 0;
@@ -118,7 +118,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
             }
 
             if (!m->data) {
-                debug_error("\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+                LOG_ERR(__FILE__, "\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
                 exit(30);
             }
         }
@@ -446,7 +446,7 @@ bool messages_read_from_log(uint32_t friend_number) {
         free(data);
         return true;
     } else if (actual_count > 0) {
-        debug_error("uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
+        LOG_ERR(__FILE__, "uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
     }
 
     return false;
@@ -541,7 +541,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                         LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , msg->disk_offset);
                         utox_update_chatlog(hex, msg->disk_offset, data, length);
                     } else {
-                        debug_error("Messages:\tUnable to update this message...\n"
+                        LOG_ERR(__FILE__, "Messages:\tUnable to update this message...\n"
                                     "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
                                     msg->disk_offset, m->number, receipt_number);
                     }
@@ -619,7 +619,7 @@ static int messages_draw_text(const char *msg, size_t length, uint32_t msg_heigh
                                                  length, highlight_start, highlight_end, 0, 0, 1);
 
     if (ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg_height) {
-        debug("Text Draw Error:\ty %i | ny %i | mheight %u | width %i \n", y, ny, msg_height, w);
+        LOG_TRACE(__FILE__, "Text Draw Error:\ty %i | ny %i | mheight %u | width %i " , y, ny, msg_height, w);
     }
 
     return ny;
@@ -1102,7 +1102,7 @@ static bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, 
     if (m->cursor_over_uri != UINT32_MAX) {
         m->urllen          = (str - message) - m->cursor_over_uri;
         m->cursor_down_uri = prev_cursor_down_uri;
-        debug("urllen %u\n", m->urllen);
+        LOG_TRACE(__FILE__, "urllen %u" , m->urllen);
     }
 
     return 0;
@@ -1275,7 +1275,7 @@ bool messages_mdown(PANEL *panel) {
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 if (m->cursor_over_uri != UINT32_MAX) {
                     m->cursor_down_uri = m->cursor_over_uri;
-                    debug("mdn dURI %u, oURI %u\n", m->cursor_down_uri, m->cursor_over_uri);
+                    LOG_TRACE(__FILE__, "mdn dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
                 }
 
                 m->sel_start_msg = m->sel_end_msg = m->cursor_down_msg = m->cursor_over_msg;
@@ -1434,7 +1434,7 @@ bool messages_mup(PANEL *panel) {
                 && m->cursor_over_position >= m->cursor_over_uri
                 && m->cursor_over_position <= m->cursor_over_uri + m->urllen - 1 /* - 1 Don't open on white space */
                 && !m->selecting_text) {
-                debug("mup dURI %u, oURI %u\n", m->cursor_down_uri, m->cursor_over_uri);
+                LOG_TRACE(__FILE__, "mup dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
                 char url[m->urllen + 1];
                 memcpy(url, msg->via.txt.msg + m->cursor_over_uri, m->urllen * sizeof(char));
                 url[m->urllen] = 0;
@@ -1629,7 +1629,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 
     m->data = calloc(20, sizeof(void *));
     if (!m->data) {
-        debug_error("\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+        LOG_ERR(__FILE__, "\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
         exit(30);
     }
 

@@ -88,16 +88,16 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
     size_t records_count = utox_count_chatlog(hex);
     if (skip >= records_count) {
         if (skip > 0) {
-            LOG_ERR("Chatlog", "Error, skipped all records\n");
+            LOG_ERR("Chatlog", "Error, skipped all records");
         } else {
-            debug("Log read:\tNo log exists.");
+            LOG_INFO("Chatlog", "No log exists.");
         }
         return NULL;
     }
 
     FILE *file = chatlog_get_file(hex, false);
     if (!file) {
-        debug("Log read:\tUnable to access file provided.\n");
+        LOG_TRACE(__FILE__, "Log read:\tUnable to access file provided." );
         return NULL;
     }
 

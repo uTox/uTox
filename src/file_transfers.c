@@ -137,7 +137,7 @@ static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
 
         uint8_t blank_id[TOX_HASH_LENGTH] = { 0 };
         if (memcmp(ft->data_hash, blank_id, TOX_HASH_LENGTH) == 0) {
-            debug_error("FileTransfer:\tUnable to use current data hash for incoming file.\n"
+            LOG_ERR(__FILE__, "FileTransfer:\tUnable to use current data hash for incoming file.\n"
                         "\t\tuTox can't resume file %.*s\n"
                         "\t\tHash is %.*s\n",
                         (uint32_t)ft->name_length, ft->name,
@@ -162,7 +162,7 @@ static bool ft_update_resumable(FILE_TRANSFER *ft) {
         }
     }
 
-    debug_error("FileTransfer:\tUnable to save file info... uTox can't resume file %.*s\n",
+    LOG_ERR(__FILE__, "FileTransfer:\tUnable to save file info... uTox can't resume file %.*s\n",
                 (int)ft->name_length, ft->name);
     return false;
 }
@@ -572,7 +572,7 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
             break;
         }
         default: {
-            debug_error("FileTransfer:\tThere was an error(%u) sending the command."
+            LOG_ERR(__FILE__, "FileTransfer:\tThere was an error(%u) sending the command."
                         "You probably want to see to that!\n", error);
             break;
         }
@@ -725,7 +725,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
-        debug_error("FileTransfer:\tUnable to get memory handle for transfer, canceling friend/file number (%u/%u)\n",
+        LOG_ERR(__FILE__, "FileTransfer:\tUnable to get memory handle for transfer, canceling friend/file number (%u/%u)\n",
               friend_number, file_number);
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
         return;
@@ -840,7 +840,7 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         fflush(ft->via.file);
         file_unlock(ft->via.file, position, length);
         if (write_size != length) {
-            debug_error("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
+            LOG_ERR(__FILE__, "\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
             ft_local_control(tox, friend_number, file_number, TOX_FILE_CANCEL);
             return;
         }
@@ -886,7 +886,7 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, self.png_size, hash, NULL, 0, &error);
     if (error || file_number == UINT32_MAX) {
-        debug_error("tox_file_send() failed error code %u\n", error);
+        LOG_ERR(__FILE__, "tox_file_send() failed error code %u\n", error);
         return UINT32_MAX;
     };
 
@@ -960,7 +960,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
             }
             case TOX_ERR_FILE_SEND_OK: { break; }
         }
-        debug_error("tox_file_send() failed error code %u\n", error);
+        LOG_ERR(__FILE__, "tox_file_send() failed error code %u\n", error);
         return UINT32_MAX;
     }
 
@@ -1026,7 +1026,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, hash, name, name_length, &error);
     if (error || file_number == UINT32_MAX) {
-        debug_error("tox_file_send() failed error code %u\n", error);
+        LOG_ERR(__FILE__, "tox_file_send() failed error code %u\n", error);
         return UINT32_MAX;
     };
 
@@ -1134,7 +1134,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file) {
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft) {
-        debug_error("FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
+        LOG_ERR(__FILE__, "FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
                     friend_number, file_number);
         return -1;
     }
@@ -1148,7 +1148,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
         // TODO use native functions to open this file
         ft->via.file = fopen(file, "wb");
         if (!ft->via.file) {
-            debug_error("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n\t\t\"%s\"\n",
+            LOG_ERR(__FILE__, "FileTransfer:\tThe file we're supposed to write to couldn't be opened\n\t\t\"%s\"\n",
                         ft->path);
             break_file(ft);
             return -1;

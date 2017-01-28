@@ -79,7 +79,7 @@ static int utox_encrypt_data(void *clear_text, size_t clear_length, uint8_t *cyp
     tox_pass_encrypt((uint8_t *)clear_text, clear_length, (uint8_t *)passphrase, passphrase_length, cypher_data, &err);
 
     if (err) {
-        debug_error("Fatal Error; unable to encrypt data!\n");
+        LOG_ERR(__FILE__, "Fatal Error; unable to encrypt data!\n");
         exit(10);
     }
 
@@ -186,7 +186,7 @@ static void write_save(Tox *tox) {
         if (enc_err) {
             /* encryption failed, write clear text data */
             save_needed = utox_data_save_tox(clear_data, clear_length);
-            debug("\n\n\t\tWARNING UTOX WAS UNABLE TO ENCRYPT DATA!\n\t\tDATA WRITTEN IN CLEAR TEXT!\n\n");
+            LOG_TRACE("Toxcore", "\n\n\t\tWARNING UTOX WAS UNABLE TO ENCRYPT DATA!\n\t\tDATA WRITTEN IN CLEAR TEXT!\n" );
         } else {
             save_needed = utox_data_save_tox(encrypted_data, encrypted_length);
             LOG_TRACE("Toxcore", "Encrypted save data written" );
@@ -213,7 +213,7 @@ void tox_settingschanged(void) {
     // send the reconfig message!
     postmessage_toxcore(0, 1, 0, NULL);
 
-    debug("Core:\tRestarting Toxcore");
+    LOG_NOTE("Toxcore", "Restarting Toxcore");
     while (!tox_thread_init) {
         yieldcpu(1);
     }
@@ -243,7 +243,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
         if (tox_self_set_typing(tox, typing_state.friendnumber, is_typing, 0)) {
             // Successfully sent. Mark new state.
             typing_state.sent_value = is_typing;
-            debug("Sent typing state to friend (%d): %d\n", typing_state.friendnumber, typing_state.sent_value);
+            LOG_TRACE("Toxcore", "Sent typing state to friend (%d): %d" , typing_state.friendnumber, typing_state.sent_value);
         }
     }
 }
@@ -259,16 +259,16 @@ static int load_toxcore_save(struct Tox_Options *options) {
             size_t   cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
             uint8_t *clear_data       = calloc(1, cleartext_length);
             settings.save_encryption   = 1;
-            debug("Using encrypted data, trying password: ");
+            LOG_INFO("Toxcore", "Using encrypted data, trying password: ");
 
             UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
             if (decrypt_err) {
                 if (decrypt_err == UTOX_ENC_ERR_LENGTH) {
-                    debug("Password too short!\r");
+                    LOG_WARN("Toxcore", "Password too short!\r");
                 } else if (decrypt_err == UTOX_ENC_ERR_LENGTH) {
-                    debug("Couldn't decrypt, wrong password?\r");
+                    LOG_ERR("Toxcore", "Couldn't decrypt, wrong password?\r");
                 } else {
-                    debug("Unknown error, please file a bug report!\n");
+                    LOG_ERR("Toxcore", "Unknown error, please file a bug report!" );
                 }
                 return -1;
             }
@@ -281,7 +281,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
                 return 0;
             }
         } else {
-            debug_info("Using unencrypted save file; this is insecure!\n\n");
+            LOG_INFO("Toxcore", "Using unencrypted save file; this could be insecure!\n");
             options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
             options->savedata_data   = raw_data;
             options->savedata_length = raw_length;
@@ -294,17 +294,13 @@ static int load_toxcore_save(struct Tox_Options *options) {
 
 static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file, uint32_t line,
                          const char *func, const char *message, void *UNUSED(user_data)) {
-    if (utox_verbosity() <= 8 ) {
-        return;
-    }
-
     if (message && file && line) {
-        debug("TOXCORE LOGGING ERROR (%u): %s\n", level, message);
-        debug("     in: %s:%u\n", file, line);
+        LOG_NET_TRACE("Toxcore", "TOXCORE LOGGING ERROR (%u): %s" , level, message);
+        LOG_NET_TRACE("Toxcore", "     in: %s:%u" , file, line);
     } else if (func) {
-        debug("TOXCORE LOGGING ERROR: %s\n", func);
+        LOG_NET_TRACE("Toxcore", "TOXCORE LOGGING ERROR: %s" , func);
     } else {
-        debug_warning("TOXCORE LOGGING is broken!!:\tOpen an bug upstream\n");
+        LOG_ERR("Toxcore logging", "TOXCORE LOGGING is broken!!:\tOpen an bug upstream\n");
     }
 }
 
@@ -364,11 +360,11 @@ static int init_toxcore(Tox **tox) {
     }
 
     // Create main connection
-    debug_notice("CORE:\tCreating New Toxcore instance.\n"
-          "\t\tIPv6 : %u\n"
-          "\t\tUDP  : %u\n"
-          "\t\tProxy: %u %s %u\n",
-          topt.ipv6_enabled, topt.udp_enabled, topt.proxy_type, topt.proxy_host, topt.proxy_port);
+    LOG_INFO("Toxcore", "Creating New Toxcore instance.\n"
+             "\t\tIPv6 : %u\n"
+             "\t\tUDP  : %u\n"
+             "\t\tProxy: %u %s %u",
+             topt.ipv6_enabled, topt.udp_enabled, topt.proxy_type, topt.proxy_host, topt.proxy_port);
 
 
     TOX_ERR_NEW tox_new_err = 0;
@@ -377,10 +373,10 @@ static int init_toxcore(Tox **tox) {
 
     if (*tox == NULL) {
         if (settings.force_proxy) {
-            debug_error("\t\tError #%u, Not going to try without proxy because of user settings.\n", tox_new_err);
+            LOG_ERR("Toxcore", "\t\tError #%u, Not going to try without proxy because of user settings.\n", tox_new_err);
             return -2;
         }
-        debug_error("\t\tError #%u, Going to try without proxy.\n", tox_new_err);
+        LOG_ERR("Toxcore", "\t\tError #%u, Going to try without proxy.\n", tox_new_err);
 
         // reset proxy options as well as GUI and settings
         topt.proxy_type = TOX_PROXY_TYPE_NONE;
@@ -390,7 +386,7 @@ static int init_toxcore(Tox **tox) {
         *tox = tox_new(&topt, &tox_new_err);
 
         if (*tox == NULL) {
-            debug_error("\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
+            LOG_ERR("Toxcore", "\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
 
             // reset IPv6 options as well as GUI and settings
             topt.ipv6_enabled = 0;
@@ -399,7 +395,7 @@ static int init_toxcore(Tox **tox) {
             *tox = tox_new(&topt, &tox_new_err);
 
             if (*tox == NULL) {
-                debug_error("\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
+                LOG_ERR("Toxcore", "\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
                 return -2;
             }
         }
@@ -414,7 +410,7 @@ static int init_toxcore(Tox **tox) {
     toxcore_bootstrap(*tox);
 
     if (save_status == -2) {
-        debug("No save file, using defaults\n");
+        LOG_NOTE("Toxcore", "No save file, using defaults" );
         load_defaults(*tox);
     }
     tox_after_load(*tox);
@@ -442,7 +438,7 @@ void toxcore_thread(void *UNUSED(args)) {
         toxcore_init_err = init_toxcore(&tox);
         if (toxcore_init_err == -2) {
             // fatal failure, unable to create tox instance
-            LOG_ERR("Tox", "Unable to create Tox Instance (%d)" , toxcore_init_err);
+            LOG_ERR("Toxcore", "Unable to create Tox Instance (%d)" , toxcore_init_err);
             // set init to true because other code is waiting for it.
             // but indicate error state
             tox_thread_init = UTOX_TOX_THREAD_INIT_ERROR;
@@ -479,7 +475,7 @@ void toxcore_thread(void *UNUSED(args)) {
             av = toxav_new(tox, &toxav_error);
 
             if (!av) {
-                LOG_ERR("Tox", "Unable to get toxAV (%u)" , toxav_error);
+                LOG_ERR("Toxcore", "Unable to get ToxAV (%u)" , toxav_error);
             }
 
             // Give toxcore the av functions to call
@@ -563,13 +559,13 @@ void toxcore_thread(void *UNUSED(args)) {
         }
 
         // Stop av threads, and toxcore.
-        debug("av_thread exit, tox thread ending\n");
+        LOG_TRACE("Toxcore", "av_thread exit, tox thread ending" );
         toxav_kill(av);
         tox_kill(tox);
     }
 
     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
-    debug("Tox thread:\tClean exit!\n");
+    LOG_TRACE("Toxcore", "Tox thread:\tClean exit!" );
 }
 
 /** General recommendations for working with threads in uTox
@@ -632,7 +628,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* update tox id */
             tox_self_get_address(tox, self.id_binary);
             id_to_string(self.id_str, self.id_binary);
-            debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
+            LOG_TRACE("Toxcore", "Tox ID: %.*s" , (int)self.id_str_length, self.id_str);
 
             /* Update avatar */
             avatar_move((uint8_t *)old_id, (uint8_t *)self.id_str);
@@ -811,7 +807,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             typing_state.friendnumber = param1;
             typing_state.time         = time;
 
-            // debug("Set typing state for friend (%d): %d\n", typing_state.friendnumber, typing_state.sent_value);
+            // LOG_TRACE("Toxcore", "Set typing state for friend (%d): %d" , typing_state.friendnumber, typing_state.sent_value);
             break;
         }
 

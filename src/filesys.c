@@ -20,7 +20,7 @@ void *file_raw(char *path, uint32_t *size) {
 
     file = fopen(path, "rb");
     if (!file) {
-        // debug("File not found (%s)\n", path);
+        // LOG_TRACE(__FILE__, "File not found (%s)" , path);
         return NULL;
     }
 
@@ -35,7 +35,7 @@ void *file_raw(char *path, uint32_t *size) {
     fseek(file, 0, SEEK_SET);
 
     if (fread(data, len, 1, file) != 1) {
-        debug("Read error (%s)\n", path);
+        LOG_TRACE(__FILE__, "Read error (%s)" , path);
         fclose(file);
         free(data);
         return NULL;
@@ -43,7 +43,7 @@ void *file_raw(char *path, uint32_t *size) {
 
     fclose(file);
 
-    // debug("Read %u bytes (%s)\n", len, path);
+    // LOG_TRACE(__FILE__, "Read %u bytes (%s)" , len, path);
 
     if (size) {
         *size = len;

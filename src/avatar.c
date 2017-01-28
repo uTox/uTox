@@ -43,7 +43,7 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
     size_t size = 0;
     FILE *fp = native_get_file((uint8_t *)name, &size, UTOX_FILE_OPTS_READ);
     if (fp == NULL) {
-        LOG_DEBUG("Avatar", "Could not read: %s\n", name);
+        LOG_TRACE("Avatar", "Could not read: %s", name);
         return NULL;
     }
 
@@ -54,7 +54,7 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
         return NULL;
     }
 
-    if (fread(data, 1, size, fp) == size) {
+    if (fread(data, size, 1, fp) == size) {
         LOG_WARN("Avatar", "Could not read from open file: %s\n", name);
         fclose(fp);
         if (out_size) {
@@ -82,13 +82,15 @@ static bool avatar_load(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar, siz
 
     uint8_t *img = load_img_data(hexid, &size);
     if (!img) {
-        LOG_DEBUG("Avatar", "Unable to get saved avatar from disk for friend %.*s" , 32, hexid);
+        LOG_DEBUG("Avatar", "Unable to get saved avatar from disk for friend %.*s" ,
+                    TOX_PUBLIC_KEY_SIZE * 2, hexid);
         return false;
     }
 
     if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
         free(img);
-        LOG_WARN("Avatar", "Saved avatar file for friend (%.*s) too large for tox" , 32, hexid);
+        LOG_WARN("Avatar", "Saved avatar file for friend (%.*s) too large for tox" ,
+                    TOX_PUBLIC_KEY_SIZE * 2, hexid);
         return false;
     }
 

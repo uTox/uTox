@@ -104,7 +104,7 @@ void edit_msg_onenter(EDIT *edit) {
         return;
     }
 
-    // debug("cmd %u\n", command_length);
+    // LOG_TRACE(__FILE__, "cmd %u" , command_length);
 
     bool action = false;
     if (command_length) {

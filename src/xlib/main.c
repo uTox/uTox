@@ -49,7 +49,7 @@ void     init_ptt(void) {
 
     ptt_keyboard_handle = fopen((const char *)path, "r");
     if (!ptt_keyboard_handle) {
-        debug("Could not access ptt-kbd in data directory\n");
+        LOG_TRACE(__FILE__, "Could not access ptt-kbd in data directory" );
         ptt_display = XOpenDisplay(0);
         XSynchronize(ptt_display, True);
     }
@@ -57,7 +57,7 @@ void     init_ptt(void) {
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
-        // debug("PTT is disabled\n");
+        // LOG_TRACE(__FILE__, "PTT is disabled" );
         return 1; /* If push to talk is disabled, return true. */
     }
     int ptt_key;
@@ -74,10 +74,10 @@ bool check_ptt_key(void) {
         int mask = 1 << (ptt_key % 8);   // Put 1 in the same column as our key state
 
         if (keyb & mask) {
-            debug("PTT key is down\n");
+            LOG_TRACE(__FILE__, "PTT key is down" );
             return 1;
         } else {
-            debug("PTT key is up\n");
+            LOG_TRACE(__FILE__, "PTT key is up" );
             return 0;
         }
     }
@@ -89,10 +89,10 @@ bool check_ptt_key(void) {
     if (ptt_display) {
         XQueryKeymap(ptt_display, keys);
         if (keys[ptt_key / 8] & (0x1 << (ptt_key % 8))) {
-            debug("PTT key is down (according to XQueryKeymap\n");
+            LOG_TRACE(__FILE__, "PTT key is down (according to XQueryKeymap" );
             return 1;
         } else {
-            debug("PTT key is up (according to XQueryKeymap\n");
+            LOG_TRACE(__FILE__, "PTT key is up (according to XQueryKeymap" );
             return 0;
         }
     }
@@ -128,7 +128,7 @@ void image_set_filter(NATIVE_IMAGE *image, uint8_t filter) {
     switch (filter) {
         case FILTER_NEAREST: xfilter  = FilterNearest; break;
         case FILTER_BILINEAR: xfilter = FilterBilinear; break;
-        default: debug("Warning: Tried to set image to unrecognized filter(%u).\n", filter); return;
+        default: LOG_TRACE(__FILE__, "Warning: Tried to set image to unrecognized filter(%u)." , filter); return;
     }
     XRenderSetPictureFilter(display, image->rgb, xfilter, NULL, 0);
     if (image->alpha) {
@@ -218,7 +218,7 @@ extern uint8_t _binary_icons_utox_128x128_png_start;
 extern size_t  _binary_icons_utox_128x128_png_size;
 
 void draw_tray_icon(void) {
-    // debug("Draw Tray\n");
+    // LOG_TRACE(__FILE__, "Draw Tray" );
 
     uint16_t width, height;
     uint8_t *icon_data = (uint8_t *)&_binary_icons_utox_128x128_png_start;
@@ -238,7 +238,7 @@ void draw_tray_icon(void) {
                                                       xcb_get_geometry_cookie_t  cookie,
                                                       xcb_generic_error_t      **error);
         free (geom);*/
-        // debug("Tray size == %i x %i\n", tray_width, tray_height);
+        // LOG_TRACE(__FILE__, "Tray size == %i x %i" , tray_width, tray_height);
 
         /* Resize the image from what the system tray dock tells us to be */
         double scale = (tray_width > tray_height) ? (double)tray_height / width : (double)tray_width / height;
@@ -255,7 +255,7 @@ void draw_tray_icon(void) {
 
         free(icon);
     } else {
-        debug("Tray no workie, that not gud!\n");
+        LOG_TRACE(__FILE__, "Tray no workie, that not gud!" );
     }
 }
 
@@ -307,7 +307,7 @@ void tray_window_event(XEvent event) {
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
             if (tray_width != (uint32_t)ev->width || tray_height != (uint32_t)ev->height) {
-                debug("Tray resized w:%i h:%i\n", ev->width, ev->height);
+                LOG_TRACE(__FILE__, "Tray resized w:%i h:%i" , ev->width, ev->height);
 
                 if ((uint32_t)ev->width > tray_width || (uint32_t)ev->height > tray_height) {
                     tray_width  = ev->width;
@@ -399,9 +399,9 @@ void pastebestformat(const Atom atoms[], size_t len, Atom selection) {
     for (i = 0; i < len; i++) {
         char *name = XGetAtomName(display, atoms[i]);
         if (name) {
-            debug("Supported type: %s\n", name);
+            LOG_TRACE(__FILE__, "Supported type: %s" , name);
         } else {
-            debug("Unsupported type!!: Likely a bug, please report!\n");
+            LOG_TRACE(__FILE__, "Unsupported type!!: Likely a bug, please report!" );
         }
     }
 
@@ -461,7 +461,7 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
 
         NATIVE_IMAGE *native_image = utox_image_to_native(data, size, &width, &height, 0);
         if (NATIVE_IMAGE_IS_VALID(native_image)) {
-            debug_info("Pasted image: %dx%d\n", width, height);
+            LOG_INFO("XLIB MAIN", "Pasted image: %dx%d\n", width, height);
 
             UTOX_IMAGE png_image = malloc(size);
             memcpy(png_image, data, size);
@@ -712,7 +712,7 @@ int main(int argc, char *argv[]) {
     bool   skip_updater, from_updater;
 
 #ifdef HAVE_DBUS
-    debug_info("Compiled with dbus support!\n");
+    LOG_INFO("XLIB MAIN", "Compiled with dbus support!\n");
 #endif
 
     parse_args(argc, argv,
@@ -781,7 +781,7 @@ int main(int argc, char *argv[]) {
 
     utox_init();
 
-    debug_info("Setting theme to:\t%d\n", settings.theme);
+    LOG_INFO("XLIB MAIN", "Setting theme to:\t%d", settings.theme);
     theme_load(settings.theme);
 
     /* create window */

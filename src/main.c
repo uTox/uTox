@@ -25,7 +25,7 @@
 bool utox_data_save_tox(uint8_t *data, size_t length) {
     FILE *fp= native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
     if (fp == NULL) {
-        debug("Can not open tox_save.tox to write to it.\n");
+        LOG_TRACE(__FILE__, "Can not open tox_save.tox to write to it." );
         return true;
     }
 
@@ -50,12 +50,12 @@ uint8_t *utox_data_load_tox(size_t *size) {
         }
         data = calloc(length + 1, 1);
         if (data == NULL) {
-            debug("Could not allocate memory for tox save.\n");
+            LOG_TRACE(__FILE__, "Could not allocate memory for tox save." );
             fclose(fp);
             return NULL; // quit were out of memory, calloc will fail again
         }
         if (fread(data, 1, length, fp) != length) {
-            debug("Could not read: %s.\n", name[i]);
+            LOG_TRACE(__FILE__, "Could not read: %s." , name[i]);
             fclose(fp);
             free(data);
             return NULL; // return because if this file exits we don't want to fall back to an old version, we need the
@@ -97,7 +97,7 @@ UTOX_SAVE *utox_data_load_utox(void) {
     }
 
     if (fread(save, 1, size, fp) != size) {
-        debug("Could not read save file\n");
+        LOG_TRACE(__FILE__, "Could not read save file" );
         fclose(fp);
         free(save);
         return NULL;

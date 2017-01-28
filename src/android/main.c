@@ -187,15 +187,15 @@ void *loadsavedata(uint32_t *len) {
 }
 
 void writesavedata(void *data, uint32_t len) {
-    debug("Trying to save data (android)\n");
+    LOG_TRACE(__FILE__, "Trying to save data (android)" );
     FILE *file;
     file = fopen("/data/data/tox.utox/files/tox_save", "wb");
     if (file) {
         fwrite(data, len, 1, file);
         fclose(file);
-        debug("Saved data\n");
+        LOG_TRACE(__FILE__, "Saved data" );
     } else {
-        debug("fopen failed\n");
+        LOG_TRACE(__FILE__, "fopen failed" );
     }
 }
 
@@ -609,7 +609,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
                     // pointerinput2(pointer_index);
 
                     already_up = 0;
-                    debug("down %f %f, %u\n", x, y, pointer_index);
+                    LOG_TRACE(__FILE__, "down %f %f, %u" , x, y, pointer_index);
                     p_down      = 1;
                     p_last_down = get_time();
                     break;
@@ -628,7 +628,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
 
                     // pointerinput(pointer_index);
 
-                    debug("up %f %f, %u\n", x, y, pointer_index);
+                    LOG_TRACE(__FILE__, "up %f %f, %u" , x, y, pointer_index);
                     p_down = 0;
                     break;
                 }
@@ -639,7 +639,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
                         p_down = 0;
                         lx     = x;
                         ly     = y;
-                        debug("move %f %f, %u\n", x, y, pointer_index);
+                        LOG_TRACE(__FILE__, "move %f %f, %u" , x, y, pointer_index);
                     }
                     // pointer[pointer_index].x = x;
                     // pointer[pointer_index].y = y;
@@ -680,7 +680,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
                         uint32_t c = getkeychar(key);
                         if (c != 0) {
                             if (edit_active()) {
-                                // debug("%u\n", c);
+                                // LOG_TRACE(__FILE__, "%u" , c);
                                 edit_char(c, 0, 0);
                             }
                             // inputchar(c);
@@ -713,15 +713,15 @@ static void android_main(struct android_app *state) {
                );
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        debug("Start on boot not supported on this OS!\n");
+        LOG_TRACE(__FILE__, "Start on boot not supported on this OS!" );
     }
 
     if (set_show_window == 1 || set_show_window == -1) {
-        debug("Showing/hiding windows not supported on this OS!\n");
+        LOG_TRACE(__FILE__, "Showing/hiding windows not supported on this OS!" );
     }
 
     if (skip_updater == true) {
-        debug("Disabling the updater is not supported on this OS.\n");
+        LOG_TRACE(__FILE__, "Disabling the updater is not supported on this OS." );
     }
 
     // Make sure glue isn't stripped
@@ -774,7 +774,7 @@ static void android_main(struct android_app *state) {
         int    rlen, len;
         PIPING piping;
         while ((len = read(pipefd[0], (void *)&piping, sizeof(PIPING))) > 0) {
-            debug("%u %u\n", len, sizeof(PIPING));
+            LOG_TRACE(__FILE__, "%u %u" , len, sizeof(PIPING));
             while (len != sizeof(PIPING)) {
                 if ((rlen = read(pipefd[0], (void *)&piping + len, sizeof(PIPING) - len)) > 0) {
                     len += rlen;
@@ -811,7 +811,7 @@ static void android_main(struct android_app *state) {
         usleep(1000);
     }
 
-    debug("ANDROID DESTROYED\n");
+    LOG_TRACE(__FILE__, "ANDROID DESTROYED" );
 }
 
 void showkeyboard(bool show) {
@@ -888,7 +888,7 @@ static void onInputQueueDestroyed(ANativeActivity *act, AInputQueue *queue) {
 
 static void onContentRectChanged(ANativeActivity *activity, const ARect *r) {
     rect = *r;
-    debug("rect: %u %u %u %u\n", rect.left, rect.right, rect.top, rect.bottom);
+    LOG_TRACE(__FILE__, "rect: %u %u %u %u" , rect.left, rect.right, rect.top, rect.bottom);
 
     settings.window_baseline = rect.bottom;
     _redraw                  = 1;

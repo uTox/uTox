@@ -152,7 +152,7 @@ static int64_t parseargument(uint8_t *dest, char *src, size_t length, void **pdn
 
     *d = 0;
 
-    debug("Parsed: (%.*s)->(%s) pin=%X\n", (int)length, src, dest, pin);
+    LOG_TRACE(__FILE__, "Parsed: (%.*s)->(%s) pin=%X" , (int)length, src, dest, pin);
 
     return pin;
 }
@@ -167,19 +167,19 @@ static bool parserecord(uint8_t *dest, uint8_t *src, uint32_t pin, void *dns3) {
             uint8_t ch = '\0';
             if (*a >= '0' && *a <= '9') {
                 if (id == dest + 38) {
-                    debug("id too long\n");
+                    LOG_TRACE(__FILE__, "id too long" );
                     return 0;
                 }
                 ch = *a - '0';
             } else if (*a >= 'A' && *a <= 'F') {
                 if (id == dest + 38) {
-                    debug("id too long\n");
+                    LOG_TRACE(__FILE__, "id too long" );
                     return 0;
                 }
                 ch = *a - 'A' + 10;
             } else if (*a != ' ') {
                 if (id != dest + 38) {
-                    debug("id too short\n");
+                    LOG_TRACE(__FILE__, "id too short" );
                     return 0;
                 }
                 _id = 0;
@@ -200,19 +200,19 @@ static bool parserecord(uint8_t *dest, uint8_t *src, uint32_t pin, void *dns3) {
             uint8_t ch = '\0';
             if (*a >= '0' && *a <= '9') {
                 if (id == dest + 32) {
-                    debug("id too long\n");
+                    LOG_TRACE(__FILE__, "id too long" );
                     return 0;
                 }
                 ch = *a - '0';
             } else if (*a >= 'A' && *a <= 'F') {
                 if (id == dest + 32) {
-                    debug("id too long\n");
+                    LOG_TRACE(__FILE__, "id too long" );
                     return 0;
                 }
                 ch = *a - 'A' + 10;
             } else if (*a != ' ') {
                 if (id != dest + 32) {
-                    debug("id too short\n");
+                    LOG_TRACE(__FILE__, "id too short" );
                     return 0;
                 }
                 _pub = 0;
@@ -260,7 +260,7 @@ static bool parserecord(uint8_t *dest, uint8_t *src, uint32_t pin, void *dns3) {
     }
 
     if (!version) {
-        debug("invalid version\n");
+        LOG_TRACE(__FILE__, "invalid version" );
         return 0;
     }
 
@@ -287,7 +287,7 @@ static void dns_thread(void *data) {
         DNS_TXT_DATA *txt = &record->Data.Txt;
         if (record->wType == DNS_TYPE_TEXT && txt->dwStringCount) {
             if (txt->pStringArray[0]) {
-                debug("Attempting:\n%s\n", txt->pStringArray[0]);
+                LOG_TRACE(__FILE__, "Attempting:\n%s" , txt->pStringArray[0]);
                 if ((success = parserecord(data, (uint8_t *)txt->pStringArray[0], pin, dns3))) {
                     break;
                 }
@@ -347,18 +347,18 @@ static void dns_thread(void *data) {
         goto FAIL;
     }
 
-    debug("%s %u\n", value, p - packet);
+    LOG_TRACE(__FILE__, "%s %u" , value, p - packet);
 
     sendto(sock, packet, p - packet, 0, (struct sockaddr *)&addr, sizeof(addr));
     if ((len = recv(sock, packet, sizeof(packet), 0)) < 0) {
         goto FAIL;
     }
 
-    debug("%s reponded %u\n", value, len);
+    LOG_TRACE(__FILE__, "%s reponded %u" , value, len);
 
     p = memmem(packet, len, "v=tox", 5);
     if (p) {
-        debug("test %u\n", *(p - 1));
+        LOG_TRACE(__FILE__, "test %u" , *(p - 1));
         p[*(p - 1)] = 0;
         success     = parserecord(data, p, pin, dns3);
     }
@@ -374,19 +374,19 @@ static void dns_thread(void *data) {
         pt      = answer + sizeof(HEADER);
 
         if ((len = dn_expand(answer, answend, pt, host, sizeof(host))) < 0) {
-            debug("^dn_expand failed\n");
+            LOG_TRACE(__FILE__, "^dn_expand failed" );
             goto FAIL;
         }
 
         pt += len;
         if (pt > answend - 4) {
-            debug("^Bad (too short) DNS reply\n");
+            LOG_TRACE(__FILE__, "^Bad (too short) DNS reply" );
             goto FAIL;
         }
 
         GETSHORT(type, pt);
         if (type != T_TXT) {
-            debug("^Broken DNS reply.\n");
+            LOG_TRACE(__FILE__, "^Broken DNS reply." );
             goto FAIL;
         }
 
@@ -395,13 +395,13 @@ static void dns_thread(void *data) {
         do { /* recurse through CNAME rr's */
             pt += size;
             if ((len = dn_expand(answer, answend, pt, host, sizeof(host))) < 0) {
-                debug("^second dn_expand failed\n");
+                LOG_TRACE(__FILE__, "^second dn_expand failed" );
                 goto FAIL;
             }
-            debug("^Host: %s\n", host);
+            LOG_TRACE(__FILE__, "^Host: %s" , host);
             pt += len;
             if (pt > answend - 10) {
-                debug("^Bad (too short) DNS reply\n");
+                LOG_TRACE(__FILE__, "^Bad (too short) DNS reply" );
                 goto FAIL;
             }
             GETSHORT(type, pt);
@@ -409,18 +409,18 @@ static void dns_thread(void *data) {
             pt += 4;       // GETLONG(cttl, pt);
             GETSHORT(size, pt);
             if (pt + size < answer || pt + size > answend) {
-                debug("^DNS rr overflow\n");
+                LOG_TRACE(__FILE__, "^DNS rr overflow" );
                 goto FAIL;
             }
         } while (type == T_CNAME);
 
         if (type != T_TXT) {
-            debug("^Not a TXT record\n");
+            LOG_TRACE(__FILE__, "^Not a TXT record" );
             goto FAIL;
         }
 
         if (!size || (txtlen = *pt) >= size || !txtlen) {
-            debug("^Broken TXT record (txtlen = %d, size = %d)\n", txtlen, size);
+            LOG_TRACE(__FILE__, "^Broken TXT record (txtlen = %d, size = %d)" , txtlen, size);
             goto FAIL;
         }
 
@@ -432,13 +432,13 @@ static void dns_thread(void *data) {
         //*ttl = cttl;
 
         // answer[len] = 0;
-        // debug("%u %u\n", txtlen, answend - (pt + 1));
-        debug("Attempting:\n%.*s\n", txtlen, pt + 1);
+        // LOG_TRACE(__FILE__, "%u %u" , txtlen, answend - (pt + 1));
+        LOG_TRACE(__FILE__, "Attempting:\n%.*s" , txtlen, pt + 1);
 
         pt[txtlen + 1] = 0;
         success        = parserecord(data, pt + 1, pin, dns3);
     } else {
-        debug("timeout\n");
+        LOG_TRACE(__FILE__, "timeout" );
     }
 #endif
 #endif
@@ -449,7 +449,7 @@ FAIL:
 
 void dns_request(char *name, size_t length) {
     if (settings.force_proxy) {
-        debug("uTox DNS:\tUnable to do DNS lookup, because we're are using a proxy without UDP!\n");
+        LOG_TRACE(__FILE__, "uTox DNS:\tUnable to do DNS lookup, because we're are using a proxy without UDP!" );
         return;
     }
 

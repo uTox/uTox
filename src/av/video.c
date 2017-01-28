@@ -282,16 +282,16 @@ void utox_video_thread(void *args) {
                                 debug_notice("uToxVideo:\tVid Frame sync error: w=%u h=%u\n", utox_video_frame.w,
                                              utox_video_frame.h);
                             } else if (error == TOXAV_ERR_SEND_FRAME_PAYLOAD_TYPE_DISABLED) {
-                                debug_error(
+                                LOG_ERR(__FILE__,
                                     "uToxVideo:\tToxAV disagrees with our AV state for friend %lu, self %u, friend %u\n",
                                     i, friend[i].call_state_self, friend[i].call_state_friend);
                             } else {
-                                debug_error("uToxVideo:\ttoxav_send_video error friend: %i error: %u\n",
+                                LOG_ERR(__FILE__, "uToxVideo:\ttoxav_send_video error friend: %i error: %u\n",
                                             friend[i].number, error);
                             }
                         } else {
                             if (active_video_count >= UTOX_MAX_CALLS) {
-                                debug_error("uToxVideo:\tTrying to send video frame to too many peers. Please report "
+                                LOG_ERR(__FILE__, "uToxVideo:\tTrying to send video frame to too many peers. Please report "
                                             "this bug!\n");
                                 break;
                             }
@@ -299,7 +299,7 @@ void utox_video_thread(void *args) {
                     }
                 }
             } else if (r == -1) {
-                debug_error("uToxVideo:\tErr... something really bad happened trying to get this frame, I'm just going "
+                LOG_ERR(__FILE__, "uToxVideo:\tErr... something really bad happened trying to get this frame, I'm just going "
                             "to plots now!\n");
                 video_device_stop();
                 close_video_device(video_device);

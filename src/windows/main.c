@@ -82,7 +82,7 @@ void openfilesend(void) {
 
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
     } else {
-        debug_error("GetOpenFileName() failed\n");
+        LOG_ERR(__FILE__, "GetOpenFileName() failed\n");
     }
     SetCurrentDirectoryW(dir);
 }
@@ -134,7 +134,7 @@ void openfileavatar(void) {
                 break;
             }
         } else {
-            debug("GetOpenFileName() failed when trying to grab an avatar.\n");
+            LOG_TRACE(__FILE__, "GetOpenFileName() failed when trying to grab an avatar." );
             break;
         }
     }
@@ -170,10 +170,10 @@ void file_save_inline(MSG_HEADER *msg) {
             snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", path);
             msg->via.ft.inline_png = false;
         } else {
-            debug_error("file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
+            LOG_ERR(__FILE__, "file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
         }
     } else {
-        debug_error("GetSaveFileName() failed\n");
+        LOG_ERR(__FILE__, "GetSaveFileName() failed\n");
     }
     free(path);
 }
@@ -208,15 +208,15 @@ void init_ptt(void) {
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
-        // debug("PTT is disabled\n");
+        // LOG_TRACE(__FILE__, "PTT is disabled" );
         return true; /* If push to talk is disabled, return true. */
     }
 
     if (GetAsyncKeyState(VK_LCONTROL)) {
-        // debug("PTT key is down\n");
+        // LOG_TRACE(__FILE__, "PTT key is down" );
         return true;
     } else {
-        // debug("PTT key is up\n");
+        // LOG_TRACE(__FILE__, "PTT key is up" );
         return false;
     }
 }
@@ -588,12 +588,12 @@ void desktopgrab(bool video) {
     w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-    debug("result: %i %i %i %i\n", x, y, w, h);
+    LOG_TRACE(__FILE__, "result: %i %i %i %i" , x, y, w, h);
 
     capturewnd = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_LAYERED, L"uToxgrab", L"Tox", WS_POPUP, x, y, w, h, NULL,
                                  NULL, hinstance, NULL);
     if (!capturewnd) {
-        debug("CreateWindowExW() failed\n");
+        LOG_TRACE(__FILE__, "CreateWindowExW() failed" );
         return;
     }
 
@@ -893,7 +893,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     argv = CommandLineToArgvA(GetCommandLineA(), &argc);
 
     if (NULL == argv) {
-        debug("CommandLineToArgvA failed\n");
+        LOG_TRACE(__FILE__, "CommandLineToArgvA failed" );
         return true;
     }
 
@@ -923,9 +923,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         launch_at_startup(0);
     }
 
-    debug_error("skip updater\n");
+    LOG_ERR(__FILE__, "skip updater\n");
     if (!skip_updater) {
-        debug_error("don't skip updater\n");
+        LOG_ERR(__FILE__, "don't skip updater\n");
         if (auto_update(cmd)) {
             CloseHandle(utox_mutex);
             return 0;
@@ -933,9 +933,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     }
 
     #ifdef __WIN_LEGACY
-        debug("Legacy windows build\n");
+        LOG_TRACE(__FILE__, "Legacy windows build" );
     #else
-        debug("Normal windows build\n");
+        LOG_TRACE(__FILE__, "Normal windows build" );
     #endif
 
     // Free memory allocated by CommandLineToArgvA
@@ -1129,7 +1129,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
                 }
             }
             if (i == COUNTOF(friend)) {
-                debug("this should not happen\n");
+                LOG_TRACE(__FILE__, "this should not happen" );
             }
         }
 
@@ -1141,7 +1141,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_CLOSE:
         case WM_DESTROY: {
             if (settings.close_to_tray) {
-                debug("Closing to tray.\n");
+                LOG_TRACE(__FILE__, "Closing to tray." );
                 togglehide(0);
                 return true;
             } else {
