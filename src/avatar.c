@@ -1,9 +1,7 @@
 #include "avatar.h"
 
 #include "file_transfers.h"
-#include "friend.h"
 #include "logging_native.h"
-#include "main.h"
 #include "main_native.h"
 #include "self.h"
 #include "tox.h"

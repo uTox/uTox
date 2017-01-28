@@ -14,7 +14,6 @@
 #include "../self.h"
 #include "../settings.h"
 #include "../theme.h"
-#include "../ui.h"
 
 #include "../main.h"
 

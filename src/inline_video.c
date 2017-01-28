@@ -23,8 +23,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "main.h"
-
 static UTOX_FRAME_PKG current_frame = { 0, 0, 0, 0 };
 
 bool inline_set_frame(uint16_t w, uint16_t h, size_t size, void *img) {

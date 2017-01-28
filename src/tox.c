@@ -18,12 +18,9 @@
 #include "av/audio.h"
 #include "av/utox_av.h"
 #include "av/video.h"
-#include "ui/dropdown.h"
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
-#include "ui/switch.h"
 #include "ui/switches.h"
-#include "ui/tooltip.h"
 
 #include <stdint.h>
 #include <stdlib.h>
