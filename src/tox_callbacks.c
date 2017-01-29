@@ -16,9 +16,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "main.h" // messages_lock
-
-
 static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length,
                                     void *UNUSED(userdata)) {
 

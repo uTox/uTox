@@ -5,7 +5,6 @@
 #include "filesys.h"
 #include "flist.h"
 #include "logging_native.h"
-#include "main.h"
 #include "main_native.h"
 #include "self.h"
 #include "settings.h"
@@ -17,7 +16,7 @@
 #include "ui/edits.h"
 #include "ui/scrollable.h"
 
-#include "main.h" // self, addfriend_status
+#include "main.h" // addfriend_status
 
 FRIEND* get_friend(uint32_t friend_number){
     if (friend_number >= 128) {

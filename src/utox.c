@@ -3,12 +3,11 @@
 #include "commands.h"
 #include "dns.h"
 #include "file_transfers.h"
-#include "filesys.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
-#include "main.h"
+#include "main.h" // addfriend_status
 #include "main_native.h"
 #include "tox.h"
 
@@ -472,18 +471,24 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case GROUP_MESSAGE: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             GROUPCHAT *selected = flist_get_selected()->data;
             if (selected != g) {
-                g->unread_msg = 1;
+                g->unread_msg = true;
             }
             redraw(); // ui_drawmain();
 
             break;
         }
         case GROUP_PEER_DEL: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             if (g->av_group) {
                 g->last_recv_audio[param2]        = g->last_recv_audio[g->peer_count];
@@ -503,7 +508,10 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         case GROUP_PEER_ADD:
         case GROUP_PEER_NAME: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
             if (g->topic_length >= sizeof(g->topic)) {
@@ -512,14 +520,17 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             GROUPCHAT *selected = flist_get_selected()->data;
             if (selected != g) {
-                g->unread_msg = 1;
+                g->unread_msg = true;
             }
             redraw();
             break;
         }
 
         case GROUP_TOPIC: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             if (param2 > sizeof(g->name)) {
                 memcpy(g->name, data, sizeof(g->name));
@@ -534,7 +545,10 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case GROUP_AUDIO_START: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             if (g->av_group) {
                 g->audio_calling = 1;
@@ -544,7 +558,10 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case GROUP_AUDIO_END: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             if (g->av_group) {
                 g->audio_calling = 0;

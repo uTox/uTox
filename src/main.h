@@ -44,10 +44,6 @@ typedef uint8_t *UTOX_IMAGE;
   #error "Unable to compile uTox with this Toxcore version. uTox expects v0.1.*!"
 #endif
 
-// Limits and sizes
-// UTOX_MAX_NUM_GROUPS is never used. Remove?
-#define UTOX_MAX_NUM_GROUPS 512
-
 #define BORDER 1
 #define CAPTION 26
 #define MAIN_WIDTH 800
