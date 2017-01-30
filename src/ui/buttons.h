@@ -3,17 +3,7 @@
 
 #include "button.h"
 
-extern BUTTON   button_avatar,
-                button_name,
-                button_status_msg,
-                button_usr_state,
-
-                button_filter_friends,
-                button_add_new_contact,
-
-                // button_create_group,
-
-                button_add_new_device_to_self,
+extern BUTTON   button_add_new_device_to_self,
 
                 button_group_audio,
 

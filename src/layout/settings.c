@@ -295,7 +295,7 @@ PANEL   panel_nospam_settings = {
             }
         };
 
-PANEL panel_settings_master = {
+PANEL   panel_settings_master = {
             .type = PANEL_NONE,
             .disabled = 1,
             .drawfunc = draw_settings_header,

@@ -15,7 +15,9 @@
 #include "../text.h"
 #include "../tox.h"
 
+#include "../layout/friend.h"
 #include "../layout/settings.h"
+#include "../layout/side_bar.h"
 
 #include <string.h>
 #include <tox/tox.h>

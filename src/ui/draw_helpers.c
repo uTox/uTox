@@ -18,6 +18,8 @@
 
 #include "../layout/tree.h"
 
+#include "../layout/side_bar.h"
+
 #include "../main.h"
 
 
@@ -39,80 +41,6 @@ void draw_notification(int x, int y, int w, int h) {
     setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
     setfont(FONT_SELF_NAME);
     drawtext(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, "This is a test of the new uTox popup", 36);
-
-}
-
-void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
-                       uint32_t targetheight)
-{
-    /* get smallest of width or height */
-    double scale = (width > height) ? (double)targetheight / height : (double)targetwidth / width;
-
-    image_set_scale(image, scale);
-    image_set_filter(image, FILTER_BILINEAR);
-
-    /* set position to show the middle of the image in the center  */
-    int xpos = (int)((double)width * scale / 2 - (double)targetwidth / 2);
-    int ypos = (int)((double)height * scale / 2 - (double)targetheight / 2);
-
-    draw_image(image, x, y, targetwidth, targetheight, xpos, ypos);
-
-    image_set_scale(image, 1.0);
-    image_set_filter(image, FILTER_NEAREST);
-}
-
-/* Top left self interface Avatar, name, statusmsg, status icon */
-void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
-    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
-        /* Only draw the user badge if toxcore is running */
-        /*draw avatar or default image */
-        if (self_has_avatar()) {
-            draw_avatar_image(self.avatar->img, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, self.avatar->width,
-                              self.avatar->height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-        } else {
-            drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
-                      COLOR_MENU_TEXT);
-        }
-        /* Draw name */
-        setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
-        setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH * 1.5, SIDEBAR_NAME_TOP, self.name, self.name_length);
-
-        /*&Draw current status message
-        @TODO: separate these colors if needed (COLOR_MAIN_TEXT_HINT) */
-        setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
-        setfont(FONT_STATUS);
-        drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH * 1.5, SIDEBAR_STATUSMSG_TOP, self.statusmsg,
-                      self.statusmsg_length);
-
-        /* Draw status button icon */
-        drawalpha(BM_STATUSAREA, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
-                  button_usr_state.mouseover ? COLOR_BKGRND_LIST_HOVER : COLOR_BKGRND_LIST);
-        uint8_t status = tox_connected ? self.status : 3;
-        drawalpha(BM_ONLINE + status, SELF_STATUS_ICON_LEFT + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
-                  SELF_STATUS_ICON_TOP + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH,
-                  BM_STATUS_WIDTH, status_color[status]);
-
-        /* Draw online/all friends filter text. */
-        setcolor(!button_filter_friends.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
-        setfont(FONT_STATUS);
-        drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
-                      flist_get_filter() ? S(FILTER_ONLINE) : S(FILTER_ALL),
-                      flist_get_filter() ? SLEN(FILTER_ONLINE) : SLEN(FILTER_ALL));
-    } else {
-        drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
-                  COLOR_MENU_TEXT);
-
-        setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
-        setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_WIDTH - SIDEBAR_AVATAR_LEFT, SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED));
-
-        if (tox_thread_init == UTOX_TOX_THREAD_INIT_ERROR) {
-            setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
-            setfont(FONT_STATUS);
-            drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_WIDTH, SIDEBAR_STATUSMSG_TOP, S(NOT_CONNECTED_SETTINGS), SLEN(NOT_CONNECTED_SETTINGS));
-        }
-    }
 }
 
 void draw_splash_page(int x, int y, int w, int h) {

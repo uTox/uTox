@@ -8,13 +8,15 @@
 #include "layout/all.h"
 #include "layout/friend.h"
 #include "layout/settings.h"
+#include "layout/side_bar.h"
 
 
-#include "ui/panel.h"
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
 #include "ui/draw_helpers.h"
 #include "ui/dropdowns.h"
+#include "ui/edits.h"
+#include "ui/panel.h"
 #include "ui/scrollable.h"
 #include "ui/switches.h"
 #include "ui/text.h"
@@ -396,6 +398,25 @@ static void panel_update(PANEL *p, int x, int y, int width, int height) {
     }
 }
 
+void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
+                       uint32_t targetheight)
+{
+    /* get smallest of width or height */
+    double scale = (width > height) ? (double)targetheight / height : (double)targetwidth / width;
+
+    image_set_scale(image, scale);
+    image_set_filter(image, FILTER_BILINEAR);
+
+    /* set position to show the middle of the image in the center  */
+    int xpos = (int)((double)width * scale / 2 - (double)targetwidth / 2);
+    int ypos = (int)((double)height * scale / 2 - (double)targetheight / 2);
+
+    draw_image(image, x, y, targetwidth, targetheight, xpos, ypos);
+
+    image_set_scale(image, 1.0);
+    image_set_filter(image, FILTER_NEAREST);
+}
+
 void ui_size(int width, int height) {
     panel_update(&panel_root, 0, 0, width, height);
     tooltip_reset();
@@ -549,14 +570,14 @@ void panel_mdown(PANEL *p) {
     if (pp) {
         while ((subp = *pp++)) {
             if (!subp->disabled) {
-                if (panel_mdown_sub(subp) || draw) {
-                    redraw();
-                    break;
-                }
+                draw |= panel_mdown_sub(subp);
             }
         }
     }
-    draw ? redraw() : 0;
+
+    if (draw) {
+        redraw();
+    }
 }
 
 bool panel_dclick(PANEL *p, bool triclick) {

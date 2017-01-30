@@ -9,6 +9,7 @@ add_library(utoxUI STATIC
     ../layout/group.c
     ../layout/notify.c
     ../layout/settings.c
+    ../layout/side_bar.c
 
     button.c
     button.h

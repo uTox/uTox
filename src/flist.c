@@ -1,6 +1,6 @@
 #include "flist.h"
 
-// FIXME: Separate from UI or include in UI.
+// TODO: Separate from UI or include in UI.
 
 #include "friend.h"
 #include "groups.h"
@@ -28,6 +28,7 @@
 #include "layout/friend.h"
 #include "layout/group.h"
 #include "layout/settings.h"
+#include "layout/side_bar.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -47,8 +48,8 @@ static ITEM item_add, item_settings, item_transfer;
 static ITEM     item[1024]; /* TODO MAGIC NUMBER*/
 static uint32_t itemcount;
 
-static uint32_t shown_list[1024]; // list of chats actually shown in the GUI after filtering(actually indices pointing
-                                  // to chats in the chats array)
+static uint32_t shown_list[1024]; // list of chats actually shown in the GUI after filtering
+                                  // (actually indices pointing to chats in the chats array)
 static uint32_t showncount;
 
 // search and filter stuff
