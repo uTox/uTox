@@ -4,7 +4,7 @@
 #include "logging_native.h"
 #include "main_native.h"
 #include "messages.h"
-#include "util.h"
+#include "text.h"
 
 #include <stdint.h>
 
@@ -80,7 +80,7 @@ static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
  * theory we should be able to trim the start of the chatlog up to and including
  * the first \n char. We may have to do so multiple times, but once we find the
  * first valid message everything else should "work" */
-uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uint32_t count, uint32_t skip) {
+MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uint32_t count, uint32_t skip) {
     /* Becasue every platform is different, we have to ask them to open the file for us.
      * However once we have it, every platform does the same thing, this should prevent issues
      * from occuring on a single platform. */
@@ -105,11 +105,12 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
         count = records_count - skip;
     }
 
-    uint8_t **data = calloc(1, sizeof(*data) * count + 1);
-    uint8_t **block = data;
+    MSG_HEADER **data = calloc(count + 1, sizeof(MSG_HEADER));
+    MSG_HEADER **start = data;
 
     if (!data) {
         debug_error("Log read:\tCouldn't allocate memory for log entries.");
+        fclose(file);
         return NULL;
     }
 
@@ -142,10 +143,15 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
                 }
 
                 fclose(file);
-                return data - actual_count;
+                return start;
             }
-            MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
-            msg->our_msg  = header.author;
+            MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+            if (!msg) {
+                debug_error("Chatlog:\tUnable to malloc... sorry!\n");
+                fclose(file);
+                return NULL;
+            }
+            msg->our_msg    = header.author;
 
             /* TEMP Fix to recover logs from v0.8.* */
             if (header.log_version == 0) {
@@ -154,21 +160,42 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
                 msg->receipt_time = header.receipt;
             }
 
-            msg->length        = header.msg_length;
             msg->time          = header.time;
             msg->msg_type      = header.msg_type;
             msg->disk_offset   = file_offset;
-            msg->author_length = header.author_length;
 
-            if (fread(msg->msg, msg->length, 1, file) != 1) {
+            msg->via.txt.length        = header.msg_length;
+            msg->via.txt.msg = calloc(1, msg->via.txt.length);
+            if (!msg->via.txt.msg) {
+                debug_error("Chatlog:\tUnable to malloc for via.txt.msg... sorry!\n");
+                free(msg);
+                fclose(file);
+                return NULL;
+            }
+
+            msg->via.txt.author_length = header.author_length;
+            // TODO: msg->via.txt.author used to be allocated but left empty. Commented out for now.
+            // msg->via.txt.author = calloc(1, msg->via.txt.author_length);
+            // if (!msg->via.txt.author) {
+            //     debug_error("Chatlog:\tUnable to malloc for via.txt.author... sorry!\n");
+            //     free(msg->via.txt.msg);
+            //     free(msg);
+            //     fclose(file);
+            //     return NULL;
+            // }
+
+            if (fread(msg->via.txt.msg, msg->via.txt.length, 1, file) != 1) {
                 debug_error("Log read:\tError reading record %u of length %u at offset %lu: stopping.\n",
-                            count, msg->length, msg->disk_offset);
+                            count, msg->via.txt.length, msg->disk_offset);
+                // free(msg->via.txt.author);
+                free(msg->via.txt.msg);
+                free(msg);
                 break;
             }
-            msg->length = utf8_validate((uint8_t *)msg->msg, msg->length);
-            *data++     = (void *)msg;
-            count--;
-            actual_count++;
+            msg->via.txt.length = utf8_validate((uint8_t *)msg->via.txt.msg, msg->via.txt.length);
+            *data++ = msg;
+            --count;
+            ++actual_count;
             fseeko(file, 1, SEEK_CUR); /* seek an extra \n char */
             file_offset = ftello(file);
         }
@@ -179,7 +206,7 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
     if (size) {
         *size = actual_count;
     }
-    return data - actual_count;
+    return start;
 }
 
 bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8_t *data, size_t length) {

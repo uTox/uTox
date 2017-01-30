@@ -8,6 +8,7 @@
 #include "../logging_native.h"
 #include "../main.h" // settings
 #include "../tox.h"
+#include "../settings.h"
 
 #if 0 // commented because this function is deprecated, but I'm not ready to delete all this code yet
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
@@ -127,7 +128,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     if (libgtk) {
         ugtk_save_chatlog(friend_number);
     } else {
-        char name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
+        char name[TOX_MAX_NAME_LENGTH + sizeof(".txt")];
         snprintf((char *)name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length,
                  friend[friend_number].name);
 
@@ -204,17 +205,18 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 }
 
 // TODO: This function has the worst name.
-void file_save_inline(FILE_TRANSFER *file) {
+void file_save_inline(MSG_HEADER *msg) {
     if (libgtk) {
-        ugtk_file_save_inline(file);
+        ugtk_file_save_inline(msg);
     } else {
         // fall back to working dir inline.png
         FILE *fp = fopen("inline.png", "wb");
         if (fp) {
-            fwrite(file->path, 1, file->target_size, fp);
+            fwrite(msg->via.ft.data, 1, msg->via.ft.data_size, fp);
             fclose(fp);
 
-            snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
+            snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "inline.png");
+            msg->via.ft.inline_png = false;
         }
     }
 }

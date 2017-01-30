@@ -5,34 +5,28 @@
 #include "tray.h"
 #include "window.h"
 
-#include "../av/utox_av.h"
-#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
+#include "../macros.h"
+#include "../main_native.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
+#include "../text.h"
+#include "../utox.h"
+#include "../filesys.h"
+
+#include "../av/utox_av.h"
 #include "../ui/draw.h"
 #include "../ui/dropdowns.h"
 #include "../ui/edit.h"
-#include "../util.h"
-#include "../utox.h"
 
-// FIXME: Required for UNUSED()
-#include "../main.h"
-
-#include "../ui/dropdowns.h"
-#include "../ui/draw.h"
+#include "../main.h" // STBI
 
 bool hidden = false;
 
 XIC xic = NULL;
-
-void *ugtk_load(void);
-void  ugtk_openfilesend(void);
-void  ugtk_openfileavatar(void);
-void ugtk_native_select_dir_ft(uint32_t fid, FILE_TRANSFER *file);
-void ugtk_file_save_inline(FILE_TRANSFER *file);
 
 void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, main_window.window, CurrentTime);
@@ -294,7 +288,7 @@ void pastebestformat(const Atom atoms[], size_t len, Atom selection) {
     }
 
     for (i = 0; i < len; i++) {
-        for (j = 0; j < countof(supported); j++) {
+        for (j = 0; j < COUNTOF(supported); j++) {
             if (atoms[i] == supported[j]) {
                 XConvertSelection(display, selection, supported[j], targets, main_window.window, CurrentTime);
                 return;
@@ -496,7 +490,7 @@ void flush_file(FILE *file) {
 
 void setscale(void) {
     unsigned int i;
-    for (i = 0; i != countof(bitmap); i++) {
+    for (i = 0; i != COUNTOF(bitmap); i++) {
         if (bitmap[i]) {
             XRenderFreePicture(display, bitmap[i]);
         }
@@ -531,7 +525,7 @@ void setscale_fonts(void) {
     // font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
-void notify(char *UNUSED(title), uint16_t UNUSED(title_length), const char *UNUSED(msg), uint16_t UNUSED(msg_length), void *object, bool is_group) {
+void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_t msg_length, void *object, bool is_group) {
     if (havefocus) {
         return;
     }
@@ -551,10 +545,12 @@ void notify(char *UNUSED(title), uint16_t UNUSED(title_length), const char *UNUS
 
 #ifdef HAVE_DBUS
     char *str = tohtml(msg, msg_length);
-
     dbus_notify(title, str, f_cid);
-
     free(str);
+#else
+    (void)title; // I don't like this either, but this is all going away soon!
+    (void)msg;
+    (void)msg_length;
 #endif
 
 #ifdef UNITY
@@ -746,8 +742,9 @@ int main(int argc, char *argv[]) {
     /* Xft draw context/color */
     main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf, main_window.pictformat, 0, NULL);
 
+
     XRenderColor xrcolor = { 0,0,0,0 };
-    main_window.colorpic             = XRenderCreateSolidFill(display, &xrcolor);
+    main_window.colorpic = XRenderCreateSolidFill(display, &xrcolor);
 
     if (set_show_window) {
         if (set_show_window == 1) {

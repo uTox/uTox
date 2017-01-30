@@ -4,11 +4,12 @@
 #include "../filesys.h"
 #include "../logging_native.h"
 #include "../main.h"
+#include "../main_native.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../ui.h"
-#include "../util.h"
 #include "../utox.h"
+#include "../settings.h"
 
 #include "../av/utox_av.h"
 #include "../ui/dropdowns.h"

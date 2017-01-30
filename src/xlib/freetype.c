@@ -4,7 +4,7 @@
 #include "window.h"
 
 #include "../logging_native.h"
-#include "../main.h" // countof()
+#include "../macros.h"
 
 #define UTOX_FONT_XLIB "Roboto"
 
@@ -81,7 +81,7 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
     uint32_t hash = ch % 128;
     GLYPH *  g = f->glyphs[hash], *s = g;
     if (g) {
-        while (g->ucs4 != ~0) {
+        while (g->ucs4 != ~0u) {
             if (g->ucs4 == ch) {
                 return g;
             }
@@ -418,7 +418,7 @@ void loadfonts(void) {
 }
 
 void freefonts(void) {
-    for (size_t i = 0; i < countof(font); i++) {
+    for (size_t i = 0; i < COUNTOF(font); i++) {
         FONT *f = &font[i];
         if (f->pattern) {
             FcPatternDestroy(f->pattern);
@@ -433,10 +433,10 @@ void freefonts(void) {
             free(f->info);
         }
 
-        for (size_t j = 0; j < countof(f->glyphs); j++) {
+        for (size_t j = 0; j < COUNTOF(f->glyphs); j++) {
             GLYPH *g = f->glyphs[j];
             if (g) {
-                while (g->ucs4 != ~0) {
+                while (g->ucs4 != ~0u) {
                     if (g->pic) {
                         XRenderFreePicture(display, g->pic);
                     }

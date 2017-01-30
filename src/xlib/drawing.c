@@ -4,7 +4,8 @@
 #include "main.h"
 #include "window.h"
 
-#include "../util.h"
+#include "../text.h"
+
 #include "../ui/draw.h"
 
 #include <stdlib.h>

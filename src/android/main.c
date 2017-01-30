@@ -1,6 +1,7 @@
 
 #include "../filesys.h"
 #include "../logging_native.h"
+#include "../settings.h"
 
 #include <pthread.h>
 #include <stdint.h>
@@ -145,7 +146,7 @@ void openfilesend(void) { /* Unsupported on android */
 }
 void openfileavatar(void) { /* Unsupported on android */
 }
-void file_save_inline(FILE_TRANSFER *file) { /* Unsupported on android */
+void file_save_inline(MSG_HEADER *msg) { /* Unsupported on android */
 }
 void setselection(char *data, uint16_t length) { /* Unsupported on android */
 }

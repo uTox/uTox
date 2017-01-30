@@ -2,12 +2,14 @@
 
 #include "draw.h"
 
+#include "../macros.h"
+#include "../main_native.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../ui.h"
 #include "../utox.h"
 
-// FIXME: Required for UNUSED()
-#include "../main.h"
+#include "../main.h" // mouse, thread
 
 static TOOLTIP tooltip;
 

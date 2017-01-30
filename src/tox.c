@@ -1,30 +1,35 @@
 #include "tox.h"
 
-#include "avatar.h"
-#include "commands.h"
 #include "dns.h"
 #include "file_transfers.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
-#include "main.h"
 #include "logging_native.h"
+#include "macros.h"
+#include "main_native.h"
+#include "self.h"
+#include "settings.h"
+#include "text.h"
 #include "tox_bootstrap.h"
 #include "tox_callbacks.h"
-#include "util.h"
 #include "utox.h"
 
+#include "av/audio.h"
 #include "av/utox_av.h"
-#include "ui/dropdown.h"
+#include "av/video.h"
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
-#include "ui/switch.h"
 #include "ui/switches.h"
-#include "ui/tooltip.h"
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include <tox/toxencryptsave.h>
 
-static bool save_needed = 1;
+#include "main.h"
+
+static bool save_needed = true;
 
 enum {
     LOG_FILE_MSG_TYPE_TEXT   = 0,
@@ -113,7 +118,7 @@ static void toxcore_bootstrap(Tox *tox) {
 
     int i = 0;
     while (i < 4) {
-        struct bootstrap_node *d = &bootstrap_nodes[j % countof(bootstrap_nodes)];
+        struct bootstrap_node *d = &bootstrap_nodes[j % COUNTOF(bootstrap_nodes)];
         tox_bootstrap(tox, d->address, d->port, d->key, 0);
         tox_add_tcp_relay(tox, d->address, d->port, d->key, 0);
         i++;
@@ -287,12 +292,19 @@ static int load_toxcore_save(struct Tox_Options *options) {
     return -2;
 }
 
-static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL UNUSED(level), const char *UNUSED(file), uint32_t UNUSED(line), const char *func,
-                         const char *message, void *UNUSED(user_data)) {
-    if (message) {
-        debug("TOXCORE LOGGING ERROR: %s\n", message);
+static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file, uint32_t line,
+                         const char *func, const char *message, void *UNUSED(user_data)) {
+    if (utox_verbosity() <= 8 ) {
+        return;
+    }
+
+    if (message && file && line) {
+        debug("TOXCORE LOGGING ERROR (%u): %s\n", level, message);
+        debug("     in: %s:%u\n", file, line);
     } else if (func) {
         debug("TOXCORE LOGGING ERROR: %s\n", func);
+    } else {
+        debug_warning("TOXCORE LOGGING is broken!!:\tOpen an bug upstream\n");
     }
 }
 
@@ -308,6 +320,8 @@ static int init_toxcore(Tox **tox) {
     tox_options_default(&topt);
     // tox_options_set_start_port(&topt, 0);
     // tox_options_set_end_port(&topt, 0);
+
+    tox_options_set_log_callback(&topt, log_callback);
 
     tox_options_set_ipv6_enabled(&topt, settings.enable_ipv6);
     tox_options_set_udp_enabled(&topt, settings.enable_udp);
@@ -396,8 +410,6 @@ static int init_toxcore(Tox **tox) {
     /* Give toxcore the functions to call */
     set_callbacks(*tox);
 
-    // tox_callback_log(*tox, &log_callback, NULL);
-
     /* Connect to bootstrapped nodes in "tox_bootstrap.h" */
     toxcore_bootstrap(*tox);
 
@@ -410,24 +422,6 @@ static int init_toxcore(Tox **tox) {
     return 0;
 }
 
-static void init_self(Tox *tox) {
-    /* Set local info for self */
-    edit_setstr(&edit_name, self.name, self.name_length);
-    edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
-
-    /* Get tox id, and gets the hex version for utox */
-    tox_self_get_address(tox, self.id_binary);
-    id_to_string(self.id_str, self.id_binary);
-    self.id_str_length = TOX_FRIEND_ADDRESS_SIZE * 2;
-    debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
-
-    /* Get nospam */
-    self.nospam = tox_self_get_nospam(tox);
-    self.old_nospam = self.nospam;
-    sprintf(self.nospam_str, "%08X", self.nospam);
-
-    avatar_init_self();
-}
 
 /** void toxcore_thread(void)
  *
@@ -651,7 +645,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         #ifdef ENABLE_MULTIDEVICE
 
             TOX_ERR_DEVICE_ADD error = 0;
-            tox_self_add_device(tox, data + TOX_FRIEND_ADDRESS_SIZE, param1, data, &error);
+            tox_self_add_device(tox, data + TOX_ADDRESS_SIZE, param1, data, &error);
 
             if (error) {
                 debug_error("Toxcore:\tproblem with adding device to self %u\n", error);
@@ -692,7 +686,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 STRING *default_add_msg = SPTR(DEFAULT_FRIEND_REQUEST_MESSAGE);
                 fid = tox_friend_add(tox, data, (const uint8_t *)default_add_msg->str, default_add_msg->length, &f_err);
             } else {
-                fid = tox_friend_add(tox, data, data + TOX_FRIEND_ADDRESS_SIZE, param1, &f_err);
+                fid = tox_friend_add(tox, data, data + TOX_ADDRESS_SIZE, param1, &f_err);
             }
 
             if (f_err != TOX_ERR_FRIEND_ADD_OK) {
@@ -737,7 +731,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 postmessage_utox(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
                             (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
             } else {
-                char hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
+                char hex_id[TOX_ADDRESS_SIZE * 2];
                 id_to_string(hex_id, self.id_binary);
                 debug("Toxcore:\tUnable to accept friend %s, error num = %i\n", hex_id, fid);
             }
@@ -764,8 +758,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * param2: message length
              * data: message
              */
-            MSG_TEXT *message = (void *)data;
-            void *    p       = message->msg;
+            MSG_HEADER *mmsg = (MSG_HEADER *)data;
 
             TOX_MESSAGE_TYPE type;
             if (msg == TOX_SEND_ACTION) {
@@ -774,20 +767,21 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 type = TOX_MESSAGE_TYPE_NORMAL;
             }
 
+            uint8_t *next = (uint8_t *)mmsg->via.txt.msg;
             while (param2 > TOX_MAX_MESSAGE_LENGTH) {
-                uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen(p + TOX_MAX_MESSAGE_LENGTH);
-                tox_friend_send_message(tox, param1, type, p, len, 0);
+                uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen((char *)next + TOX_MAX_MESSAGE_LENGTH);
+                tox_friend_send_message(tox, param1, type, next, len, 0);
                 param2 -= len;
-                p += len;
+                next += len;
             }
 
             TOX_ERR_FRIEND_SEND_MESSAGE error = 0;
 
             // Send last or only message
-            message->receipt      = tox_friend_send_message(tox, param1, type, p, param2, &error);
-            message->receipt_time = 0;
+            mmsg->receipt      = tox_friend_send_message(tox, param1, type, next, param2, &error);
+            mmsg->receipt_time = 0;
 
-            debug_info("Toxcore:\tSending message, receipt %u\n", message->receipt);
+            debug_info("Toxcore:\tSending message, receipt %u\n", mmsg->receipt);
             if (error) {
                 debug_error("Toxcore:\tError sending message... %u\n", error);
             }
@@ -844,12 +838,11 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend id
                data: pointer to a TOX_SEND_INLINE_MSG struct
              */
-            debug("Toxcore:\tSending picture inline.\n");
+            debug_info("Toxcore:\tSending picture inline.\n");
 
-            ft_send_data(tox, param1, ((struct TOX_SEND_INLINE_MSG *)data)->image,
-                                      ((struct TOX_SEND_INLINE_MSG *)data)->image_size,
-                                      (uint8_t*)"utox-inline.png",
-                                      sizeof("utox-inline.png") - 1);
+            struct TOX_SEND_INLINE_MSG *img = data;
+            uint8_t name[] = "utox-inline.png";
+            ft_send_data(tox, param1, img->image, img->image_size, name, strlen((char *)name));
             free(data);
             break;
         }
@@ -857,30 +850,28 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend #
              * param2: file #
              * data: path to write file */
-            if (utox_file_start_write(param1, param2, data) == 0) {
+            if (utox_file_start_write(param1, param2, data, 0) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
-            break;
             free(data);
+            break;
         }
         case TOX_FILE_ACCEPT_AUTO: {
             /* param1: friend #
              * param2: file #
-             * data: path to write file */
-            if (utox_file_start_write(param1, param2, data) == 0) {
+             * data: open handle to file */
+            if (utox_file_start_write(param1, param2, data, 1) == 0) {
                 /*  tox, friend#, file#,        START_FILE      */
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             }
             break;
-            free(data);
         }
         case TOX_FILE_RESUME: {
-            /*                              friend#, file# */
             if (data) {
                 param2 = ((FILE_TRANSFER*)data)->file_number;
             }
@@ -1039,11 +1030,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
 
             if (g_num != -1) {
-                GROUPCHAT *g = &group[g_num];
+                GROUPCHAT *g = get_group(g_num);
+                if (!g) {
+                    return;
+                }
                 group_init(g, g_num, param2);
                 postmessage_utox(GROUP_ADD, g_num, param2, NULL);
             }
-            save_needed = 1;
+            save_needed = true;
             break;
         }
         case TOX_GROUP_JOIN: {
@@ -1055,7 +1049,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             TOX_ERR_CONFERENCE_DELETE error = 0;
             tox_conference_delete(tox, param1, &error);
-            save_needed = 1;
+            save_needed = true;
             break;
         }
         case TOX_GROUP_SEND_INVITE: {
@@ -1064,7 +1058,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              */
             TOX_ERR_CONFERENCE_INVITE error = 0;
             tox_conference_invite(tox, param2, param1, &error);
-            save_needed = 1;
+            save_needed = true;
             break;
         }
         case TOX_GROUP_SET_TOPIC: {
@@ -1076,7 +1070,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             tox_conference_set_title(tox, param1, data, param2, &error);
             postmessage_utox(GROUP_TOPIC, param1, param2, data);
-            save_needed = 1;
+            save_needed = true;
             break;
         }
         case TOX_GROUP_SEND_MESSAGE:
@@ -1108,4 +1102,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             postmessage_utox(GROUP_AUDIO_END, param1, 0, NULL);
         }
     } // End of switch.
+}
+
+void id_to_string(char *dest, uint8_t *src) {
+    to_hex(dest, src, TOX_ADDRESS_SIZE);
 }

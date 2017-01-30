@@ -2,8 +2,9 @@
 
 #include "../logging_native.h"
 
-// FIXME: Required for UNUSED()
-#include "../main.h"
+#include "../macros.h"
+
+#include "../main.h" // video super globals
 
 int utox_v4l_fd = -1;
 

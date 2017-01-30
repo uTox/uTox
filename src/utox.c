@@ -3,23 +3,24 @@
 #include "commands.h"
 #include "dns.h"
 #include "file_transfers.h"
-#include "filesys.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
-#include "main.h"
+#include "main.h" // addfriend_status
+#include "main_native.h"
 #include "tox.h"
 
 #include "av/utox_av.h"
+#include "av/video.h"
 #include "ui/dropdowns.h"
 #include "ui/edit.h"
 #include "ui/tooltip.h"
 
 /** Translates status code to text then sends back to the user */
-static void file_notify(FRIEND *f, MSG_FILE *msg) {
+static void file_notify(FRIEND *f, MSG_HEADER *msg) {
     STRING *str;
-    switch (msg->file_status) {
+    switch (msg->via.ft.file_status) {
         case FILE_TRANSFER_STATUS_NONE: {
             str = SPTR(TRANSFER_NEW);
             break;
@@ -188,15 +189,12 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FRIEND *f = &friend[param1];
             FILE_TRANSFER *file = data;
 
-            MSG_FILE *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
-                                                file->name, file->name_length,
-                                                file->target_size, file->current_size);
+            // TODO(grayhatter) This can easily become a use after free (realloc) when a friend sends multiple files at once.
+            MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
+                                                  file->name, file->name_length,
+                                                  file->target_size, file->current_size);
             file_notify(f, m);
-
-            // Give File Trasfers the ablity to update the message
-            // TODO, make message references a thing, and add callback instead
             file->ui_data = m;
-
             redraw();
             break;
         }
@@ -210,16 +208,38 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 native_autoselect_dir_ft(param1, file);
             }
 
-            MSG_FILE *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
-                                   file->name, file->name_length,
-                                   file->target_size, file->current_size);
+            MSG_HEADER *m = message_add_type_file(&f->msg, (param2 + 1) << 16, file->incoming, file->inline_img, file->status,
+                                                  file->name, file->name_length,
+                                                  file->target_size, file->current_size);
             file_notify(f, m);
-
-
-            // Give File Trasfers the ablity to update the message
-            // TODO, make message references a thing, and add callback instead
             file->ui_data = m;
+            redraw();
+            break;
+        }
+        case FILE_INCOMING_NEW_INLINE: {
+            FRIEND *f = get_friend(param1);
 
+            // Process image data
+            uint16_t width, height;
+            uint8_t *image;
+            memcpy(&width, data, sizeof(uint16_t));
+            memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
+            memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
+            // Save and store image
+            friend_recvimage(f, (NATIVE_IMAGE *)image, width, height);
+            redraw();
+            free(data);
+            break;
+        }
+        case FILE_INCOMING_NEW_INLINE_DONE: {
+            // Add file transfer message so user can save the inline.
+            FRIEND *f = get_friend(param1);
+            FILE_TRANSFER *file = data;
+            MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
+                                                  file->name, file->name_length,
+                                                  file->target_size, file->current_size);
+            file_notify(f, m);
+            file->ui_data = m;
             redraw();
             break;
         }
@@ -227,48 +247,47 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             postmessage_toxcore(TOX_FILE_ACCEPT, param1, param2 << 16, data);
             break;
         }
-        case FILE_UPDATE_STATUS: {
+        case FILE_STATUS_UPDATE: {
             if (!data) {
                 break;
             }
             FILE_TRANSFER *file = data;
 
             if (file->ui_data) {
-                ((MSG_FILE*)file->ui_data)->progress = file->current_size;
-                ((MSG_FILE*)file->ui_data)->speed    = file->speed;
-
-                if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
-                    file->ui_data->file_status = FILE_TRANSFER_STATUS_COMPLETED;
-
-                    if (file->in_memory) {
-                        file->ui_data->path = file->via.memory;
-                    } else {
-                        memcpy(file->ui_data->path, file->path, UTOX_FILE_NAME_LENGTH);
-                    }
-
-                    /* File Tranfers won't decon the file while we're still accessing the UI info */
-                    file->ui_data = NULL;
-                } else if (param1 == FILE_TRANSFER_STATUS_BROKEN) {
-                    file->ui_data->file_status = FILE_TRANSFER_STATUS_BROKEN;
-                    file->ui_data = NULL;
-                } else if (param1 == FILE_TRANSFER_STATUS_KILLED) {
-                    file->ui_data->file_status = FILE_TRANSFER_STATUS_KILLED;
-                    file->ui_data = NULL;
-                }
+                file->ui_data->via.ft.progress = file->current_size;
+                file->ui_data->via.ft.speed    = file->speed;
+                file->ui_data->via.ft.file_status = param1;
             }
-
             redraw();
             break;
         }
-        case FILE_INLINE_IMAGE: {
-            FRIEND * f = &friend[param1];
-            uint16_t width, height;
-            uint8_t *image;
-            memcpy(&width, data, sizeof(uint16_t));
-            memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
-            memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
-            free(data);
-            friend_recvimage(f, (NATIVE_IMAGE *)image, width, height);
+        case FILE_STATUS_UPDATE_DATA: {
+            if (!data) {
+                break;
+            }
+            FILE_TRANSFER *file = data;
+
+            if (file->ui_data) {
+                if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
+                    if (file->in_memory) {
+                        file->ui_data->via.ft.data = file->via.memory;
+                        file->ui_data->via.ft.data_size = file->current_size;
+                    } else {
+                        memcpy(file->ui_data->via.ft.path, file->path, UTOX_FILE_NAME_LENGTH);
+                    }
+                }
+            }
+            file->decon_wait = false;
+            debug_notice("uTox:\tFT data was saved\n");
+            redraw();
+            break;
+        }
+        case FILE_STATUS_DONE: {
+            // Could also be failed or broken
+            MSG_HEADER *msg = data;
+            if (msg) {
+                msg->via.ft.file_status = param1;
+            }
             redraw();
             break;
         }
@@ -452,18 +471,24 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case GROUP_MESSAGE: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             GROUPCHAT *selected = flist_get_selected()->data;
             if (selected != g) {
-                g->unread_msg = 1;
+                g->unread_msg = true;
             }
             redraw(); // ui_drawmain();
 
             break;
         }
         case GROUP_PEER_DEL: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             if (g->av_group) {
                 g->last_recv_audio[param2]        = g->last_recv_audio[g->peer_count];
@@ -483,7 +508,10 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         case GROUP_PEER_ADD:
         case GROUP_PEER_NAME: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
             if (g->topic_length >= sizeof(g->topic)) {
@@ -492,14 +520,17 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             GROUPCHAT *selected = flist_get_selected()->data;
             if (selected != g) {
-                g->unread_msg = 1;
+                g->unread_msg = true;
             }
             redraw();
             break;
         }
 
         case GROUP_TOPIC: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             if (param2 > sizeof(g->name)) {
                 memcpy(g->name, data, sizeof(g->name));
@@ -514,7 +545,10 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case GROUP_AUDIO_START: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             if (g->av_group) {
                 g->audio_calling = 1;
@@ -524,7 +558,10 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case GROUP_AUDIO_END: {
-            GROUPCHAT *g = &group[param1];
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
 
             if (g->av_group) {
                 g->audio_calling = 0;

@@ -5,9 +5,13 @@
 #include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
+#include "macros.h"
+#include "main_native.h"
+#include "self.h"
+#include "settings.h"
+#include "text.h"
 #include "theme.h"
 #include "tox.h"
-#include "util.h"
 #include "utox.h"
 
 #include "ui/buttons.h"
@@ -19,13 +23,16 @@
 #include "ui/svg.h"
 #include "ui/tooltip.h"
 
+#include <limits.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "main.h" // addfriend_status
+
 #ifdef UNITY
 #include "xlib/mmenu.h"
 extern bool unity_running;
 #endif
-
-// FIXME: Required for UNUSED()
-#include "main.h"
 
 /* I think these are pointers to the panels they're named after. */
 static ITEM item_add, item_settings, item_transfer;
@@ -186,7 +193,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         case ITEM_FRIEND_ADD: {
             FRIENDREQ *f = i->data;
 
-            char name[TOX_FRIEND_ADDRESS_SIZE * 2];
+            char name[TOX_ADDRESS_SIZE * 2];
             id_to_string(name, f->id);
 
             drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w,
@@ -265,8 +272,8 @@ static ITEM *item_hit(int mx, int my, int UNUSED(height)) {
 
     /* Mouse is outsite the list */
     if (mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH || my < 0
-        || my >= showncount * real_height) { /* TODO: Height is a bit buggy, Height needs /2
-                                                 * figure out why!  */
+        || my >= (int)(showncount * real_height)) { /* TODO: Height is a bit buggy, Height needs /2
+                                                     * figure out why!  */
         mouse_in_list = 0;
         return NULL;
     }
@@ -468,7 +475,7 @@ static void page_open(ITEM *i) {
             g->msg.id     = g - group;
             g->unread_msg = 0;
             /* We use the MESSAGES struct from the group, but we need the info from the panel. */
-            messages_group.object = ((void *)&g->msg);
+            messages_group.object = &g->msg;
             messages_updateheight((MESSAGES *)messages_group.object, current_width);
 
             ((MESSAGES *)messages_group.object)->cursor_over_msg      = UINT32_MAX;
@@ -576,7 +583,7 @@ void flist_addfriend2(FRIEND *f, FRIENDREQ *req) {
                 // panel_item[selected_item->item - 1].disabled = 1;
                 // panel_item[ITEM_FRIEND - 1].disabled = 0;
 
-                messages_friend.object                                = (void *)&f->msg;
+                messages_friend.object                                = &f->msg;
                 ((MESSAGES *)messages_friend.object)->cursor_over_msg = UINT32_MAX;
                 messages_friend.content_scroll->content_height        = f->msg.height;
                 messages_friend.content_scroll->d                     = f->msg.scroll;
@@ -649,7 +656,7 @@ static void deleteitem(ITEM *i) {
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
 
-    if (i != selected_item && selected_item > i && selected_item >= item && selected_item < item + countof(item)) {
+    if (i != selected_item && selected_item > i && selected_item >= item && selected_item < item + COUNTOF(item)) {
         selected_item--;
     }
 
@@ -658,13 +665,13 @@ static void deleteitem(ITEM *i) {
 }
 
 void flist_deletesitem(void) {
-    if (selected_item >= item && selected_item < item + countof(item)) {
+    if (selected_item >= item && selected_item < item + COUNTOF(item)) {
         deleteitem(selected_item);
     }
 }
 
 void flist_delete_rmouse_item(void) {
-    if (right_mouse_item >= item && right_mouse_item < item + countof(item)) {
+    if (right_mouse_item >= item && right_mouse_item < item + COUNTOF(item)) {
         deleteitem(right_mouse_item);
     }
 }
@@ -697,7 +704,7 @@ void flist_freeall(void) {
 }
 
 void flist_selectchat(int index) {
-    if (index >= 0 && index < showncount) {
+    if (index >= 0 && (unsigned)index < showncount) {
         show_page(&item[shown_list[index]]);
     }
 }
@@ -1040,7 +1047,7 @@ bool flist_mright(void *UNUSED(n)) {
         right_mouse_item = mouseover_item;
         switch (mouseover_item->item) {
             case ITEM_FRIEND: {
-                contextmenu_new(countof(menu_friend), menu_friend, contextmenu_list_onselect);
+                contextmenu_new(COUNTOF(menu_friend), menu_friend, contextmenu_list_onselect);
                 show_page(mouseover_item);
                 break;
             }
@@ -1049,24 +1056,24 @@ bool flist_mright(void *UNUSED(n)) {
                 GROUPCHAT *g = mouseover_item->data;
                 if (g->av_group) {
                     if (g->muted) {
-                        contextmenu_new(countof(menu_group_muted), menu_group_muted, contextmenu_list_onselect);
+                        contextmenu_new(COUNTOF(menu_group_muted), menu_group_muted, contextmenu_list_onselect);
                     } else {
-                        contextmenu_new(countof(menu_group_unmuted), menu_group_unmuted, contextmenu_list_onselect);
+                        contextmenu_new(COUNTOF(menu_group_unmuted), menu_group_unmuted, contextmenu_list_onselect);
                     }
                 } else {
-                    contextmenu_new(countof(menu_group), menu_group, contextmenu_list_onselect);
+                    contextmenu_new(COUNTOF(menu_group), menu_group, contextmenu_list_onselect);
                 }
                 show_page(mouseover_item);
                 break;
             }
 
             case ITEM_GROUP_CREATE: {
-                contextmenu_new(countof(menu_create_group), menu_create_group, contextmenu_list_onselect);
+                contextmenu_new(COUNTOF(menu_create_group), menu_create_group, contextmenu_list_onselect);
                 break;
             }
 
             case ITEM_FRIEND_ADD: {
-                contextmenu_new(countof(menu_request), menu_request, contextmenu_list_onselect);
+                contextmenu_new(COUNTOF(menu_request), menu_request, contextmenu_list_onselect);
                 break;
             }
 

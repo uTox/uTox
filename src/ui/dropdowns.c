@@ -7,14 +7,18 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../logging_native.h"
+#include "../macros.h"
+#include "../main_native.h"
 #include "../screen_grab.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../util.h"
+
 #include "../av/utox_av.h"
 
-// FIXME: Required for UNUSED()
-#include "../main.h"
+#include <string.h>
+
+#include "../main.h" // proxy_address
 
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
     DROP_ELEMENT *e      = &((DROP_ELEMENT *)dm->userdata)[i];
@@ -141,7 +145,7 @@ DROPDOWN dropdown_video = {
 
 DROPDOWN dropdown_dpi = {.ondisplay = simple_dropdown_ondisplay,
                          .onselect  = dropdown_dpi_onselect,
-                         .dropcount = countof(dpidrops),
+                         .dropcount = COUNTOF(dpidrops),
                          .userdata  = dpidrops };
 
 DROPDOWN dropdown_language = {
@@ -150,25 +154,25 @@ DROPDOWN dropdown_language = {
 
 DROPDOWN dropdown_proxy = {.ondisplay = simple_dropdown_ondisplay,
                            .onselect  = dropdown_proxy_onselect,
-                           .dropcount = countof(proxydrops),
+                           .dropcount = COUNTOF(proxydrops),
                            .userdata  = proxydrops };
 
 DROPDOWN dropdown_theme = {.ondisplay = simple_dropdown_ondisplay,
                            .onselect  = dropdown_theme_onselect,
-                           .dropcount = countof(themedrops),
+                           .dropcount = COUNTOF(themedrops),
                            .userdata  = themedrops };
 
 DROPDOWN dropdown_friend_autoaccept_ft = {.ondisplay = simple_dropdown_ondisplay,
                                           .onselect  = dropdown_friend_autoaccept_ft_onselect,
-                                          .dropcount = countof(noyesdrops),
+                                          .dropcount = COUNTOF(noyesdrops),
                                           .userdata  = noyesdrops };
 
 DROPDOWN dropdown_notify_groupchats = {.ondisplay = simple_dropdown_ondisplay,
                                        .onselect  = dropdown_notify_groupchats_onselect,
-                                       .dropcount = countof(notifydrops),
+                                       .dropcount = COUNTOF(notifydrops),
                                        .userdata  = notifydrops };
 
 DROPDOWN dropdown_global_group_notifications = {.ondisplay = simple_dropdown_ondisplay,
                                                 .onselect  = dropdown_global_group_notifications_onselect,
-                                                .dropcount = countof(notifydrops),
+                                                .dropcount = COUNTOF(notifydrops),
                                                 .userdata  = notifydrops };

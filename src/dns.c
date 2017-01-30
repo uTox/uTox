@@ -1,8 +1,9 @@
 #include "dns.h"
 
 #include "logging_native.h"
-#include "main.h"
+#include "macros.h"
 #include "main_native.h"
+#include "settings.h"
 #include "tox.h"
 #include "utox.h"
 
@@ -23,7 +24,7 @@ static struct tox3 {
 
 static void *istox3(char *name, size_t name_length) {
     int i;
-    for (i = 0; i != countof(tox3_server); i++) {
+    for (i = 0; i != COUNTOF(tox3_server); i++) {
         struct tox3 *t = &tox3_server[i];
         if (memcmp(name, t->name, name_length) == 0 && t->name[name_length] == 0) {
             // what if two threads reach this point at the same time?->initialize all dns3 at start instead
@@ -452,7 +453,7 @@ void dns_request(char *name, size_t length) {
         return;
     }
 
-    void *data = malloc((sizeof(length) + length < TOX_FRIEND_ADDRESS_SIZE) ? TOX_FRIEND_ADDRESS_SIZE :
+    void *data = malloc((sizeof(length) + length < TOX_ADDRESS_SIZE) ? TOX_ADDRESS_SIZE :
                                                                               2u + length * sizeof(char));
     memcpy(data, &length, sizeof(length));
     memcpy(data + sizeof(length), name, length * sizeof(char));

@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <tox/tox.h>
 
-typedef struct msg_file MSG_FILE;
+typedef struct msg_header MSG_HEADER;
 
 #define MAX_FILE_TRANSFERS 32
 
@@ -64,7 +64,8 @@ typedef struct file_transfer {
     FILE    *resume_file;
     uint8_t  resume_update;
 
-    MSG_FILE *ui_data;
+    MSG_HEADER *ui_data;
+    bool decon_wait; // Used to pause decon/file cleanup, for the UI thread to copy the data;
 } FILE_TRANSFER;
 
 void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
@@ -75,7 +76,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *nam
 
 uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t size, uint8_t *name, size_t name_length);
 
-int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const char *filepath);
+int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file);
 
 void utox_set_callbacks_file_transfer(Tox *tox);
 

@@ -1,5 +1,7 @@
-// FIXME: Required for UNUSED()
-#include "../main.h"
+#include "../macros.h"
+
+#include <stdint.h>
+#include <stdbool.h>
 
 void audio_detect(void) {}
 

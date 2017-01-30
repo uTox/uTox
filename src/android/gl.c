@@ -1,5 +1,6 @@
 
 #include "../logging_native.h"
+#include "../settings.h"
 
 typedef struct {
     int16_t  x, y;
@@ -341,7 +342,7 @@ bool gl_init(void) {
     } while (i);
 #endif
 
-    glGenTextures(countof(bitmap), bitmap);
+    glGenTextures(COUNTOF(bitmap), bitmap);
 
     svg_draw(0);
     loadfonts();

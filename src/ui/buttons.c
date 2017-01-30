@@ -9,13 +9,21 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../logging_native.h"
+#include "../macros.h"
+#include "../main_native.h"
 #include "../notify.h"
 #include "../screen_grab.h"
+#include "../self.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../main.h"
-#include "../ui/edits.h"
+
+#include "../av/audio.h"
 #include "../av/utox_av.h"
+#include "../av/video.h"
+#include "../ui/edits.h"
+
+#include "../main.h" // Tox thread globals
 
 #ifdef UNITY
 #include "xlib/mmenu.h"
@@ -338,7 +346,7 @@ static void contextmenu_avatar_onselect(uint8_t i) {
 static void button_avatar_onright(void) {
     if (self_has_avatar()) {
         static UTOX_I18N_STR menu[] = { STR_REMOVE };
-        contextmenu_new(countof(menu), menu, contextmenu_avatar_onselect);
+        contextmenu_new(COUNTOF(menu), menu, contextmenu_avatar_onselect);
     }
 }
 

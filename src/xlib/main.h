@@ -68,8 +68,6 @@ struct native_image {
 #define NATIVE_IMAGE_IS_VALID(x) (None != (x))
 #define NATIVE_IMAGE_HAS_ALPHA(x) (None != (x->alpha))
 
-bool               hidden;
-
 Atom wm_protocols, wm_delete_window;
 
 Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
@@ -90,7 +88,7 @@ bool     havefocus;
 bool     _redraw;
 uint16_t drawwidth, drawheight;
 
-Window  video_win[32]; // TODO we should allocate this dynamiclly but this'll work for now
+Window  video_win[32]; // TODO we should allocate this dynamically but this'll work for now
 XImage *screen_image;
 
 extern int utox_v4l_fd;

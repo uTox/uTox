@@ -5,21 +5,24 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
+#include "../macros.h"
+#include "../main_native.h"
 #include "../notify.h"
+#include "../settings.h"
 #include "../tox.h"
+#include "../ui.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+#include "../ui/draw.h" // Needed for enddraw. This should probably be changed.
 #include "../ui/edit.h"
-#include "../main.h" // needed for cursor, TODO move cursor elsewhere
-
-// Needed for enddraw. This should probably be changed.
-#include "../ui/draw.h"
 
 #include "keysym2ucs.h"
 
 #include <assert.h>
 #include <stddef.h>
+
+#include "../main.h" // STBI
 
 extern XIC xic;
 
@@ -263,14 +266,14 @@ bool doevent(XEvent event) {
                 }
 
                 int i;
-                for (i = 0; i != countof(friend); i++) {
+                for (i = 0; i != COUNTOF(friend); i++) {
                     if (video_win[i + 1] == ev->window) {
                         FRIEND *f = &friend[i];
                         postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
                         break;
                     }
                 }
-                assert(i != countof(friend));
+                assert(i != COUNTOF(friend));
             }
         }
 
@@ -296,7 +299,7 @@ bool doevent(XEvent event) {
             #endif
 
             havefocus      = true;
-            XWMHints hints = { 0 };
+            XWMHints hints = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             XSetWMHints(display, main_window.window, &hints);
             break;
         }
@@ -318,7 +321,8 @@ bool doevent(XEvent event) {
 
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
-            if (settings.window_width != (uint32_t)ev->width || settings.window_height != (uint32_t)ev->height) {
+            if (settings.window_width != (unsigned)ev->width || settings.window_height != (unsigned)ev->height) {
+                // Resize
 
                 if (ev->width > drawwidth || ev->height > drawheight) {
                     drawwidth  = ev->width + 10;
@@ -479,7 +483,7 @@ bool doevent(XEvent event) {
                         edit_char(buffer[i], (ev->state & 4) != 0, ev->state);
                 }
                 uint32_t key = keysym2ucs(sym);
-                if (key != ~0) {
+                if (key != ~0u) {
                     edit_char(key, (ev->state & 4) != 0, ev->state);
                 } else {
                     edit_char(sym, 1, ev->state);
@@ -577,7 +581,7 @@ bool doevent(XEvent event) {
             } else if (ev->target == targets) {
                 Atom supported[] = { XA_STRING, XA_UTF8_STRING };
                 XChangeProperty(display, ev->requestor, ev->property, XA_ATOM, 32, PropModeReplace, (void *)&supported,
-                                countof(supported));
+                                COUNTOF(supported));
             } else {
                 debug_notice("XLIB selection request: unknown request\n");
                 resp.xselection.property = None;
@@ -608,7 +612,7 @@ bool doevent(XEvent event) {
                     break;
                 }
 
-                if (pastebuf.left < (int)len) {
+                if (pastebuf.left > 0 && (unsigned)pastebuf.left < len) {
                     pastebuf.len += len - pastebuf.left;
                     pastebuf.data = realloc(pastebuf.data, pastebuf.len);
                     pastebuf.left = len;

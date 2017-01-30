@@ -1,15 +1,21 @@
 #include "utox_av.h"
 
+#include "audio.h"
+#include "video.h"
+
 #include "../flist.h"
 #include "../friend.h"
 #include "../inline_video.h"
 #include "../logging_native.h"
+#include "../macros.h"
+#include "../main_native.h"
 #include "../tox.h"
 #include "../utox.h"
-#include "../util.h"
 
-// FIXME: Required for UNUSED()
-#include "../main.h"
+#include <stdlib.h>
+
+#include "../main.h" // utox_av_ctrl_init, utox_video_thread_init, utox_audio_thread_init
+
 
 bool toxav_thread_msg = 0;
 void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
@@ -478,4 +484,3 @@ void set_av_callbacks(ToxAV *av) {
     /* Data type change callbacks. */
     toxav_callback_bit_rate_status(av, &utox_incoming_rate_change, NULL);
 }
-// TODO

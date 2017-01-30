@@ -2,9 +2,11 @@
 
 #include "window.h"
 
-#include "../logging_native.h"
 #include "../draw.h"
-#include "../main.h"
+#include "../logging_native.h"
+#include "../macros.h"
+#include "../main_native.h"
+
 #include "../ui/svg.h"
 
 UTOX_WINDOW *curr = NULL;

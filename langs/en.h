@@ -15,13 +15,16 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.12.1! Release name: [Make uTox Great Again]")
+msgstr("You have just upgraded to version 0.12.2! Release name: Make uTox Great Again [Again]")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.12.1")
+msgstr("Changes in v0.12.2")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
+"    Fixed a Windows UI hang during file transfers.\n"
+"    Fixed a Windows Crash during file transfers.\n"
+"\nv0.11.1\n"
 "    Fixed crash with some transfers.\n"
 "    Bug Fixes\n"
 "    Fixed building on Windows XP\n"

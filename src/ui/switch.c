@@ -3,8 +3,8 @@
 #include "draw.h"
 #include "tooltip.h"
 
-// FIXME: Required for UNUSED()
-#include "../main.h"
+#include "../macros.h"
+#include "../ui.h"
 
 static void calculate_pos_and_width(UISWITCH *s, int *x, int *w) {
     int old_w = *w;

@@ -4,6 +4,102 @@
 #include "ui.h"
 
 #include <time.h>
+#include <pthread.h>
+
+pthread_mutex_t messages_lock;
+
+typedef enum UTOX_MSG_TYPE {
+    MSG_TYPE_NULL,
+    /* MSG_TEXT must start here */
+    MSG_TYPE_TEXT,
+    MSG_TYPE_ACTION_TEXT,
+    MSG_TYPE_NOTICE,
+    MSG_TYPE_NOTICE_DAY_CHANGE, // Seperated so I can localize this later!
+    /* MSG_TEXT should end here */
+    MSG_TYPE_OTHER, // Unused, expect to seperate MSG_TEXT type
+    MSG_TYPE_IMAGE,
+    MSG_TYPE_IMAGE_HISTORY,
+    MSG_TYPE_FILE,
+    MSG_TYPE_FILE_HISTORY,
+    MSG_TYPE_CALL_ACTIVE,
+    MSG_TYPE_CALL_HISTORY,
+} UTOX_MSG_TYPE;
+
+typedef struct {
+    char    *author;
+    uint16_t author_length;
+
+    uint16_t length;
+    char     *msg;
+} MSG_TEXT;
+
+typedef struct {
+    char    *author;
+    uint16_t author_length;
+
+    uint16_t length;
+    char     *msg;
+
+    uint32_t author_id;
+    uint32_t author_color;
+} MSG_GROUP;
+
+typedef struct {
+    uint32_t      w, h;
+    bool          zoom;
+    double        position;
+    NATIVE_IMAGE *image;
+} MSG_IMG;
+
+typedef struct msg_file {
+    uint8_t file_status;
+    uint32_t file_number;
+
+    char   *name;
+    size_t  name_length;
+
+    // Location on disk
+    uint8_t *path;
+    size_t   path_length;
+    // In memory pointer
+    uint8_t *data;
+    size_t   data_size;
+
+    uint32_t speed;
+    uint64_t size, progress;
+    bool     inline_png;
+} MSG_FILE;
+
+/* Generic Message type */
+typedef struct msg_header {
+    uint8_t msg_type;
+
+    // true, if we're the author, false, if someone else.
+    bool    our_msg;
+    bool    from_disk;
+
+    uint32_t height;
+    time_t   time;
+
+
+    uint64_t disk_offset;
+
+    uint32_t receipt;
+    time_t   receipt_time;
+
+    union {
+        MSG_TEXT txt;
+        MSG_TEXT action;
+        MSG_TEXT notice;
+        MSG_TEXT notice_day;
+
+        MSG_GROUP grp;
+
+        MSG_IMG img;
+
+        MSG_FILE ft;
+    } via;
+} MSG_HEADER;
 
 // Type for indexing into MSG_DATA->data array of messages
 typedef struct messages {
@@ -32,151 +128,27 @@ typedef struct messages {
     // Number of messages in data array.
     uint32_t number;
     // Number of extra to speedup realloc.
-    uint8_t extra;
+    int8_t extra;
 
     // Pointers at various message structs, at most MAX_BACKLOG_MESSAGES.
-    void **data;
+    MSG_HEADER **data;
 
     // Field for preserving position of text scroll
     double scroll;
 } MESSAGES;
 
-typedef enum UTOX_MSG_TYPE {
-    MSG_TYPE_NULL,
-    /* MSG_TEXT must start here */
-    MSG_TYPE_TEXT,
-    MSG_TYPE_ACTION_TEXT,
-    MSG_TYPE_NOTICE,
-    MSG_TYPE_NOTICE_DAY_CHANGE, // Seperated so I can localize this later!
-    /* MSG_TEXT should end here */
-    MSG_TYPE_OTHER, // Unused, expect to seperate MSG_TEXT type
-    MSG_TYPE_IMAGE,
-    MSG_TYPE_IMAGE_HISTORY,
-    MSG_TYPE_FILE,
-    MSG_TYPE_FILE_HISTORY,
-    MSG_TYPE_CALL_ACTIVE,
-    MSG_TYPE_CALL_HISTORY,
-} UTOX_MSG_TYPE;
-
-/* Generic Message type
- * TODO: UNION the messages types within MSG_T */
-typedef struct {
-    // true, if we're the author, false, if someone else.
-    bool    our_msg;
-    bool    from_disk;
-    uint8_t msg_type;
-
-    uint32_t height;
-    time_t   time;
-
-    uint32_t author_id;
-    uint32_t author_length;
-
-    uint64_t disk_offset;
-} MSG_VOID;
-
-typedef struct {
-    bool    our_msg;
-    bool    from_disk;
-    uint8_t msg_type;
-
-    uint32_t height;
-    time_t   time;
-
-    uint32_t author_id;
-    uint32_t author_length;
-
-    uint64_t disk_offset;
-
-    uint32_t receipt;
-    time_t   receipt_time;
-
-    uint16_t length;
-    char     msg[];
-} MSG_TEXT;
-
-
-typedef struct {
-    bool    our_msg;
-    bool    from_disk;
-    uint8_t msg_type;
-
-    uint32_t height;
-    time_t   time;
-
-    uint32_t author_id;
-    uint16_t author_length;
-
-    uint64_t disk_offset;
-
-    uint32_t receipt;
-    time_t   receipt_time;
-
-    uint32_t author_color;
-
-    uint16_t length;
-    char     msg[];
-} MSG_GROUP;
-
-typedef struct {
-    bool    our_msg;
-    bool    from_disk;
-    uint8_t msg_type;
-
-    uint32_t height;
-    time_t   time;
-
-    uint32_t author_id;
-    uint32_t author_length;
-
-    uint64_t disk_offset;
-
-    uint16_t      w, h;
-    bool          zoom;
-    double        position;
-    NATIVE_IMAGE *image;
-} MSG_IMG;
-
-typedef struct msg_file {
-    bool    our_msg;
-    bool    from_disk;
-    uint8_t msg_type;
-
-    uint32_t height;
-    time_t   time;
-
-    uint32_t author_id;
-    uint32_t author_length;
-
-    uint64_t disk_offset;
-
-    uint8_t file_status;
-
-    uint32_t file_number;
-
-    char   file_name[128];
-    size_t name_length;
-
-    uint8_t *path;
-    size_t   path_length;
-
-    uint32_t speed;
-    uint64_t size, progress;
-    bool     inline_png;
-} MSG_FILE;
-
-
-uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg);
+uint32_t message_add_group(MESSAGES *m, MSG_HEADER *msg);
 
 uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send);
 uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send);
 uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log);
 uint32_t message_add_type_image(MESSAGES *m, bool auth, NATIVE_IMAGE *img, uint16_t width, uint16_t height, bool log);
 
-MSG_FILE *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incoming, bool image, uint8_t status,
+MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incoming, bool image, uint8_t status,
                                 const uint8_t *name, size_t name_size, size_t target_size, size_t current_size);
-
-bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
+// Returns true if data was logged.
+bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg);
+// Returns true if data was read from log.
 bool messages_read_from_log(uint32_t friend_number);
 
 void messages_send_from_queue(MESSAGES *m, uint32_t friend_number);
@@ -203,7 +175,7 @@ void messages_updateheight(MESSAGES *m, int width);
 
 
 void messages_init(MESSAGES *m, uint32_t friend_number);
-void message_free(MSG_TEXT *msg);
+void message_free(MSG_HEADER *msg);
 void messages_clear_all(MESSAGES *m);
 
 #endif

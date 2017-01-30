@@ -3,11 +3,11 @@
 
 #include "messages.h"
 
-#include "av/audio.h"
-
+typedef unsigned int ALuint;
 typedef struct edit_change EDIT_CHANGE;
 
 #define MAX_GROUP_PEERS 256
+#define UTOX_MAX_NUM_GROUPS 64
 
 /*  UTOX_SAVE limits 8 as the max */
 typedef enum {
@@ -32,11 +32,14 @@ typedef struct groupchat {
 
     GNOTIFY_TYPE notify;
 
-    volatile bool muted;
-    ALuint        audio_dest;
+    bool   muted;
+    ALuint audio_dest;
 
-    uint16_t name_length, topic_length, typed_length;
-    char     name[128], topic[128]; /* TODO magic numbers */
+    char     name[128];
+    uint16_t name_length;
+    char     topic[256]; /* TODO magic numbers */
+    uint16_t topic_length;
+    uint16_t typed_length;
 
     char *typed;
 
@@ -50,26 +53,37 @@ typedef struct groupchat {
     uint16_t      edit_history_cur, edit_history_length;
 
     uint32_t peer_count;
-    void **  peer;
+    GROUP_PEER **peer;
 } GROUPCHAT;
 
 // #pragma message "GROUPCHAT needs to become dynamic"
-GROUPCHAT group[64];
+GROUPCHAT group[UTOX_MAX_NUM_GROUPS];
 
+/* Initialize a new groupchat */
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group);
 
-uint32_t group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t length, uint8_t m_type);
+// Returns the message number on success, returns UINT32_MAX on failure.
+uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type);
 
+/* Add a peer to a group */
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool our_peer_number, uint32_t name_color);
 
+/* Delete a peer from a group */
 void group_peer_del(GROUPCHAT *g, uint32_t peer_id);
 
+/* Updates the peers name */
 void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name, size_t length);
 
+/* Frees every peer */
 void group_reset_peerlist(GROUPCHAT *g);
 
+/* Frees a group */
 void group_free(GROUPCHAT *g);
 
+/* Creates a notification for messages received  */
 void group_notify_msg(GROUPCHAT *g, const char *msg, size_t length);
+
+/* Gets the group qt the specified index */
+GROUPCHAT *get_group(uint32_t group_number);
 
 #endif

@@ -9,10 +9,12 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
+#include "../macros.h"
+#include "../main_native.h"
+#include "../self.h"
+#include "../settings.h"
 #include "../theme.h"
-#include "../ui.h"
 
-// FIXME: Required for UNUSED()
 #include "../main.h"
 
 

@@ -2,6 +2,8 @@
 
 #include "../flist.h"
 #include "../main.h"
+#include "../main_native.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
 

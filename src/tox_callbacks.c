@@ -4,14 +4,17 @@
 #include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
-#include "main.h"
-#include "tox.h"
-#include "util.h"
+#include "macros.h"
+#include "settings.h"
+#include "text.h"
 #include "utox.h"
 
+#include "av/audio.h"
 #include "av/utox_av.h"
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length,
                                     void *UNUSED(userdata)) {

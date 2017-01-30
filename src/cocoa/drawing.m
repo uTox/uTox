@@ -1,6 +1,8 @@
 #import "main.h"
+
 #import "../logging_native.h"
 #import "../main.h"
+#import "../settings.h"
 #import "../ui/draw.h"
 #import "../ui/svg.h"
 

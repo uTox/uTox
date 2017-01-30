@@ -5,15 +5,18 @@
 #include "filesys.h"
 #include "flist.h"
 #include "logging_native.h"
-#include "main.h"
 #include "main_native.h"
+#include "self.h"
+#include "settings.h"
+#include "text.h"
 #include "tox.h"
-#include "util.h"
 #include "utox.h"
 
-#include "av/utox_av.h"
+#include "av/audio.h"
 #include "ui/edits.h"
 #include "ui/scrollable.h"
+
+#include "main.h" // addfriend_status
 
 FRIEND* get_friend(uint32_t friend_number){
     if (friend_number >= 128) {
@@ -21,6 +24,39 @@ FRIEND* get_friend(uint32_t friend_number){
     }
 
     return &friend[friend_number];
+}
+
+void utox_write_metadata(FRIEND *f) {
+    /* Create path */
+    uint8_t dest[UTOX_FILE_NAME_LENGTH];
+    snprintf((char *)dest, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+
+    FILE *file = native_get_file((uint8_t *)dest, NULL, UTOX_FILE_OPTS_WRITE);
+    if (file) {
+
+        FRIEND_META_DATA metadata;
+        memset(&metadata, 0, sizeof(metadata));
+        size_t total_size = sizeof(metadata);
+
+        metadata.version          = METADATA_VERSION;
+        metadata.ft_autoaccept    = f->ft_autoaccept;
+        metadata.skip_msg_logging = f->skip_msg_logging;
+
+        if (f->alias && f->alias_length) {
+            metadata.alias_length = f->alias_length;
+            total_size += metadata.alias_length;
+        }
+
+        uint8_t *data = calloc(1, total_size);
+        if (data) {
+            memcpy(data, &metadata, sizeof(metadata));
+            memcpy(data + sizeof(metadata), f->alias, metadata.alias_length);
+
+            fwrite(data, total_size, 1, file);
+            free(data);
+        }
+        fclose(file);
+    }
 }
 
 static void friend_meta_data_read(FRIEND *f) {
@@ -47,28 +83,7 @@ static void friend_meta_data_read(FRIEND *f) {
     fread(metadata, size, 1, file);
     fclose(file);
 
-    /* Compatibility code for original version of meta_data... TODO: Remove in version >= 0.10 */
-    if (metadata->version >= 2) { /* Version 2 chosen because alias length (the original value at *
-                                   * metadata[0] should be > 2 (hopefully)                        */
-        if (size < sizeof(FRIEND_META_DATA_OLD)) {
-            debug("Metadata:\tMeta Data was incomplete\n");
-            free(metadata);
-            return;
-        }
-
-        if (((FRIEND_META_DATA_OLD *)metadata)->alias_length) {
-            friend_set_alias(f, (void *)metadata + sizeof(size_t),
-                             ((FRIEND_META_DATA_OLD *)metadata)->alias_length);
-        } else {
-            friend_set_alias(f, NULL, 0);
-        }
-
-        debug("Metadata:\tConverting old metadata file to new!\n");
-        utox_write_metadata(f);
-
-        free(metadata);
-        return;
-    } else if (metadata->version != 0) {
+    if (metadata->version != 0) {
         debug_notice("Metadata:\tWARNING! This version of utox does not support this metadata file version.\n");
         free(metadata);
         return;
@@ -269,9 +284,9 @@ void friend_set_typing(FRIEND *f, int typing) {
 }
 
 void friend_addid(uint8_t *id, char *msg, uint16_t msg_length) {
-    void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char));
-    memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
-    memcpy(data + TOX_FRIEND_ADDRESS_SIZE, msg, msg_length * sizeof(char));
+    void *data = malloc(TOX_ADDRESS_SIZE + msg_length * sizeof(char));
+    memcpy(data, id, TOX_ADDRESS_SIZE);
+    memcpy(data + TOX_ADDRESS_SIZE, msg, msg_length * sizeof(char));
 
     postmessage_toxcore(TOX_FRIEND_NEW, msg_length, 0, data);
 }
@@ -298,8 +313,8 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
         return;
     }
 
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
-    if (length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, (char *)name_cleaned)) {
+    uint8_t id[TOX_ADDRESS_SIZE];
+    if (length_cleaned == TOX_ADDRESS_SIZE * 2 && string_to_id(id, (char *)name_cleaned)) {
         friend_addid(id, msg, msg_length);
     } else {
         /* not a regular id, try DNS discovery */
@@ -328,7 +343,7 @@ void friend_free(FRIEND *f) {
 
     uint32_t i = 0;
     while (i < f->msg.number) {
-        MSG_TEXT *msg = f->msg.data[i];
+        MSG_HEADER *msg = f->msg.data[i];
         message_free(msg);
         i++;
     }
@@ -374,4 +389,41 @@ void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char
     } else {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_ONLINE, 0, NULL);
     }
+}
+
+bool string_to_id(uint8_t *w, char *a) {
+    uint8_t *end = w + TOX_ADDRESS_SIZE;
+    while (w != end) {
+        char c, v;
+
+        c = *a++;
+        if (c >= '0' && c <= '9') {
+            v = (c - '0') << 4;
+        } else if (c >= 'A' && c <= 'F') {
+            v = (c - 'A' + 10) << 4;
+        } else if (c >= 'a' && c <= 'f') {
+            v = (c - 'a' + 10) << 4;
+        } else {
+            return false;
+        }
+
+        c = *a++;
+        if (c >= '0' && c <= '9') {
+            v |= (c - '0');
+        } else if (c >= 'A' && c <= 'F') {
+            v |= (c - 'A' + 10);
+        } else if (c >= 'a' && c <= 'f') {
+            v |= (c - 'a' + 10);
+        } else {
+            return false;
+        }
+
+        *w++ = v;
+    }
+
+    return true;
+}
+
+void cid_to_string(char *dest, uint8_t *src) {
+    to_hex(dest, src, TOX_PUBLIC_KEY_SIZE);
 }

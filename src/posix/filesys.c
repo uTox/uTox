@@ -1,7 +1,7 @@
 #include "../filesys.h"
 
 #include "../logging_native.h"
-#include "../main.h"
+#include "../settings.h"
 
 #ifdef __OBJC__
 #include "../main.h"

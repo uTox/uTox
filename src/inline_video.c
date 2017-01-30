@@ -14,13 +14,16 @@
 #include "inline_video.h"
 
 #include "logging_native.h"
+#include "macros.h"
+#include "main_native.h"
+#include "settings.h"
 
-#include "av/utox_av.h"
+#include "av/video.h"
 
-// FIXME: Required for UNUSED()
-#include "main.h"
+#include <stdlib.h>
+#include <string.h>
 
-static UTOX_FRAME_PKG current_frame = { 0 };
+static UTOX_FRAME_PKG current_frame = { 0, 0, 0, 0 };
 
 bool inline_set_frame(uint16_t w, uint16_t h, size_t size, void *img) {
     current_frame.w    = w;
@@ -48,8 +51,9 @@ void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int width, int heigh
     debug("Inline Video:\tDrawing new frame.\n");
 
     if (current_frame.img && current_frame.size) {
-        draw_inline_image(current_frame.img, current_frame.size, current_frame.w, current_frame.h, x,
-                          y + MAIN_TOP_FRAME_THICK);
+        draw_inline_image(current_frame.img, current_frame.size,
+                          MIN(current_frame.w, width), MIN(current_frame.h, height),
+                          x, y + MAIN_TOP_FRAME_THICK);
     }
 }
 

@@ -4,78 +4,26 @@
 
 #include "main.h"
 
+#include "flist.h"
 #include "friend.h"
 #include "groups.h"
 #include "logging_native.h"
+#include "main_native.h"
+#include "settings.h"
 #include "theme.h"
-#include "util.h"
 #include "updater.h"
 
+#include "ui/dropdowns.h"
+#include "ui/edits.h"
+#include "ui/switches.h"
+
 #include <getopt.h>
-
-SETTINGS settings = {
-    .curr_version = UTOX_VERSION_NUMBER,
-    // .last_version                // included here to match the full struct
-    .show_splash = false,
-
-    // Low level settings (network, profile, portable-mode)
-    .use_proxy      = false,
-    .force_proxy    = false,
-    .enable_udp     = true,
-    .enable_ipv6    = true,
-    .save_encryption = true,
-    .block_friend_requests = false,
-    // .portable_mode               // included here to match the full struct
-
-    .save_encryption    = true,
-
-    .auto_update        = false,
-    .update_to_develop  = false,
-    .send_version       = false,
-
-    .force_proxy        = false,
-    .enable_udp         = true,
-    .enable_ipv6        = true,
-
-    .use_proxy          = false,
-    .proxy_port         = 0,
-
-    // User interface settings
-    .close_to_tray          = false,
-    .logging_enabled        = true,
-    .audiofilter_enabled    = true,
-    .start_in_tray          = false,
-    .start_with_system      = false,
-    .push_to_talk           = false,
-    .audio_preview          = false,
-    .video_preview          = false,
-    .send_typing_status     = false,
-    .use_mini_flist         = false,
-    // .inline_video                // included here to match the full struct
-    .use_long_time_msg      = true,
-    .accept_inline_images   = true,
-
-    // Notifications / Alerts
-    .ringtone_enabled       = true,
-    .status_notifications   = true,
-    .group_notifications    = GNOTIFY_ALWAYS,
-
-    .verbose = 1,
-
-    // .theme                       // included here to match the full struct
-    // OS interface settings
-    .window_height        = MAIN_HEIGHT,
-    .window_width         = MAIN_WIDTH,
-    .window_baseline      = 0,
-
-    .window_maximized     = 0,
-};
 
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
  * if you need to localize them to a specific platform, move them from here, to each
  * src/<platform>/main.x and change from utox_ to native_ */
 bool utox_data_save_tox(uint8_t *data, size_t length) {
-    FILE *  fp     = native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *fp= native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
     if (fp == NULL) {
         debug("Can not open tox_save.tox to write to it.\n");
         return true;
@@ -177,13 +125,12 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
 
 uint8_t *utox_data_load_custom_theme(size_t *out) {
     FILE *fp = native_get_file((uint8_t *)"utox_theme.ini", out, UTOX_FILE_OPTS_READ);
-    uint8_t *data;
 
     if (fp == NULL) {
         return NULL;
     }
 
-    data = calloc(*out + 1, 1);
+    uint8_t *data = calloc(*out + 1, 1);
     if (data == NULL) {
         fclose(fp);
         return NULL;
@@ -198,7 +145,6 @@ uint8_t *utox_data_load_custom_theme(size_t *out) {
     fclose(fp);
 
     return data;
-
 }
 
 /* Shared function between all four platforms */
@@ -210,8 +156,8 @@ void parse_args(int argc, char *argv[],
                 int8_t *set_show_window
                 ) {
     // set default options
-    settings.theme            = THEME_DEFAULT;
-    settings.portable_mode    = false;
+    settings.theme = THEME_DEFAULT;
+    settings.portable_mode = false;
     if (skip_updater) {
         *skip_updater = false;
     }

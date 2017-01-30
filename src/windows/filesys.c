@@ -2,6 +2,7 @@
 
 #include "../logging_native.h"
 #include "../main.h"
+#include "../settings.h"
 
 static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) {
     // assert(UTOX_FILE_NAME_LENGTH <= (32,767 wide characters) );

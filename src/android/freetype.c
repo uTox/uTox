@@ -1,6 +1,8 @@
 #include <freetype.h>
 #include <ft2build.h>
 
+#include "../macros.h"
+
 #define PIXELS(x) (((x) + 32) / 64)
 
 typedef struct {
@@ -124,13 +126,13 @@ static void loadfonts(void) {
 }
 
 static void freefonts(void) {
-    for (size_t i = 0; i != countof(font); i++) {
+    for (size_t i = 0; i != COUNTOF(font); i++) {
         FONT *f = &font[i];
         if (f->face) {
             FT_Done_Face(f->face);
         }
 
-        for (size_t j = 0; j != countof(f->glyphs); j++) {
+        for (size_t j = 0; j != COUNTOF(f->glyphs); j++) {
             GLYPH *g = f->glyphs[j];
             if (g) {
                 /*while(g->ucs4 != ~0) {

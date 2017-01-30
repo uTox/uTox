@@ -2,10 +2,14 @@
 
 #include "main.h"
 
-#include "../main.h" // branding and max width
+#include "../branding.h"
+#include "../logging_native.h"
+#include "../main_native.h"
+
 #include "../ui/draw.h"
 
-#include "../logging_native.h"
+#include "../main.h" // MAIN_WIDTH, MAIN_HEIGHT
+
 
 bool native_window_init(void) {
     if ((display = XOpenDisplay(NULL)) == NULL) {

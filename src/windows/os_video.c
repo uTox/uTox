@@ -1,11 +1,16 @@
 #include "window.h"
 
-#include "../av/video.h"
-#include "../logging_native.h"
-#include "../util.h"
-#include "../main.h" // video super globals
+#include "main.h"
 
+#include "../logging_native.h"
+#include "../main_native.h"
+
+#include "../av/video.h"
 #include "../../langs/i18n_decls.h"
+
+#include <windows.h>
+
+#include "../main.h" // video super globals
 
 #ifdef __CRT__NO_INLINE
 #undef __CRT__NO_INLINE

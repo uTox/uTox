@@ -1,12 +1,10 @@
 #include "avatar.h"
 
 #include "file_transfers.h"
-#include "friend.h"
 #include "logging_native.h"
-#include "main.h"
 #include "main_native.h"
+#include "self.h"
 #include "tox.h"
-#include "util.h"
 
 /* frees the image of an avatar, does nothing if image is NULL */
 static void avatar_free_image(AVATAR *avatar) {
