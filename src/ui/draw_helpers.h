@@ -17,46 +17,8 @@ void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32
 void draw_user_badge(int x, int y, int width, int height);
 void draw_splash_page(int x, int y, int w, int h);
 
-/* Header for friend chat window */
-void draw_friend(int x, int y, int w, int height);
-
 void draw_group(int x, int y, int w, int height);
-/* Draw an invite to be a friend window */
-void draw_friend_request(int x, int y, int w, int height);
-/* Draw add a friend window */
-void draw_add_friend(int x, int y, int w, int height);
-/* Draw the text for profile password window */
-void draw_profile_password(int x, int y, int w, int height);
 
-/* Top bar for user settings */
-void draw_settings_header(int x, int y, int w, int height);
-
-/* TODO make this fxn readable */
-void draw_settings_sub_header(int x, int y, int w, int height);
-
-
-/* draw switch profile top bar */
-/* Text content for settings page */
-void draw_settings_text_profile(int x, int y, int w, int h);
-
-void draw_settings_text_devices(int x, int y, int w, int h);
-void draw_settings_text_password(int x, int y, int w, int h);
-
-void draw_settings_text_network(int x, int y, int w, int height);
-
-void draw_settings_text_ui(int x, int y, int w, int height);
-
-void draw_settings_text_av(int x, int y, int w, int height);
-
-void draw_settings_text_adv(int x, int y, int w, int hight);
-
-void draw_settings_text_notifications(int x, int y, int w, int hight);
-
-void draw_friend_settings(int x, int y, int width, int height);
-
-void draw_settings_text_adv(int x, int y, int w, int hight);
-
-void draw_friend_settings(int x, int y, int width, int height);
 
 void draw_group_settings(int x, int y, int width, int height);
 

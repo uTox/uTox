@@ -5,6 +5,19 @@
 
 extern SCROLLABLE scrollbar_settings;
 
+extern PANEL panel_settings_master,
+             panel_settings_subheader,
+             panel_settings_profile,
+             panel_profile_password_settings,
+             panel_settings_devices,
+             panel_settings_ui,
+             panel_settings_av,
+             panel_settings_notifications,
+             panel_settings_adv,
+             panel_nospam_settings;
+
+extern PANEL panel_profile_password;
+
 extern BUTTON   button_settings,
                 button_settings_sub_profile,
                 button_settings_sub_devices,
@@ -22,17 +35,5 @@ extern BUTTON   button_callpreview,
                 button_change_nospam,
                 button_revert_nospam,
                 button_show_nospam;
-
-
-extern PANEL    panel_settings_master,
-                    panel_settings_subheader,
-                    panel_settings_profile,
-                    panel_profile_password_settings,
-                    panel_settings_devices,
-                    panel_settings_ui,
-                    panel_settings_av,
-                    panel_settings_notifications,
-                    panel_settings_adv,
-                    panel_nospam_settings;
 
 #endif // LAYOUT_SETTINGS_H

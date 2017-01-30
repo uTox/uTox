@@ -81,6 +81,7 @@ static void draw_group_settings(int UNUSED(x), int y, int UNUSED(width), int UNU
 #include "../ui/edits.h"
 #include "../ui/buttons.h"
 #include "../ui/dropdowns.h"
+#include "friend.h"
 
 PANEL
 panel_group = {

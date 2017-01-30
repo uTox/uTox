@@ -24,6 +24,7 @@
 
 #include "layout/tree.h"
 
+#include "layout/friend.h"
 #include "layout/group.h"
 
 #define UTOX_MAX_BACKLOG_MESSAGES 256

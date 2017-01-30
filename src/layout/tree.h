@@ -18,17 +18,9 @@ extern PANEL    panel_root,
                     panel_main,
                     panel_chat,
 
-                    panel_friend,
-                    panel_friend_chat,
-                    panel_friend_video,
-                    panel_friend_settings,
-                    panel_friend_request,
                     panel_overhead,
 
                     panel_splash_page,
-                    panel_profile_password,
-                    panel_add_friend,
-
-                    messages_friend;
+                    panel_profile_password;
 
 #endif // UI_TREE_H

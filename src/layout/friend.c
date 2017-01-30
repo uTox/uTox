@@ -1,0 +1,532 @@
+#include "friend.h"
+
+#include "../friend.h"
+#include "../flist.h"
+#include "../theme.h"
+#include "../settings.h"
+#include "../macros.h"
+#include "../logging_native.h"
+
+#include "../ui/svg.h"
+#include "../ui/draw.h"
+#include "../ui/text.h"
+#include "../ui/scrollable.h"
+
+#include "../main.h" // add friend status // TODO this is stupid wrong
+#include "../dns.h"
+
+// Scrollbar in chat window
+SCROLLABLE scrollbar_friend = {
+    .panel = { .type = PANEL_SCROLLABLE, },
+    .color = C_SCROLL,
+};
+
+
+/* Header for friend chat window */
+static void draw_friend(int x, int y, int w, int height) {
+    FRIEND *f = (flist_get_selected()->data);
+
+    // draw avatar or default image
+    if (friend_has_avatar(f)) {
+        draw_avatar_image(f->avatar.img, MAIN_LEFT + SCALE(10), SCALE(10), f->avatar.width, f->avatar.height,
+                          BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    } else {
+        drawalpha(BM_CONTACT, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+    }
+
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_TITLE);
+
+    if (f->alias) {
+        drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->alias, f->alias_length);
+    } else {
+        drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->name, f->name_length);
+    }
+
+    setcolor(COLOR_MAIN_TEXT_SUBTEXT);
+    setfont(FONT_STATUS);
+    drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(32), f->status_message,
+                  f->status_length);
+
+    if (f->typing) {
+        int typing_y = ((y + height) + CHAT_BOX_TOP - SCALE(14));
+        setfont(FONT_MISC);
+        // @TODO: separate these colors if needed
+        setcolor(COLOR_MAIN_TEXT_HINT);
+        drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, typing_y, f->name, f->name_length);
+        drawtextwidth(x + MESSAGES_X, x + w, typing_y, S(IS_TYPING), SLEN(IS_TYPING));
+    }
+}
+
+/* Draw an invite to be a friend window */
+static void draw_friend_request(int x, int y, int w, int h) {
+    FRIENDREQ *req = (flist_get_selected()->data);
+
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FRIENDREQUEST);
+
+    setfont(FONT_TEXT);
+    utox_draw_text_multiline_within_box(x + SCALE(10), y + SCALE(70), w + x, y, y + h, font_small_lineheight,
+                                        req->msg, req->length, ~0, ~0, 0, 0, true);
+}
+
+static void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(10), FRIEND_PUBLIC_KEY);
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(60), FRIEND_ALIAS);
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
+}
+
+/* Draw add a friend window */
+static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), ADDFRIENDS);
+
+    setcolor(COLOR_MAIN_TEXT_SUBTEXT);
+    setfont(FONT_TEXT);
+    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), TOXID);
+
+    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(58), MESSAGE);
+
+    if (settings.force_proxy) {
+        int push = UTOX_STR_WIDTH(TOXID);
+        setfont(FONT_MISC);
+        setcolor(C_RED);
+        drawstr(MAIN_LEFT + SCALE(20) + push, MAIN_TOP + SCALE(12), DNS_DISABLED);
+    }
+
+    if (addfriend_status) {
+        setfont(FONT_MISC);
+        setcolor(C_RED);
+
+        STRING *str;
+
+        switch (addfriend_status) {
+            case ADDF_SENT:
+                str = SPTR(REQ_SENT);
+                break;
+            case ADDF_DISCOVER:
+                str = SPTR(REQ_RESOLVE);
+                break;
+            case ADDF_BADNAME:
+                str = SPTR(REQ_INVALID_ID);
+                break;
+            case ADDF_NONAME:
+                str = SPTR(REQ_EMPTY_ID);
+                break;
+            case ADDF_TOOLONG: // if message length is too long.
+                str = SPTR(REQ_LONG_MSG);
+                break;
+            case ADDF_NOMESSAGE: // if no message (message length must be >= 1 byte).
+                str = SPTR(REQ_NO_MSG);
+                break;
+            case ADDF_OWNKEY: // if user's own key.
+                str = SPTR(REQ_SELF_ID);
+                break;
+            case ADDF_ALREADYSENT: // if friend request already sent or already a friend.
+                str = SPTR(REQ_ALREADY_FRIENDS);
+                break;
+            case ADDF_BADCHECKSUM: // if bad checksum in address.
+                str = SPTR(REQ_BAD_CHECKSUM);
+                break;
+            case ADDF_SETNEWNOSPAM: // if the friend was already there but the nospam was different.
+                str = SPTR(REQ_BAD_NOSPAM);
+                break;
+            case ADDF_NOMEM: // if increasing the friend list size fails.
+                str = SPTR(REQ_NO_MEMORY);
+                break;
+            case ADDF_UNKNOWN: // for unknown error.
+            case ADDF_NONE:    // this case must never be rendered, but if it does, assume it's an error
+                str = SPTR(REQ_UNKNOWN);
+                break;
+        }
+
+        utox_draw_text_multiline_within_box(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(166),
+                                            settings.window_width - BM_SBUTTON_WIDTH - SCALE(10), 0, height,
+                                            font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
+    }
+}
+
+#include "../ui/edits.h"
+#include "../ui/dropdowns.h"
+#include "../ui/buttons.h"
+
+PANEL messages_friend = {
+    .type = PANEL_MESSAGES,
+    .content_scroll = &scrollbar_friend,
+};
+
+
+PANEL panel_friend = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .child = (PANEL*[]) {
+                &panel_friend_chat,
+                &panel_friend_video,
+                &panel_friend_settings,
+                NULL
+            }
+        },
+            panel_friend_chat = {
+                .type = PANEL_NONE,
+                .disabled = 0,
+                .drawfunc = draw_friend,
+                .child = (PANEL*[]) {
+                    (PANEL*)&scrollbar_friend,
+                    (PANEL*)&edit_msg, // this needs to be one of the first, to get events before the others
+                    (PANEL*)&messages_friend,
+                    (PANEL*)&button_call_decline, (PANEL*)&button_call_audio, (PANEL*)&button_call_video,
+                    (PANEL*)&button_send_file, (PANEL*)&button_send_screenshot, (PANEL*)&button_chat_send,
+                    NULL
+                }
+            },
+            panel_friend_video = {
+                .type = PANEL_INLINE_VIDEO,
+                .disabled = 1,
+                .child = (PANEL*[]) {
+                    NULL
+                }
+            },
+            panel_friend_settings = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_friend_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&edit_friend_pubkey,
+                    (PANEL*)&edit_friend_alias,
+                    (PANEL*)&dropdown_friend_autoaccept_ft,
+                    (PANEL*)&button_export_chatlog,
+                    NULL
+                }
+            },
+        panel_friend_request = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_friend_request,
+            .child = (PANEL*[]) {
+                (PANEL*)&button_accept_friend,
+                NULL
+            }
+        },
+        panel_add_friend = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_add_friend,
+            .child = (PANEL*[]) {
+                (PANEL*)&button_send_friend_request,
+                (PANEL*)&edit_add_id, (PANEL*)&edit_add_msg,
+                NULL
+            }
+        };
+
+
+static void button_add_new_contact_on_mup(void) {
+    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
+        /* Only change if we're logged in! */
+        edit_setstr(&edit_add_id, (char *)edit_search.data, edit_search.length);
+        edit_setstr(&edit_search, (char *)"", 0);
+        flist_selectaddfriend();
+        edit_setfocus(&edit_add_msg);
+    }
+}
+
+
+static void button_send_friend_request_on_mup(void) {
+    friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
+    edit_resetfocus();
+}
+
+#include "../tox.h"
+
+static void button_call_decline_on_mup(void) {
+    FRIEND *f = flist_get_selected()->data;
+    if (f->call_state_friend) {
+        debug("Declining call: %u\n", f->number);
+        postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+    }
+}
+
+#include "../av/utox_av.h"
+#include "../av/audio.h"
+static void button_call_decline_update(BUTTON *b) {
+    FRIEND *f = flist_get_selected()->data;
+    if (UTOX_AVAILABLE_AUDIO(f->number) && !UTOX_SENDING_AUDIO(f->number)) {
+        button_setcolors_danger(b);
+        b->nodraw   = false;
+        b->disabled = false;
+    } else {
+        button_setcolors_disabled(b);
+        b->nodraw   = true;
+        b->disabled = true;
+    }
+}
+
+static void button_call_audio_on_mup(void) {
+    FRIEND *f = flist_get_selected()->data;
+    if (f->call_state_self) {
+        if (UTOX_SENDING_AUDIO(f->number)) {
+            debug("Ending call: %u\n", f->number);
+            /* var 3/4 = bool send video */
+            postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+        } else {
+            debug("Canceling call: friend = %d\n", f->number);
+            postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+        }
+    } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
+        debug("Accept Call: %u\n", f->number);
+        postmessage_toxcore(TOX_CALL_ANSWER, f->number, 0, NULL);
+    } else {
+        if (f->online) {
+            postmessage_toxcore(TOX_CALL_SEND, f->number, 0, NULL);
+            debug("Calling friend: %u\n", f->number);
+        }
+    }
+}
+
+static void button_call_audio_update(BUTTON *b) {
+    FRIEND *f = flist_get_selected()->data;
+    if (UTOX_SENDING_AUDIO(f->number)) {
+        button_setcolors_danger(b);
+        b->disabled = false;
+    } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
+        button_setcolors_warning(b);
+        b->disabled = false;
+    } else {
+        if (f->online) {
+            button_setcolors_success(b);
+            b->disabled = false;
+        } else {
+            button_setcolors_disabled(b);
+            b->disabled = true;
+        }
+    }
+}
+
+#include "../av/video.h"
+static void button_call_video_on_mup(void) {
+    FRIEND *f = flist_get_selected()->data;
+    if (f->call_state_self) {
+        if (SELF_ACCEPT_VIDEO(f->number)) {
+            debug("Canceling call (video): %u\n", f->number);
+            postmessage_toxcore(TOX_CALL_PAUSE_VIDEO, f->number, 1, NULL);
+        } else if (UTOX_SENDING_AUDIO(f->number)) {
+            debug("Audio call inprogress, adding video\n");
+            postmessage_toxcore(TOX_CALL_RESUME_VIDEO, f->number, 1, NULL);
+        } else {
+            debug("Ending call (video): %u\n", f->number);
+            postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 1, NULL);
+        }
+    } else if (f->call_state_friend) {
+        debug("Accept Call (video): %u %u\n", f->number, f->call_state_friend);
+        postmessage_toxcore(TOX_CALL_ANSWER, f->number, 1, NULL);
+    } else {
+        if (f->online) {
+            postmessage_toxcore(TOX_CALL_SEND, f->number, 1, NULL);
+            debug("Calling friend (video): %u\n", f->number);
+        }
+    }
+}
+
+static void button_call_video_update(BUTTON *b) {
+    FRIEND *f = flist_get_selected()->data;
+    if (SELF_SEND_VIDEO(f->number)) {
+        button_setcolors_danger(b);
+        b->disabled = false;
+    } else if (FRIEND_SENDING_VIDEO(f->number)) {
+        button_setcolors_warning(b);
+        b->disabled = false;
+    } else {
+        if (f->online) {
+            button_setcolors_success(b);
+            b->disabled = false;
+        } else {
+            button_setcolors_disabled(b);
+            b->disabled = true;
+        }
+    }
+}
+
+static void button_accept_friend_on_mup(void) {
+    FRIENDREQ *req = flist_get_selected()->data;
+    postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
+    panel_friend_request.disabled = true;
+}
+
+static void button_menu_update(BUTTON *b) {
+    b->c1  = COLOR_BKGRND_MENU;
+    b->c2  = COLOR_BKGRND_MENU_HOVER;
+    b->c3  = COLOR_BKGRND_MENU_ACTIVE;
+    b->ct1 = COLOR_MENU_TEXT;
+    b->ct2 = COLOR_MENU_TEXT;
+    if (b->mousedown || b->disabled) {
+        b->ct1 = COLOR_MENU_TEXT_ACTIVE;
+        b->ct2 = COLOR_MENU_TEXT_ACTIVE;
+    }
+    b->cd = COLOR_BKGRND_MENU_ACTIVE;
+}
+
+BUTTON button_add_new_contact = {
+    .bm2          = BM_ADD,
+    .bw           = _BM_ADD_WIDTH,
+    .bh           = _BM_ADD_WIDTH,
+    .update       = button_menu_update,
+    .on_mup      = button_add_new_contact_on_mup,
+    .disabled     = true,
+    .nodraw       = true,
+    .tooltip_text = {.i18nal = STR_ADDFRIENDS },
+};
+
+BUTTON button_send_friend_request = {
+    .bm          = BM_SBUTTON,
+    .button_text = {.i18nal = STR_ADD },
+    .update   = button_setcolors_success,
+    .on_mup  = button_send_friend_request_on_mup,
+    .disabled = false,
+};
+
+
+BUTTON button_call_decline = {
+    .bm           = BM_LBUTTON,
+    .bm2          = BM_DECLINE,
+    .bw           = _BM_LBICON_WIDTH,
+    .bh           = _BM_LBICON_HEIGHT,
+    .on_mup      = button_call_decline_on_mup,
+    .update       = button_call_decline_update,
+    .tooltip_text = {.i18nal = STR_CALL_DECLINE },
+    .nodraw   = true,
+    .disabled = true,
+};
+
+BUTTON button_call_audio = {
+    .bm           = BM_LBUTTON,
+    .bm2          = BM_CALL,
+    .bw           = _BM_LBICON_WIDTH,
+    .bh           = _BM_LBICON_HEIGHT,
+    .on_mup      = button_call_audio_on_mup,
+    .update       = button_call_audio_update,
+    .tooltip_text = {.i18nal = STR_CALL_START_AUDIO },
+};
+
+BUTTON button_call_video = {
+    .bm           = BM_LBUTTON,
+    .bm2          = BM_VIDEO,
+    .bw           = _BM_LBICON_WIDTH,
+    .bh           = _BM_LBICON_HEIGHT,
+    .on_mup      = button_call_video_on_mup,
+    .update       = button_call_video_update,
+    .tooltip_text = {.i18nal = STR_CALL_START_VIDEO },
+};
+
+#include "../main_native.h"
+static void button_send_file_on_mup(void) {
+    FRIEND *f = flist_get_selected()->data;
+    if (f->online) {
+        openfilesend();
+    }
+}
+
+static void button_send_file_update(BUTTON *b) {
+    FRIEND *f = flist_get_selected()->data;
+    if (f->online) {
+        b->disabled = false;
+        button_setcolors_success(b);
+    } else {
+        b->disabled = true;
+        button_setcolors_disabled(b);
+    }
+}
+
+BUTTON button_send_file = {
+    .bm           = BM_CHAT_BUTTON_LEFT,
+    .bm2          = BM_FILE,
+    .bw           = _BM_FILE_WIDTH,
+    .bh           = _BM_FILE_HEIGHT,
+    .on_mup      = button_send_file_on_mup,
+    .update       = button_send_file_update,
+    .disabled     = true,
+    .tooltip_text = {.i18nal = STR_SEND_FILE },
+};
+
+#include "../screen_grab.h"
+static void button_send_screenshot_on_mup(void) {
+    FRIEND *f = flist_get_selected()->data;
+    if (f->online) {
+        utox_screen_grab_desktop(0);
+    }
+}
+
+static void button_send_screenshot_update(BUTTON *b) {
+    FRIEND *f = flist_get_selected()->data;
+    if (f->online) {
+        b->disabled = false;
+        button_setcolors_success(b);
+    } else {
+        b->disabled = true;
+        button_setcolors_disabled(b);
+    }
+}
+
+BUTTON button_send_screenshot = {
+    .bm           = BM_CHAT_BUTTON_RIGHT,
+    .bm2          = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
+    .bw           = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
+    .bh           = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+    .update       = button_send_screenshot_update,
+    .on_mup      = button_send_screenshot_on_mup,
+    .tooltip_text = {.i18nal = STR_SENDSCREENSHOT },
+};
+
+
+/* Button to send chat message */
+static void button_chat_send_on_mup(void) {
+    if (flist_get_selected()->item == ITEM_FRIEND) {
+        FRIEND *f = flist_get_selected()->data;
+        if (f->online) {
+            // TODO clear the chat bar with a /slash command
+            edit_msg_onenter(&edit_msg);
+            // reset focus to the chat window on send to prevent segfault. May break on android.
+            edit_setfocus(&edit_msg);
+        }
+    } else {
+        edit_msg_onenter(&edit_msg_group);
+        // reset focus to the chat window on send to prevent segfault. May break on android.
+        edit_setfocus(&edit_msg_group);
+    }
+}
+
+static void button_chat_send_update(BUTTON *b) {
+    if (flist_get_selected()->item == ITEM_FRIEND) {
+        FRIEND *f = flist_get_selected()->data;
+        if (f->online) {
+            b->disabled = false;
+            button_setcolors_success(b);
+        } else {
+            b->disabled = true;
+            button_setcolors_disabled(b);
+        }
+    } else {
+        b->disabled = false;
+        button_setcolors_success(b);
+    }
+}
+
+BUTTON button_chat_send = {
+    .bm           = BM_CHAT_SEND,
+    .bm2          = BM_CHAT_SEND_OVERLAY,
+    .bw           = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .bh           = _BM_CHAT_SEND_OVERLAY_HEIGHT,
+    .on_mup      = button_chat_send_on_mup,
+    .update       = button_chat_send_update,
+    .tooltip_text = {.i18nal = STR_SENDMESSAGE },
+};
+
+BUTTON button_accept_friend = {
+    .bm          = BM_SBUTTON,
+    .button_text = {.i18nal = STR_ADD },
+    .update  = button_setcolors_success,
+    .on_mup = button_accept_friend_on_mup,
+};

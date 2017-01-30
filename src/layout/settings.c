@@ -16,7 +16,7 @@
 #include "../main.h" // tox_thread
 
 /* Top bar for user settings */
-void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);
@@ -37,7 +37,7 @@ void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
     drawhline(x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE); \
     drawhline(x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE)
 
-void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setfont(FONT_SELF_NAME);
 
     /* Draw the text and bars for general settings */
@@ -126,7 +126,7 @@ void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
 
 /* draw switch profile top bar */
 /* Text content for settings page */
-void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
+static void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), NAME);
@@ -136,7 +136,7 @@ void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
 }
 
 // Devices settings page
-void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
+static void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), DEVICES_ADD_NEW);
@@ -149,7 +149,7 @@ void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
     drawtext(MAIN_LEFT + SCALE(10), y + SCALE(75), str, strlen);
 }
 
-void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
+static void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(225), PROFILE_PASSWORD);
@@ -160,7 +160,7 @@ void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(MAIN_LEFT + SCALE(75), y + SCALE(289), PROFILE_PW_NO_RECOVER);
 }
 
-void draw_nospam_settings(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)){
+static void draw_nospam_settings(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
     drawstr(MAIN_LEFT + SCALE(80), y + SCALE(230), NOSPAM_WARNING);
@@ -172,7 +172,7 @@ void draw_nospam_settings(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)){
 }
 
 // UI settings page
-void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(150), y + SCALE(10), DPI);
@@ -185,7 +185,7 @@ void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
 }
 
 // Audio/Video settings page
-void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
@@ -213,7 +213,7 @@ void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
 }
 
 // Notification settings page
-void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
@@ -223,7 +223,7 @@ void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int U
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), GROUP_NOTIFICATIONS);
 }
 
-void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), WARNING);
@@ -241,16 +241,6 @@ void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heig
 }
 
 
-void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
-    setcolor(COLOR_MAIN_TEXT);
-    setfont(FONT_SELF_NAME);
-
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(10), FRIEND_PUBLIC_KEY);
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(60), FRIEND_ALIAS);
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
-}
-
-
 SCROLLABLE scrollbar_settings = {
     .panel = { .type = PANEL_SCROLLABLE, },
     .color = C_SCROLL,
@@ -260,7 +250,29 @@ SCROLLABLE scrollbar_settings = {
 #include "../ui/switches.h"
 #include "../ui/dropdowns.h"
 
-PANEL panel_nospam_settings = {
+
+/* Draw the text for profile password window */
+static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), PROFILE_PASSWORD);
+
+    setcolor(COLOR_MAIN_TEXT_SUBTEXT);
+    setfont(FONT_TEXT);
+    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
+}
+
+PANEL panel_profile_password = {
+            .type = PANEL_NONE,
+            .disabled = 0,
+            .drawfunc = draw_profile_password,
+            .child = (PANEL*[]) {
+                (PANEL*)&edit_profile_password,
+                NULL
+            }
+        };
+
+PANEL   panel_nospam_settings = {
             .type = PANEL_NONE,
             .disabled = true,
             .drawfunc = draw_nospam_settings,
@@ -271,9 +283,8 @@ PANEL panel_nospam_settings = {
                 (PANEL*)&button_revert_nospam,
                 NULL
              }
-        };
-
-PANEL panel_profile_password_settings = {
+        },
+        panel_profile_password_settings = {
             .type     = PANEL_NONE,
             .disabled = 1,
             .drawfunc = draw_settings_text_password,

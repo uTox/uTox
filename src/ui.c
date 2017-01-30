@@ -6,6 +6,9 @@
 #include "messages.h"
 
 #include "layout/all.h"
+#include "layout/friend.h"
+#include "layout/settings.h"
+
 
 #include "ui/panel.h"
 #include "ui/contextmenu.h"
@@ -92,8 +95,6 @@ static void sidepanel_USERBADGE(void) {
                   (SELF_STATUS_ICON_LEFT - SIDEBAR_STATUSMSG_LEFT - SCALE(2)), SIDEBAR_STATUSMSG_HEIGHT - SCALE(2));
     CREATE_BUTTON(usr_state, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
 }
-
-#include "layout/settings.h"
 
 static void sidepanel_FLIST(void) {
     scrollbar_flist.panel.y      = ROSTER_TOP;

@@ -5,6 +5,7 @@ add_library(utoxUI STATIC
     ../layout/notify.h
     ../layout/root.h
 
+    ../layout/friend.c
     ../layout/group.c
     ../layout/notify.c
     ../layout/settings.c

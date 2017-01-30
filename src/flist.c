@@ -25,6 +25,7 @@
 
 #include "layout/tree.h"
 
+#include "layout/friend.h"
 #include "layout/group.h"
 #include "layout/settings.h"
 

@@ -4,6 +4,7 @@
 #include "tree.h"
 
 #include "group.h"
+#include "friend.h"
 #include "settings.h"
 
 #include "../ui/panel.h"
@@ -23,17 +24,6 @@ SCROLLABLE scrollbar_flist = {
     .x     = 2,
     .left  = 1,
     .small = 1,
-},
-
-// Scrollbar in chat window
-scrollbar_friend = {
-    .panel = { .type = PANEL_SCROLLABLE, },
-    .color = C_SCROLL,
-};
-
-PANEL messages_friend = {
-    .type = PANEL_MESSAGES,
-    .content_scroll = &scrollbar_friend,
 };
 
 // clang-format off
@@ -127,57 +117,6 @@ panel_main = {
         }
     },
 
-        panel_friend = {
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .child = (PANEL*[]) {
-                &panel_friend_chat,
-                &panel_friend_video,
-                &panel_friend_settings,
-                NULL
-            }
-        },
-            panel_friend_chat = {
-                .type = PANEL_NONE,
-                .disabled = 0,
-                .drawfunc = draw_friend,
-                .child = (PANEL*[]) {
-                    (PANEL*)&scrollbar_friend,
-                    (PANEL*)&edit_msg, // this needs to be one of the first, to get events before the others
-                    (PANEL*)&messages_friend,
-                    (PANEL*)&button_call_decline, (PANEL*)&button_call_audio, (PANEL*)&button_call_video,
-                    (PANEL*)&button_send_file, (PANEL*)&button_send_screenshot, (PANEL*)&button_chat_send,
-                    NULL
-                }
-            },
-            panel_friend_video = {
-                .type = PANEL_INLINE_VIDEO,
-                .disabled = 1,
-                .child = (PANEL*[]) {
-                    NULL
-                }
-            },
-            panel_friend_settings = {
-                .type = PANEL_NONE,
-                .disabled = 1,
-                .drawfunc = draw_friend_settings,
-                .child = (PANEL*[]) {
-                    (PANEL*)&edit_friend_pubkey,
-                    (PANEL*)&edit_friend_alias,
-                    (PANEL*)&dropdown_friend_autoaccept_ft,
-                    (PANEL*)&button_export_chatlog,
-                    NULL
-                }
-            },
-        panel_friend_request = {
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_friend_request,
-            .child = (PANEL*[]) {
-                (PANEL*)&button_accept_friend,
-                NULL
-            }
-        },
     /* Settings master panel, holds the lower level settings */
     panel_overhead = {
         .type = PANEL_NONE,
@@ -198,26 +137,6 @@ panel_main = {
             .content_scroll = &scrollbar_settings,
             .child = (PANEL*[]) {
                 NULL,
-            }
-        },
-
-        panel_profile_password = {
-            .type = PANEL_NONE,
-            .disabled = 0,
-            .drawfunc = draw_profile_password,
-            .child = (PANEL*[]) {
-                (PANEL*)&edit_profile_password,
-                NULL
-            }
-        },
-        panel_add_friend = {
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_add_friend,
-            .child = (PANEL*[]) {
-                (PANEL*)&button_send_friend_request,
-                (PANEL*)&edit_add_id, (PANEL*)&edit_add_msg,
-                NULL
             }
         };
 
