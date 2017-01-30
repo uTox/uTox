@@ -24,6 +24,9 @@
 
 #include "../layout/tree.h"
 
+#include "../layout/group.h"
+#include "../layout/settings.h"
+
 #include "../main.h" // STBI
 
 bool hidden = false;

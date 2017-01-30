@@ -24,6 +24,10 @@
 
 #include "../layout/tree.h" // TODO does this need to be removed?
 
+#include "../layout/group.h"
+#include "../layout/settings.h"
+
+
 #include "../main.h" // STBI
 
 extern XIC xic;

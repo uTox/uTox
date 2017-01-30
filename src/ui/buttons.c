@@ -24,6 +24,7 @@
 #include "../ui/edits.h"
 
 #include "../layout/tree.h" // TODO remove
+#include "../layout/settings.h" // TODO remove
 
 #include "../main.h" // Tox thread globals
 
@@ -159,46 +160,6 @@ static void button_filter_friends_on_mup(void) {
     flist_set_filter(!flist_get_filter());
 }
 
-static void button_copyid_on_mup(void) {
-    edit_setfocus(&edit_toxid);
-    copy(0);
-}
-
-static void button_audiopreview_on_mup(void) {
-    if (!settings.audio_preview) {
-        postmessage_utoxav(UTOXAV_START_AUDIO, 1, 0, NULL);
-    } else {
-        postmessage_utoxav(UTOXAV_STOP_AUDIO, 1, 0, NULL);
-    }
-    settings.audio_preview = !settings.audio_preview;
-}
-
-static void button_audiopreview_update(BUTTON *b) {
-    if (settings.audio_preview) {
-        button_setcolors_danger(b);
-    } else {
-        button_setcolors_success(b);
-    }
-}
-
-static void button_videopreview_on_mup(void) {
-    if (settings.video_preview) {
-        postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 1, NULL);
-    } else if (video_width && video_height) {
-        postmessage_utoxav(UTOXAV_START_VIDEO, 0, 1, NULL);
-    } else {
-        debug("Button ERR:\tVideo_width = 0, can't preview\n");
-    }
-    settings.video_preview = !settings.video_preview;
-}
-
-static void button_videopreview_update(BUTTON *b) {
-    if (settings.video_preview) {
-        button_setcolors_danger(b);
-    } else {
-        button_setcolors_success(b);
-    }
-}
 
 static void button_send_friend_request_on_mup(void) {
     friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
@@ -422,44 +383,7 @@ static void button_chat_send_update(BUTTON *b) {
     }
 }
 
-static void button_lock_uTox_on_mup(void) {
-    if (tox_thread_init && edit_profile_password.length > 3) {
-        flist_selectsettings();
-        panel_profile_password.disabled = false;
-        panel_settings_master.disabled  = true;
-        tox_settingschanged();
-    }
-    button_show_password_settings.disabled = false;
-    button_show_password_settings.nodraw = false;
-}
 
-static void button_show_password_settings_on_mup(void) {
-    panel_nospam_settings.disabled = true;
-    panel_profile_password_settings.disabled = !panel_profile_password_settings.disabled;
-}
-
-static void button_export_chatlog_on_mup(void) {
-    utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
-}
-
-static void button_change_nospam_on_mup(void) {
-    button_revert_nospam.disabled = false;
-    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 1, 0, NULL);
-}
-
-static void button_revert_nospam_on_mup(void) {
-    if (self.old_nospam == 0 || self.nospam == self.old_nospam) { //nospam can not be 0
-        debug_error("Invalid or current nospam: %u.\n", self.old_nospam);
-        return;
-    }
-    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 0, 0, NULL);
-    button_revert_nospam.disabled = true;
-}
-
-static void button_show_nospam_on_mup(void) {
-    panel_profile_password_settings.disabled = true;
-    panel_nospam_settings.disabled = !panel_nospam_settings.disabled;
-}
 
 BUTTON button_avatar = {
     .nodraw = true, .on_mup = button_avatar_on_mup, .onright = button_avatar_onright,
@@ -498,13 +422,6 @@ BUTTON button_add_new_contact = {
     .tooltip_text = {.i18nal = STR_ADDFRIENDS },
 };
 
-BUTTON button_copyid = {
-    .bm          = BM_SBUTTON,
-    .button_text = {.i18nal = STR_COPY_TOX_ID },
-    .update   = button_setcolors_success,
-    .on_mup  = button_copyid_on_mup,
-    .disabled = false,
-};
 
 BUTTON button_send_friend_request = {
     .bm          = BM_SBUTTON,
@@ -513,6 +430,7 @@ BUTTON button_send_friend_request = {
     .on_mup  = button_send_friend_request_on_mup,
     .disabled = false,
 };
+
 
 BUTTON button_call_decline = {
     .bm           = BM_LBUTTON,
@@ -563,25 +481,6 @@ BUTTON button_accept_friend = {
     .on_mup = button_accept_friend_on_mup,
 };
 
-BUTTON button_callpreview = {
-    .bm       = BM_LBUTTON,
-    .bm2      = BM_CALL,
-    .bw       = _BM_LBICON_WIDTH,
-    .bh       = _BM_LBICON_HEIGHT,
-    .on_mup  = button_audiopreview_on_mup,
-    .update   = button_audiopreview_update,
-    .disabled = false,
-};
-
-BUTTON button_videopreview = {
-    .bm       = BM_LBUTTON,
-    .bm2      = BM_VIDEO,
-    .bw       = _BM_LBICON_WIDTH,
-    .bh       = _BM_LBICON_HEIGHT,
-    .on_mup  = button_videopreview_on_mup,
-    .update   = button_videopreview_update,
-    .disabled = false,
-};
 
 BUTTON button_send_file = {
     .bm           = BM_CHAT_BUTTON_LEFT,
@@ -614,54 +513,6 @@ BUTTON button_chat_send = {
     .tooltip_text = {.i18nal = STR_SENDMESSAGE },
 };
 
-BUTTON button_lock_uTox = {
-    .bm          = BM_SBUTTON,
-    .update      = button_setcolors_success,
-    .on_mup     = button_lock_uTox_on_mup,
-    .button_text = {.i18nal = STR_LOCK },
-    .tooltip_text = {.i18nal = STR_LOCK_UTOX },
-};
-
-BUTTON button_show_password_settings = {
-    .bm          = BM_SBUTTON,
-    .update      = button_setcolors_success,
-    .on_mup     = button_show_password_settings_on_mup,
-    .button_text = {.i18nal = STR_SHOW_UI_PASSWORD },
-    .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD_TOOLTIP },
-};
-
-BUTTON button_export_chatlog = {
-    .bm          = BM_SBUTTON,
-    .button_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
-    .update   = button_setcolors_success,
-    .on_mup  = button_export_chatlog_on_mup,
-    .disabled = false,
-};
-
-BUTTON button_change_nospam = {
-    .bm           = BM_SBUTTON,
-    .update       = button_setcolors_success,
-    .tooltip_text = {.i18nal = STR_RANDOMIZE_NOSPAM},
-    .button_text  = {.i18nal = STR_RANDOMIZE_NOSPAM},
-    .on_mup       = button_change_nospam_on_mup,
-};
-
-BUTTON button_revert_nospam = {
-    .disabled     = true,
-    .bm           = BM_SBUTTON,
-    .update       = button_setcolors_success,
-    .tooltip_text = {.i18nal = STR_REVERT_NOSPAM},
-    .button_text  = {.i18nal = STR_REVERT_NOSPAM},
-    .on_mup       = button_revert_nospam_on_mup,
-};
-
-BUTTON button_show_nospam = {
-    .bm           = BM_SBUTTON,
-    .update       = button_setcolors_success,
-    .tooltip_text = {.i18nal = STR_SHOW_NOSPAM},
-    .button_text  = {.i18nal = STR_SHOW_NOSPAM},
-    .on_mup       = button_show_nospam_on_mup,
-};
 
 static void btn_move_window_mdn(void) {
     debug("button move down\n");

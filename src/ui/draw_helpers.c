@@ -269,6 +269,7 @@ void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUS
     drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
 }
 
+#include "../layout/settings.h" // TODO move this
 void draw_background(int UNUSED(x), int UNUSED(y), int width, int height) {
     /* Default background                */
     drawrect(0, 0, width, height, COLOR_BKGRND_MAIN);

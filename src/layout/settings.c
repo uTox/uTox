@@ -250,13 +250,199 @@ void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(he
     drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
 }
 
+
+SCROLLABLE scrollbar_settings = {
+    .panel = { .type = PANEL_SCROLLABLE, },
+    .color = C_SCROLL,
+};
+
+#include "../ui/edits.h"
+#include "../ui/switches.h"
+#include "../ui/dropdowns.h"
+
+PANEL panel_nospam_settings = {
+            .type = PANEL_NONE,
+            .disabled = true,
+            .drawfunc = draw_nospam_settings,
+            .content_scroll = &scrollbar_settings,
+            .child = (PANEL*[]) {
+                (PANEL*)&edit_nospam,
+                (PANEL*)&button_change_nospam,
+                (PANEL*)&button_revert_nospam,
+                NULL
+             }
+        };
+
+PANEL panel_profile_password_settings = {
+            .type     = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_settings_text_password,
+            .child = (PANEL*[]) {
+                (PANEL*)&edit_profile_password,
+                (PANEL*)&button_lock_uTox,
+                NULL
+            }
+        };
+
+PANEL panel_settings_master = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_settings_header,
+            .child = (PANEL*[]) {
+                &panel_settings_subheader,
+                NULL
+            }
+        },
+            panel_settings_subheader = {
+                .type = PANEL_NONE,
+                .disabled = 0,
+                .drawfunc = draw_settings_sub_header,
+                .child = (PANEL*[]) {
+                    (PANEL*)&button_settings_sub_profile,
+                    (PANEL*)&button_settings_sub_devices,
+                    (PANEL*)&button_settings_sub_ui,
+                    (PANEL*)&button_settings_sub_av,
+                    (PANEL*)&button_settings_sub_notifications,
+                    (PANEL*)&button_settings_sub_adv,
+                    (PANEL*)&scrollbar_settings,
+                    &panel_settings_profile,
+                    &panel_settings_devices,
+                    &panel_settings_ui,
+                    &panel_settings_av,
+                    &panel_settings_notifications,
+                    &panel_settings_adv,
+                    NULL
+                }
+            },
+
+            /* Panel to draw settings page */
+            panel_settings_profile = {
+                .type = PANEL_NONE,
+                .disabled = 0,
+                .drawfunc = draw_settings_text_profile,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&edit_name,
+                    (PANEL*)&edit_status,
+                    // Text: Tox ID
+                    (PANEL*)&edit_toxid,
+                    (PANEL*)&button_copyid,
+                    (PANEL*)&dropdown_language,
+                    NULL
+                }
+            },
+
+            /* Panel to draw settings page */
+            panel_settings_devices = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_settings_text_devices,
+                .content_scroll = &scrollbar_settings,
+                .child = NULL,
+            },
+
+            panel_settings_ui = {
+                .type = PANEL_NONE,
+                .drawfunc = draw_settings_text_ui,
+                .disabled = 1,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&dropdown_dpi,
+                    (PANEL*)&dropdown_theme,
+                    (PANEL*)&switch_save_chat_history,
+                    (PANEL*)&switch_close_to_tray,
+                    (PANEL*)&switch_start_in_tray,
+                    (PANEL*)&switch_auto_startup,
+                    (PANEL*)&switch_mini_contacts,
+                    NULL
+                }
+            },
+
+            panel_settings_av = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_settings_text_av,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&button_callpreview,
+                    (PANEL*)&switch_push_to_talk,
+                    (PANEL*)&button_videopreview,
+                    (PANEL*)&dropdown_audio_in,
+                    (PANEL*)&dropdown_audio_out,
+                    (PANEL*)&dropdown_video,
+                    (PANEL*)&switch_audio_filtering,
+                    NULL
+                }
+            },
+
+            panel_settings_notifications = {
+                .type = PANEL_NONE,
+                .disabled = true,
+                .drawfunc = draw_settings_text_notifications,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&dropdown_global_group_notifications,
+                    (PANEL*)&switch_status_notifications,
+                    (PANEL*)&switch_typing_notes,
+                    (PANEL*)&switch_audible_notifications,
+                    NULL
+                }
+            },
+
+            panel_settings_adv = {
+                .type = PANEL_NONE,
+                .disabled = true,
+                .drawfunc = draw_settings_text_adv,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&edit_proxy_ip,
+                    (PANEL*)&edit_proxy_port,
+                    (PANEL*)&dropdown_proxy,
+                    (PANEL*)&switch_ipv6,
+                    (PANEL*)&switch_udp,
+                    (PANEL*)&switch_auto_update,
+                    (PANEL*)&button_show_password_settings,
+                    &panel_profile_password_settings,
+
+                    (PANEL*)&switch_block_friend_requests,
+                    (PANEL*)&button_show_nospam,
+                    &panel_nospam_settings,
+                    NULL,
+                }
+            };
+
+
 extern SCROLLABLE scrollbar_settings;
+
+static void button_bottommenu_update(BUTTON *b) {
+    b->c1  = COLOR_BKGRND_MENU;
+    b->c2  = COLOR_BKGRND_MENU_HOVER;
+    b->c3  = COLOR_BKGRND_MENU_ACTIVE;
+    b->ct1 = COLOR_MENU_TEXT;
+    b->ct2 = COLOR_MENU_TEXT;
+    if (b->mousedown || b->disabled) {
+        b->ct1 = COLOR_MENU_TEXT_ACTIVE;
+        b->ct2 = COLOR_MENU_TEXT_ACTIVE;
+    }
+    b->cd = COLOR_BKGRND_MENU_ACTIVE;
+}
 
 static void button_settings_on_mup(void) {
     if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         flist_selectsettings();
     }
 }
+
+BUTTON button_settings = {
+    .bm2          = BM_SETTINGS,
+    .bw           = _BM_ADD_WIDTH,
+    .bh           = _BM_ADD_WIDTH,
+    .update       = button_bottommenu_update,
+    .on_mup      = button_settings_on_mup,
+    .disabled     = false,
+    .nodraw       = false,
+    .tooltip_text = {.i18nal = STR_USERSETTINGS },
+};
 
 static void disable_all_setting_sub(void) {
     flist_selectsettings();
@@ -304,18 +490,6 @@ static void button_settings_sub_notifications_on_mup(void){
     panel_settings_notifications.disabled = false;
 }
 
-static void button_bottommenu_update(BUTTON *b) {
-    b->c1  = COLOR_BKGRND_MENU;
-    b->c2  = COLOR_BKGRND_MENU_HOVER;
-    b->c3  = COLOR_BKGRND_MENU_ACTIVE;
-    b->ct1 = COLOR_MENU_TEXT;
-    b->ct2 = COLOR_MENU_TEXT;
-    if (b->mousedown || b->disabled) {
-        b->ct1 = COLOR_MENU_TEXT_ACTIVE;
-        b->ct2 = COLOR_MENU_TEXT_ACTIVE;
-    }
-    b->cd = COLOR_BKGRND_MENU_ACTIVE;
-}
 
 static void button_add_device_to_self_mdown(void) {
 #ifdef ENABLE_MULTIDEVICE
@@ -325,17 +499,6 @@ static void button_add_device_to_self_mdown(void) {
 }
 
 BUTTON
-    button_settings = {
-        .bm2          = BM_SETTINGS,
-        .bw           = _BM_ADD_WIDTH,
-        .bh           = _BM_ADD_WIDTH,
-        .update       = button_bottommenu_update,
-        .on_mup      = button_settings_on_mup,
-        .disabled     = false,
-        .nodraw       = false,
-        .tooltip_text = {.i18nal = STR_USERSETTINGS },
-    },
-
     button_settings_sub_profile = {
         .nodraw = true,
         .on_mup = button_settings_sub_profile_on_mup,
@@ -378,3 +541,187 @@ BUTTON
         // .update  = button_setcolors_success,
         .on_mup = button_add_device_to_self_mdown,
     };
+
+#include "../tox.h"
+static void button_lock_uTox_on_mup(void) {
+    if (tox_thread_init && edit_profile_password.length > 3) {
+        flist_selectsettings();
+        panel_profile_password.disabled = false;
+        panel_settings_master.disabled  = true;
+        tox_settingschanged();
+    }
+    button_show_password_settings.disabled = false;
+    button_show_password_settings.nodraw = false;
+}
+
+static void button_show_password_settings_on_mup(void) {
+    panel_nospam_settings.disabled = true;
+    panel_profile_password_settings.disabled = !panel_profile_password_settings.disabled;
+}
+
+
+#include "../chatlog.h"
+#include "../flist.h"
+#include "../friend.h"
+static void button_export_chatlog_on_mup(void) {
+    utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
+}
+
+static void button_change_nospam_on_mup(void) {
+    button_revert_nospam.disabled = false;
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 1, 0, NULL);
+}
+
+#include "../logging_native.h"
+static void button_revert_nospam_on_mup(void) {
+    if (self.old_nospam == 0 || self.nospam == self.old_nospam) { //nospam can not be 0
+        debug_error("Invalid or current nospam: %u.\n", self.old_nospam);
+        return;
+    }
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 0, 0, NULL);
+    button_revert_nospam.disabled = true;
+}
+
+static void button_show_nospam_on_mup(void) {
+    panel_profile_password_settings.disabled = true;
+    panel_nospam_settings.disabled = !panel_nospam_settings.disabled;
+}
+
+#include "../main_native.h"
+static void button_copyid_on_mup(void) {
+    edit_setfocus(&edit_toxid);
+    copy(0);
+}
+
+#include "../settings.h"
+#include "../av/utox_av.h"
+static void button_audiopreview_on_mup(void) {
+    if (!settings.audio_preview) {
+        postmessage_utoxav(UTOXAV_START_AUDIO, 1, 0, NULL);
+    } else {
+        postmessage_utoxav(UTOXAV_STOP_AUDIO, 1, 0, NULL);
+    }
+    settings.audio_preview = !settings.audio_preview;
+}
+
+
+// TODO delete button_setcolor_* and move this setting and logic to the struct
+/* Quick color change functions */
+static void button_setcolors_success(BUTTON *b) {
+    b->c1  = COLOR_BTN_SUCCESS_BKGRND;
+    b->c2  = COLOR_BTN_SUCCESS_BKGRND_HOVER;
+    b->c3  = COLOR_BTN_SUCCESS_BKGRND_HOVER;
+    b->ct1 = COLOR_BTN_SUCCESS_TEXT;
+    b->ct2 = COLOR_BTN_SUCCESS_TEXT_HOVER;
+}
+
+static void button_setcolors_danger(BUTTON *b) {
+    b->c1  = COLOR_BTN_DANGER_BACKGROUND;
+    b->c2  = COLOR_BTN_DANGER_BKGRND_HOVER;
+    b->c3  = COLOR_BTN_DANGER_BKGRND_HOVER;
+    b->ct1 = COLOR_BTN_DANGER_TEXT;
+    b->ct2 = COLOR_BTN_DANGER_TEXT_HOVER;
+}
+
+static void button_audiopreview_update(BUTTON *b) {
+    if (settings.audio_preview) {
+        button_setcolors_danger(b);
+    } else {
+        button_setcolors_success(b);
+    }
+}
+
+static void button_videopreview_on_mup(void) {
+    if (settings.video_preview) {
+        postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 1, NULL);
+    } else if (video_width && video_height) {
+        postmessage_utoxav(UTOXAV_START_VIDEO, 0, 1, NULL);
+    } else {
+        debug("Button ERR:\tVideo_width = 0, can't preview\n");
+    }
+    settings.video_preview = !settings.video_preview;
+}
+
+static void button_videopreview_update(BUTTON *b) {
+    if (settings.video_preview) {
+        button_setcolors_danger(b);
+    } else {
+        button_setcolors_success(b);
+    }
+}
+BUTTON button_copyid = {
+    .bm          = BM_SBUTTON,
+    .button_text = {.i18nal = STR_COPY_TOX_ID },
+    .update   = button_setcolors_success,
+    .on_mup  = button_copyid_on_mup,
+    .disabled = false,
+};
+
+BUTTON button_callpreview = {
+    .bm       = BM_LBUTTON,
+    .bm2      = BM_CALL,
+    .bw       = _BM_LBICON_WIDTH,
+    .bh       = _BM_LBICON_HEIGHT,
+    .on_mup  = button_audiopreview_on_mup,
+    .update   = button_audiopreview_update,
+    .disabled = false,
+};
+
+BUTTON button_videopreview = {
+    .bm       = BM_LBUTTON,
+    .bm2      = BM_VIDEO,
+    .bw       = _BM_LBICON_WIDTH,
+    .bh       = _BM_LBICON_HEIGHT,
+    .on_mup  = button_videopreview_on_mup,
+    .update   = button_videopreview_update,
+    .disabled = false,
+};
+
+BUTTON button_lock_uTox = {
+    .bm          = BM_SBUTTON,
+    .update      = button_setcolors_success,
+    .on_mup     = button_lock_uTox_on_mup,
+    .button_text = {.i18nal = STR_LOCK },
+    .tooltip_text = {.i18nal = STR_LOCK_UTOX },
+};
+
+BUTTON button_show_password_settings = {
+    .bm          = BM_SBUTTON,
+    .update      = button_setcolors_success,
+    .on_mup     = button_show_password_settings_on_mup,
+    .button_text = {.i18nal = STR_SHOW_UI_PASSWORD },
+    .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD_TOOLTIP },
+};
+
+BUTTON button_export_chatlog = {
+    .bm          = BM_SBUTTON,
+    .button_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
+    .update   = button_setcolors_success,
+    .on_mup  = button_export_chatlog_on_mup,
+    .disabled = false,
+};
+
+BUTTON button_change_nospam = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .button_text  = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .on_mup       = button_change_nospam_on_mup,
+};
+
+BUTTON button_revert_nospam = {
+    .disabled     = true,
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_REVERT_NOSPAM},
+    .button_text  = {.i18nal = STR_REVERT_NOSPAM},
+    .on_mup       = button_revert_nospam_on_mup,
+};
+
+BUTTON button_show_nospam = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_SHOW_NOSPAM},
+    .button_text  = {.i18nal = STR_SHOW_NOSPAM},
+    .on_mup       = button_show_nospam_on_mup,
+};

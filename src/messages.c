@@ -24,6 +24,8 @@
 
 #include "layout/tree.h"
 
+#include "layout/group.h"
+
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 
 /** Appends a messages from self or friend to the message list;

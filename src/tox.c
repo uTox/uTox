@@ -310,6 +310,8 @@ static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file
     }
 }
 
+#include "layout/settings.h"
+
 // initialize toxcore based on current settings
 // returns 0 on success
 // returns -1 on temporary error (waiting for password encryption)
@@ -338,6 +340,7 @@ static int init_toxcore(Tox **tox) {
 
     save_status = load_toxcore_save(&topt);
 
+    // TODO tox.c shouldn't be interacting with the UI on this level
     if (save_status == -1) {
         /* Save file exist, couldn't decrypt, don't start a tox instance
         TODO: throw an error to the UI! */
