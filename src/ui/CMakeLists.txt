@@ -1,11 +1,11 @@
 project(utoxUI LANGUAGES C)
 
 add_library(utoxUI STATIC
-    layout_all.h
-    layout_notify.h
-    layout_root.h
+    ../layout/layout_all.h
+    ../layout/layout_notify.h
+    ../layout/layout_root.h
 
-    tree/notify.c
+    ../layout/tree/notify.c
 
     button.c
     button.h

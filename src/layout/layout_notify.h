@@ -1,12 +1,14 @@
 #ifndef LAYOUT_NOTIFY_H
 #define LAYOUT_NOTIFY_H
 
-#include "buttons.h"
-#include "draw_helpers.h"
+#include "../ui/buttons.h"
+#include "../ui/draw_helpers.h"
 
 #include "../ui.h"
 
 #include "tree/notify.h"
+
+#include <stddef.h>
 
 PANEL panel_notify_generic = {
     .type = PANEL_NONE,

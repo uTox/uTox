@@ -3,7 +3,7 @@
 
 #include "../../ui.h"
 
-#include "../buttons.h"
+#include "../../ui/buttons.h"
 
 extern BUTTON button_notify_one;
 extern BUTTON button_notify_two;

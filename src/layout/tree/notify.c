@@ -1,7 +1,5 @@
 #include "notify.h"
 
-#include "../buttons.h"
-
 #include "../../ui.h"
 #include "../../logging_native.h"
 

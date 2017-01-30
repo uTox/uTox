@@ -1,12 +1,12 @@
 #ifndef LAYOUT_ROOT_H
 #define LAYOUT_ROOT_H
 
-#include "buttons.h"
-#include "draw_helpers.h"
-#include "dropdowns.h"
-#include "edits.h"
-#include "scrollable.h"
-#include "switches.h"
+#include "../ui/buttons.h"
+#include "../ui/draw_helpers.h"
+#include "../ui/dropdowns.h"
+#include "../ui/edits.h"
+#include "../ui/scrollable.h"
+#include "../ui/switches.h"
 
 #include <stddef.h>
 

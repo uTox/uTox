@@ -5,11 +5,12 @@
 #include "main_native.h"
 #include "messages.h"
 
+#include "layout/layout_all.h"
+
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
 #include "ui/draw_helpers.h"
 #include "ui/dropdowns.h"
-#include "ui/layout_all.h"
 #include "ui/scrollable.h"
 #include "ui/switches.h"
 #include "ui/text.h"
