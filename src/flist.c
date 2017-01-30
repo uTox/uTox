@@ -23,6 +23,8 @@
 #include "ui/svg.h"
 #include "ui/tooltip.h"
 
+#include "layout/tree.h"
+
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>

@@ -8,9 +8,11 @@
 #include "settings.h"
 #include "text.h"
 #include "utox.h"
+#include "ui.h"
 
 #include "av/audio.h"
 #include "av/utox_av.h"
+
 
 #include <stdint.h>
 #include <stdlib.h>

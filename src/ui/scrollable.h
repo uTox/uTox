@@ -2,6 +2,9 @@
 #define SCROLLABLE_H
 
 #include "../ui.h"
+#include "../ui/panel.h"
+
+#include <stdint.h>
 
 struct scrollable {
     PANEL panel;

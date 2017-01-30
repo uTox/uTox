@@ -2,6 +2,9 @@
 #define DROPDOWN_H
 
 #include "../ui.h"
+#include "../ui/panel.h"
+
+#include <stdint.h>
 
 // userdata of list-based dropdown consists of these records
 typedef struct {

@@ -22,6 +22,8 @@
 #include "ui/svg.h"
 #include "ui/text.h"
 
+#include "layout/tree.h"
+
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 
 /** Appends a messages from self or friend to the message list;

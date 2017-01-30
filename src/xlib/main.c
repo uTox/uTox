@@ -22,6 +22,8 @@
 #include "../ui/dropdowns.h"
 #include "../ui/edit.h"
 
+#include "../layout/tree.h"
+
 #include "../main.h" // STBI
 
 bool hidden = false;

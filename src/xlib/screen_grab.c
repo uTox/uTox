@@ -1,7 +1,8 @@
 #include "main.h"
 
 #include "window.h"
-#include "../main.h" // cursors
+
+#include "../ui.h"
 
 void native_screen_grab_desktop(bool video) {
     pointergrab = 1 + video;

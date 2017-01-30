@@ -22,6 +22,8 @@
 #include <assert.h>
 #include <stddef.h>
 
+#include "../layout/tree.h" // TODO does this need to be removed?
+
 #include "../main.h" // STBI
 
 extern XIC xic;

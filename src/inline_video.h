@@ -1,7 +1,7 @@
 #ifndef INLINE_VIDEO_H
 #define INLINE_VIDEO_H
 
-#include "ui.h"
+#include "ui/panel.h"
 
 #include <inttypes.h>
 #include <stdbool.h>

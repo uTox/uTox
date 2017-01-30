@@ -1,12 +1,15 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
-#include "ui.h"
+#include "ui/panel.h"
 
+#include <stdint.h>
 #include <time.h>
 #include <pthread.h>
 
 pthread_mutex_t messages_lock;
+
+typedef struct native_image NATIVE_IMAGE;
 
 typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_NULL,

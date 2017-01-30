@@ -18,6 +18,8 @@
 #include "main_native.h"
 #include "settings.h"
 
+#include "ui.h"
+
 #include "av/video.h"
 
 #include <stdlib.h>

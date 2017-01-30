@@ -19,6 +19,7 @@
 
 #include "../av/utox_av.h"
 #include "../ui/edit.h"
+#include "../ui/panel.h"
 
 NSCursor *cursors[8];
 

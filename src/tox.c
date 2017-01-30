@@ -22,6 +22,8 @@
 #include "ui/edits.h"
 #include "ui/switches.h"
 
+#include "layout/tree.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>

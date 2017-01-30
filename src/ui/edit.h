@@ -2,7 +2,12 @@
 #define EDIT_H
 
 #include "../ui.h"
+
+#include "../ui/panel.h"
 /*todo: replace windows functions, multiline edits, add missing edit functions (ex: double click to select word)*/
+
+#include <stdbool.h>
+#include <stdint.h>
 
 typedef struct scrollable SCROLLABLE;
 

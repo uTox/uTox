@@ -5,6 +5,7 @@
 #include "window.h"
 
 #include "../text.h"
+#include "../ui.h"
 
 #include "../ui/draw.h"
 

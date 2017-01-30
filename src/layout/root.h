@@ -1,6 +1,11 @@
 #ifndef LAYOUT_ROOT_H
 #define LAYOUT_ROOT_H
 
+#include "tree.h"
+
+#include "group.h"
+
+#include "../ui/panel.h"
 #include "../ui/buttons.h"
 #include "../ui/draw_helpers.h"
 #include "../ui/dropdowns.h"
@@ -25,11 +30,6 @@ scrollbar_friend = {
     .color = C_SCROLL,
 },
 
-scrollbar_group = {
-    .panel = { .type = PANEL_SCROLLABLE, },
-    .color = C_SCROLL,
-},
-
 scrollbar_settings = {
     .panel = { .type = PANEL_SCROLLABLE, },
     .color = C_SCROLL,
@@ -38,11 +38,6 @@ scrollbar_settings = {
 PANEL messages_friend = {
     .type = PANEL_MESSAGES,
     .content_scroll = &scrollbar_friend,
-},
-
-messages_group = {
-    .type = PANEL_MESSAGES,
-    .content_scroll = &scrollbar_group,
 };
 
 // clang-format off
@@ -56,8 +51,9 @@ PANEL panel_root = {
                            * at the end of the expression. But because this has always worked in the
                            * past, and because of this comment  http://stackoverflow.com/questions/31212114/clang-complains-pointer-is-initialized-by-a-temporary-array#comment50455257_31212154
                            * I've chosen to ignore this warning. If you're feeling pedantic you can
-                           * define and name each array seperatly and change the PANEL struct. */
-        &panel_side_bar, &panel_main,
+                           * define and name each array separately and change the PANEL struct. */
+        &panel_side_bar,
+        &panel_main,
         NULL
     }
 },
@@ -134,46 +130,7 @@ panel_main = {
             NULL
         }
     },
-        panel_group = {
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .child = (PANEL*[]) {
-                &panel_group_chat,
-                &panel_group_video,
-                &panel_group_settings,
-                NULL
-            }
-        },
-            panel_group_chat = {
-                .type = PANEL_NONE,
-                .disabled = 0,
-                .drawfunc = draw_group,
-                .child = (PANEL*[]) {
-                    (PANEL*)&scrollbar_group,
-                    (PANEL*)&edit_msg_group, // this needs to be one of the first, to get events before the others
-                    (PANEL*)&messages_group,
-                    (PANEL*)&button_group_audio,
-                    (PANEL*)&button_chat_send,
-                    NULL
-                }
-            },
-            panel_group_video = {
-                .type = PANEL_NONE,
-                .disabled = 1,
-                .child = (PANEL*[]) {
-                    NULL
-                }
-            },
-            panel_group_settings = {
-                .type = PANEL_NONE,
-                .disabled = 1,
-                .drawfunc = draw_group_settings,
-                .child = (PANEL*[]) {
-                    (PANEL*)&edit_group_topic,
-                    (PANEL*)&dropdown_notify_groupchats,
-                    NULL
-                }
-            },
+
         panel_friend = {
             .type = PANEL_NONE,
             .disabled = 1,

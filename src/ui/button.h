@@ -1,9 +1,11 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+#include "../ui/panel.h"
 #include "../ui.h"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef struct button BUTTON;
 struct button {

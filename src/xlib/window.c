@@ -8,6 +8,8 @@
 
 #include "../ui/draw.h"
 
+#include "../layout/tree.h" // TODO remove
+
 #include "../main.h" // MAIN_WIDTH, MAIN_HEIGHT
 
 

@@ -7,7 +7,7 @@
 #include "ui.h"
 #include "window.h"
 
-// #include "ui/layout_notify.h"
+#include "layout/notify.h"
 
 static uint16_t notification_number = 0;
 

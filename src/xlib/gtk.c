@@ -1,3 +1,5 @@
+#include "gtk.h"
+
 #include "../chatlog.h"
 #include "../file_transfers.h"
 #include "../filesys.h"
@@ -8,6 +10,7 @@
 #include "../main_native.h"
 #include "../text.h"
 #include "../tox.h"
+#include "../ui.h"
 #include "../utox.h"
 
 #include "../main.h"

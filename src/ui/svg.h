@@ -1,7 +1,7 @@
 #ifndef SVG_H
 #define SVG_H
 
-#include "../ui.h"
+#include <stdbool.h>
 
 /* Scroll bar rounded corners top and bottom */
 #define BM_SCROLLHALF_WIDTH SCROLL_WIDTH

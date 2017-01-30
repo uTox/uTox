@@ -23,6 +23,8 @@
 #include "../av/video.h"
 #include "../ui/edits.h"
 
+#include "../layout/tree.h" // TODO remove
+
 #include "../main.h" // Tox thread globals
 
 #ifdef UNITY
@@ -30,6 +32,7 @@
 extern bool unity_running;
 #endif
 
+// TODO delete button_setcolor_* and move this setting and logic to the struct
 /* Quick color change functions */
 void button_setcolors_success(BUTTON *b) {
     b->c1  = COLOR_BTN_SUCCESS_BKGRND;

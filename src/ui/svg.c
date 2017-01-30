@@ -2,6 +2,7 @@
 
 #include "draw.h"
 
+#include "../ui.h"
 #include "../logging_native.h"
 #include "../macros.h"
 #include "../main.h"

@@ -1,8 +1,15 @@
 #ifndef SWITCH_H
 #define SWITCH_H
 
-#include "../ui.h"
 #include "svg.h"
+
+#include "../ui.h"
+
+#include "../ui/panel.h"
+
+
+#include <stdbool.h>
+#include <stdint.h>
 
 typedef struct uiswitch UISWITCH;
 struct uiswitch {

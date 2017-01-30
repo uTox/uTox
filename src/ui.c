@@ -5,8 +5,9 @@
 #include "main_native.h"
 #include "messages.h"
 
-#include "layout/layout_all.h"
+#include "layout/all.h"
 
+#include "ui/panel.h"
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
 #include "ui/draw_helpers.h"

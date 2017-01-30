@@ -1,18 +1,18 @@
 #ifndef UI_H
 #define UI_H
 
-#include "sized_string.h"
-
 #include "../langs/i18n_decls.h"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef struct native_image NATIVE_IMAGE;
 
-#define DEFAULT_LANG LANG_EN
+#define DEFAULT_LANG LANG_EN // TODO does this belong here?
 #define S(x) (ui_gettext(LANG, (STR_##x))->str)
 #define SLEN(x) (ui_gettext(LANG, (STR_##x))->length)
 #define SPTR(x) (ui_gettext(LANG, (STR_##x)))
+
 /* if UTOX_STR_WIDTH, is giving you a bad size you've probably changed setfont() from the string you're trying to get
  * the size of. Either store the size before changing, or swap it -> run UTOX_STR_WIDTH() -> swap back. */
 #define UTOX_STR_WIDTH(x) (textwidth((ui_gettext(LANG, (STR_##x))->str), (ui_gettext(LANG, (STR_##x))->length)))
@@ -24,7 +24,7 @@ typedef struct native_image NATIVE_IMAGE;
 // This is to stop a circular dependency between svg.c and xlib/main.h.
 #if defined __WIN32__
 // Windows supplies its own RGB function.
-#include <windows.h>
+#include <windows.h>  // TODO, don't do this
 #elif defined __ANDROID__
 #define RGB(r, g, b) ((r) | ((g) << 8) | ((b) << 16))
 #elif defined __OBJC__
@@ -52,7 +52,6 @@ struct utox_mouse {
 uint8_t cursor;
 bool mdown;
 
-
 enum {
     FONT_TEXT,
     FONT_TITLE,
@@ -65,38 +64,12 @@ enum {
 };
 
 typedef enum {
-    PANEL_NONE,
-    PANEL_MAIN,
-    PANEL_MESSAGES,
-    PANEL_INLINE_VIDEO,
-    PANEL_LIST,
-    PANEL_BUTTON,
-    PANEL_SWITCH,
-    PANEL_DROPDOWN,
-    PANEL_EDIT,
-    PANEL_SCROLLABLE,
-} PANEL_TYPE;
-
-typedef enum {
     MAIN_STYLE,      // white style, used in right side
     AUXILIARY_STYLE, // gray style, used on friends side
 } UI_ELEMENT_STYLE;
 
-typedef struct panel      PANEL;
+typedef struct panel PANEL;
 typedef struct scrollable SCROLLABLE;
-struct panel {
-    PANEL_TYPE type;
-
-    bool disabled;
-    int  x, y, width, height;
-
-    SCROLLABLE *content_scroll;
-
-    void (*drawfunc)(int, int, int, int);
-    void *object;
-
-    PANEL **child;
-};
 
 typedef struct maybe_i18nal_string {
     STRING        plain;
@@ -110,27 +83,6 @@ bool    maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *);
 
 // Application-wide language setting
 extern UTOX_LANG LANG;
-
-/* uTox panel draw hierarchy. */
-extern PANEL panel_notify_generic;
-
-/* TODO remove this and expose it differently */
-extern PANEL panel_root, panel_side_bar, panel_self, panel_quick_buttons, panel_flist, panel_flist_list,
-    panel_lower_buttons, panel_main, panel_chat, panel_group, panel_group_chat, panel_group_video, panel_group_settings,
-    panel_friend, panel_friend_chat, panel_friend_video, panel_friend_settings, panel_friend_request, panel_overhead,
-    panel_splash_page, panel_profile_password, panel_add_friend,
-    messages_friend,
-    messages_group,
-    panel_settings_master,
-        panel_settings_subheader,
-        panel_settings_profile,
-        panel_profile_password_settings,
-        panel_settings_devices,
-        panel_settings_ui,
-        panel_settings_av,
-        panel_settings_notifications,
-        panel_settings_adv,
-        panel_nospam_settings;
 
 /* draws an image in the style of an avatar at within rect (x,y,targetwidth,targetheight)
  * this means: resize the image while keeping proportion so that the dimension(width or height) that has the smallest
