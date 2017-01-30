@@ -7,7 +7,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../main_native.h"
 #include "../self.h"
@@ -104,7 +104,7 @@ void edit_msg_onenter(EDIT *edit) {
         return;
     }
 
-    // debug("cmd %u\n", command_length);
+    // LOG_TRACE(__FILE__, "cmd %u" , command_length);
 
     bool action = false;
     if (command_length) {
@@ -137,7 +137,7 @@ void edit_msg_onenter(EDIT *edit) {
         GROUPCHAT *g = flist_get_selected()->data;
         void *d = malloc(length);
         if (!d) {
-            debug_error("edit_msg_onenter:\t Ran out of memory.\n");
+            LOG_ERR("edit_msg_onenter", " Ran out of memory.");
             return;
         }
         memcpy(d, text, length);

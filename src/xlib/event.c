@@ -2,7 +2,7 @@
 
 #include "../flist.h"
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../main_native.h"
 #include "../settings.h"
@@ -157,7 +157,7 @@ bool doevent(XEvent event) {
 
             // SetCursor(hand ? cursor_hand : cursor_arrow);
 
-            // debug("MotionEvent: (%u %u) %u\n", ev->x, ev->y, ev->state);
+            // LOG_TRACE(__FILE__, "MotionEvent: (%u %u) %u" , ev->x, ev->y, ev->state);
             break;
         }
 
@@ -222,7 +222,7 @@ bool doevent(XEvent event) {
                 }
             }
 
-            // debug("ButtonEvent: %u %u\n", ev->state, ev->button);
+            // LOG_TRACE(__FILE__, "ButtonEvent: %u %u" , ev->state, ev->button);
             break;
         }
 
@@ -447,7 +447,7 @@ bool doevent(XEvent event) {
 
         case SelectionNotify: {
 
-            debug("SelectionNotify\n");
+            LOG_TRACE(__FILE__, "SelectionNotify" );
 
             XSelectionEvent *ev = &event.xselection;
 
@@ -467,8 +467,8 @@ bool doevent(XEvent event) {
                 break;
             }
 
-            debug("Type: %s\n", XGetAtomName(display, type));
-            debug("Property: %s\n", XGetAtomName(display, ev->property));
+            LOG_TRACE(__FILE__, "Type: %s" , XGetAtomName(display, type));
+            LOG_TRACE(__FILE__, "Property: %s" , XGetAtomName(display, ev->property));
 
             if (ev->property == XA_ATOM) {
                 pastebestformat((Atom *)data, len, ev->selection);
@@ -530,7 +530,7 @@ bool doevent(XEvent event) {
         case PropertyNotify: {
             XPropertyEvent *ev = &event.xproperty;
             if (ev->state == PropertyNewValue && ev->atom == targets && pastebuf.data) {
-                debug("Property changed: %s\n", XGetAtomName(display, ev->atom));
+                LOG_TRACE(__FILE__, "Property changed: %s" , XGetAtomName(display, ev->atom));
 
                 Atom              type;
                 int               format;
@@ -541,7 +541,7 @@ bool doevent(XEvent event) {
                                    &bytes_left, (unsigned char **)&data);
 
                 if (len == 0) {
-                    debug("Got 0 length data, pasting\n");
+                    LOG_TRACE(__FILE__, "Got 0 length data, pasting" );
                     pastedata(pastebuf.data, type, pastebuf.len, False);
                     pastebuf.data = NULL;
                     break;
@@ -573,7 +573,7 @@ bool doevent(XEvent event) {
             if (ev->message_type == wm_protocols) {
                 if ((Atom)event.xclient.data.l[0] == wm_delete_window) {
                     if (settings.close_to_tray) {
-                        debug("Closing to tray.\n");
+                        LOG_TRACE(__FILE__, "Closing to tray." );
                         togglehide();
                     } else {
                         return 0;
@@ -583,7 +583,7 @@ bool doevent(XEvent event) {
             }
 
             if (ev->message_type == XdndEnter) {
-                debug("enter\n");
+                LOG_TRACE(__FILE__, "enter" );
             } else if (ev->message_type == XdndPosition) {
                 Window src         = ev->data.l[0];
                 XEvent reply_event = {.xclient = {.type         = ClientMessage,
@@ -594,16 +594,16 @@ bool doevent(XEvent event) {
                                                   .data = {.l = { window, 1, 0, 0, XdndActionCopy } } } };
 
                 XSendEvent(display, src, 0, 0, &reply_event);
-                // debug("position (version=%u)\n", ev->data.l[1] >> 24);
+                // LOG_TRACE(__FILE__, "position (version=%u)" , ev->data.l[1] >> 24);
             } else if (ev->message_type == XdndStatus) {
-                debug("status\n");
+                LOG_TRACE(__FILE__, "status" );
             } else if (ev->message_type == XdndDrop) {
                 XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, window, CurrentTime);
-                debug("drop\n");
+                LOG_TRACE(__FILE__, "drop" );
             } else if (ev->message_type == XdndLeave) {
-                debug("leave\n");
+                LOG_TRACE(__FILE__, "leave" );
             } else {
-                debug("dragshit\n");
+                LOG_TRACE(__FILE__, "dragshit" );
             }
             break;
         }

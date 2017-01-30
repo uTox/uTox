@@ -1,6 +1,6 @@
 #include "main.h"
 
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../main.h"
 #include "../settings.h"
 
@@ -51,17 +51,17 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     if (opts > UTOX_FILE_OPTS_DELETE) {
-        debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
+        LOG_ERR("WinFilesys", "Don't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.");
         return NULL;
     } else if (opts & UTOX_FILE_OPTS_WRITE && opts & UTOX_FILE_OPTS_APPEND) {
-        debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_WRITE in combination with UTOX_FILE_OPTS_APPEND.\n");
+        LOG_ERR("WinFilesys", "Don't call native_get_file with UTOX_FILE_OPTS_WRITE in combination with UTOX_FILE_OPTS_APPEND.");
         return NULL;
     }
 
     snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "/Tox/");
 
     if (strlen((char *)path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
-        debug_error("NATIVE:\tLoad directory name too long\n");
+        LOG_ERR("WinFilesys", "Load directory name too long");
         return NULL;
     }
 
@@ -75,7 +75,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
 
     if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
         if (!native_create_dir(path)) {
-            debug_error("NATIVE:\t: Failed to create path %s.\n", path);
+            LOG_ERR("WinFilesys", ": Failed to create path %s." , path);
         }
     }
 
@@ -92,7 +92,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
 
     if (opts == UTOX_FILE_OPTS_DELETE) {
         if (!DeleteFile(path)) {
-            debug_error("NATIVE:\tCould not delete file: %s - Error: %d\n", path, GetLastError());
+            LOG_ERR("WinFilesys", "Could not delete file: %s - Error: %d" , path, GetLastError());
         }
         return NULL;
     }
@@ -101,7 +101,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
 
     if (fp == NULL) {
         if (opts > UTOX_FILE_OPTS_READ) {
-            debug_error("NATIVE:\tCould not open %S for writing.\n", wide);
+            LOG_NOTE("WinFilesys", "Could not open %S for writing." , wide);
         }
         return NULL;
     }
@@ -137,12 +137,12 @@ bool native_create_dir(const uint8_t *filepath) {
         case ERROR_SUCCESS:
         case ERROR_FILE_EXISTS:
         case ERROR_ALREADY_EXISTS:
-            debug_notice("NATIVE:\tCreated path: `%s` - %d\n", filepath, error);
+            LOG_NOTE("WinFilesys", "Created path: `%s` - %d" , filepath, error);
             return true;
             break;
 
         case ERROR_BAD_PATHNAME:
-            debug_error("NATIVE:\tUnable to create path: `%s` - bad path name.\n", filepath);
+            LOG_WARN("WinFilesys", "Unable to create path: `%s` - bad path name." , filepath);
             return false;
             break;
 
@@ -150,7 +150,7 @@ bool native_create_dir(const uint8_t *filepath) {
         case ERROR_PATH_NOT_FOUND:
         case ERROR_CANCELLED:
         default:
-            debug_error("NATIVE:\tUnable to create path: `%s` - error %d\n", filepath, error);
+            LOG_ERR("WinFilesys", "Unable to create path: `%s` - error %d" , filepath, error);
             return false;
             break;
     }
@@ -177,7 +177,7 @@ bool native_remove_file(const uint8_t *name, size_t length) {
 
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        LOG_TRACE("WinFilesys", "File/directory name too long, unable to remove" );
         return false;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path),
@@ -185,11 +185,11 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     }
 
     if (remove((const char *)path)) {
-        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        LOG_ERR("WinFilesys", "Unable to delete file!\n\t\t%s" , path);
         return false;
     } else {
-        debug_info("NATIVE:\tFile deleted!\n");
-        debug("NATIVE:\t\t%s\n", path);
+        LOG_INFO("WinFilesys", "File deleted!" );
+        LOG_TRACE("WinFilesys", "\t%s" , path);
     }
 
     return true;

@@ -6,7 +6,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../main_native.h"
 #include "../settings.h"
@@ -99,14 +99,14 @@ static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPD
     FRIEND *f        = flist_get_selected()->data;
     f->ft_autoaccept = !!i;
     utox_write_metadata(f);
-    debug("Friend %u, is now accepting ft auto %u\n", f->number, i);
+    LOG_TRACE(__FILE__, "Friend %u, is now accepting ft auto %u" , f->number, i);
 }
 
 
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
     GROUPCHAT *g = flist_get_selected()->data;
     g->notify    = i;
-    debug("g->notify = %u\n", i);
+    LOG_TRACE(__FILE__, "g->notify = %u" , i);
 }
 
 static void dropdown_global_group_notifications_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {

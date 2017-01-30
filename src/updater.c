@@ -1,6 +1,6 @@
 #include "updater.h"
 
-#include "logging_native.h"
+#include "debug.h"
 #include "settings.h"
 #include "branding.h"
 
@@ -36,14 +36,14 @@ static size_t mk_request(char *host, char *file, char *data) {
 
 static uint8_t *download(char *host, char *file, uint32_t *out_len) {
     if (settings.force_proxy) {
-        debug_error("Updater:\tUnable to download with a proxy set and forced!");
+        LOG_ERR(__FILE__, "Updater:\tUnable to download with a proxy set and forced!");
         return NULL;
     }
 
     struct addrinfo *root;
 
     if (getaddrinfo(host, "80", NULL, &root)) {
-        debug_error("Updater:\tNo host found at [%s]", host);
+        LOG_ERR(__FILE__, "Updater:\tNo host found at [%s]", host);
         return NULL;
     }
 
@@ -54,12 +54,12 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
 
         int32_t sock = socket(info->ai_family, SOCK_STREAM, IPPROTO_TCP);
         if (sock < 0) {
-            debug_error("Updater:\tCan't get socket!\n");
+            LOG_ERR("Updater", "Can't get socket!");
             continue;
         }
 
         if (connect(sock, info->ai_addr, info->ai_addrlen)) {
-            debug_error("Updater:\tUnable to connect to addr [%s]\n", host);
+            LOG_ERR("Updater", "Unable to connect to addr [%s]" , host);
             close(sock);
             continue;
         }
@@ -67,14 +67,14 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
         char reqst[1024] = {0}; // 1024 aught to be enough for anyone!
         size_t size = mk_request(host, file, reqst);
         if (size >= 1024) {
-            debug_error("Updater:\tOVERRUN DETECTED!\n");
+            LOG_ERR("Updater", "OVERRUN DETECTED!");
             close(sock);
             freeaddrinfo(root);
             return NULL;
         }
 
         if (send(sock, reqst, size, 0) != (ssize_t)size) {
-            debug_error("Unable to send request to update server, [%s]x%lu\n", host, size);
+            LOG_ERR(__FILE__, "Unable to send request to update server, [%s]x%lu\n", host, size);
             close(sock);
             continue;
         }
@@ -85,7 +85,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
         uint32_t len = 0, real_len = 0, header_len = 0;
         uint8_t *buffer = calloc(1, 0x10000);
         if (!buffer) {
-            debug_error("Updater:\tUnable to malloc for the updater\n");
+            LOG_ERR("Updater", "Unable to malloc for the updater");
             return NULL;
         }
         bool have_header = false;
@@ -94,7 +94,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                 buffer[len] = 0; // Buffer must be null term
                 // Fail with 404
                 if (strstr((char *)buffer, "404 Not Found\r\n")) {
-                    debug_error("Updater:\t404 Not Found at [%s]\n", host);
+                    LOG_ERR("Updater", "404 Not Found at [%s]" , host);
                     break;
                 }
                 // Get the real file length
@@ -111,7 +111,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                 /* find the end of the http response header */
                 str = strstr(str, "\r\n\r\n");
                 if (!str) {
-                    debug_error("invalid HTTP response (2)\n");
+                    LOG_ERR(__FILE__, "invalid HTTP response (2)\n");
                     break;
                 }
                 str += sizeof("\r\n\r\n") - 1; // and trim
@@ -119,7 +119,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                 /* allocate buffer to read into) */
                 data = calloc(header_len, 1);
                 if (!data) {
-                    debug_error("malloc failed (1) (%u)\n", header_len);
+                    LOG_ERR(__FILE__, "malloc failed (1) (%u)\n", header_len);
                     break;
                 }
 
@@ -134,7 +134,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
             }
 
             if (real_len + len > header_len) {
-                debug_error("Updater:\tCorrupt download, can't continue with update.\n");
+                LOG_ERR("Updater", "Corrupt download, can't continue with update.");
                 free(buffer);
                 free(data);
                 return NULL;
@@ -150,25 +150,25 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
             free(buffer);
             return data;
         }
-        debug_error("Updater:\tbad download from host [%s]\n", host);
+        LOG_ERR("Updater", "bad download from host [%s]" , host);
         free(buffer);
         return NULL;
     }
 
-    debug_error("Updater:\tGeneric error in updater. (This should never happen!)\n");
+    LOG_ERR("Updater", "Generic error in updater. (This should never happen!)");
     return NULL;
 }
 
 static uint8_t *verify_sig(uint8_t *raw, uint32_t len, size_t *out_len) {
     uint8_t *message = calloc(1, len);
     if (!message) {
-        debug_error("Updater:\tCant' malloc to verify the sig\n");
+        LOG_ERR("Updater", "Cant' malloc to verify the sig");
         return NULL;
     }
 
     size_t m_len = 0;
     if (crypto_sign_ed25519_open(message, (unsigned long long*)&m_len, raw, len, pk) == -1) {
-        debug_error("Updater:\tFatal error checking the signature for download!\n");
+        LOG_ERR("Updater", "Fatal error checking the signature for download!");
         free(message);
         return NULL;
     }
@@ -187,7 +187,7 @@ static uint32_t download_version(void) {
     uint32_t len = 0;
     uint8_t *raw = download("downloads.utox.io", "utox_version_stable", &len);
     if (!raw) {
-        debug_error("Updater:\tDownload failed.\n");
+        LOG_ERR("Updater", "Download failed.");
         return 0;
     }
 
@@ -195,7 +195,7 @@ static uint32_t download_version(void) {
     uint8_t *data = verify_sig(raw, len, &msg_len);
     free(raw);
     if (!data) {
-        debug_error("Updater:\tSignature failed. This is bad; consider reporting this.\n");
+        LOG_ERR("Updater", "Signature failed. This is bad; consider reporting this.");
         return 0;
     }
 
@@ -216,7 +216,7 @@ static uint32_t download_version(void) {
 // Returns true if there's a new version.
 bool updater_check(void) {
     uint32_t version = download_version();
-    debug_info("Updater:\tCurrent version %u, newest version version %u.\n", UTOX_VERSION_NUMBER, version);
+    LOG_INFO("Updater", "Current version %u, newest version version %u." , UTOX_VERSION_NUMBER, version);
 
     if (version > UTOX_VERSION_NUMBER) {
         debug_warning("Updater:\tNew version of uTox available [%u.%u.%u]\n",

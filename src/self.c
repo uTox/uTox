@@ -1,8 +1,8 @@
 #include "self.h"
 
-#include "tox.h"
 #include "avatar.h"
-#include "logging_native.h"
+#include "debug.h"
+#include "tox.h"
 
 #include "ui/edit.h"
 
@@ -17,7 +17,7 @@ void init_self(Tox *tox) {
     tox_self_get_address(tox, self.id_binary);
     id_to_string(self.id_str, self.id_binary);
     self.id_str_length = TOX_ADDRESS_SIZE * 2;
-    debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
+    LOG_TRACE("Self INIT", "Tox ID: %.*s" , (int)self.id_str_length, self.id_str);
 
     /* Get nospam */
     self.nospam = tox_self_get_nospam(tox);
