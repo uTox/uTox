@@ -365,9 +365,9 @@ static void panel_update(PANEL *p, int x, int y, int width, int height) {
     switch (p->type) {
         case PANEL_NONE: {
             if (p == &panel_settings_devices) {
-#ifdef ENABLE_MULTIDEVICE
+                #ifdef ENABLE_MULTIDEVICE
                 devices_update_ui();
-#endif
+                #endif
             }
             break;
         }
