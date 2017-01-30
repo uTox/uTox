@@ -47,29 +47,33 @@ bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
 
 /***** MAYBE_I18NAL_STRING helpers end *****/
 
-#define CREATE_BUTTON(n, a, b, w, h)                                   \
-    PANEL b_##n = {                                                    \
-        .type = PANEL_BUTTON, .x = a, .y = b, .width = w, .height = h, \
-    };                                                                 \
-    button_##n.panel = b_##n
+#define CREATE_BUTTON(n, a, b, w, h)            \
+    button_##n.panel.type     = PANEL_BUTTON;   \
+    button_##n.panel.x        = a;              \
+    button_##n.panel.y        = b;              \
+    button_##n.panel.width    = w;              \
+    button_##n.panel.height   = h;
 
-#define CREATE_EDIT(n, a, b, w, h)                                   \
-    PANEL e_##n = {                                                  \
-        .type = PANEL_EDIT, .x = a, .y = b, .width = w, .height = h, \
-    };                                                               \
-    edit_##n.panel = e_##n
+#define CREATE_EDIT(n, a, b, w, h)              \
+    edit_##n.panel.type       = PANEL_EDIT;     \
+    edit_##n.panel.x          = a;              \
+    edit_##n.panel.y          = b;              \
+    edit_##n.panel.width      = w;              \
+    edit_##n.panel.height     = h;
 
-#define CREATE_SWITCH(n, a, b, w, h)                                   \
-    PANEL s_##n = {                                                    \
-        .type = PANEL_SWITCH, .x = a, .y = b, .width = w, .height = h, \
-    };                                                                 \
-    switch_##n.panel = s_##n
+#define CREATE_SWITCH(n, a, b, w, h)            \
+    switch_##n.panel.type     = PANEL_SWITCH;   \
+    switch_##n.panel.x        = a;              \
+    switch_##n.panel.y        = b;              \
+    switch_##n.panel.width    = w;              \
+    switch_##n.panel.height   = h;
 
-#define CREATE_DROPDOWN(n, a, b, h, w)                                   \
-    PANEL d_##n = {                                                      \
-        .type = PANEL_DROPDOWN, .x = a, .y = b, .height = h, .width = w, \
-    };                                                                   \
-    dropdown_##n.panel = d_##n
+#define CREATE_DROPDOWN(n, a, b, h, w)          \
+    dropdown_##n.panel.type   = PANEL_DROPDOWN; \
+    dropdown_##n.panel.x      = a;              \
+    dropdown_##n.panel.y      = b;              \
+    dropdown_##n.panel.height = h;              \
+    dropdown_##n.panel.width  = w;
 
 /***********************************************************************
  *                                                                     *
@@ -106,7 +110,7 @@ static void sidepanel_FLIST(void) {
 
     CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
     CREATE_BUTTON(add_new_contact, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
-    b_add_new_contact.disabled = true;
+    button_add_new_contact.panel.disabled = true;
 }
 
 
