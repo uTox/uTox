@@ -4,6 +4,7 @@
 #include "tree.h"
 
 #include "group.h"
+#include "settings.h"
 
 #include "../ui/panel.h"
 #include "../ui/buttons.h"

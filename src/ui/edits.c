@@ -15,6 +15,8 @@
 #include "../text.h"
 #include "../tox.h"
 
+#include "../layout/settings.h"
+
 #include <string.h>
 #include <tox/tox.h>
 

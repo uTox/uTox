@@ -474,7 +474,11 @@ BUTTON button_status_msg = {
 };
 
 BUTTON button_usr_state = {
-    .nodraw = true, .on_mup = button_status_on_mup, .tooltip_text = {.i18nal = STR_STATUS },
+    .nodraw = true,
+    .on_mup = button_status_on_mup,
+    .tooltip_text = {
+        .i18nal = STR_STATUS
+    },
 };
 
 BUTTON button_filter_friends = {
@@ -658,135 +662,6 @@ BUTTON button_show_nospam = {
     .button_text  = {.i18nal = STR_SHOW_NOSPAM},
     .on_mup       = button_show_nospam_on_mup,
 };
-
-extern SCROLLABLE scrollbar_settings;
-
-static void button_settings_on_mup(void) {
-    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
-        flist_selectsettings();
-    }
-}
-
-static void disable_all_setting_sub(void) {
-    flist_selectsettings();
-    panel_settings_profile.disabled         = true;
-    panel_settings_devices.disabled         = true;
-    panel_settings_ui.disabled              = true;
-    panel_settings_av.disabled              = true;
-    panel_settings_notifications.disabled   = true;
-    panel_settings_adv.disabled             = true;
-}
-
-static void button_settings_sub_profile_on_mup(void) {
-    scrollbar_settings.content_height = SCALE(260);
-    disable_all_setting_sub();
-    panel_settings_profile.disabled = false;
-}
-
-static void button_settings_sub_devices_on_mup(void) {
-    scrollbar_settings.content_height = SCALE(260);
-    disable_all_setting_sub();
-    panel_settings_devices.disabled = false;
-}
-
-static void button_settings_sub_ui_on_mup(void) {
-    scrollbar_settings.content_height = SCALE(280);
-    disable_all_setting_sub();
-    panel_settings_ui.disabled = false;
-}
-
-static void button_settings_sub_av_on_mup(void) {
-    scrollbar_settings.content_height = SCALE(350);
-    disable_all_setting_sub();
-    panel_settings_av.disabled = false;
-}
-
-static void button_settings_sub_adv_on_mup(void) {
-    scrollbar_settings.content_height = SCALE(300);
-    disable_all_setting_sub();
-    panel_settings_adv.disabled = false;
-}
-
-static void button_settings_sub_notifications_on_mup(void){
-    scrollbar_settings.content_height = SCALE(300);
-    disable_all_setting_sub();
-    panel_settings_notifications.disabled = false;
-}
-
-static void button_bottommenu_update(BUTTON *b) {
-    b->c1  = COLOR_BKGRND_MENU;
-    b->c2  = COLOR_BKGRND_MENU_HOVER;
-    b->c3  = COLOR_BKGRND_MENU_ACTIVE;
-    b->ct1 = COLOR_MENU_TEXT;
-    b->ct2 = COLOR_MENU_TEXT;
-    if (b->mousedown || b->disabled) {
-        b->ct1 = COLOR_MENU_TEXT_ACTIVE;
-        b->ct2 = COLOR_MENU_TEXT_ACTIVE;
-    }
-    b->cd = COLOR_BKGRND_MENU_ACTIVE;
-}
-
-static void button_add_device_to_self_mdown(void) {
-#ifdef ENABLE_MULTIDEVICE
-    devices_self_add(edit_add_new_device_to_self.data, edit_add_new_device_to_self.length);
-    edit_resetfocus();
-#endif
-}
-
-BUTTON
-    button_settings = {
-        .bm2          = BM_SETTINGS,
-        .bw           = _BM_ADD_WIDTH,
-        .bh           = _BM_ADD_WIDTH,
-        .update       = button_bottommenu_update,
-        .on_mup      = button_settings_on_mup,
-        .disabled     = false,
-        .nodraw       = false,
-        .tooltip_text = {.i18nal = STR_USERSETTINGS },
-    },
-
-    button_settings_sub_profile = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_profile_on_mup,
-        .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
-    },
-
-    button_settings_sub_devices = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_devices_on_mup,
-        .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
-    },
-
-    button_settings_sub_ui = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_ui_on_mup,
-        .tooltip_text = {.i18nal = STR_USERSETTINGS },
-    },
-
-    button_settings_sub_av = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_av_on_mup,
-        .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
-    },
-
-    button_settings_sub_adv = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_adv_on_mup,
-        .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
-    },
-
-    button_settings_sub_notifications = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_notifications_on_mup,
-        .tooltip_text = {.i18nal = STR_NOTIFICATIONS_BUTTON },
-    },
-
-    button_add_new_device_to_self = {
-        .bm          = BM_SBUTTON,
-        .button_text = {.i18nal = STR_ADD },
-        .update  = button_setcolors_success,
-        .on_mup = button_add_device_to_self_mdown,
-    };
 
 static void btn_move_window_mdn(void) {
     debug("button move down\n");

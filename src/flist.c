@@ -24,6 +24,7 @@
 #include "ui/tooltip.h"
 
 #include "layout/tree.h"
+#include "layout/settings.h"
 
 #include <limits.h>
 #include <stdlib.h>

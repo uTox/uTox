@@ -48,7 +48,34 @@ bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
 
 /***** MAYBE_I18NAL_STRING helpers end *****/
 
-#include "layout/create.h" // TODO this needs to be removed
+#define CREATE_BUTTON(n, a, b, w, h)            \
+    button_##n.panel.type     = PANEL_BUTTON;   \
+    button_##n.panel.x        = a;              \
+    button_##n.panel.y        = b;              \
+    button_##n.panel.width    = w;              \
+    button_##n.panel.height   = h;
+
+#define CREATE_EDIT(n, a, b, w, h)              \
+    edit_##n.panel.type       = PANEL_EDIT;     \
+    edit_##n.panel.x          = a;              \
+    edit_##n.panel.y          = b;              \
+    edit_##n.panel.width      = w;              \
+    edit_##n.panel.height     = h;
+
+#define CREATE_SWITCH(n, a, b, w, h)            \
+    switch_##n.panel.type     = PANEL_SWITCH;   \
+    switch_##n.panel.x        = a;              \
+    switch_##n.panel.y        = b;              \
+    switch_##n.panel.width    = w;              \
+    switch_##n.panel.height   = h;
+
+#define CREATE_DROPDOWN(n, a, b, h, w)          \
+    dropdown_##n.panel.type   = PANEL_DROPDOWN; \
+    dropdown_##n.panel.x      = a;              \
+    dropdown_##n.panel.y      = b;              \
+    dropdown_##n.panel.height = h;              \
+    dropdown_##n.panel.width  = w;
+
 /***********************************************************************
  *                                                                     *
  * Panel layout size set functions.                                    *
@@ -65,6 +92,8 @@ static void sidepanel_USERBADGE(void) {
                   (SELF_STATUS_ICON_LEFT - SIDEBAR_STATUSMSG_LEFT - SCALE(2)), SIDEBAR_STATUSMSG_HEIGHT - SCALE(2));
     CREATE_BUTTON(usr_state, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
 }
+
+#include "layout/settings.h"
 
 static void sidepanel_FLIST(void) {
     scrollbar_flist.panel.y      = ROSTER_TOP;
