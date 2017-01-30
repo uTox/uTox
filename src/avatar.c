@@ -47,7 +47,7 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
         return NULL;
     }
 
-    uint8_t *data = calloc(size, 1);
+    uint8_t *data = calloc(1, size);
     if (data == NULL) {
         LOG_ERR("Avatar", "Could not allocate memory for file of size %zu.\n", size);
         fclose(fp);
