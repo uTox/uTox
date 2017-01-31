@@ -8,7 +8,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../main_native.h"
 #include "../self.h"
@@ -182,7 +182,7 @@ static void button_videopreview_on_mup(void) {
     } else if (video_width && video_height) {
         postmessage_utoxav(UTOXAV_START_VIDEO, 0, 1, NULL);
     } else {
-        debug("Button ERR:\tVideo_width = 0, can't preview\n");
+        LOG_TRACE(__FILE__, "Button ERR:\tVideo_width = 0, can't preview" );
     }
     settings.video_preview = !settings.video_preview;
 }
@@ -227,7 +227,7 @@ static void button_group_audio_update(BUTTON *b) {
 static void button_call_decline_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->call_state_friend) {
-        debug("Declining call: %u\n", f->number);
+        LOG_TRACE(__FILE__, "Declining call: %u" , f->number);
         postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
     }
 }
@@ -249,20 +249,20 @@ static void button_call_audio_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->call_state_self) {
         if (UTOX_SENDING_AUDIO(f->number)) {
-            debug("Ending call: %u\n", f->number);
+            LOG_TRACE(__FILE__, "Ending call: %u" , f->number);
             /* var 3/4 = bool send video */
             postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
         } else {
-            debug("Canceling call: friend = %d\n", f->number);
+            LOG_TRACE(__FILE__, "Canceling call: friend = %d" , f->number);
             postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
         }
     } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
-        debug("Accept Call: %u\n", f->number);
+        LOG_TRACE(__FILE__, "Accept Call: %u" , f->number);
         postmessage_toxcore(TOX_CALL_ANSWER, f->number, 0, NULL);
     } else {
         if (f->online) {
             postmessage_toxcore(TOX_CALL_SEND, f->number, 0, NULL);
-            debug("Calling friend: %u\n", f->number);
+            LOG_TRACE(__FILE__, "Calling friend: %u" , f->number);
         }
     }
 }
@@ -290,22 +290,22 @@ static void button_call_video_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->call_state_self) {
         if (SELF_ACCEPT_VIDEO(f->number)) {
-            debug("Canceling call (video): %u\n", f->number);
+            LOG_TRACE(__FILE__, "Canceling call (video): %u" , f->number);
             postmessage_toxcore(TOX_CALL_PAUSE_VIDEO, f->number, 1, NULL);
         } else if (UTOX_SENDING_AUDIO(f->number)) {
-            debug("Audio call inprogress, adding video\n");
+            LOG_TRACE(__FILE__, "Audio call inprogress, adding video" );
             postmessage_toxcore(TOX_CALL_RESUME_VIDEO, f->number, 1, NULL);
         } else {
-            debug("Ending call (video): %u\n", f->number);
+            LOG_TRACE(__FILE__, "Ending call (video): %u" , f->number);
             postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 1, NULL);
         }
     } else if (f->call_state_friend) {
-        debug("Accept Call (video): %u %u\n", f->number, f->call_state_friend);
+        LOG_TRACE(__FILE__, "Accept Call (video): %u %u" , f->number, f->call_state_friend);
         postmessage_toxcore(TOX_CALL_ANSWER, f->number, 1, NULL);
     } else {
         if (f->online) {
             postmessage_toxcore(TOX_CALL_SEND, f->number, 1, NULL);
-            debug("Calling friend (video): %u\n", f->number);
+            LOG_TRACE(__FILE__, "Calling friend (video): %u" , f->number);
         }
     }
 }
@@ -444,7 +444,7 @@ static void button_change_nospam_on_mup(void) {
 
 static void button_revert_nospam_on_mup(void) {
     if (self.old_nospam == 0 || self.nospam == self.old_nospam) { //nospam can not be 0
-        debug_error("Invalid or current nospam: %u.\n", self.old_nospam);
+        LOG_ERR(__FILE__, "Invalid or current nospam: %u.\n", self.old_nospam);
         return;
     }
     postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 0, 0, NULL);

@@ -4,7 +4,7 @@
 
 #include "friend.h"
 #include "groups.h"
-#include "logging_native.h"
+#include "debug.h"
 #include "macros.h"
 #include "main_native.h"
 #include "self.h"
@@ -211,7 +211,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         }
 
         default: {
-            debug_error("Trying to draw an item that we shouldn't be drawing!\n");
+            LOG_ERR("F-List", "Trying to draw an item that we shouldn't be drawing!");
             break;
         }
     }
@@ -410,7 +410,7 @@ static void page_close(ITEM *i) {
         }
 
         default: {
-            debug_error("Trying to switch to an item that we shouldn't be selecting\n");
+            LOG_ERR("F-List", "Trying to switch to an item that we shouldn't be selecting");
             break;
         }
     }
@@ -523,7 +523,7 @@ static void page_open(ITEM *i) {
         }
 
         default: {
-            debug_error("Trying to switch to an item that we shouldn't be selecting\n");
+            LOG_ERR("F-List", "Trying to switch to an item that we shouldn't be selecting\n");
             break;
         }
     }
@@ -1017,7 +1017,7 @@ static void contextmenu_list_onselect(uint8_t i) {
                 }
             }
             default: {
-                debug("blerg\n");
+                LOG_TRACE(__FILE__, "blerg" );
                 return;
             }
         }
@@ -1078,7 +1078,7 @@ bool flist_mright(void *UNUSED(n)) {
             }
 
             default: {
-                debug_error("MRIGHT on a flist entry that shouldn't exist!\n");
+                LOG_ERR("F-List", "MRIGHT on a flist entry that shouldn't exist!");
                 break;
             }
         }

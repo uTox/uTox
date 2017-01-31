@@ -1,6 +1,6 @@
 #include "theme.h"
 
-#include "logging_native.h"
+#include "debug.h"
 #include "main.h" // utox_data_load_custom_theme
 #include "main_native.h"
 #include "ui.h"
@@ -517,7 +517,7 @@ uint32_t *find_colour_pointer(char *color) {
         color += 6;
     }
 
-    debug_info("Theme:\tColour: %s\n", color);
+    LOG_INFO("Theme", "Colour: %s" , color);
 
     for (int i = 0;; ++i) {
         const char *s = COLOUR_NAME_TABLE[i];
@@ -593,7 +593,7 @@ void read_custom_theme(const uint8_t *data, size_t length) {
         uint32_t col = try_parse_hex_colour(color, &err);
 
         if (err) {
-            debug_error("error: parsing hex color failed\n");
+            LOG_ERR(__FILE__, "error: parsing hex color failed\n");
             continue;
         } else {
             *colorp = COLOR_PROC(col);

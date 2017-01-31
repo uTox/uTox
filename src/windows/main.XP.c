@@ -6,7 +6,7 @@
 #include "../file_transfers.h"
 #include "../filesys.h"
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../main.h"
 #include "../tox.h"
 #include "../settings.h"
@@ -15,7 +15,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
 
     if (path == NULL){
-        debug_error("NATIVE:\tCould not allocate memory.\n");
+        LOG_ERR("NATIVE", "Could not allocate memory.");
         return;
     }
 
@@ -38,17 +38,17 @@ void native_export_chatlog_init(uint32_t friend_number) {
         if (file) {
             utox_export_chatlog(friend_number, file);
         } else {
-            debug_error("Opening file %s failed\n", path);
+            LOG_ERR(__FILE__, "Opening file %s failed\n", path);
         }
     } else {
-        debug("GetSaveFileName() failed\n");
+        LOG_TRACE(__FILE__, "GetSaveFileName() failed" );
     }
 }
 
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!path) {
-        debug_error("WinXP:\tUnable to calloc when selecting file directory\n");
+        LOG_ERR("WinXP", "Unable to calloc when selecting file directory");
         return;
     }
     memcpy(path, file->name, file->name_length);
@@ -65,7 +65,7 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     if (GetSaveFileName(&ofn)) {
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, num, path);
     } else {
-        debug_error("WinXP:\tGetSaveFileName() failed\n");
+        LOG_ERR("WinXP", "GetSaveFileName() failed");
     }
 }
 
@@ -79,12 +79,12 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
     if (settings.portable_mode) {
         snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
-        debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", send);
+        LOG_NOTE("Native", "Auto Accept Directory: \"%s\"" , send);
     } else if (!SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, (char *)path)) {
         swprintf(first, UTOX_FILE_NAME_LENGTH, L"%ls%ls", *path, L"\\Tox_Auto_Accept");
         CreateDirectoryW(first, NULL);
     } else {
-        debug("NATIVE:\tUnable to auto save file!\n");
+        LOG_TRACE("NATIVE", "Unable to auto save file!" );
     }
 
 
@@ -114,20 +114,20 @@ void launch_at_startup(int is_launch_at_startup) {
             path_length += 2;
             ret = RegSetValueExW(hKey, L"uTox", NULL, REG_SZ, (uint8_t *)path, path_length * 2); /*2 bytes per wchar_t */
             if (ret == ERROR_SUCCESS) {
-                debug("Successful auto start addition.\n");
+                LOG_TRACE(__FILE__, "Successful auto start addition." );
             }
             RegCloseKey(hKey);
         }
     }
     if (is_launch_at_startup == 0) {
-        debug("Going to delete auto start key.\n");
+        LOG_TRACE(__FILE__, "Going to delete auto start key." );
         if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
-            debug("Successful key opened.\n");
+            LOG_TRACE(__FILE__, "Successful key opened." );
             ret = RegDeleteValueW(hKey, L"uTox");
             if (ret == ERROR_SUCCESS) {
-                debug("Successful auto start deletion.\n");
+                LOG_TRACE(__FILE__, "Successful auto start deletion." );
             } else {
-                debug("UN-Successful auto start deletion.\n");
+                LOG_TRACE(__FILE__, "UN-Successful auto start deletion." );
             }
             RegCloseKey(hKey);
         }

@@ -5,7 +5,7 @@
 #include "../chatlog.h"
 #include "../file_transfers.h"
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../tox.h"
 #include "../settings.h"
 
@@ -33,7 +33,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
         file = fopen(path, "ab");
     } else {
         if (strlen(path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")) {
-            debug("NATIVE:\tSave directory name too long\n");
+            LOG_TRACE("Filesys", "Save directory name too long" );
             return 0;
         } else {
             snprintf(atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
@@ -52,12 +52,12 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
 
         if (rename(atomic_path, path)) {
             /* Consider backing up this file instead of overwriting it. */
-            debug("NATIVE:\t%sUnable to move file!\n", atomic_path);
+            LOG_TRACE("Filesys", "%sUnable to move file!" , atomic_path);
             return 0;
         }
         return 1;
     } else {
-        debug("NATIVE:\tUnable to open %s to write save\n", path);
+        LOG_TRACE("Filesys", "Unable to open %s to write save" , path);
         return 0;
     }
 
@@ -76,7 +76,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     }
 
     if (strlen(path) + name_length >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tLoad directory name too long\n");
+        LOG_TRACE("Filesys", "Load directory name too long" );
         return 0;
     } else {
         snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
@@ -84,7 +84,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
 
     FILE *file = fopen(path, "rb");
     if (!file) {
-        // debug("NATIVE:\tUnable to open/read %s\n", path);
+        // LOG_TRACE("Filesys", "Unable to open/read %s" , path);
         if (out_size) {
             *out_size = 0;
         }
@@ -105,7 +105,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
         fseek(file, 0, SEEK_SET);
 
         if (fread(data, size, 1, file) != 1) {
-            debug("NATIVE:\tRead error on %s\n", path);
+            LOG_TRACE("Filesys", "Read error on %s" , path);
             fclose(file);
             free(data);
             if (out_size) {
@@ -148,7 +148,7 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     }
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        LOG_DEBUG("Filesys", "File/directory name too long, unable to remove" );
         return false;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
@@ -156,11 +156,11 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     }
 
     if (remove((const char *)path)) {
-        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        LOG_ERR("NATIVE", "Unable to delete file!\n\t\t%s" , path);
         return false;
     } else {
-        debug_info("NATIVE:\tFile deleted!\n");
-        debug("NATIVE:\t\t%s\n", path);
+        LOG_INFO("NATIVE", "File deleted!" );
+        LOG_DEBUG("Filesys", "\t%s" , path);
     }
     return true;
 }
@@ -180,13 +180,13 @@ void native_select_dir_ft(uint32_t fid, uint32_t file_number, FILE_TRANSFER *fil
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     if (file == NULL){
-        debug("Native:\t file is null.\n");
+        LOG_TRACE("Native", " file is null." );
         return;
     }
 
     uint8_t *path = malloc(file->name_length + 1);
     if (path == NULL) {
-        debug_error("Native:\tCould not allocate memory.\n");
+        LOG_ERR("Native", "Could not allocate memory.");
         return;
     }
 
@@ -199,7 +199,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
         path[file->name_length] = 0;
     }
 
-    debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", path);
+    LOG_NOTE("Native", "Auto Accept Directory: \"%s\"" , path);
     postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
 }
 

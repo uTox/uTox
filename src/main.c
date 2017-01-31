@@ -4,10 +4,10 @@
 
 #include "main.h"
 
+#include "debug.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
-#include "logging_native.h"
 #include "main_native.h"
 #include "settings.h"
 #include "theme.h"
@@ -25,7 +25,7 @@
 bool utox_data_save_tox(uint8_t *data, size_t length) {
     FILE *fp= native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
     if (fp == NULL) {
-        debug("Can not open tox_save.tox to write to it.\n");
+        LOG_TRACE(__FILE__, "Can not open tox_save.tox to write to it." );
         return true;
     }
 
@@ -50,12 +50,12 @@ uint8_t *utox_data_load_tox(size_t *size) {
         }
         data = calloc(length + 1, 1);
         if (data == NULL) {
-            debug("Could not allocate memory for tox save.\n");
+            LOG_TRACE(__FILE__, "Could not allocate memory for tox save." );
             fclose(fp);
             return NULL; // quit were out of memory, calloc will fail again
         }
         if (fread(data, 1, length, fp) != length) {
-            debug("Could not read: %s.\n", name[i]);
+            LOG_TRACE(__FILE__, "Could not read: %s." , name[i]);
             fclose(fp);
             free(data);
             return NULL; // return because if this file exits we don't want to fall back to an old version, we need the
@@ -97,7 +97,7 @@ UTOX_SAVE *utox_data_load_utox(void) {
     }
 
     if (fread(save, 1, size, fp) != size) {
-        debug("Could not read save file\n");
+        LOG_TRACE(__FILE__, "Could not read save file" );
         fclose(fp);
         free(save);
         return NULL;
@@ -137,7 +137,7 @@ uint8_t *utox_data_load_custom_theme(size_t *out) {
     }
 
     if (fread(data, 1, *out, fp) != *out) {
-        debug_error("Theme:\tCould not read custom theme from file\n");
+        LOG_ERR("Theme", "Could not read custom theme from file");
         fclose(fp);
         free(data);
         return NULL;
@@ -203,8 +203,7 @@ void parse_args(int argc, char *argv[],
                 } else if (!strcmp(optarg, "solarized-dark")) {
                     settings.theme = THEME_SOLARIZED_DARK;
                 } else {
-                    debug_error(
-                        "Please specify correct theme (please check user manual for list of correct values).\n");
+                    LOG_NORM("Please specify correct theme (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
                 }
                 *theme_was_set_on_argv = 1;
@@ -212,8 +211,8 @@ void parse_args(int argc, char *argv[],
             }
 
             case 'p': {
-                debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current "
-                      "working directory\n");
+                LOG_INFO("uTox", "Launching uTox in portable mode: All data will be saved to the tox folder in the current "
+                         "working directory\n");
                 settings.portable_mode = 1;
                 break;
             }
@@ -226,8 +225,7 @@ void parse_args(int argc, char *argv[],
                 } else if (!strcmp(optarg, "hide-window")) {
                     *set_show_window = -1;
                 } else {
-                    debug_error(
-                        "Please specify a correct set option (please check user manual for list of correct values).\n");
+                    LOG_NORM("Please specify a correct set option (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
                 }
                 break;
@@ -237,7 +235,7 @@ void parse_args(int argc, char *argv[],
                 if (!strcmp(optarg, "start-on-boot")) {
                     *should_launch_at_startup = -1;
                 } else {
-                    debug_error("Please specify a correct unset option (please check user manual for list of correct "
+                    LOG_ERR("", "Please specify a correct unset option (please check user manual for list of correct "
                                 "values).\n");
                     exit(EXIT_FAILURE);
                 }
@@ -258,16 +256,16 @@ void parse_args(int argc, char *argv[],
             }
 
             case 0: {
-                debug_error("uTox version: %s\n", VERSION);
+                LOG_NORM("uTox version: %s\n", VERSION);
                 #ifdef GIT_VERSION
-                debug_error("git version %s\n", GIT_VERSION);
+                LOG_NORM("git version %s\n", GIT_VERSION);
                 #endif
                 exit(EXIT_SUCCESS);
                 break;
             }
 
             case 1: {
-                settings.verbose = 0;
+                settings.verbose = LOG_LVL_FATAL;
                 break;
             }
 
@@ -277,25 +275,25 @@ void parse_args(int argc, char *argv[],
             }
 
             case 'h': {
-                debug_error("µTox - Lightweight Tox client version %s.\n\n", VERSION);
-                debug_error("The following options are available:\n");
-                debug_error("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, "
+                LOG_NORM("µTox - Lightweight Tox client version %s.\n\n", VERSION);
+                LOG_NORM("The following options are available:\n");
+                LOG_NORM("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, "
                             "dark, light, highcontrast, zenburn.\n");
-                debug_error("  -p --portable            Launch in portable mode: All data will be saved to the tox "
+                LOG_NORM("  -p --portable            Launch in portable mode: All data will be saved to the tox "
                             "folder in the current working directory.\n");
-                debug_error("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
-                debug_error("  -u --unset=<option>      Unset an option: start-on-boot.\n");
-                debug_error("  -n --no-updater          Disable the updater.\n");
-                debug_error("  -v --verbose             Increase the amount of output, use -v multiple times to get "
+                LOG_NORM("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
+                LOG_NORM("  -u --unset=<option>      Unset an option: start-on-boot.\n");
+                LOG_NORM("  -n --no-updater          Disable the updater.\n");
+                LOG_NORM("  -v --verbose             Increase the amount of output, use -v multiple times to get "
                             "full debug output.\n");
-                debug_error("  -h --help                Shows this help text.\n");
-                debug_error("  --version                Print the version and exit.\n");
-                debug_error("  --silent                 Set the verbosity level to 0, disable all debugging output.\n");
+                LOG_NORM("  -h --help                Shows this help text.\n");
+                LOG_NORM("  --version                Print the version and exit.\n");
+                LOG_NORM("  --silent                 Set the verbosity level to 0, disable all debugging output.\n");
                 exit(EXIT_SUCCESS);
                 break;
             }
 
-            case '?': debug("Invalid option: %c!\n", (char)optopt); break;
+            case '?': LOG_TRACE(__FILE__, ", (char)optopt" ); break;
         }
     }
 }
