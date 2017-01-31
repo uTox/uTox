@@ -1646,6 +1646,7 @@ void message_free(MSG_HEADER *msg) {
         case MSG_TYPE_FILE: {
             // already gets free()d
             free(msg->via.ft.name);
+            free(msg->via.ft.path);
             free(msg->via.ft.data);
             break;
         }
