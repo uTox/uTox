@@ -72,7 +72,7 @@ typedef struct msg_file {
 
 /* Generic Message type */
 typedef struct msg_header {
-    uint8_t msg_type;
+    UTOX_MSG_TYPE msg_type;
 
     // true, if we're the author, false, if someone else.
     bool    our_msg;
