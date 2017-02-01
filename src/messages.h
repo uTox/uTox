@@ -166,6 +166,7 @@ bool messages_mdown(PANEL *panel);
 bool messages_dclick(PANEL *panel, bool triclick);
 bool messages_mright(PANEL *panel);
 bool messages_mwheel(PANEL *panel, int height, double d, bool smooth);
+// Always returns false.
 bool messages_mup(PANEL *panel);
 bool messages_mleave(PANEL *m);
 bool messages_char(uint32_t ch);
