@@ -79,7 +79,6 @@ static void draw_group_settings(int UNUSED(x), int y, int UNUSED(width), int UNU
 }
 
 #include "../ui/edits.h"
-#include "../ui/buttons.h"
 #include "../ui/dropdowns.h"
 #include "friend.h"
 
@@ -129,3 +128,37 @@ panel_group = {
         .content_scroll = &scrollbar_group,
     };
 
+#include "../tox.h"
+static void button_group_audio_on_mup(void) {
+    GROUPCHAT *g = flist_get_selected()->data;
+    if (g->audio_calling) {
+        postmessage_toxcore(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
+    } else {
+        postmessage_toxcore(TOX_GROUP_AUDIO_START, (g - group), 0, NULL);
+    }
+}
+
+static void button_group_audio_update(BUTTON *b) {
+    GROUPCHAT *g = flist_get_selected()->data;
+    if (g->av_group) {
+        b->disabled = false;
+        if (g->audio_calling) {
+            button_setcolors_danger(b);
+        } else {
+            button_setcolors_success(b);
+        }
+    } else {
+        b->disabled = true;
+        button_setcolors_disabled(b);
+    }
+}
+
+BUTTON button_group_audio = {
+    .bm           = BM_LBUTTON,
+    .bm2          = BM_CALL,
+    .bw           = _BM_LBICON_WIDTH,
+    .bh           = _BM_LBICON_HEIGHT,
+    .on_mup      = button_group_audio_on_mup,
+    .update       = button_group_audio_update,
+    .tooltip_text = {.i18nal = STR_GROUPCHAT_JOIN_AUDIO },
+};

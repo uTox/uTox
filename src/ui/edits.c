@@ -1,6 +1,5 @@
 #include "edits.h"
 
-#include "buttons.h"
 #include "scrollable.h"
 
 #include "../commands.h"
@@ -17,7 +16,7 @@
 
 #include "../layout/friend.h"
 #include "../layout/settings.h"
-#include "../layout/side_bar.h"
+#include "../layout/sidebar.h"
 
 #include <string.h>
 #include <tox/tox.h>

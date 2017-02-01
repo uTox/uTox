@@ -14,7 +14,6 @@
 #include "tox.h"
 #include "utox.h"
 
-#include "ui/buttons.h"
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
 #include "ui/dropdowns.h"
@@ -23,12 +22,11 @@
 #include "ui/svg.h"
 #include "ui/tooltip.h"
 
-#include "layout/tree.h"
-
+#include "layout/background.h"
 #include "layout/friend.h"
 #include "layout/group.h"
 #include "layout/settings.h"
-#include "layout/side_bar.h"
+#include "layout/sidebar.h"
 
 #include <limits.h>
 #include <stdlib.h>

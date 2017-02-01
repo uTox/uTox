@@ -12,7 +12,7 @@ extern bool unity_running;
 void mm_rm_entry(uint8_t *f_id);
 
 /* Function which sets the user status in the messaging menu
- * Is called by ui_buttons.h
+ * Is called by the ui
  */
 void mm_set_status(int status);
 

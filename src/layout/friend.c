@@ -153,7 +153,6 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
 
 #include "../ui/edits.h"
 #include "../ui/dropdowns.h"
-#include "../ui/buttons.h"
 
 PANEL messages_friend = {
     .type = PANEL_MESSAGES,
@@ -161,67 +160,68 @@ PANEL messages_friend = {
 };
 
 
-PANEL panel_friend = {
+PANEL
+panel_friend = {
+        .type = PANEL_NONE,
+        .disabled = 1,
+        .child = (PANEL*[]) {
+            &panel_friend_chat,
+            &panel_friend_video,
+            &panel_friend_settings,
+            NULL
+        }
+    },
+        panel_friend_chat = {
             .type = PANEL_NONE,
-            .disabled = 1,
+            .disabled = 0,
+            .drawfunc = draw_friend,
             .child = (PANEL*[]) {
-                &panel_friend_chat,
-                &panel_friend_video,
-                &panel_friend_settings,
+                (PANEL*)&scrollbar_friend,
+                (PANEL*)&edit_msg, // this needs to be one of the first, to get events before the others
+                (PANEL*)&messages_friend,
+                (PANEL*)&button_call_decline, (PANEL*)&button_call_audio, (PANEL*)&button_call_video,
+                (PANEL*)&button_send_file, (PANEL*)&button_send_screenshot, (PANEL*)&button_chat_send,
                 NULL
             }
         },
-            panel_friend_chat = {
-                .type = PANEL_NONE,
-                .disabled = 0,
-                .drawfunc = draw_friend,
-                .child = (PANEL*[]) {
-                    (PANEL*)&scrollbar_friend,
-                    (PANEL*)&edit_msg, // this needs to be one of the first, to get events before the others
-                    (PANEL*)&messages_friend,
-                    (PANEL*)&button_call_decline, (PANEL*)&button_call_audio, (PANEL*)&button_call_video,
-                    (PANEL*)&button_send_file, (PANEL*)&button_send_screenshot, (PANEL*)&button_chat_send,
-                    NULL
-                }
-            },
-            panel_friend_video = {
-                .type = PANEL_INLINE_VIDEO,
-                .disabled = 1,
-                .child = (PANEL*[]) {
-                    NULL
-                }
-            },
-            panel_friend_settings = {
-                .type = PANEL_NONE,
-                .disabled = 1,
-                .drawfunc = draw_friend_settings,
-                .child = (PANEL*[]) {
-                    (PANEL*)&edit_friend_pubkey,
-                    (PANEL*)&edit_friend_alias,
-                    (PANEL*)&dropdown_friend_autoaccept_ft,
-                    (PANEL*)&button_export_chatlog,
-                    NULL
-                }
-            },
-        panel_friend_request = {
-            .type = PANEL_NONE,
+        panel_friend_video = {
+            .type = PANEL_INLINE_VIDEO,
             .disabled = 1,
-            .drawfunc = draw_friend_request,
             .child = (PANEL*[]) {
-                (PANEL*)&button_accept_friend,
                 NULL
             }
         },
-        panel_add_friend = {
+        panel_friend_settings = {
             .type = PANEL_NONE,
             .disabled = 1,
-            .drawfunc = draw_add_friend,
+            .drawfunc = draw_friend_settings,
             .child = (PANEL*[]) {
-                (PANEL*)&button_send_friend_request,
-                (PANEL*)&edit_add_id, (PANEL*)&edit_add_msg,
+                (PANEL*)&edit_friend_pubkey,
+                (PANEL*)&edit_friend_alias,
+                (PANEL*)&dropdown_friend_autoaccept_ft,
+                (PANEL*)&button_export_chatlog,
                 NULL
             }
-        };
+        },
+    panel_friend_request = {
+        .type = PANEL_NONE,
+        .disabled = 1,
+        .drawfunc = draw_friend_request,
+        .child = (PANEL*[]) {
+            (PANEL*)&button_accept_friend,
+            NULL
+        }
+    },
+    panel_add_friend = {
+        .type = PANEL_NONE,
+        .disabled = 1,
+        .drawfunc = draw_add_friend,
+        .child = (PANEL*[]) {
+            (PANEL*)&button_send_friend_request,
+            (PANEL*)&edit_add_id, (PANEL*)&edit_add_msg,
+            NULL
+        }
+    };
 
 
 static void button_add_new_contact_on_mup(void) {

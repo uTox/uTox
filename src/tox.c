@@ -22,7 +22,7 @@
 #include "ui/edits.h"
 #include "ui/switches.h"
 
-#include "layout/tree.h"
+#include "layout/background.h"
 
 #include <stdint.h>
 #include <stdlib.h>

@@ -22,11 +22,10 @@
 #include "../ui/dropdowns.h"
 #include "../ui/edit.h"
 
-#include "../layout/tree.h"
-
 #include "../layout/friend.h"
 #include "../layout/group.h"
 #include "../layout/settings.h"
+#include "../layout/background.h"
 
 #include "../main.h" // STBI
 

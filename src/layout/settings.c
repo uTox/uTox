@@ -1,7 +1,5 @@
 #include "settings.h"
 
-#include "tree.h"
-
 #include "../macros.h"
 #include "../theme.h"
 #include "../self.h"
@@ -613,25 +611,6 @@ static void button_audiopreview_on_mup(void) {
         postmessage_utoxav(UTOXAV_STOP_AUDIO, 1, 0, NULL);
     }
     settings.audio_preview = !settings.audio_preview;
-}
-
-
-// TODO delete button_setcolor_* and move this setting and logic to the struct
-/* Quick color change functions */
-static void button_setcolors_success(BUTTON *b) {
-    b->c1  = COLOR_BTN_SUCCESS_BKGRND;
-    b->c2  = COLOR_BTN_SUCCESS_BKGRND_HOVER;
-    b->c3  = COLOR_BTN_SUCCESS_BKGRND_HOVER;
-    b->ct1 = COLOR_BTN_SUCCESS_TEXT;
-    b->ct2 = COLOR_BTN_SUCCESS_TEXT_HOVER;
-}
-
-static void button_setcolors_danger(BUTTON *b) {
-    b->c1  = COLOR_BTN_DANGER_BACKGROUND;
-    b->c2  = COLOR_BTN_DANGER_BKGRND_HOVER;
-    b->c3  = COLOR_BTN_DANGER_BKGRND_HOVER;
-    b->ct1 = COLOR_BTN_DANGER_TEXT;
-    b->ct2 = COLOR_BTN_DANGER_TEXT_HOVER;
 }
 
 static void button_audiopreview_update(BUTTON *b) {

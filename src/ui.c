@@ -2,14 +2,17 @@
 
 #include "flist.h"
 #include "inline_video.h"
+#include "macros.h"
 #include "main_native.h"
 #include "messages.h"
 
-#include "layout/all.h"
+#include "layout/background.h"
+#include "layout/extra.h"
 #include "layout/friend.h"
+#include "layout/group.h"
+#include "layout/notify.h"
 #include "layout/settings.h"
-#include "layout/side_bar.h"
-
+#include "layout/sidebar.h"
 
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
@@ -21,6 +24,31 @@
 #include "ui/switches.h"
 #include "ui/text.h"
 #include "ui/tooltip.h"
+
+/* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
+static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
+    return;
+}
+static bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height),
+                      int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
+    return 0;
+}
+static bool background_mdown(PANEL *UNUSED(p)) {
+    return 0;
+}
+static bool background_mright(PANEL *UNUSED(p)) {
+    return 0;
+}
+static bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) {
+    return 0;
+}
+static bool background_mup(PANEL *UNUSED(p)) {
+    return 0;
+}
+static bool background_mleave(PANEL *UNUSED(p)) {
+    return 0;
+}
+
 
 // Application-wide language setting
 UTOX_LANG LANG;

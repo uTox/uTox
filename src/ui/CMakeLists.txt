@@ -1,20 +1,17 @@
 project(utoxUI LANGUAGES C)
 
 add_library(utoxUI STATIC
-    ../layout/all.h
-    ../layout/notify.h
-    ../layout/root.h
-
     ../layout/friend.c
     ../layout/group.c
     ../layout/notify.c
     ../layout/settings.c
-    ../layout/side_bar.c
+    ../layout/sidebar.c
+    ../layout/userbadge.c
+    ../layout/background.c
+
+    ../layout/extra.c
 
     button.c
-    button.h
-    buttons.c
-    buttons.h
     contextmenu.c
     contextmenu.h
     draw.h

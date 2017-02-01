@@ -8,7 +8,8 @@
 
 #include "../ui/draw.h"
 
-#include "../layout/tree.h" // TODO remove
+#include "../layout/background.h"
+#include "../layout/notify.h"
 
 #include "../main.h" // MAIN_WIDTH, MAIN_HEIGHT
 

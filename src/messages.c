@@ -22,8 +22,6 @@
 #include "ui/svg.h"
 #include "ui/text.h"
 
-#include "layout/tree.h"
-
 #include "layout/friend.h"
 #include "layout/group.h"
 

@@ -47,4 +47,12 @@ bool button_mwheel(BUTTON *b, int height, double d, bool smooth);
 
 bool button_mleave(BUTTON *b);
 
+
+// TODO these may move
+void button_setcolors_success(BUTTON *b);
+void button_setcolors_danger(BUTTON *b);
+void button_setcolors_warning(BUTTON *b);
+void button_setcolors_disabled(BUTTON *b);
+
+
 #endif

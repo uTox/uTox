@@ -9,19 +9,24 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../logging_native.h"
-#include "../main.h" // redraw
+#include "../macros.h"
+#include "../main_native.h"
+#include "../self.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../util.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"
-#include "../ui/buttons.h"
 #include "../ui/dropdowns.h"
 #include "../ui/edits.h"
 #include "../ui/svg.h"
 
+#include "../layout/background.h"
+
 #include <windowsx.h>
+
+// #include "../main.h" // redraw
 
 static bool flashing;
 static bool hidden;
@@ -122,14 +127,14 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             }
 
             int i;
-            for (i = 0; i != countof(friend); i++) {
+            for (i = 0; i != COUNTOF(friend); i++) {
                 if (video_hwnd[i + 1] == window) {
                     FRIEND *f = &friend[i];
                     postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
                     break;
                 }
             }
-            if (i == countof(friend)) {
+            if (i == COUNTOF(friend)) {
                 debug("this should not happen\n");
             }
         }

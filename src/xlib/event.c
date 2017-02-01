@@ -22,8 +22,6 @@
 #include <assert.h>
 #include <stddef.h>
 
-#include "../layout/tree.h" // TODO does this need to be removed?
-
 #include "../layout/friend.h"
 #include "../layout/group.h"
 #include "../layout/settings.h"

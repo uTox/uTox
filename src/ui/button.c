@@ -4,7 +4,7 @@
 #include "tooltip.h"
 
 #include "../macros.h"
-#include "../main.h"
+#include "../theme.h"
 #include "../ui.h"
 
 static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
@@ -152,4 +152,41 @@ bool button_mleave(BUTTON *b) {
     }
 
     return 0;
+}
+
+
+// Logic update functions
+// TODO should these live here?
+// TODO delete button_setcolor_* and move this setting and logic to the struct
+/* Quick color change functions */
+void button_setcolors_success(BUTTON *b) {
+    b->c1  = COLOR_BTN_SUCCESS_BKGRND;
+    b->c2  = COLOR_BTN_SUCCESS_BKGRND_HOVER;
+    b->c3  = COLOR_BTN_SUCCESS_BKGRND_HOVER;
+    b->ct1 = COLOR_BTN_SUCCESS_TEXT;
+    b->ct2 = COLOR_BTN_SUCCESS_TEXT_HOVER;
+}
+
+void button_setcolors_danger(BUTTON *b) {
+    b->c1  = COLOR_BTN_DANGER_BACKGROUND;
+    b->c2  = COLOR_BTN_DANGER_BKGRND_HOVER;
+    b->c3  = COLOR_BTN_DANGER_BKGRND_HOVER;
+    b->ct1 = COLOR_BTN_DANGER_TEXT;
+    b->ct2 = COLOR_BTN_DANGER_TEXT_HOVER;
+}
+
+void button_setcolors_warning(BUTTON *b) {
+    b->c1  = COLOR_BTN_WARNING_BKGRND;
+    b->c2  = COLOR_BTN_WARNING_BKGRND_HOVER;
+    b->c3  = COLOR_BTN_WARNING_BKGRND_HOVER;
+    b->ct1 = COLOR_BTN_WARNING_TEXT;
+    b->ct2 = COLOR_BTN_WARNING_TEXT_HOVER;
+}
+
+void button_setcolors_disabled(BUTTON *b) {
+    b->c1  = COLOR_BTN_DISABLED_BKGRND;
+    b->c2  = COLOR_BTN_DISABLED_BKGRND;
+    b->c3  = COLOR_BTN_DISABLED_BKGRND;
+    b->ct1 = COLOR_BTN_DISABLED_TEXT;
+    b->ct2 = COLOR_BTN_DISABLED_TEXT;
 }

@@ -1,4 +1,4 @@
-#include "side_bar.h"
+#include "sidebar.h"
 
 #include "settings.h"
 
@@ -11,8 +11,8 @@
 
 #include "../ui.h"
 #include "../ui/draw.h"
-#include "../ui/svg.h"
 #include "../ui/scrollable.h"
+#include "../ui/svg.h"
 
 #include "../main.h" // tox_thread global
 
