@@ -168,6 +168,8 @@ bool messages_mright(PANEL *panel);
 bool messages_mwheel(PANEL *panel, int height, double d, bool smooth);
 bool messages_mup(PANEL *panel);
 bool messages_mleave(PANEL *m);
+// Relay keypress to message panel.
+// Returns bool indicating whether a redraw is needed or not.
 bool messages_char(uint32_t ch);
 int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names);
 
