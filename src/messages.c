@@ -1639,6 +1639,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 }
 
 void message_free(MSG_HEADER *msg) {
+    // The group messages are free()d in groups.c (group_free(GROUPCHAT *g))
     switch (msg->msg_type) {
         case MSG_TYPE_IMAGE: {
             image_free(msg->via.img.image);
