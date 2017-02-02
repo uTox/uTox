@@ -20,25 +20,23 @@
 * When filing issues directly related to uTox-cocoa, please @stal888 in
   your issue so I get notified.
 
-## How to compile (for yourself)
+## How to compile
 
 ```bash
 brew install --HEAD libtoxcore
-make -f src/cocoa/Makefile uTox.app
+mkdir build
+cd build
+cmake ..
+make
+```
+
+## How to install
+
+```bash
+sudo make install
 ```
 
 Done!
-
-## How to compile (for your friend)
-
-```bash
-brew install --HEAD libtoxcore
-make -f src/cocoa/Makefile uTox.dmg
-```
-
-Done! (the DMG target builds a statically linked utox binary 
-for you automatically. It does not depend on anything but system
-libraries. Build just the binary with `make -f src/cocoa/Makefile utox-static`)
 
 ## Adding to uTox-cocoa
 
