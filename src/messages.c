@@ -1592,34 +1592,31 @@ bool messages_char(uint32_t ch) {
     } else if (flist_get_selected()->item == ITEM_GROUP) {
         m = messages_group.object;
     } else {
-        return 0;
+        return false;
     }
 
     switch (ch) {
-        //! TODO: not constant 0.25
-        /* TODO: probabaly need to fix this section :< m->panel.content scroll is likely to be wrong */
+        // TODO: probabaly need to fix this section :< m->panel.content scroll is likely to be wrong.
         case KEY_PAGEUP: {
             SCROLLABLE *scroll = m->panel.content_scroll;
-            scroll->d -= 0.25;
+            scroll->d -= 0.25; // TODO: Change to a full chat-screen height.
             if (scroll->d < 0.0) {
                 scroll->d = 0.0;
             }
-            // redraw();
-            return 1;
+            return true;
         }
 
         case KEY_PAGEDOWN: {
             SCROLLABLE *scroll = m->panel.content_scroll;
-            scroll->d += 0.25;
+            scroll->d += 0.25; // TODO: Change to a full chat-screen height.
             if (scroll->d > 1.0) {
                 scroll->d = 1.0;
             }
-            // redraw();
-            return 1;
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }
 
 void messages_init(MESSAGES *m, uint32_t friend_number) {

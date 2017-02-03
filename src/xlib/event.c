@@ -427,7 +427,9 @@ bool doevent(XEvent event) {
                 break;
             }
 
-            messages_char(sym);
+            if (messages_char(sym)) {
+                redraw();
+            }
 
             if (ev->state & 4) {
                 if (sym == 'c' || sym == 'C') {
