@@ -1,11 +1,11 @@
 #ifndef SWITCH_H
 #define SWITCH_H
 
+#include "panel.h"
 #include "svg.h"
 
 #include "../ui.h"
 
-#include "../ui/panel.h"
 
 
 #include <stdbool.h>

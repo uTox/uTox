@@ -68,11 +68,7 @@ panel_root = {
     .type = PANEL_NONE,
     .drawfunc = draw_background,
     .disabled = 0,
-    .child = (PANEL*[]) { /* Clang warns about this being a temporary array which will be destoryed
-                           * at the end of the expression. But because this has always worked in the
-                           * past, and because of this comment  http://stackoverflow.com/questions/31212114/clang-complains-pointer-is-initialized-by-a-temporary-array#comment50455257_31212154
-                           * I've chosen to ignore this warning. If you're feeling pedantic you can
-                           * define and name each array separately and change the PANEL struct. */
+    .child = (PANEL*[]) {
         &panel_side_bar,
         &panel_main,
         NULL
@@ -109,8 +105,8 @@ panel_main = {
             &panel_splash_page,
             &panel_profile_password,
             &panel_add_friend,
-            (PANEL*)&button_notify_create,
             &panel_settings_master,
+            // (PANEL*)&button_notify_create, // FIXME, left as a comment for later work on popup notifications
             NULL
         }
     },

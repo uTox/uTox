@@ -1,7 +1,6 @@
 #ifndef LAYOUT_FRIEND_H
 #define LAYOUT_FRIEND_H
 
-
 typedef struct scrollable SCROLLABLE;
 extern SCROLLABLE scrollbar_friend;
 

@@ -131,7 +131,6 @@ static void sidepanel_FLIST(void) {
     scrollbar_flist.panel.width  = MAIN_LEFT;
     scrollbar_flist.panel.height = ROSTER_BOTTOM;
 
-
     panel_flist.x      = 0;
     panel_flist.y      = ROSTER_TOP;
     panel_flist.width  = MAIN_LEFT;

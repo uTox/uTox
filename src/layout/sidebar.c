@@ -110,7 +110,6 @@ PANEL panel_side_bar = {
         .disabled = 0,
         .child    = (PANEL*[]) {
             (PANEL*)&button_filter_friends, /* Top of roster */
-
             (PANEL*)&edit_search,           /* Bottom of roster*/
             (PANEL*)&button_settings,
             (PANEL*)&button_add_new_contact,
@@ -180,7 +179,7 @@ static void e_search_onenter(EDIT *edit) {
 
 static char e_search_data[1024];
 EDIT edit_search = {
-    .maxlength = sizeof e_search_data,
+    .maxlength = sizeof e_search_data - 1,
     .data      = e_search_data,
     .onchange  = e_search_onchange,
     .onenter   = e_search_onenter,

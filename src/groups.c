@@ -12,6 +12,8 @@
 #include "ui/edit.h"
 #include "ui/scrollable.h"
 
+#include "layout/group.h"
+
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>

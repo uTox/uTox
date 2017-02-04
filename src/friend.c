@@ -1,19 +1,22 @@
 #include "friend.h"
 
 #include "chatlog.h"
+#include "debug.h"
 #include "dns.h"
 #include "filesys.h"
 #include "flist.h"
-#include "debug.h"
 #include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
 #include "tox.h"
+#include "ui.h"
 #include "utox.h"
 
 #include "av/audio.h"
 #include "ui/scrollable.h"
+
+#include "layout/friend.h"
 
 #include "main.h" // addfriend_status
 

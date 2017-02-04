@@ -1,7 +1,8 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include "../ui/panel.h"
+#include "panel.h"
+
 #include "../ui.h"
 
 #include <stdbool.h>

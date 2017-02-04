@@ -1,6 +1,9 @@
 #ifndef LAYOUT_SIDE_H
 #define LAYOUT_SIDE_H
 
+typedef struct scrollable SCROLLABLE;
+extern SCROLLABLE scrollbar_flist;
+
 typedef struct panel PANEL;
 extern PANEL panel_side_bar,
              panel_self,

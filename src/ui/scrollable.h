@@ -1,8 +1,7 @@
 #ifndef SCROLLABLE_H
 #define SCROLLABLE_H
 
-#include "../ui.h"
-#include "../ui/panel.h"
+#include "panel.h"
 
 #include <stdint.h>
 
@@ -27,7 +26,5 @@ bool scroll_mright(SCROLLABLE *s);
 bool scroll_mwheel(SCROLLABLE *s, int height, double delta, bool smooth);
 bool scroll_mup(SCROLLABLE *s);
 bool scroll_mleave(SCROLLABLE *s);
-
-extern SCROLLABLE scrollbar_flist, scrollbar_friend, scrollbar_group;
 
 #endif

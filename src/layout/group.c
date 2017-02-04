@@ -159,7 +159,7 @@ BUTTON button_group_audio = {
     .bm2          = BM_CALL,
     .bw           = _BM_LBICON_WIDTH,
     .bh           = _BM_LBICON_HEIGHT,
-    .on_mup      = button_group_audio_on_mup,
+    .on_mup       = button_group_audio_on_mup,
     .update       = button_group_audio_update,
     .tooltip_text = {.i18nal = STR_GROUPCHAT_JOIN_AUDIO },
 };
@@ -457,7 +457,7 @@ SCROLLABLE e_chat_msg_group_scroll = {
 static char e_chat_msg_group_data[65535];
 EDIT edit_chat_msg_group = {
     .multiline   = true,
-    .maxlength   = sizeof e_chat_msg_group_data,
+    .maxlength   = sizeof e_chat_msg_group_data - 1,
     .data        = e_chat_msg_group_data,
     .onenter     = e_chat_msg_onenter,
     .ontab       = e_chat_msg_ontab,
@@ -475,12 +475,12 @@ static void e_group_topic_onenter(EDIT *edit) {
 
 static char e_group_topic_data[1024];
 EDIT edit_group_topic = {
-    .data            = e_group_topic_data,
-    .maxlength       = sizeof e_group_topic_data,
-    .onenter         = e_group_topic_onenter,
-    .onlosefocus     = e_group_topic_onenter,
-    .noborder        = false,
-    .empty_str       = {.plain = STRING_INIT("") },
+    .data           = e_group_topic_data,
+    .maxlength      = sizeof e_group_topic_data - 1,
+    .onenter        = e_group_topic_onenter,
+    .onlosefocus    = e_group_topic_onenter,
+    .noborder       = false,
+    .empty_str      = {.plain = STRING_INIT("") },
 };
 
 void e_msg_onenter_group(EDIT *edit) {

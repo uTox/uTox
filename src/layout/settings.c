@@ -408,7 +408,6 @@ panel_settings_master = {
             (PANEL*)&switch_auto_update,
             (PANEL*)&button_show_password_settings,
             &panel_profile_password_settings,
-
             (PANEL*)&switch_block_friend_requests,
             (PANEL*)&button_show_nospam,
             &panel_nospam_settings,
@@ -443,7 +442,7 @@ BUTTON button_settings = {
     .bw           = _BM_ADD_WIDTH,
     .bh           = _BM_ADD_WIDTH,
     .update       = button_bottommenu_update,
-    .on_mup      = button_settings_on_mup,
+    .on_mup       = button_settings_on_mup,
     .disabled     = false,
     .nodraw       = false,
     .tooltip_text = {.i18nal = STR_USERSETTINGS },
@@ -543,8 +542,8 @@ button_settings_sub_notifications = {
 button_add_new_device_to_self = {
     .bm          = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
-    // .update  = button_setcolors_success,
-    .on_mup = button_add_device_to_self_mdown,
+    // .update   = button_setcolors_success,
+    .on_mup      = button_add_device_to_self_mdown,
 };
 
 #include "../tox.h"
@@ -636,11 +635,11 @@ static void button_videopreview_update(BUTTON *b) {
     }
 }
 BUTTON button_copyid = {
-    .bm          = BM_SBUTTON,
-    .button_text = {.i18nal = STR_COPY_TOX_ID },
+    .bm       = BM_SBUTTON,
     .update   = button_setcolors_success,
-    .on_mup  = button_copyid_on_mup,
+    .on_mup   = button_copyid_on_mup,
     .disabled = false,
+    .button_text = {.i18nal = STR_COPY_TOX_ID },
 };
 
 BUTTON button_callpreview = {
@@ -648,7 +647,7 @@ BUTTON button_callpreview = {
     .bm2      = BM_CALL,
     .bw       = _BM_LBICON_WIDTH,
     .bh       = _BM_LBICON_HEIGHT,
-    .on_mup  = button_audiopreview_on_mup,
+    .on_mup   = button_audiopreview_on_mup,
     .update   = button_audiopreview_update,
     .disabled = false,
 };
@@ -658,50 +657,50 @@ BUTTON button_videopreview = {
     .bm2      = BM_VIDEO,
     .bw       = _BM_LBICON_WIDTH,
     .bh       = _BM_LBICON_HEIGHT,
-    .on_mup  = button_videopreview_on_mup,
+    .on_mup   = button_videopreview_on_mup,
     .update   = button_videopreview_update,
     .disabled = false,
 };
 
 BUTTON button_lock_uTox = {
-    .bm          = BM_SBUTTON,
-    .update      = button_setcolors_success,
-    .on_mup     = button_lock_uTox_on_mup,
+    .bm     = BM_SBUTTON,
+    .update = button_setcolors_success,
+    .on_mup = button_lock_uTox_on_mup,
     .button_text = {.i18nal = STR_LOCK },
     .tooltip_text = {.i18nal = STR_LOCK_UTOX },
 };
 
 BUTTON button_show_password_settings = {
-    .bm          = BM_SBUTTON,
-    .update      = button_setcolors_success,
-    .on_mup     = button_show_password_settings_on_mup,
+    .bm     = BM_SBUTTON,
+    .update = button_setcolors_success,
+    .on_mup = button_show_password_settings_on_mup,
     .button_text = {.i18nal = STR_SHOW_UI_PASSWORD },
     .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD_TOOLTIP },
 };
 
 BUTTON button_export_chatlog = {
-    .bm          = BM_SBUTTON,
-    .button_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
-    .update   = button_setcolors_success,
-    .on_mup  = button_export_chatlog_on_mup,
+    .bm     = BM_SBUTTON,
+    .update = button_setcolors_success,
+    .on_mup = button_export_chatlog_on_mup,
     .disabled = false,
+    .button_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
 };
 
 BUTTON button_change_nospam = {
-    .bm           = BM_SBUTTON,
-    .update       = button_setcolors_success,
+    .bm     = BM_SBUTTON,
+    .update = button_setcolors_success,
+    .on_mup = button_change_nospam_on_mup,
     .tooltip_text = {.i18nal = STR_RANDOMIZE_NOSPAM},
     .button_text  = {.i18nal = STR_RANDOMIZE_NOSPAM},
-    .on_mup       = button_change_nospam_on_mup,
 };
 
 BUTTON button_revert_nospam = {
-    .disabled     = true,
-    .bm           = BM_SBUTTON,
-    .update       = button_setcolors_success,
+    .bm       = BM_SBUTTON,
+    .update   = button_setcolors_success,
+    .on_mup   = button_revert_nospam_on_mup,
+    .disabled = true,
     .tooltip_text = {.i18nal = STR_REVERT_NOSPAM},
     .button_text  = {.i18nal = STR_REVERT_NOSPAM},
-    .on_mup       = button_revert_nospam_on_mup,
 };
 
 BUTTON button_show_nospam = {
@@ -789,8 +788,8 @@ UISWITCH switch_save_chat_history = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_logging,
-    .tooltip_text = {.i18nal = STR_SAVE_CHAT_HISTORY },
+    .on_mup         = switchfxn_logging,
+    .tooltip_text   = {.i18nal = STR_SAVE_CHAT_HISTORY },
 };
 
 UISWITCH switch_mini_contacts = {
@@ -799,8 +798,8 @@ UISWITCH switch_mini_contacts = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_mini_contacts,
-    .tooltip_text = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER },
+    .on_mup         = switchfxn_mini_contacts,
+    .tooltip_text   = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER },
 };
 
 UISWITCH switch_ipv6 = {
@@ -809,8 +808,8 @@ UISWITCH switch_ipv6 = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_ipv6,
-    .tooltip_text = {.i18nal = STR_IPV6 },
+    .on_mup         = switchfxn_ipv6,
+    .tooltip_text   = {.i18nal = STR_IPV6 },
 };
 
 UISWITCH switch_udp = {
@@ -819,8 +818,8 @@ UISWITCH switch_udp = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_udp,
-    .tooltip_text = {.i18nal = STR_UDP },
+    .on_mup         = switchfxn_udp,
+    .tooltip_text   = {.i18nal = STR_UDP },
 };
 
 UISWITCH switch_close_to_tray = {
@@ -829,8 +828,8 @@ UISWITCH switch_close_to_tray = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_close_to_tray,
-    .tooltip_text = {.i18nal = STR_CLOSE_TO_TRAY },
+    .on_mup         = switchfxn_close_to_tray,
+    .tooltip_text   = {.i18nal = STR_CLOSE_TO_TRAY },
 };
 
 UISWITCH switch_start_in_tray = {
@@ -839,8 +838,8 @@ UISWITCH switch_start_in_tray = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_start_in_tray,
-    .tooltip_text = {.i18nal = STR_START_IN_TRAY },
+    .on_mup         = switchfxn_start_in_tray,
+    .tooltip_text   = {.i18nal = STR_START_IN_TRAY },
 };
 
 UISWITCH switch_auto_startup = {
@@ -849,8 +848,8 @@ UISWITCH switch_auto_startup = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_auto_startup,
-    .tooltip_text = {.i18nal = STR_AUTO_STARTUP },
+    .on_mup         = switchfxn_auto_startup,
+    .tooltip_text   = {.i18nal = STR_AUTO_STARTUP },
 };
 
 UISWITCH switch_typing_notes = {
@@ -859,8 +858,8 @@ UISWITCH switch_typing_notes = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_typing_notes,
-    .tooltip_text = {.i18nal = STR_SEND_TYPING_NOTIFICATIONS },
+    .on_mup         = switchfxn_typing_notes,
+    .tooltip_text   = {.i18nal = STR_SEND_TYPING_NOTIFICATIONS },
 };
 
 UISWITCH switch_audible_notifications = {
@@ -869,8 +868,8 @@ UISWITCH switch_audible_notifications = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_audible_notifications,
-    .tooltip_text = {.i18nal = STR_AUDIONOTIFICATIONS },
+    .on_mup         = switchfxn_audible_notifications,
+    .tooltip_text   = {.i18nal = STR_AUDIONOTIFICATIONS },
 };
 
 UISWITCH switch_push_to_talk = {
@@ -879,8 +878,8 @@ UISWITCH switch_push_to_talk = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_push_to_talk,
-    .tooltip_text = {.i18nal = STR_PUSH_TO_TALK },
+    .on_mup         = switchfxn_push_to_talk,
+    .tooltip_text   = {.i18nal = STR_PUSH_TO_TALK },
 };
 
 UISWITCH switch_audio_filtering = {
@@ -889,8 +888,8 @@ UISWITCH switch_audio_filtering = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_audio_filtering,
-    .tooltip_text = {.i18nal = STR_AUDIOFILTERING },
+    .on_mup         = switchfxn_audio_filtering,
+    .tooltip_text   = {.i18nal = STR_AUDIOFILTERING },
 };
 
 UISWITCH switch_status_notifications = {
@@ -899,8 +898,8 @@ UISWITCH switch_status_notifications = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .on_mup        = switchfxn_status_notifications,
-    .tooltip_text = {.i18nal = STR_STATUS_NOTIFICATIONS },
+    .on_mup         = switchfxn_status_notifications,
+    .tooltip_text   = {.i18nal = STR_STATUS_NOTIFICATIONS },
 };
 
 UISWITCH switch_auto_update = {
@@ -910,7 +909,7 @@ UISWITCH switch_auto_update = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .on_mup         = switchfxn_auto_update,
-    .tooltip_text = {.i18nal = STR_AUTO_UPDATE }
+    .tooltip_text   = {.i18nal = STR_AUTO_UPDATE }
 };
 
 UISWITCH switch_block_friend_requests = {
@@ -962,7 +961,7 @@ UISWITCH switch_proxy = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .on_mup         = switchfxn_proxy,
-    .tooltip_text = {.i18nal = STR_PROXY }
+    .tooltip_text   = {.i18nal = STR_PROXY }
 };
 
 UISWITCH switch_proxy_force = {
@@ -1033,13 +1032,18 @@ static UTOX_I18N_STR dpidrops[] = {
 };
 
 DROPDOWN dropdown_audio_in = {
-    .ondisplay = dropdown_list_ondisplay, .onselect = dropdown_audio_in_onselect };
+    .ondisplay = dropdown_list_ondisplay,
+    .onselect = dropdown_audio_in_onselect
+};
 
 DROPDOWN dropdown_audio_out = {
-    .ondisplay = dropdown_list_ondisplay, .onselect = dropdown_audio_out_onselect };
+    .ondisplay = dropdown_list_ondisplay,
+    .onselect = dropdown_audio_out_onselect
+};
 
 DROPDOWN dropdown_video = {
-    .ondisplay = dropdown_list_ondisplay, .onselect = dropdown_video_onselect,
+    .ondisplay = dropdown_list_ondisplay,
+    .onselect = dropdown_video_onselect,
 };
 
 DROPDOWN dropdown_dpi = {
@@ -1051,7 +1055,7 @@ DROPDOWN dropdown_dpi = {
 
 DROPDOWN dropdown_language = {
     .ondisplay = dropdown_language_ondisplay,
-    .onselect = dropdown_language_onselect,
+    .onselect  = dropdown_language_onselect,
     .dropcount = NUM_LANGS,
 };
 
@@ -1114,9 +1118,9 @@ static void edit_name_onenter(EDIT *edit) {
 }
 
 EDIT edit_name = {
-    .maxlength = 128,
-    .data = edit_name_data,
-    .onenter = edit_name_onenter,
+    .data        = edit_name_data,
+    .maxlength   = sizeof edit_name_data - 1,
+    .onenter     = edit_name_onenter,
     .onlosefocus = edit_name_onenter,
 };
 
@@ -1138,9 +1142,9 @@ static void edit_status_msg_onenter(EDIT *edit) {
 }
 
 EDIT edit_status_msg = {
-    .maxlength = 128,
-    .data = edit_status_msg_data,
-    .onenter = edit_status_msg_onenter,
+    .data        = edit_status_msg_data,
+    .maxlength   = sizeof edit_status_msg_data - 1,
+    .onenter     = edit_status_msg_onenter,
     .onlosefocus = edit_status_msg_onenter,
 };
 
@@ -1165,16 +1169,16 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
 }
 
 EDIT edit_proxy_ip = {
-    .maxlength   = sizeof(edit_proxy_ip_data) - 1,
     .data        = edit_proxy_ip_data,
+    .maxlength   = sizeof edit_proxy_ip_data - 1,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_IP },
     /* TODO .ontab = change to proxy port field */
 };
 
 EDIT edit_proxy_port = {
-    .maxlength   = sizeof(edit_proxy_port_data) - 1,
     .data        = edit_proxy_port_data,
+    .maxlength   = sizeof edit_proxy_port_data - 1,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_PORT },
 };
@@ -1218,8 +1222,8 @@ static void edit_add_new_device_to_self_onenter(EDIT *UNUSED(edit)) {
 }
 
 EDIT edit_add_new_device_to_self = {
-    .maxlength = sizeof(edit_add_new_device_to_self_data),
     .data      = edit_add_new_device_to_self_data,
+    .maxlength = sizeof edit_add_new_device_to_self_data - 1,
     .onenter   = edit_add_new_device_to_self_onenter,
 };
 

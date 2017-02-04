@@ -1,8 +1,9 @@
 #ifndef DROPDOWN_H
 #define DROPDOWN_H
 
+#include "panel.h"
+
 #include "../ui.h"
-#include "../ui/panel.h"
 
 #include <stdint.h>
 
