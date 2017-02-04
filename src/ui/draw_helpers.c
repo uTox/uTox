@@ -281,6 +281,20 @@ void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
     }
 }
 
+void draw_friend_deletion(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+    FRIEND *f = flist_get_selected()->data;
+
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+
+    char str[f->name_length + 1];
+    sprintf(str, "%s?", f->name);
+
+    const int push = UTOX_STR_WIDTH(DELETE_MESSAGE);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(70), DELETE_MESSAGE);
+    drawtextrange(push + MAIN_LEFT + SCALE(10), settings.window_width, SCALE(70), str, sizeof(str));
+}
+
 /* Draw the text for profile password window */
 void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);

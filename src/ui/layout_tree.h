@@ -182,6 +182,7 @@ panel_main = {
                 &panel_friend_chat,
                 &panel_friend_video,
                 &panel_friend_settings,
+                &panel_friend_confirm_deletion,
                 NULL
             }
         },
@@ -216,6 +217,17 @@ panel_main = {
                     (PANEL*)&button_export_chatlog,
                     NULL
                 }
+            },
+            panel_friend_confirm_deletion = {
+                .type = PANEL_NONE,
+                .disabled = true,
+                .drawfunc = draw_friend_deletion,
+                .child = (PANEL*[]) {
+                    (PANEL *)&button_confirm_deletion,
+                    (PANEL *)&button_deny_deletion,
+                    NULL
+                }
+
             },
         panel_friend_request = {
             .type = PANEL_NONE,

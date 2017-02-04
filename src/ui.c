@@ -302,6 +302,10 @@ void ui_set_scale(uint8_t scale) {
 
     CREATE_EDIT(msg_group, SCALE(6), SCALE(-46), SCALE(-10) - BM_CHAT_SEND_WIDTH, SCALE(40));
 
+    /* Confirm deletion */
+    CREATE_BUTTON(confirm_deletion, SCALE(10), MAIN_TOP + SCALE(40), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(deny_deletion,    SCALE(80), MAIN_TOP + SCALE(40), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+
     setscale();
 }
 
@@ -602,7 +606,7 @@ bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool 
     return draw;
 }
 
-bool panel_mup(PANEL *p) {
+ bool panel_mup(PANEL *p) {
     bool    draw = p->type ? mupfunc[p->type - 1](p) : false;
     PANEL **pp   = p->child, *subp;
     if (pp) {

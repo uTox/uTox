@@ -351,12 +351,13 @@ static void page_close(ITEM *i) {
             f->edit_history_cur    = edit_msg.history_cur;
             f->edit_history_length = edit_msg.history_length;
 
-            panel_chat.disabled            = 1;
-            panel_friend.disabled          = 1;
-            panel_friend_chat.disabled     = 1;
-            panel_friend_video.disabled    = 1;
-            panel_friend_settings.disabled = 1;
-            settings.inline_video          = 1;
+            panel_chat.disabled                    = true;
+            panel_friend.disabled                  = true;
+            panel_friend_chat.disabled             = true;
+            panel_friend_video.disabled            = true;
+            panel_friend_settings.disabled         = true;
+            panel_friend_confirm_deletion.disabled = true;
+            settings.inline_video                  = true;
             break;
         }
 
@@ -967,7 +968,8 @@ static void contextmenu_friend(uint8_t rcase) {
         }
         case 3: {
             /* Should be: delete friend */
-            flist_delete_rmouse_item();
+            panel_friend_chat.disabled             = true;
+            panel_friend_confirm_deletion.disabled = false;
         }
     }
 }
