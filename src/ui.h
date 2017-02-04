@@ -115,7 +115,7 @@ extern UTOX_LANG LANG;
 extern PANEL panel_root, panel_side_bar, panel_self, panel_quick_buttons, panel_flist, panel_flist_list,
     panel_lower_buttons, panel_main, panel_chat, panel_group, panel_group_chat, panel_group_video, panel_group_settings,
     panel_friend, panel_friend_chat, panel_friend_video, panel_friend_settings, panel_friend_request, panel_overhead,
-    panel_splash_page, panel_profile_password, panel_add_friend,
+    panel_splash_page, panel_profile_password, panel_add_friend, panel_friend_confirm_deletion,
     messages_friend,
     messages_group,
     panel_settings_master,
