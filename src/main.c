@@ -15,7 +15,6 @@
 
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
-#include "ui/switches.h"
 
 #include <getopt.h>
 

@@ -1,7 +1,7 @@
 #include "dropdowns.h"
 
 #include "edits.h"
-#include "switches.h"
+#include "switch.h"
 
 #include "../flist.h"
 #include "../friend.h"
@@ -15,6 +15,8 @@
 #include "../tox.h"
 
 #include "../av/utox_av.h"
+
+#include "../layout/settings.h"
 
 #include <string.h>
 

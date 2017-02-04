@@ -5,9 +5,13 @@
 #include "flist.h"
 #include "groups.h"
 
+// TODO do we want to include the UI headers here?
+// Or would it be better to supply a callback after settings are loaded?
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
-#include "ui/switches.h"
+#include "ui/switch.h"
+
+#include "layout/settings.h"
 
 #include "main.h" // UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
 

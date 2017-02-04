@@ -9,6 +9,7 @@
 #include "../self.h"
 #include "../tox.h"
 
+#include "../ui/button.h"
 #include "../ui/contextmenu.h"
 #include "../ui/edit.h"
 

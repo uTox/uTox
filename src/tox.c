@@ -20,7 +20,6 @@
 #include "av/video.h"
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
-#include "ui/switches.h"
 
 #include "layout/background.h"
 
@@ -311,6 +310,7 @@ static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file
 }
 
 #include "layout/settings.h"
+#include "ui/switch.h"
 
 // initialize toxcore based on current settings
 // returns 0 on success

@@ -15,8 +15,6 @@ add_library(utoxUI STATIC
     contextmenu.c
     contextmenu.h
     draw.h
-    draw_helpers.c
-    draw_helpers.h
     dropdown.c
     dropdown.h
     dropdowns.c
@@ -31,8 +29,6 @@ add_library(utoxUI STATIC
     svg.h
     switch.c
     switch.h
-    switches.c
-    switches.h
     text.c
     text.h
     tooltip.c

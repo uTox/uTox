@@ -1,10 +1,10 @@
 #ifndef LAYOUT_SETTINGS_H
 #define LAYOUT_SETTINGS_H
 
-#include "../ui/button.h"
-
+typedef struct scrollable SCROLLABLE;
 extern SCROLLABLE scrollbar_settings;
 
+typedef struct panel PANEL;
 extern PANEL panel_settings_master,
              panel_settings_subheader,
              panel_settings_profile,
@@ -18,6 +18,7 @@ extern PANEL panel_settings_master,
 
 extern PANEL panel_profile_password;
 
+typedef struct button BUTTON;
 extern BUTTON   button_settings,
                 button_settings_sub_profile,
                 button_settings_sub_devices,
@@ -35,5 +36,27 @@ extern BUTTON   button_callpreview,
                 button_change_nospam,
                 button_revert_nospam,
                 button_show_nospam;
+
+typedef struct uiswitch UISWITCH;
+extern UISWITCH /* User Interface Tab */
+                switch_save_chat_history,
+                switch_close_to_tray,
+                switch_start_in_tray,
+                switch_auto_startup,
+                switch_mini_contacts,
+                /* AV Tab */
+                switch_push_to_talk,
+                switch_audio_filtering,
+                /* Notifications Tab */
+                switch_audible_notifications,
+                switch_status_notifications,
+                switch_typing_notes,
+                /* Advanced Tab */
+                switch_ipv6,
+                switch_udp,
+                switch_auto_update,
+                switch_block_friend_requests;
+
+
 
 #endif // LAYOUT_SETTINGS_H

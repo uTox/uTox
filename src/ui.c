@@ -14,14 +14,15 @@
 #include "layout/settings.h"
 #include "layout/sidebar.h"
 
-#include "ui/contextmenu.h"
-#include "ui/draw.h"
-#include "ui/draw_helpers.h"
+// Should be removed
 #include "ui/dropdowns.h"
 #include "ui/edits.h"
+
+#include "ui/contextmenu.h"
+#include "ui/draw.h"
 #include "ui/panel.h"
 #include "ui/scrollable.h"
-#include "ui/switches.h"
+#include "ui/switch.h"
 #include "ui/text.h"
 #include "ui/tooltip.h"
 
