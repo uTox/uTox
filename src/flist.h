@@ -50,7 +50,7 @@ void flist_addfriend2(FRIEND *f, FRIENDREQ *req);
 void flist_addgroup(GROUPCHAT *g);
 void flist_addfriendreq(FRIENDREQ *f);
 void flist_deletesitem(void);
-void flist_deleteright_mouse_item(void);
+void flist_delete_rmouse_item(void);
 
 void flist_selectchat(int index);
 void flist_selectaddfriend(void);
