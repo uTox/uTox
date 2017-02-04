@@ -11,8 +11,6 @@
 #include "../tox.h"
 #include "../utox.h"
 
-#include "../ui/dropdowns.h"
-
 #include <tox/toxav.h>
 
 #include <pthread.h>
@@ -89,7 +87,8 @@ static bool video_device_stop(void) {
     return false;
 }
 
-
+#include "../ui/dropdown.h"
+#include "../layout/settings.h" // TODO move?
 void utox_video_append_device(void *device, bool localized, void *name, bool default_) {
     video_device[video_device_count++] = device;
 

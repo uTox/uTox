@@ -54,9 +54,22 @@ extern UISWITCH /* User Interface Tab */
                 /* Advanced Tab */
                 switch_ipv6,
                 switch_udp,
+                switch_proxy,
+                switch_proxy_force,
                 switch_auto_update,
                 switch_block_friend_requests;
 
-
+typedef struct dropdown DROPDOWN;
+extern DROPDOWN /* Profile */
+                dropdown_language,
+                /* User interface */
+                dropdown_theme,
+                dropdown_dpi,
+                /* AV */
+                dropdown_audio_in,
+                dropdown_audio_out,
+                dropdown_video,
+                /* Notifications */
+                dropdown_global_group_notifications;
 
 #endif // LAYOUT_SETTINGS_H

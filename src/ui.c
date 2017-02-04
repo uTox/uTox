@@ -15,11 +15,11 @@
 #include "layout/sidebar.h"
 
 // Should be removed
-#include "ui/dropdowns.h"
 #include "ui/edits.h"
 
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
+#include "ui/dropdown.h"
 #include "ui/panel.h"
 #include "ui/scrollable.h"
 #include "ui/switch.h"
@@ -212,25 +212,26 @@ static void settings_NOTIFY(void) {
 static void settings_ADV(void) {
     panel_settings_adv.y = SCALE(32);
 
-    CREATE_SWITCH(ipv6, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(udp,  SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(ipv6, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(udp,  SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
-    CREATE_DROPDOWN(proxy,  SCALE(10), SCALE(110), SCALE(24), SCALE(120));
-    CREATE_EDIT(proxy_ip,   SCALE(140), SCALE(110), SCALE(120), SCALE(24));
-    CREATE_EDIT(proxy_port, SCALE(270), SCALE(110), SCALE(60), SCALE(24));
+    CREATE_SWITCH(proxy,       SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_EDIT(proxy_ip,      SCALE(140), SCALE(90), SCALE(120), SCALE(24));
+    CREATE_EDIT(proxy_port,    SCALE(270), SCALE(90), SCALE(60),  SCALE(24));
+    CREATE_SWITCH(proxy_force, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(120), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
-    CREATE_SWITCH(auto_update, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(140), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(block_friend_requests, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(170), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(auto_update,           SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(block_friend_requests, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(180), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
-    CREATE_BUTTON(show_password_settings, SCALE(10),  SCALE(200), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(show_nospam,            SCALE(170), SCALE(200), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_password_settings, SCALE(10),  SCALE(210), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_nospam,            SCALE(170), SCALE(210), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    CREATE_EDIT(nospam,           SCALE(10),  SCALE(245), SCALE(-10), SCALE(24));
-    CREATE_BUTTON(change_nospam,  SCALE(10),  SCALE(275), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(revert_nospam,  SCALE(200), SCALE(275), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_EDIT(nospam,           SCALE(10),  SCALE(255), SCALE(-10), SCALE(24));
+    CREATE_BUTTON(change_nospam,  SCALE(10),  SCALE(285), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(revert_nospam,  SCALE(200), SCALE(285), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    CREATE_EDIT(profile_password, SCALE(10),  SCALE(88) + (SCALE(157) * panel_profile_password.disabled), SCALE(-10), SCALE(24));
-    CREATE_BUTTON(lock_uTox,      SCALE(10),  SCALE(275), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_EDIT(profile_password, SCALE(10),  SCALE(88) + (SCALE(167) * panel_profile_password.disabled), SCALE(-10), SCALE(24));
+    CREATE_BUTTON(lock_uTox,      SCALE(10),  SCALE(285), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 }
 
 void ui_set_scale(uint8_t scale) {
@@ -324,9 +325,10 @@ void ui_set_scale(uint8_t scale) {
     /* Friend Settings Page */
     CREATE_BUTTON(export_chatlog, SCALE(10), SCALE(220), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    CREATE_EDIT(friend_pubkey, SCALE(10), SCALE(88), SCALE(-10), SCALE(24));
-    CREATE_EDIT(friend_alias, SCALE(10), SCALE(138), SCALE(-10), SCALE(24));
-    CREATE_DROPDOWN(friend_autoaccept_ft, SCALE(10), SCALE(188), SCALE(24), SCALE(40));
+    CREATE_EDIT(friend_pubkey,          SCALE(10), SCALE(88), SCALE(-10), SCALE(24));
+    CREATE_EDIT(friend_alias,           SCALE(10), SCALE(138), SCALE(-10), SCALE(24));
+
+    CREATE_SWITCH(friend_autoaccept_ft, SCALE(-10) -BM_SWITCH_WIDTH, SCALE(170), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
     /* Group Settings */
     CREATE_EDIT(group_topic, SCALE(10), SCALE(95), SCALE(-10), SCALE(24));

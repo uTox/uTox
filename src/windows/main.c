@@ -23,7 +23,7 @@
 
 #include "../av/utox_av.h"
 #include "../ui/draw.h"
-#include "../ui/dropdowns.h"
+#include "../ui/dropdown.h"
 #include "../ui/edit.h"
 #include "../ui/svg.h"
 
@@ -247,6 +247,9 @@ void openurl(char *str) {
 
 void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {}
 
+
+#include "../layout/friend.h"
+#include "../layout/group.h"
 void copy(int value) {
     char data[32768]; //! TODO: De-hardcode this value.
     int  len;
@@ -503,6 +506,7 @@ void showkeyboard(bool UNUSED(show)) {} /* Added for android support. */
 
 void edit_will_deactivate(void) {}
 
+#include "../layout/background.h" // TODO do we want to remove this?
 /* Redraws the main UI window */
 void redraw(void) {
     native_window_set_target(&main_window);
@@ -748,6 +752,8 @@ static bool auto_update(PSTR cmd) {
     }
     return false;
 }
+
+#include "../layout/settings.h" // TODO remove, in for dropdown.lang
 
 /** client main()
  *

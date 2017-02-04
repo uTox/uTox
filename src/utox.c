@@ -13,9 +13,11 @@
 
 #include "av/utox_av.h"
 #include "av/video.h"
-#include "ui/dropdowns.h"
+#include "ui/dropdown.h"
 #include "ui/edit.h"
 #include "ui/tooltip.h"
+
+#include "layout/settings.h"
 
 /** Translates status code to text then sends back to the user */
 static void file_notify(FRIEND *f, MSG_HEADER *msg) {

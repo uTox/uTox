@@ -151,36 +151,36 @@ static void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int 
 static void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(225), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(235), PROFILE_PASSWORD);
 
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(275), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(289), PROFILE_PW_NO_RECOVER);
+    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(285), PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(299), PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_nospam_settings(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(230), NOSPAM_WARNING);
+    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(240), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(225), NOSPAM);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(235), NOSPAM);
 }
 
 // UI settings page
 static void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(150), y + SCALE(10), DPI);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), THEME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(65), SAVE_CHAT_HISTORY);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(95), CLOSE_TO_TRAY);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(125), START_IN_TRAY);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(155), AUTO_STARTUP);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
+    drawstr(MAIN_LEFT + SCALE(150), y + SCALE(10),  DPI);
+    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(10),  THEME);
+    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(65),  SAVE_CHAT_HISTORY);
+    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(95),  CLOSE_TO_TRAY);
+    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(125), START_IN_TRAY);
+    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(155), AUTO_STARTUP);
+    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
 }
 
 // Audio/Video settings page
@@ -229,14 +229,15 @@ static void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUS
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(30), IPV6);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), UDP);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(90), PROXY);
-    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(114), ":", 1);
+    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(30),  IPV6);
+    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(60),  UDP);
+    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(90),  PROXY);
+    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(94), ":", 1); // Little addr port separator
+    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(140), AUTO_UPDATE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(170), BLOCK_FRIEND_REQUESTS);
+    drawstr(MAIN_LEFT + SCALE(10),   y + SCALE(150), AUTO_UPDATE);
+    drawstr(MAIN_LEFT + SCALE(10),   y + SCALE(180), BLOCK_FRIEND_REQUESTS);
 }
 
 
@@ -246,9 +247,6 @@ SCROLLABLE scrollbar_settings = {
 };
 
 #include "../ui/edits.h"
-#include "../ui/dropdowns.h"
-
-
 /* Draw the text for profile password window */
 static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
@@ -406,7 +404,8 @@ PANEL   panel_settings_master = {
                 .child = (PANEL*[]) {
                     (PANEL*)&edit_proxy_ip,
                     (PANEL*)&edit_proxy_port,
-                    (PANEL*)&dropdown_proxy,
+                    (PANEL*)&switch_proxy,
+                    (PANEL*)&switch_proxy_force,
                     (PANEL*)&switch_ipv6,
                     (PANEL*)&switch_udp,
                     (PANEL*)&switch_auto_update,
@@ -789,7 +788,6 @@ static void switchfxn_auto_update(void) { settings.auto_update = !settings.auto_
 
 static void switchfxn_block_friend_requests(void) { settings.block_friend_requests = !settings.block_friend_requests; }
 
-
 UISWITCH switch_save_chat_history = {
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
@@ -928,4 +926,174 @@ UISWITCH switch_block_friend_requests = {
     .update         = switch_update,
     .on_mup         = switchfxn_block_friend_requests,
     .tooltip_text   = {.i18nal = STR_BLOCK_FRIEND_REQUESTS },
+};
+
+static void switchfxn_proxy(void) {
+    settings.use_proxy   = !settings.use_proxy;
+    if (settings.use_proxy) {
+        settings.force_proxy = false;
+        switch_proxy_force.panel.disabled = false;
+    } else {
+        switch_proxy_force.panel.disabled = true;
+    }
+
+    memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
+    proxy_address[edit_proxy_ip.length] = 0;
+
+    edit_proxy_port.data[edit_proxy_port.length] = 0;
+    settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
+
+    tox_settingschanged();
+}
+
+static void switchfxn_proxy_force(void) {
+    settings.force_proxy = !settings.force_proxy;
+
+    if (settings.force_proxy) {
+        switch_udp.disabled       = true;
+        switch_udp.panel.disabled = true;
+    }
+
+    edit_proxy_port.data[edit_proxy_port.length] = 0;
+    settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
+
+    tox_settingschanged();
+}
+
+UISWITCH switch_proxy = {
+    .style_outer    = BM_SWITCH,
+    .style_toggle   = BM_SWITCH_TOGGLE,
+    .style_icon_off = BM_NO,
+    .style_icon_on  = BM_YES,
+    .update         = switch_update,
+    .on_mup         = switchfxn_proxy,
+    .tooltip_text = {.i18nal = STR_PROXY }
+};
+
+UISWITCH switch_proxy_force = {
+    .style_outer    = BM_SWITCH,
+    .style_toggle   = BM_SWITCH_TOGGLE,
+    .style_icon_off = BM_NO,
+    .style_icon_on  = BM_YES,
+    .update         = switch_update,
+    .on_mup         = switchfxn_proxy_force,
+    .tooltip_text   = {.i18nal = STR_PROXY_FORCE },
+};
+
+#include "../ui/dropdown.h"
+static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
+    DROP_ELEMENT *e      = &((DROP_ELEMENT *)dm->userdata)[i];
+    void *        handle = e->handle;
+    postmessage_utoxav(UTOXAV_SET_AUDIO_IN, 0, 0, handle);
+}
+
+static void dropdown_audio_out_onselect(uint16_t i, const DROPDOWN *dm) {
+    DROP_ELEMENT *e      = &((DROP_ELEMENT *)dm->userdata)[i];
+    void *        handle = e->handle;
+    postmessage_utoxav(UTOXAV_SET_AUDIO_OUT, 0, 0, handle);
+}
+
+#include "../screen_grab.h"
+static void dropdown_video_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    if (i == 1) {
+        utox_screen_grab_desktop(1);
+    } else {
+        postmessage_utoxav(UTOXAV_SET_VIDEO_IN, i, 0, NULL);
+    }
+}
+
+static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    ui_set_scale(i + 6);
+}
+
+static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    LANG = (UTOX_LANG)i;
+    /* The draw functions need the fonts' and scale to be reset when changing languages. */
+    ui_set_scale(ui_scale);
+}
+static STRING *dropdown_language_ondisplay(uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    UTOX_LANG l = (UTOX_LANG)i;
+    return SPTRFORLANG(l, STR_LANG_NATIVE_NAME);
+}
+
+static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    theme_load(i);
+    settings.theme = i;
+}
+
+#include"../groups.h"
+static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    GROUPCHAT *g = flist_get_selected()->data;
+    g->notify    = i;
+    debug("g->notify = %u\n", i);
+}
+
+static void dropdown_global_group_notifications_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    settings.group_notifications = i;
+}
+
+static UTOX_I18N_STR dpidrops[] = {
+    STR_DPI_TINY, STR_DPI_060,   STR_DPI_070, STR_DPI_080, STR_DPI_090, STR_DPI_NORMAL, STR_DPI_110,
+    STR_DPI_120,  STR_DPI_130,   STR_DPI_140, STR_DPI_BIG, STR_DPI_160, STR_DPI_170,    STR_DPI_180,
+    STR_DPI_190,  STR_DPI_LARGE, STR_DPI_210, STR_DPI_220, STR_DPI_230, STR_DPI_240,    STR_DPI_HUGE,
+};
+
+DROPDOWN dropdown_audio_in = {
+    .ondisplay = dropdown_list_ondisplay, .onselect = dropdown_audio_in_onselect };
+
+DROPDOWN dropdown_audio_out = {
+    .ondisplay = dropdown_list_ondisplay, .onselect = dropdown_audio_out_onselect };
+
+DROPDOWN dropdown_video = {
+    .ondisplay = dropdown_list_ondisplay, .onselect = dropdown_video_onselect,
+};
+
+DROPDOWN dropdown_dpi = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_dpi_onselect,
+    .dropcount = COUNTOF(dpidrops),
+    .userdata  = dpidrops
+};
+
+DROPDOWN dropdown_language = {
+    .ondisplay = dropdown_language_ondisplay,
+    .onselect = dropdown_language_onselect,
+    .dropcount = NUM_LANGS,
+};
+
+
+static UTOX_I18N_STR themedrops[] = {
+    STR_THEME_DEFAULT,
+    STR_THEME_LIGHT,
+    STR_THEME_DARK,
+    STR_THEME_HIGHCONTRAST,
+    STR_THEME_CUSTOM,
+    STR_THEME_ZENBURN,
+    STR_THEME_SOLARIZED_LIGHT,
+    STR_THEME_SOLARIZED_DARK,
+};
+
+DROPDOWN dropdown_theme = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_theme_onselect,
+    .dropcount = COUNTOF(themedrops),
+    .userdata  = themedrops
+};
+
+static UTOX_I18N_STR notifydrops[] = {
+    STR_GROUP_NOTIFICATIONS_OFF, STR_GROUP_NOTIFICATIONS_MENTION, STR_GROUP_NOTIFICATIONS_ON,
+};
+
+DROPDOWN dropdown_notify_groupchats = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_notify_groupchats_onselect,
+    .dropcount = COUNTOF(notifydrops),
+    .userdata  = notifydrops
+};
+
+DROPDOWN dropdown_global_group_notifications = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_global_group_notifications_onselect,
+    .dropcount = COUNTOF(notifydrops),
+    .userdata  = notifydrops
 };

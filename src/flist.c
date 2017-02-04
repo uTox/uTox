@@ -16,10 +16,11 @@
 
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
-#include "ui/dropdowns.h"
+#include "ui/dropdown.h"
 #include "ui/edits.h"
 #include "ui/scrollable.h"
 #include "ui/svg.h"
+#include "ui/switch.h"
 #include "ui/tooltip.h"
 
 #include "layout/background.h"
@@ -928,7 +929,7 @@ static void flist_init_friend_settings_page(void) {
     maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
     edit_setstr(&edit_friend_alias, f->alias, f->alias_length);
 
-    dropdown_friend_autoaccept_ft.over = dropdown_friend_autoaccept_ft.selected = f->ft_autoaccept;
+    switch_friend_autoaccept_ft.switch_on = f->ft_autoaccept;
 }
 
 static void flist_init_group_settings_page(void) {

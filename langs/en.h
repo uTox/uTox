@@ -448,6 +448,9 @@ msgstr("UDP:")
 msgid(PROXY)
 msgstr("Proxy (SOCKS 5)")
 
+msgid(PROXY_FORCE)
+msgstr("Force uTox to always use proxy")
+
 msgid(WARNING)
 msgstr("Changing Network/Proxy settings will temporarily disconnect you from the Tox network")
 

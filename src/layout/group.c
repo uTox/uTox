@@ -79,7 +79,6 @@ static void draw_group_settings(int UNUSED(x), int y, int UNUSED(width), int UNU
 }
 
 #include "../ui/edits.h"
-#include "../ui/dropdowns.h"
 #include "friend.h"
 
 PANEL
@@ -138,6 +137,8 @@ static void button_group_audio_on_mup(void) {
     }
 }
 
+
+#include "../ui/button.h"
 static void button_group_audio_update(BUTTON *b) {
     GROUPCHAT *g = flist_get_selected()->data;
     if (g->av_group) {

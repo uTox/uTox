@@ -7,9 +7,9 @@
 
 // TODO do we want to include the UI headers here?
 // Or would it be better to supply a callback after settings are loaded?
-#include "ui/dropdowns.h"
 #include "ui/edits.h"
 #include "ui/switch.h"
+#include "ui/dropdown.h"
 
 #include "layout/settings.h"
 
@@ -102,10 +102,12 @@ UTOX_SAVE *config_load(void) {
     }
 
     dropdown_dpi.selected = dropdown_dpi.over = save->scale - 5;
-    dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
 
-    switch_ipv6.switch_on               = save->enableipv6;
-    switch_udp.switch_on                = !save->disableudp;
+    switch_ipv6.switch_on        = save->enableipv6;
+    switch_udp.switch_on         = !save->disableudp;
+    switch_proxy.switch_on       = save->proxyenable;
+    switch_proxy_force.switch_on = save->proxyenable;
+
     switch_save_chat_history.switch_on  = save->logging_enabled;
     switch_mini_contacts.switch_on      = save->use_mini_flist;
     switch_auto_startup.switch_on       = save->auto_startup;
@@ -192,7 +194,7 @@ void config_save(UTOX_SAVE *save_in) {
 
     save->save_version                  = UTOX_SAVE_VERSION;
     save->scale                         = ui_scale - 1;
-    save->proxyenable                   = dropdown_proxy.selected;
+    save->proxyenable                   = switch_proxy.switch_on;
     save->logging_enabled               = settings.logging_enabled;
     save->close_to_tray                 = settings.close_to_tray;
     save->start_in_tray                 = settings.start_in_tray;

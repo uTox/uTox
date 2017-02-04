@@ -152,8 +152,6 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
 }
 
 #include "../ui/edits.h"
-#include "../ui/dropdowns.h"
-
 PANEL messages_friend = {
     .type = PANEL_MESSAGES,
     .content_scroll = &scrollbar_friend,
@@ -198,30 +196,30 @@ panel_friend = {
             .child = (PANEL*[]) {
                 (PANEL*)&edit_friend_pubkey,
                 (PANEL*)&edit_friend_alias,
-                (PANEL*)&dropdown_friend_autoaccept_ft,
+                (PANEL*)&switch_friend_autoaccept_ft,
                 (PANEL*)&button_export_chatlog,
                 NULL
             }
         },
-    panel_friend_request = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = draw_friend_request,
-        .child = (PANEL*[]) {
-            (PANEL*)&button_accept_friend,
-            NULL
-        }
-    },
-    panel_add_friend = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = draw_add_friend,
-        .child = (PANEL*[]) {
-            (PANEL*)&button_send_friend_request,
-            (PANEL*)&edit_add_id, (PANEL*)&edit_add_msg,
-            NULL
-        }
-    };
+panel_friend_request = {
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .drawfunc = draw_friend_request,
+    .child = (PANEL*[]) {
+        (PANEL*)&button_accept_friend,
+        NULL
+    }
+},
+panel_add_friend = {
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .drawfunc = draw_add_friend,
+    .child = (PANEL*[]) {
+        (PANEL*)&button_send_friend_request,
+        (PANEL*)&edit_add_id, (PANEL*)&edit_add_msg,
+        NULL
+    }
+};
 
 
 static void button_add_new_contact_on_mup(void) {
@@ -252,6 +250,7 @@ static void button_call_decline_on_mup(void) {
 
 #include "../av/utox_av.h"
 #include "../av/audio.h"
+#include "../ui/button.h"
 static void button_call_decline_update(BUTTON *b) {
     FRIEND *f = flist_get_selected()->data;
     if (UTOX_AVAILABLE_AUDIO(f->number) && !UTOX_SENDING_AUDIO(f->number)) {
@@ -530,3 +529,51 @@ BUTTON button_accept_friend = {
     .update  = button_setcolors_success,
     .on_mup = button_accept_friend_on_mup,
 };
+
+static void switchfxn_autoaccept_ft(void) {
+    if (flist_get_selected()->item == ITEM_FRIEND) {
+        FRIEND *f = flist_get_selected()->data;
+        f->ft_autoaccept = ! f->ft_autoaccept;
+    }
+}
+
+#include "../ui/switch.h"
+
+static void switch_set_colors(UISWITCH *s) {
+    if (s->switch_on) {
+        s->bg_color    = COLOR_BTN_SUCCESS_BKGRND;
+        s->sw_color    = COLOR_BTN_SUCCESS_TEXT;
+        s->press_color = COLOR_BTN_SUCCESS_BKGRND_HOVER;
+        s->hover_color = COLOR_BTN_SUCCESS_BKGRND_HOVER;
+    } else {
+        s->bg_color    = COLOR_BTN_DISABLED_BKGRND;
+        s->sw_color    = COLOR_BTN_DISABLED_FORGRND;
+        s->hover_color = COLOR_BTN_DISABLED_BKGRND_HOVER;
+        s->press_color = COLOR_BTN_DISABLED_BKGRND_HOVER;
+    }
+}
+
+static void switch_set_size(UISWITCH *s) {
+    s->toggle_w   = BM_SWITCH_TOGGLE_WIDTH;
+    s->toggle_h   = BM_SWITCH_TOGGLE_HEIGHT;
+    s->icon_off_w = BM_FB_WIDTH;
+    s->icon_off_h = BM_FB_HEIGHT;
+    s->icon_on_w  = BM_FB_WIDTH;
+    s->icon_on_h  = BM_FB_HEIGHT;
+}
+
+static void switch_update(UISWITCH *s) {
+    switch_set_colors(s);
+    switch_set_size(s);
+}
+
+UISWITCH switch_friend_autoaccept_ft = {
+    .style_outer    = BM_SWITCH,
+    .style_toggle   = BM_SWITCH_TOGGLE,
+    .style_icon_off = BM_NO,
+    .style_icon_on  = BM_YES,
+    .update         = switch_update,
+    .on_mup         = switchfxn_autoaccept_ft,
+    .tooltip_text = {.i18nal = STR_FRIEND_AUTOACCEPT },
+};
+

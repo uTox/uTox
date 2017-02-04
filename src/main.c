@@ -13,7 +13,6 @@
 #include "theme.h"
 #include "updater.h"
 
-#include "ui/dropdowns.h"
 #include "ui/edits.h"
 
 #include <getopt.h>

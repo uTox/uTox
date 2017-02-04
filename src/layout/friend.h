@@ -1,15 +1,13 @@
 #ifndef LAYOUT_FRIEND_H
 #define LAYOUT_FRIEND_H
 
-#include "../ui/button.h"
-#include "../ui/panel.h"
 
+typedef struct scrollable SCROLLABLE;
 extern SCROLLABLE scrollbar_friend;
 
+typedef struct panel PANEL;
 extern PANEL messages_friend;
 
-
-// Local Tree
 extern PANEL panel_friend,
              panel_add_friend,
              panel_friend_chat,
@@ -17,6 +15,8 @@ extern PANEL panel_friend,
              panel_friend_settings,
              panel_friend_request;
 
+
+typedef struct button BUTTON;
 // Top Bar
 extern BUTTON button_call_decline,
               button_call_audio,
@@ -32,6 +32,10 @@ extern BUTTON button_send_friend_request,
 
 // Friend Settings
 extern BUTTON button_export_chatlog;
+
+typedef struct uiswitch UISWITCH;
+extern UISWITCH switch_friend_autoaccept_ft;
+
 
 
 #endif // LAYOUT_FRIEND_H

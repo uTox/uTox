@@ -14,4 +14,7 @@ extern PANEL panel_group,
 typedef struct button BUTTON;
 extern BUTTON button_group_audio;
 
+typedef struct dropdown DROPDOWN;
+extern DROPDOWN dropdown_notify_groupchats;
+
 #endif // LAYOUT_GROUP_H

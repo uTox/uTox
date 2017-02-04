@@ -18,8 +18,10 @@
 #include "av/audio.h"
 #include "av/utox_av.h"
 #include "av/video.h"
-#include "ui/dropdowns.h"
 #include "ui/edits.h"
+
+#include "ui/edit.h"     // TODO can we remove this header?
+#include "ui/dropdown.h"
 
 #include "layout/background.h"
 
@@ -195,6 +197,8 @@ static void write_save(Tox *tox) {
     }
 }
 
+#include "layout/settings.h"
+#include "layout/settings.h"
 void tox_settingschanged(void) {
     // free everything
     tox_connected = 0;
@@ -390,7 +394,7 @@ static int init_toxcore(Tox **tox) {
         // reset proxy options as well as GUI and settings
         topt.proxy_type = TOX_PROXY_TYPE_NONE;
         settings.use_proxy = settings.force_proxy = 0;
-        dropdown_proxy.selected = dropdown_proxy.over = 0;
+        switch_proxy.switch_on = 0;
 
         *tox = tox_new(&topt, &tox_new_err);
 

@@ -12,7 +12,8 @@
 #include "../settings.h"
 
 #include "../av/utox_av.h"
-#include "../ui/dropdowns.h"
+
+#include "../ui/dropdown.h"
 
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>

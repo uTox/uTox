@@ -17,8 +17,6 @@ add_library(utoxUI STATIC
     draw.h
     dropdown.c
     dropdown.h
-    dropdowns.c
-    dropdowns.h
     edit.c
     edit.h
     edits.c

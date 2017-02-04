@@ -19,7 +19,6 @@
 
 #include "../av/utox_av.h"
 #include "../ui/draw.h"
-#include "../ui/dropdowns.h"
 #include "../ui/edit.h"
 
 #include "../layout/friend.h"
@@ -632,6 +631,7 @@ static void cursors_init(void) {
     cursors[CURSOR_ZOOM_OUT] = XCreateFontCursor(display, XC_target);
 }
 
+#include "../ui/dropdown.h" // this is for dropdown.language TODO provide API
 int main(int argc, char *argv[]) {
     bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
