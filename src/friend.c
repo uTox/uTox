@@ -4,7 +4,7 @@
 #include "dns.h"
 #include "filesys.h"
 #include "flist.h"
-#include "logging_native.h"
+#include "debug.h"
 #include "main_native.h"
 #include "self.h"
 #include "settings.h"
@@ -68,13 +68,13 @@ static void friend_meta_data_read(FRIEND *f) {
     FILE *file = native_get_file(path, &size, UTOX_FILE_OPTS_READ);
 
     if (!file) {
-        debug_notice("Meta Data not found (%s)\n", path);
+        LOG_TRACE("Friend", "Meta Data not found %s", path);
         return;
     }
 
     FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);
     if (metadata == NULL) {
-        debug("Metadata:\tCould not allocate memory for metadata.\n");
+        LOG_ERR("Metadata", "Could not allocate memory for metadata." );
         fclose(file);
         return;
     }
@@ -83,13 +83,13 @@ static void friend_meta_data_read(FRIEND *f) {
     fclose(file);
 
     if (metadata->version != 0) {
-        debug_notice("Metadata:\tWARNING! This version of utox does not support this metadata file version.\n");
+        LOG_ERR("Metadata", "WARNING! This version of utox does not support this metadata file version." );
         free(metadata);
         return;
     }
 
     if (size < sizeof(*metadata)) {
-        debug_error("Metadata:\tMeta Data was incomplete\n");
+        LOG_ERR("Metadata", "Meta Data was incomplete");
         free(metadata);
         return;
     }
@@ -214,9 +214,9 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
 
 void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
     if (alias && length > 0) {
-        debug("New Alias set for friend %s\n", f->name);
+        LOG_TRACE("Friend", "New Alias set for friend %s" , f->name);
     } else {
-        debug("Alias for friend %s unset\n", f->name);
+        LOG_TRACE("Friend", "Alias for friend %s unset" , f->name);
     }
 
     free(f->alias);

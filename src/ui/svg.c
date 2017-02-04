@@ -2,12 +2,12 @@
 
 #include "draw.h"
 
+#include "../debug.h"
 #include "../ui.h"
-#include "../logging_native.h"
 #include "../macros.h"
-#include "../main.h"
 
 #include <math.h>
+#include <stdlib.h>
 
 #define SQRT2 1.41421356237309504880168872420969807856967187537694807317667973799
 
@@ -716,7 +716,7 @@ bool svg_draw(bool needmemory) {
         // Not sure if this is a good idea to comment out,
         // but it allows me to remove the dependency on ../native_main.h..
 
-        // debug("SVG:\tSVG data size mismatch...\n");
+        // LOG_TRACE("SVG", "SVG data size mismatch..." );
     }
 
     if (!needmemory) {

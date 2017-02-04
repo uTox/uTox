@@ -8,7 +8,7 @@
 #include "../draw.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../main_native.h"
 #include "../self.h"
@@ -136,7 +136,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
             }
             if (i == COUNTOF(friend)) {
-                debug("this should not happen\n");
+                LOG_ERR(__FILE__, "CreateWindowExW() failed" );
             }
         }
 
@@ -148,7 +148,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_CLOSE:
         case WM_DESTROY: {
             if (settings.close_to_tray) {
-                debug("Closing to tray.\n");
+                LOG_INFO(__FILE__, "Closing to tray." );
                 togglehide(0);
                 return true;
             } else {
@@ -165,7 +165,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         case WM_CREATE: {
-            debug("Windows:\tWM_CREATE\n");
+            LOG_INFO("Windows", "WM_CREATE\n");
             return false;
         }
 
@@ -306,6 +306,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
             } else {
                 messages_char(wParam);
+                redraw(); // TODO maybe if this
                 break;
             }
 

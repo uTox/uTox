@@ -6,7 +6,7 @@
 #include "../ui.h"
 #include "../self.h"
 #include "../avatar.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../theme.h"
 #include "../notify.h"
 
@@ -55,7 +55,7 @@ panel_notify_generic = {
 
 
 static void btn_notify_one_mup(void) {
-    debug_error("Button 1 pressed\n");
+    LOG_ERR("Layout Notify", "Button 1 pressed\n");
 }
 
 BUTTON button_notify_one = {
@@ -66,7 +66,7 @@ BUTTON button_notify_one = {
 };
 
 static void btn_notify_two_mup(void) {
-    debug_error("Button 2 pressed\n");
+    LOG_ERR("Layout Notify", "Button 2 pressed\n");
 }
 
 BUTTON button_notify_two = {
@@ -77,7 +77,7 @@ BUTTON button_notify_two = {
 };
 
 static void btn_notify_three_mup(void) {
-    debug_error("Button 3 pressed\n");
+    LOG_ERR("Layout Notify", "Button 3 pressed\n");
 }
 BUTTON button_notify_three = {
     // .bm  = BM_SBUTTON,

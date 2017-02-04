@@ -2,7 +2,7 @@
 
 #include "window.h"
 
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../main_native.h"
 
 #include <string.h>
@@ -79,7 +79,7 @@ void draw_tray_icon(void) {
 
         free(icon);
     } else {
-        debug_error("Tray no workie, that not gud!\n");
+        LOG_ERR("XLIB TRAY", "Tray no workie, that not gud!");
     }
 }
 

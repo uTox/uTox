@@ -13,7 +13,7 @@
 
 #include "inline_video.h"
 
-#include "logging_native.h"
+#include "debug.h"
 #include "macros.h"
 #include "main_native.h"
 #include "settings.h"
@@ -50,7 +50,7 @@ void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int width, int heigh
         return;
     }
 
-    debug("Inline Video:\tDrawing new frame.\n");
+    LOG_TRACE(__FILE__, "Inline Video:\tDrawing new frame." );
 
     if (current_frame.img && current_frame.size) {
         draw_inline_image(current_frame.img, current_frame.size,

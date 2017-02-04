@@ -1,6 +1,6 @@
 #include "devices.h"
 
-#include "logging_native.h"
+#include "debug.h"
 
 #ifdef ENABLE_MULTIDEVICE
 
@@ -20,7 +20,7 @@ static bool realloc_devices_list(uint16_t new_size) {
     UTOX_DEVICE *tmp = realloc(devices, sizeof(UTOX_DEVICE) * new_size);
 
     if (!tmp) {
-        debug_error("Devices:\tcouldn't realloc for new_size %u\n", new_size);
+        LOG_ERR("Devices", "couldn't realloc for new_size %u" , new_size);
         return 0;
     }
 
@@ -31,7 +31,7 @@ static bool realloc_devices_list(uint16_t new_size) {
 
 void utox_devices_init(void) {
     if (devices) {
-        debug_error("Devices:\tUnable to init base devices, *devices exists\n");
+        LOG_ERR("Devices", "Unable to init base devices, *devices exists");
         exit(1);
     }
 
@@ -39,7 +39,7 @@ void utox_devices_init(void) {
     self.device_list_size = self.device_list_count;
 
     if (devices == NULL) {
-        debug_error("Devices:\tUnable to init base devices, *devices is null\n");
+        LOG_ERR("Devices", "Unable to init base devices, *devices is null");
         exit(2);
     }
 };
@@ -54,13 +54,13 @@ void utox_devices_decon(void) {
 void utox_device_init(Tox *tox, uint16_t dev_num) {
     if (dev_num >= self.device_list_size) {
         if (!realloc_devices_list(dev_num + 1)) {
-            debug_error("Devices:\tERROR, unable to realloc for a new device\n");
+            LOG_ERR("Devices", "ERROR, unable to realloc for a new device");
             return;
         }
     }
 
     if (!devices) {
-        debug_error("Devices:\tdevices is null\n");
+        LOG_ERR("Devices", "devices is null");
         return;
     }
 
@@ -69,7 +69,7 @@ void utox_device_init(Tox *tox, uint16_t dev_num) {
     tox_self_get_device(tox, dev_num, devices[dev_num].name, &devices[dev_num].status, devices[dev_num].pubkey, &error);
 
     if (error) {
-        debug_error("Devices:\tError getting device info dev_num %u error %u\n", dev_num, error);
+        LOG_ERR("Devices", "Error getting device info dev_num %u error %u" , dev_num, error);
     }
 
     cid_to_string(devices[dev_num].pubkey_hex, devices[dev_num].pubkey);
@@ -77,7 +77,7 @@ void utox_device_init(Tox *tox, uint16_t dev_num) {
 
 static void devices_self_add_submit(uint8_t *name, size_t length, uint8_t id[TOX_ADDRESS_SIZE]) {
     if (length >= UINT16_MAX) { /* Max size of postmsg */
-        debug_error("Devices:\tName length > UINT16_MAX\n");
+        LOG_ERR("Devices", "Name length > UINT16_MAX");
         /* TODO send error to GUI */
         return;
     }
@@ -90,7 +90,7 @@ static void devices_self_add_submit(uint8_t *name, size_t length, uint8_t id[TOX
     postmessage_toxcore(TOX_SELF_NEW_DEVICE, length, 0, data);
 }
 
-static void delete_this_device(void) { debug_error("Delete button pressed\n"); }
+static void delete_this_device(void) { LOG_ERR(__FILE__, "Delete button pressed\n"); }
 
 void devices_update_list(void) {}
 
@@ -118,7 +118,7 @@ void devices_update_ui(void) {
         BUTTON *dele = calloc(1, sizeof(BUTTON));
 
         if (!edit) {
-            debug_error("Can't malloc for an extra device\n");
+            LOG_ERR(__FILE__, "Can't malloc for an extra device\n");
             exit(7);
         }
 
@@ -177,7 +177,7 @@ void devices_self_add(uint8_t *device, size_t length) {
         /* TODO, names! */
         devices_self_add_submit((uint8_t *)"Default device name", 19, id);
     } else {
-        debug_error("error trying to add this device\n");
+        LOG_ERR(__FILE__, "error trying to add this device\n");
     }
 }
 

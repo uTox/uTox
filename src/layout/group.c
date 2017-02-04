@@ -2,7 +2,7 @@
 
 #include "../flist.h"
 #include "../groups.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../settings.h"
 #include "../theme.h"
@@ -405,7 +405,7 @@ void e_chat_msg_onenter(EDIT *edit) {
         GROUPCHAT *g = flist_get_selected()->data;
         void *d = malloc(length);
         if (!d) {
-            debug_error("edit_msg_onenter:\t Ran out of memory.\n");
+            LOG_ERR("Layout Group", "edit_msg_onenter:\t Ran out of memory.\n");
             return;
         }
         memcpy(d, text, length);

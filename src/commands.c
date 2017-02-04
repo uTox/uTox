@@ -1,10 +1,10 @@
 #include "commands.h"
 
 #include "command_funcs.h"
+#include "debug.h"
 #include "flist.h"
-#include "logging_native.h"
-#include "main_native.h"
 #include "main.h" // tox_thread_init
+#include "main_native.h"
 
 struct Command commands[MAX_NUM_CMDS] = {
     { "alias",    5, slash_alias     },
@@ -24,7 +24,7 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
     uint16_t cmd_length = 0, argument_length = 0;
 
     if (string[0] == '/') { /* Cool it's a command we support! */
-        // debug("command found!\n");
+        // LOG_TRACE(__FILE__, "command found!" );
         uint16_t i;
         for (i = 0; i < string_length; ++i) {
             if (string[i] == ' ') {
@@ -47,7 +47,7 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
             *cmd = string + 1;
         }
     } else {
-        // debug("No command found\n"); /* Sad, we don't support this command. */
+        // LOG_TRACE(__FILE__, "No command found" ); /* Sad, we don't support this command. */
         *argument = string;
         cmd       = NULL;
         return 0;
@@ -73,7 +73,7 @@ bool g_select_add_friend_later = 0;
 #include "layout/friend.h" // TODO, don't do this!
 #include "ui/edit.h"
 void do_tox_url(uint8_t *url_string, int len) {
-    debug("Command: %.*s\n", len, url_string);
+    LOG_TRACE(__FILE__, "Command: %.*s" , len, url_string);
 
     //! lacks max length checks, writes to inputs even on failure, no notice of failure
     // doesnt reset unset inputs

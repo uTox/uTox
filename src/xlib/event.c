@@ -4,7 +4,7 @@
 #include "../draw.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../main_native.h"
 #include "../notify.h"
@@ -68,7 +68,7 @@ static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
 
     XDefineCursor(display, window->window, cursors[cursor]);
 
-    debug("MotionEvent: (%u %u) %u\n", event->x, event->y, event->state);
+    LOG_WARN("XLIB", "MotionEvent: (%u %u) %u\n", event->x, event->y, event->state);
 }
 
 static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
@@ -114,7 +114,7 @@ static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
         }
     }
 
-    debug("ButtonEvent: %u %u\n", event->state, event->button);
+    LOG_WARN("XLIB", "ButtonEvent: %u %u\n", event->state, event->button);
 }
 
 static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
@@ -185,7 +185,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
             break;
         }
     }
-    debug("ButtonEvent: %u %u\n", event->state, event->button);
+    LOG_WARN("XLIB", "ButtonEvent: %u %u\n", event->state, event->button);
 }
 
 
@@ -193,7 +193,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
 static bool popup_event(XEvent event, UTOX_WINDOW *win) {
     switch (event.type) {
         case Expose: {
-            debug("Main window expose\n");
+            LOG_WARN("XLIB", "Main window expose\n");
             native_window_set_target(win);
             panel_draw(win->_.panel , 0, 0, win->_.w, win->_.h);
             XCopyArea(display, win->drawbuf, win->window, win->gc, 0, 0, win->_.w, win->_.h, 0, 0);
@@ -235,7 +235,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
             break;
         }
         default: {
-            debug("other event: %u\n", event.type);
+            LOG_WARN("XLIB", "other event: %u\n", event.type);
             break;
         }
 
@@ -497,7 +497,9 @@ bool doevent(XEvent event) {
                 break;
             }
 
-            messages_char(sym);
+            if (messages_char(sym)) {
+                redraw();
+            }
 
             if (ev->state & 4) {
                 if (sym == 'c' || sym == 'C') {
@@ -517,7 +519,7 @@ bool doevent(XEvent event) {
 
         case SelectionNotify: {
 
-            debug("SelectionNotify\n");
+            LOG_TRACE(__FILE__, "SelectionNotify" );
 
             XSelectionEvent *ev = &event.xselection;
 
@@ -537,8 +539,8 @@ bool doevent(XEvent event) {
                 break;
             }
 
-            debug("Type: %s\n", XGetAtomName(display, type));
-            debug("Property: %s\n", XGetAtomName(display, ev->property));
+            LOG_TRACE(__FILE__, "Type: %s" , XGetAtomName(display, type));
+            LOG_TRACE(__FILE__, "Property: %s" , XGetAtomName(display, ev->property));
 
             if (ev->property == XA_ATOM) {
                 pastebestformat((Atom *)data, len, ev->selection);
@@ -600,7 +602,7 @@ bool doevent(XEvent event) {
         case PropertyNotify: {
             XPropertyEvent *ev = &event.xproperty;
             if (ev->state == PropertyNewValue && ev->atom == targets && pastebuf.data) {
-                debug("Property changed: %s\n", XGetAtomName(display, ev->atom));
+                LOG_TRACE(__FILE__, "Property changed: %s" , XGetAtomName(display, ev->atom));
 
                 Atom              type;
                 int               format;
@@ -611,7 +613,7 @@ bool doevent(XEvent event) {
                                    &bytes_left, (unsigned char **)&data);
 
                 if (len == 0) {
-                    debug("Got 0 length data, pasting\n");
+                    LOG_TRACE(__FILE__, "Got 0 length data, pasting" );
                     pastedata(pastebuf.data, type, pastebuf.len, False);
                     pastebuf.data = NULL;
                     break;
@@ -643,7 +645,7 @@ bool doevent(XEvent event) {
             if (ev->message_type == wm_protocols) {
                 if ((Atom)event.xclient.data.l[0] == wm_delete_window) {
                     if (settings.close_to_tray) {
-                        debug("Closing to tray.\n");
+                        LOG_TRACE(__FILE__, "Closing to tray." );
                         togglehide();
                     } else {
                         return false;
@@ -653,7 +655,7 @@ bool doevent(XEvent event) {
             }
 
             if (ev->message_type == XdndEnter) {
-                debug("enter\n");
+                LOG_TRACE(__FILE__, "enter" );
             } else if (ev->message_type == XdndPosition) {
                 Window src         = ev->data.l[0];
                 XEvent reply_event = {.xclient = {.type         = ClientMessage,
@@ -664,16 +666,16 @@ bool doevent(XEvent event) {
                                                   .data = {.l = { main_window.window, 1, 0, 0, XdndActionCopy } } } };
 
                 XSendEvent(display, src, 0, 0, &reply_event);
-                // debug("position (version=%u)\n", ev->data.l[1] >> 24);
+                // LOG_TRACE(__FILE__, "position (version=%u)" , ev->data.l[1] >> 24);
             } else if (ev->message_type == XdndStatus) {
-                debug("status\n");
+                LOG_TRACE(__FILE__, "status" );
             } else if (ev->message_type == XdndDrop) {
                 XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, main_window.window, CurrentTime);
-                debug("drop\n");
+                LOG_WARN("XLIB", "drop\n");
             } else if (ev->message_type == XdndLeave) {
-                debug("leave\n");
+                LOG_TRACE(__FILE__, "leave" );
             } else {
-                debug("dragshit\n");
+                LOG_TRACE(__FILE__, "dragshit" );
             }
             break;
         }

@@ -2,7 +2,7 @@
 
 #include "../flist.h"
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../main.h" // stbi
 #include "../tox.h"
 
@@ -19,7 +19,7 @@ static bool desktopgrab_video = false;
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        debug_error("create_utox_image:\t Could not allocate memory for image.\n");
+        LOG_ERR("NATIVE Screengrab", "create_utox_image:\t Could not allocate memory for image.\n");
         return NULL;
     }
     image->bitmap        = bmp;
@@ -130,21 +130,23 @@ static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LP
                 DestroyWindow(window);
                 postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 1, 0, NULL);
             } else {
-                FRIEND *f = flist_get_selected()->data;
-                if (flist_get_selected()->item == ITEM_FRIEND && f->online) {
-                    DestroyWindow(window);
-                    HWND dwnd = GetDesktopWindow();
-                    HDC  ddc  = GetDC(dwnd);
-                    HDC  mem  = CreateCompatibleDC(ddc);
+                if (flist_get_selected()->item == ITEM_FRIEND) {
+                    FRIEND *f = flist_get_selected()->data;
+                    if (f->online) {
+                        DestroyWindow(window);
+                        HWND dwnd = GetDesktopWindow();
+                        HDC  ddc  = GetDC(dwnd);
+                        HDC  mem  = CreateCompatibleDC(ddc);
 
-                    HBITMAP capture = CreateCompatibleBitmap(ddc, video_grab_w, video_grab_h);
-                    SelectObject(mem, capture);
+                        HBITMAP capture = CreateCompatibleBitmap(ddc, video_grab_w, video_grab_h);
+                        SelectObject(mem, capture);
 
-                    BitBlt(mem, 0, 0, video_grab_w, video_grab_h, ddc, video_grab_x, video_grab_y, SRCCOPY | CAPTUREBLT);
-                    sendbitmap(mem, capture, video_grab_w, video_grab_h);
+                        BitBlt(mem, 0, 0, video_grab_w, video_grab_h, ddc, video_grab_x, video_grab_y, SRCCOPY | CAPTUREBLT);
+                        sendbitmap(mem, capture, video_grab_w, video_grab_h);
 
-                    ReleaseDC(dwnd, ddc);
-                    DeleteDC(mem);
+                        ReleaseDC(dwnd, ddc);
+                        DeleteDC(mem);
+                    }
                 }
             }
             return false;
@@ -178,11 +180,13 @@ void native_screen_grab_desktop(bool video) {
     w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
+    LOG_TRACE(__FILE__, "result: %i %i %i %i" , x, y, w, h);
+
     grab_window = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_LAYERED, L"uToxgrab", L"Tox", WS_POPUP,
                                  x, y, w, h,
                                  NULL, NULL, grab_instance, NULL);
     if (!grab_window) {
-        debug_error("CreateWindowExW() failed\n");
+        LOG_TRACE(__FILE__, "CreateWindowExW() failed" );
         return;
     }
 

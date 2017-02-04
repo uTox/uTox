@@ -1,11 +1,11 @@
 #include "main.h"
 
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../main.h"
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     if (!video_hwnd[id]) {
-        debug_error("frame for null window\n");
+        LOG_TRACE(__FILE__, "frame for null window");
         return;
     }
 
@@ -37,7 +37,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
                       } };
 
 
-    RECT r = { 0 };
+    RECT r = { 0, 0, 0, 0 };
     GetClientRect(video_hwnd[id], &r);
 
     HDC dc = GetDC(video_hwnd[id]);

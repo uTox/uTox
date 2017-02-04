@@ -2,7 +2,7 @@
 
 #include "../commands.h"
 #include "../filesys.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../main.h"
 #include "../main_native.h"
 #include "../theme.h"
@@ -34,49 +34,6 @@ struct thread_call {
 
 // TODO move these function to a logging.m file to provide implementation for what is declared in logging.h
 void debug(const char *fmt, ...) {
-    if (utox_verbosity() < VERBOSITY_DEBUG) {
-        return;
-    }
-    va_list l;
-    va_start(l, fmt);
-    NSLogv(@(fmt), l);
-    va_end(l);
-}
-
-void debug_info(const char *fmt, ...) {
-    if (utox_verbosity() < VERBOSITY_INFO) {
-        return;
-    }
-    va_list l;
-    va_start(l, fmt);
-    NSLogv(@(fmt), l);
-    va_end(l);
-}
-
-void debug_notice(const char *fmt, ...) {
-    if (utox_verbosity() < VERBOSITY_NOTICE) {
-        return;
-    }
-    va_list l;
-    va_start(l, fmt);
-    NSLogv(@(fmt), l);
-    va_end(l);
-}
-
-void debug_warning(const char *fmt, ...) {
-    if (utox_verbosity() < VERBOSITY_WARNING) {
-        return;
-    }
-    va_list l;
-    va_start(l, fmt);
-    NSLogv(@(fmt), l);
-    va_end(l);
-}
-
-void debug_error(const char *fmt, ...) {
-    if (utox_verbosity() < VERBOSITY_ERROR) {
-        return;
-    }
     va_list l;
     va_start(l, fmt);
     NSLogv(@(fmt), l);
@@ -263,7 +220,7 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     }
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        LOG_TRACE("NATIVE", "File/directory name too long, unable to remove" );
         return 0;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
@@ -271,11 +228,11 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     }
 
     if (remove((const char *)path)) {
-        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        LOG_ERR("NATIVE", "Unable to delete file!\n\t\t%s" , path);
         return 0;
     } else {
-        debug_info("NATIVE:\tFile deleted!\n");
-        debug("NATIVE:\t\t%s\n", path);
+        LOG_INFO("NATIVE", "File deleted!" );
+        LOG_TRACE("NATIVE", "\t%s" , path);
     }
     return 1;
 }
@@ -529,7 +486,7 @@ void launch_at_startup(int should) {
         yieldcpu(1);
     }
 
-    debug("clean exit\n");
+    LOG_TRACE(__FILE__, "clean exit" );
 }
 
 - (void)soilWindowContents {
@@ -591,15 +548,15 @@ int main(int argc, char const *argv[]) {
                &set_show_window);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        debug("Start on boot not supported on this OS!\n");
+        LOG_TRACE(__FILE__, "Start on boot not supported on this OS!" );
     }
 
     if (set_show_window == 1 || set_show_window == -1) {
-        debug("Showing/hiding windows not supported on this OS!\n");
+        LOG_TRACE(__FILE__, "Showing/hiding windows not supported on this OS!" );
     }
 
     if (skip_updater == true) {
-        debug("Disabling the updater is not supported on this OS. Updates are managed by the app store.\n");
+        LOG_TRACE(__FILE__, "Disabling the updater is not supported on this OS. Updates are managed by the app store." );
     }
 
     setlocale(LC_ALL, "");

@@ -1,7 +1,7 @@
 #include "notify.h"
 
 #include "main.h"
-#include "logging_native.h"
+#include "debug.h"
 
 #include "draw.h"
 #include "ui.h"
@@ -12,7 +12,7 @@
 static uint16_t notification_number = 0;
 
 UTOX_WINDOW *notify_new(NOTIFY_TYPE type) {
-    debug_notice("Notify:\tCreating Notification #%u\n", notification_number);
+    LOG_NOTE("Notifier", "Notify:\tCreating Notification #%u\n", notification_number);
 
     const int notify_w = 400;
     const int notify_h = 150;

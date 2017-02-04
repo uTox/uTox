@@ -9,7 +9,7 @@
 #include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../logging_native.h"
+#include "../debug.h"
 #include "../macros.h"
 #include "../main.h"
 #include "../main_native.h"
@@ -58,7 +58,7 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
 void openfilesend(void) {
     char *filepath = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (filepath == NULL) {
-        debug_error("Windows:\t Could not allocate memory for path.\n");
+        LOG_ERR("Windows", " Could not allocate memory for path.");
         return;
     }
 
@@ -77,7 +77,7 @@ void openfilesend(void) {
         FRIEND *f = flist_get_selected()->data;
         UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
         if (!msg) {
-            debug_error("Windows:\tUnable to calloc for file send msg\n");
+            LOG_ERR("Windows", "Unable to calloc for file send msg");
             return;
         }
         msg->file = fopen(filepath, "rb");
@@ -85,7 +85,7 @@ void openfilesend(void) {
 
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
     } else {
-        debug_error("GetOpenFileName() failed\n");
+        LOG_ERR(__FILE__, "GetOpenFileName() failed\n");
     }
     SetCurrentDirectoryW(dir);
 }
@@ -137,7 +137,7 @@ void openfileavatar(void) {
                 break;
             }
         } else {
-            debug("GetOpenFileName() failed when trying to grab an avatar.\n");
+            LOG_TRACE(__FILE__, "GetOpenFileName() failed when trying to grab an avatar." );
             break;
         }
     }
@@ -149,7 +149,7 @@ void openfileavatar(void) {
 void file_save_inline(MSG_HEADER *msg) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
-        debug_error("file_save_inline:\tCould not allocate memory for path.\n");
+        LOG_ERR("file_save_inline", "Could not allocate memory for path.");
         return;
     }
     snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)msg->via.ft.name_length, (char *)msg->via.ft.name);
@@ -173,10 +173,10 @@ void file_save_inline(MSG_HEADER *msg) {
             snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", path);
             msg->via.ft.inline_png = false;
         } else {
-            debug_error("file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
+            LOG_ERR(__FILE__, "file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
         }
     } else {
-        debug_error("GetSaveFileName() failed\n");
+        LOG_ERR(__FILE__, "GetSaveFileName() failed\n");
     }
     free(path);
 }
@@ -211,15 +211,15 @@ void init_ptt(void) {
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
-        // debug("PTT is disabled\n");
+        // LOG_TRACE(__FILE__, "PTT is disabled" );
         return true; /* If push to talk is disabled, return true. */
     }
 
     if (GetAsyncKeyState(VK_LCONTROL)) {
-        // debug("PTT key is down\n");
+        // LOG_TRACE(__FILE__, "PTT key is down" );
         return true;
     } else {
-        // debug("PTT key is up\n");
+        // LOG_TRACE(__FILE__, "PTT key is up" );
         return false;
     }
 }
@@ -279,7 +279,7 @@ void copy(int value) {
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        debug("create_utox_image:\t Could not allocate memory for image.\n");
+        LOG_TRACE("create_utox_image", " Could not allocate memory for image." );
         return NULL;
     }
     image->bitmap        = bmp;
@@ -529,7 +529,7 @@ void update_tray(void) {
 
     tip = malloc(128 * sizeof(char)); // 128 is the max length of nid.szTip
     if (tip == NULL) {
-        debug("update_trip:\t Could not allocate memory.\n");
+        LOG_TRACE("update_trip", " Could not allocate memory." );
         return;
     }
 
@@ -788,7 +788,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     argv = CommandLineToArgvA(GetCommandLineA(), &argc);
 
     if (NULL == argv) {
-        debug("CommandLineToArgvA failed\n");
+        LOG_TRACE(__FILE__, "CommandLineToArgvA failed" );
         return true;
     }
 
@@ -819,7 +819,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     if (!skip_updater) {
-        debug_error("don't skip updater\n");
+        LOG_ERR(__FILE__, "don't skip updater\n");
         if (auto_update(cmd)) {
             CloseHandle(utox_mutex);
             return 0;
@@ -827,9 +827,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     #ifdef __WIN_LEGACY
-        debug("Legacy windows build\n");
+        LOG_TRACE(__FILE__, "Legacy windows build" );
     #else
-        debug("Normal windows build\n");
+        LOG_TRACE(__FILE__, "Normal windows build" );
     #endif
 
     // Free memory allocated by CommandLineToArgvA
@@ -948,7 +948,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     };
     config_save(&d);
 
-    debug_info("uTox:\tClean exit.\n");
+    LOG_INFO("uTox", "Clean exit." );
 
     return false;
 }

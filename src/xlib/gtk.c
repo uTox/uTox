@@ -1,11 +1,11 @@
 #include "gtk.h"
 
 #include "../chatlog.h"
+#include "../debug.h"
 #include "../file_transfers.h"
 #include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../logging_native.h"
 #include "../macros.h"
 #include "../main_native.h"
 #include "../text.h"
@@ -130,7 +130,7 @@ static void ugtk_opensendthread(void *args) {
         while (p) {
             UTOX_MSG_FT *send = calloc(1, sizeof(UTOX_MSG_FT));
             if (!send) {
-                debug_error("GTK:\tUnabled to malloc for to send an FT msg");
+                LOG_ERR(__FILE__, "GTK:\tUnabled to malloc for to send an FT msg");
                 while(p) {
                     utoxGTK_free(p->data);
                     p = p->next;
@@ -139,7 +139,7 @@ static void ugtk_opensendthread(void *args) {
                 utoxGTK_open = false;
                 return;
             }
-            debug_info("GTK:\tSending file %s\n", p->data);
+            LOG_INFO("GTK", "Sending file %s" , p->data);
             send->file = fopen(p->data, "rb");
             send->name = (uint8_t*)strdup(p->data);
             postmessage_toxcore(TOX_FILE_SEND_NEW, fid, 0, send);
@@ -233,14 +233,14 @@ static void ugtk_savethread(void *args) {
             char *path = strdup(name);
             // utoxGTK_free(name)
 
-            debug("name: %s\npath: %s\n", name, path);
+            LOG_TRACE(__FILE__, "name: %s\npath: %s" , name, path);
 
             /* can we really write this file? */
             FILE *fp = fopen(path, "w");
             if (fp == NULL) {
                 /* No, we can't display error, jump to top. */
                 if (errno == EACCES) {
-                    debug("File write permission denied.\n");
+                    LOG_TRACE(__FILE__, "File write permission denied." );
                     void *errordialog = utoxGTK_message_dialog_new(dialog, 1, 3, 2,
                                                                    // parent, destroy_with_parent,
                                                                    // utoxGTK_error_message, utoxGTK_buttons_close
@@ -250,7 +250,7 @@ static void ugtk_savethread(void *args) {
                     utoxGTK_widget_destroy(dialog);
                     continue;
                 } else {
-                    debug("Unknown file write error...\n");
+                    LOG_TRACE(__FILE__, "Unknown file write error..." );
                 }
             } else {
                 fclose(fp);
@@ -262,7 +262,7 @@ static void ugtk_savethread(void *args) {
                 break;
             }
         } else if (result == GTK_RESPONSE_CANCEL) {
-            debug("Aborting in progress file...\n");
+            LOG_TRACE(__FILE__, "Aborting in progress file..." );
         }
         /* catch all */
         utoxGTK_widget_destroy(dialog);
@@ -389,7 +389,7 @@ void ugtk_save_chatlog(uint32_t friend_number) {
     do {                                                               \
         utoxGTK_##name = dlsym(lib, #trgt "_" #name);                  \
         if (!utoxGTK_##name) {                                         \
-            debug_error("Unable to load " #name " (%s)\n", dlerror()); \
+            LOG_ERR(__FILE__, "Unable to load " #name " (%s)\n", dlerror()); \
             dlclose(lib);                                              \
             return NULL;                                               \
         }                                                              \
@@ -399,7 +399,7 @@ void ugtk_save_chatlog(uint32_t friend_number) {
     do {                                                               \
         utoxGDK_##name = dlsym(lib, "gdk_" #name);                     \
         if (!utoxGDK_##name) {                                         \
-            debug_error("Unable to load " #name " (%s)\n", dlerror()); \
+            LOG_ERR(__FILE__, "Unable to load " #name " (%s)\n", dlerror()); \
             dlclose(lib);                                              \
             return NULL;                                               \
         }                                                              \
@@ -410,7 +410,7 @@ void *ugtk_load(void) {
     // return NULL;
     void *lib = dlopen(LIBGTK_FILENAME, RTLD_LAZY);
     if (lib) {
-        debug("have GTK\n");
+        LOG_TRACE(__FILE__, "have GTK" );
 
         U_DLLOAD(gtk, init);
         U_DLLOAD(gtk, main_iteration);

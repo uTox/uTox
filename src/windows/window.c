@@ -5,7 +5,7 @@
 #include "events.h"
 
 #include "../branding.h"
-#include "../logging_native.h"
+#include "../debug.h"
 
 #include <windows.h>
 
@@ -105,7 +105,7 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel
     if (!popup) {
         popup = calloc(1, sizeof(UTOX_WINDOW)); // FIXME leaks
         if (!popup) {
-            debug_error("NativeWindow:\tUnable to alloc to create window container\n");
+            LOG_ERR("Windows Wind", "NativeWindow:\tUnable to alloc to create window container");
             return NULL;
         }
     }

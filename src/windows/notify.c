@@ -4,7 +4,7 @@
 #include "window.h"
 
 #include "../draw.h"
-#include "../logging_native.h"
+#include "../debug.h"
 
 #include "../ui.h"
 // #include "../ui/layout_notify.h"
@@ -48,7 +48,7 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_CREATE: {
-            debug_error("NOTIFY::\tCreate\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tCreate\n");
             if (win) {
                 win->window_DC = GetDC(window);
                 win->draw_DC   = CreateCompatibleDC(win->window_DC);
@@ -59,7 +59,7 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_SIZE: {
-            debug_error("NOTIFY::\tSize\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tSize\n");
             int w, h;
 
             w = GET_X_LPARAM(lParam);
@@ -83,13 +83,13 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_ERASEBKGND: {
-            debug_error("NOTIFY::\tBGND\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tBGND\n");
             redraw_notify(win);
             return true;
         }
 
         case WM_PAINT: {
-            debug_error("NOTIFY::\tPAINT\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tPAINT\n");
             PAINTSTRUCT ps;
 
             BeginPaint(window, &ps);

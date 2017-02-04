@@ -1,9 +1,9 @@
 #include "settings.h"
 
-#include "main_native.h"
-#include "logging_native.h"
+#include "debug.h"
 #include "flist.h"
 #include "groups.h"
+#include "main_native.h"
 
 // TODO do we want to include the UI headers here?
 // Or would it be better to supply a callback after settings are loaded?
@@ -60,7 +60,7 @@ SETTINGS settings = {
     .status_notifications   = true,
     .group_notifications    = GNOTIFY_ALWAYS,
 
-    .verbose = 1,
+    .verbose = LOG_LVL_ERROR,
 
     // .theme                       // included here to match the full struct
     // OS interface settings
@@ -77,7 +77,7 @@ UTOX_SAVE *config_load(void) {
     save = utox_data_load_utox();
 
     if (!save) {
-        debug_notice("unable to load utox_save data\n");
+        LOG_ERR("Settings", "unable to load utox_save data");
         /* Create and set defaults */
         save              = calloc(1, sizeof(UTOX_SAVE));
         save->enableipv6  = 1;
@@ -225,7 +225,7 @@ void config_save(UTOX_SAVE *save_in) {
 
     memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */
 
-    debug_notice("uTox:\tWriting uTox Save\n");
+    LOG_NOTE("uTox", "Writing uTox Save" );
     utox_data_save_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
     free(save);
 }
