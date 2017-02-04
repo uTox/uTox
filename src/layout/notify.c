@@ -16,6 +16,8 @@
 
 #include "../main.h" // tox_thread_init
 
+bool btn_move_window_down;
+
 static void draw_notification(int x, int y, int w, int h) {
     if (!tox_thread_init) {
         return;

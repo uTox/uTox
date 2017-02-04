@@ -15,7 +15,7 @@ extern BUTTON button_notify_one,
 
 
 // TODO, no good capin'
-bool btn_move_window_down;
+extern bool btn_move_window_down;
 
 
 #endif // LAYOUT_NOTIFY_H

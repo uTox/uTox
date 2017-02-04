@@ -818,8 +818,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         launch_at_startup(0);
     }
 
-
-    debug_error("skip updater\n");
     if (!skip_updater) {
         debug_error("don't skip updater\n");
         if (auto_update(cmd)) {

@@ -19,14 +19,16 @@
 
 #include "../av/utox_av.h"
 #include "../ui/dropdown.h"
-#include "../ui/edits.h"
+#include "../ui/edit.h"
 #include "../ui/svg.h"
 
 #include "../layout/background.h"
+#include "../layout/notify.h"
+#include "../layout/settings.h"
 
 #include <windowsx.h>
 
-// #include "../main.h" // redraw
+#include "../main.h" // main_width
 
 static bool flashing;
 static bool hidden;
@@ -40,7 +42,7 @@ static TRACKMOUSEEVENT tme = {
 
 static bool mouse_tracked = false;
 
-bool  havefocus;
+bool havefocus;
 
 /** Toggles the main window to/from hidden to tray/shown. */
 static void togglehide(int show) {
@@ -91,12 +93,11 @@ static void ShowContextMenu(void) {
 static void move_window(int x, int y){
     debug("delta x == %i\n", x);
     debug("delta y == %i\n", y);
-    SetWindowPos(main_window.window, 0, settings.window_x + x, settings.window_y + y, 0, 0,
+    SetWindowPos(main_window.window, 0, main_window._.x + x, main_window._.y + y, 0, 0,
                           SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
-    settings.window_x += x;
-    settings.window_y += y;
+    main_window._.x += x;
+    main_window._.y += y;
 }
-
 
 
 #define setstatus(x)                                         \
