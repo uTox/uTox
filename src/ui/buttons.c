@@ -456,6 +456,15 @@ static void button_show_nospam_on_mup(void) {
     panel_nospam_settings.disabled = !panel_nospam_settings.disabled;
 }
 
+static void button_confirm_deletion_on_mup(void) {
+    flist_delete_rmouse_item();
+}
+
+static void button_deny_deletion_on_mup(void) {
+    panel_friend_confirm_deletion.disabled = true;
+    panel_friend_chat.disabled             = false;
+}
+
 BUTTON button_avatar = {
     .nodraw = true, .on_mup = button_avatar_on_mup, .onright = button_avatar_onright,
 };
@@ -652,6 +661,22 @@ BUTTON button_show_nospam = {
     .tooltip_text = {.i18nal = STR_SHOW_NOSPAM},
     .button_text  = {.i18nal = STR_SHOW_NOSPAM},
     .on_mup       = button_show_nospam_on_mup,
+};
+
+BUTTON button_confirm_deletion = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_danger,
+    .tooltip_text = {.i18nal = STR_DELETE},
+    .button_text  = {.i18nal = STR_DELETE},
+    .on_mup       = button_confirm_deletion_on_mup,
+};
+
+BUTTON button_deny_deletion = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_KEEP},
+    .button_text  = {.i18nal = STR_KEEP},
+    .on_mup       = button_deny_deletion_on_mup,
 };
 
 extern SCROLLABLE scrollbar_settings;

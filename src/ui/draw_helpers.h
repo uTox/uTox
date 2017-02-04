@@ -51,6 +51,8 @@ void draw_settings_text_adv(int x, int y, int w, int hight);
 
 void draw_friend_settings(int x, int y, int width, int height);
 
+void draw_friend_deletion(int x, int y, int w, int height);
+
 void draw_group_settings(int x, int y, int width, int height);
 
 void draw_background(int x, int y, int width, int height);
