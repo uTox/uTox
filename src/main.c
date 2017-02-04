@@ -13,8 +13,6 @@
 #include "theme.h"
 #include "updater.h"
 
-#include "ui/edits.h"
-
 #include <getopt.h>
 
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions

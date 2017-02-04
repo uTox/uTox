@@ -13,7 +13,6 @@
 #include "utox.h"
 
 #include "av/audio.h"
-#include "ui/edits.h"
 #include "ui/scrollable.h"
 
 #include "main.h" // addfriend_status
@@ -172,6 +171,8 @@ void utox_friend_list_init(Tox *tox) {
     }
 }
 
+#include "layout/friend.h" // TODO, remove this and sent the name differently
+#include "ui/edit.h"
 void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     if (f->name && f->name_length) {
         size_t size = sizeof(" is now known as ") + f->name_length + length;

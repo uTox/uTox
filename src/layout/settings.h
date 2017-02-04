@@ -72,4 +72,17 @@ extern DROPDOWN /* Profile */
                 /* Notifications */
                 dropdown_global_group_notifications;
 
+typedef struct edit EDIT;
+extern EDIT /* Profile */
+            edit_name,
+            edit_status_msg,
+            edit_toxid,
+            /* Advanced */
+            edit_proxy_ip,
+            edit_proxy_port,
+            edit_profile_password,
+            edit_nospam,
+            /* MDevice */
+            edit_add_new_device_to_self;
+
 #endif // LAYOUT_SETTINGS_H

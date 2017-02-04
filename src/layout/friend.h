@@ -24,7 +24,7 @@ extern BUTTON button_call_decline,
 // Bottom Bar
 extern BUTTON button_send_file,
               button_send_screenshot,
-              button_chat_send;
+              button_chat_send_friend;
 
 // Friend Requests
 extern BUTTON button_send_friend_request,
@@ -37,5 +37,12 @@ typedef struct uiswitch UISWITCH;
 extern UISWITCH switch_friend_autoaccept_ft;
 
 
+typedef struct edit EDIT;
+extern EDIT edit_add_new_friend_id,
+            edit_add_new_friend_msg,
+
+            edit_chat_msg_friend,
+            edit_friend_pubkey,
+            edit_friend_alias;
 
 #endif // LAYOUT_FRIEND_H

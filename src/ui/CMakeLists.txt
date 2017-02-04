@@ -19,8 +19,6 @@ add_library(utoxUI STATIC
     dropdown.h
     edit.c
     edit.h
-    edits.c
-    edits.h
     scrollable.c
     scrollable.h
     svg.c

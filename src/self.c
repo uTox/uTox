@@ -5,13 +5,14 @@
 #include "logging_native.h"
 
 #include "ui/edit.h"
+#include "layout/settings.h"
 
 #include <stdio.h>
 
 void init_self(Tox *tox) {
     /* Set local info for self */
     edit_setstr(&edit_name, self.name, self.name_length);
-    edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
+    edit_setstr(&edit_status_msg, self.statusmsg, self.statusmsg_length);
 
     /* Get tox id, and gets the hex version for utox */
     tox_self_get_address(tox, self.id_binary);

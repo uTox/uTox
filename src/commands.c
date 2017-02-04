@@ -6,8 +6,6 @@
 #include "main_native.h"
 #include "main.h" // tox_thread_init
 
-#include "ui/edits.h"
-
 struct Command commands[MAX_NUM_CMDS] = {
     { "alias",    5, slash_alias     },
     { "invite",   6, slash_invite    },
@@ -72,6 +70,8 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
 
 bool g_select_add_friend_later = 0;
 
+#include "layout/friend.h" // TODO, don't do this!
+#include "ui/edit.h"
 void do_tox_url(uint8_t *url_string, int len) {
     debug("Command: %.*s\n", len, url_string);
 
@@ -87,8 +87,8 @@ void do_tox_url(uint8_t *url_string, int len) {
     }
 
     // wtf??
-    uint8_t * b = (uint8_t *)edit_add_id.data, *a = url_string, *end = url_string + len;
-    uint16_t *l = &edit_add_id.length;
+    uint8_t  *b = (uint8_t *)edit_add_new_friend_id.data, *a = url_string, *end = url_string + len;
+    uint16_t *l = &edit_add_new_friend_id.length;
     *l          = 0;
     while (a != end) {
         switch (*a) {
@@ -113,8 +113,8 @@ void do_tox_url(uint8_t *url_string, int len) {
             case '&': {
                 a++;
                 if (end - a >= 8 && memcmp(a, "message=", 8) == 0) {
-                    b  = (uint8_t *)edit_add_msg.data;
-                    l  = &edit_add_msg.length;
+                    b  = (uint8_t *)edit_add_new_friend_msg.data;
+                    l  = &edit_add_new_friend_msg.length;
                     *l = 0;
                     a += 7;
                 } else {

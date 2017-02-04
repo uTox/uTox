@@ -17,7 +17,8 @@
 #include "ui/contextmenu.h"
 #include "ui/draw.h"
 #include "ui/dropdown.h"
-#include "ui/edits.h"
+#include "ui/edit.h"
+#include "ui/button.h"
 #include "ui/scrollable.h"
 #include "ui/svg.h"
 #include "ui/switch.h"
@@ -347,15 +348,15 @@ static void page_close(ITEM *i) {
             current_width = f->msg.width;
 
             free(f->typed);
-            f->typed_length = edit_msg.length;
-            f->typed        = calloc(1, edit_msg.length);
-            memcpy(f->typed, edit_msg.data, edit_msg.length);
+            f->typed_length = edit_chat_msg_friend.length;
+            f->typed        = calloc(1, edit_chat_msg_friend.length);
+            memcpy(f->typed, edit_chat_msg_friend.data, edit_chat_msg_friend.length);
 
             f->msg.scroll = messages_friend.content_scroll->d;
 
-            f->edit_history        = edit_msg.history;
-            f->edit_history_cur    = edit_msg.history_cur;
-            f->edit_history_length = edit_msg.history_length;
+            f->edit_history        = edit_chat_msg_friend.history;
+            f->edit_history_cur    = edit_chat_msg_friend.history_cur;
+            f->edit_history_length = edit_chat_msg_friend.history_length;
 
             panel_chat.disabled            = 1;
             panel_friend.disabled          = 1;
@@ -378,15 +379,15 @@ static void page_close(ITEM *i) {
             current_width = g->msg.width;
 
             free(g->typed);
-            g->typed_length = edit_msg_group.length;
-            g->typed        = calloc(1, edit_msg_group.length);
-            memcpy(g->typed, edit_msg_group.data, edit_msg_group.length);
+            g->typed_length = edit_chat_msg_group.length;
+            g->typed        = calloc(1, edit_chat_msg_group.length);
+            memcpy(g->typed, edit_chat_msg_group.data, edit_chat_msg_group.length);
 
             g->msg.scroll = messages_group.content_scroll->d;
 
-            g->edit_history        = edit_msg_group.history;
-            g->edit_history_cur    = edit_msg_group.history_cur;
-            g->edit_history_length = edit_msg_group.history_length;
+            g->edit_history        = edit_chat_msg_group.history;
+            g->edit_history_cur    = edit_chat_msg_group.history_cur;
+            g->edit_history_length = edit_chat_msg_group.history_length;
 
             panel_chat.disabled  = 1;
             panel_group.disabled = 1;
@@ -433,14 +434,14 @@ static void page_open(ITEM *i) {
         case ITEM_FRIEND: {
             FRIEND *f = i->data;
 
-#ifdef UNITY
+            #ifdef UNITY
             if (unity_running) {
                 mm_rm_entry(f->cid);
             }
-#endif
+            #endif
 
-            memcpy(edit_msg.data, f->typed, f->typed_length);
-            edit_msg.length = f->typed_length;
+            memcpy(edit_chat_msg_friend.data, f->typed, f->typed_length);
+            edit_chat_msg_friend.length = f->typed_length;
 
             f->msg.width  = current_width;
             f->msg.id     = f - friend;
@@ -458,10 +459,10 @@ static void page_open(ITEM *i) {
             scrollbar_friend.content_height   = f->msg.height;
             messages_friend.content_scroll->d = f->msg.scroll;
 
-            edit_msg.history        = f->edit_history;
-            edit_msg.history_cur    = f->edit_history_cur;
-            edit_msg.history_length = f->edit_history_length;
-            edit_setfocus(&edit_msg);
+            edit_chat_msg_friend.history        = f->edit_history;
+            edit_chat_msg_friend.history_cur    = f->edit_history_cur;
+            edit_chat_msg_friend.history_length = f->edit_history_length;
+            edit_setfocus(&edit_chat_msg_friend);
 
             panel_chat.disabled            = 0;
             panel_friend.disabled          = 0;
@@ -474,8 +475,8 @@ static void page_open(ITEM *i) {
         case ITEM_GROUP: {
             GROUPCHAT *g = i->data;
 
-            memcpy(edit_msg_group.data, g->typed, g->typed_length);
-            edit_msg_group.length = g->typed_length;
+            memcpy(edit_chat_msg_group.data, g->typed, g->typed_length);
+            edit_chat_msg_group.length = g->typed_length;
 
             g->msg.width  = current_width;
             g->msg.id     = g - group;
@@ -492,11 +493,11 @@ static void page_open(ITEM *i) {
 
             messages_group.content_scroll->content_height = g->msg.height;
             messages_group.content_scroll->d              = g->msg.scroll;
-            edit_setfocus(&edit_msg_group);
+            edit_setfocus(&edit_chat_msg_group);
 
-            edit_msg_group.history        = g->edit_history;
-            edit_msg_group.history_cur    = g->edit_history_cur;
-            edit_msg_group.history_length = g->edit_history_length;
+            edit_chat_msg_group.history        = g->edit_history;
+            edit_chat_msg_group.history_cur    = g->edit_history_cur;
+            edit_chat_msg_group.history_length = g->edit_history_length;
 
             panel_chat.disabled           = 0;
             panel_group.disabled          = 0;
@@ -519,7 +520,7 @@ static void page_open(ITEM *i) {
             button_add_new_contact.disabled = 1;
             panel_overhead.disabled         = 0;
             panel_add_friend.disabled       = 0;
-            edit_setfocus(&edit_add_id);
+            edit_setfocus(&edit_add_new_friend_id);
             break;
         }
 
@@ -998,7 +999,7 @@ static void contextmenu_list_onselect(uint8_t i) {
                     char str[g->name_length + 7];
                     strcpy(str, "/topic ");
                     memcpy(str + 7, g->name, g->name_length);
-                    edit_setfocus(&edit_msg_group);
+                    edit_setfocus(&edit_chat_msg_group);
                     edit_paste((char *)str, sizeof(str), 0);
                 } else if (i == 2 && g->av_group) {
                     g->muted = !g->muted;

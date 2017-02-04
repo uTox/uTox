@@ -1,6 +1,7 @@
 #include "sidebar.h"
 
 #include "settings.h"
+#include "friend.h"
 
 #include "../avatar.h"
 #include "../flist.h"
@@ -12,6 +13,8 @@
 #include "../ui.h"
 #include "../ui/draw.h"
 #include "../ui/scrollable.h"
+#include "../ui/edit.h"
+#include "../ui/button.h"
 #include "../ui/svg.h"
 
 #include "../main.h" // tox_thread global
@@ -79,7 +82,6 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
     }
 }
 
-#include "../ui/edits.h"
 /* Left side bar, holds the user, the roster, and the setting buttons */
 PANEL panel_side_bar = {
     .type = PANEL_NONE,
@@ -130,5 +132,62 @@ PANEL panel_side_bar = {
             .type           = PANEL_LIST,
             .content_scroll = &scrollbar_flist,
         };
+
+
+#include "../friend.h"
+static void e_search_onchange(EDIT *edit) {
+    char *data = edit->data;
+    uint16_t length = edit->length;
+
+    if (length) {
+        button_add_new_contact.panel.disabled = 0;
+        button_add_new_contact.nodraw         = 0;
+        button_settings.panel.disabled        = 1;
+        button_settings.nodraw                = 1;
+        memcpy(search_data, data, length);
+        search_data[length] = 0;
+        flist_search((char *)search_data);
+    } else {
+        button_add_new_contact.panel.disabled = 1;
+        button_add_new_contact.nodraw         = 1;
+        button_settings.panel.disabled        = 0;
+        button_settings.nodraw                = 0;
+        flist_search(NULL);
+    }
+
+    redraw();
+    return;
+}
+
+static void e_search_onenter(EDIT *edit) {
+    char *   data   = edit->data;
+    uint16_t length = edit->length;
+
+    if (length == 76) {
+        friend_add(data, length, (char *)"", 0);
+        edit_setstr(&edit_search, (char *)"", 0);
+    } else {
+        if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
+            /* Only change if we're logged in! */
+            edit_setstr(&edit_add_new_friend_id, data, length);
+            edit_setstr(&edit_search, (char *)"", 0);
+            flist_selectaddfriend();
+            edit_setfocus(&edit_add_new_friend_msg);
+        }
+    }
+    return;
+}
+
+static char e_search_data[1024];
+EDIT edit_search = {
+    .maxlength = sizeof e_search_data,
+    .data      = e_search_data,
+    .onchange  = e_search_onchange,
+    .onenter   = e_search_onenter,
+    .style     = AUXILIARY_STYLE,
+    .vcentered = true,
+    .empty_str = { .i18nal = STR_CONTACT_SEARCH_ADD_HINT },
+};
+
 
 

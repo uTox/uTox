@@ -7,7 +7,7 @@
 
 // TODO do we want to include the UI headers here?
 // Or would it be better to supply a callback after settings are loaded?
-#include "ui/edits.h"
+#include "ui/edit.h"
 #include "ui/switch.h"
 #include "ui/dropdown.h"
 

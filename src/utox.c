@@ -82,6 +82,7 @@ static void call_notify(FRIEND *f, uint8_t status) {
     friend_notify_msg(f, str->str, str->length);
 }
 
+#include "layout/friend.h"
 void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param2, void *data) {
     switch (utox_msg_id) {
         /* General core and networking messages */
@@ -105,7 +106,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
              * data: resolved tox id (if successful)
              */
             if (param1) {
-                friend_addid(data, edit_add_msg.data, edit_add_msg.length);
+                friend_addid(data, edit_add_new_friend_msg.data, edit_add_new_friend_msg.length);
             } else {
                 addfriend_status = ADDF_BADNAME;
             }
@@ -396,8 +397,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 addfriend_status = param2;
             } else {
                 /* friend was added */
-                edit_add_id.length  = 0;
-                edit_add_msg.length = 0;
+                edit_add_new_friend_id.length  = 0;
+                edit_add_new_friend_msg.length = 0;
 
                 FRIEND *f = &friend[param2];
                 memcpy(f->cid, data, sizeof(f->cid));

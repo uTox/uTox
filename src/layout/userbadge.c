@@ -61,7 +61,7 @@ static void button_statusmsg_on_mup(void) {
         panel_settings_av.disabled              = true;
         panel_settings_adv.disabled             = true;
         panel_settings_notifications.disabled   = true;
-        edit_setfocus(&edit_status);
+        edit_setfocus(&edit_status_msg);
     }
 }
 

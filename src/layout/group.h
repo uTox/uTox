@@ -12,9 +12,14 @@ extern PANEL panel_group,
                 messages_group;
 
 typedef struct button BUTTON;
-extern BUTTON button_group_audio;
+extern BUTTON button_group_audio,
+              button_chat_send_group;
 
 typedef struct dropdown DROPDOWN;
 extern DROPDOWN dropdown_notify_groupchats;
+
+typedef struct edit EDIT;
+extern EDIT edit_chat_msg_group,
+            edit_group_topic;
 
 #endif // LAYOUT_GROUP_H

@@ -9,6 +9,9 @@
 #include "../ui/svg.h"
 #include "../ui/scrollable.h"
 #include "../ui/button.h"
+#include "../ui/switch.h"
+#include "../ui/edit.h"
+#include "../ui/dropdown.h"
 
 #include <stdio.h>
 
@@ -246,7 +249,6 @@ SCROLLABLE scrollbar_settings = {
     .color = C_SCROLL,
 };
 
-#include "../ui/edits.h"
 /* Draw the text for profile password window */
 static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
@@ -258,166 +260,161 @@ static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), i
     drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
 }
 
-PANEL panel_profile_password = {
-            .type = PANEL_NONE,
-            .disabled = 0,
-            .drawfunc = draw_profile_password,
-            .child = (PANEL*[]) {
-                (PANEL*)&edit_profile_password,
-                NULL
-            }
-        };
+PANEL
+panel_profile_password = {
+    .type = PANEL_NONE,
+    .disabled = 0,
+    .drawfunc = draw_profile_password,
+    .child = (PANEL*[]) {
+        (PANEL*)&edit_profile_password,
+        NULL
+    }
+},
+panel_nospam_settings = {
+    .type = PANEL_NONE,
+    .disabled = true,
+    .drawfunc = draw_nospam_settings,
+    .content_scroll = &scrollbar_settings,
+    .child = (PANEL*[]) {
+        (PANEL*)&edit_nospam,
+        (PANEL*)&button_change_nospam,
+        (PANEL*)&button_revert_nospam,
+        NULL
+     }
+},
+panel_profile_password_settings = {
+    .type     = PANEL_NONE,
+    .disabled = 1,
+    .drawfunc = draw_settings_text_password,
+    .child = (PANEL*[]) {
+        (PANEL*)&edit_profile_password,
+        (PANEL*)&button_lock_uTox,
+        NULL
+    }
+},
+panel_settings_master = {
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .drawfunc = draw_settings_header,
+    .child = (PANEL*[]) {
+        &panel_settings_subheader,
+        NULL
+    }
+},
+    panel_settings_subheader = {
+        .type = PANEL_NONE,
+        .disabled = 0,
+        .drawfunc = draw_settings_sub_header,
+        .child = (PANEL*[]) {
+            (PANEL*)&button_settings_sub_profile,
+            (PANEL*)&button_settings_sub_devices,
+            (PANEL*)&button_settings_sub_ui,
+            (PANEL*)&button_settings_sub_av,
+            (PANEL*)&button_settings_sub_notifications,
+            (PANEL*)&button_settings_sub_adv,
+            (PANEL*)&scrollbar_settings,
+            &panel_settings_profile,
+            &panel_settings_devices,
+            &panel_settings_ui,
+            &panel_settings_av,
+            &panel_settings_notifications,
+            &panel_settings_adv,
+            NULL
+        }
+    },
+    /* Panel to draw settings page */
+    panel_settings_profile = {
+        .type = PANEL_NONE,
+        .disabled = 0,
+        .drawfunc = draw_settings_text_profile,
+        .content_scroll = &scrollbar_settings,
+        .child = (PANEL*[]) {
+            (PANEL*)&edit_name,
+            (PANEL*)&edit_status_msg,
+            // Text: Tox ID
+            (PANEL*)&edit_toxid,
+            (PANEL*)&button_copyid,
+            (PANEL*)&dropdown_language,
+            NULL
+        }
+    },
+    /* Panel to draw settings page */
+    panel_settings_devices = {
+        .type = PANEL_NONE,
+        .disabled = 1,
+        .drawfunc = draw_settings_text_devices,
+        .content_scroll = &scrollbar_settings,
+        .child = NULL,
+    },
+    panel_settings_ui = {
+        .type = PANEL_NONE,
+        .drawfunc = draw_settings_text_ui,
+        .disabled = 1,
+        .content_scroll = &scrollbar_settings,
+        .child = (PANEL*[]) {
+            (PANEL*)&dropdown_dpi,
+            (PANEL*)&dropdown_theme,
+            (PANEL*)&switch_save_chat_history,
+            (PANEL*)&switch_close_to_tray,
+            (PANEL*)&switch_start_in_tray,
+            (PANEL*)&switch_auto_startup,
+            (PANEL*)&switch_mini_contacts,
+            NULL
+        }
+    },
+    panel_settings_av = {
+        .type = PANEL_NONE,
+        .disabled = 1,
+        .drawfunc = draw_settings_text_av,
+        .content_scroll = &scrollbar_settings,
+        .child = (PANEL*[]) {
+            (PANEL*)&button_callpreview,
+            (PANEL*)&switch_push_to_talk,
+            (PANEL*)&button_videopreview,
+            (PANEL*)&dropdown_audio_in,
+            (PANEL*)&dropdown_audio_out,
+            (PANEL*)&dropdown_video,
+            (PANEL*)&switch_audio_filtering,
+            NULL
+        }
+    },
 
-PANEL   panel_nospam_settings = {
-            .type = PANEL_NONE,
-            .disabled = true,
-            .drawfunc = draw_nospam_settings,
-            .content_scroll = &scrollbar_settings,
-            .child = (PANEL*[]) {
-                (PANEL*)&edit_nospam,
-                (PANEL*)&button_change_nospam,
-                (PANEL*)&button_revert_nospam,
-                NULL
-             }
-        },
-        panel_profile_password_settings = {
-            .type     = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_settings_text_password,
-            .child = (PANEL*[]) {
-                (PANEL*)&edit_profile_password,
-                (PANEL*)&button_lock_uTox,
-                NULL
-            }
-        };
+    panel_settings_notifications = {
+        .type = PANEL_NONE,
+        .disabled = true,
+        .drawfunc = draw_settings_text_notifications,
+        .content_scroll = &scrollbar_settings,
+        .child = (PANEL*[]) {
+            (PANEL*)&dropdown_global_group_notifications,
+            (PANEL*)&switch_status_notifications,
+            (PANEL*)&switch_typing_notes,
+            (PANEL*)&switch_audible_notifications,
+            NULL
+        }
+    },
 
-PANEL   panel_settings_master = {
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_settings_header,
-            .child = (PANEL*[]) {
-                &panel_settings_subheader,
-                NULL
-            }
-        },
-            panel_settings_subheader = {
-                .type = PANEL_NONE,
-                .disabled = 0,
-                .drawfunc = draw_settings_sub_header,
-                .child = (PANEL*[]) {
-                    (PANEL*)&button_settings_sub_profile,
-                    (PANEL*)&button_settings_sub_devices,
-                    (PANEL*)&button_settings_sub_ui,
-                    (PANEL*)&button_settings_sub_av,
-                    (PANEL*)&button_settings_sub_notifications,
-                    (PANEL*)&button_settings_sub_adv,
-                    (PANEL*)&scrollbar_settings,
-                    &panel_settings_profile,
-                    &panel_settings_devices,
-                    &panel_settings_ui,
-                    &panel_settings_av,
-                    &panel_settings_notifications,
-                    &panel_settings_adv,
-                    NULL
-                }
-            },
+    panel_settings_adv = {
+        .type = PANEL_NONE,
+        .disabled = true,
+        .drawfunc = draw_settings_text_adv,
+        .content_scroll = &scrollbar_settings,
+        .child = (PANEL*[]) {
+            (PANEL*)&edit_proxy_ip,
+            (PANEL*)&edit_proxy_port,
+            (PANEL*)&switch_proxy,
+            (PANEL*)&switch_proxy_force,
+            (PANEL*)&switch_ipv6,
+            (PANEL*)&switch_udp,
+            (PANEL*)&switch_auto_update,
+            (PANEL*)&button_show_password_settings,
+            &panel_profile_password_settings,
 
-            /* Panel to draw settings page */
-            panel_settings_profile = {
-                .type = PANEL_NONE,
-                .disabled = 0,
-                .drawfunc = draw_settings_text_profile,
-                .content_scroll = &scrollbar_settings,
-                .child = (PANEL*[]) {
-                    (PANEL*)&edit_name,
-                    (PANEL*)&edit_status,
-                    // Text: Tox ID
-                    (PANEL*)&edit_toxid,
-                    (PANEL*)&button_copyid,
-                    (PANEL*)&dropdown_language,
-                    NULL
-                }
-            },
-
-            /* Panel to draw settings page */
-            panel_settings_devices = {
-                .type = PANEL_NONE,
-                .disabled = 1,
-                .drawfunc = draw_settings_text_devices,
-                .content_scroll = &scrollbar_settings,
-                .child = NULL,
-            },
-
-            panel_settings_ui = {
-                .type = PANEL_NONE,
-                .drawfunc = draw_settings_text_ui,
-                .disabled = 1,
-                .content_scroll = &scrollbar_settings,
-                .child = (PANEL*[]) {
-                    (PANEL*)&dropdown_dpi,
-                    (PANEL*)&dropdown_theme,
-                    (PANEL*)&switch_save_chat_history,
-                    (PANEL*)&switch_close_to_tray,
-                    (PANEL*)&switch_start_in_tray,
-                    (PANEL*)&switch_auto_startup,
-                    (PANEL*)&switch_mini_contacts,
-                    NULL
-                }
-            },
-
-            panel_settings_av = {
-                .type = PANEL_NONE,
-                .disabled = 1,
-                .drawfunc = draw_settings_text_av,
-                .content_scroll = &scrollbar_settings,
-                .child = (PANEL*[]) {
-                    (PANEL*)&button_callpreview,
-                    (PANEL*)&switch_push_to_talk,
-                    (PANEL*)&button_videopreview,
-                    (PANEL*)&dropdown_audio_in,
-                    (PANEL*)&dropdown_audio_out,
-                    (PANEL*)&dropdown_video,
-                    (PANEL*)&switch_audio_filtering,
-                    NULL
-                }
-            },
-
-            panel_settings_notifications = {
-                .type = PANEL_NONE,
-                .disabled = true,
-                .drawfunc = draw_settings_text_notifications,
-                .content_scroll = &scrollbar_settings,
-                .child = (PANEL*[]) {
-                    (PANEL*)&dropdown_global_group_notifications,
-                    (PANEL*)&switch_status_notifications,
-                    (PANEL*)&switch_typing_notes,
-                    (PANEL*)&switch_audible_notifications,
-                    NULL
-                }
-            },
-
-            panel_settings_adv = {
-                .type = PANEL_NONE,
-                .disabled = true,
-                .drawfunc = draw_settings_text_adv,
-                .content_scroll = &scrollbar_settings,
-                .child = (PANEL*[]) {
-                    (PANEL*)&edit_proxy_ip,
-                    (PANEL*)&edit_proxy_port,
-                    (PANEL*)&switch_proxy,
-                    (PANEL*)&switch_proxy_force,
-                    (PANEL*)&switch_ipv6,
-                    (PANEL*)&switch_udp,
-                    (PANEL*)&switch_auto_update,
-                    (PANEL*)&button_show_password_settings,
-                    &panel_profile_password_settings,
-
-                    (PANEL*)&switch_block_friend_requests,
-                    (PANEL*)&button_show_nospam,
-                    &panel_nospam_settings,
-                    NULL,
-                }
-            };
+            (PANEL*)&switch_block_friend_requests,
+            (PANEL*)&button_show_nospam,
+            &panel_nospam_settings,
+            NULL,
+        }
+    };
 
 
 extern SCROLLABLE scrollbar_settings;
@@ -507,48 +504,48 @@ static void button_add_device_to_self_mdown(void) {
 }
 
 BUTTON
-    button_settings_sub_profile = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_profile_on_mup,
-        .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
-    },
+button_settings_sub_profile = {
+    .nodraw = true,
+    .on_mup = button_settings_sub_profile_on_mup,
+    .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
+},
 
-    button_settings_sub_devices = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_devices_on_mup,
-        .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
-    },
+button_settings_sub_devices = {
+    .nodraw = true,
+    .on_mup = button_settings_sub_devices_on_mup,
+    .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
+},
 
-    button_settings_sub_ui = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_ui_on_mup,
-        .tooltip_text = {.i18nal = STR_USERSETTINGS },
-    },
+button_settings_sub_ui = {
+    .nodraw = true,
+    .on_mup = button_settings_sub_ui_on_mup,
+    .tooltip_text = {.i18nal = STR_USERSETTINGS },
+},
 
-    button_settings_sub_av = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_av_on_mup,
-        .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
-    },
+button_settings_sub_av = {
+    .nodraw = true,
+    .on_mup = button_settings_sub_av_on_mup,
+    .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
+},
 
-    button_settings_sub_adv = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_adv_on_mup,
-        .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
-    },
+button_settings_sub_adv = {
+    .nodraw = true,
+    .on_mup = button_settings_sub_adv_on_mup,
+    .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
+},
 
-    button_settings_sub_notifications = {
-        .nodraw = true,
-        .on_mup = button_settings_sub_notifications_on_mup,
-        .tooltip_text = {.i18nal = STR_NOTIFICATIONS_BUTTON },
-    },
+button_settings_sub_notifications = {
+    .nodraw = true,
+    .on_mup = button_settings_sub_notifications_on_mup,
+    .tooltip_text = {.i18nal = STR_NOTIFICATIONS_BUTTON },
+},
 
-    button_add_new_device_to_self = {
-        .bm          = BM_SBUTTON,
-        .button_text = {.i18nal = STR_ADD },
-        // .update  = button_setcolors_success,
-        .on_mup = button_add_device_to_self_mdown,
-    };
+button_add_new_device_to_self = {
+    .bm          = BM_SBUTTON,
+    .button_text = {.i18nal = STR_ADD },
+    // .update  = button_setcolors_success,
+    .on_mup = button_add_device_to_self_mdown,
+};
 
 #include "../tox.h"
 static void button_lock_uTox_on_mup(void) {
@@ -714,8 +711,6 @@ BUTTON button_show_nospam = {
     .button_text  = {.i18nal = STR_SHOW_NOSPAM},
     .on_mup       = button_show_nospam_on_mup,
 };
-
-#include "../ui/switch.h"
 
 static void switch_set_colors(UISWITCH *s) {
     if (s->switch_on) {
@@ -980,7 +975,6 @@ UISWITCH switch_proxy_force = {
     .tooltip_text   = {.i18nal = STR_PROXY_FORCE },
 };
 
-#include "../ui/dropdown.h"
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
     DROP_ELEMENT *e      = &((DROP_ELEMENT *)dm->userdata)[i];
     void *        handle = e->handle;
@@ -1097,3 +1091,135 @@ DROPDOWN dropdown_global_group_notifications = {
     .dropcount = COUNTOF(notifydrops),
     .userdata  = notifydrops
 };
+
+static char edit_name_data[128],
+            edit_status_msg_data[128],
+            edit_proxy_ip_data[256],
+            edit_proxy_port_data[8],
+            edit_profile_password_data[65535]
+#ifdef ENABLE_MULTIDEVICE
+static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4]
+#endif
+;
+
+static void edit_name_onenter(EDIT *edit) {
+    char *   data   = edit->data;
+    uint16_t length = edit->length;
+
+    memcpy(self.name, data, length);
+    self.name_length = length;
+    update_tray();
+
+    postmessage_toxcore(TOX_SELF_SET_NAME, length, 0, self.name); //!
+}
+
+EDIT edit_name = {
+    .maxlength = 128,
+    .data = edit_name_data,
+    .onenter = edit_name_onenter,
+    .onlosefocus = edit_name_onenter,
+};
+
+static void edit_status_msg_onenter(EDIT *edit) {
+    char *   data   = edit->data;
+    uint16_t length = edit->length;
+
+    if (length) {
+        length = (length <= TOX_MAX_STATUS_MESSAGE_LENGTH) ? length : TOX_MAX_STATUS_MESSAGE_LENGTH;
+        memcpy(self.statusmsg, data, length);
+        self.statusmsg_length = length;
+    } else {
+        self.statusmsg_length = length;
+    }
+
+    update_tray();
+
+    postmessage_toxcore(TOX_SELF_SET_STATUS, length, 0, self.statusmsg); //!
+}
+
+EDIT edit_status_msg = {
+    .maxlength = 128,
+    .data = edit_status_msg_data,
+    .onenter = edit_status_msg_onenter,
+    .onlosefocus = edit_status_msg_onenter,
+};
+
+
+static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
+    edit_proxy_port.data[edit_proxy_port.length] = 0;
+
+    settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
+
+    if (memcmp(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length) == 0 && proxy_address[edit_proxy_ip.length] == 0) {
+        return;
+    }
+
+    memset(proxy_address, 0, 256); /* Magic number from toxcore */
+    memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
+    proxy_address[edit_proxy_ip.length] = 0;
+
+
+    if (settings.use_proxy) {
+        tox_settingschanged();
+    }
+}
+
+EDIT edit_proxy_ip = {
+    .maxlength   = sizeof(edit_proxy_ip_data) - 1,
+    .data        = edit_proxy_ip_data,
+    .onlosefocus = edit_proxy_ip_port_onlosefocus,
+    .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_IP },
+    /* TODO .ontab = change to proxy port field */
+};
+
+EDIT edit_proxy_port = {
+    .maxlength   = sizeof(edit_proxy_port_data) - 1,
+    .data        = edit_proxy_port_data,
+    .onlosefocus = edit_proxy_ip_port_onlosefocus,
+    .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_PORT },
+};
+
+static void edit_profile_password_update(EDIT *UNUSED(edit)) {
+    if (tox_thread_init) {
+        postmessage_toxcore(TOX_SAVE, 0, 0, NULL);
+    }
+}
+
+EDIT edit_profile_password = {
+    .maxlength = sizeof(edit_profile_password) - 1,
+    .data      = edit_profile_password_data,
+    // .onchange    = edit_profile_password_update,
+    .onlosefocus = edit_profile_password_update,
+    .password    = 1,
+};
+
+EDIT edit_toxid = {
+    .length = TOX_ADDRESS_SIZE * 2,
+    .data = self.id_str,
+    .readonly = 1,
+    .noborder = 0,
+    .select_completely = 1,
+};
+
+EDIT edit_nospam = {
+    .length            = sizeof(uint32_t) * 2,
+    .data              = self.nospam_str,
+    .readonly          = true,
+    .noborder          = false,
+    .select_completely = true,
+};
+
+
+static char edit_add_new_device_to_self_data[TOX_ADDRESS_SIZE * 4];
+static void edit_add_new_device_to_self_onenter(EDIT *UNUSED(edit)) {
+#ifdef ENABLE_MULTIDEVICE
+    devices_self_add(edit_add_new_device_to_self.data, edit_add_new_device_to_self.length);
+#endif
+}
+
+EDIT edit_add_new_device_to_self = {
+    .maxlength = sizeof(edit_add_new_device_to_self_data),
+    .data      = edit_add_new_device_to_self_data,
+    .onenter   = edit_add_new_device_to_self_onenter,
+};
+

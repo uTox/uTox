@@ -18,12 +18,12 @@
 #include "av/audio.h"
 #include "av/utox_av.h"
 #include "av/video.h"
-#include "ui/edits.h"
 
 #include "ui/edit.h"     // TODO can we remove this header?
 #include "ui/dropdown.h"
 
 #include "layout/background.h"
+#include "layout/settings.h"
 
 #include <stdint.h>
 #include <stdlib.h>

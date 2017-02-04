@@ -1,5 +1,8 @@
 #include "friend.h"
 
+#include "settings.h"
+#include "sidebar.h"
+
 #include "../friend.h"
 #include "../flist.h"
 #include "../theme.h"
@@ -7,10 +10,11 @@
 #include "../macros.h"
 #include "../logging_native.h"
 
-#include "../ui/svg.h"
 #include "../ui/draw.h"
-#include "../ui/text.h"
+#include "../ui/edit.h"
 #include "../ui/scrollable.h"
+#include "../ui/svg.h"
+#include "../ui/text.h"
 
 #include "../main.h" // add friend status // TODO this is stupid wrong
 #include "../dns.h"
@@ -20,7 +24,6 @@ SCROLLABLE scrollbar_friend = {
     .panel = { .type = PANEL_SCROLLABLE, },
     .color = C_SCROLL,
 };
-
 
 /* Header for friend chat window */
 static void draw_friend(int x, int y, int w, int height) {
@@ -151,7 +154,6 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
     }
 }
 
-#include "../ui/edits.h"
 PANEL messages_friend = {
     .type = PANEL_MESSAGES,
     .content_scroll = &scrollbar_friend,
@@ -175,10 +177,14 @@ panel_friend = {
             .drawfunc = draw_friend,
             .child = (PANEL*[]) {
                 (PANEL*)&scrollbar_friend,
-                (PANEL*)&edit_msg, // this needs to be one of the first, to get events before the others
+                (PANEL*)&edit_chat_msg_friend, // this needs to be one of the first, to get events before the others
                 (PANEL*)&messages_friend,
-                (PANEL*)&button_call_decline, (PANEL*)&button_call_audio, (PANEL*)&button_call_video,
-                (PANEL*)&button_send_file, (PANEL*)&button_send_screenshot, (PANEL*)&button_chat_send,
+                (PANEL*)&button_call_decline,
+                (PANEL*)&button_call_audio,
+                (PANEL*)&button_call_video,
+                (PANEL*)&button_send_file,
+                (PANEL*)&button_send_screenshot,
+                (PANEL*)&button_chat_send_friend,
                 NULL
             }
         },
@@ -216,25 +222,25 @@ panel_add_friend = {
     .drawfunc = draw_add_friend,
     .child = (PANEL*[]) {
         (PANEL*)&button_send_friend_request,
-        (PANEL*)&edit_add_id, (PANEL*)&edit_add_msg,
+        (PANEL*)&edit_add_new_friend_id,
+        (PANEL*)&edit_add_new_friend_msg,
         NULL
     }
 };
 
-
 static void button_add_new_contact_on_mup(void) {
     if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         /* Only change if we're logged in! */
-        edit_setstr(&edit_add_id, (char *)edit_search.data, edit_search.length);
+        edit_setstr(&edit_add_new_friend_id, (char *)edit_search.data, edit_search.length);
         edit_setstr(&edit_search, (char *)"", 0);
         flist_selectaddfriend();
-        edit_setfocus(&edit_add_msg);
+        edit_setfocus(&edit_add_new_friend_msg);
     }
 }
 
 
 static void button_send_friend_request_on_mup(void) {
-    friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
+    friend_add(edit_add_new_friend_id.data, edit_add_new_friend_id.length, edit_add_new_friend_msg.data, edit_add_new_friend_msg.length);
     edit_resetfocus();
 }
 
@@ -479,50 +485,6 @@ BUTTON button_send_screenshot = {
     .tooltip_text = {.i18nal = STR_SENDSCREENSHOT },
 };
 
-
-/* Button to send chat message */
-static void button_chat_send_on_mup(void) {
-    if (flist_get_selected()->item == ITEM_FRIEND) {
-        FRIEND *f = flist_get_selected()->data;
-        if (f->online) {
-            // TODO clear the chat bar with a /slash command
-            edit_msg_onenter(&edit_msg);
-            // reset focus to the chat window on send to prevent segfault. May break on android.
-            edit_setfocus(&edit_msg);
-        }
-    } else {
-        edit_msg_onenter(&edit_msg_group);
-        // reset focus to the chat window on send to prevent segfault. May break on android.
-        edit_setfocus(&edit_msg_group);
-    }
-}
-
-static void button_chat_send_update(BUTTON *b) {
-    if (flist_get_selected()->item == ITEM_FRIEND) {
-        FRIEND *f = flist_get_selected()->data;
-        if (f->online) {
-            b->disabled = false;
-            button_setcolors_success(b);
-        } else {
-            b->disabled = true;
-            button_setcolors_disabled(b);
-        }
-    } else {
-        b->disabled = false;
-        button_setcolors_success(b);
-    }
-}
-
-BUTTON button_chat_send = {
-    .bm           = BM_CHAT_SEND,
-    .bm2          = BM_CHAT_SEND_OVERLAY,
-    .bw           = _BM_CHAT_SEND_OVERLAY_WIDTH,
-    .bh           = _BM_CHAT_SEND_OVERLAY_HEIGHT,
-    .on_mup      = button_chat_send_on_mup,
-    .update       = button_chat_send_update,
-    .tooltip_text = {.i18nal = STR_SENDMESSAGE },
-};
-
 BUTTON button_accept_friend = {
     .bm          = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
@@ -577,3 +539,175 @@ UISWITCH switch_friend_autoaccept_ft = {
     .tooltip_text = {.i18nal = STR_FRIEND_AUTOACCEPT },
 };
 
+
+static void edit_add_new_contact(EDIT *UNUSED(edit)) {
+    friend_add(edit_add_new_friend_id.data, edit_add_new_friend_id.length, edit_add_new_friend_msg.data, edit_add_new_friend_msg.length);
+}
+
+static char e_friend_pubkey_str[TOX_PUBLIC_KEY_SIZE * 2];
+EDIT edit_friend_pubkey = {
+    .length            = sizeof e_friend_pubkey_str,
+    .maxlength         = sizeof e_friend_pubkey_str,
+    .data              = e_friend_pubkey_str,
+    .readonly          = true,
+    .noborder          = false,
+    .select_completely = true,
+};
+
+
+static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
+    FRIEND *f = flist_get_selected()->data;
+
+    friend_set_alias(f, (uint8_t *)edit_friend_alias.data, edit_friend_alias.length);
+
+    utox_write_metadata(f);
+}
+
+static char e_friend_alias_str[128];
+EDIT edit_friend_alias = {
+    .maxlength   = sizeof e_friend_alias_str,
+    .data        = e_friend_alias_str,
+    .onenter     = edit_friend_alias_onenter,
+    .onlosefocus = edit_friend_alias_onenter,
+    .empty_str   = {.plain = STRING_INIT("") }, // set dynamically to the friend's name
+};
+
+
+
+static char e_add_new_friend_id_data[TOX_ADDRESS_SIZE * 4];
+EDIT edit_add_new_friend_id = {
+    .maxlength = sizeof e_add_new_friend_id_data,
+    .data      = e_add_new_friend_id_data,
+    .onenter   = edit_add_new_contact,
+};
+
+SCROLLABLE e_add_new_friend_msg_scroll = {
+    .panel = { .type = PANEL_SCROLLABLE, },
+    .d     = 1.0,
+    .color = C_SCROLL,
+};
+
+static char e_add_new_friend_msg_data[1024];
+EDIT edit_add_new_friend_msg = {
+    .multiline = 1,
+    .scroll    = &e_add_new_friend_msg_scroll,
+    .data      = e_add_new_friend_msg_data,
+    .maxlength = sizeof e_add_new_friend_msg_data,
+    .empty_str = {.i18nal = STR_DEFAULT_FRIEND_REQUEST_MESSAGE },
+};
+
+#include "../commands.h"
+static void e_chat_msg_onenter(EDIT *edit) {
+    char *   text   = edit->data;
+    uint16_t length = edit->length;
+
+    if (length <= 0) {
+        return;
+    }
+
+    uint16_t command_length = 0; //, argument_length = 0;
+    char *   command = NULL, *argument = NULL;
+
+    command_length = utox_run_command(text, length, &command, &argument, 1);
+
+    // TODO: Magic number
+    if (command_length == UINT16_MAX) {
+        edit->length = 0;
+        return;
+    }
+
+    // debug("cmd %u\n", command_length);
+
+    bool action = false;
+    if (command_length) {
+        length = length - command_length - 2; /* first / and then the SPACE */
+        text   = argument;
+        if ((command_length == 2) && (!memcmp(command, "me", 2))) {
+            if (argument) {
+                action = true;
+            } else {
+                return;
+            }
+        }
+    }
+
+    if (!text) {
+        return;
+    }
+
+    if (flist_get_selected()->item == ITEM_FRIEND) {
+        FRIEND *f = flist_get_selected()->data;
+
+        /* Display locally */
+        if (action) {
+            message_add_type_action(&f->msg, 1, text, length, 1, 1);
+        } else {
+            message_add_type_text(&f->msg, 1, text, length, 1, 1);
+        }
+    }
+    edit->length      = 0;
+}
+
+static void e_chat_msg_onchange(EDIT *UNUSED(edit)) {
+    if (flist_get_selected()->item == ITEM_FRIEND) {
+        FRIEND *f = flist_get_selected()->data;
+
+        if (!f->online) {
+            return;
+        }
+
+        postmessage_toxcore(TOX_SEND_TYPING, (f - friend), 0, NULL);
+    }
+}
+
+SCROLLABLE e_chat_msg_friend_scroll = {
+    .panel = { .type = PANEL_SCROLLABLE, },
+    .d     = 1.0,
+    .color = C_SCROLL,
+};
+
+static char e_chat_msg_friend_data[65535];
+EDIT edit_chat_msg_friend = {
+    .data        = e_chat_msg_friend_data,
+    .maxlength   = sizeof e_chat_msg_friend_data,
+    .multiline   = true,
+    .onenter     = e_chat_msg_onenter,
+    .onchange    = e_chat_msg_onchange,
+    .scroll      = &e_chat_msg_friend_scroll,
+};
+
+/* Button to send chat message */
+static void button_chat_send_friend_on_mup(void) {
+    if (flist_get_selected()->item == ITEM_FRIEND) {
+        FRIEND *f = flist_get_selected()->data;
+        if (f->online) {
+            // TODO clear the chat bar with a /slash command
+            e_chat_msg_onenter(&edit_chat_msg_friend);
+            // reset focus to the chat window on send to prevent segfault. May break on android.
+            edit_setfocus(&edit_chat_msg_friend);
+        }
+    }
+}
+
+static void button_chat_send_friend_update(BUTTON *b) {
+    if (flist_get_selected()->item == ITEM_FRIEND) {
+        FRIEND *f = flist_get_selected()->data;
+        if (f->online) {
+            b->disabled = false;
+            button_setcolors_success(b);
+        } else {
+            b->disabled = true;
+            button_setcolors_disabled(b);
+        }
+    }
+}
+
+BUTTON button_chat_send_friend = {
+    .bm           = BM_CHAT_SEND,
+    .bm2          = BM_CHAT_SEND_OVERLAY,
+    .bw           = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .bh           = _BM_CHAT_SEND_OVERLAY_HEIGHT,
+    .on_mup      = button_chat_send_friend_on_mup,
+    .update       = button_chat_send_friend_update,
+    .tooltip_text = {.i18nal = STR_SENDMESSAGE },
+};
