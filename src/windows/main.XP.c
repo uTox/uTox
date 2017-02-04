@@ -24,7 +24,6 @@ void native_export_chatlog_init(uint32_t friend_number) {
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner   = hwnd,
         .lpstrFilter = ".txt",
         .lpstrFile   = path,
         .nMaxFile    = UTOX_FILE_NAME_LENGTH,
@@ -56,7 +55,6 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner   = hwnd,
         .lpstrFile   = path,
         .nMaxFile    = UTOX_FILE_NAME_LENGTH,
         .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
@@ -101,10 +99,11 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 }
 
 void launch_at_startup(int is_launch_at_startup) {
-    HKEY         hKey;
+    HKEY hKey;
     const wchar_t *run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-    wchar_t        path[UTOX_FILE_NAME_LENGTH * 2];
-    uint16_t     path_length = 0, ret = 0;
+
+    wchar_t path[UTOX_FILE_NAME_LENGTH * 2];
+    uint16_t path_length = 0, ret = 0;
     if (is_launch_at_startup == 1) {
         if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
             path_length           = GetModuleFileNameW(NULL, path + 1, UTOX_FILE_NAME_LENGTH * 2);
