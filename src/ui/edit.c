@@ -21,6 +21,7 @@ static struct {
     // IME mark (underline)
     uint16_t mark_start, mark_length;
 } edit_sel;
+
 static bool edit_select;
 
 static void setactive(EDIT *edit) {
@@ -407,7 +408,7 @@ enum {
 void edit_char(uint32_t ch, bool control, uint8_t flags) {
     /* shift: flags & 1
      * control: flags & 4 */
-    EDIT *edit = active_edit;
+    EDIT *edit = active_edit; // TODO this is bad
 
     if (control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
         bool modified = false;
@@ -773,11 +774,11 @@ void edit_paste(char *data, int length, bool select) {
     int newlen = 0, i = 0;
     while (i < length) {
         uint8_t len = utf8_len(data + i);
+        // Ignore and strip these control characters.
         if ((((!active_edit->multiline || data[i] != '\n')                               // not multiline or '\n'
               && data[i] <= 0x1F)                                                        // and is a control char
              || data[i] == 0x7F)                                                         // or is delete
             || (len == 2 && (uint8_t)data[i] == 0xC2 && (uint8_t)data[i + 1] <= 0xBF)) { // or is utf8
-            // Ignore these control characters.
         } else {
             if (newlen + len > maxlen) {
                 break;

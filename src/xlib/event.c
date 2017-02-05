@@ -527,10 +527,10 @@ bool doevent(XEvent event) {
                 break;
             }
 
-            Atom              type;
-            int               format;
+            Atom type;
+            int  format;
+            void *data;
             long unsigned int len, bytes_left;
-            void *            data;
 
             XGetWindowProperty(display, main_window.window, ev->property, 0, ~0L, True, AnyPropertyType, &type, &format, &len,
                                &bytes_left, (unsigned char **)&data);
@@ -570,12 +570,16 @@ bool doevent(XEvent event) {
         case SelectionRequest: {
             XSelectionRequestEvent *ev = &event.xselectionrequest;
 
-            XEvent resp = {.xselection = {.type      = SelectionNotify,
-                                          .property  = ev->property,
-                                          .requestor = ev->requestor,
-                                          .selection = ev->selection,
-                                          .target    = ev->target,
-                                          .time      = ev->time } };
+            XEvent resp = {
+                .xselection = {
+                    .type      = SelectionNotify,
+                    .property  = ev->property,
+                    .requestor = ev->requestor,
+                    .selection = ev->selection,
+                    .target    = ev->target,
+                    .time      = ev->time
+                }
+            };
 
             if (ev->target == XA_UTF8_STRING || ev->target == XA_STRING) {
                 if (ev->selection == XA_PRIMARY) {

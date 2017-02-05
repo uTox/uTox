@@ -136,7 +136,7 @@ PANEL panel_side_bar = {
 #include "../friend.h"
 static void e_search_onchange(EDIT *edit) {
     char *data = edit->data;
-    uint16_t length = edit->length;
+    uint16_t length = edit->length > sizeof search_data ? sizeof search_data - 1 : edit->length;
 
     if (length) {
         button_add_new_contact.panel.disabled = 0;
@@ -179,8 +179,8 @@ static void e_search_onenter(EDIT *edit) {
 
 static char e_search_data[1024];
 EDIT edit_search = {
-    .maxlength = sizeof e_search_data - 1,
     .data      = e_search_data,
+    .maxlength = sizeof e_search_data - 1,
     .onchange  = e_search_onchange,
     .onenter   = e_search_onenter,
     .style     = AUXILIARY_STYLE,

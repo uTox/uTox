@@ -264,15 +264,19 @@ void paste(void) {
 
     /* Ask owner for supported types */
     if (owner) {
-        XEvent event = {.xselectionrequest = {.type       = SelectionRequest,
-                                              .send_event = True,
-                                              .display    = display,
-                                              .owner      = owner,
-                                              .requestor  = main_window.window,
-                                              .target     = targets,
-                                              .selection  = XA_CLIPBOARD,
-                                              .property   = XA_ATOM,
-                                              .time       = CurrentTime } };
+        XEvent event = {
+            .xselectionrequest = {
+                .type       = SelectionRequest,
+                .send_event = True,
+                .display    = display,
+                .owner      = owner,
+                .requestor  = main_window.window,
+                .target     = targets,
+                .selection  = XA_CLIPBOARD,
+                .property   = XA_ATOM,
+                .time       = CurrentTime
+            }
+        };
 
         XSendEvent(display, owner, 0, NoEventMask, &event);
         XFlush(display);
