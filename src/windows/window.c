@@ -62,7 +62,7 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h) {
     mbstowcs(title, pretitle, title_size);
 
 
-    main_window.window = CreateWindowExW(0, class, L"uTox", WS_OVERLAPPEDWINDOW,
+    main_window.window = CreateWindowExW(0, class, title, WS_OVERLAPPEDWINDOW,
                                          x, y, w, h, NULL, NULL, NULL, NULL);
 
     // We may need to do this after MW_CREATE is called
