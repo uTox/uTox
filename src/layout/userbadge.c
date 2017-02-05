@@ -48,14 +48,16 @@ static void button_statusmsg_on_mup(void) {
     flist_selectsettings();
     if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
         // jump to the network settings when unable to create tox instance
+        panel_settings_adv.disabled             = false;
+
         panel_settings_profile.disabled         = true;
         panel_settings_devices.disabled         = true;
         panel_settings_ui.disabled              = true;
         panel_settings_av.disabled              = true;
-        panel_settings_adv.disabled             = true;
         panel_settings_notifications.disabled   = true;
     } else {
         panel_settings_profile.disabled         = false;
+
         panel_settings_devices.disabled         = true;
         panel_settings_ui.disabled              = true;
         panel_settings_av.disabled              = true;
@@ -72,7 +74,7 @@ extern bool unity_running;
 #endif
 static void button_status_on_mup(void) {
     self.status++;
-    if (self.status == 3) {
+    if (self.status == 3) { // TODO typedef enum
         self.status = 0;
     }
 

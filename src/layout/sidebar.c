@@ -155,14 +155,14 @@ static void e_search_onchange(EDIT *edit) {
     }
 
     redraw();
-    return;
 }
 
 static void e_search_onenter(EDIT *edit) {
     char *   data   = edit->data;
     uint16_t length = edit->length;
 
-    if (length == 76) {
+    if (length == 76) { // FIXME, this should be error checked!
+                        // No, srsly... this is lucky, not right.
         friend_add(data, length, (char *)"", 0);
         edit_setstr(&edit_search, (char *)"", 0);
     } else {

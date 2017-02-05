@@ -19,7 +19,9 @@
 #include "av/utox_av.h"
 #include "av/video.h"
 
-#include "ui/edit.h"     // TODO can we remove this header?
+
+#include "ui/edit.h"     // FIXME the toxcore thread shouldn't be interacting directly with the UI
+#include "ui/switch.h"   // FIXME the toxcore thread shouldn't be interacting directly with the UI
 #include "ui/dropdown.h"
 
 #include "layout/background.h"
@@ -197,8 +199,6 @@ static void write_save(Tox *tox) {
     }
 }
 
-#include "layout/settings.h"
-#include "layout/settings.h"
 void tox_settingschanged(void) {
     // free everything
     tox_connected = 0;
@@ -308,9 +308,6 @@ static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file
         LOG_ERR("Toxcore logging", "TOXCORE LOGGING is broken!!:\tOpen an bug upstream\n");
     }
 }
-
-#include "layout/settings.h"
-#include "ui/switch.h"
 
 // initialize toxcore based on current settings
 // returns 0 on success

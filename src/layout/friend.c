@@ -492,7 +492,7 @@ BUTTON button_accept_friend = {
 static void switchfxn_autoaccept_ft(void) {
     if (flist_get_selected()->item == ITEM_FRIEND) {
         FRIEND *f = flist_get_selected()->data;
-        f->ft_autoaccept = ! f->ft_autoaccept;
+        f->ft_autoaccept = !f->ft_autoaccept;
     }
 }
 

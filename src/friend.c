@@ -16,8 +16,6 @@
 #include "av/audio.h"
 #include "ui/scrollable.h"
 
-#include "layout/friend.h"
-
 #include "main.h" // addfriend_status
 
 FRIEND* get_friend(uint32_t friend_number){
@@ -109,6 +107,7 @@ static void friend_meta_data_read(FRIEND *f) {
     return;
 }
 
+#include "layout/friend.h" // TODO, remove this and sent the name differently
 void utox_friend_init(Tox *tox, uint32_t friend_number) {
     int size;
     // get friend pointer
@@ -174,7 +173,6 @@ void utox_friend_list_init(Tox *tox) {
     }
 }
 
-#include "layout/friend.h" // TODO, remove this and sent the name differently
 #include "ui/edit.h"
 void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     if (f->name && f->name_length) {

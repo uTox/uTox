@@ -1100,11 +1100,11 @@ static char edit_name_data[128],
             edit_status_msg_data[128],
             edit_proxy_ip_data[256],
             edit_proxy_port_data[8],
-            edit_profile_password_data[65535]
+            edit_profile_password_data[65535];
 #ifdef ENABLE_MULTIDEVICE
-static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4]
+static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4];
 #endif
-;
+
 
 static void edit_name_onenter(EDIT *edit) {
     char *   data   = edit->data;
@@ -1114,7 +1114,7 @@ static void edit_name_onenter(EDIT *edit) {
     self.name_length = length;
     update_tray();
 
-    postmessage_toxcore(TOX_SELF_SET_NAME, length, 0, self.name); //!
+    postmessage_toxcore(TOX_SELF_SET_NAME, length, 0, self.name);
 }
 
 EDIT edit_name = {

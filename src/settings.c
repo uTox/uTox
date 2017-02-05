@@ -106,7 +106,9 @@ UTOX_SAVE *config_load(void) {
     switch_ipv6.switch_on        = save->enableipv6;
     switch_udp.switch_on         = !save->disableudp;
     switch_proxy.switch_on       = save->proxyenable;
-    switch_proxy_force.switch_on = save->proxyenable;
+    switch_proxy_force.switch_on = false; // TODO, this is a bug. We really should be saving this data, but I don't want
+                                          // to touch this until we decide how we want to save uTox data in the future.
+                                          // -- Grayhatter, probably...
 
     switch_save_chat_history.switch_on  = save->logging_enabled;
     switch_mini_contacts.switch_on      = save->use_mini_flist;

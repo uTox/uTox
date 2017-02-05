@@ -99,7 +99,7 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
     if (friend[fid].online && !status) {
         ft_friend_offline(tox, fid);
         if (friend[fid].call_state_self || friend[fid].call_state_friend) {
-            utox_av_local_disconnect(NULL, fid); /* TODO HACK, toxav doesn't supply a toxav_get_toxav_from_otx() yet. */
+            utox_av_local_disconnect(NULL, fid); /* TODO HACK, toxav doesn't supply a toxav_get_toxav_from_tox() yet. */
         }
     } else if (!friend[fid].online && !!status) {
         ft_friend_online(tox, fid);
@@ -243,7 +243,6 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
 
             if (!g->peer) {
                 LOG_FATAL_ERR(44, "Tox Callbacks", "Group:\tToxcore is very broken, but we couldn't alloc here.");
-                exit(44);
             }
 
             /* I'm about to break some uTox style here, because I'm expecting
