@@ -496,6 +496,10 @@ void theme_load(const THEME loadtheme) {
         case THEME_CUSTOM: {
             size_t size;
             uint8_t *themedata = utox_data_load_custom_theme(&size);
+            if (!themedata) {
+                LOG_ERR("Theme", "Failed to load custom theme.");
+                return;
+            }
             read_custom_theme(themedata, size);
             break;
         }
