@@ -6,7 +6,7 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
+#include "../main_native.h" // Needed for redraw(), this is probably wrong
 #include "../notify.h"
 #include "../settings.h"
 #include "../tox.h"

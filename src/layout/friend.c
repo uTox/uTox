@@ -675,7 +675,7 @@ EDIT edit_chat_msg_friend = {
 
 /* Button to send chat message */
 static void button_chat_send_friend_on_mup(void) {
-    if (flist_get_selected()->item == ITEM_FRIEND) {
+    if (flist_get_selected()->item == ITEM_FRIEND) { // TODO we need flist_get_friend/group/type()
         FRIEND *f = flist_get_selected()->data;
         if (f->online) {
             // TODO clear the chat bar with a /slash command

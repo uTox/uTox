@@ -10,7 +10,7 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
+#include "../main_native.h" // needed for redraw(), this is likely wrong
 #include "../self.h"
 #include "../settings.h"
 #include "../theme.h"

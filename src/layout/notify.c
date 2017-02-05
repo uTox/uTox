@@ -117,5 +117,5 @@ BUTTON button_notify_create = {
     .update       = button_setcolors_success,
     .on_mup       = btn_notify_create_mup,
     .button_text  = {.i18nal = STR_SHOW },
-    .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD },
+    .tooltip_text = {.i18nal = STR_SHOW },
 };

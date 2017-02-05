@@ -1,12 +1,16 @@
 #include "group.h"
 
+#include "../commands.h"
+#include "../debug.h"
 #include "../flist.h"
 #include "../groups.h"
-#include "../debug.h"
 #include "../macros.h"
 #include "../settings.h"
+#include "../text.h"
 #include "../theme.h"
+#include "../tox.h"
 
+#include "../ui/button.h"
 #include "../ui/draw.h"
 #include "../ui/edit.h"
 #include "../ui/panel.h"
@@ -127,7 +131,6 @@ panel_group = {
         .content_scroll = &scrollbar_group,
     };
 
-#include "../tox.h"
 static void button_group_audio_on_mup(void) {
     GROUPCHAT *g = flist_get_selected()->data;
     if (g->audio_calling) {
@@ -138,7 +141,6 @@ static void button_group_audio_on_mup(void) {
 }
 
 
-#include "../ui/button.h"
 static void button_group_audio_update(BUTTON *b) {
     GROUPCHAT *g = flist_get_selected()->data;
     if (g->av_group) {
@@ -200,7 +202,6 @@ static uint32_t peers_deduplicate(char **dedup, size_t *dedup_size, GROUP_PEER *
     return count;
 }
 
-#include "../text.h"
 static struct {
     uint16_t start, end, cursorpos;
     uint32_t length, spacing;
@@ -362,7 +363,6 @@ static void e_chat_msg_ontab(EDIT *edit) {
     }
 }
 
-#include "../commands.h"
 void e_chat_msg_onenter(EDIT *edit) {
     char *   text   = edit->data;
     uint16_t length = edit->length;
@@ -531,7 +531,6 @@ void e_msg_onenter_group(EDIT *edit) {
     edit->length      = 0;
 }
 
-#include "../ui/edit.h"
 static void button_chat_send_on_mup(void) {
     if (flist_get_selected()->item == ITEM_GROUP) {
         e_msg_onenter_group(&edit_chat_msg_group);
