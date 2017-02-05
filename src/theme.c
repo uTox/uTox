@@ -1,11 +1,9 @@
 #include "theme.h"
 
 #include "debug.h"
-#include "main.h" // utox_data_load_custom_theme
-#include "main_native.h"
-#include "ui.h"
-
+#include "filesys.h"
 #include "theme_tables.h"
+#include "ui.h"
 
 #define COLOR_PROC(a_ulColor) RGB((a_ulColor >> 16) & 0x0000FF, (a_ulColor >> 8) & 0x0000FF, a_ulColor & 0x0000FF)
 
@@ -27,7 +25,17 @@
 #define SOLAR_CYAN 0x2aa198
 #define SOLAR_GREEN 0x859900
 
-void theme_load(const char loadtheme) {
+/**
+ * Loads a custom theme and sets out to the size of the data
+ *
+ * Returns a pointer to the theme data on success, the caller needs to free this
+ * Returns NULL on failure
+ */
+static uint8_t *utox_data_load_custom_theme(size_t *out);
+static void read_custom_theme(const uint8_t *data, size_t length);
+static uint32_t try_parse_hex_colour(char *color, int *error);
+
+void theme_load(const THEME loadtheme) {
     // Update the settings dropdown UI
 
     // ==== Default theme     ====
@@ -123,7 +131,7 @@ void theme_load(const char loadtheme) {
     COLOR_BTN_INPROGRESS_FORGRND = COLOR_PROC(0x76baef);
 
     switch (loadtheme) {
-        case THEME_DARK:
+        case THEME_DARK: {
             COLOR_BKGRND_MAIN        = COLOR_PROC(0x333333);
             COLOR_BKGRND_ALT         = COLOR_PROC(0x151515);
             COLOR_BKGRND_AUX         = COLOR_BKGRND_MENU;
@@ -179,8 +187,8 @@ void theme_load(const char loadtheme) {
             COLOR_BTN_DISABLED_FORGRND     = COLOR_PROC(0x666666);
             COLOR_BTN_INPROGRESS_FORGRND   = COLOR_PROC(0x2f656a);
             break;
-
-        case THEME_LIGHT:
+        }
+        case THEME_LIGHT: {
             COLOR_BKGRND_LIST             = COLOR_PROC(0xf0f0f0);
             COLOR_BKGRND_LIST_HOVER       = COLOR_PROC(0xe0e0e0);
             COLOR_BKGRND_MENU             = COLOR_BKGRND_LIST;
@@ -203,8 +211,8 @@ void theme_load(const char loadtheme) {
             COLOR_AUX_ACTIVEOPTION_BKGRND = COLOR_ACTIVEOPTION_BKGRND;
             COLOR_AUX_ACTIVEOPTION_TEXT   = COLOR_AUX_TEXT;
             break;
-
-        case THEME_HIGHCONTRAST:
+        }
+        case THEME_HIGHCONTRAST: {
             COLOR_BKGRND_MAIN              = COLOR_PROC(0xffffff);
             COLOR_BKGRND_AUX               = COLOR_BKGRND_MAIN;
             COLOR_BKGRND_LIST              = COLOR_PROC(0x444444);
@@ -263,8 +271,8 @@ void theme_load(const char loadtheme) {
             COLOR_AUX_ACTIVEOPTION_TEXT    = COLOR_ACTIVEOPTION_TEXT;
             COLOR_BTN_DISABLED_FORGRND     = COLOR_PROC(0x000000);
             break;
-
-        case THEME_ZENBURN:
+        }
+        case THEME_ZENBURN: {
             COLOR_BKGRND_MAIN               = COLOR_PROC(0x3f3f3f);
             COLOR_BKGRND_AUX                = COLOR_BKGRND_MAIN;
             COLOR_BKGRND_LIST               = COLOR_PROC(0x5f5f5f);
@@ -325,8 +333,8 @@ void theme_load(const char loadtheme) {
             COLOR_BTN_INPROGRESS_FORGRND    = COLOR_MAIN_TEXT;
             COLOR_BTN_DISABLED_FORGRND      = COLOR_BKGRND_LIST_HOVER;
             break;
-
-        case THEME_SOLARIZED_DARK:
+        }
+        case THEME_SOLARIZED_DARK: {
             COLOR_BKGRND_MAIN        = COLOR_PROC(SOLAR_BASE03);
             COLOR_BKGRND_ALT         = COLOR_PROC(SOLAR_BASE02);
             COLOR_BKGRND_AUX         = COLOR_BKGRND_ALT;
@@ -405,8 +413,8 @@ void theme_load(const char loadtheme) {
             COLOR_BTN_DISABLED_FORGRND   = COLOR_PROC(SOLAR_ORANGE);
             COLOR_BTN_INPROGRESS_FORGRND = COLOR_PROC(SOLAR_MAGENTA);
             break;
-
-        case THEME_SOLARIZED_LIGHT:
+        }
+        case THEME_SOLARIZED_LIGHT: {
             COLOR_BKGRND_MAIN        = COLOR_PROC(SOLAR_BASE3);
             COLOR_BKGRND_ALT         = COLOR_PROC(SOLAR_BASE2);
             COLOR_BKGRND_AUX         = COLOR_BKGRND_ALT;
@@ -484,11 +492,16 @@ void theme_load(const char loadtheme) {
             COLOR_BTN_DISABLED_FORGRND   = COLOR_PROC(SOLAR_ORANGE);
             COLOR_BTN_INPROGRESS_FORGRND = COLOR_PROC(SOLAR_MAGENTA);
             break;
-
+        }
         case THEME_CUSTOM: {
-            size_t   size;
+            size_t size;
             uint8_t *themedata = utox_data_load_custom_theme(&size);
             read_custom_theme(themedata, size);
+            break;
+        }
+        case THEME_DEFAULT: {
+            // Set above the switch.
+            break;
         }
     }
 
@@ -533,7 +546,7 @@ uint32_t *find_colour_pointer(char *color) {
     return NULL;
 }
 
-uint32_t try_parse_hex_colour(char *color, int *error) {
+static uint32_t try_parse_hex_colour(char *color, int *error) {
     while (*color == 0 || *color == ' ' || *color == '\t') {
         color++;
     }
@@ -564,7 +577,7 @@ uint32_t try_parse_hex_colour(char *color, int *error) {
     return RGB(red, green, blue);
 }
 
-void read_custom_theme(const uint8_t *data, size_t length) {
+static void read_custom_theme(const uint8_t *data, size_t length) {
     while (length) {
         char *line = (char *)data;
         while (*line != 0) {
@@ -599,4 +612,28 @@ void read_custom_theme(const uint8_t *data, size_t length) {
             *colorp = COLOR_PROC(col);
         }
     }
+}
+
+static uint8_t *utox_data_load_custom_theme(size_t *out) {
+    FILE *fp = native_get_file((uint8_t *)"utox_theme.ini", out, UTOX_FILE_OPTS_READ);
+
+    if (fp == NULL) {
+        return NULL;
+    }
+
+    uint8_t *data = calloc(1, *out + 1);
+    if (data == NULL) {
+        fclose(fp);
+        return NULL;
+    }
+
+    if (fread(data, 1, *out, fp) != 1) {
+        LOG_ERR("Theme", "Could not read custom theme from file");
+        fclose(fp);
+        free(data);
+        return NULL;
+    }
+    fclose(fp);
+
+    return data;
 }

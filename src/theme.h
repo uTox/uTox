@@ -4,18 +4,17 @@
 #include <inttypes.h>
 #include <stddef.h>
 
-enum {
+typedef enum {
     THEME_DEFAULT,
     THEME_LIGHT,
     THEME_DARK,
     THEME_HIGHCONTRAST,
     THEME_CUSTOM,
-    THEME_ZENBURN, // !!!!
+    THEME_ZENBURN,
     THEME_SOLARIZED_LIGHT,
     THEME_SOLARIZED_DARK,
-    // @TODO
-    // THEME_XRESOURCE
-};
+    // TODO: THEME_XRESOURCE
+} THEME;
 
 /* Colors for drawing the backgrounds */
 uint32_t COLOR_BKGRND_MAIN;
@@ -99,8 +98,7 @@ uint32_t COLOR_BTN_INPROGRESS_TEXT;
 uint32_t COLOR_BTN_DISABLED_FORGRND;
 uint32_t COLOR_BTN_INPROGRESS_FORGRND;
 
-void theme_load(const char loadtheme);
-void read_custom_theme(const uint8_t *data, size_t length);
+void theme_load(const THEME loadtheme);
 
 uint32_t status_color[4];
 
