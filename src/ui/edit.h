@@ -77,6 +77,6 @@ void edit_setmark(uint16_t loc, uint16_t len);
 void edit_setselectedrange(uint16_t loc, uint16_t len);
 
 extern EDIT edit_name, edit_status, edit_add_id, edit_add_msg, edit_msg, edit_msg_group, edit_search, edit_proxy_ip,
-    edit_proxy_port, edit_profile_password;
+    edit_proxy_port, edit_profile_password, edit_nospam;
 
 #endif

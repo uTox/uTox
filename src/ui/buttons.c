@@ -439,7 +439,8 @@ static void button_export_chatlog_on_mup(void) {
 
 static void button_change_nospam_on_mup(void) {
     button_revert_nospam.disabled = false;
-    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 1, 0, NULL);
+    long int nospam = rand();
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, nospam, 0, NULL);
 }
 
 static void button_revert_nospam_on_mup(void) {
@@ -447,7 +448,7 @@ static void button_revert_nospam_on_mup(void) {
         LOG_ERR(__FILE__, "Invalid or current nospam: %u.\n", self.old_nospam);
         return;
     }
-    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 0, 0, NULL);
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, self.old_nospam, 0, NULL);
     button_revert_nospam.disabled = true;
 }
 

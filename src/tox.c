@@ -611,16 +611,11 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         }
 
         case TOX_SELF_CHANGE_NOSPAM: {
-            /* param1: 0 for revert to old_nospam 1 for random nospam
+            /* param1: new nospam value
              */
             char *old_id = self.id_str;
 
-            if (param1 == 0){
-                self.nospam = self.old_nospam;
-            } else {
-                long int newspam = rand();
-                self.nospam = (uint32_t)newspam;
-            }
+            self.nospam = param1;
 
             sprintf(self.nospam_str, "%08X", self.nospam);
             tox_self_set_nospam(tox, self.nospam);
@@ -632,6 +627,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             /* Update avatar */
             avatar_move((uint8_t *)old_id, (uint8_t *)self.id_str);
+            edit_setstr(&edit_nospam, self.nospam_str, sizeof(uint32_t) * 2);
 
             save_needed = true;
             break;

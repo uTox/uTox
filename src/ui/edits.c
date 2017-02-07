@@ -31,7 +31,8 @@ static char edit_name_data[128],
             edit_profile_password_data[65535],
             edit_friend_alias_data[128],
             edit_id_str[TOX_PUBLIC_KEY_SIZE * 2],
-            edit_group_topic_data[128];
+            edit_group_topic_data[128],
+            edit_nospam_value[sizeof(uint32_t) * 2];
 
 #ifdef ENABLE_MULTIDEVICE
 static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4];
@@ -486,6 +487,15 @@ static void edit_group_topic_onenter(EDIT *edit) {
     postmessage_toxcore(TOX_GROUP_SET_TOPIC, (g - group), edit->length, d);
 }
 
+static void edit_nospam_onenter(EDIT *UNUSED(edit)) {
+    long int nospam = strtol(edit_nospam_value, NULL, 16);
+    if (nospam == 0 || nospam < 0) {
+        LOG_ERR("Nospam", "Invalid nospam value: %lu", nospam);
+        return;
+    }
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, nospam, 0, NULL);
+}
+
 SCROLLABLE edit_addmsg_scroll =
                {
                  .panel =
@@ -624,10 +634,11 @@ EDIT edit_name =
                          .empty_str       = {.plain = STRING_INIT("") } },
 
     edit_nospam = {.length            = sizeof(uint32_t) * 2,
-                   .data              = self.nospam_str,
-                   .readonly          = true,
+                   .maxlength         = sizeof(uint32_t) * 2,
+                   .data              = edit_nospam_value,
                    .noborder          = false,
-                   .select_completely = true, };
+                   .onenter           = edit_nospam_onenter,
+                   .onlosefocus       = edit_nospam_onenter, };
 
 static char edit_add_new_device_to_self_data[TOX_ADDRESS_SIZE * 4];
 
