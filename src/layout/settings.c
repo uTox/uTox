@@ -1,17 +1,18 @@
 #include "settings.h"
 
-#include "../macros.h"
-#include "../theme.h"
-#include "../self.h"
+#include "../debug.h"
 #include "../flist.h"
+#include "../macros.h"
+#include "../self.h"
+#include "../theme.h"
 
-#include "../ui/draw.h"
-#include "../ui/svg.h"
-#include "../ui/scrollable.h"
 #include "../ui/button.h"
-#include "../ui/switch.h"
-#include "../ui/edit.h"
+#include "../ui/draw.h"
 #include "../ui/dropdown.h"
+#include "../ui/edit.h"
+#include "../ui/scrollable.h"
+#include "../ui/svg.h"
+#include "../ui/switch.h"
 
 #include <stdio.h>
 
@@ -568,7 +569,12 @@ static void button_show_password_settings_on_mup(void) {
 #include "../flist.h"
 #include "../friend.h"
 static void button_export_chatlog_on_mup(void) {
-    utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+    utox_export_chatlog_init(f->number);
 }
 
 static void button_change_nospam_on_mup(void) {
@@ -576,7 +582,6 @@ static void button_change_nospam_on_mup(void) {
     postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 1, 0, NULL);
 }
 
-#include "../debug.h"
 static void button_revert_nospam_on_mup(void) {
     if (self.old_nospam == 0 || self.nospam == self.old_nospam) { //nospam can not be 0
         LOG_ERR("Settings", "Invalid or current nospam: %u.\n", self.old_nospam);
@@ -1016,7 +1021,12 @@ static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)
 
 #include"../groups.h"
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        return;
+    }
+
     g->notify    = i;
     debug("g->notify = %u\n", i);
 }
@@ -1226,4 +1236,3 @@ EDIT edit_add_new_device_to_self = {
     .maxlength = sizeof edit_add_new_device_to_self_data - 1,
     .onenter   = edit_add_new_device_to_self_onenter,
 };
-
