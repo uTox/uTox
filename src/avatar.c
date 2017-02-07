@@ -54,18 +54,18 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
         return NULL;
     }
 
-    if (fread(data, size, 1, fp) == 1) {
+    if (fread(data, size, 1, fp) != 1) {
+        LOG_WARN("Avatar", "Could not read from open file: %s\n", name);
         fclose(fp);
-        if (out_size) {
-            *out_size = size;
-        }
-        return data;
+        free(data);
+        return NULL;
     }
 
-    LOG_WARN("Avatar", "Could not read from open file: %s\n", name);
     fclose(fp);
-    free(data);
-    return NULL;
+    if (out_size) {
+        *out_size = size;
+    }
+    return data;
 }
 
 bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]) {

@@ -109,6 +109,7 @@ UTOX_SAVE *utox_data_load_utox(void) {
 
     if (fread(save, size, 1, fp) != 1) {
         LOG_ERR(__FILE__, "Could not read save file");
+
         fclose(fp);
         free(save);
         return NULL;

@@ -226,7 +226,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     }
 
     FILE_TRANSFER resume_file;
-    fread(&resume_file, 1, size, resume_disk);
+    fread(&resume_file, size, 1, resume_disk);
     fclose(resume_disk);
 
     if (!resume_file.resumeable
@@ -1112,11 +1112,10 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         if (ft->via.file) {
             uint8_t buffer[length];
             fseeko(ft->via.file, position, SEEK_SET);
-            size_t read_size = fread(buffer, 1, length, ft->via.file);
-            if (read_size != length) {
+            if (fread(buffer, length, 1, ft->via.file) != 1) {
                 LOG_ERR("FileTransfer", "ERROR READING FILE! (%u & %u)" , friend_number, file_number);
-                LOG_INFO("FileTransfer", "Size (%lu), Position (%lu), Length(%lu), Read_size (%lu), size_transferred (%lu).\n",
-                   ft->target_size, position, length, read_size, ft->current_size);
+                LOG_INFO("FileTransfer", "Size (%lu), Position (%lu), Length(%lu), size_transferred (%lu).\n",
+                         ft->target_size, position, length, ft->current_size);
                 ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
                 return;
             }
