@@ -201,7 +201,12 @@ static void button_send_friend_request_on_mup(void) {
 }
 
 static void button_group_audio_on_mup(void) {
-    GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        return;
+    }
+
     if (g->audio_calling) {
         postmessage_toxcore(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
     } else {
@@ -210,7 +215,12 @@ static void button_group_audio_on_mup(void) {
 }
 
 static void button_group_audio_update(BUTTON *b) {
-    GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        return;
+    }
+
     if (g->av_group) {
         b->disabled = false;
         if (g->audio_calling) {
@@ -225,7 +235,12 @@ static void button_group_audio_update(BUTTON *b) {
 }
 
 static void button_call_decline_on_mup(void) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     if (f->call_state_friend) {
         LOG_TRACE(__FILE__, "Declining call: %u" , f->number);
         postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
@@ -233,7 +248,12 @@ static void button_call_decline_on_mup(void) {
 }
 
 static void button_call_decline_update(BUTTON *b) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     if (UTOX_AVAILABLE_AUDIO(f->number) && !UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_danger(b);
         b->nodraw   = false;
@@ -246,7 +266,12 @@ static void button_call_decline_update(BUTTON *b) {
 }
 
 static void button_call_audio_on_mup(void) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     if (f->call_state_self) {
         if (UTOX_SENDING_AUDIO(f->number)) {
             LOG_TRACE(__FILE__, "Ending call: %u" , f->number);
@@ -268,7 +293,12 @@ static void button_call_audio_on_mup(void) {
 }
 
 static void button_call_audio_update(BUTTON *b) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     if (UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_danger(b);
         b->disabled = false;
@@ -287,7 +317,12 @@ static void button_call_audio_update(BUTTON *b) {
 }
 
 static void button_call_video_on_mup(void) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     if (f->call_state_self) {
         if (SELF_ACCEPT_VIDEO(f->number)) {
             LOG_TRACE(__FILE__, "Canceling call (video): %u" , f->number);
@@ -311,7 +346,12 @@ static void button_call_video_on_mup(void) {
 }
 
 static void button_call_video_update(BUTTON *b) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     if (SELF_SEND_VIDEO(f->number)) {
         button_setcolors_danger(b);
         b->disabled = false;
@@ -349,14 +389,24 @@ static void button_avatar_onright(void) {
 }
 
 static void button_send_file_on_mup(void) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     if (f->online) {
         openfilesend();
     }
 }
 
 static void button_send_file_update(BUTTON *b) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     if (f->online) {
         b->disabled = false;
         button_setcolors_success(b);
@@ -367,14 +417,24 @@ static void button_send_file_update(BUTTON *b) {
 }
 
 static void button_send_screenshot_on_mup(void) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     if (f->online) {
         desktopgrab(0);
     }
 }
 
 static void button_send_screenshot_update(BUTTON *b) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     if (f->online) {
         b->disabled = false;
         button_setcolors_success(b);
@@ -386,8 +446,13 @@ static void button_send_screenshot_update(BUTTON *b) {
 
 /* Button to send chat message */
 static void button_chat_send_on_mup(void) {
-    if (flist_get_selected()->item == ITEM_FRIEND) {
-        FRIEND *f = flist_get_selected()->data;
+    if (flist_get_type() == ITEM_FRIEND) {
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR(__FILE__, "Could not get selected friend.");
+            return;
+        }
+
         if (f->online) {
             // TODO clear the chat bar with a /slash command
             edit_msg_onenter(&edit_msg);
@@ -402,8 +467,13 @@ static void button_chat_send_on_mup(void) {
 }
 
 static void button_chat_send_update(BUTTON *b) {
-    if (flist_get_selected()->item == ITEM_FRIEND) {
-        FRIEND *f = flist_get_selected()->data;
+    if (flist_get_type() == ITEM_FRIEND) {
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR(__FILE__, "Could not get selected friend.");
+            return;
+        }
+
         if (f->online) {
             b->disabled = false;
             button_setcolors_success(b);
@@ -434,7 +504,13 @@ static void button_show_password_settings_on_mup(void) {
 }
 
 static void button_export_chatlog_on_mup(void) {
-    utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
+    utox_export_chatlog_init(f->number);
 }
 
 static void button_change_nospam_on_mup(void) {

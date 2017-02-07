@@ -96,7 +96,12 @@ static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)
 }
 
 static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    FRIEND *f        = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
     f->ft_autoaccept = !!i;
     utox_write_metadata(f);
     LOG_TRACE(__FILE__, "Friend %u, is now accepting ft auto %u" , f->number, i);
@@ -104,7 +109,12 @@ static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPD
 
 
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        return;
+    }
+
     g->notify    = i;
     LOG_TRACE(__FILE__, "g->notify = %u" , i);
 }

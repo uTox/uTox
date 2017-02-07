@@ -70,7 +70,11 @@ static void edit_add_new_contact(EDIT *UNUSED(edit)) {
 }
 
 static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
 
     friend_set_alias(f, (uint8_t *)edit_friend_alias.data, edit_friend_alias.length);
 
@@ -124,8 +128,12 @@ void edit_msg_onenter(EDIT *edit) {
         return;
     }
 
-    if (flist_get_selected()->item == ITEM_FRIEND) {
-        FRIEND *f = flist_get_selected()->data;
+    if (flist_get_type() == ITEM_FRIEND) {
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR(__FILE__, "Could not get selected friend.");
+            return;
+        }
 
         /* Display locally */
         if (action) {
@@ -133,8 +141,13 @@ void edit_msg_onenter(EDIT *edit) {
         } else {
             message_add_type_text(&f->msg, 1, text, length, 1, 1);
         }
-    } else if (flist_get_selected()->item == ITEM_GROUP) {
-        GROUPCHAT *g = flist_get_selected()->data;
+    } else if (flist_get_type() == ITEM_GROUP) {
+        GROUPCHAT *g = flist_get_groupchat();
+        if (!g) {
+            LOG_ERR(__FILE__, "Could not get selected groupchat.");
+            return;
+        }
+
         void *d = malloc(length);
         if (!d) {
             LOG_ERR("edit_msg_onenter", " Ran out of memory.");
@@ -191,7 +204,11 @@ static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int directio
     bool          found    = 0;
     static char * dedup[65536];      /* TODO magic numbers */
     static size_t dedup_size[65536]; /* TODO magic numbers */
-    GROUPCHAT *   g = flist_get_selected()->data;
+    GROUPCHAT *   g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        return 0;
+    }
 
     peers = peers_deduplicate(dedup, dedup_size, g->peer, g->peer_count);
 
@@ -288,7 +305,7 @@ static void edit_msg_ontab(EDIT *edit) {
     char *   text   = edit->data;
     uint16_t length = edit->length;
 
-    if ((flist_get_selected()->item == ITEM_FRIEND) || (flist_get_selected()->item == ITEM_GROUP)) {
+    if ((flist_get_type() == ITEM_FRIEND) || (flist_get_type() == ITEM_GROUP)) {
         char    nick[130];
         uint8_t nick_length;
 
@@ -297,9 +314,14 @@ static void edit_msg_ontab(EDIT *edit) {
         }
 
         if (!completion.active) {
-            if (flist_get_selected()->item == ITEM_FRIEND) {
+            if (flist_get_type() == ITEM_FRIEND) {
                 if ((length == 6 && !memcmp(text, "/alias", 6)) || (length == 7 && !memcmp(text, "/alias ", 7))) {
-                    FRIEND * f = flist_get_selected()->data;
+                    FRIEND * f = flist_get_friend();
+                    if (!f) {
+                        LOG_ERR(__FILE__, "Could not get selected friend.");
+                        return;
+                    }
+
                     char *   last_name;
                     uint16_t last_name_length;
 
@@ -321,7 +343,11 @@ static void edit_msg_ontab(EDIT *edit) {
             }
 
             if ((length == 6 && !memcmp(text, "/topic", 6)) || (length == 7 && !memcmp(text, "/topic ", 7))) {
-                GROUPCHAT *g = flist_get_selected()->data;
+                GROUPCHAT *g = flist_get_groupchat();
+                if (!g) {
+                    LOG_ERR(__FILE__, "Could not get selected groupchat.");
+                    return;
+                }
 
                 text[6] = ' ';
                 memcpy(text + 7, g->name, g->name_length);
@@ -363,7 +389,7 @@ static void edit_msg_ontab(EDIT *edit) {
 static void edit_msg_onshifttab(EDIT *edit) {
     char *text = edit->data;
 
-    if (flist_get_selected()->item == ITEM_GROUP) {
+    if (flist_get_type() == ITEM_GROUP) {
         char    nick[130];
         uint8_t nick_length;
 
@@ -393,8 +419,12 @@ static void edit_msg_onlosefocus(EDIT *UNUSED(edit)) {
 }
 
 static void edit_msg_onchange(EDIT *UNUSED(edit)) {
-    if (flist_get_selected()->item == ITEM_FRIEND) {
-        FRIEND *f = flist_get_selected()->data;
+    if (flist_get_type() == ITEM_FRIEND) {
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR(__FILE__, "Could not get selected friend.");
+            return;
+        }
 
         if (!f->online) {
             return;

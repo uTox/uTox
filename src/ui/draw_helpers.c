@@ -114,7 +114,11 @@ void draw_splash_page(int x, int y, int w, int h) {
 
 /* Header for friend chat window */
 void draw_friend(int x, int y, int w, int height) {
-    FRIEND *f = (flist_get_selected()->data);
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Unable to get selected friend.");
+        return;
+    }
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
@@ -149,7 +153,11 @@ void draw_friend(int x, int y, int w, int height) {
 }
 
 void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
-    GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Unable to get selected groupchat.");
+        return;
+    }
 
     drawalpha(BM_GROUP, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
