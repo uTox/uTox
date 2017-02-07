@@ -24,6 +24,7 @@ void init_self(Tox *tox) {
     self.nospam = tox_self_get_nospam(tox);
     self.old_nospam = self.nospam;
     sprintf(self.nospam_str, "%08X", self.nospam);
+    edit_setstr(&edit_nospam, self.nospam_str, sizeof(uint32_t) * 2);
 
     avatar_init_self();
 }
