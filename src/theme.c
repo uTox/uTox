@@ -677,7 +677,7 @@ static uint8_t *utox_data_load_custom_theme(size_t *out) {
         return NULL;
     }
 
-    if (fread(data, 1, *out, fp) != 1) {
+    if (fread(data, *out, 1, fp) != 1) {
         LOG_ERR("Theme", "Could not read custom theme from file");
         fclose(fp);
         free(data);

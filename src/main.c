@@ -54,7 +54,7 @@ uint8_t *utox_data_load_tox(size_t *size) {
             fclose(fp);
             return NULL; // quit were out of memory, calloc will fail again
         }
-        if (fread(data, 1, length, fp) != length) {
+        if (fread(data, length, 1, fp) != 1) {
             LOG_TRACE(__FILE__, "Could not read: %s." , name[i]);
             fclose(fp);
             free(data);
@@ -96,12 +96,13 @@ UTOX_SAVE *utox_data_load_utox(void) {
         return NULL;
     }
 
-    if (fread(save, 1, size, fp) != size) {
+    if (fread(save, size, 1, fp) != 1) {
         LOG_TRACE(__FILE__, "Could not read save file" );
         fclose(fp);
         free(save);
         return NULL;
     }
+
     fclose(fp);
     return save;
 }
