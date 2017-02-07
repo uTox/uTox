@@ -573,7 +573,8 @@ static void button_export_chatlog_on_mup(void) {
 
 static void button_change_nospam_on_mup(void) {
     button_revert_nospam.disabled = false;
-    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 1, 0, NULL);
+    long int nospam = rand() | rand() << 16;
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, nospam, 0, NULL);
 }
 
 #include "../debug.h"
@@ -582,7 +583,7 @@ static void button_revert_nospam_on_mup(void) {
         LOG_ERR("Settings", "Invalid or current nospam: %u.", self.old_nospam);
         return;
     }
-    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 0, 0, NULL);
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, self.old_nospam, 0, NULL);
     button_revert_nospam.disabled = true;
 }
 
@@ -1100,7 +1101,8 @@ static char edit_name_data[128],
             edit_status_msg_data[128],
             edit_proxy_ip_data[256],
             edit_proxy_port_data[8],
-            edit_profile_password_data[65535];
+            edit_profile_password_data[65535],
+            edit_nospam_data[sizeof(uint32_t) * 2];
 #ifdef ENABLE_MULTIDEVICE
 static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4];
 #endif
@@ -1205,12 +1207,21 @@ EDIT edit_toxid = {
     .select_completely = 1,
 };
 
+static void edit_change_nospam_onenter(EDIT *UNUSED(edit)) {
+    long int nospam = strtol(edit_nospam_data, NULL, 16);
+    if (nospam == 0 || nospam < 0) {
+        LOG_ERR("Nospam", "Invalid nospam value: %lu", nospam);
+        return;
+    }
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, nospam, 0, NULL);
+}
+
 EDIT edit_nospam = {
-    .length            = sizeof(uint32_t) * 2,
-    .data              = self.nospam_str,
-    .readonly          = true,
+    .maxlength         = sizeof(uint32_t) * 2,
+    .data              = edit_nospam_data,
     .noborder          = false,
-    .select_completely = true,
+    .onenter           = edit_change_nospam_onenter,
+    .onlosefocus       = edit_change_nospam_onenter,
 };
 
 
