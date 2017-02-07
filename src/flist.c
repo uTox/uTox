@@ -821,6 +821,24 @@ ITEM *flist_get_selected(void) {
     return selected_item;
 }
 
+FRIEND *flist_get_friend(void) {
+    if (flist_get_type() == ITEM_FRIEND) {
+        return selected_item->data;
+    }
+    return NULL;
+}
+
+GROUPCHAT *flist_get_groupchat(void) {
+    if (flist_get_type() == ITEM_GROUP) {
+        return selected_item->data;
+    }
+    return NULL;
+}
+
+ITEM_TYPE flist_get_type(void) {
+    return selected_item->item;
+}
+
 /******************************************************************************
  ****** UI functions                                                     ******
  ******************************************************************************/

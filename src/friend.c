@@ -205,8 +205,12 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     f->name[f->name_length] = 0;
 
     if (!f->alias_length) {
-        if (flist_get_selected()->item == ITEM_FRIEND) {
-            FRIEND *selected = flist_get_selected()->data;
+        if (flist_get_type()== ITEM_FRIEND) {
+            FRIEND *selected = flist_get_friend();
+            if (!selected) {
+                LOG_ERR(__FILE__, "Unable to get selected friend.");
+                return;
+            }
             if (selected && f->number == selected->number) {
                 maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
             }
@@ -262,7 +266,7 @@ void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
     postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
     notify(title, title_length, msg, msg_length, f, 0);
 
-    if (flist_get_selected()->data != f) {
+    if (flist_get_friend() != f) {
         f->unread_msg = 1;
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }

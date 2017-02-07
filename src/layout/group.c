@@ -29,7 +29,11 @@ SCROLLABLE scrollbar_group = {
 };
 
 static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
-    GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        return;
+    }
 
     drawalpha(BM_GROUP, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
@@ -132,7 +136,12 @@ panel_group = {
     };
 
 static void button_group_audio_on_mup(void) {
-    GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        return;
+    }
+
     if (g->audio_calling) {
         postmessage_toxcore(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
     } else {
@@ -142,7 +151,12 @@ static void button_group_audio_on_mup(void) {
 
 
 static void button_group_audio_update(BUTTON *b) {
-    GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        return;
+    }
+
     if (g->av_group) {
         b->disabled = false;
         if (g->audio_calling) {
@@ -217,7 +231,11 @@ static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int directio
     bool          found    = 0;
     static char * dedup[65536];      /* TODO magic numbers */
     static size_t dedup_size[65536]; /* TODO magic numbers */
-    GROUPCHAT *   g = flist_get_selected()->data;
+    GROUPCHAT *   g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        return 0;
+    }
 
     peers = peers_deduplicate(dedup, dedup_size, g->peer, g->peer_count);
 
@@ -314,7 +332,7 @@ static void e_chat_msg_ontab(EDIT *edit) {
     char *text = edit->data;
     uint16_t length = edit->length;
 
-    if ((flist_get_selected()->item == ITEM_FRIEND) || (flist_get_selected()->item == ITEM_GROUP)) {
+    if (flist_get_type() == ITEM_FRIEND || flist_get_type() == ITEM_GROUP) {
         char    nick[130];
         uint8_t nick_length;
 
@@ -324,7 +342,11 @@ static void e_chat_msg_ontab(EDIT *edit) {
 
         if (!completion.active) {
             if ((length == 6 && !memcmp(text, "/topic", 6)) || (length == 7 && !memcmp(text, "/topic ", 7))) {
-                GROUPCHAT *g = flist_get_selected()->data;
+                GROUPCHAT *g = flist_get_groupchat();
+                if (!g) {
+                    LOG_ERR(__FILE__, "Could not get selected groupchat.");
+                    return;
+                }
 
                 text[6] = ' ';
                 memcpy(text + 7, g->name, g->name_length);
@@ -401,8 +423,8 @@ void e_chat_msg_onenter(EDIT *edit) {
         return;
     }
 
-    if (flist_get_selected()->item == ITEM_GROUP) {
-        GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (g) {
         void *d = malloc(length);
         if (!d) {
             LOG_ERR("Layout Group", "edit_msg_onenter:\t Ran out of memory.");
@@ -419,7 +441,7 @@ void e_chat_msg_onenter(EDIT *edit) {
 static void e_chat_msg_onshifttab(EDIT *edit) {
     char *text = edit->data;
 
-    if (flist_get_selected()->item == ITEM_GROUP) {
+    if (flist_get_type() == ITEM_GROUP) {
         char    nick[130];
         uint8_t nick_length;
 
@@ -517,8 +539,8 @@ void e_msg_onenter_group(EDIT *edit) {
         return;
     }
 
-    if (flist_get_selected()->item == ITEM_GROUP) {
-        GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (g) {
         void *d = malloc(length);
         if (!d) {
             return;
@@ -532,7 +554,7 @@ void e_msg_onenter_group(EDIT *edit) {
 }
 
 static void button_chat_send_on_mup(void) {
-    if (flist_get_selected()->item == ITEM_GROUP) {
+    if (flist_get_type() == ITEM_GROUP) {
         e_msg_onenter_group(&edit_chat_msg_group);
         // reset focus to the chat window on send to prevent segfault. May break on android.
         edit_setfocus(&edit_chat_msg_group);

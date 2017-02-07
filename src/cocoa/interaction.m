@@ -739,7 +739,7 @@ int getbuf(char *ptr, size_t len, int value) {
     if (edit_active()) {
         // FIXME: asfasg
         ret = edit_copy(ptr, len);
-    } else if (flist_get_selected()->item == ITEM_FRIEND) {
+    } else if (flist_get_type() == ITEM_FRIEND) {
         ret = messages_selection(&messages_friend, ptr, len, value);
     } else {
         ret = messages_selection(&messages_group, ptr, len, value);
