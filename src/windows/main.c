@@ -1298,7 +1298,9 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
                     edit_char(wParam, 1, (control << 2) | shift);
                 }
             } else {
-                messages_char(wParam);
+                if (messages_char(wParam)) {
+                    redraw();
+                }
                 break;
             }
 

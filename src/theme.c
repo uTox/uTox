@@ -1,11 +1,12 @@
 #include "theme.h"
 
 #include "debug.h"
-#include "main.h" // utox_data_load_custom_theme
-#include "main_native.h"
+#include "filesys.h"
+#include "theme_tables.h"
 #include "ui.h"
 
-#include "theme_tables.h"
+#include <stdlib.h>
+#include <string.h>
 
 #define COLOR_PROC(a_ulColor) RGB((a_ulColor >> 16) & 0x0000FF, (a_ulColor >> 8) & 0x0000FF, a_ulColor & 0x0000FF)
 
@@ -27,7 +28,17 @@
 #define SOLAR_CYAN 0x2aa198
 #define SOLAR_GREEN 0x859900
 
-void theme_load(const char loadtheme) {
+/**
+ * Loads a custom theme and sets out to the size of the data
+ *
+ * Returns a pointer to the theme data on success, the caller needs to free this
+ * Returns NULL on failure
+ */
+static uint8_t *utox_data_load_custom_theme(size_t *out);
+static void read_custom_theme(const uint8_t *data, size_t length);
+static uint32_t try_parse_hex_colour(char *color, int *error);
+
+void theme_load(const THEME loadtheme) {
     // Update the settings dropdown UI
 
     // ==== Default theme     ====
@@ -123,13 +134,13 @@ void theme_load(const char loadtheme) {
     COLOR_BTN_INPROGRESS_FORGRND = COLOR_PROC(0x76baef);
 
     switch (loadtheme) {
-        case THEME_DARK:
+        case THEME_DARK: {
             COLOR_BKGRND_MAIN        = COLOR_PROC(0x333333);
             COLOR_BKGRND_ALT         = COLOR_PROC(0x151515);
-            COLOR_BKGRND_AUX         = COLOR_BKGRND_MENU;
             COLOR_BKGRND_LIST        = COLOR_PROC(0x222222);
             COLOR_BKGRND_LIST_HOVER  = COLOR_PROC(0x151515);
             COLOR_BKGRND_MENU        = COLOR_PROC(0x171717);
+            COLOR_BKGRND_AUX         = COLOR_BKGRND_MENU;
             COLOR_BKGRND_MENU_HOVER  = COLOR_BKGRND_LIST_HOVER;
             COLOR_BKGRND_MENU_ACTIVE = COLOR_BKGRND_LIST;
 
@@ -145,57 +156,68 @@ void theme_load(const char loadtheme) {
             COLOR_MSG_USER_ERROR = COLOR_MAIN_TEXT_RED;
             COLOR_MSG_CONTACT    = COLOR_MAIN_TEXT;
 
+            COLOR_MENU_TEXT_ACTIVE = COLOR_MAIN_TEXT;
+
+            COLOR_GROUP_MUTED = COLOR_MAIN_TEXT_URL;
+
             COLOR_SELECTION_BACKGROUND = COLOR_MAIN_TEXT;
             COLOR_SELECTION_TEXT       = COLOR_BKGRND_MAIN;
-            COLOR_GROUP_MUTED          = COLOR_MAIN_TEXT_URL;
-            COLOR_EDGE_NORMAL          = COLOR_PROC(0x555555);
-            COLOR_EDGE_ACTIVE          = COLOR_PROC(0x228888);
-            COLOR_EDGE_HOVER           = COLOR_PROC(0x999999);
 
-            COLOR_ACTIVEOPTION_BKGRND     = COLOR_PROC(0x228888);
-            COLOR_ACTIVEOPTION_TEXT       = COLOR_MAIN_TEXT;
+            COLOR_EDGE_NORMAL         = COLOR_PROC(0x555555);
+            COLOR_EDGE_ACTIVE         = COLOR_PROC(0x228888);
+            COLOR_EDGE_HOVER          = COLOR_PROC(0x999999);
+            COLOR_ACTIVEOPTION_BKGRND = COLOR_PROC(0x228888);
+            COLOR_ACTIVEOPTION_TEXT   = COLOR_MAIN_TEXT;
+
             COLOR_AUX_EDGE_NORMAL         = COLOR_BKGRND_AUX;
             COLOR_AUX_EDGE_ACTIVE         = COLOR_EDGE_ACTIVE;
             COLOR_AUX_ACTIVEOPTION_BKGRND = COLOR_ACTIVEOPTION_BKGRND;
-            COLOR_MENU_TEXT_ACTIVE        = COLOR_MAIN_TEXT;
 
             COLOR_BTN_SUCCESS_BKGRND       = COLOR_PROC(0x414141);
             COLOR_BTN_SUCCESS_TEXT         = COLOR_PROC(0x33a63d);
             COLOR_BTN_SUCCESS_BKGRND_HOVER = COLOR_PROC(0x455147);
             COLOR_BTN_SUCCESS_TEXT_HOVER   = COLOR_PROC(0x6eff3a);
+
             COLOR_BTN_WARNING_BKGRND       = COLOR_PROC(0x414141);
             COLOR_BTN_WARNING_TEXT         = COLOR_PROC(0xbd9e22);
             COLOR_BTN_WARNING_BKGRND_HOVER = COLOR_PROC(0x4c493c);
             COLOR_BTN_WARNING_TEXT_HOVER   = COLOR_PROC(0xff8d2a);
-            COLOR_BTN_DANGER_BACKGROUND    = COLOR_PROC(0x414141);
-            COLOR_BTN_DANGER_TEXT          = COLOR_PROC(0xbd2525);
-            COLOR_BTN_DANGER_BKGRND_HOVER  = COLOR_PROC(0x513939);
-            COLOR_BTN_DANGER_TEXT_HOVER    = COLOR_PROC(0xfa2626);
-            COLOR_BTN_DISABLED_BKGRND      = COLOR_PROC(0x414141);
-            COLOR_BTN_DISABLED_TEXT        = COLOR_MAIN_TEXT;
-            COLOR_BTN_DISABLED_TRANSFER    = COLOR_BTN_DISABLED_TEXT;
-            COLOR_BTN_INPROGRESS_BKGRND    = COLOR_BTN_DISABLED_BKGRND;
-            COLOR_BTN_INPROGRESS_TEXT      = COLOR_MAIN_TEXT_URL;
-            COLOR_BTN_DISABLED_FORGRND     = COLOR_PROC(0x666666);
-            COLOR_BTN_INPROGRESS_FORGRND   = COLOR_PROC(0x2f656a);
-            break;
 
-        case THEME_LIGHT:
-            COLOR_BKGRND_LIST             = COLOR_PROC(0xf0f0f0);
-            COLOR_BKGRND_LIST_HOVER       = COLOR_PROC(0xe0e0e0);
-            COLOR_BKGRND_MENU             = COLOR_BKGRND_LIST;
-            COLOR_BKGRND_MENU_HOVER       = COLOR_PROC(0xe0e0e0);
-            COLOR_BKGRND_MENU_ACTIVE      = COLOR_PROC(0x555555);
-            COLOR_LIST_TEXT               = COLOR_MAIN_TEXT;
-            COLOR_LIST_TEXT_SUBTEXT       = COLOR_MAIN_TEXT_SUBTEXT;
-            COLOR_MENU_TEXT               = COLOR_PROC(0x555555);
-            COLOR_MENU_TEXT_ACTIVE        = COLOR_PROC(0xffffff);
-            COLOR_MENU_TEXT_SUBTEXT       = COLOR_PROC(0x414141);
-            COLOR_EDGE_NORMAL             = COLOR_PROC(0xc0c0c0);
-            COLOR_EDGE_HOVER              = COLOR_PROC(0x707070);
-            COLOR_ACTIVEOPTION_BKGRND     = COLOR_PROC(0xc2e0ff);
-            COLOR_ACTIVEOPTION_TEXT       = COLOR_MAIN_TEXT;
-            COLOR_BKGRND_AUX              = COLOR_PROC(0xe0e0e0);
+            COLOR_BTN_DANGER_BACKGROUND   = COLOR_PROC(0x414141);
+            COLOR_BTN_DANGER_TEXT         = COLOR_PROC(0xbd2525);
+            COLOR_BTN_DANGER_BKGRND_HOVER = COLOR_PROC(0x513939);
+            COLOR_BTN_DANGER_TEXT_HOVER   = COLOR_PROC(0xfa2626);
+
+            COLOR_BTN_DISABLED_BKGRND   = COLOR_PROC(0x414141);
+            COLOR_BTN_DISABLED_TEXT     = COLOR_MAIN_TEXT;
+            COLOR_BTN_DISABLED_TRANSFER = COLOR_BTN_DISABLED_TEXT;
+            COLOR_BTN_DISABLED_FORGRND  = COLOR_PROC(0x666666);
+
+            COLOR_BTN_INPROGRESS_BKGRND  = COLOR_BTN_DISABLED_BKGRND;
+            COLOR_BTN_INPROGRESS_TEXT    = COLOR_MAIN_TEXT_URL;
+            COLOR_BTN_INPROGRESS_FORGRND = COLOR_PROC(0x2f656a);
+            break;
+        }
+        case THEME_LIGHT: {
+            COLOR_BKGRND_AUX         = COLOR_PROC(0xe0e0e0);
+            COLOR_BKGRND_LIST        = COLOR_PROC(0xf0f0f0);
+            COLOR_BKGRND_LIST_HOVER  = COLOR_PROC(0xe0e0e0);
+            COLOR_BKGRND_MENU        = COLOR_BKGRND_LIST;
+            COLOR_BKGRND_MENU_HOVER  = COLOR_PROC(0xe0e0e0);
+            COLOR_BKGRND_MENU_ACTIVE = COLOR_PROC(0x555555);
+
+            COLOR_LIST_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_LIST_TEXT_SUBTEXT = COLOR_MAIN_TEXT_SUBTEXT;
+
+            COLOR_MENU_TEXT         = COLOR_PROC(0x555555);
+            COLOR_MENU_TEXT_ACTIVE  = COLOR_PROC(0xffffff);
+            COLOR_MENU_TEXT_SUBTEXT = COLOR_PROC(0x414141);
+
+            COLOR_EDGE_NORMAL         = COLOR_PROC(0xc0c0c0);
+            COLOR_EDGE_HOVER          = COLOR_PROC(0x707070);
+            COLOR_ACTIVEOPTION_BKGRND = COLOR_PROC(0xc2e0ff);
+            COLOR_ACTIVEOPTION_TEXT   = COLOR_MAIN_TEXT;
+
             COLOR_AUX_EDGE_NORMAL         = COLOR_BKGRND_AUX;
             COLOR_AUX_EDGE_HOVER          = COLOR_PROC(0x999999);
             COLOR_AUX_EDGE_ACTIVE         = COLOR_EDGE_ACTIVE;
@@ -203,130 +225,156 @@ void theme_load(const char loadtheme) {
             COLOR_AUX_ACTIVEOPTION_BKGRND = COLOR_ACTIVEOPTION_BKGRND;
             COLOR_AUX_ACTIVEOPTION_TEXT   = COLOR_AUX_TEXT;
             break;
+        }
+        case THEME_HIGHCONTRAST: {
+            COLOR_BKGRND_MAIN        = COLOR_PROC(0xffffff);
+            COLOR_BKGRND_AUX         = COLOR_BKGRND_MAIN;
+            COLOR_BKGRND_LIST        = COLOR_PROC(0x444444);
+            COLOR_BKGRND_LIST_HOVER  = COLOR_PROC(0x000001);
+            COLOR_BKGRND_MENU        = COLOR_BKGRND_MAIN;
+            COLOR_BKGRND_MENU_HOVER  = COLOR_BKGRND_MAIN;
+            COLOR_BKGRND_MENU_ACTIVE = COLOR_BKGRND_LIST_HOVER;
 
-        case THEME_HIGHCONTRAST:
-            COLOR_BKGRND_MAIN              = COLOR_PROC(0xffffff);
-            COLOR_BKGRND_AUX               = COLOR_BKGRND_MAIN;
-            COLOR_BKGRND_LIST              = COLOR_PROC(0x444444);
-            COLOR_BKGRND_LIST_HOVER        = COLOR_MAIN_TEXT;
-            COLOR_BKGRND_MENU              = COLOR_BKGRND_MAIN;
-            COLOR_BKGRND_MENU_HOVER        = COLOR_BKGRND_MAIN;
-            COLOR_BKGRND_MENU_ACTIVE       = COLOR_MAIN_TEXT;
-            COLOR_MAIN_TEXT                = COLOR_PROC(0x000001);
-            COLOR_MAIN_TEXT_CHAT           = COLOR_MAIN_TEXT;
-            COLOR_MAIN_TEXT_SUBTEXT        = COLOR_MAIN_TEXT;
-            COLOR_MAIN_TEXT_ACTION         = COLOR_PROC(0x0000ff);
-            COLOR_MAIN_TEXT_QUOTE          = COLOR_PROC(0x00ff00);
-            COLOR_MAIN_TEXT_URL            = COLOR_MAIN_TEXT_ACTION;
-            COLOR_MAIN_TEXT_HINT           = COLOR_MAIN_TEXT;
-            COLOR_MENU_TEXT                = COLOR_MAIN_TEXT;
-            COLOR_MENU_TEXT_SUBTEXT        = COLOR_MAIN_TEXT;
-            COLOR_MENU_TEXT_ACTIVE         = COLOR_BKGRND_MAIN;
-            COLOR_LIST_TEXT                = COLOR_BKGRND_MAIN;
-            COLOR_LIST_TEXT_SUBTEXT        = COLOR_BKGRND_MAIN;
-            COLOR_GROUP_SELF               = COLOR_PROC(0x00ff00);
-            COLOR_GROUP_PEER               = COLOR_MAIN_TEXT_HINT;
-            COLOR_GROUP_AUDIO              = COLOR_PROC(0xff0000);
-            COLOR_GROUP_MUTED              = COLOR_MAIN_TEXT_URL;
-            COLOR_SELECTION_BACKGROUND     = COLOR_MAIN_TEXT;
-            COLOR_SELECTION_TEXT           = COLOR_BKGRND_MAIN;
-            COLOR_EDGE_NORMAL              = COLOR_MAIN_TEXT;
-            COLOR_EDGE_ACTIVE              = COLOR_MAIN_TEXT;
-            COLOR_EDGE_HOVER               = COLOR_MAIN_TEXT;
-            COLOR_ACTIVEOPTION_BKGRND      = COLOR_MAIN_TEXT;
-            COLOR_ACTIVEOPTION_TEXT        = COLOR_BKGRND_MAIN;
-            COLOR_STATUS_ONLINE            = COLOR_PROC(0x00ff00);
-            COLOR_STATUS_AWAY              = COLOR_PROC(0xffff00);
-            COLOR_STATUS_BUSY              = COLOR_PROC(0xff0000);
+            COLOR_MAIN_TEXT         = COLOR_PROC(0x000001);
+            COLOR_MAIN_TEXT_CHAT    = COLOR_MAIN_TEXT;
+            COLOR_MAIN_TEXT_SUBTEXT = COLOR_MAIN_TEXT;
+            COLOR_MAIN_TEXT_ACTION  = COLOR_PROC(0x0000ff);
+            COLOR_MAIN_TEXT_QUOTE   = COLOR_PROC(0x00ff00);
+            COLOR_MAIN_TEXT_URL     = COLOR_MAIN_TEXT_ACTION;
+            COLOR_MAIN_TEXT_HINT    = COLOR_MAIN_TEXT;
+
+            COLOR_MENU_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_MENU_TEXT_SUBTEXT = COLOR_MAIN_TEXT;
+            COLOR_MENU_TEXT_ACTIVE  = COLOR_BKGRND_MAIN;
+
+            COLOR_LIST_TEXT         = COLOR_BKGRND_MAIN;
+            COLOR_LIST_TEXT_SUBTEXT = COLOR_BKGRND_MAIN;
+
+            COLOR_GROUP_SELF  = COLOR_PROC(0x00ff00);
+            COLOR_GROUP_PEER  = COLOR_MAIN_TEXT_HINT;
+            COLOR_GROUP_AUDIO = COLOR_PROC(0xff0000);
+            COLOR_GROUP_MUTED = COLOR_MAIN_TEXT_URL;
+
+            COLOR_SELECTION_BACKGROUND = COLOR_MAIN_TEXT;
+            COLOR_SELECTION_TEXT       = COLOR_BKGRND_MAIN;
+
+            COLOR_EDGE_NORMAL         = COLOR_MAIN_TEXT;
+            COLOR_EDGE_ACTIVE         = COLOR_MAIN_TEXT;
+            COLOR_EDGE_HOVER          = COLOR_MAIN_TEXT;
+            COLOR_ACTIVEOPTION_BKGRND = COLOR_MAIN_TEXT;
+            COLOR_ACTIVEOPTION_TEXT   = COLOR_BKGRND_MAIN;
+
+            COLOR_AUX_EDGE_NORMAL         = COLOR_EDGE_NORMAL;
+            COLOR_AUX_EDGE_HOVER          = COLOR_EDGE_NORMAL;
+            COLOR_AUX_EDGE_ACTIVE         = COLOR_EDGE_ACTIVE;
+            COLOR_AUX_TEXT                = COLOR_MAIN_TEXT;
+            COLOR_AUX_ACTIVEOPTION_BKGRND = COLOR_ACTIVEOPTION_BKGRND;
+            COLOR_AUX_ACTIVEOPTION_TEXT   = COLOR_ACTIVEOPTION_TEXT;
+
+            COLOR_STATUS_ONLINE = COLOR_PROC(0x00ff00);
+            COLOR_STATUS_AWAY   = COLOR_PROC(0xffff00);
+            COLOR_STATUS_BUSY   = COLOR_PROC(0xff0000);
+
             COLOR_BTN_SUCCESS_BKGRND       = COLOR_PROC(0x00ff00);
             COLOR_BTN_SUCCESS_TEXT         = COLOR_BKGRND_MAIN;
             COLOR_BTN_SUCCESS_BKGRND_HOVER = COLOR_PROC(0x00ff00);
             COLOR_BTN_SUCCESS_TEXT_HOVER   = COLOR_BKGRND_MAIN;
+
             COLOR_BTN_WARNING_BKGRND       = COLOR_PROC(0xffff00);
             COLOR_BTN_WARNING_TEXT         = COLOR_BKGRND_MAIN;
             COLOR_BTN_WARNING_BKGRND_HOVER = COLOR_PROC(0xffff00);
             COLOR_BTN_WARNING_TEXT_HOVER   = COLOR_BKGRND_MAIN;
-            COLOR_BTN_DANGER_BACKGROUND    = COLOR_PROC(0xff0000);
-            COLOR_BTN_DANGER_TEXT          = COLOR_BKGRND_MAIN;
-            COLOR_BTN_DANGER_BKGRND_HOVER  = COLOR_PROC(0xff0000);
-            COLOR_BTN_DANGER_TEXT_HOVER    = COLOR_BKGRND_MAIN;
-            COLOR_BTN_DISABLED_BKGRND      = COLOR_PROC(0x444444);
-            COLOR_BTN_DISABLED_TEXT        = COLOR_MAIN_TEXT;
-            COLOR_BTN_DISABLED_TRANSFER    = COLOR_BKGRND_MAIN;
-            COLOR_BTN_INPROGRESS_TEXT      = COLOR_BTN_DISABLED_TEXT;
-            COLOR_BTN_INPROGRESS_BKGRND    = COLOR_PROC(0x00ffff);
-            COLOR_AUX_EDGE_NORMAL          = COLOR_EDGE_NORMAL;
-            COLOR_AUX_EDGE_HOVER           = COLOR_EDGE_NORMAL;
-            COLOR_AUX_EDGE_ACTIVE          = COLOR_EDGE_ACTIVE;
-            COLOR_AUX_TEXT                 = COLOR_MAIN_TEXT;
-            COLOR_AUX_ACTIVEOPTION_BKGRND  = COLOR_ACTIVEOPTION_BKGRND;
-            COLOR_AUX_ACTIVEOPTION_TEXT    = COLOR_ACTIVEOPTION_TEXT;
-            COLOR_BTN_DISABLED_FORGRND     = COLOR_PROC(0x000000);
-            break;
 
-        case THEME_ZENBURN:
-            COLOR_BKGRND_MAIN               = COLOR_PROC(0x3f3f3f);
-            COLOR_BKGRND_AUX                = COLOR_BKGRND_MAIN;
-            COLOR_BKGRND_LIST               = COLOR_PROC(0x5f5f5f);
-            COLOR_BKGRND_LIST_HOVER         = COLOR_PROC(0x7f7f7f);
-            COLOR_BKGRND_MENU               = COLOR_BKGRND_MAIN;
-            COLOR_BKGRND_MENU_HOVER         = COLOR_MAIN_TEXT_QUOTE;
-            COLOR_BKGRND_MENU_ACTIVE        = COLOR_MAIN_TEXT_QUOTE;
-            COLOR_MAIN_TEXT                 = COLOR_PROC(0xdcdccc);
-            COLOR_MAIN_TEXT_CHAT            = COLOR_MAIN_TEXT;
-            COLOR_MAIN_TEXT_SUBTEXT         = COLOR_MAIN_TEXT;
-            COLOR_MAIN_TEXT_ACTION          = COLOR_PROC(0xd0bf8f);
-            COLOR_MAIN_TEXT_QUOTE           = COLOR_PROC(0x7f9f7f);
-            COLOR_MAIN_TEXT_URL             = COLOR_PROC(0x6ca0a3);
-            COLOR_MAIN_TEXT_HINT            = COLOR_MAIN_TEXT;
-            COLOR_MENU_TEXT                 = COLOR_MAIN_TEXT;
-            COLOR_MENU_TEXT_SUBTEXT         = COLOR_MAIN_TEXT;
-            COLOR_MENU_TEXT_ACTIVE          = COLOR_MAIN_TEXT;
-            COLOR_LIST_TEXT                 = COLOR_MAIN_TEXT;
-            COLOR_LIST_TEXT_SUBTEXT         = COLOR_MAIN_TEXT;
-            COLOR_AUX_EDGE_NORMAL           = COLOR_BKGRND_LIST;
-            COLOR_AUX_EDGE_HOVER            = COLOR_MAIN_TEXT_QUOTE;
-            COLOR_AUX_EDGE_ACTIVE           = COLOR_MAIN_TEXT;
-            COLOR_AUX_TEXT                  = COLOR_MAIN_TEXT;
-            COLOR_AUX_ACTIVEOPTION_BKGRND   = COLOR_MAIN_TEXT_QUOTE;
-            COLOR_AUX_ACTIVEOPTION_TEXT     = COLOR_MAIN_TEXT;
-            COLOR_GROUP_SELF                = COLOR_MAIN_TEXT;
-            COLOR_GROUP_PEER                = COLOR_MAIN_TEXT;
-            COLOR_GROUP_AUDIO               = COLOR_MAIN_TEXT_QUOTE;
-            COLOR_GROUP_MUTED               = COLOR_MAIN_TEXT_ACTION;
-            COLOR_SELECTION_BACKGROUND      = COLOR_MAIN_TEXT_QUOTE;
-            COLOR_SELECTION_TEXT            = COLOR_MAIN_TEXT;
-            COLOR_EDGE_NORMAL               = COLOR_BKGRND_LIST;
-            COLOR_EDGE_ACTIVE               = COLOR_MAIN_TEXT;
-            COLOR_EDGE_HOVER                = COLOR_MAIN_TEXT_QUOTE;
-            COLOR_ACTIVEOPTION_BKGRND       = COLOR_MAIN_TEXT_QUOTE;
-            COLOR_ACTIVEOPTION_TEXT         = COLOR_MAIN_TEXT;
-            COLOR_STATUS_ONLINE             = COLOR_MAIN_TEXT_QUOTE;
-            COLOR_STATUS_AWAY               = COLOR_MAIN_TEXT_ACTION;
-            COLOR_STATUS_BUSY               = COLOR_PROC(0xcc9393);
-            COLOR_BTN_SUCCESS_BKGRND        = COLOR_MAIN_TEXT_QUOTE;
-            COLOR_BTN_SUCCESS_TEXT          = COLOR_MAIN_TEXT;
-            COLOR_BTN_SUCCESS_BKGRND_HOVER  = COLOR_PROC(0xbfebbf);
-            COLOR_BTN_SUCCESS_TEXT_HOVER    = COLOR_PROC(0xffffff);
-            COLOR_BTN_WARNING_BKGRND        = COLOR_MAIN_TEXT_ACTION;
-            COLOR_BTN_WARNING_TEXT          = COLOR_BTN_SUCCESS_TEXT_HOVER;
-            COLOR_BTN_WARNING_BKGRND_HOVER  = COLOR_PROC(0xf0dfaf);
-            COLOR_BTN_WARNING_TEXT_HOVER    = COLOR_BTN_SUCCESS_TEXT_HOVER;
-            COLOR_BTN_DANGER_BACKGROUND     = COLOR_STATUS_AWAY;
-            COLOR_BTN_DANGER_TEXT           = COLOR_MAIN_TEXT;
-            COLOR_BTN_DANGER_BKGRND_HOVER   = COLOR_PROC(0xdca3a3);
-            COLOR_BTN_DANGER_TEXT_HOVER     = COLOR_BTN_SUCCESS_TEXT_HOVER;
+            COLOR_BTN_DANGER_BACKGROUND   = COLOR_PROC(0xff0000);
+            COLOR_BTN_DANGER_TEXT         = COLOR_BKGRND_MAIN;
+            COLOR_BTN_DANGER_BKGRND_HOVER = COLOR_PROC(0xff0000);
+            COLOR_BTN_DANGER_TEXT_HOVER   = COLOR_BKGRND_MAIN;
+
+            COLOR_BTN_DISABLED_BKGRND   = COLOR_PROC(0x444444);
+            COLOR_BTN_DISABLED_TEXT     = COLOR_MAIN_TEXT;
+            COLOR_BTN_DISABLED_TRANSFER = COLOR_BKGRND_MAIN;
+            COLOR_BTN_DISABLED_FORGRND  = COLOR_PROC(0x000000);
+
+            COLOR_BTN_INPROGRESS_TEXT   = COLOR_BTN_DISABLED_TEXT;
+            COLOR_BTN_INPROGRESS_BKGRND = COLOR_PROC(0x00ffff);
+            break;
+        }
+        case THEME_ZENBURN: {
+            COLOR_BKGRND_MAIN        = COLOR_PROC(0x3f3f3f);
+            COLOR_BKGRND_AUX         = COLOR_BKGRND_MAIN;
+            COLOR_BKGRND_LIST        = COLOR_PROC(0x5f5f5f);
+            COLOR_BKGRND_LIST_HOVER  = COLOR_PROC(0x7f7f7f);
+            COLOR_BKGRND_MENU        = COLOR_BKGRND_MAIN;
+            COLOR_BKGRND_MENU_HOVER  = COLOR_PROC(0x7f9f7f);
+            COLOR_BKGRND_MENU_ACTIVE = COLOR_BKGRND_MENU_HOVER;
+
+            COLOR_MAIN_TEXT         = COLOR_PROC(0xdcdccc);
+            COLOR_MAIN_TEXT_CHAT    = COLOR_MAIN_TEXT;
+            COLOR_MAIN_TEXT_SUBTEXT = COLOR_MAIN_TEXT;
+            COLOR_MAIN_TEXT_ACTION  = COLOR_PROC(0xd0bf8f);
+            COLOR_MAIN_TEXT_QUOTE   = COLOR_PROC(0x7f9f7f);
+            COLOR_MAIN_TEXT_URL     = COLOR_PROC(0x6ca0a3);
+            COLOR_MAIN_TEXT_HINT    = COLOR_MAIN_TEXT;
+
+            COLOR_MENU_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_MENU_TEXT_SUBTEXT = COLOR_MAIN_TEXT;
+            COLOR_MENU_TEXT_ACTIVE  = COLOR_MAIN_TEXT;
+
+            COLOR_LIST_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_LIST_TEXT_SUBTEXT = COLOR_MAIN_TEXT;
+
+            COLOR_GROUP_SELF  = COLOR_MAIN_TEXT;
+            COLOR_GROUP_PEER  = COLOR_MAIN_TEXT;
+            COLOR_GROUP_AUDIO = COLOR_MAIN_TEXT_QUOTE;
+            COLOR_GROUP_MUTED = COLOR_MAIN_TEXT_ACTION;
+
+            COLOR_SELECTION_BACKGROUND = COLOR_MAIN_TEXT_QUOTE;
+            COLOR_SELECTION_TEXT       = COLOR_MAIN_TEXT;
+
+            COLOR_EDGE_NORMAL         = COLOR_BKGRND_LIST;
+            COLOR_EDGE_ACTIVE         = COLOR_MAIN_TEXT;
+            COLOR_EDGE_HOVER          = COLOR_MAIN_TEXT_QUOTE;
+            COLOR_ACTIVEOPTION_BKGRND = COLOR_MAIN_TEXT_QUOTE;
+            COLOR_ACTIVEOPTION_TEXT   = COLOR_MAIN_TEXT;
+
+            COLOR_AUX_EDGE_NORMAL         = COLOR_BKGRND_LIST;
+            COLOR_AUX_EDGE_HOVER          = COLOR_MAIN_TEXT_QUOTE;
+            COLOR_AUX_EDGE_ACTIVE         = COLOR_MAIN_TEXT;
+            COLOR_AUX_TEXT                = COLOR_MAIN_TEXT;
+            COLOR_AUX_ACTIVEOPTION_BKGRND = COLOR_MAIN_TEXT_QUOTE;
+            COLOR_AUX_ACTIVEOPTION_TEXT   = COLOR_MAIN_TEXT;
+
+            COLOR_STATUS_ONLINE = COLOR_MAIN_TEXT_QUOTE;
+            COLOR_STATUS_AWAY   = COLOR_MAIN_TEXT_ACTION;
+            COLOR_STATUS_BUSY   = COLOR_PROC(0xcc9393);
+
+            COLOR_BTN_SUCCESS_BKGRND       = COLOR_MAIN_TEXT_QUOTE;
+            COLOR_BTN_SUCCESS_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_BTN_SUCCESS_BKGRND_HOVER = COLOR_PROC(0xbfebbf);
+            COLOR_BTN_SUCCESS_TEXT_HOVER   = COLOR_PROC(0xffffff);
+
+            COLOR_BTN_WARNING_BKGRND       = COLOR_MAIN_TEXT_ACTION;
+            COLOR_BTN_WARNING_TEXT         = COLOR_BTN_SUCCESS_TEXT_HOVER;
+            COLOR_BTN_WARNING_BKGRND_HOVER = COLOR_PROC(0xf0dfaf);
+            COLOR_BTN_WARNING_TEXT_HOVER   = COLOR_BTN_SUCCESS_TEXT_HOVER;
+
+            COLOR_BTN_DANGER_BACKGROUND   = COLOR_STATUS_AWAY;
+            COLOR_BTN_DANGER_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_BTN_DANGER_BKGRND_HOVER = COLOR_PROC(0xdca3a3);
+            COLOR_BTN_DANGER_TEXT_HOVER   = COLOR_BTN_SUCCESS_TEXT_HOVER;
+
             COLOR_BTN_DISABLED_BKGRND       = COLOR_BKGRND_LIST;
             COLOR_BTN_DISABLED_TEXT         = COLOR_MAIN_TEXT;
             COLOR_BTN_DISABLED_BKGRND_HOVER = COLOR_BKGRND_LIST_HOVER;
             COLOR_BTN_DISABLED_TRANSFER     = COLOR_MAIN_TEXT;
-            COLOR_BTN_INPROGRESS_BKGRND     = COLOR_PROC(0xc1c1a4);
-            COLOR_BTN_INPROGRESS_TEXT       = COLOR_BKGRND_MAIN;
-            COLOR_BTN_INPROGRESS_FORGRND    = COLOR_MAIN_TEXT;
             COLOR_BTN_DISABLED_FORGRND      = COLOR_BKGRND_LIST_HOVER;
-            break;
 
-        case THEME_SOLARIZED_DARK:
+            COLOR_BTN_INPROGRESS_BKGRND  = COLOR_PROC(0xc1c1a4);
+            COLOR_BTN_INPROGRESS_TEXT    = COLOR_BKGRND_MAIN;
+            COLOR_BTN_INPROGRESS_FORGRND = COLOR_MAIN_TEXT;
+            break;
+        }
+        case THEME_SOLARIZED_DARK: {
             COLOR_BKGRND_MAIN        = COLOR_PROC(SOLAR_BASE03);
             COLOR_BKGRND_ALT         = COLOR_PROC(SOLAR_BASE02);
             COLOR_BKGRND_AUX         = COLOR_BKGRND_ALT;
@@ -387,26 +435,29 @@ void theme_load(const char loadtheme) {
             COLOR_BTN_SUCCESS_TEXT          = COLOR_MAIN_TEXT;
             COLOR_BTN_SUCCESS_BKGRND_HOVER  = COLOR_PROC(SOLAR_CYAN);
             COLOR_BTN_SUCCESS_TEXT_HOVER    = COLOR_BKGRND_MAIN;
+
             COLOR_BTN_WARNING_BKGRND        = COLOR_STATUS_AWAY;
             COLOR_BTN_WARNING_TEXT          = COLOR_MAIN_TEXT;
             COLOR_BTN_WARNING_BKGRND_HOVER  = COLOR_PROC(SOLAR_ORANGE);
             COLOR_BTN_WARNING_TEXT_HOVER    = COLOR_BKGRND_MAIN;
+
             COLOR_BTN_DANGER_BACKGROUND     = COLOR_STATUS_BUSY;
             COLOR_BTN_DANGER_TEXT           = COLOR_MAIN_TEXT;
             COLOR_BTN_DANGER_BKGRND_HOVER   = COLOR_PROC(SOLAR_MAGENTA);
             COLOR_BTN_DANGER_TEXT_HOVER     = COLOR_BKGRND_MAIN;
+
             COLOR_BTN_DISABLED_BKGRND       = COLOR_PROC(SOLAR_BASE00);
             COLOR_BTN_DISABLED_TEXT         = COLOR_BKGRND_MAIN;
             COLOR_BTN_DISABLED_BKGRND_HOVER = COLOR_BKGRND_LIST_HOVER;
             COLOR_BTN_DISABLED_TRANSFER     = COLOR_BKGRND_LIST;
-            COLOR_BTN_INPROGRESS_BKGRND     = COLOR_PROC(SOLAR_VIOLET);
-            COLOR_BTN_INPROGRESS_TEXT       = COLOR_BKGRND_MAIN;
+            COLOR_BTN_DISABLED_FORGRND      = COLOR_PROC(SOLAR_ORANGE);
 
-            COLOR_BTN_DISABLED_FORGRND   = COLOR_PROC(SOLAR_ORANGE);
             COLOR_BTN_INPROGRESS_FORGRND = COLOR_PROC(SOLAR_MAGENTA);
+            COLOR_BTN_INPROGRESS_BKGRND  = COLOR_PROC(SOLAR_VIOLET);
+            COLOR_BTN_INPROGRESS_TEXT    = COLOR_BKGRND_MAIN;
             break;
-
-        case THEME_SOLARIZED_LIGHT:
+        }
+        case THEME_SOLARIZED_LIGHT: {
             COLOR_BKGRND_MAIN        = COLOR_PROC(SOLAR_BASE3);
             COLOR_BKGRND_ALT         = COLOR_PROC(SOLAR_BASE2);
             COLOR_BKGRND_AUX         = COLOR_BKGRND_ALT;
@@ -462,33 +513,45 @@ void theme_load(const char loadtheme) {
             COLOR_STATUS_AWAY   = COLOR_PROC(SOLAR_YELLOW);
             COLOR_STATUS_BUSY   = COLOR_PROC(SOLAR_RED);
 
-            COLOR_BTN_SUCCESS_BKGRND        = COLOR_STATUS_ONLINE;
-            COLOR_BTN_SUCCESS_TEXT          = COLOR_MAIN_TEXT;
-            COLOR_BTN_SUCCESS_BKGRND_HOVER  = COLOR_PROC(SOLAR_CYAN);
-            COLOR_BTN_SUCCESS_TEXT_HOVER    = COLOR_BKGRND_MAIN;
-            COLOR_BTN_WARNING_BKGRND        = COLOR_STATUS_AWAY;
-            COLOR_BTN_WARNING_TEXT          = COLOR_MAIN_TEXT;
-            COLOR_BTN_WARNING_BKGRND_HOVER  = COLOR_PROC(SOLAR_ORANGE);
-            COLOR_BTN_WARNING_TEXT_HOVER    = COLOR_BKGRND_MAIN;
-            COLOR_BTN_DANGER_BACKGROUND     = COLOR_STATUS_BUSY;
-            COLOR_BTN_DANGER_TEXT           = COLOR_MAIN_TEXT;
-            COLOR_BTN_DANGER_BKGRND_HOVER   = COLOR_PROC(SOLAR_MAGENTA);
-            COLOR_BTN_DANGER_TEXT_HOVER     = COLOR_BKGRND_MAIN;
+            COLOR_BTN_SUCCESS_BKGRND       = COLOR_STATUS_ONLINE;
+            COLOR_BTN_SUCCESS_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_BTN_SUCCESS_BKGRND_HOVER = COLOR_PROC(SOLAR_CYAN);
+            COLOR_BTN_SUCCESS_TEXT_HOVER   = COLOR_BKGRND_MAIN;
+
+            COLOR_BTN_WARNING_BKGRND       = COLOR_STATUS_AWAY;
+            COLOR_BTN_WARNING_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_BTN_WARNING_BKGRND_HOVER = COLOR_PROC(SOLAR_ORANGE);
+            COLOR_BTN_WARNING_TEXT_HOVER   = COLOR_BKGRND_MAIN;
+
+            COLOR_BTN_DANGER_BACKGROUND   = COLOR_STATUS_BUSY;
+            COLOR_BTN_DANGER_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_BTN_DANGER_BKGRND_HOVER = COLOR_PROC(SOLAR_MAGENTA);
+            COLOR_BTN_DANGER_TEXT_HOVER   = COLOR_BKGRND_MAIN;
+
             COLOR_BTN_DISABLED_BKGRND       = COLOR_PROC(SOLAR_BASE0);
             COLOR_BTN_DISABLED_TEXT         = COLOR_BKGRND_MAIN;
             COLOR_BTN_DISABLED_BKGRND_HOVER = COLOR_BKGRND_LIST_HOVER;
             COLOR_BTN_DISABLED_TRANSFER     = COLOR_BKGRND_LIST;
-            COLOR_BTN_INPROGRESS_BKGRND     = COLOR_PROC(SOLAR_VIOLET);
-            COLOR_BTN_INPROGRESS_TEXT       = COLOR_BKGRND_MAIN;
+            COLOR_BTN_DISABLED_FORGRND      = COLOR_PROC(SOLAR_ORANGE);
 
-            COLOR_BTN_DISABLED_FORGRND   = COLOR_PROC(SOLAR_ORANGE);
+            COLOR_BTN_INPROGRESS_BKGRND  = COLOR_PROC(SOLAR_VIOLET);
+            COLOR_BTN_INPROGRESS_TEXT    = COLOR_BKGRND_MAIN;
             COLOR_BTN_INPROGRESS_FORGRND = COLOR_PROC(SOLAR_MAGENTA);
             break;
-
+        }
         case THEME_CUSTOM: {
-            size_t   size;
+            size_t size;
             uint8_t *themedata = utox_data_load_custom_theme(&size);
+            if (!themedata) {
+                LOG_ERR("Theme", "Failed to load custom theme.");
+                return;
+            }
             read_custom_theme(themedata, size);
+            break;
+        }
+        case THEME_DEFAULT: {
+            // Set above the switch.
+            break;
         }
     }
 
@@ -533,7 +596,7 @@ uint32_t *find_colour_pointer(char *color) {
     return NULL;
 }
 
-uint32_t try_parse_hex_colour(char *color, int *error) {
+static uint32_t try_parse_hex_colour(char *color, int *error) {
     while (*color == 0 || *color == ' ' || *color == '\t') {
         color++;
     }
@@ -564,7 +627,7 @@ uint32_t try_parse_hex_colour(char *color, int *error) {
     return RGB(red, green, blue);
 }
 
-void read_custom_theme(const uint8_t *data, size_t length) {
+static void read_custom_theme(const uint8_t *data, size_t length) {
     while (length) {
         char *line = (char *)data;
         while (*line != 0) {
@@ -599,4 +662,28 @@ void read_custom_theme(const uint8_t *data, size_t length) {
             *colorp = COLOR_PROC(col);
         }
     }
+}
+
+static uint8_t *utox_data_load_custom_theme(size_t *out) {
+    FILE *fp = native_get_file((uint8_t *)"utox_theme.ini", out, UTOX_FILE_OPTS_READ);
+
+    if (fp == NULL) {
+        return NULL;
+    }
+
+    uint8_t *data = calloc(1, *out + 1);
+    if (data == NULL) {
+        fclose(fp);
+        return NULL;
+    }
+
+    if (fread(data, 1, *out, fp) != 1) {
+        LOG_ERR("Theme", "Could not read custom theme from file");
+        fclose(fp);
+        free(data);
+        return NULL;
+    }
+    fclose(fp);
+
+    return data;
 }

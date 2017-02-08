@@ -1424,7 +1424,7 @@ bool messages_mup(PANEL *panel) {
     MESSAGES *m = panel->object;
 
     if (!m->data) {
-        return 0;
+        return false;
     }
 
     if (m->cursor_over_msg != UINT32_MAX) {
@@ -1445,8 +1445,9 @@ bool messages_mup(PANEL *panel) {
     }
 
     if (m->selecting_text) {
-        char *sel = calloc(1, 65536);
-        setselection(sel, messages_selection(panel, sel, 65536, 0));
+        const uint32_t max_selection_size = UINT16_MAX + 1;
+        char *sel = calloc(1, max_selection_size);
+        setselection(sel, messages_selection(panel, sel, max_selection_size, 0));
         free(sel);
 
         m->selecting_text = 0;
@@ -1454,7 +1455,7 @@ bool messages_mup(PANEL *panel) {
 
     m->cursor_down_msg = UINT32_MAX;
 
-    return 0;
+    return false;
 }
 
 bool messages_mleave(PANEL *UNUSED(m)) { return 0; }
@@ -1591,34 +1592,31 @@ bool messages_char(uint32_t ch) {
     } else if (flist_get_selected()->item == ITEM_GROUP) {
         m = messages_group.object;
     } else {
-        return 0;
+        return false;
     }
 
     switch (ch) {
-        //! TODO: not constant 0.25
-        /* TODO: probabaly need to fix this section :< m->panel.content scroll is likely to be wrong */
+        // TODO: probabaly need to fix this section :< m->panel.content scroll is likely to be wrong.
         case KEY_PAGEUP: {
             SCROLLABLE *scroll = m->panel.content_scroll;
-            scroll->d -= 0.25;
+            scroll->d -= 0.25; // TODO: Change to a full chat-screen height.
             if (scroll->d < 0.0) {
                 scroll->d = 0.0;
             }
-            // redraw();
-            return 1;
+            return true;
         }
 
         case KEY_PAGEDOWN: {
             SCROLLABLE *scroll = m->panel.content_scroll;
-            scroll->d += 0.25;
+            scroll->d += 0.25; // TODO: Change to a full chat-screen height.
             if (scroll->d > 1.0) {
                 scroll->d = 1.0;
             }
-            // redraw();
-            return 1;
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }
 
 void messages_init(MESSAGES *m, uint32_t friend_number) {
@@ -1638,16 +1636,32 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 }
 
 void message_free(MSG_HEADER *msg) {
+    // The group messages are free()d in groups.c (group_free(GROUPCHAT *g))
     switch (msg->msg_type) {
         case MSG_TYPE_IMAGE: {
             image_free(msg->via.img.image);
             break;
         }
         case MSG_TYPE_FILE: {
-            // already gets free()d
             free(msg->via.ft.name);
             free(msg->via.ft.path);
             free(msg->via.ft.data);
+            break;
+        }
+        case MSG_TYPE_NOTICE_DAY_CHANGE: {
+            free(msg->via.notice_day.msg);
+            break;
+        }
+        case MSG_TYPE_TEXT: {
+            free(msg->via.txt.msg);
+            break;
+        }
+        case MSG_TYPE_ACTION_TEXT: {
+            free(msg->via.action.msg);
+            break;
+        }
+        case MSG_TYPE_NOTICE: {
+            free(msg->via.notice.msg);
             break;
         }
     }
@@ -1656,9 +1670,8 @@ void message_free(MSG_HEADER *msg) {
 
 void messages_clear_all(MESSAGES *m) {
     pthread_mutex_lock(&messages_lock);
-    uint32_t i;
 
-    for (i = 0; i < m->number; i++) {
+    for (uint32_t i = 0; i < m->number; i++) {
         message_free(m->data[i]);
     }
 
