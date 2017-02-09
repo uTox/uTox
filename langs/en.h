@@ -747,3 +747,12 @@ msgstr("Block Friend Requests")
 
 msgid(SHOW_NOSPAM)
 msgstr("Show Nospam Settings")
+
+msgid(DELETE_FRIEND)
+msgstr("Delete Friend")
+
+msgid(DELETE_MESSAGE)
+msgstr("Are you sure you want to delete ")
+
+msgid(KEEP)
+msgstr("Keep")

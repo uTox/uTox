@@ -12,7 +12,8 @@ extern PANEL panel_friend,
              panel_friend_chat,
              panel_friend_video,
              panel_friend_settings,
-             panel_friend_request;
+             panel_friend_request,
+             panel_friend_confirm_deletion;
 
 
 typedef struct button BUTTON;
@@ -31,6 +32,10 @@ extern BUTTON button_send_friend_request,
 
 // Friend Settings
 extern BUTTON button_export_chatlog;
+
+// Friend Deletion model
+extern BUTTON button_confirm_deletion,
+              button_deny_deletion;
 
 typedef struct uiswitch UISWITCH;
 extern UISWITCH switch_friend_autoaccept_ft;

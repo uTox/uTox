@@ -45,12 +45,14 @@ message("Xrender library: ${X11_Xrender_LIB}")
 
 target_link_libraries(utoxNATIVE icon v4lconvert ${X11_LIBRARIES} ${X11_Xrender_LIB} fontconfig ${FREETYPE_LIBRARIES} resolv dl )
 
+include(GNUInstallDirs)
+
 install(FILES
     ../utox.desktop
-    DESTINATION "share/applications"
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications"
     )
 
 install(FILES
     ../utox.1
-    DESTINATION "share/man/man1"
+    DESTINATION "${CMAKE_INSTALL_MANDIR}/man1"
     )

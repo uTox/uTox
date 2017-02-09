@@ -77,6 +77,25 @@ static void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UN
     drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
 }
 
+static void draw_friend_deletion(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+    FRIEND *f = flist_get_selected()->data;
+    if (f == NULL || flist_get_selected()->item != ITEM_FRIEND) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+
+    int length = f->name_length + 2;
+    char str[length];
+    snprintf(str, length, "%.*s?", (int)f->name_length, f->name);
+
+    const int push = UTOX_STR_WIDTH(DELETE_MESSAGE);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(70), DELETE_MESSAGE);
+    drawtextrange(push + MAIN_LEFT + SCALE(10), settings.window_width, SCALE(70), str, length - 1);
+}
+
 /* Draw add a friend window */
 static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
     setcolor(COLOR_MAIN_TEXT);
@@ -166,6 +185,7 @@ panel_friend = {
             &panel_friend_chat,
             &panel_friend_video,
             &panel_friend_settings,
+            &panel_friend_confirm_deletion,
             NULL
         }
     },
@@ -204,6 +224,17 @@ panel_friend = {
             (PANEL*)&button_export_chatlog,
             NULL
         }
+    },
+    panel_friend_confirm_deletion = {
+        .type = PANEL_NONE,
+        .disabled = true,
+        .drawfunc = draw_friend_deletion,
+        .child = (PANEL*[]) {
+            (PANEL *)&button_confirm_deletion,
+            (PANEL *)&button_deny_deletion,
+            NULL
+        }
+
     },
 panel_friend_request = {
     .type = PANEL_NONE,
@@ -707,4 +738,29 @@ BUTTON button_chat_send_friend = {
     .on_mup       = button_chat_send_friend_on_mup,
     .update       = button_chat_send_friend_update,
     .tooltip_text = {.i18nal = STR_SENDMESSAGE },
+};
+
+static void button_confirm_deletion_on_mup(void) {
+    flist_delete_rmouse_item();
+}
+
+static void button_deny_deletion_on_mup(void) {
+    panel_friend_confirm_deletion.disabled = true;
+    panel_friend_chat.disabled             = false;
+}
+
+BUTTON button_confirm_deletion = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_danger,
+    .tooltip_text = {.i18nal = STR_DELETE},
+    .button_text  = {.i18nal = STR_DELETE},
+    .on_mup       = button_confirm_deletion_on_mup,
+};
+
+BUTTON button_deny_deletion = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_KEEP},
+    .button_text  = {.i18nal = STR_KEEP},
+    .on_mup       = button_deny_deletion_on_mup,
 };

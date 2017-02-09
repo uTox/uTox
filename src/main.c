@@ -119,30 +119,6 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
     return true;
 }
 
-uint8_t *utox_data_load_custom_theme(size_t *out) {
-    FILE *fp = native_get_file((uint8_t *)"utox_theme.ini", out, UTOX_FILE_OPTS_READ);
-
-    if (fp == NULL) {
-        return NULL;
-    }
-
-    uint8_t *data = calloc(*out + 1, 1);
-    if (data == NULL) {
-        fclose(fp);
-        return NULL;
-    }
-
-    if (fread(data, 1, *out, fp) != *out) {
-        LOG_ERR("Theme", "Could not read custom theme from file");
-        fclose(fp);
-        free(data);
-        return NULL;
-    }
-    fclose(fp);
-
-    return data;
-}
-
 /* Shared function between all four platforms */
 void parse_args(int argc, char *argv[],
                 bool *skip_updater,

@@ -184,14 +184,6 @@ uint8_t *utox_data_load_tox(size_t *size);
 UTOX_SAVE *utox_data_load_utox(void);
 
 /**
- * Loads a custom theme and sets out to the size of the data
- *
- * Returns a pointer to the theme data on success, the caller needs to free this
- * Returns NULL on failure
- */
-uint8_t *utox_data_load_custom_theme(size_t *out);
-
-/**
  * Parses the arguments passed to uTox
  */
 void parse_args(int argc, char *argv[],
