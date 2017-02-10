@@ -32,8 +32,6 @@
 static bool flashing;
 static bool hidden;
 
-static TRACKMOUSEEVENT tme           = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0 };
-
 bool  draw      = false;
 float scale     = 1.0;
 bool  connected = false;
@@ -91,15 +89,18 @@ void openfilesend(void) {
 }
 
 void openfileavatar(void) {
-    char *filepath = malloc(UTOX_FILE_NAME_LENGTH);
-    filepath[0]    = 0;
+    char *filepath = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (!filepath) {
+        LOG_ERR("openfileavatar", "Could not allocate memory for path.");
+        return;
+    }
 
     wchar_t dir[UTOX_FILE_NAME_LENGTH];
     GetCurrentDirectoryW(COUNTOF(dir), dir);
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
-        .lpstrFilter = "Supported Images\0*.GIF;*.PNG;*.JPG;*.JPEG" /* TODO: add all the supported types */
+        .lpstrFilter = "Supported Images\0*.GIF;*.PNG;*.JPG;*.JPEG" // TODO: add all the supported types.
                        "All Files\0*.*\0"
                        "GIF Files\0*.GIF\0"
                        "PNG Files\0*.PNG\0"
@@ -152,6 +153,7 @@ void file_save_inline(MSG_HEADER *msg) {
         LOG_ERR("file_save_inline", "Could not allocate memory for path.");
         return;
     }
+
     snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)msg->via.ft.name_length, (char *)msg->via.ft.name);
 
     OPENFILENAME ofn = {
@@ -181,21 +183,6 @@ void file_save_inline(MSG_HEADER *msg) {
     free(path);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size) {
     /* must be null terminated string          ↓                     */
     return WideCharToMultiByte(CP_UTF8, 0, str_in, -1, str_out, max_size, NULL, NULL);
@@ -211,17 +198,15 @@ void init_ptt(void) {
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
-        // LOG_TRACE(__FILE__, "PTT is disabled" );
-        return true; /* If push to talk is disabled, return true. */
+        // PTT is disabled. Always send audio.
+        return true;
     }
 
     if (GetAsyncKeyState(VK_LCONTROL)) {
-        // LOG_TRACE(__FILE__, "PTT key is down" );
         return true;
-    } else {
-        // LOG_TRACE(__FILE__, "PTT key is up" );
-        return false;
     }
+
+    return false;
 }
 
 void exit_ptt(void) {
@@ -241,26 +226,27 @@ uint64_t get_time(void) {
 }
 
 void openurl(char *str) {
-    //! convert
     ShellExecute(NULL, "open", (char *)str, NULL, NULL, SW_SHOW);
 }
 
-void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {}
-
+void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {
+    // TODO: Implement.
+}
 
 #include "../layout/friend.h"
 #include "../layout/group.h"
 void copy(int value) {
-    char data[32768]; //! TODO: De-hardcode this value.
-    int  len;
+    const uint16_t max_size = INT16_MAX + 1;
+    char data[max_size]; //! TODO: De-hardcode this value.
+    int len = 0;
 
     if (edit_active()) {
-        len       = edit_copy(data, 32767);
+        len = edit_copy(data, max_size - 1);
         data[len] = 0;
     } else if (flist_get_selected()->item == ITEM_FRIEND) {
-        len = messages_selection(&messages_friend, data, 32768, value);
+        len = messages_selection(&messages_friend, data, max_size, value);
     } else if (flist_get_selected()->item == ITEM_GROUP) {
-        len = messages_selection(&messages_group, data, 32768, value);
+        len = messages_selection(&messages_group, data, max_size, value);
     } else {
         return;
     }
@@ -277,9 +263,9 @@ void copy(int value) {
 
 /* TODO DRY, this exists in screen_grab.c */
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
-    NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
+    NATIVE_IMAGE *image = calloc(1, sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        LOG_TRACE("create_utox_image", " Could not allocate memory for image." );
+        LOG_ERR("create_utox_image", " Could not allocate memory for image." );
         return NULL;
     }
     image->bitmap        = bmp;
@@ -295,8 +281,9 @@ static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t wid
 
 /* TODO DRY, this exists in screen_grab.c */
 static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
-    if (width == 0 || height == 0)
+    if (width == 0 || height == 0) {
         return;
+    }
 
     BITMAPINFO info = {
         .bmiHeader = {
@@ -309,15 +296,17 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
         }
     };
 
-    void *bits = malloc((width + 3) * height * 3);
+    void *bits = calloc(1, (width + 3) * height * 3);
 
     GetDIBits(mem, hbm, 0, height, bits, &info, DIB_RGB_COLORS);
 
-    uint8_t pbytes = width & 3, *p = bits, *pp = bits, *end = p + width * height * 3;
-    // uint32_t offset = 0;
+    uint8_t pbytes = width & 3;
+    uint8_t *p = bits;
+    uint8_t *pp = bits;
+    uint8_t *end = p + width * height * 3;
+
     while (p != end) {
-        int i;
-        for (i = 0; i != width; i++) {
+        for (int i = 0; i != width; i++) {
             uint8_t b    = pp[i * 3];
             p[i * 3]     = pp[i * 3 + 2];
             p[i * 3 + 1] = pp[i * 3 + 1];
@@ -328,12 +317,12 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     }
 
     int size = 0;
-    uint8_t *out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
 
+    UTOX_IMAGE out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
     free(bits);
 
     NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(flist_get_selected()->data, image, width, height, (UTOX_IMAGE)out, size);
+    friend_sendimage(flist_get_selected()->data, image, width, height, out, size);
 }
 
 void paste(void) {
@@ -364,10 +353,10 @@ void paste(void) {
         }
     } else {
         wchar_t *d = GlobalLock(h);
-        char     data[65536]; // TODO: De-hardcode this value.
-        int      len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char *)data, sizeof(data), NULL, 0);
+        char data[65536]; // TODO: De-hardcode this value.
+        int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, data, sizeof(data), NULL, NULL);
         if (edit_active()) {
-            edit_paste(data, len, 0);
+            edit_paste(data, len, false);
         }
     }
 
@@ -878,7 +867,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     native_notify_init(hInstance);
 
     hdc_brush = GetStockObject(DC_BRUSH);
-    tme.hwndTrack = main_window.window;
 
     tray_icon_init(main_window.window, LoadIcon(hInstance, MAKEINTRESOURCE(101)));
 

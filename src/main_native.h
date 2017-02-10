@@ -95,6 +95,7 @@ bool native_move_file(const uint8_t *current_name, const uint8_t *new_name);
 void init_ptt(void);
 bool get_ptt_key(void); // Never used. Remove?
 bool set_ptt_key(void); // Never used. Remove?
+// Returns a bool indicating whether you should send audio or not.
 bool check_ptt_key(void);
 void exit_ptt(void);
 
