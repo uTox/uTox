@@ -85,37 +85,39 @@ panel_main = {
         NULL
     }
 },
-    /* Chat panel, friend or group, depending on what's selected */
-    panel_chat = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .child = (PANEL*[]) {
-            &panel_group,
-            &panel_friend,
-            &panel_friend_request,
-            NULL
-        }
-    },
 
-    /* Settings master panel, holds the lower level settings */
-    panel_overhead = {
-        .type = PANEL_NONE,
-        .disabled = 0,
-        .child = (PANEL*[]) {
-            &panel_splash_page,
-            &panel_profile_password,
-            &panel_add_friend,
-            &panel_settings_master,
-            // (PANEL*)&button_notify_create, // FIXME, left as a comment for later work on popup notifications
-            NULL
-        }
-    },
-    panel_splash_page = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = draw_splash_page,
-        .content_scroll = &scrollbar_settings,
-        .child = (PANEL*[]) {
-            NULL,
-        }
-    };
+/* Chat panel, friend or group, depending on what's selected */
+panel_chat = {
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .child = (PANEL*[]) {
+        &panel_group,
+        &panel_friend,
+        &panel_friend_request,
+        NULL
+    }
+},
+
+/* Settings master panel, holds the lower level settings */
+panel_overhead = {
+    .type = PANEL_NONE,
+    .disabled = 0,
+    .child = (PANEL*[]) {
+        &panel_splash_page,
+        &panel_profile_password,
+        &panel_add_friend,
+        &panel_settings_master,
+        // (PANEL*)&button_notify_create, // FIXME, left as a comment for later work on popup notifications
+        NULL
+    }
+},
+
+panel_splash_page = {
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .drawfunc = draw_splash_page,
+    .content_scroll = &scrollbar_settings,
+    .child = (PANEL*[]) {
+        NULL,
+    }
+};
