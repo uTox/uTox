@@ -772,12 +772,16 @@ void edit_paste(char *data, int length, bool select) {
     const int maxlen = active_edit->maxlength - active_edit->length + edit_sel.length;
     int newlen = 0, i = 0;
     while (i < length) {
-        uint8_t len = utf8_len(data + i);
-        if ((((!active_edit->multiline || data[i] != '\n')                               // not multiline or '\n'
-              && data[i] <= 0x1F)                                                        // and is a control char
-             || data[i] == 0x7F)                                                         // or is delete
-            || (len == 2 && (uint8_t)data[i] == 0xC2 && (uint8_t)data[i + 1] <= 0xBF)) { // or is utf8
-            // Ignore these control characters.
+        const uint8_t len = utf8_len(data + i);
+
+        const bool not_linebreak = !active_edit->multiline || data[i] != '\n';
+        const bool is_multibyte = len > 1;
+        const bool is_control_char = is_multibyte ? (uint8_t)data[i] == 0xC2 && (uint8_t)data[i + 1] <= 0x9F
+                                                  : data[i] <= 0x1F && not_linebreak;
+        const bool is_delete = data[i] == 0x7F;
+
+        if (is_delete || is_control_char) {
+            // Ignore these characters
         } else {
             if (newlen + len > maxlen) {
                 break;
