@@ -644,6 +644,9 @@ int main(int argc, char *argv[]) {
     int8_t set_show_window;
     bool   skip_updater, from_updater;
 
+    // Load settings before calling utox_init()
+    utox_init();
+
     #ifdef HAVE_DBUS
     LOG_INFO("XLIB MAIN", "Compiled with dbus support!\n");
     #endif
@@ -671,9 +674,6 @@ int main(int argc, char *argv[]) {
 
     LOG_INFO("XLIB MAIN", "Setting theme to:\t%d", settings.theme);
     theme_load(settings.theme);
-
-    // Load settings before calling utox_init()
-    utox_init();
 
     if (!XInitThreads()) {
         LOG_FATAL_ERR(2, "XLIB MAIN", "XInitThreads failed.");
@@ -881,6 +881,8 @@ int main(int argc, char *argv[]) {
     }
 
     LOG_ERR("XLIB", "XLIB main:\tClean exit\n");
+
+    utox_raze();
 
     return 0;
 }

@@ -704,6 +704,8 @@ static void android_main(struct android_app *state) {
     int8_t set_show_window;
     bool   skip_updater, from_updater;
 
+    utox_init();
+
     parse_args(NULL, NULL,
                &skip_updater,
                &from_updater,
@@ -736,8 +738,6 @@ static void android_main(struct android_app *state) {
 
     UTOX_SAVE *save = config_load();
     theme_load(THEME_DEFAULT);
-
-    utox_init();
 
     thread(toxcore_thread, NULL);
 

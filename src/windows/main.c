@@ -938,5 +938,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     LOG_INFO("uTox", "Clean exit." );
 
+    utox_raze();
+
     return false;
 }
