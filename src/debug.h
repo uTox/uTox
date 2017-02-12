@@ -25,19 +25,15 @@ int utox_verbosity();
 
 // define debugging macros in a platform specific way
 
-#if defined __WIN32__
-#include "windows/logging.h"
-#elif defined __ANDROID__
+#ifdef __ANDROID__
 #include "android/logging.h"
-#elif defined __OBJC__
-#include "cocoa/logging.h"
 #else
-#include "xlib/logging.h"
+void debug(const char *fmt, ...);
 #endif
 
 #define VERB(x) (utox_verbosity() >= LOG_LVL_##x)
 
-#define LOG_FATAL_ERR(ex, file, str, ...) (VERB(FATAL) ? debug("\n\n%-14s:" str "\n\n", file ": ", ## __VA_ARGS__ ) ? exit(ex) : exit(ex) : ((void)(0)) )
+#define LOG_FATAL_ERR(ex, file, str, ...) debug("\n\n%-14s:" str "\n\n", file ": ", ## __VA_ARGS__ ); exit(ex)
 
 #define LOG_ERR(file, str, ...)       (VERB(ERROR)     ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
 #define LOG_WARN(file, str, ...)      (VERB(WARNING)   ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))

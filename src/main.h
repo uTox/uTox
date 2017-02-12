@@ -201,6 +201,11 @@ void parse_args(int argc, char *argv[],
  */
 void utox_init(void);
 
+/**
+ * Free used resources
+ */
+void utox_raze(void);
+
 // Android audio
 void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels);
 void audio_begin(int32_t call_index);
