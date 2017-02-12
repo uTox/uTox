@@ -6,6 +6,9 @@
 #include "main.h" // tox_thread_init
 #include "main_native.h"
 
+#include "layout/friend.h" // TODO, we should try to remove this dependency
+#include "ui/edit.h"
+
 struct Command commands[MAX_NUM_CMDS] = {
     { "alias",    5, slash_alias     },
     { "invite",   6, slash_invite    },
@@ -70,8 +73,6 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
 
 bool g_select_add_friend_later = 0;
 
-#include "layout/friend.h" // TODO, don't do this!
-#include "ui/edit.h"
 void do_tox_url(uint8_t *url_string, int len) {
     LOG_TRACE(__FILE__, "Command: %.*s" , len, url_string);
 
