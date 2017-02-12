@@ -7,7 +7,6 @@
 #include "messages.h"
 
 #include "layout/background.h"
-#include "layout/extra.h"
 #include "layout/friend.h"
 #include "layout/group.h"
 #include "layout/notify.h"

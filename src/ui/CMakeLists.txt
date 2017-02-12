@@ -9,8 +9,6 @@ add_library(utoxUI STATIC
     ../layout/userbadge.c
     ../layout/background.c
 
-    ../layout/extra.c
-
     button.c
     contextmenu.c
     contextmenu.h

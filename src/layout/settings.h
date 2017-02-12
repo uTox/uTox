@@ -28,6 +28,8 @@ extern BUTTON   button_settings,
                 button_settings_sub_adv,
                 button_settings_sub_notifications;
 
+extern BUTTON   button_add_new_device_to_self;
+
 extern BUTTON   button_callpreview,
                 button_videopreview,
                 button_copyid,

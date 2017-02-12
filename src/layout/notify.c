@@ -1,6 +1,5 @@
 #include "notify.h"
 
-#include "extra.h"
 #include "userbadge.h"
 
 #include "../ui.h"
