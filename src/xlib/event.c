@@ -1,7 +1,6 @@
 #include "main.h"
 #include "window.h"
 
-#include "../draw.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../debug.h"

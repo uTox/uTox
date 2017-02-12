@@ -1,4 +1,4 @@
-#include "../draw.h"
+#include "../ui/draw.h"
 
 #include "freetype.h"
 #include "main.h"
@@ -6,8 +6,6 @@
 
 #include "../text.h"
 #include "../ui.h"
-
-#include "../ui/draw.h"
 
 #include <stdlib.h>
 
