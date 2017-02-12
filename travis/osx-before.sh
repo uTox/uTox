@@ -4,18 +4,18 @@ set -eux
 
 . ./travis/env.sh
 
-# brew install yasm
+brew install yasm
 
 # install libsodium, needed for crypto
 if ! [ -d libsodium ]; then
-  git clone --depth=1 https://github.com/jedisct1/libsodium.git
+  git clone --depth=1 --branch=stable https://github.com/jedisct1/libsodium.git
 fi
 cd libsodium
 git rev-parse HEAD > libsodium.sha
 if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libsodium.sha); then
   ./autogen.sh
-  ./configure --disable-dependency-tracking --enable-minimal --host="x86_64-apple-darwin" --prefix="$CACHE_DIR/usr" --disable-shared --enable-static
-  make -j1 V=1
+  ./configure --prefix="$CACHE_DIR/usr"
+  make -j`systctl -n hw.ncpu`
   make install
   mv libsodium.sha "$CACHE_DIR/libsodium.sha"
 fi
