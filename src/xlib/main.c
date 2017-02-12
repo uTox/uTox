@@ -1022,6 +1022,10 @@ BREAK:
 
     LOG_ERR("XLIB", "XLIB main:\tClean exit\n");
 
+    if (settings.debug_file) {
+        fclose(settings.debug_file);
+    }
+
     return 0;
 }
 

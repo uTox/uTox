@@ -5,6 +5,7 @@ typedef struct utox_save UTOX_SAVE;
 
 #include "debug.h"
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -53,6 +54,7 @@ typedef struct utox_settings {
     uint8_t group_notifications;
 
     LOG_LVL verbose;
+    FILE *debug_file;
 
     uint32_t theme;
 

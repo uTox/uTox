@@ -31,14 +31,6 @@ struct thread_call {
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-// TODO move these function to a logging.m file to provide implementation for what is declared in logging.h
-void debug(const char *fmt, ...) {
-    va_list l;
-    va_start(l, fmt);
-    NSLogv(@(fmt), l);
-    va_end(l);
-}
-
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) {
     return img != NULL && img->image != nil;
 }
@@ -486,6 +478,10 @@ void launch_at_startup(int should) {
     }
 
     LOG_TRACE(__FILE__, "clean exit" );
+
+    if (settings.debug_file) {
+        fclose(settings.debug_file);
+    }
 }
 
 - (void)soilWindowContents {

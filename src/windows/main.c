@@ -1099,6 +1099,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     LOG_INFO("uTox", "Clean exit." );
 
+    if (settings.debug_file) {
+        fclose(settings.debug_file);
+    }
+
     return false;
 }
 
