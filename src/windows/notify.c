@@ -3,7 +3,6 @@
 #include "main.h"
 #include "window.h"
 
-#include "../draw.h"
 #include "../debug.h"
 
 #include "../ui.h"

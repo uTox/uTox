@@ -5,7 +5,6 @@
 
 // I'm getting tired, and lazy, all of these are probably not needed
 #include "../commands.h"
-#include "../draw.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../debug.h"
