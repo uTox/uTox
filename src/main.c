@@ -156,7 +156,8 @@ void parse_args(int argc, char *argv[],
         { "skip-updater", no_argument, NULL, 'N' }, { "signal-updater", no_argument, NULL, 'S' },
         { "version", no_argument, NULL, 0 },
         { "silent", no_argument, NULL, 1 },        { "verbose", no_argument, NULL, 'v' },
-        { "help", no_argument, NULL, 'h' },        { 0, 0, 0, 0 }
+        { "help", no_argument, NULL, 'h' },        { "debug", required_argument, NULL, 2 },
+        { 0, 0, 0, 0 }
     };
 
     int opt, long_index = 0;
@@ -250,6 +251,11 @@ void parse_args(int argc, char *argv[],
                 break;
             }
 
+            case 2: {
+                settings.debug_file = optarg;
+                break;
+            }
+
             case 'h': {
                 LOG_NORM("µTox - Lightweight Tox client version %s.\n\n", VERSION);
                 LOG_NORM("The following options are available:\n");
@@ -265,6 +271,7 @@ void parse_args(int argc, char *argv[],
                 LOG_NORM("  -h --help                Shows this help text.\n");
                 LOG_NORM("  --version                Print the version and exit.\n");
                 LOG_NORM("  --silent                 Set the verbosity level to 0, disable all debugging output.\n");
+                LOG_NORM("  --debug                  Set a file for utox to log errors to.\n");
                 exit(EXIT_SUCCESS);
                 break;
             }

@@ -53,6 +53,7 @@ typedef struct utox_settings {
     uint8_t group_notifications;
 
     LOG_LVL verbose;
+    char *debug_file;
 
     uint32_t theme;
 

@@ -57,6 +57,7 @@ SETTINGS settings = {
     .group_notifications    = GNOTIFY_ALWAYS,
 
     .verbose = LOG_LVL_ERROR,
+    .debug_file = NULL,
 
     // .theme                       // included here to match the full struct
     // OS interface settings
