@@ -264,6 +264,7 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
 void initfonts(void) {
     if (!FcInit()) {
         // error
+        LOG_ERR("Freetype", "FcInit failed.");
     }
 
     FT_Init_FreeType(&ftlib);

@@ -675,7 +675,10 @@ int main(int argc, char *argv[]) {
     // Load settings before calling utox_init()
     utox_init();
 
-    XInitThreads();
+    if (!XInitThreads()) {
+        LOG_FATAL_ERR(2, "XLIB MAIN", "XInitThreads failed.");
+        return 2;
+    }
     if (!native_window_init()) {
         return 2;
     }
