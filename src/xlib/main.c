@@ -31,6 +31,7 @@
 bool hidden = false;
 
 XIC xic = NULL;
+static XSizeHints *xsh = NULL;
 
 void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, main_window.window, CurrentTime);

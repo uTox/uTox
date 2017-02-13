@@ -82,9 +82,6 @@ Cursor  cursors[8];
 
 /* Screen grab vars */
 uint8_t pointergrab;
-int     grabx, graby, grabpx, grabpy;
-
-XSizeHints *xsh;
 
 bool     havefocus;
 bool     _redraw;

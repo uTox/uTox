@@ -1,5 +1,7 @@
-#include "window.h"
 #include "main.h"
+
+#include "window.h"
+#include "screen_grab.h"
 
 #include "../debug.h"
 #include "../macros.h"
@@ -150,10 +152,11 @@ bool native_video_init(void *handle) {
     if (isdesktop(handle)) {
         utox_v4l_fd = -1;
 
-        video_x      = volatile(grabx);
-        video_y      = volatile(graby);
-        video_width  = volatile(grabpx);
-        video_height = volatile(grabpy);
+        GRAB_POS grab = grab_pos();
+        video_x      = MIN(grab.dn_x, grab.up_x);
+        video_y      = MIN(grab.dn_y, grab.up_y);
+        video_width  = MAX(grab.dn_x, grab.up_x) - MIN(grab.dn_x, grab.up_x);
+        video_height = MAX(grab.dn_y, grab.up_y) - MIN(grab.dn_y, grab.up_y);
 
         if (video_width & 1) {
             if (video_x & 1) {

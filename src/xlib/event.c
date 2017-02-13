@@ -1,5 +1,7 @@
 #include "main.h"
+
 #include "window.h"
+#include "screen_grab.h"
 
 #include "../flist.h"
 #include "../friend.h"
@@ -36,20 +38,19 @@ static void expose(void) {
 
 static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
     if (pointergrab) { // TODO super globals are bad mm'kay?
+        GRAB_POS grab = grab_pos();
         XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc,
-                       grabx < grabpx ? grabx : grabpx,
-                       graby < grabpy ? graby : grabpy,
-                       grabx < grabpx ? grabpx - grabx : grabx - grabpx,
-                       graby < grabpy ? grabpy - graby : graby - grabpy);
+                       MIN(grab.dn_x, grab.up_x), MIN(grab.dn_y, grab.up_y),
+                       grab.dn_x < grab.up_x ? grab.up_x - grab.dn_x : grab.dn_x - grab.up_x,
+                       grab.dn_y < grab.up_y ? grab.up_y - grab.dn_y : grab.dn_y - grab.up_y);
 
-        grabpx = event->x_root;
-        grabpy = event->y_root;
+        grab_up(event->x_root, event->y_root);
+        grab = grab_pos();
 
         XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc,
-                       grabx < grabpx ? grabx : grabpx,
-                       graby < grabpy ? graby : grabpy,
-                       grabx < grabpx ? grabpx - grabx : grabx - grabpx,
-                       graby < grabpy ? grabpy - graby : graby - grabpy);
+                       MIN(grab.dn_x, grab.up_x), MIN(grab.dn_y, grab.up_y),
+                       grab.dn_x < grab.up_x ? grab.up_x - grab.dn_x : grab.dn_x - grab.up_x,
+                       grab.dn_y < grab.up_y ? grab.up_y - grab.dn_y : grab.dn_y - grab.up_y);
 
         return;
     }
@@ -73,6 +74,12 @@ static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
 static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
     switch (event->button) {
         case Button1: {
+            if (pointergrab) {
+                grab_up(event->x_root, event->y_root);
+                grab_dn(event->x_root, event->y_root);
+                return;
+            }
+
             // todo: better double/triple click detect
             static Time lastclick, lastclick2;
             panel_mmove(window->_.panel, 0, 0, window->_.w, window->_.h, event->x, event->y, 0, 0);
@@ -120,37 +127,37 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
     switch (event->button) {
         case Button1: {
             if (pointergrab) {
-                if (grabx < grabpx) {
-                    grabpx -= grabx;
+                XUngrabPointer(display, CurrentTime);
+                GRAB_POS grab = grab_pos();
+                if (grab.dn_x < grab.up_x) {
+                    grab.up_x -= grab.dn_x;
                 } else {
-                    int w  = grabx - grabpx;
-                    grabx  = grabpx;
-                    grabpx = w;
+                    int w  = grab.dn_x - grab.up_x;
+                    grab.dn_x  = grab.up_x;
+                    grab.up_x = w;
                 }
 
-                if (graby < grabpy) {
-                    grabpy -= graby;
+                if (grab.dn_y < grab.up_y) {
+                    grab.up_y -= grab.dn_y;
                 } else {
-                    int w  = graby - grabpy;
-                    graby  = grabpy;
-                    grabpy = w;
+                    int w  = grab.dn_y - grab.up_y;
+                    grab.dn_y  = grab.up_y;
+                    grab.up_y = w;
                 }
 
                 /* enforce min size */
 
-                if (grabpx * grabpy < 100) {
+                if (grab.up_x * grab.up_y < 100) {
                     pointergrab = 0;
-                    XUngrabPointer(display, CurrentTime);
                     break;
                 }
 
-                XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grabx, graby, grabpx, grabpy);
-                XUngrabPointer(display, CurrentTime);
+                XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grab.dn_x, grab.dn_y, grab.up_x, grab.up_y);
                 if (pointergrab == 1) {
                     FRIEND *f = flist_get_selected()->data;
                     if (flist_get_selected()->item == ITEM_FRIEND && f->online) {
-                        XImage *img = XGetImage(display, RootWindow(display, def_screen_num), grabx, graby, grabpx,
-                                                grabpy, XAllPlanes(), ZPixmap);
+                        XImage *img = XGetImage(display, RootWindow(display, def_screen_num), grab.dn_x, grab.dn_y, grab.up_x,
+                                                grab.up_y, XAllPlanes(), ZPixmap);
                         if (img) {
                             uint8_t * temp, *p;
                             uint32_t *pp = (void *)img->data, *end = &pp[img->width * img->height];
