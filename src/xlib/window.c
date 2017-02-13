@@ -120,7 +120,7 @@ void native_window_raze(UTOX_WINDOW *window) {
 }
 
 UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **argv, int argc) {
-    char *title = calloc(256, 1); // TODO there's a better way to do this
+    char *title = calloc(1, 256); // TODO there's a better way to do this
                                   // and leaks
     snprintf(title, 256, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 

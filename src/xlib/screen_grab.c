@@ -1,13 +1,10 @@
+#include "screen_grab.h"
+
 #include "main.h"
 
 #include "window.h"
 
 #include "../ui.h"
-
-typedef struct {
-    int dn_x, dn_y;
-    int up_x, up_y;
-} GRAB_POS;
 
 GRAB_POS grab;
 
