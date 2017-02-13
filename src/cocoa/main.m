@@ -1,19 +1,21 @@
 #include "main.h"
 
 #include "../commands.h"
-#include "../filesys.h"
 #include "../debug.h"
+#include "../filesys.h"
 #include "../main.h"
 #include "../main_native.h"
+#include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../ui.h"
 #include "../utox.h"
-#include "../settings.h"
 
 #include "../av/utox_av.h"
 
 #include "../ui/dropdown.h"
+
+#include "../layout/settings.h"
 
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
@@ -33,11 +35,12 @@ struct thread_call {
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
 // TODO move these function to a logging.m file to provide implementation for what is declared in logging.h
-void debug(const char *fmt, ...) {
+int debug(const char *fmt, ...) {
     va_list l;
     va_start(l, fmt);
     NSLogv(@(fmt), l);
     va_end(l);
+    return 0;
 }
 
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) {

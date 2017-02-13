@@ -1,2 +1,2 @@
 
-void debug(const char *fmt, ...);
+int debug(const char *fmt, ...);

@@ -3,9 +3,12 @@
 #import "../debug.h"
 #import "../main.h"
 #import "../settings.h"
+#import "../ui.h"
+
 #import "../ui/draw.h"
 #import "../ui/svg.h"
 
+#import "../layout/background.h"
 
 #ifdef UTOX_COCOA_BRAVE
 #define DRAW_TARGET_CHK()

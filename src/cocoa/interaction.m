@@ -7,6 +7,7 @@
 #include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../groups.h"
 #include "../main.h"
 #include "../main_native.h"
 #include "../messages.h"
@@ -20,6 +21,10 @@
 #include "../av/utox_av.h"
 #include "../ui/edit.h"
 #include "../ui/panel.h"
+
+#include "../layout/background.h"
+#include "../layout/friend.h"
+#include "../layout/group.h"
 
 NSCursor *cursors[8];
 
