@@ -7,6 +7,8 @@
 #include "../settings.h"
 #include "../tox.h"
 
+#include "../../langs/i18n_decls.h"
+
 #include "../av/utox_av.h"
 #include "../av/video.h"
 

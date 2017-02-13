@@ -18,6 +18,7 @@ toolchain/
 build/*
 tox/*
 dist/*
+cache/*
 
 # editor files
 *.swp

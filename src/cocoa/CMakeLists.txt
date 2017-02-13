@@ -1,16 +1,19 @@
 project(utoxNATIVE LANGUAGES C)
 
 add_library(utoxNATIVE STATIC
-    MainMenu.xib
+    ../posix/filesys.c
+
     cursor.h
     drawing.m
-    ../posix/filesys.c
     grabdesktop.m
     interaction.m
     main.h
     main.m
+    MainMenu.xib
     objc_main.h
     video.m
+
+    window.c
     )
 
 target_link_libraries(utoxNATIVE
