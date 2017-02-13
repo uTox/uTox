@@ -120,7 +120,7 @@ static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
         }
     }
 
-    LOG_WARN("XLIB", "ButtonEvent: %u %u\n", event->state, event->button);
+    LOG_TRACE("XLIB", "ButtonEvent: %u %u\n", event->state, event->button);
 }
 
 static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
@@ -191,7 +191,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
             break;
         }
     }
-    LOG_WARN("XLIB", "ButtonEvent: %u %u\n", event->state, event->button);
+    LOG_TRACE("XLIB", "ButtonEvent: %u %u\n", event->state, event->button);
 }
 
 
@@ -199,7 +199,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
 static bool popup_event(XEvent event, UTOX_WINDOW *win) {
     switch (event.type) {
         case Expose: {
-            LOG_WARN("XLIB", "Main window expose\n");
+            LOG_TRACE("XLIB", "Main window expose\n");
             native_window_set_target(win);
             panel_draw(win->_.panel , 0, 0, win->_.w, win->_.h);
             XCopyArea(display, win->drawbuf, win->window, win->gc, 0, 0, win->_.w, win->_.h, 0, 0);
@@ -681,7 +681,7 @@ bool doevent(XEvent event) {
                 LOG_TRACE(__FILE__, "status" );
             } else if (ev->message_type == XdndDrop) {
                 XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, main_window.window, CurrentTime);
-                LOG_WARN("XLIB", "drop\n");
+                LOG_NOTE("XLIB", "Drag was dropped\n");
             } else if (ev->message_type == XdndLeave) {
                 LOG_TRACE(__FILE__, "leave" );
             } else {
