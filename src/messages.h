@@ -16,13 +16,13 @@ typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_NOTICE,
     MSG_TYPE_NOTICE_DAY_CHANGE, // Seperated so I can localize this later!
     /* MSG_TEXT should end here */
-    MSG_TYPE_OTHER, // Unused, expect to seperate MSG_TEXT type
+    // MSG_TYPE_OTHER, // Unused, expect to seperate MSG_TEXT type
     MSG_TYPE_IMAGE,
-    MSG_TYPE_IMAGE_HISTORY,
+    // MSG_TYPE_IMAGE_HISTORY,
     MSG_TYPE_FILE,
-    MSG_TYPE_FILE_HISTORY,
-    MSG_TYPE_CALL_ACTIVE,
-    MSG_TYPE_CALL_HISTORY,
+    // MSG_TYPE_FILE_HISTORY,
+    // MSG_TYPE_CALL_ACTIVE,
+    // MSG_TYPE_CALL_HISTORY,
 } UTOX_MSG_TYPE;
 
 typedef struct {
