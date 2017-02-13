@@ -1,3 +1,3 @@
 #include <stdio.h>
 
-#define debug(...) printf(__VA_ARGS__)
+#define debug(...) fprintf(stderr, __VA_ARGS__)
