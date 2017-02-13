@@ -1,6 +1,9 @@
 #ifndef LAYOUT_CREATE_H
 #define LAYOUT_CREATE_H
 
+/* Space keeping file for the macros I want to create to make changing/creating
+ * layouts easier and/of faster. */
+
 #define CREATE_BUTTON(n, a, b, w, h) button_##n = {     \
         panel.type      = PANEL_BUTTON,                 \
         panel.x         = a,                            \
