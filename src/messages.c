@@ -37,6 +37,11 @@
 
 static int msgheight(MSG_HEADER *msg, int width) {
     switch (msg->msg_type) {
+        case MSG_TYPE_NULL: {
+            LOG_ERR(__FILE__, "Invalid message type in msgheight.");
+            return 0;
+        }
+
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT:
         case MSG_TYPE_NOTICE:
@@ -91,6 +96,7 @@ static int message_setheight(MESSAGES *m, MSG_HEADER *msg) {
     } else {
         msg->height = msgheight(msg, m->width);
     }
+
     return msg->height;
 }
 
@@ -950,15 +956,31 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             y = messages_draw_group(m, msg, curr_msg_i, x, y, width, height);
             continue;
         } else {
-            bool draw_author = 1;
+            bool draw_author = true;
             switch (msg->msg_type) {
+                case MSG_TYPE_NULL: {
+                    // This shouldn't happen.
+                    LOG_ERR(__FILE__, "Invalid message type in messages_draw.");
+                    break;
+                }
+
                 case MSG_TYPE_ACTION_TEXT: {
                     // Always draw name next to action message
-                    lastauthor = ~0; break;
+                    lastauthor = ~0;
+                    break;
                 }
+
+                case MSG_TYPE_TEXT:
+                case MSG_TYPE_IMAGE:
+                case MSG_TYPE_FILE: {
+                    draw_author = true;
+                    break;
+                }
+
                 case MSG_TYPE_NOTICE:
                 case MSG_TYPE_NOTICE_DAY_CHANGE: {
-                    draw_author = 0; break;
+                    draw_author = false;
+                    break;
                 }
             }
 
@@ -1192,6 +1214,11 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
             m->cursor_over_msg = i;
 
             switch (msg->msg_type) {
+                case MSG_TYPE_NULL: {
+                    LOG_ERR(__FILE__, "Invalid message type in messages_mmove.");
+                    return false;
+                }
+
                 case MSG_TYPE_TEXT:
                 case MSG_TYPE_ACTION_TEXT:
                 case MSG_TYPE_NOTICE:
@@ -1269,9 +1296,13 @@ bool messages_mdown(PANEL *panel) {
     m->cursor_down_msg = UINT32_MAX;
 
     if (m->cursor_over_msg != UINT32_MAX) {
-
         MSG_HEADER *msg = m->data[m->cursor_over_msg];
         switch (msg->msg_type) {
+            case MSG_TYPE_NULL: {
+                LOG_ERR(__FILE__, "Invalid message type in messages_mdown.");
+                return false;
+            }
+
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT:
             case MSG_TYPE_NOTICE:
@@ -1320,6 +1351,7 @@ bool messages_mdown(PANEL *panel) {
                             openurl((char *)msg->via.ft.path);
                         }
                     }
+
                     return true;
                 }
 
@@ -1337,19 +1369,19 @@ bool messages_mdown(PANEL *panel) {
                 } else if (m->cursor_over_position == 1) { // Should be cancel
                     postmessage_toxcore(TOX_FILE_CANCEL, m->id, msg->via.ft.file_number, ft);
                 }
+
                 return true;
             }
         }
 
         return true;
-    } else {
-        if (m->sel_start_msg != m->sel_end_msg || m->sel_start_position != m->sel_end_position) {
-            m->sel_start_msg      = 0;
-            m->sel_end_msg        = 0;
-            m->sel_start_position = 0;
-            m->sel_end_position   = 0;
-            return true;
-        }
+    } else if (m->sel_start_msg != m->sel_end_msg || m->sel_start_position != m->sel_end_position) {
+        m->sel_start_msg      = 0;
+        m->sel_end_msg        = 0;
+        m->sel_start_position = 0;
+        m->sel_end_position   = 0;
+
+        return true;
     }
 
     return false;
@@ -1367,61 +1399,95 @@ bool messages_dclick(PANEL *panel, bool triclick) {
         MSG_HEADER *msg = m->data[m->cursor_over_msg];
 
         switch (msg->msg_type) {
+            case MSG_TYPE_NULL: {
+                LOG_ERR(__FILE__, "Invalid message type in messages_dclick.");
+                return false;
+            }
+
+            case MSG_TYPE_FILE:
+            case MSG_TYPE_NOTICE:
+            case MSG_TYPE_NOTICE_DAY_CHANGE: {
+                return false;
+            }
+
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
                 m->sel_start_msg = m->sel_end_msg = m->cursor_over_msg;
 
-                char c = triclick ? '\n' : ' ';
+                const char c = triclick ? '\n' : ' ';
 
                 uint16_t i = m->cursor_over_position;
                 while (i != 0 && msg->via.txt.msg[i - 1] != c) {
                     i -= utf8_unlen(msg->via.txt.msg + i);
                 }
                 m->sel_start_position = i;
-                i                     = m->cursor_over_position;
+                i = m->cursor_over_position;
                 while (i != msg->via.txt.length && msg->via.txt.msg[i] != c) {
                     i += utf8_len(msg->via.txt.msg + i);
                 }
                 m->sel_end_position = i;
+
                 return true;
             }
+
             case MSG_TYPE_IMAGE: {
-                MSG_IMG *img = (void *)msg;
+                MSG_IMG *img = (MSG_IMG *)msg;
                 if (m->cursor_over_position) {
                     if (img->zoom) {
                         img->zoom = 0;
                         message_updateheight(m, msg);
                     }
                 }
+
                 return true;
             }
         }
     }
+
     return false;
 }
 
-static void contextmenu_messages_onselect(uint8_t i) { copy(!!i); /* if not 0 force a 1 */ }
+static void contextmenu_messages_onselect(uint8_t i) {
+    copy(!!i); /* if not 0 force a 1 */
+}
 
 bool messages_mright(PANEL *panel) {
-    MESSAGES *           m           = panel->object;
-    static UTOX_I18N_STR menu_copy[] = { STR_COPY, STR_COPY_WITH_NAMES };
+    const MESSAGES *m = panel->object;
     if (m->cursor_over_msg == UINT32_MAX) {
-        return 0;
+        return false;
     }
 
-    MSG_HEADER *msg = m->data[m->cursor_over_msg];
+    static UTOX_I18N_STR menu_copy[] = { STR_COPY, STR_COPY_WITH_NAMES };
+
+    const MSG_HEADER *msg = m->data[m->cursor_over_msg];
 
     switch (msg->msg_type) {
+        case MSG_TYPE_NULL: {
+            LOG_ERR(__FILE__, "Invalid message type in messages_mdown.");
+            return false;
+        }
+
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
             contextmenu_new(COUNTOF(menu_copy), menu_copy, contextmenu_messages_onselect);
-            return 1;
+            return true;
+        }
+
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE:
+        case MSG_TYPE_IMAGE:
+        case MSG_TYPE_FILE: {
+            return false;
         }
     }
-    return 0;
+
+    // This should be dead code, but the compiler can't tell for whatever reason.
+    return false;
 }
 
-bool messages_mwheel(PANEL *UNUSED(panel), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) { return 0; }
+bool messages_mwheel(PANEL *UNUSED(panel), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) {
+    return 0;
+}
 
 bool messages_mup(PANEL *panel) {
     MESSAGES *m = panel->object;
@@ -1461,7 +1527,9 @@ bool messages_mup(PANEL *panel) {
     return false;
 }
 
-bool messages_mleave(PANEL *UNUSED(m)) { return 0; }
+bool messages_mleave(PANEL *UNUSED(m)) {
+    return 0;
+}
 
 int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
     MESSAGES *m = panel->object;
@@ -1480,7 +1548,7 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
 
         if (names && (i != m->sel_start_msg || m->sel_start_position == 0)) {
             if (m->is_groupchat) {
-                MSG_GROUP *grp = (void *)msg;
+                MSG_GROUP *grp = (MSG_GROUP *)msg;
                 memcpy(p, &grp->msg[0], grp->author_length);
                 p += grp->author_length;
                 len -= grp->author_length;
@@ -1516,9 +1584,14 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
         }
 
         switch (msg->msg_type) {
+            case MSG_TYPE_NULL: {
+                LOG_ERR(__FILE__, "Invalid message type in messages_selection.");
+                return 0;
+            }
+
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
-                char *   data;
+                char *data;
                 uint16_t length;
                 if (i == m->sel_start_msg) {
                     if (i == m->sel_end_msg) {
@@ -1546,6 +1619,14 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
                 len -= length;
                 break;
             }
+
+            case MSG_TYPE_IMAGE:
+            case MSG_TYPE_FILE:
+            case MSG_TYPE_NOTICE:
+            case MSG_TYPE_NOTICE_DAY_CHANGE: {
+                // Do nothing.
+                break;
+            }
         }
 
         i++;
@@ -1567,6 +1648,7 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
             #endif
         }
     }
+
     return (void *)p - buffer;
 }
 
@@ -1578,11 +1660,9 @@ void messages_updateheight(MESSAGES *m, int width) {
     setfont(FONT_TEXT);
 
     uint32_t height = 0;
-    uint32_t i      = 0;
 
-    while (i < m->number) {
+    for (uint32_t i = 0; i < m->number; ++i) {
         height += message_setheight(m, (void *)m->data[i]);
-        i++;
     }
 
     m->panel.content_scroll->content_height = m->height = height;
@@ -1590,6 +1670,7 @@ void messages_updateheight(MESSAGES *m, int width) {
 
 bool messages_char(uint32_t ch) {
     MESSAGES *m;
+
     if (flist_get_selected()->item == ITEM_FRIEND) {
         m = messages_friend.object;
     } else if (flist_get_selected()->item == ITEM_GROUP) {
@@ -1606,6 +1687,7 @@ bool messages_char(uint32_t ch) {
             if (scroll->d < 0.0) {
                 scroll->d = 0.0;
             }
+
             return true;
         }
 
@@ -1615,6 +1697,7 @@ bool messages_char(uint32_t ch) {
             if (scroll->d > 1.0) {
                 scroll->d = 1.0;
             }
+
             return true;
         }
     }
@@ -1626,6 +1709,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
     if (m->data) {
         messages_clear_all(m);
     }
+
     memset(m, 0, sizeof(*m) * COUNTOF(m));
 
     m->data = calloc(20, sizeof(void *));
@@ -1641,33 +1725,44 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 void message_free(MSG_HEADER *msg) {
     // The group messages are free()d in groups.c (group_free(GROUPCHAT *g))
     switch (msg->msg_type) {
+        case MSG_TYPE_NULL: {
+            LOG_ERR(__FILE__, "Invalid message type in message_free.");
+            break;
+        }
+
         case MSG_TYPE_IMAGE: {
             image_free(msg->via.img.image);
             break;
         }
+
         case MSG_TYPE_FILE: {
             free(msg->via.ft.name);
             free(msg->via.ft.path);
             free(msg->via.ft.data);
             break;
         }
+
         case MSG_TYPE_NOTICE_DAY_CHANGE: {
             free(msg->via.notice_day.msg);
             break;
         }
+
         case MSG_TYPE_TEXT: {
             free(msg->via.txt.msg);
             break;
         }
+
         case MSG_TYPE_ACTION_TEXT: {
             free(msg->via.action.msg);
             break;
         }
+
         case MSG_TYPE_NOTICE: {
             free(msg->via.notice.msg);
             break;
         }
     }
+
     free(msg);
 }
 
