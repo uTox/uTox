@@ -1,5 +1,5 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef UI_BUTTON_H
+#define UI_BUTTON_H
 
 #include "panel.h"
 
@@ -56,4 +56,4 @@ void button_setcolors_warning(BUTTON *b);
 void button_setcolors_disabled(BUTTON *b);
 
 
-#endif
+#endif // UI_BUTTON_H

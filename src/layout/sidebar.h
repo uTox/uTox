@@ -1,5 +1,5 @@
-#ifndef LAYOUT_SIDE_H
-#define LAYOUT_SIDE_H
+#ifndef LAYOUT_SIDEBAR_H
+#define LAYOUT_SIDEBAR_H
 
 typedef struct scrollable SCROLLABLE;
 extern SCROLLABLE scrollbar_flist;
@@ -26,4 +26,4 @@ extern BUTTON button_avatar,
 typedef struct edit EDIT;
 extern EDIT edit_search;
 
-#endif //LAYOUT_SIDE_H
+#endif //LAYOUT_SIDEBAR_H

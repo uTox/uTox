@@ -9,4 +9,4 @@ be easy of editing, meaning fewer files are probably better. But #include
 exists for a reason. Make the code easy to read, then both my and your life
 easy and everyone will be happy!
 
-Thanks again! https://cmdline.org/who.png
+Thanks again! ![who's awesome?](https://cmdline.org/who.png)

@@ -67,7 +67,7 @@ static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
 
     XDefineCursor(display, window->window, cursors[cursor]);
 
-    LOG_WARN("XLIB", "MotionEvent: (%u %u) %u\n", event->x, event->y, event->state);
+    LOG_TRACE("XLIB", "MotionEvent: (%u %u) %u\n", event->x, event->y, event->state);
 }
 
 static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {

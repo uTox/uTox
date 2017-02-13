@@ -134,7 +134,9 @@ typedef enum {
 
 UTOX_TOX_THREAD_INIT tox_thread_init;
 
-bool move_window_down;
+bool move_window_down; // When the mouse is currently down over the move_window_button().
+                       // non-ideal but I wasn't ready to write a better state system for
+                       // moving windows from inside uTox.
 
 
 // add friend page

@@ -1,5 +1,5 @@
-#ifndef EDIT_H
-#define EDIT_H
+#ifndef UI_EDIT_H
+#define UI_EDIT_H
 
 #include "panel.h"
 
@@ -82,4 +82,4 @@ void edit_setmark(uint16_t loc, uint16_t len);
 
 void edit_setselectedrange(uint16_t loc, uint16_t len);
 
-#endif
+#endif // UI_EDIT_H

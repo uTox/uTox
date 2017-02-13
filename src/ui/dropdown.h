@@ -1,5 +1,5 @@
-#ifndef DROPDOWN_H
-#define DROPDOWN_H
+#ifndef UI_DROPDOWN_H
+#define UI_DROPDOWN_H
 
 #include "panel.h"
 
@@ -43,4 +43,4 @@ void dropdown_list_add_hardcoded(DROPDOWN *d, char *name, void *handle);
 void dropdown_list_add_localized(DROPDOWN *d, UTOX_I18N_STR string_id, void *handle);
 void dropdown_list_clear(DROPDOWN *);
 
-#endif
+#endif // UI_DROPDOWN_H
