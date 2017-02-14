@@ -91,16 +91,16 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
                 return 0;
             }
 
-            uint8_t *path = calloc(UTOX_FILE_NAME_LENGTH, sizeof(uint8_t));
+            uint8_t *path = calloc(1, UTOX_FILE_NAME_LENGTH * sizeof(uint8_t));
             if (!path) {
                 LOG_ERR("WINDND", "Unable to alloc for UTOX_MSG_FT");
                 free(msg);
                 return 0;
             }
 
-            DragQueryFile(h, i, path, UTOX_FILE_NAME_LENGTH);
+            DragQueryFile(h, i, (char *)path, UTOX_FILE_NAME_LENGTH);
 
-            msg->file = fopen(path, "rb");
+            msg->file = fopen((char *)path, "rb");
             if (!msg->file) {
                 LOG_ERR("WINDND", "Unable to read file %s" , path);
                 free(msg);
