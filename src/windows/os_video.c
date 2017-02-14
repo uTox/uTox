@@ -3,6 +3,7 @@
 #include "main.h"
 
 #include "../debug.h"
+#include "../macros.h"
 #include "../main_native.h"
 
 #include "../av/video.h"
@@ -87,21 +88,20 @@ void video_end(uint32_t id) {
 volatile bool newframe = 0;
 uint8_t *     frame_data;
 
-HRESULT STDMETHODCALLTYPE test_SampleCB(ISampleGrabberCB *lpMyObj, double SampleTime, IMediaSample *pSample) {
+HRESULT STDMETHODCALLTYPE test_SampleCB(ISampleGrabberCB *UNUSED(lpMyObj), double UNUSED(SampleTime), IMediaSample *pSample) {
     // you can call functions like:
     // REFERENCE_TIME   tStart, tStop;
     void *sampleBuffer;
-    int   length;
 
     pSample->lpVtbl->GetPointer(pSample, (BYTE **)&sampleBuffer);
-    length = pSample->lpVtbl->GetActualDataLength(pSample);
+    uint16_t length = pSample->lpVtbl->GetActualDataLength(pSample);
 
     /*pSample->GetTime(&tStart, &tStop);
     */
     if (length == video_width * video_height * 3) {
         uint8_t *p = frame_data + video_width * video_height * 3;
-        int      y;
-        for (y = 0; y != video_height; y++) {
+
+        for (int y = 0; y != video_height; y++) {
             p -= video_width * 3;
             memcpy(p, sampleBuffer, video_width * 3);
             sampleBuffer += video_width * 3;
@@ -114,10 +114,12 @@ HRESULT STDMETHODCALLTYPE test_SampleCB(ISampleGrabberCB *lpMyObj, double Sample
     return S_OK;
 }
 
-STDMETHODIMP test_QueryInterface(ISampleGrabberCB *lpMyObj, REFIID riid, LPVOID FAR *lppvObj) {
+STDMETHODIMP test_QueryInterface(ISampleGrabberCB *UNUSED(lpMyObj), REFIID UNUSED(riid),
+                                 LPVOID FAR *UNUSED(lppvObj))
+{
     return 0;
 }
-STDMETHODIMP_(ULONG) test_AddRef(ISampleGrabberCB *lpMyObj) {
+STDMETHODIMP_(ULONG) test_AddRef(ISampleGrabberCB *UNUSED(lpMyObj)) {
     return 1;
 }
 
@@ -237,7 +239,7 @@ HRESULT ConnectFilters(IGraphBuilder *_pGraph, IBaseFilter *pSrc, IBaseFilter *p
 
 uint16_t native_video_detect(void) {
     // Indicate that we support desktop capturing.
-    utox_video_append_device((void *)1, 1, STR_VIDEO_IN_DESKTOP, 0);
+    utox_video_append_device((void *)1, 1, (void *)STR_VIDEO_IN_DESKTOP, 0);
 
     max_video_width  = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     max_video_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
