@@ -43,11 +43,11 @@ bool  havefocus;
  * Returns: number of chars writen, or 0 on failure.
  *
  */
-static int utf8tonative(char *str, wchar_t *out, int length) {
+static int utf8tonative(const char *str, wchar_t *out, int length) {
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, length, out, length);
 }
 
-static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
+static int utf8_to_nativestr(const char *str, wchar_t *out, int length) {
     /* must be null terminated string                   ↓ */
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, -1, out, length);
 }
@@ -122,7 +122,7 @@ void openfileavatar(void) {
             } else if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
                 free(file_data);
                 char message[1024];
-                if (sizeof(message) < SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
+                if (sizeof(message) < (unsigned)SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
                     debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%"PRIu64" bytes)\n",
                           sizeof(message));
                     break;
@@ -723,7 +723,7 @@ static void cursors_init(void) {
 
 static bool auto_update(PSTR cmd) {
     char path[MAX_PATH + 20];
-    int  len = GetModuleFileName(NULL, path, MAX_PATH);
+    unsigned len = GetModuleFileName(NULL, path, MAX_PATH);
 
     /* Is the uTox exe named like the updater one. */
     char *file = path + len - (sizeof("uTox.exe") - 1);
@@ -753,22 +753,28 @@ static bool auto_update(PSTR cmd) {
  * also handles call from other apps.
  */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cmd, int nCmdShow) {
-
     pthread_mutex_init(&messages_lock, NULL);
 
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     HANDLE utox_mutex = CreateMutex(NULL, 0, TITLE);
 
     if (!utox_mutex) {
-        return false;
+        return 0;
     }
+
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND window = FindWindow(TITLE, NULL);
+
         if (window) {
-            COPYDATASTRUCT data = {.cbData = strlen(cmd), .lpData = cmd };
+            COPYDATASTRUCT data = {
+                .cbData = strlen(cmd),
+                .lpData = cmd
+            };
+
             SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
         }
-        return false;
+
+        return 0;
     }
 
     /* Process argc/v the backwards (read: windows) way. */
@@ -778,7 +784,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     if (NULL == argv) {
         LOG_TRACE(__FILE__, "CommandLineToArgvA failed" );
-        return true;
+        return 0;
     }
 
     bool   theme_was_set_on_argv;
@@ -789,14 +795,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     parse_args(argc, argv, &skip_updater, &from_updater, &theme_was_set_on_argv,
                &should_launch_at_startup, &set_show_window );
 
+    // Free memory allocated by CommandLineToArgvA
+    GlobalFree(argv);
+
     if (settings.portable_mode == true) {
         /* force the working directory if opened with portable command */
         HMODULE      hModule = GetModuleHandle(NULL);
         char         path[MAX_PATH];
         int          len = GetModuleFileName(hModule, path, MAX_PATH);
         unsigned int i;
-        for (i = (len - 1); path[i] != '\\'; --i);
-        path[i] = 0; //!
+        for (i = len - 1; path[i] != '\\'; --i)
+            ;
+        path[i] = 0;
         SetCurrentDirectory(path);
         strcpy(portable_mode_save_path, (char *)path);
     }
@@ -821,9 +831,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         LOG_TRACE(__FILE__, "Normal windows build" );
     #endif
 
-    // Free memory allocated by CommandLineToArgvA
-    GlobalFree(argv);
-
     #ifdef GIT_VERSION
         debug_notice("uTox version %s \n", GIT_VERSION);
     #endif
@@ -835,7 +842,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     screen_grab_init(hInstance);
 
     OleInitialize(NULL);
-
 
     uint16_t langid = GetUserDefaultUILanguage() & 0xFFFF;
 
@@ -938,5 +944,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     LOG_INFO("uTox", "Clean exit." );
 
-    return false;
+    // TODO: This should be a non-zero value determined by a message's wParam.
+    return 0;
 }
