@@ -87,7 +87,9 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
         }
     }
 
-    snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "/%s", (char *)name);
+    snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "/%s", (char *)tmp_path);
+
+    free(tmp_path);
 
     for (size_t i = 0; path[i] != '\0'; ++i) {
         if (path[i] == '/') {
