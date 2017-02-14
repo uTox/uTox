@@ -41,7 +41,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     if (GetSaveFileName(&ofn)) {
         FILE *file = fopen(path, "wb");
         if (file) {
-            utox_export_chatlog(friend_number, file);
+            utox_export_chatlog(get_friend(friend_number)->id_str, file);
         } else {
             LOG_ERR(__FILE__, "Opening file %s failed\n", path);
         }
