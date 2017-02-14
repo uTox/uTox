@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "../debug.h"
+#include "../macros.h"
 #include "../main_native.h"
 
 #include "../ui/svg.h"
@@ -123,16 +124,17 @@ void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_
     }
 }
 
-void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
-
-    BITMAPINFO bmi = {.bmiHeader = {
-                          .biSize        = sizeof(BITMAPINFOHEADER),
-                          .biWidth       = w,
-                          .biHeight      = -h,
-                          .biPlanes      = 1,
-                          .biBitCount    = 32,
-                          .biCompression = BI_RGB,
-                      } };
+void draw_inline_image(uint8_t *img_data, size_t UNUSED(size), uint16_t w, uint16_t h, int x, int y) {
+    BITMAPINFO bmi = {
+        .bmiHeader = {
+            .biSize        = sizeof(BITMAPINFOHEADER),
+            .biWidth       = w,
+            .biHeight      = -h,
+            .biPlanes      = 1,
+            .biBitCount    = 32,
+            .biCompression = BI_RGB,
+            }
+        };
 
     SetDIBitsToDevice(hdc, x, y, w, h, 0, 0, 0, h, img_data, &bmi, DIB_RGB_COLORS);
 }
@@ -294,6 +296,6 @@ void enddraw(int x, int y, int width, int height) {
     BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
 }
 
-void loadalpha(int bm, void *data, int width, int height) {
+void loadalpha(int bm, void *data, int UNUSED(width), int UNUSED(height)) {
     bitmap[bm] = data;
 }

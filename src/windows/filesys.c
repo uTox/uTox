@@ -44,8 +44,8 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     if (settings.portable_mode) {
         strcpy((char *)path, portable_mode_save_path);
     } else {
-        if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {
-            if (FAILED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path))) {
+        if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char *)path))) {
+            if (FAILED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char *)path))) {
                 strcpy((char *)path, portable_mode_save_path);
             }
         }
@@ -66,12 +66,19 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
         return NULL;
     }
 
+    uint8_t *tmp_path = calloc(1, strlen((char *)name) + 1);
+    strcpy((char *)tmp_path, (char *)name);
+
     // Append the subfolder to the path and remove it from the name.
-    for (char *folder_divider = strstr(name, "/"); folder_divider != NULL; folder_divider = strstr(name, "/")) {
+    for (char *folder_divider = strstr((char *)tmp_path, "/");
+         folder_divider != NULL;
+         folder_divider = strstr((char *)tmp_path, "/"))
+    {
         ++folder_divider; // Skip over the / we're pointing to.
-        snprintf((char *)path + strlen((char *)path), strlen(name) - strlen(folder_divider), name);
-        char *new_name = name + strlen(name) - strlen(folder_divider);
-        name = new_name;
+        snprintf((char *)path + strlen((char *)path), strlen((char *)tmp_path) - strlen(folder_divider),
+                 (char *)tmp_path);
+        uint8_t *new_path = tmp_path + strlen((char *)tmp_path) - strlen(folder_divider);
+        tmp_path = new_path;
     }
 
     if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
@@ -89,10 +96,10 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     wchar_t wide[UTOX_FILE_NAME_LENGTH] = { 0 };
-    MultiByteToWideChar(CP_UTF8, 0, path, strlen((char *)path), wide, UTOX_FILE_NAME_LENGTH);
+    MultiByteToWideChar(CP_UTF8, 0, (char *)path, strlen((char *)path), wide, UTOX_FILE_NAME_LENGTH);
 
     if (opts == UTOX_FILE_OPTS_DELETE) {
-        if (!DeleteFile(path)) {
+        if (!DeleteFile((char *)path)) {
             LOG_ERR("WinFilesys", "Could not delete file: %s - Error: %d" , path, GetLastError());
         }
         return NULL;
@@ -133,7 +140,7 @@ bool native_create_dir(const uint8_t *filepath) {
         }
     }
 
-    const int error = SHCreateDirectoryEx(hwnd, path, NULL);
+    const int error = SHCreateDirectoryEx(hwnd, (char *)path, NULL);
     switch(error) {
         case ERROR_SUCCESS:
         case ERROR_FILE_EXISTS:
@@ -201,5 +208,5 @@ bool native_move_file(const uint8_t *current_name, const uint8_t *new_name) {
         return false;
     }
 
-    return MoveFile(current_name, new_name);
+    return MoveFile((char *)current_name, (char *)new_name);
 }
