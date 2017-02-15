@@ -699,7 +699,6 @@ int main(int argc, char *argv[]) {
 
     atom_init();
 
-    thread(toxcore_thread, NULL);
 
     LANG = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
@@ -800,6 +799,9 @@ int main(int argc, char *argv[]) {
     /* draw */
     native_window_set_target(&main_window);
     panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
+
+    // start toxcore thread
+    thread(toxcore_thread, NULL);
 
     /* event loop */
     while (true) {
