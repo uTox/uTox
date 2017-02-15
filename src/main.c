@@ -17,15 +17,21 @@
 
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
  * if you need to localize them to a specific platform, move them from here, to each
- * src/<platform>/main.x and change from utox_ to native_ */
+ * src/<platform>/main.x and change from utox_ to native_
+ */
+
 bool utox_data_save_tox(uint8_t *data, size_t length) {
     FILE *fp= native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
     if (fp == NULL) {
-        LOG_TRACE(__FILE__, "Can not open tox_save.tox to write to it." );
+        LOG_ERR(__FILE__, "Can not open tox_save.tox to write to it.");
         return true;
     }
 
-    fwrite(data, length, 1, fp);
+    if (fwrite(data, length, 1, fp) != 1) {
+        LOG_ERR(__FILE__, "Unable to write Tox save to file.");
+        return true;
+    }
+
     flush_file(fp);
     fclose(fp);
 
@@ -33,34 +39,39 @@ bool utox_data_save_tox(uint8_t *data, size_t length) {
 }
 
 uint8_t *utox_data_load_tox(size_t *size) {
-    uint8_t name[][20] = { "tox_save.tox", "tox_save.tox.atomic", "tox_save.tmp", "tox_save" };
+    const uint8_t name[][20] = { "tox_save.tox", "tox_save.tox.atomic", "tox_save.tmp", "tox_save" };
 
-    uint8_t *data;
-    FILE *   fp;
-    size_t   length = 0;
+    for (uint8_t i = 0; i < 4; i++) {
+        size_t length = 0;
 
-    for (int i = 0; i < 4; i++) {
-        fp = native_get_file(name[i], &length, UTOX_FILE_OPTS_READ);
+        const FILE *fp = native_get_file(name[i], &length, UTOX_FILE_OPTS_READ);
         if (fp == NULL) {
             continue;
         }
-        data = calloc(length + 1, 1);
+
+        uint8_t *data = calloc(1, length + 1);
+
         if (data == NULL) {
-            LOG_TRACE(__FILE__, "Could not allocate memory for tox save." );
+            LOG_ERR(__FILE__, "Could not allocate memory for tox save.");
             fclose(fp);
-            return NULL; // quit were out of memory, calloc will fail again
+            // Quit. We're out of memory, calloc will fail again.
+            return NULL;
         }
-        if (fread(data, 1, length, fp) != length) {
-            LOG_TRACE(__FILE__, "Could not read: %s." , name[i]);
+
+        if (fread(data, length, 1, fp) != 1) {
+            LOG_ERR(__FILE__, "Could not read: %s.", name[i]);
             fclose(fp);
             free(data);
-            return NULL; // return because if this file exits we don't want to fall back to an old version, we need the
-                         // user to decide
+            // Return NULL, because if a Tox save exits we don't want to fall
+            // back to an old version, we need the user to decide what to do.
+            return NULL;
         }
+
         fclose(fp);
         *size = length;
         return data;
     }
+
     return NULL;
 }
 
@@ -71,7 +82,11 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
         return false;
     }
 
-    fwrite(data, size, 1, fp);
+    if (fwrite(data, size, 1, fp) != 1) {
+        LOG_ERR(__FILE__, "Unable to write uTox settings to file.");
+        return false;
+    }
+
     flush_file(fp);
     fclose(fp);
 
@@ -80,24 +95,25 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
 
 UTOX_SAVE *utox_data_load_utox(void) {
     size_t size = 0;
-    FILE *fp = native_get_file((uint8_t *)"utox_save", &size, UTOX_FILE_OPTS_READ);
+    const FILE *fp = native_get_file((uint8_t *)"utox_save", &size, UTOX_FILE_OPTS_READ);
 
     if (fp == NULL) {
         return NULL;
     }
 
-    UTOX_SAVE *save = calloc(size + 1, 1);
+    const UTOX_SAVE *save = calloc(1, size + 1);
     if (save == NULL) {
         fclose(fp);
         return NULL;
     }
 
-    if (fread(save, 1, size, fp) != size) {
-        LOG_TRACE(__FILE__, "Could not read save file" );
+    if (fread(save, size, 1, fp) != 1) {
+        LOG_ERR(__FILE__, "Could not read save file");
         fclose(fp);
         free(save);
         return NULL;
     }
+
     fclose(fp);
     return save;
 }
@@ -112,8 +128,12 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
         return false;
     }
 
-    fwrite(data, length, 1, fp);
-    flush_file(fp);
+    if (fwrite(data, length, 1, fp) != 1) {
+        LOG_ERR(__FILE__, "Unable to write ftinfo to file.");
+        fclose(fp);
+        return false;
+    }
+
     fclose(fp);
 
     return true;
@@ -273,7 +293,7 @@ void parse_args(int argc, char *argv[],
 void utox_init(void) {
     /* Called by the native main for every platform after loading utox setting, before showing/drawing any windows. */
     if (settings.curr_version != settings.last_version) {
-        settings.show_splash = 1;
+        settings.show_splash = true;
     }
 
     if (settings.auto_update) {
