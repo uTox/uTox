@@ -261,6 +261,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 file->ui_data->via.ft.speed    = file->speed;
                 file->ui_data->via.ft.file_status = param1;
             }
+            free(data);
             redraw();
             break;
         }
@@ -280,6 +281,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                     }
                 }
             }
+
             file->decon_wait = false;
             LOG_NOTE("uTox", "FT data was saved" );
             redraw();
