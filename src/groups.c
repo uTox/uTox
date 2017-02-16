@@ -174,30 +174,40 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         memcpy(old, peer->name, peer->name_length);
         size = snprintf((char *)msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s",
                         (int)peer->name_length, old);
-        peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
 
-        if (peer) {
-            peer->name_length = utf8_validate(name, length);
-            memcpy(peer->name, name, length);
-            g->peer[peer_id] = peer;
-            pthread_mutex_unlock(&messages_lock);
-            group_add_message(g, peer_id, msg, size, MSG_TYPE_NOTICE);
-            return;
+        GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
+
+        if (new_peer) {
+            peer = new_peer;
         } else {
-            LOG_ERR("Groupchat", " couldn't realloc for group peer name!");
+            free(peer);
+            LOG_FATAL_ERR(40, "Groupchat", "Couldn't realloc for group peer name!");
             exit(40);
         }
+
+        peer->name_length = utf8_validate(name, length);
+        memcpy(peer->name, name, length);
+        g->peer[peer_id] = peer;
+        pthread_mutex_unlock(&messages_lock);
+        group_add_message(g, peer_id, msg, size, MSG_TYPE_NOTICE);
+        return;
     } else if (peer) {
         /* Hopefully, they just joined, because that's the UX message we're going with! */
-        peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
-        if (peer) {
-            peer->name_length = utf8_validate(name, length);
-            memcpy(peer->name, name, length);
-            g->peer[peer_id] = peer;
-            pthread_mutex_unlock(&messages_lock);
-            group_add_message(g, peer_id, (const uint8_t *)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
-            return;
+        GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
+
+        if (new_peer) {
+            peer = new_peer;
+        } else {
+            LOG_FATAL_ERR(43, "Groupchat", "Unable to realloc for group peer who just joined.");
+            exit(43);
         }
+
+        peer->name_length = utf8_validate(name, length);
+        memcpy(peer->name, name, length);
+        g->peer[peer_id] = peer;
+        pthread_mutex_unlock(&messages_lock);
+        group_add_message(g, peer_id, (const uint8_t *)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
+        return;
     } else {
         LOG_ERR("Groupchat", "We can't set a name for a null peer! %u" , peer_id);
         exit(41);
