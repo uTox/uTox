@@ -273,10 +273,10 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
 /* Cancel active file. */
 static void kill_file(FILE_TRANSFER *file) {
     if (file->status == FILE_TRANSFER_STATUS_KILLED) {
-        LOG_NOTE("FileTransfer", "File already killed." );
+        LOG_WARN("FileTransfer", "File already killed." );
         return;
     } else if (file->status == FILE_TRANSFER_STATUS_COMPLETED) {
-        LOG_NOTE("FileTransfer", "File already completed." );
+        LOG_WARN("FileTransfer", "File already completed." );
         return;
     } else {
         file->status = FILE_TRANSFER_STATUS_KILLED;
@@ -308,9 +308,7 @@ static void break_file(FILE_TRANSFER *file) {
     file->status = FILE_TRANSFER_STATUS_BROKEN;
     postmessage_utox(FILE_STATUS_DONE, file->status, 0, file->ui_data);
     ft_update_resumable(file);
-    if (file->in_use) {
-        ft_decon(file->friend_number, file->file_number);
-    }
+    ft_decon(file->friend_number, file->file_number);
 }
 
 /* Pause active file. */
@@ -545,16 +543,16 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
             if (info->status != FILE_TRANSFER_STATUS_ACTIVE) {
                 if (get_friend(friend_number)->ft_outgoing_size < MAX_FILE_TRANSFERS) {
                     if (tox_file_control(tox, friend_number, file_number, control, &error)) {
-                        LOG_TRACE("FileTransfer", "We just resumed file (%u & %u)" , friend_number, file_number);
+                        LOG_INFO("FileTransfer", "We just resumed file (%u & %u)" , friend_number, file_number);
                     } else {
-                        LOG_TRACE("FileTransfer", "Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
+                        LOG_INFO("FileTransfer", "Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
                     }
                 } else {
                     LOG_INFO("FileTransfer", "Can't start file, max file transfer limit reached! (%u & %u)\n",
                           friend_number, file_number);
                 }
             } else {
-                LOG_TRACE("FileTransfer", "File already active (%u & %u)" , friend_number, file_number);
+                LOG_INFO("FileTransfer", "File already active (%u & %u)" , friend_number, file_number);
             }
             run_file_local(info);
             break;
@@ -562,28 +560,26 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
         case TOX_FILE_CONTROL_PAUSE:
             if (info->status != FILE_TRANSFER_STATUS_PAUSED_US && info->status != FILE_TRANSFER_STATUS_PAUSED_BOTH) {
                 if (tox_file_control(tox, friend_number, file_number, control, &error)) {
-                    LOG_TRACE("FileTransfer", "We just paused file (%u & %u)" , friend_number, file_number);
+                    LOG_INFO("FileTransfer", "We just paused file (%u & %u)" , friend_number, file_number);
                 } else {
-                    LOG_TRACE("FileTransfer", "Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
+                    LOG_INFO("FileTransfer", "Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
                 }
             } else {
-                LOG_TRACE("FileTransfer", "File already paused (%u & %u)" , friend_number, file_number);
+                LOG_INFO("FileTransfer", "File already paused (%u & %u)" , friend_number, file_number);
             }
             utox_pause_file(info, 1);
             break;
         case TOX_FILE_CONTROL_CANCEL: {
             if (info->status != FILE_TRANSFER_STATUS_KILLED) {
                 if (tox_file_control(tox, friend_number, file_number, control, &error)) {
-                    LOG_TRACE("FileTransfer", "We just killed file (%u & %u)" , friend_number, file_number);
+                    LOG_INFO("FileTransfer", "We just killed file (%u & %u)" , friend_number, file_number);
                 } else {
-                    LOG_TRACE("FileTransfer", "Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
+                    LOG_INFO("FileTransfer", "Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
                 }
             } else {
-                LOG_TRACE("FileTransfer", "File already killed (%u & %u)" , friend_number, file_number);
+                LOG_INFO("FileTransfer", "File already killed (%u & %u)" , friend_number, file_number);
             }
-            if (info->friend_number == friend_number) {
-                kill_file(info);
-            }
+            kill_file(info);
             break;
         }
     }

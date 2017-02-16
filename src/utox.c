@@ -216,7 +216,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);
-            file->ui_data = m;
+            ft_set_ui_data(file->friend_number, file->file_number, m);
             free(data);
             redraw();
             break;
@@ -244,7 +244,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);
-            file->ui_data = m;
+            ft_set_ui_data(file->friend_number, file->file_number, m);
             redraw();
             break;
         }
@@ -259,8 +259,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FILE_TRANSFER *file = data;
 
             if (file->ui_data) {
-                file->ui_data->via.ft.progress = file->current_size;
-                file->ui_data->via.ft.speed    = file->speed;
+                file->ui_data->via.ft.progress    = file->current_size;
+                file->ui_data->via.ft.speed       = file->speed;
                 file->ui_data->via.ft.file_status = param1;
             }
             free(data);
