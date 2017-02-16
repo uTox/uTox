@@ -409,6 +409,9 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
             size_t length = sizeof(header) + msg->via.txt.length + author_length + 1; /* extra \n char*/
 
             uint8_t *data = calloc(1, length);
+            if (!data) {
+                LOG_FATAL_ERR(20, "Messages", "Can't calloc for chat logging data. size:%lu", length);
+            }
             memcpy(data, &header, sizeof(header));
             memcpy(data + sizeof(header), author, author_length);
             memcpy(data + sizeof(header) + author_length, msg->via.txt.msg, msg->via.txt.length);
@@ -1307,9 +1310,9 @@ bool messages_mdown(PANEL *panel) {
                 FILE_TRANSFER *ft;
                 uint32_t ft_number = msg->via.ft.file_number;
                 if (ft_number >= (1 << 16)) {
-                    ft = &f->file_transfers_incoming[(ft_number >> 16) - 1]; // TODO, abstraction needed
+                    ft = &f->ft_incoming[(ft_number >> 16) - 1]; // TODO, abstraction needed
                 } else {
-                    ft = &f->file_transfers_outgoing[ft_number]; // TODO, abstraction needed
+                    ft = &f->ft_outgoing[ft_number]; // TODO, abstraction needed
                 }
 
                 if (msg->via.ft.file_status == FILE_TRANSFER_STATUS_COMPLETED) {

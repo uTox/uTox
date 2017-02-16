@@ -216,6 +216,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                                                   file->target_size, file->current_size);
             file_notify(f, m);
             file->ui_data = m;
+            free(data);
             redraw();
             break;
         }

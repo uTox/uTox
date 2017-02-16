@@ -76,13 +76,13 @@ typedef struct utox_friend {
     /* File transfers */
     bool     ft_autoaccept;
 
-    FILE_TRANSFER  *file_transfers_incoming;
-    uint16_t        file_transfers_incoming_size;
-    uint16_t        file_transfers_incoming_active_count;
+    FILE_TRANSFER  *ft_incoming;
+    uint16_t        ft_incoming_size;
+    uint16_t        ft_incoming_active_count;
 
-    FILE_TRANSFER  *file_transfers_outgoing;
-    uint16_t        file_transfers_outgoing_size;
-    uint16_t        file_transfers_outgoing_active_count;
+    FILE_TRANSFER  *ft_outgoing;
+    uint16_t        ft_outgoing_size;
+    uint16_t        ft_outgoing_active_count;
 } FRIEND;
 
 typedef struct utox_friend_request {
