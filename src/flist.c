@@ -531,7 +531,7 @@ static void page_open(ITEM *i) {
         }
 
         default: {
-            LOG_ERR("F-List", "Trying to switch to an item that we shouldn't be selecting\n");
+            LOG_ERR("F-List", "Trying to switch to an item that we shouldn't be selecting.");
             break;
         }
     }

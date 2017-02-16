@@ -22,7 +22,7 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
                                     void *UNUSED(userdata)) {
 
     if (settings.block_friend_requests) {
-        LOG_WARN("Tox Callbacks", "Friend request ignored.\n"); // TODO move to friend.c
+        LOG_WARN("Tox Callbacks", "Friend request ignored."); // TODO move to friend.c
         return;
     }
 
@@ -307,7 +307,7 @@ void utox_set_callbacks_groups(Tox *tox) {
 
 #ifdef ENABLE_MULTIDEVICE
 static void callback_friend_list_change(Tox *tox, void *user_data) {
-    LOG_ERR(__FILE__, "friend list change, updating roster\n");
+    LOG_ERR(__FILE__, "friend list change, updating roster");
 
     flist_dump_contacts();
     utox_friend_list_init(tox);

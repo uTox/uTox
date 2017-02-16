@@ -25,7 +25,7 @@ bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_
     fp = native_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
 
     if (fp == NULL) {
-        LOG_WARN("Avatar", "Could not save avatar for: %.*s\n", TOX_PUBLIC_KEY_SIZE * 2, hexid);
+        LOG_WARN("Avatar", "Could not save avatar for: %.*s", TOX_PUBLIC_KEY_SIZE * 2, hexid);
         return false;
     }
 
@@ -49,13 +49,13 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
 
     uint8_t *data = calloc(1, size);
     if (data == NULL) {
-        LOG_ERR("Avatar", "Could not allocate memory for file of size %zu.\n", size);
+        LOG_ERR("Avatar", "Could not allocate memory for file of size %zu.", size);
         fclose(fp);
         return NULL;
     }
 
     if (fread(data, size, 1, fp) != 1) {
-        LOG_WARN("Avatar", "Could not read from open file: %s\n", name);
+        LOG_WARN("Avatar", "Could not read from open file: %s", name);
         fclose(fp);
         free(data);
         return NULL;
@@ -118,7 +118,7 @@ static bool avatar_load(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar, siz
 
 bool avatar_set(AVATAR *avatar, const uint8_t *data, size_t size) {
     if (avatar == NULL) {
-        LOG_DEBUG("Avatar", "avatar is null.\n");
+        LOG_DEBUG("Avatar", "avatar is null.");
         return false;
     }
 
@@ -130,7 +130,7 @@ bool avatar_set(AVATAR *avatar, const uint8_t *data, size_t size) {
     avatar_free_image(avatar);
     NATIVE_IMAGE *image = utox_image_to_native((UTOX_IMAGE)data, size, &avatar->width, &avatar->height, true);
     if (!NATIVE_IMAGE_IS_VALID(image)) {
-        LOG_DEBUG("Avatar", "avatar is invalid\n");
+        LOG_DEBUG("Avatar", "avatar is invalid");
         return false;
     }
 

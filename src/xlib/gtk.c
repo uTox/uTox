@@ -389,7 +389,7 @@ void ugtk_save_chatlog(uint32_t friend_number) {
     do {                                                               \
         utoxGTK_##name = dlsym(lib, #trgt "_" #name);                  \
         if (!utoxGTK_##name) {                                         \
-            LOG_ERR(__FILE__, "Unable to load " #name " (%s)\n", dlerror()); \
+            LOG_ERR(__FILE__, "Unable to load " #name " (%s)", dlerror()); \
             dlclose(lib);                                              \
             return NULL;                                               \
         }                                                              \
@@ -399,7 +399,7 @@ void ugtk_save_chatlog(uint32_t friend_number) {
     do {                                                               \
         utoxGDK_##name = dlsym(lib, "gdk_" #name);                     \
         if (!utoxGDK_##name) {                                         \
-            LOG_ERR(__FILE__, "Unable to load " #name " (%s)\n", dlerror()); \
+            LOG_ERR(__FILE__, "Unable to load " #name " (%s)", dlerror()); \
             dlclose(lib);                                              \
             return NULL;                                               \
         }                                                              \

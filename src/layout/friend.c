@@ -277,7 +277,7 @@ static void button_send_friend_request_on_mup(void) {
 static void button_call_decline_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->call_state_friend) {
-        LOG_TRACE("Layout Friend", "Declining call: %u\n", f->number);
+        LOG_TRACE("Layout Friend", "Declining call: %u", f->number);
         postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
     }
 }
@@ -302,20 +302,20 @@ static void button_call_audio_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->call_state_self) {
         if (UTOX_SENDING_AUDIO(f->number)) {
-            LOG_TRACE("Layout Friend", "Ending call: %u\n", f->number);
+            LOG_TRACE("Layout Friend", "Ending call: %u", f->number);
             /* var 3/4 = bool send video */
             postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
         } else {
-            LOG_TRACE("Layout Friend", "Canceling call: friend = %d\n", f->number);
+            LOG_TRACE("Layout Friend", "Canceling call: friend = %d", f->number);
             postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
         }
     } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
-        LOG_TRACE("Layout Friend", "Accept Call: %u\n", f->number);
+        LOG_TRACE("Layout Friend", "Accept Call: %u", f->number);
         postmessage_toxcore(TOX_CALL_ANSWER, f->number, 0, NULL);
     } else {
         if (f->online) {
             postmessage_toxcore(TOX_CALL_SEND, f->number, 0, NULL);
-            LOG_TRACE("Layout Friend", "Calling friend: %u\n", f->number);
+            LOG_TRACE("Layout Friend", "Calling friend: %u", f->number);
         }
     }
 }
@@ -344,22 +344,22 @@ static void button_call_video_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->call_state_self) {
         if (SELF_ACCEPT_VIDEO(f->number)) {
-            LOG_TRACE("Layout Friend", "Canceling call (video): %u\n", f->number);
+            LOG_TRACE("Layout Friend", "Canceling call (video): %u", f->number);
             postmessage_toxcore(TOX_CALL_PAUSE_VIDEO, f->number, 1, NULL);
         } else if (UTOX_SENDING_AUDIO(f->number)) {
-            LOG_TRACE("Layout Friend", "Audio call inprogress, adding video\n");
+            LOG_TRACE("Layout Friend", "Audio call inprogress, adding video");
             postmessage_toxcore(TOX_CALL_RESUME_VIDEO, f->number, 1, NULL);
         } else {
-            LOG_TRACE("Layout Friend", "Ending call (video): %u\n", f->number);
+            LOG_TRACE("Layout Friend", "Ending call (video): %u", f->number);
             postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 1, NULL);
         }
     } else if (f->call_state_friend) {
-        LOG_TRACE("Layout Friend", "Accept Call (video): %u %u\n", f->number, f->call_state_friend);
+        LOG_TRACE("Layout Friend", "Accept Call (video): %u %u", f->number, f->call_state_friend);
         postmessage_toxcore(TOX_CALL_ANSWER, f->number, 1, NULL);
     } else {
         if (f->online) {
             postmessage_toxcore(TOX_CALL_SEND, f->number, 1, NULL);
-            LOG_TRACE("Layout Friend", "Calling friend (video): %u\n", f->number);
+            LOG_TRACE("Layout Friend", "Calling friend (video): %u", f->number);
         }
     }
 }
@@ -644,7 +644,7 @@ static void e_chat_msg_onenter(EDIT *edit) {
         return;
     }
 
-    // LOG_TRACE("Layout Friend", "cmd %u\n", command_length);
+    // LOG_TRACE("Layout Friend", "cmd %u", command_length);
 
     bool action = false;
     if (command_length) {

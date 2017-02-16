@@ -579,7 +579,7 @@ static void button_change_nospam_on_mup(void) {
 #include "../debug.h"
 static void button_revert_nospam_on_mup(void) {
     if (self.old_nospam == 0 || self.nospam == self.old_nospam) { //nospam can not be 0
-        LOG_ERR("Settings", "Invalid or current nospam: %u.\n", self.old_nospam);
+        LOG_ERR("Settings", "Invalid or current nospam: %u.", self.old_nospam);
         return;
     }
     postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 0, 0, NULL);

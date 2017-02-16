@@ -68,7 +68,8 @@ static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
 
     XDefineCursor(display, window->window, cursors[cursor]);
 
-    LOG_TRACE("XLIB", "MotionEvent: (%u %u) %u\n", event->x, event->y, event->state);
+    // uncomment this to log mouse movements. Commented because it spams too much
+    //LOG_TRACE("XLIB", "MotionEvent: (%u %u) %u", event->x, event->y, event->state);
 }
 
 static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
@@ -120,7 +121,7 @@ static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
         }
     }
 
-    LOG_TRACE("XLIB", "ButtonEvent: %u %u\n", event->state, event->button);
+    LOG_TRACE("XLIB", "ButtonEvent: %u %u", event->state, event->button);
 }
 
 static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
@@ -191,7 +192,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
             break;
         }
     }
-    LOG_TRACE("XLIB", "ButtonEvent: %u %u\n", event->state, event->button);
+    LOG_TRACE("XLIB", "ButtonEvent: %u %u", event->state, event->button);
 }
 
 
@@ -199,7 +200,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
 static bool popup_event(XEvent event, UTOX_WINDOW *win) {
     switch (event.type) {
         case Expose: {
-            LOG_TRACE("XLIB", "Main window expose\n");
+            LOG_TRACE("XLIB", "Main window expose");
             native_window_set_target(win);
             panel_draw(win->_.panel , 0, 0, win->_.w, win->_.h);
             XCopyArea(display, win->drawbuf, win->window, win->gc, 0, 0, win->_.w, win->_.h, 0, 0);
@@ -241,7 +242,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
             break;
         }
         default: {
-            LOG_WARN("XLIB", "other event: %u\n", event.type);
+            LOG_WARN("XLIB", "other event: %u", event.type);
             break;
         }
 
@@ -681,7 +682,7 @@ bool doevent(XEvent event) {
                 LOG_TRACE(__FILE__, "status" );
             } else if (ev->message_type == XdndDrop) {
                 XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, main_window.window, CurrentTime);
-                LOG_NOTE("XLIB", "Drag was dropped\n");
+                LOG_NOTE("XLIB", "Drag was dropped");
             } else if (ev->message_type == XdndLeave) {
                 LOG_TRACE(__FILE__, "leave" );
             } else {
