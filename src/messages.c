@@ -130,8 +130,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
             }
 
             if (!m->data) {
-                LOG_ERR("Messages", "\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
-                exit(30);
+                LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
             }
         }
         m->data[m->number++] = msg;
@@ -419,7 +418,7 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
 
             uint8_t *data = calloc(1, length);
             if (!data) {
-                LOG_FATAL_ERR(20, "Messages", "Can't calloc for chat logging data. size:%lu", length);
+                LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Can't calloc for chat logging data. size:%lu", length);
             }
             memcpy(data, &header, sizeof(header));
             memcpy(data + sizeof(header), author, author_length);
@@ -1485,7 +1484,7 @@ bool messages_mright(PANEL *panel) {
         }
     }
 
-    LOG_FATAL_ERR(1, "Messages", "Congratulations, you've reached dead code. Please report this.");
+    LOG_FATAL_ERR(EXIT_FAILURE, "Messages", "Congratulations, you've reached dead code. Please report this.");
 }
 
 bool messages_mwheel(PANEL *UNUSED(panel), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) {
@@ -1716,8 +1715,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 
     m->data = calloc(20, sizeof(void *));
     if (!m->data) {
-        LOG_ERR("Messages", "\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
-        exit(30);
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
     }
 
     m->extra = 20;

@@ -676,8 +676,7 @@ int main(int argc, char *argv[]) {
     theme_load(settings.theme);
 
     if (!XInitThreads()) {
-        LOG_FATAL_ERR(2, "XLIB MAIN", "XInitThreads failed.");
-        return 2;
+        LOG_FATAL_ERR(EXIT_FAILURE, "XLIB MAIN", "XInitThreads failed.");
     }
     if (!native_window_init()) {
         return 2;
@@ -880,7 +879,7 @@ int main(int argc, char *argv[]) {
         yieldcpu(1);
     }
 
-    LOG_ERR("XLIB", "XLIB main:\tClean exit");
+    LOG_INFO("XLIB", "XLIB main:\tClean exit");
 
     utox_raze();
 
