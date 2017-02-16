@@ -116,6 +116,13 @@ static void ft_decon(uint32_t friend_number, uint32_t file_number) {
         LOG_ERR("FileTransfer", "Can't decon a FT that doesn't exist!");
         return;
     }
+
+    if (ft->incoming) {
+        get_friend(friend_number)->ft_incoming_active_count--;
+    } else {
+        get_friend(friend_number)->ft_outgoing_active_count--;
+    }
+
     while (ft->decon_wait) {
         yieldcpu(10);
     }
@@ -133,12 +140,6 @@ static void ft_decon(uint32_t friend_number, uint32_t file_number) {
             fclose(ft->via.file);
         }
         memset(ft, 0, sizeof(FILE_TRANSFER));
-    }
-
-    if (ft->incoming) {
-        get_friend(friend_number)->ft_incoming_active_count--;
-    } else {
-        get_friend(friend_number)->ft_outgoing_active_count--;
     }
 }
 
