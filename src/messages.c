@@ -121,8 +121,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
             }
 
             if (!m->data) {
-                LOG_ERR(__FILE__, "\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
-                exit(30);
+                LOG_FATAL_ERR(EXIT_MALLOC, __FILE__, "\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
             }
         }
         m->data[m->number++] = msg;
@@ -1630,8 +1629,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 
     m->data = calloc(20, sizeof(void *));
     if (!m->data) {
-        LOG_ERR(__FILE__, "\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
-        exit(30);
+        LOG_FATAL_ERR(EXIT_MALLOC, __FILE__, "\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
     }
 
     m->extra = 20;

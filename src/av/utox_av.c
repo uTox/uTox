@@ -247,7 +247,7 @@ void utox_av_ctrl_thread(void *args) {
     toxav_thread_msg  = 0;
     utox_av_ctrl_init = 0;
 
-    LOG_NOTE("UTOXAV", "Clean thread exit!" );
+    LOG_NOTE("UTOXAV", "Clean thread exit!");
     return;
 }
 

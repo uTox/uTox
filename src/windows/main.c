@@ -936,7 +936,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     };
     config_save(&d);
 
-    LOG_INFO("uTox", "Clean exit." );
+    LOG_INFO("uTox", "Clean exit.");
 
     return false;
 }

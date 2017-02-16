@@ -489,7 +489,7 @@ void launch_at_startup(int should) {
         yieldcpu(1);
     }
 
-    LOG_TRACE(__FILE__, "clean exit" );
+    LOG_TRACE(__FILE__, "clean exit");
 }
 
 - (void)soilWindowContents {

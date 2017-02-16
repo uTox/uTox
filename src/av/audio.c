@@ -833,7 +833,7 @@ void utox_audio_thread(void *args) {
     audio_thread_msg       = 0;
     utox_audio_thread_init = 0;
     free(preview_buffer);
-    LOG_TRACE("uTox Audio", "Clean thread exit!" );
+    LOG_TRACE("uTox Audio", "Clean thread exit!");
 }
 
 // COMMENTED OUT FOR NEW GC

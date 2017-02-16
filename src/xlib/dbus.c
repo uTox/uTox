@@ -61,7 +61,7 @@ void dbus_notify(char *title, char *content, uint8_t *cid) {
     conn = dbus_bus_get(DBUS_BUS_SESSION, &err);
 
     if (dbus_error_is_set(&err)) {
-        fprintf(stderr, "Connection Error (%s)\n", err.message);
+        LOG_ERR(__FILE__, "Connection Error (%s)\n", err.message);
         dbus_error_free(&err);
     }
 
@@ -92,8 +92,7 @@ void dbus_notify(char *title, char *content, uint8_t *cid) {
     dbus_error_init(&err);
 
     if (!dbus_connection_send_with_reply(conn, msg, &pending, -1)) {
-        fprintf(stderr, "Sending failed!\n");
-        exit(1);
+        LOG_FATAL_ERR(EXIT_FAILURE, __FILE__, "Sending failed!");
     }
 
     if (!dbus_pending_call_set_notify(pending, &notify_callback, NULL, NULL)) {
