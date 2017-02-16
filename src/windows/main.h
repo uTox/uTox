@@ -18,7 +18,7 @@
 #define WINVER 0x410
 #endif
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -90,7 +90,6 @@ typedef struct native_image {
     // stretch mode used when stretching this image, either
     // COLORONCOLOR(ugly and fast), or HALFTONE(prettier and slower)
     int stretch_mode;
-
 } NATIVE_IMAGE;
 
 // static char save_path[280];

@@ -14,19 +14,16 @@ bool utox_move_file(const uint8_t *current_name, const uint8_t *new_name) {
 }
 
 void *file_raw(char *path, uint32_t *size) {
-    FILE *file;
-    char *data;
-    int   len;
-
-    file = fopen(path, "rb");
+    FILE *file = fopen(path, "rb");
     if (!file) {
         // LOG_TRACE(__FILE__, "File not found (%s)" , path);
         return NULL;
     }
 
     fseek(file, 0, SEEK_END);
-    len  = ftell(file);
-    data = malloc(len);
+    int len = ftell(file);
+
+    char *data = calloc(1, len);
     if (!data) {
         fclose(file);
         return NULL;
@@ -43,10 +40,9 @@ void *file_raw(char *path, uint32_t *size) {
 
     fclose(file);
 
-    // LOG_TRACE(__FILE__, "Read %u bytes (%s)" , len, path);
-
     if (size) {
         *size = len;
     }
+
     return data;
 }
