@@ -192,12 +192,13 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FRIEND *f = &friend[param1];
             FILE_TRANSFER *file = data;
 
-            // TODO(grayhatter) This can easily become a use after free (realloc) when a friend sends multiple files at once.
             MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);
-            file->ui_data = m;
+            ft_set_ui_data(file->file_number, file->friend_number, m);
+
+            free(data);
             redraw();
             break;
         }

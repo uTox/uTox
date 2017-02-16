@@ -749,7 +749,8 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     FRIEND *f = get_friend(friend_number);
     if (f->ft_incoming_active_count >= MAX_INCOMING_COUNT) {
         LOG_ERR("FileTransfer", "Too many incoming file transfers from friend %u", friend_number);
-        ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+        /* ft_local_control is preferred, but in this case it can't access the ft struct. */
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CANCEL, NULL);
         return;
     }
     f->ft_incoming_active_count++;
@@ -1049,7 +1050,13 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
 
     ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
 
-    postmessage_utox(FILE_SEND_NEW, friend_number, file_number, ft);
+    FILE_TRANSFER *msg = malloc(sizeof(FILE_TRANSFER));
+    if (!msg) {
+        LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+        return UINT32_MAX;
+    }
+    *msg = *ft;
+    postmessage_utox(FILE_SEND_NEW, friend_number, file_number, msg);
     return file_number;
 }
 
@@ -1113,8 +1120,26 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     ft->target_size = size;
     ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
 
-    postmessage_utox(FILE_SEND_NEW, friend_number, file_number, ft);
+
+    FILE_TRANSFER *msg = malloc(sizeof(FILE_TRANSFER));
+    if (!msg) {
+        LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+        return UINT32_MAX;
+    }
+    *msg = *ft;
+    postmessage_utox(FILE_SEND_NEW, friend_number, file_number, msg);
     return file_number;
+}
+
+bool ft_set_ui_data(uint32_t friend_number, uint32_t file_number, MSG_HEADER *ui_data) {
+    FILE_TRANSFER *file = get_file_transfer(friend_number, file_number);
+    if (!file) {
+        LOG_WARN("FileTransfer", "Unable to set ui_data for unknown file number");
+        return false;
+    }
+
+    file->ui_data = ui_data;
+    return true;
 }
 
 static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
