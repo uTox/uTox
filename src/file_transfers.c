@@ -526,7 +526,7 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
             break;
         }
         case TOX_FILE_CONTROL_PAUSE:
-            if (info->status != FILE_TRANSFER_STATUS_PAUSED_US || info->status != FILE_TRANSFER_STATUS_PAUSED_BOTH) {
+            if (info->status != FILE_TRANSFER_STATUS_PAUSED_US && info->status != FILE_TRANSFER_STATUS_PAUSED_BOTH) {
                 if (tox_file_control(tox, friend_number, file_number, control, &error)) {
                     LOG_TRACE("FileTransfer", "We just paused file (%u & %u)" , friend_number, file_number);
                 } else {
