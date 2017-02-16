@@ -382,7 +382,7 @@ void e_chat_msg_onenter(EDIT *edit) {
         return;
     }
 
-    // debug("cmd %u\n", command_length);
+    // LOG_NOTE(__FILE__, "cmd %u\n", command_length);
 
     bool action = false;
     if (command_length) {

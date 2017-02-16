@@ -100,7 +100,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                 // Get the real file length
                 char *str = strstr((char*)buffer, "Content-Length: ");
                 if (!str) {
-                    debug_notice("invalid HTTP response (1)\n");
+                    LOG_NOTE("Updater", "invalid HTTP response (1)\n");
                     break;
                 }
 
@@ -123,7 +123,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                     break;
                 }
 
-                debug_info("Download size: %u\n", header_len);
+                LOG_INFO(__FILE__, "Download size: %u\n", header_len);
 
                 /* read the first piece */
                 real_len = len - (str - (char*)buffer);
@@ -219,11 +219,11 @@ bool updater_check(void) {
     LOG_INFO("Updater", "Current version %u, newest version version %u." , UTOX_VERSION_NUMBER, version);
 
     if (version > UTOX_VERSION_NUMBER) {
-        debug_warning("Updater:\tNew version of uTox available [%u.%u.%u]\n",
+        LOG_WARN("Updater", "New version of uTox available [%u.%u.%u]",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
         return true;
     } else if (version == UTOX_VERSION_NUMBER) {
-        debug_warning("Updater:\tRunning the latest version of uTox [%u.%u.%u]\n",
+        LOG_WARN("Updater", "Running the latest version of uTox [%u.%u.%u]",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
 
     }

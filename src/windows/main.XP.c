@@ -95,7 +95,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
                       "wb");
 
     postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
-    debug_notice("Native:\tAuto Accept Directory: \"%s\"", second);
+    LOG_NOTE("Native", "Auto Accept Directory: \"%s\"", second);
 }
 
 void launch_at_startup(int is_launch_at_startup) {

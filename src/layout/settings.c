@@ -622,7 +622,7 @@ static void button_videopreview_on_mup(void) {
     } else if (video_width && video_height) {
         postmessage_utoxav(UTOXAV_START_VIDEO, 0, 1, NULL);
     } else {
-        debug("Button ERR:\tVideo_width = 0, can't preview\n");
+        LOG_ERR("Button", "Video_width = 0, can't preview\n");
     }
     settings.video_preview = !settings.video_preview;
 }
@@ -1018,7 +1018,7 @@ static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
     GROUPCHAT *g = flist_get_selected()->data;
     g->notify    = i;
-    debug("g->notify = %u\n", i);
+    LOG_INFO(__FILE__, "g->notify = %u\n", i);
 }
 
 static void dropdown_global_group_notifications_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
@@ -1226,4 +1226,3 @@ EDIT edit_add_new_device_to_self = {
     .maxlength = sizeof edit_add_new_device_to_self_data - 1,
     .onenter   = edit_add_new_device_to_self_onenter,
 };
-

@@ -81,10 +81,10 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
     if (r == S_OK) {
         HDROP h = medium.hGlobal;
         int count = DragQueryFile(h, ~0, NULL, 0);
-        debug_info("%u files dropped\n", count);
+        LOG_INFO(__FILE__, "%u files dropped\n", count);
 
         for (int i = 0; i < count; i++) {
-            debug_notice ("WINDND:\tSending file number %i\n", i);
+            LOG_NOTE("WINDND", "Sending file number %i", i);
             UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
             if (!msg) {
                 LOG_ERR("WINDND", "Unable to alloc for UTOX_MSG_FT");

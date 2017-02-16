@@ -278,7 +278,7 @@ void utox_video_thread(void *args) {
                         // LOG_TRACE("uToxVideo", "Sent video frame to friend %u" , i);
                         if (error) {
                             if (error == TOXAV_ERR_SEND_FRAME_SYNC) {
-                                debug_notice("uToxVideo:\tVid Frame sync error: w=%u h=%u\n", utox_video_frame.w,
+                                LOG_ERR(__FILE__, "uToxVideo:\tVid Frame sync error: w=%u h=%u\n", utox_video_frame.w,
                                              utox_video_frame.h);
                             } else if (error == TOXAV_ERR_SEND_FRAME_PAYLOAD_TYPE_DISABLED) {
                                 LOG_ERR(__FILE__,

@@ -50,10 +50,4 @@ int utox_verbosity();
 // User requested
 #define LOG_NORM(...)       (VERB(OFF) ? debug(__VA_ARGS__ ) : ((void)(0)))
 
-
-// TODO remove, here for backwards compat
-#define debug_warning(f, ...) LOG_WARN(__FILE__ "_OLD",  f, ## __VA_ARGS__)
-#define debug_notice(f, ...)  LOG_WARN(__FILE__ "_OLD",  f, ## __VA_ARGS__)
-#define debug_info(f, ...)    LOG_WARN(__FILE__ "_OLD",  f, ## __VA_ARGS__)
-
 #endif // DEBUG_H
