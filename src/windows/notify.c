@@ -47,7 +47,7 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_CREATE: {
-            LOG_ERR("Win Notify", "NOTIFY::\tCreate\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tCreate");
             if (win) {
                 win->window_DC = GetDC(window);
                 win->draw_DC   = CreateCompatibleDC(win->window_DC);
@@ -58,7 +58,7 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_SIZE: {
-            LOG_ERR("Win Notify", "NOTIFY::\tSize\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tSize");
             int w, h;
 
             w = GET_X_LPARAM(lParam);
@@ -82,13 +82,13 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_ERASEBKGND: {
-            LOG_ERR("Win Notify", "NOTIFY::\tBGND\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tBGND");
             redraw_notify(win);
             return true;
         }
 
         case WM_PAINT: {
-            LOG_ERR("Win Notify", "NOTIFY::\tPAINT\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tPAINT");
             PAINTSTRUCT ps;
 
             BeginPaint(window, &ps);

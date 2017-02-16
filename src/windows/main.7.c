@@ -42,7 +42,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
         if (file) {
             utox_export_chatlog(friend_number, file);
         } else {
-            LOG_ERR(__FILE__, "Opening file %s failed\n", path);
+            LOG_ERR(__FILE__, "Opening file %s failed", path);
         }
     } else {
         LOG_ERR("Windows7", "Unable to open file and export chatlog");

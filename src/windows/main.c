@@ -83,7 +83,7 @@ void openfilesend(void) {
 
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
     } else {
-        LOG_ERR(__FILE__, "GetOpenFileName() failed\n");
+        LOG_ERR(__FILE__, "GetOpenFileName() failed");
     }
     SetCurrentDirectoryW(dir);
 }
@@ -178,7 +178,7 @@ void file_save_inline(MSG_HEADER *msg) {
             LOG_ERR(__FILE__, "file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
         }
     } else {
-        LOG_ERR(__FILE__, "GetSaveFileName() failed\n");
+        LOG_ERR(__FILE__, "GetSaveFileName() failed");
     }
     free(path);
 }
@@ -808,7 +808,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     if (!skip_updater) {
-        LOG_ERR(__FILE__, "don't skip updater\n");
+        LOG_ERR(__FILE__, "don't skip updater");
         if (auto_update(cmd)) {
             CloseHandle(utox_mutex);
             return 0;

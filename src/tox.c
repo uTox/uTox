@@ -84,7 +84,7 @@ static int utox_encrypt_data(void *clear_text, size_t clear_length, uint8_t *cyp
     tox_pass_encrypt((uint8_t *)clear_text, clear_length, (uint8_t *)passphrase, passphrase_length, cypher_data, &err);
 
     if (err) {
-        LOG_ERR(__FILE__, "Fatal Error; unable to encrypt data!\n");
+        LOG_FATAL_ERR(10, __FILE__, "Fatal Error; unable to encrypt data!");
         exit(10);
     }
 
@@ -286,7 +286,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
                 return 0;
             }
         } else {
-            LOG_INFO("Toxcore", "Using unencrypted save file; this could be insecure!\n");
+            LOG_INFO("Toxcore", "Using unencrypted save file; this could be insecure!");
             options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
             options->savedata_data   = raw_data;
             options->savedata_length = raw_length;
@@ -305,7 +305,7 @@ static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file
     } else if (func) {
         LOG_NET_TRACE("Toxcore", "TOXCORE LOGGING ERROR: %s" , func);
     } else {
-        LOG_ERR("Toxcore logging", "TOXCORE LOGGING is broken!!:\tOpen an bug upstream\n");
+        LOG_ERR("Toxcore logging", "TOXCORE LOGGING is broken!!:\tOpen an bug upstream");
     }
 }
 
@@ -379,10 +379,10 @@ static int init_toxcore(Tox **tox) {
 
     if (*tox == NULL) {
         if (settings.force_proxy) {
-            LOG_ERR("Toxcore", "\t\tError #%u, Not going to try without proxy because of user settings.\n", tox_new_err);
+            LOG_ERR("Toxcore", "\t\tError #%u, Not going to try without proxy because of user settings.", tox_new_err);
             return -2;
         }
-        LOG_ERR("Toxcore", "\t\tError #%u, Going to try without proxy.\n", tox_new_err);
+        LOG_ERR("Toxcore", "\t\tError #%u, Going to try without proxy.", tox_new_err);
 
         // reset proxy options as well as GUI and settings
         topt.proxy_type = TOX_PROXY_TYPE_NONE;
@@ -392,7 +392,7 @@ static int init_toxcore(Tox **tox) {
         *tox = tox_new(&topt, &tox_new_err);
 
         if (*tox == NULL) {
-            LOG_ERR("Toxcore", "\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
+            LOG_ERR("Toxcore", "\t\tError #%u, Going to try without IPv6.", tox_new_err);
 
             // reset IPv6 options as well as GUI and settings
             topt.ipv6_enabled = 0;
@@ -401,7 +401,7 @@ static int init_toxcore(Tox **tox) {
             *tox = tox_new(&topt, &tox_new_err);
 
             if (*tox == NULL) {
-                LOG_ERR("Toxcore", "\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
+                LOG_ERR("Toxcore", "\t\tFatal Error creating a Tox instance... Error #%u", tox_new_err);
                 return -2;
             }
         }

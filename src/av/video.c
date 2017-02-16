@@ -278,28 +278,26 @@ void utox_video_thread(void *args) {
                         // LOG_TRACE("uToxVideo", "Sent video frame to friend %u" , i);
                         if (error) {
                             if (error == TOXAV_ERR_SEND_FRAME_SYNC) {
-                                debug_notice("uToxVideo:\tVid Frame sync error: w=%u h=%u\n", utox_video_frame.w,
-                                             utox_video_frame.h);
+                                LOG_ERR("uToxVideo", "Vid Frame sync error: w=%u h=%u", utox_video_frame.w, utox_video_frame.h);
                             } else if (error == TOXAV_ERR_SEND_FRAME_PAYLOAD_TYPE_DISABLED) {
-                                LOG_ERR(__FILE__,
-                                    "uToxVideo:\tToxAV disagrees with our AV state for friend %lu, self %u, friend %u\n",
+                                LOG_ERR("uToxVideo",
+                                    "ToxAV disagrees with our AV state for friend %lu, self %u, friend %u",
                                     i, friend[i].call_state_self, friend[i].call_state_friend);
                             } else {
-                                LOG_ERR(__FILE__, "uToxVideo:\ttoxav_send_video error friend: %i error: %u\n",
-                                            friend[i].number, error);
+                                LOG_ERR("uToxVideo", "toxav_send_video error friend: %i error: %u",
+                                    friend[i].number, error);
                             }
                         } else {
                             if (active_video_count >= UTOX_MAX_CALLS) {
-                                LOG_ERR(__FILE__, "uToxVideo:\tTrying to send video frame to too many peers. Please report "
-                                            "this bug!\n");
+                                LOG_ERR("uToxVideo", "Trying to send video frame to too many peers. Please report this bug!");
                                 break;
                             }
                         }
                     }
                 }
             } else if (r == -1) {
-                LOG_ERR(__FILE__, "uToxVideo:\tErr... something really bad happened trying to get this frame, I'm just going "
-                            "to plots now!\n");
+                LOG_ERR("uToxVideo", "Err... something really bad happened trying to get this frame, I'm just going "
+                            "to plots now!");
                 video_device_stop();
                 close_video_device(video_device);
             }

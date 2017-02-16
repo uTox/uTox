@@ -65,7 +65,7 @@ static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
          * If !feof() this means that the file has an incomplete record,
          * which would prevent it from loading forever, even though
          * new records will keep being appended as usual. */
-        LOG_ERR("Chatlog", "Log read err; trying to count history for friend %.*s\n", TOX_PUBLIC_KEY_SIZE * 2, hex);
+        LOG_ERR("Chatlog", "Log read err; trying to count history for friend %.*s", TOX_PUBLIC_KEY_SIZE * 2, hex);
         fclose(file);
         return 0;
     }
@@ -185,7 +185,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             // }
 
             if (fread(msg->via.txt.msg, msg->via.txt.length, 1, file) != 1) {
-                LOG_ERR("Chatlog", "Log read:\tError reading record %u of length %u at offset %lu: stopping.\n",
+                LOG_ERR("Chatlog", "Log read:\tError reading record %u of length %u at offset %lu: stopping.",
                             count, msg->via.txt.length, msg->disk_offset);
                 // free(msg->via.txt.author);
                 free(msg->via.txt.msg);

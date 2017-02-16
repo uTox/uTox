@@ -656,7 +656,7 @@ static void read_custom_theme(const uint8_t *data, size_t length) {
         uint32_t col = try_parse_hex_colour(color, &err);
 
         if (err) {
-            LOG_ERR(__FILE__, "error: parsing hex color failed\n");
+            LOG_ERR(__FILE__, "error: parsing hex color failed");
             continue;
         } else {
             *colorp = COLOR_PROC(col);

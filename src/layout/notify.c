@@ -54,7 +54,7 @@ panel_notify_generic = {
 
 
 static void btn_notify_one_mup(void) {
-    LOG_ERR("Layout Notify", "Button 1 pressed\n");
+    LOG_ERR("Layout Notify", "Button 1 pressed");
 }
 
 BUTTON button_notify_one = {
@@ -65,7 +65,7 @@ BUTTON button_notify_one = {
 };
 
 static void btn_notify_two_mup(void) {
-    LOG_ERR("Layout Notify", "Button 2 pressed\n");
+    LOG_ERR("Layout Notify", "Button 2 pressed");
 }
 
 BUTTON button_notify_two = {
@@ -76,7 +76,7 @@ BUTTON button_notify_two = {
 };
 
 static void btn_notify_three_mup(void) {
-    LOG_ERR("Layout Notify", "Button 3 pressed\n");
+    LOG_ERR("Layout Notify", "Button 3 pressed");
 }
 BUTTON button_notify_three = {
     // .bm  = BM_SBUTTON,

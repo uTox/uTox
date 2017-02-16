@@ -121,7 +121,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
             }
 
             if (!m->data) {
-                LOG_ERR(__FILE__, "\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+                LOG_FATAL_ERR(30, __FILE__, "\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
                 exit(30);
             }
         }
@@ -423,7 +423,7 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
             return true;
         }
         default: {
-            LOG_NOTE("Messages", "uTox Logging:\tUnsupported message type %i\n", msg->msg_type);
+            LOG_NOTE("Messages", "uTox Logging:\tUnsupported message type %i", msg->msg_type);
         }
     }
     return false;
@@ -1633,7 +1633,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 
     m->data = calloc(20, sizeof(void *));
     if (!m->data) {
-        LOG_ERR(__FILE__, "\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+        LOG_FATAL_ERR(30, __FILE__, "\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
         exit(30);
     }
 

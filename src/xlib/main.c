@@ -353,7 +353,7 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
 
         NATIVE_IMAGE *native_image = utox_image_to_native(data, size, &width, &height, 0);
         if (NATIVE_IMAGE_IS_VALID(native_image)) {
-            LOG_INFO("XLIB MAIN", "Pasted image: %dx%d\n", width, height);
+            LOG_INFO("XLIB MAIN", "Pasted image: %dx%d", width, height);
 
             UTOX_IMAGE png_image = malloc(size);
             memcpy(png_image, data, size);
@@ -645,7 +645,7 @@ int main(int argc, char *argv[]) {
     bool   skip_updater, from_updater;
 
     #ifdef HAVE_DBUS
-    LOG_INFO("XLIB MAIN", "Compiled with dbus support!\n");
+    LOG_INFO("XLIB MAIN", "Compiled with dbus support!");
     #endif
 
     parse_args(argc, argv,
@@ -689,7 +689,7 @@ int main(int argc, char *argv[]) {
     setlocale(LC_ALL, "");
     XSetLocaleModifiers("");
     if ((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
-        LOG_ERR("XLIB", "Cannot open input method\n");
+        LOG_ERR("XLIB", "Cannot open input method");
     }
 
 
@@ -778,7 +778,7 @@ int main(int argc, char *argv[]) {
                              XNFocusWindow, main_window.window, NULL))) {
             XSetICFocus(xic);
         } else {
-            LOG_ERR("XLIB", "Cannot open input method\n");
+            LOG_ERR("XLIB", "Cannot open input method");
             XCloseIM(xim);
             xim = 0;
         }
@@ -880,7 +880,7 @@ int main(int argc, char *argv[]) {
         yieldcpu(1);
     }
 
-    LOG_ERR("XLIB", "XLIB main:\tClean exit\n");
+    LOG_ERR("XLIB", "XLIB main:\tClean exit");
 
     return 0;
 }

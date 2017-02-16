@@ -151,7 +151,7 @@ static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
 
         uint8_t blank_id[TOX_HASH_LENGTH] = { 0 };
         if (memcmp(ft->data_hash, blank_id, TOX_HASH_LENGTH) == 0) {
-            LOG_ERR(__FILE__, "FileTransfer:\tUnable to use current data hash for incoming file.\n"
+            LOG_ERR("FileTransfer", "Unable to use current data hash for incoming file.\n"
                         "\t\tuTox can't resume file %.*s\n"
                         "\t\tHash is %.*s\n",
                         (uint32_t)ft->name_length, ft->name,
@@ -176,7 +176,7 @@ static bool ft_update_resumable(FILE_TRANSFER *ft) {
         }
     }
 
-    LOG_ERR(__FILE__, "FileTransfer:\tUnable to save file info... uTox can't resume file %.*s\n",
+    LOG_ERR("FileTransfer", "Unable to save file info... uTox can't resume file %.*s",
                 (int)ft->name_length, ft->name);
     return false;
 }
@@ -226,7 +226,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
 
     if (!resume_disk) {
         if (ft->incoming) {
-            LOG_INFO("FileTransfer", "Unable to load saved info... uTox can't resume file %.*s\n",
+            LOG_INFO("FileTransfer", "Unable to load saved info... uTox can't resume file %.*s",
                      (uint32_t)ft->name_length, ft->name);
         }
         ft->status = 0;
@@ -549,7 +549,7 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
                         LOG_INFO("FileTransfer", "Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
                     }
                 } else {
-                    LOG_INFO("FileTransfer", "Can't start file, max file transfer limit reached! (%u & %u)\n",
+                    LOG_INFO("FileTransfer", "Can't start file, max file transfer limit reached! (%u & %u)",
                           friend_number, file_number);
                 }
             } else {
@@ -765,7 +765,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
-        LOG_ERR(__FILE__, "FileTransfer:\tUnable to get memory handle for transfer, canceling friend/file number (%u/%u)\n",
+        LOG_ERR("FileTransfer", "Unable to get memory handle for transfer, canceling friend/file number (%u/%u)",
               friend_number, file_number);
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
         return;
@@ -936,7 +936,7 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, self.png_size, hash, NULL, 0, &error);
     if (error || file_number == UINT32_MAX) {
-        LOG_ERR(__FILE__, "tox_file_send() failed error code %u\n", error);
+        LOG_ERR(__FILE__, "tox_file_send() failed error code %u", error);
         return UINT32_MAX;
     };
 
@@ -1010,7 +1010,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
             }
             case TOX_ERR_FILE_SEND_OK: { break; }
         }
-        LOG_ERR(__FILE__, "tox_file_send() failed error code %u\n", error);
+        LOG_ERR(__FILE__, "tox_file_send() failed error code %u", error);
         return UINT32_MAX;
     }
 
@@ -1082,7 +1082,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, hash, name, name_length, &error);
     if (error || file_number == UINT32_MAX) {
-        LOG_ERR(__FILE__, "tox_file_send() failed error code %u\n", error);
+        LOG_ERR(__FILE__, "tox_file_send() failed error code %u", error);
         return UINT32_MAX;
     };
 
@@ -1188,7 +1188,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
             fseeko(ft->via.file, position, SEEK_SET);
             if (fread(buffer, length, 1, ft->via.file) != 1) {
                 LOG_ERR("FileTransfer", "ERROR READING FILE! (%u & %u)" , friend_number, file_number);
-                LOG_INFO("FileTransfer", "Size (%lu), Position (%lu), Length(%lu), size_transferred (%lu).\n",
+                LOG_INFO("FileTransfer", "Size (%lu), Position (%lu), Length(%lu), size_transferred (%lu).",
                          ft->target_size, position, length, ft->current_size);
                 ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
                 return;
@@ -1221,7 +1221,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
         // TODO use native functions to open this file
         ft->via.file = fopen(file, "wb");
         if (!ft->via.file) {
-            LOG_ERR(__FILE__, "FileTransfer:\tThe file we're supposed to write to couldn't be opened\n\t\t\"%s\"\n",
+            LOG_ERR("FileTransfer", "The file we're supposed to write to couldn't be opened\n\t\t\"%s\"",
                         ft->path);
             break_file(ft);
             return -1;
