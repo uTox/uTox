@@ -39,3 +39,14 @@ windows_legacy:
     - ./extra/gitlab/windows_legacy-before.sh
   script:
     - ./extra/gitlab/windows_legacy-script.sh
+
+OSX:
+  stage: build
+  cache:
+    paths:
+      - cache/
+  variables:
+    TOXCORE_REPO: "TokTok/c-toxcore"
+    GL_BUILD: "macos"
+  script:
+    docker run --rm -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin arch-build ./extra/gitlab/osx-docker.sh
