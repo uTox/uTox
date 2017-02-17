@@ -1,3 +1,3 @@
 #include <stdio.h>
 
-#define debug(...) (printf(__VA_ARGS__) & fflush(stdout))
+#define debug(...) (void)(fprintf(stderr, __VA_ARGS__) && fflush(stderr))
