@@ -21,7 +21,7 @@ windows:
   script:
     - ./extra/gitlab/windows-script.sh
 
-windows:
+windows_legacy:
   stage: build
   variables:
     TOXCORE_REPO: "TokTok/c-toxcore"
