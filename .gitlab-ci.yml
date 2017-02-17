@@ -3,6 +3,9 @@ stages:
 
 linux:
   stage: build
+  cache:
+    paths:
+      - cache/
   variables:
     TOXCORE_REPO: "TokTok/c-toxcore"
     GL_BUILD: "lin64"
@@ -13,6 +16,9 @@ linux:
 
 windows:
   stage: build
+  cache:
+    paths:
+      - cache/
   variables:
     TOXCORE_REPO: "TokTok/c-toxcore"
     GL_BUILD: "win64"
@@ -23,6 +29,9 @@ windows:
 
 windows_legacy:
   stage: build
+  cache:
+    paths:
+      - cache/
   variables:
     TOXCORE_REPO: "TokTok/c-toxcore"
     GL_BUILD: "winXP"
