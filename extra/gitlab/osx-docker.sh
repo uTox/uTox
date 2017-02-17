@@ -67,6 +67,7 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
   if [ -d _build ]; then
     rm -rf _build
   fi
+  find . -type f -exec sed -i 's/BUILD_TOXAV FALSE/BUILD_TOXAV TRUE/g' {} +
   cmake -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DCMAKE_SYSTEM_NAME=Darwin -DBUILD_TOXAV=ON
   # mkdir _build
   # autoreconf -fi
