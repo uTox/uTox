@@ -6,8 +6,8 @@ export GL_BUILD="macos"
 
 . ./extra/gitlab/env.sh
 
-export CFLAGS=" -m64 -I/workdir/cache/usr/include -isystem /workdir/cache/usr/include -isystem /workdir/cache/usr/include/opus -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk -mmacosx-version-min=10.10 -m64 -arch x86_64 -DNDEBUG -O3 -Wall"
-export LDFLAGS="-L/workdir/cache/usr/lib -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk -mmacosx-version-min=10.10 -m64 -arch x86_64"
+export CFLAGS=" -m64 -I/workdir/cache/macos/usr/include -isystem /workdir/cache/macos/usr/include -isystem /workdir/cache/macos/usr/include/opus -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk -mmacosx-version-min=10.10 -m64 -arch x86_64 -DNDEBUG -O3 -Wall"
+export LDFLAGS="-L/workdir/cache/macos/usr/lib -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk -mmacosx-version-min=10.10 -m64 -arch x86_64"
 
 # brew install yasm
 
