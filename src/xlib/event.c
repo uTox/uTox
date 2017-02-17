@@ -211,11 +211,11 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
              * in case we do, we already have the response ready.  */
             Atom ping = XInternAtom(display, "_NET_WM_PING", 0);
             if ((Atom)event.xclient.data.l[0] == ping) {
-                debug_notice("ping\n");
+                LOG_TRACE("XLIB", "ping");
                 event.xany.window = root_window;
                 XSendEvent(display, root_window, False, NoEventMask, &event);
             } else {
-                debug_notice("not ping\n");
+                LOG_TRACE("XLIB", "not ping");
             }
             break;
         }
@@ -233,7 +233,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
         }
 
         case EnterNotify: {
-            debug_notice("EVENT: set focus\n");
+            LOG_TRACE("XLIB", "set focus");
             window_set_focus(win);
             break;
         }
@@ -601,7 +601,7 @@ bool doevent(XEvent event) {
                 XChangeProperty(display, ev->requestor, ev->property, XA_ATOM, 32, PropModeReplace, (void *)&supported,
                                 COUNTOF(supported));
             } else {
-                debug_notice("XLIB selection request: unknown request\n");
+                LOG_NOTE("XLIB selection request", " unknown request");
                 resp.xselection.property = None;
             }
 

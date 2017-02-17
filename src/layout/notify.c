@@ -86,17 +86,17 @@ BUTTON button_notify_three = {
 };
 
 static void btn_move_window_mdn(void) {
-    debug("button move down\n");
+    LOG_NOTE(__FILE__, "button move down\n");
     btn_move_window_down = true;
 }
 
 static void btn_move_window_mup(void) {
-    debug("button move up\n");
+    LOG_NOTE(__FILE__, "button move up\n");
     btn_move_window_down = false;
 }
 
 static void btn_move_notify_mup(void) {
-    debug("button tween\n");
+    LOG_NOTE(__FILE__, "button tween\n");
     // window_tween();
 }
 

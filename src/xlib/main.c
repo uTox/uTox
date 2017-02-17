@@ -659,11 +659,11 @@ int main(int argc, char *argv[]) {
                &set_show_window);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        debug_notice("Start on boot not supported on this OS, please use your distro suggested method!\n");
+        LOG_NOTE(__FILE__, "Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
 
     if (skip_updater == true) {
-        debug_notice("Disabling the updater is not supported on this OS. Updates are managed by your distro's package "
+        LOG_NOTE(__FILE__, "Disabling the updater is not supported on this OS. Updates are managed by your distro's package "
                      "manager.\n");
     }
 

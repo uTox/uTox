@@ -525,7 +525,7 @@ static uint32_t getkeychar(int32_t key) /* get a character from an android keyco
         MAPN(9, '(');
 
         default: {
-            debug("un-mapped %u", key);
+            LOG_TRACE("Android", "un-mapped %u", key);
             break;
         }
     }

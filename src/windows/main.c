@@ -825,7 +825,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     GlobalFree(argv);
 
     #ifdef GIT_VERSION
-        debug_notice("uTox version %s \n", GIT_VERSION);
+        LOG_NOTE(__FILE__, "uTox version %s \n", GIT_VERSION);
     #endif
 
     cursors_init();
