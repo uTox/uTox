@@ -99,5 +99,7 @@ fi
 cd ..
 rm -rf openal
 
+. ./extra/gitlab/filter_audio.sh
+
 cp $CACHE_DIR/usr/lib/libOpenAL32.a $CACHE_DIR/usr/lib/libopenal.a || true
 # sudo curl https://cmdline.org/travis/32/shell32.a > $CACHE_DIR/usr/lib/libshell32.a
