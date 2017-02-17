@@ -44,7 +44,7 @@ uint8_t *utox_data_load_tox(size_t *size) {
     for (uint8_t i = 0; i < 4; i++) {
         size_t length = 0;
 
-        const FILE *fp = native_get_file(name[i], &length, UTOX_FILE_OPTS_READ);
+        FILE *fp = native_get_file(name[i], &length, UTOX_FILE_OPTS_READ);
         if (fp == NULL) {
             continue;
         }
@@ -95,13 +95,13 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
 
 UTOX_SAVE *utox_data_load_utox(void) {
     size_t size = 0;
-    const FILE *fp = native_get_file((uint8_t *)"utox_save", &size, UTOX_FILE_OPTS_READ);
+    FILE *fp = native_get_file((uint8_t *)"utox_save", &size, UTOX_FILE_OPTS_READ);
 
     if (fp == NULL) {
         return NULL;
     }
 
-    const UTOX_SAVE *save = calloc(1, size + 1);
+    UTOX_SAVE *save = calloc(1, size + 1);
     if (save == NULL) {
         fclose(fp);
         return NULL;

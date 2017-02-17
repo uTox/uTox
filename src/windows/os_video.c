@@ -43,7 +43,7 @@ void *  dibits;
 
 static uint16_t video_x, video_y;
 
-void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
+void video_begin(uint32_t id, char *UNUSED(name), uint16_t UNUSED(name_length), uint16_t width, uint16_t height) {
     if (video_hwnd[id]) {
         return;
     }
