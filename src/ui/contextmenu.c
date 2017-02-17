@@ -144,7 +144,7 @@ bool contextmenu_mleave(void) {
     return 0;
 }
 
-void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t),
+void contextmenu_new_ex(uint8_t count, const void *userdata, void (*onselect)(uint8_t),
                         STRING *(*ondisplay)(uint8_t, const CONTEXTMENU *)) {
     CONTEXTMENU *b = &context_menu;
 
@@ -168,6 +168,6 @@ static STRING *contextmenu_localized_ondisplay(uint8_t i, const CONTEXTMENU *cm)
     return SPTRFORLANG(LANG, ((UTOX_I18N_STR *)cm->userdata)[i]);
 }
 
-void contextmenu_new(uint8_t count, UTOX_I18N_STR *menu_string_ids, void (*onselect)(uint8_t)) {
+void contextmenu_new(uint8_t count, const UTOX_I18N_STR *menu_string_ids, void (*onselect)(uint8_t)) {
     contextmenu_new_ex(count, menu_string_ids, onselect, contextmenu_localized_ondisplay);
 }
