@@ -3,7 +3,8 @@
 set -eux
 
 export TOXCORE_REPO=TokTok/c-toxcore
-export CACHE_DIR=$CACHE_DIR
+export CACHE_DIR=cache/$GL_BUILD/
+mkdir -p $CACHE_DIR || true
 export CFLAGS="-I$CACHE_DIR/usr/include"
 export LDFLAGS="-L$CACHE_DIR/usr/lib"
 export LD_LIBRARY_PATH="$CACHE_DIR/usr/lib"

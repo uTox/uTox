@@ -2,7 +2,7 @@
 
 set -eux
 
-. ./extra/travis/env.sh
+. ./extra/gitlab/env.sh
 
 brew install yasm
 
