@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eux
 
-. ./travis/env.sh
+. ./extra/travis/env.sh
 
 export CFLAGS="-I$CACHE_DIR/usr/include -I/usr/share/mingw-w64/include/ "
 

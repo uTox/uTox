@@ -2,7 +2,9 @@
 
 set -eux
 
-. ./travis/env.sh
+. ./extra/travis/env.sh
+
+brew install yasm
 
 # install libsodium, needed for crypto
 if ! [ -d libsodium ]; then
@@ -13,7 +15,7 @@ git rev-parse HEAD > libsodium.sha
 if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libsodium.sha); then
   ./autogen.sh
   ./configure --prefix="$CACHE_DIR/usr"
-  make -j`nproc`
+  make -j`systctl -n hw.ncpu`
   make install
   mv libsodium.sha "$CACHE_DIR/libsodium.sha"
 fi
@@ -26,7 +28,7 @@ if ! [ -f $CACHE_DIR/usr/lib/pkgconfig/opus.pc ]; then
   tar xzf opus-1.1.tar.gz
   cd opus-1.1
   ./configure --prefix=$HOME/cache/usr
-  make -j`nproc`
+  make -j`systctl -n hw.ncpu`
   make install
   cd ..
   rm -rf opus-1.1*
@@ -40,7 +42,7 @@ cd libvpx
 git rev-parse HEAD > libvpx.sha
 if ! ([ -f "$CACHE_DIR/libvpx.sha" ] && diff "$CACHE_DIR/libvpx.sha" libvpx.sha); then
   ./configure --prefix=$HOME/cache/usr --enable-shared
-  make -j`nproc`
+  make -j`sysctl -n hw.ncpu`
   make install
   mv libvpx.sha "$CACHE_DIR/libvpx.sha"
 fi
@@ -61,7 +63,7 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
     autoreconf -fi
     (cd _build && ../configure --prefix=$HOME/cache/usr)
   fi
-  make -C_build -j`nproc`
+  make -C_build -j`sysctl -n hw.ncpu`
   make -C_build install
   mv toxcore.sha "$CACHE_DIR/toxcore.sha"
 fi
