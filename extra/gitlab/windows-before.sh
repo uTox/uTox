@@ -101,6 +101,7 @@ rm -rf openal
 
 export CC=x86_64-w64-mingw32-gcc
 . ./extra/gitlab/filter_audio.sh
+x86_64-w64-mingw32-ranlib $CACHE_DIR/usr/lib/libfilteraudio.a
 unset CC
 
 cp $CACHE_DIR/usr/lib/libOpenAL32.a $CACHE_DIR/usr/lib/libopenal.a || true
