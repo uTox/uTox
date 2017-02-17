@@ -38,7 +38,7 @@
 static int msgheight(MSG_HEADER *msg, int width) {
     switch (msg->msg_type) {
         case MSG_TYPE_NULL: {
-            LOG_ERR(__FILE__, "Invalid message type in msgheight.");
+            LOG_ERR("Messages", "Invalid message type in msgheight.");
             return 0;
         }
 
@@ -78,7 +78,10 @@ static int msgheight_group(MSG_HEADER *msg, int width) {
                                       msg->via.grp.msg, msg->via.grp.length);
             return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
         }
-        default: { LOG_TRACE(__FILE__, "Error, can't set this group message height" ); }
+
+        default: {
+            LOG_TRACE("Messages", "Error, can't set this group message height" );
+        }
     }
 
     return 0;
@@ -127,7 +130,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
             }
 
             if (!m->data) {
-                LOG_ERR(__FILE__, "\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+                LOG_ERR("Messages", "\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
                 exit(30);
             }
         }
@@ -455,7 +458,7 @@ bool messages_read_from_log(uint32_t friend_number) {
         free(data);
         return true;
     } else if (actual_count > 0) {
-        LOG_ERR(__FILE__, "uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
+        LOG_ERR("Messages", "uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
     }
 
     return false;
@@ -550,7 +553,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                         LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , msg->disk_offset);
                         utox_update_chatlog(hex, msg->disk_offset, data, length);
                     } else {
-                        LOG_ERR(__FILE__, "Messages:\tUnable to update this message...\n"
+                        LOG_ERR("Messages", "Messages:\tUnable to update this message...\n"
                                     "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
                                     msg->disk_offset, m->number, receipt_number);
                     }
@@ -628,7 +631,7 @@ static int messages_draw_text(const char *msg, size_t length, uint32_t msg_heigh
                                                  length, highlight_start, highlight_end, 0, 0, 1);
 
     if (ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg_height) {
-        LOG_TRACE(__FILE__, "Text Draw Error:\ty %i | ny %i | mheight %u | width %i " , y, ny, msg_height, w);
+        LOG_TRACE("Messages", "Text Draw Error:\ty %i | ny %i | mheight %u | width %i " , y, ny, msg_height, w);
     }
 
     return ny;
@@ -960,7 +963,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             switch (msg->msg_type) {
                 case MSG_TYPE_NULL: {
                     // This shouldn't happen.
-                    LOG_ERR(__FILE__, "Invalid message type in messages_draw.");
+                    LOG_ERR("Messages", "Invalid message type in messages_draw.");
                     break;
                 }
 
@@ -1127,7 +1130,7 @@ static bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, 
     if (m->cursor_over_uri != UINT32_MAX) {
         m->urllen          = (str - message) - m->cursor_over_uri;
         m->cursor_down_uri = prev_cursor_down_uri;
-        LOG_TRACE(__FILE__, "urllen %u" , m->urllen);
+        LOG_TRACE("Messages", "urllen %u" , m->urllen);
     }
 
     return 0;
@@ -1215,7 +1218,7 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
 
             switch (msg->msg_type) {
                 case MSG_TYPE_NULL: {
-                    LOG_ERR(__FILE__, "Invalid message type in messages_mmove.");
+                    LOG_ERR("Messages", "Invalid message type in messages_mmove.");
                     return false;
                 }
 
@@ -1299,7 +1302,7 @@ bool messages_mdown(PANEL *panel) {
         MSG_HEADER *msg = m->data[m->cursor_over_msg];
         switch (msg->msg_type) {
             case MSG_TYPE_NULL: {
-                LOG_ERR(__FILE__, "Invalid message type in messages_mdown.");
+                LOG_ERR("Messages", "Invalid message type in messages_mdown.");
                 return false;
             }
 
@@ -1309,7 +1312,7 @@ bool messages_mdown(PANEL *panel) {
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 if (m->cursor_over_uri != UINT32_MAX) {
                     m->cursor_down_uri = m->cursor_over_uri;
-                    LOG_TRACE(__FILE__, "mdn dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
+                    LOG_TRACE("Messages", "mdn dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
                 }
 
                 m->sel_start_msg = m->sel_end_msg = m->cursor_down_msg = m->cursor_over_msg;
@@ -1400,7 +1403,7 @@ bool messages_dclick(PANEL *panel, bool triclick) {
 
         switch (msg->msg_type) {
             case MSG_TYPE_NULL: {
-                LOG_ERR(__FILE__, "Invalid message type in messages_dclick.");
+                LOG_ERR("Messages", "Invalid message type in messages_dclick.");
                 return false;
             }
 
@@ -1431,10 +1434,9 @@ bool messages_dclick(PANEL *panel, bool triclick) {
             }
 
             case MSG_TYPE_IMAGE: {
-                MSG_IMG *img = (MSG_IMG *)msg;
                 if (m->cursor_over_position) {
-                    if (img->zoom) {
-                        img->zoom = 0;
+                    if (msg->via.img.zoom) {
+                        msg->via.img.zoom = 0;
                         message_updateheight(m, msg);
                     }
                 }
@@ -1457,18 +1459,17 @@ bool messages_mright(PANEL *panel) {
         return false;
     }
 
-    static UTOX_I18N_STR menu_copy[] = { STR_COPY, STR_COPY_WITH_NAMES };
-
     const MSG_HEADER *msg = m->data[m->cursor_over_msg];
 
     switch (msg->msg_type) {
         case MSG_TYPE_NULL: {
-            LOG_ERR(__FILE__, "Invalid message type in messages_mdown.");
+            LOG_ERR("Messages", "Invalid message type in messages_mdown.");
             return false;
         }
 
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
+            const static UTOX_I18N_STR menu_copy[] = { STR_COPY, STR_COPY_WITH_NAMES };
             contextmenu_new(COUNTOF(menu_copy), menu_copy, contextmenu_messages_onselect);
             return true;
         }
@@ -1481,12 +1482,11 @@ bool messages_mright(PANEL *panel) {
         }
     }
 
-    // This should be dead code, but the compiler can't tell for whatever reason.
-    return false;
+    LOG_FATAL_ERR(1, "Messages", "Congratulations, you've reached dead code. Please report this.");
 }
 
 bool messages_mwheel(PANEL *UNUSED(panel), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) {
-    return 0;
+    return false;
 }
 
 bool messages_mup(PANEL *panel) {
@@ -1503,7 +1503,7 @@ bool messages_mup(PANEL *panel) {
                 && m->cursor_over_position >= m->cursor_over_uri
                 && m->cursor_over_position <= m->cursor_over_uri + m->urllen - 1 /* - 1 Don't open on white space */
                 && !m->selecting_text) {
-                LOG_TRACE(__FILE__, "mup dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
+                LOG_TRACE("Messages", "mup dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
                 char url[m->urllen + 1];
                 memcpy(url, msg->via.txt.msg + m->cursor_over_uri, m->urllen * sizeof(char));
                 url[m->urllen] = 0;
@@ -1528,7 +1528,7 @@ bool messages_mup(PANEL *panel) {
 }
 
 bool messages_mleave(PANEL *UNUSED(m)) {
-    return 0;
+    return false;
 }
 
 int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
@@ -1544,16 +1544,15 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
     char *p = buffer;
 
     while (i != UINT32_MAX && i != n) {
-        MSG_HEADER *msg = *dp++;
+        const MSG_HEADER *msg = *dp++;
 
         if (names && (i != m->sel_start_msg || m->sel_start_position == 0)) {
             if (m->is_groupchat) {
-                MSG_GROUP *grp = (MSG_GROUP *)msg;
-                memcpy(p, &grp->msg[0], grp->author_length);
-                p += grp->author_length;
-                len -= grp->author_length;
+                memcpy(p, msg->via.grp.msg[0], msg->via.grp.author_length);
+                p += msg->via.grp.author_length;
+                len -= msg->via.grp.author_length;
             } else {
-                FRIEND *f = &friend[m->id];
+                const FRIEND *f = &friend[m->id];
 
                 if (!msg->our_msg) {
                     if (len <= f->name_length) {
@@ -1585,7 +1584,7 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
 
         switch (msg->msg_type) {
             case MSG_TYPE_NULL: {
-                LOG_ERR(__FILE__, "Invalid message type in messages_selection.");
+                LOG_ERR("Messages", "Invalid message type in messages_selection.");
                 return 0;
             }
 
@@ -1714,7 +1713,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 
     m->data = calloc(20, sizeof(void *));
     if (!m->data) {
-        LOG_ERR(__FILE__, "\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+        LOG_ERR("Messages", "\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
         exit(30);
     }
 
@@ -1726,7 +1725,7 @@ void message_free(MSG_HEADER *msg) {
     // The group messages are free()d in groups.c (group_free(GROUPCHAT *g))
     switch (msg->msg_type) {
         case MSG_TYPE_NULL: {
-            LOG_ERR(__FILE__, "Invalid message type in message_free.");
+            LOG_ERR("Messages", "Invalid message type in message_free.");
             break;
         }
 
