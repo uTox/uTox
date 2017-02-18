@@ -1,9 +1,9 @@
 # Build
 
-Following are barebone compilation instructions that should get you going. They probably wont work but #utox on freenode can
-probably help you out if you're nice when you ask.
+Following are barebone compilation instructions. They probably wont work but #utox on freenode can
+probably help you out.
 
-If you're looking for it to "just work" you're going to want [these instructions](INSTALL.md) instead.
+If you're looking for it to "just work" you're going to want [these instructions](INSTALL.md).
 
 <a name="unix" />
 ## Unix Like
@@ -20,9 +20,9 @@ make
 make install
 ```
 
-> In order to build the binary with debug symbols (e.g. for debugging with gdb) you should append the `-DCMAKE_BUILD_TYPE=Debug` option to the `cmake ..` command above.
+> To build the binary with debug symbols (e.g. for debugging with gdb) you should append the `-DCMAKE_BUILD_TYPE=Debug` option to the `cmake ..` command above.
 >
-> In that case you may also want to set the env variable  `ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer`  for the address sanitizer (ASAN) to show nicer stack traces.
+> In that case you want to set the env variable  `ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer`  for the address sanitizer (ASAN) to show nicer stack traces.
 > See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.
 
 
@@ -79,14 +79,14 @@ sudo ldconfig
 
 Have fun!
 
-If you're looking for a good IDE, Netbeans is very easy to setup for uTox, in fact, you can just create a new project from the existing sources and everything should work fine.
+If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In fact, you can just create a new project from the existing sources and everything should work fine.
 <a name="win" />
 ## Windows
 
 ### Compiling for Windows
 
 If you have mingw-w64 and a working cygwin enviroment, the build script provided in
-tools/ should just work. You must tell it if you want 32 or 64 bit, then the enviroment
+tools/ should just work. You must specify if you want 32 or 64 bit and the enviroment
  you want to use.
 
 64bit should be `tools/cross-compile-windows.sh`
