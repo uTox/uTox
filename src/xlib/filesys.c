@@ -221,31 +221,31 @@ void file_save_inline(MSG_HEADER *msg) {
 }
 
 int file_lock(FILE *file, uint64_t start, size_t length) {
-    int          result = -1;
     struct flock fl;
     fl.l_type   = F_WRLCK;
     fl.l_whence = SEEK_SET;
     fl.l_start  = start;
     fl.l_len    = length;
 
-    result = fcntl(fileno(file), F_SETLK, &fl);
+    int result = fcntl(fileno(file), F_SETLK, &fl);
     if (result == -1) {
         return 0;
     }
+
     return 1;
 }
 
 int file_unlock(FILE *file, uint64_t start, size_t length) {
-    int          result = -1;
     struct flock fl;
     fl.l_type   = F_UNLCK;
     fl.l_whence = SEEK_SET;
     fl.l_start  = start;
     fl.l_len    = length;
 
-    result = fcntl(fileno(file), F_SETLK, &fl);
+    int result = fcntl(fileno(file), F_SETLK, &fl);
     if (result == -1) {
         return 0;
     }
+
     return 1;
 }

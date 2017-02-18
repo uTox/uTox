@@ -249,7 +249,7 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
 
     LOG_FILE_MSG_HEADER header;
     while (fread(&header, sizeof(header), 1, file) == 1) {
-        char c;
+        int c;
         /* Write Author */
         fwrite("<", 1, 1, dest_file);
         for (size_t i = 0; i < header.author_length; ++i) {

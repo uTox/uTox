@@ -169,8 +169,8 @@ msgstr("Nazočan")
 msgid(STATUS_AWAY)
 msgstr("Odsutan")
 
-msgstr("Zauzet")
 msgid(STATUS_BUSY)
+msgstr("Zauzet")
 
 msgid(NOT_CONNECTED)
 msgstr("Nije spojen")
