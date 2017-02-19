@@ -21,7 +21,7 @@
  */
 
 bool utox_data_save_tox(uint8_t *data, size_t length) {
-    FILE *fp= native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *fp= utox_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
     if (fp == NULL) {
         LOG_ERR(__FILE__, "Can not open tox_save.tox to write to it.");
         return true;
@@ -44,7 +44,7 @@ uint8_t *utox_data_load_tox(size_t *size) {
     for (uint8_t i = 0; i < 4; i++) {
         size_t length = 0;
 
-        FILE *fp = native_get_file(name[i], &length, UTOX_FILE_OPTS_READ);
+        FILE *fp = utox_get_file(name[i], &length, UTOX_FILE_OPTS_READ);
         if (fp == NULL) {
             continue;
         }
@@ -75,55 +75,11 @@ uint8_t *utox_data_load_tox(size_t *size) {
     return NULL;
 }
 
-bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
-    FILE *fp = native_get_file((uint8_t *)"utox_save", NULL, UTOX_FILE_OPTS_WRITE);
-
-    if (fp == NULL) {
-        return false;
-    }
-
-    if (fwrite(data, size, 1, fp) != 1) {
-        LOG_ERR(__FILE__, "Unable to write uTox settings to file.");
-        return false;
-    }
-
-    flush_file(fp);
-    fclose(fp);
-
-    return true;
-}
-
-UTOX_SAVE *utox_data_load_utox(void) {
-    size_t size = 0;
-    FILE *fp = native_get_file((uint8_t *)"utox_save", &size, UTOX_FILE_OPTS_READ);
-
-    if (fp == NULL) {
-        return NULL;
-    }
-
-    UTOX_SAVE *save = calloc(1, size + 1);
-    if (save == NULL) {
-        fclose(fp);
-        return NULL;
-    }
-
-    if (fread(save, size, 1, fp) != 1) {
-        LOG_ERR(__FILE__, "Could not read save file");
-
-        fclose(fp);
-        free(save);
-        return NULL;
-    }
-
-    fclose(fp);
-    return save;
-}
-
 bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
     uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
     snprintf((char *)name, sizeof(name), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
-    FILE *fp = native_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *fp = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE);
 
     if (fp == NULL) {
         return false;
