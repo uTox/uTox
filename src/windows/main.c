@@ -147,10 +147,10 @@ void openfileavatar(void) {
     SetCurrentDirectoryW(dir);
 }
 
-void file_save_inline(MSG_HEADER *msg) {
+void file_save_inline_image_png(MSG_HEADER *msg) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
-        LOG_ERR("file_save_inline", "Could not allocate memory for path.");
+        LOG_ERR("file_save_inline_image_png", "Could not allocate memory for path.");
         return;
     }
 
@@ -175,7 +175,7 @@ void file_save_inline(MSG_HEADER *msg) {
             snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", path);
             msg->via.ft.inline_png = false;
         } else {
-            LOG_ERR(__FILE__, "file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
+            LOG_ERR(__FILE__, "file_save_inline_image_png:\tCouldn't open path: `%s` to save inline file.", path);
         }
     } else {
         LOG_ERR(__FILE__, "GetSaveFileName() failed");

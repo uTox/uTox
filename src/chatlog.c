@@ -1,12 +1,14 @@
 #include "chatlog.h"
 
 #include "filesys.h"
+// TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
+#include "filesys_native.h"
 #include "debug.h"
-#include "main_native.h"
 #include "messages.h"
 #include "text.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 
 static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
@@ -14,14 +16,14 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
 
     FILE *file;
     if (append) {
-        file = native_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+        file = utox_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
         if (!file) {
             return NULL;
         }
 
         fseek(file, 0, SEEK_END);
     } else {
-        file = native_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ);
+        file = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ);
     }
 
     return file;

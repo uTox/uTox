@@ -32,7 +32,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     };
 
     if (GetSaveFileName(&ofn)) {
-        // TODO: native_get_file instead of fopen.
+        // TODO: utox_get_file instead of fopen.
         FILE *file = fopen(path, "wb");
         if (file) {
             utox_export_chatlog(friend_number, file);

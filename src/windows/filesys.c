@@ -38,10 +38,10 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
     return _fdopen(_open_osfhandle((intptr_t)winFile, 0), mode);
 }
 
-FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
+FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bool portable_mode) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
-    if (settings.portable_mode) {
+    if (portable_mode) {
         strcpy((char *)path, portable_mode_save_path);
     } else {
         if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {
@@ -157,10 +157,10 @@ bool native_create_dir(const uint8_t *filepath) {
     }
 }
 
-bool native_remove_file(const uint8_t *name, size_t length) {
+bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
-    if (settings.portable_mode) {
+    if (portable_mode) {
         strcpy((char *)path, portable_mode_save_path);
     } else {
         bool have_path = false;

@@ -146,7 +146,7 @@ void openfilesend(void) { /* Unsupported on android */
 }
 void openfileavatar(void) { /* Unsupported on android */
 }
-void file_save_inline(MSG_HEADER *msg) { /* Unsupported on android */
+void file_save_inline_image_png(MSG_HEADER *msg) { /* Unsupported on android */
 }
 void setselection(char *data, uint16_t length) { /* Unsupported on android */
 }
@@ -224,7 +224,7 @@ static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
     return;
 }
 
-FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
+FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bool portable_mode) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     snprintf(path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
@@ -305,7 +305,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path); */
 }
 
-bool native_remove_file(const uint8_t *name, size_t length) {
+bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     snprintf((char *)path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
