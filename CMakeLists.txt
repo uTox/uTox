@@ -92,6 +92,8 @@ if (ENABLE_ASAN)
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
+option(ENABLE_TESTS "Whether to build test binaries (currently linux only)" ON)
+
 option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
     add_cflag("-DAUDIO_FILTERING")
@@ -243,4 +245,16 @@ elseif(UNIX)
     install(TARGETS utox
         RUNTIME DESTINATION "bin"
         )
+endif()
+
+#
+# testing
+#
+
+if (ENABLE_TESTS)
+  if(UNIX)
+    # tests currently only run on linux
+    enable_testing()
+    add_subdirectory(tests)
+  endif()
 endif()
