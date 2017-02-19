@@ -6,6 +6,7 @@
 
 #include "../branding.h"
 #include "../debug.h"
+#include "../macros.h"
 
 #include <windows.h>
 
@@ -31,7 +32,7 @@ void native_window_init(HINSTANCE instance) {
     RegisterClassW(&main_window_class);
 }
 
-void native_window_raze(UTOX_WINDOW *window) {
+void native_window_raze(UTOX_WINDOW *UNUSED(window)) {
     return;
 }
 
@@ -47,9 +48,11 @@ static bool update_DC_BM(UTOX_WINDOW *win, int w, int h) {
     return true;
 }
 
+#if 0
 static HWND window_create() {
     return NULL;
 }
+#endif
 
 
 UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h) {
@@ -72,7 +75,8 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h) {
 }
 
 HWND native_window_create_video(int x, int y, int w, int h) {
-    return CreateWindowExW(0, L"uTox Video", L"TEMP TITLE CHANGE ME", WS_OVERLAPPEDWINDOW, x, y, w, h, NULL, NULL, curr_instance, NULL);
+    return CreateWindowExW(0, L"uTox Video", L"TEMP TITLE CHANGE ME", WS_OVERLAPPEDWINDOW,
+                           x, y, w, h, NULL, NULL, curr_instance, NULL);
 }
 
 UTOX_WINDOW *popup = NULL;
@@ -139,6 +143,6 @@ void native_window_create_screen_select() {
     return;
 }
 
-void native_window_tween(UTOX_WINDOW *win) {
+void native_window_tween(UTOX_WINDOW *UNUSED(win)) {
     return;
 }

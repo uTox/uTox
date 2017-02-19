@@ -4,9 +4,7 @@
 #include "window.h"
 
 #include "../debug.h"
-
 #include "../ui.h"
-// #include "../ui/layout_notify.h"
 
 #include <windowsx.h>
 
