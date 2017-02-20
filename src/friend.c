@@ -36,7 +36,7 @@ void utox_write_metadata(FRIEND *f) {
     uint8_t dest[UTOX_FILE_NAME_LENGTH];
     snprintf((char *)dest, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
 
-    FILE *file = native_get_file((uint8_t *)dest, NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *file = utox_get_file((uint8_t *)dest, NULL, UTOX_FILE_OPTS_WRITE);
     if (file) {
 
         FRIEND_META_DATA metadata;
@@ -71,7 +71,7 @@ static void friend_meta_data_read(FRIEND *f) {
     snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2,  f->id_str);
 
     size_t size = 0;
-    FILE *file = native_get_file(path, &size, UTOX_FILE_OPTS_READ);
+    FILE *file = utox_get_file(path, &size, UTOX_FILE_OPTS_READ);
 
     if (!file) {
         LOG_TRACE("Friend", "Meta Data not found %s", path);

@@ -2,6 +2,9 @@
 
 #include "chatlog.h"
 #include "file_transfers.h"
+#include "filesys.h"
+// TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
+#include "filesys_native.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
@@ -1351,7 +1354,7 @@ bool messages_mdown(PANEL *panel) {
                 if (msg->via.ft.file_status == FILE_TRANSFER_STATUS_COMPLETED) {
                     if (m->cursor_over_position) {
                         if (msg->via.ft.inline_png) {
-                            file_save_inline(msg);
+                            file_save_inline_image_png(msg);
                         } else {
                             openurl((char *)msg->via.ft.path);
                         }

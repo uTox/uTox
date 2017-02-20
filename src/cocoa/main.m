@@ -202,10 +202,10 @@ void ensure_directory_r(char *path, int perm) {
     }
 }
 
-bool native_remove_file(const uint8_t *name, size_t length) {
+bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
-    if (settings.portable_mode) {
+    if (portable_mode) {
         const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
     } else {

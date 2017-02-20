@@ -232,3 +232,48 @@ void config_save(UTOX_SAVE *save_in) {
     utox_data_save_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
     free(save);
 }
+
+
+bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
+    FILE *fp = utox_get_file((uint8_t *)"utox_save", NULL, UTOX_FILE_OPTS_WRITE);
+
+    if (fp == NULL) {
+        return false;
+    }
+
+    if (fwrite(data, size, 1, fp) != 1) {
+        LOG_ERR(__FILE__, "Unable to write uTox settings to file.");
+        return false;
+    }
+
+    flush_file(fp);
+    fclose(fp);
+
+    return true;
+}
+
+UTOX_SAVE *utox_data_load_utox(void) {
+    size_t size = 0;
+    const FILE *fp = utox_get_file((uint8_t *)"utox_save", &size, UTOX_FILE_OPTS_READ);
+
+    if (fp == NULL) {
+        return NULL;
+    }
+
+    const UTOX_SAVE *save = calloc(1, size + 1);
+    if (save == NULL) {
+        fclose(fp);
+        return NULL;
+    }
+
+    if (fread(save, size, 1, fp) != 1) {
+        LOG_ERR(__FILE__, "Could not read save file");
+
+        fclose(fp);
+        free(save);
+        return NULL;
+    }
+
+    fclose(fp);
+    return save;
+}
