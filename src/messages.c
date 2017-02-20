@@ -411,7 +411,7 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
             header.author_length = author_length;
             header.msg_length    = msg->via.txt.length;
             header.author        = msg->our_msg;
-            header.receipt       = (msg->receipt_time ? 1 : 0);
+            header.receipt       = !!msg->receipt_time; // bool only
             header.msg_type      = msg->msg_type;
 
             size_t length = sizeof(header) + msg->via.txt.length + author_length + 1; /* extra \n char*/
