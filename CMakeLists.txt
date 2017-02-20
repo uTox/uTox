@@ -56,8 +56,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
 # Add all warning flags we can.
 add_cflag("-Wall")
 add_cflag("-Wextra")
+
 # Warnings we don't tolerate
 add_cflag("-Werror=implicit-function-declaration")
+
 # Warnings we don't care about
 add_cflag("-Wformat=0")
 
@@ -100,6 +102,11 @@ endif()
 option(UTOX_STATIC "Link uTox statically" OFF)
 if(UTOX_STATIC)
     add_cflag("-static")
+endif()
+
+option(ENABLE_UPDATER "Enable updater" ON)
+if(NOT UNIX AND ENABLE_UPDATER)
+    add_cflag("-DENABLE_UPDATER")
 endif()
 
 option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
