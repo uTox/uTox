@@ -4,6 +4,8 @@
 #include "../main.h"
 #include "../settings.h"
 
+#include <string.h>
+
 static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) {
     // assert(UTOX_FILE_NAME_LENGTH <= (32,767 wide characters) );
     DWORD rw  = 0;
@@ -39,14 +41,14 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
 }
 
 FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
+    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
-        strcpy((char *)path, portable_mode_save_path);
+        strcpy(path, portable_mode_save_path);
     } else {
-        if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char *)path))) {
-            if (FAILED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char *)path))) {
-                strcpy((char *)path, portable_mode_save_path);
+        if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {
+            if (FAILED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path))) {
+                strcpy(path, portable_mode_save_path);
             }
         }
     }
@@ -59,37 +61,39 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
         return NULL;
     }
 
-    snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "/Tox/");
+    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "/Tox/");
 
-    if (strlen((char *)path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
         LOG_ERR("WinFilesys", "Load directory name too long");
         return NULL;
     }
 
-    uint8_t *tmp_path = calloc(1, strlen((char *)name) + 1);
-    strcpy((char *)tmp_path, (char *)name);
+    char *tmp_path = _strdup((char *)name); // free() doesn't work if I touch this pointer at all, so..
+    char *path_pointer = tmp_path;          // this pointer gets to hold the original location to free.
+    if (!tmp_path) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "WinFilesys", "Unable to allocate memory for file path.");
+    }
 
     // Append the subfolder to the path and remove it from the name.
-    for (char *folder_divider = strstr((char *)tmp_path, "/");
+    for (char *folder_divider = strstr(tmp_path, "/");
          folder_divider != NULL;
-         folder_divider = strstr((char *)tmp_path, "/"))
+         folder_divider = strstr(tmp_path, "/"))
     {
         ++folder_divider; // Skip over the / we're pointing to.
-        snprintf((char *)path + strlen((char *)path), strlen((char *)tmp_path) - strlen(folder_divider),
-                 (char *)tmp_path);
-        uint8_t *new_path = tmp_path + strlen((char *)tmp_path) - strlen(folder_divider);
+        snprintf(path + strlen(path), strlen(tmp_path) - strlen(folder_divider), tmp_path);
+        char *new_path = tmp_path + strlen(tmp_path) - strlen(folder_divider);
         tmp_path = new_path;
     }
 
     if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
-        if (!native_create_dir(path)) {
+        if (!native_create_dir((uint8_t *)path)) {
             LOG_ERR("WinFilesys", ": Failed to create path %s." , path);
         }
     }
 
-    snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "/%s", (char *)tmp_path);
+    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "/%s", tmp_path);
 
-    free(tmp_path);
+    free(path_pointer);
 
     for (size_t i = 0; path[i] != '\0'; ++i) {
         if (path[i] == '/') {
@@ -98,10 +102,10 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     wchar_t wide[UTOX_FILE_NAME_LENGTH] = { 0 };
-    MultiByteToWideChar(CP_UTF8, 0, (char *)path, strlen((char *)path), wide, UTOX_FILE_NAME_LENGTH);
+    MultiByteToWideChar(CP_UTF8, 0, path, strlen(path), wide, UTOX_FILE_NAME_LENGTH);
 
     if (opts == UTOX_FILE_OPTS_DELETE) {
-        if (!DeleteFile((char *)path)) {
+        if (!DeleteFile(path)) {
             LOG_ERR("WinFilesys", "Could not delete file: %s - Error: %d" , path, GetLastError());
         }
         return NULL;

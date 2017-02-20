@@ -804,8 +804,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         char         path[MAX_PATH];
         int          len = GetModuleFileName(hModule, path, MAX_PATH);
         unsigned int i;
-        for (i = len - 1; path[i] != '\\'; --i)
-            ;
+        for (i = len - 1; path[i] != '\\'; --i) {
+            // Do nothing until we reach the folder separator.
+        }
         path[i] = 0;
         SetCurrentDirectory(path);
         strcpy(portable_mode_save_path, (char *)path);
@@ -889,7 +890,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     if (*cmd) {
-        int len = strlen(cmd);
+        const int len = strlen(cmd);
         do_tox_url((uint8_t *)cmd, len);
     }
 
