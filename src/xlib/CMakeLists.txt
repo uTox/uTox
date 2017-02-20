@@ -37,6 +37,12 @@ add_library(utoxNATIVE STATIC
     ../posix/filesys.c
     )
 
+find_package(Freetype REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+message("Found Freetype version ${FREETYPE_VERSION_STRING}")
+message("Freetype include: ${FREETYPE_INCLUDE_DIRS}")
+message("Freetype library: ${FREETYPE_LIBRARIES}")
+
 find_package(X11 REQUIRED)
 message("X include: ${X11_INCLUDE_DIR}")
 message("X library: ${X11_LIBRARIES}")
