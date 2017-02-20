@@ -1551,7 +1551,7 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
 
         if (names && (i != m->sel_start_msg || m->sel_start_position == 0)) {
             if (m->is_groupchat) {
-                memcpy(p, msg->via.grp.msg, msg->via.grp.author_length);
+                memcpy(p, msg->via.grp.author, msg->via.grp.author_length);
                 p += msg->via.grp.author_length;
                 len -= msg->via.grp.author_length;
             } else {
