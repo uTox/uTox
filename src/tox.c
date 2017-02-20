@@ -84,8 +84,7 @@ static int utox_encrypt_data(void *clear_text, size_t clear_length, uint8_t *cyp
     tox_pass_encrypt((uint8_t *)clear_text, clear_length, (uint8_t *)passphrase, passphrase_length, cypher_data, &err);
 
     if (err) {
-        LOG_FATAL_ERR(10, __FILE__, "Fatal Error; unable to encrypt data!");
-        exit(10);
+        LOG_FATAL_ERR(EXIT_FAILURE, __FILE__, "Fatal Error; unable to encrypt data!\n");
     }
 
     return err;
@@ -565,13 +564,13 @@ void toxcore_thread(void *UNUSED(args)) {
         }
 
         // Stop av threads, and toxcore.
-        LOG_TRACE("Toxcore", "av_thread exit, tox thread ending" );
+        LOG_TRACE("Toxcore", "av_thread exit, tox thread ending");
         toxav_kill(av);
         tox_kill(tox);
     }
 
     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
-    LOG_TRACE("Toxcore", "Tox thread:\tClean exit!" );
+    LOG_TRACE("Toxcore", "Tox thread:\tClean exit!");
 }
 
 /** General recommendations for working with threads in uTox

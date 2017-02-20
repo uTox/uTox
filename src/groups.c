@@ -121,8 +121,7 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
     // Allocate space for the struct and the dynamic array holding the peer's name.
     peer = calloc(1, sizeof(GROUP_PEER) + strlen(default_peer_name) + 1);
     if (!peer) {
-        LOG_ERR("Groupchat", "Unable to allocate space for group peer.");
-        exit(42); // TODO: Header file for exit codes. This is just silly.
+        LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "Unable to allocate space for group peer.");
     }
     strcpy2(peer->name, default_peer_name);
     peer->name_length = 0;
@@ -181,8 +180,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
             peer = new_peer;
         } else {
             free(peer);
-            LOG_FATAL_ERR(40, "Groupchat", "Couldn't realloc for group peer name!");
-            exit(40);
+            LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "couldn't realloc for group peer name!");
         }
 
         peer->name_length = utf8_validate(name, length);
@@ -198,8 +196,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         if (new_peer) {
             peer = new_peer;
         } else {
-            LOG_FATAL_ERR(43, "Groupchat", "Unable to realloc for group peer who just joined.");
-            exit(43);
+            LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "Unable to realloc for group peer who just joined.");
         }
 
         peer->name_length = utf8_validate(name, length);
@@ -209,8 +206,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         group_add_message(g, peer_id, (const uint8_t *)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
         return;
     } else {
-        LOG_ERR("Groupchat", "We can't set a name for a null peer! %u" , peer_id);
-        exit(41);
+        LOG_FATAL_ERR(EXIT_FAILURE, "Groupchat", "We can't set a name for a null peer! %u" , peer_id);
     }
 }
 

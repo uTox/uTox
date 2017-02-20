@@ -1,11 +1,15 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-enum exit_codes {
-    EXIT_NORMAL,
-    EXIT_UNKNOWN,
-    EXIT_MALLOC,
-};
+#include "stdlib.h"
+
+#ifndef EXIT_SUCCESS // should be defined in stdlib.h
+#define EXIT_SUCCESS 0 /* Successful exit status. */
+#endif
+#ifndef EXIT_FAILURE // should be defined in stdlib.h
+#define EXIT_FAILURE 1 /* Generic failing exit status. */
+#endif
+#define EXIT_MALLOC  2 /* Malloc failure exit status. */
 
 /* uTox debug levels */
 typedef enum {

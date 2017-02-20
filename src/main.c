@@ -229,8 +229,7 @@ void parse_args(int argc, char *argv[],
                 if (!strcmp(optarg, "start-on-boot")) {
                     *should_launch_at_startup = -1;
                 } else {
-                    LOG_ERR("", "Please specify a correct unset option (please check user manual for list of correct "
-                                "values).\n");
+                    LOG_NORM("Please specify a correct unset option (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
                 }
                 break;
