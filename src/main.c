@@ -308,9 +308,11 @@ void utox_init(void) {
     }
 
     // TODO(grayhatter)
+    //#ifdef ENABLE_UPDATER
     // if (settings.auto_update) {
     //     updater_check();
     // }
+    //#endif
 
     settings.debug_file = stdout;
 }
