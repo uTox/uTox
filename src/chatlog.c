@@ -151,15 +151,8 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
                 fclose(file);
                 return NULL;
             }
-            msg->our_msg    = header.author;
-
-            /* TEMP Fix to recover logs from v0.8.* */
-            if (header.log_version == 0) {
-                msg->receipt_time = 1;
-            } else {
-                msg->receipt_time = header.receipt;
-            }
-
+            msg->our_msg       = header.author;
+            msg->receipt_time  = header.receipt;
             msg->time          = header.time;
             msg->msg_type      = header.msg_type;
             msg->disk_offset   = file_offset;
