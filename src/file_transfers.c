@@ -117,17 +117,16 @@ static void ft_decon(uint32_t friend_number, uint32_t file_number) {
         return;
     }
 
-    if (ft->incoming) {
-        get_friend(friend_number)->ft_incoming_active_count--;
-    } else {
-        get_friend(friend_number)->ft_outgoing_active_count--;
-    }
+    if (ft->in_use) {
+        while (ft->decon_wait) {
+            yieldcpu(10);
+        }
 
-    while (ft->decon_wait) {
-        yieldcpu(10);
-    }
-
-    if (ft && ft->in_use) {
+        if (ft->incoming) {
+            get_friend(friend_number)->ft_incoming_active_count--;
+        } else {
+            get_friend(friend_number)->ft_outgoing_active_count--;
+        }
         if (ft->name) {
             free(ft->name);
         }
@@ -139,8 +138,9 @@ static void ft_decon(uint32_t friend_number, uint32_t file_number) {
         } else if (ft->via.file) {
             fclose(ft->via.file);
         }
-        memset(ft, 0, sizeof(FILE_TRANSFER));
     }
+    /* When decon is called we always want to reset the struct. */
+    memset(ft, 0, sizeof(FILE_TRANSFER));
 }
 
 static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
@@ -706,8 +706,9 @@ static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t fil
     }
 
     memset(ft, 0, sizeof(*ft));
-    ft->incoming    = true;
     ft->in_use      = true;
+
+    ft->incoming    = true;
     ft->in_memory   = true;
     ft->inline_img  = true;
 
@@ -749,7 +750,6 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CANCEL, NULL);
         return;
     }
-    f->ft_incoming_active_count++;
 
     if (kind == TOX_FILE_KIND_AVATAR) {
         return incoming_avatar(tox, friend_number, file_number, size);
@@ -769,7 +769,10 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
         return;
     }
+    f->ft_incoming_active_count++;
+
     memset(ft, 0, sizeof(FILE_TRANSFER));
+    ft->in_use   = true;
 
     // Preload some data needed by ft_find_resumeable
     ft->friend_number = friend_number;
@@ -820,7 +823,6 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         LOG_ERR("FileTransfer", "Unable to open file suggested by resume!");
         // This is fine-ish, we'll just fallback to new incoming file.
     }
-    ft->in_use   = true;
 
     ft->friend_number = friend_number;
     ft->file_number   = file_number;
@@ -925,7 +927,6 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
         LOG_ERR("FileTransfer", "Can't send this avatar too many in progress...");
         return UINT32_MAX;
     }
-    ++f->ft_outgoing_active_count;
 
     /* While It's not ideal, we don't make sure we can alloc the FILE_TRANSFER until
      * we get the file number from toxcore. This could happen, but I assume it'll be
@@ -947,10 +948,13 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return UINT32_MAX;
     }
+    /* All errors handled */
+    ++f->ft_outgoing_active_count;
 
     memset(ft, 0, sizeof(*ft));
-    ft->incoming = false;
     ft->in_use = true;
+
+    ft->incoming = false;
     ft->avatar = true;
 
     ft->friend_number = friend_number;
@@ -977,7 +981,6 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
         LOG_ERR("FileTransfer", "Can't send this file too many in progress...");
         return UINT32_MAX;
     }
-    ++f->ft_outgoing_active_count;
 
     fseeko(file, 0, SEEK_END);
     size_t size = ftello(file);
@@ -1022,11 +1025,12 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return UINT32_MAX;
     }
+    ++f->ft_outgoing_active_count;
 
     memset(ft, 0, sizeof(FILE_TRANSFER));
     ft->in_use = true;
-    ft->incoming = false;
 
+    ft->incoming      = false;
     ft->friend_number = friend_number;
     ft->file_number   = file_number;
 
@@ -1035,6 +1039,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
     ft->name = calloc(1, name_length + 1);
     if (!ft->name) {
         LOG_ERR("FileTransfer", "Error, couldn't allocate memory for ft->name.");
+        --f->ft_outgoing_active_count;
         return UINT32_MAX;
     }
     ft->name_length = name_length;
@@ -1073,7 +1078,6 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
         LOG_ERR("FileTransfer", "Can't send raw data too many in progress...");
         return UINT32_MAX;
     }
-    ++f->ft_outgoing_active_count;
 
     /* While It's not ideal, we don't make sure we can alloc the FILE_TRANSFER until
      * we get the file number from toxcore. This could happen, but I assume it'll be
@@ -1095,16 +1099,19 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return UINT32_MAX;
     }
+    ++f->ft_outgoing_active_count;
 
     memset(ft, 0, sizeof(*ft));
-    ft->incoming   = false;
     ft->in_use     = true;
+
+    ft->incoming   = false;
     ft->in_memory  = true;
     ft->inline_img = true;
 
     ft->name = calloc(1, name_length + 1);
     if (!ft->name) {
         LOG_ERR("FileTransfer", "Error, couldn't allocate memory for ft->name.");
+        --f->ft_outgoing_active_count;
         return UINT32_MAX;
     }
     ft->name_length = name_length;
