@@ -698,7 +698,6 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
 static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t file_number, size_t size) {
     LOG_INFO("FileTransfer", "Getting an incoming inline image" );
 
-
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
         LOG_ERR("FileTransfer", "Unable to malloc ft to accept incoming inline image!");
@@ -926,6 +925,7 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
         LOG_ERR("FileTransfer", "Can't send this avatar too many in progress...");
         return UINT32_MAX;
     }
+    ++f->ft_outgoing_active_count;
 
     /* While It's not ideal, we don't make sure we can alloc the FILE_TRANSFER until
      * we get the file number from toxcore. This could happen, but I assume it'll be
@@ -977,6 +977,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
         LOG_ERR("FileTransfer", "Can't send this file too many in progress...");
         return UINT32_MAX;
     }
+    ++f->ft_outgoing_active_count;
 
     fseeko(file, 0, SEEK_END);
     size_t size = ftello(file);
@@ -1068,10 +1069,11 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     // TODO send the unset avatar command.
 
     FRIEND *f = get_friend(friend_number);
-    if (f->ft_outgoing_active_count > MAX_FILE_TRANSFERS) {
+    if (f->ft_outgoing_active_count >= MAX_FILE_TRANSFERS) {
         LOG_ERR("FileTransfer", "Can't send raw data too many in progress...");
         return UINT32_MAX;
     }
+    ++f->ft_outgoing_active_count;
 
     /* While It's not ideal, we don't make sure we can alloc the FILE_TRANSFER until
      * we get the file number from toxcore. This could happen, but I assume it'll be
