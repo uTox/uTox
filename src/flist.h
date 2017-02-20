@@ -68,6 +68,9 @@ void flist_dump_contacts(void);
 void flist_reload_contacts(void);
 
 ITEM *flist_get_selected(void);
+FRIEND *flist_get_friend(void);
+GROUPCHAT *flist_get_groupchat(void);
+ITEM_TYPE flist_get_type(void);
 
 /* UI functions */
 void flist_draw(void *n, int x, int y, int width, int height);
