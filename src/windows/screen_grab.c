@@ -67,12 +67,12 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     }
 
     int size = 0;
-    UTOX_IMAGE *out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
+    UTOX_IMAGE out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
 
     free(bits);
 
     NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(flist_get_selected()->data, image, width, height, (UTOX_IMAGE)out, size);
+    friend_sendimage(flist_get_selected()->data, image, width, height, out, size);
 }
 
 static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {

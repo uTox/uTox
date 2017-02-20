@@ -1471,7 +1471,7 @@ bool messages_mright(PANEL *panel) {
 
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
-            const static UTOX_I18N_STR menu_copy[] = { STR_COPY, STR_COPY_WITH_NAMES };
+            static UTOX_I18N_STR menu_copy[] = { STR_COPY, STR_COPY_WITH_NAMES };
             contextmenu_new(COUNTOF(menu_copy), menu_copy, contextmenu_messages_onselect);
             return true;
         }
@@ -1550,7 +1550,7 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
 
         if (names && (i != m->sel_start_msg || m->sel_start_position == 0)) {
             if (m->is_groupchat) {
-                memcpy(p, msg->via.grp.msg[0], msg->via.grp.author_length);
+                memcpy(p, msg->via.grp.author, msg->via.grp.author_length);
                 p += msg->via.grp.author_length;
                 len -= msg->via.grp.author_length;
             } else {
