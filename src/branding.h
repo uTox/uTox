@@ -10,10 +10,10 @@
 
 // The updater relies on these version numbers, and values greater than an octet were never tested
 #define RELEASE_TITLE "Make uTox Great Again"
-#define VERSION "0.12.2"
+#define VERSION "0.13.0"
 #define VER_MAJOR 0
-#define VER_MINOR 12
-#define VER_PATCH 2
+#define VER_MINOR 13
+#define VER_PATCH 0
 #define UTOX_VERSION_NUMBER (VER_MAJOR << 16 | VER_MINOR << 8 | VER_PATCH)
 
 // Defaults
