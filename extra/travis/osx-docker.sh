@@ -30,14 +30,14 @@ cd ..
 
 # install libopus, needed for audio encoding/decoding
 if ! [ -f $CACHE_DIR/usr/lib/pkgconfig/opus.pc ]; then
-  curl http://downloads.xiph.org/releases/opus/opus-1.1.tar.gz -o opus-1.1.tar.gz
-  tar xzf opus-1.1.tar.gz
-  cd opus-1.1
+  curl http://downloads.xiph.org/releases/opus/opus-1.1.4.tar.gz -o opus.tar.gz
+  tar xzf opus.tar.gz
+  cd opus-1.1.4
   ./configure --prefix=$CACHE_DIR/usr --host="x86_64-apple-darwin14" --disable-extra-programs --disable-doc --disable-shared
   make -j8
   make install
   cd ..
-  # rm -rf opus-1.1*
+  # rm -rf opus**
 fi
 
 # install libvpx, needed for video encoding/decoding
