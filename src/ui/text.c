@@ -86,26 +86,29 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
     bool greentext = 0, link = 0, draw = y + lineheight >= top;
     int  xc = x;
 
-    const char *a = data, *b = a, *end = a + length;
+    const char *a_mark = data, *b_mark = a_mark, *end = a_mark + length;
     while (1) {
-        if (a != end) {
-            if (*a == '>' && (a == data || *(a - 1) == '\n')) {
+        if (a_mark != end) {
+            if (*a_mark == '>' && (a_mark == data || *(a_mark - 1) == '\n')) {
                 c1        = setcolor(COLOR_MAIN_TEXT_QUOTE);
                 greentext = 1;
             }
 
-            if ((a == data || *(a - 1) == '\n' || *(a - 1) == ' ')
-                && ((end - a >= 7 && memcmp(a, "http://", 7) == 0) || (end - a >= 8 && memcmp(a, "https://", 8) == 0))) {
+            if ((a_mark == data || *(a_mark - 1) == '\n' || *(a_mark - 1) == ' ')
+                && (   (end - a_mark >= 7 && memcmp(a_mark, "http://", 7) == 0)
+                    || (end - a_mark >= 8 && memcmp(a_mark, "https://", 8) == 0))
+
+            ) {
                 c2   = setcolor(COLOR_MAIN_TEXT_URL);
                 link = 1;
             }
 
-            if (a == data || *(a - 1) == '\n') {
-                const char *r = a;
+            if (a_mark == data || *(a_mark - 1) == '\n') {
+                const char *r = a_mark;
                 while (r != end && *r != '\n') {
                     r++;
                 }
-                if (*(r - 1) == '<') {
+                if (r != data && *(r - 1) == '<') {
                     if (greentext) {
                         setcolor(COLOR_MAIN_TEXT_RED);
                     } else {
@@ -116,51 +119,51 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
             }
         }
 
-        if (a == end || *a == ' ' || *a == '\n') {
-            int count = a - b, w = textwidth(b, count);
+        if (a_mark == end || *a_mark == ' ' || *a_mark == '\n') {
+            int count = a_mark - b_mark, w = textwidth(b_mark, count);
             while (x + w > right) {
                 if (multiline && x == xc) {
-                    int fit = textfit(b, count, right - x);
+                    int fit = textfit(b_mark, count, right - x);
                     if (draw) {
-                        text_draw_word_hl(x, y, b, fit, b - data, h, hlen, lineheight);
-                        drawtextmark(x, y, b, fit, b - data, mark, marklen, lineheight);
+                        text_draw_word_hl(x, y, b_mark, fit, b_mark - data, h, hlen, lineheight);
+                        drawtextmark(x, y, b_mark, fit, b_mark - data, mark, marklen, lineheight);
                     }
                     count -= fit;
-                    b += fit;
+                    b_mark += fit;
                     y += lineheight;
                     draw = (y + lineheight >= top && y < bottom);
                 } else if (!multiline) {
-                    int fit = textfit(b, count, right - x);
+                    int fit = textfit(b_mark, count, right - x);
                     if (draw) {
-                        text_draw_word_hl(x, y, b, fit, b - data, h, hlen, lineheight);
-                        drawtextmark(x, y, b, fit, b - data, mark, marklen, lineheight);
+                        text_draw_word_hl(x, y, b_mark, fit, b_mark - data, h, hlen, lineheight);
+                        drawtextmark(x, y, b_mark, fit, b_mark - data, mark, marklen, lineheight);
                     }
                     return y + lineheight;
                 } else {
                     y += lineheight;
                     draw  = (y + lineheight >= top && y < bottom);
-                    int l = utf8_len(b);
+                    int l = utf8_len(b_mark);
                     count -= l;
-                    b += l;
+                    b_mark += l;
                 }
                 x = xc;
-                w = textwidth(b, count);
+                w = textwidth(b_mark, count);
             }
 
             if (draw) {
-                text_draw_word_hl(x, y, b, count, b - data, h, hlen, lineheight);
-                drawtextmark(x, y, b, count, b - data, mark, marklen, lineheight);
+                text_draw_word_hl(x, y, b_mark, count, b_mark - data, h, hlen, lineheight);
+                drawtextmark(x, y, b_mark, count, b_mark - data, mark, marklen, lineheight);
             }
 
             x += w;
-            b = a;
+            b_mark = a_mark;
 
             if (link) {
                 setcolor(c2);
                 link = 0;
             }
 
-            if (a == end) {
+            if (a_mark == end) {
                 if (greentext) {
                     setcolor(c1);
                     greentext = 0;
@@ -168,18 +171,18 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
                 break;
             }
 
-            if (*a == '\n') {
+            if (*a_mark == '\n') {
                 if (greentext) {
                     setcolor(c1);
                     greentext = 0;
                 }
                 y += lineheight;
                 draw = (y + lineheight >= top && y < bottom);
-                b += utf8_len(b);
+                b_mark += utf8_len(b_mark);
                 x = xc;
             }
         }
-        a += utf8_len(a);
+        a_mark += utf8_len(a_mark);
     }
 
     return y + lineheight;
