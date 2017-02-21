@@ -31,13 +31,14 @@ GROUPCHAT *get_group(uint32_t group_number) {
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
-        g->peer = calloc(MAX_GROUP_PEERS, sizeof(void));
+        g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
     }
 
     g->name_length = snprintf((char *)g->name, sizeof(g->name), "Groupchat #%u", group_number);
     if (g->name_length >= sizeof(g->name)) {
         g->name_length = sizeof(g->name) - 1;
     }
+
     if (av_group) {
         g->topic_length = sizeof("Error creating voice group, not supported yet") - 1;
         strcpy2(g->topic, "Error creating voice group, not supported yet");
@@ -52,12 +53,12 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     g->msg.panel.y              = MAIN_TOP;
     g->msg.panel.height         = CHAT_BOX_TOP;
     g->msg.panel.width          = -SCROLL_WIDTH;
-    g->msg.is_groupchat         = 1;
+    g->msg.is_groupchat         = true;
 
     g->number   = group_number;
     g->notify   = settings.group_notifications;
     g->av_group = av_group;
-    pthread_mutex_unlock(&messages_lock); /* make sure that messages has posted before we continue */
+    pthread_mutex_unlock(&messages_lock);
 
     flist_addgroup(g);
     flist_select_last();
@@ -65,19 +66,30 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
 
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
-    const GROUP_PEER *peer = g->peer[peer_id];
-    MESSAGES *m = &g->msg;
 
-    MSG_HEADER *msg    = calloc(1, sizeof(MSG_HEADER));
-    if (!msg) {
-        LOG_ERR("Groupchats", " Unable to allocate memory for message header.");
+    if (peer_id >= UTOX_MAX_GROUP_PEERS) {
+        LOG_ERR("Groupchats", "Unable to add message from peer %u - peer id too large.", peer_id);
         return UINT32_MAX;
     }
-    msg->our_msg       = (g->our_peer_number == peer_id ? true : false);
-    msg->msg_type      = m_type;
 
-    msg->via.grp.length        = length;
-    msg->via.grp.author_id     = peer_id;
+    const GROUP_PEER *peer = g->peer[peer_id];
+    if (!peer) {
+        LOG_ERR("Groupchats", "Unable to get peer %u for adding message.", peer_id);
+        pthread_mutex_unlock(&messages_lock);
+        return UINT32_MAX;
+    }
+
+    MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        LOG_ERR("Groupchats", "Unable to allocate memory for message header.");
+        return UINT32_MAX;
+    }
+
+    msg->our_msg  = (g->our_peer_number == peer_id ? true : false);
+    msg->msg_type = m_type;
+
+    msg->via.grp.length    = length;
+    msg->via.grp.author_id = peer_id;
 
     msg->via.grp.author_length = peer->name_length;
     msg->via.grp.author_color  = peer->name_color;
@@ -86,7 +98,6 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
     msg->via.grp.author = calloc(1, peer->name_length);
     if (!msg->via.grp.author) {
         LOG_ERR("Groupchat", "Unable to allocate space for author nickname.");
-
         free(msg);
         return UINT32_MAX;
     }
@@ -95,7 +106,6 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
     msg->via.grp.msg = calloc(1, length);
     if (!msg->via.grp.msg) {
         LOG_ERR("Groupchat", "Unable to allocate space for message.");
-
         free(msg->via.grp.author);
         free(msg);
         return UINT32_MAX;
@@ -104,22 +114,21 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
 
     pthread_mutex_unlock(&messages_lock);
 
+    MESSAGES *m = &g->msg;
     return message_add_group(m, msg);
 }
 
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number), uint32_t name_color) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
-        g->peer = calloc(MAX_GROUP_PEERS, sizeof(void));
+        g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
         LOG_NOTE("Groupchat", "Needed to calloc peers for this group chat. (%u)" , peer_id);
     }
 
-    GROUP_PEER *peer = g->peer[peer_id];
-
-    char *default_peer_name = "<unknown>";
+    const char *default_peer_name = "<unknown>";
 
     // Allocate space for the struct and the dynamic array holding the peer's name.
-    peer = calloc(1, sizeof(GROUP_PEER) + strlen(default_peer_name) + 1);
+    GROUP_PEER *peer = calloc(1, sizeof(GROUP_PEER) + strlen(default_peer_name) + 1);
     if (!peer) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "Unable to allocate space for group peer.");
     }

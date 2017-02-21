@@ -6,7 +6,7 @@
 typedef unsigned int ALuint;
 typedef struct edit_change EDIT_CHANGE;
 
-#define MAX_GROUP_PEERS 256
+#define UTOX_MAX_GROUP_PEERS 256
 #define UTOX_MAX_NUM_GROUPS 64
 
 /*  UTOX_SAVE limits 8 as the max */
@@ -44,9 +44,9 @@ typedef struct groupchat {
     char *typed;
 
     /* Audio sources */
-    unsigned int source[MAX_GROUP_PEERS];
+    unsigned int source[UTOX_MAX_GROUP_PEERS];
     volatile uint64_t
-        last_recv_audio[MAX_GROUP_PEERS]; /* TODO: thread safety (This should work fine but it isn't very clean.) */
+        last_recv_audio[UTOX_MAX_GROUP_PEERS]; /* TODO: thread safety (This should work fine but it isn't very clean.) */
 
     MESSAGES      msg;
     EDIT_CHANGE **edit_history;
