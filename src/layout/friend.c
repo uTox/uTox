@@ -29,24 +29,24 @@ static void draw_friend(int x, int y, int w, int height) {
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        draw_avatar_image(f->avatar.img, MAIN_LEFT + SCALE(10), SCALE(10), f->avatar.width, f->avatar.height,
+        draw_avatar_image(f->avatar.img, x + SCALE(10), SCALE(10), f->avatar.width, f->avatar.height,
                           BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+        drawalpha(BM_CONTACT, x + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
     }
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
 
     if (f->alias) {
-        drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->alias, f->alias_length);
+        drawtextrange(x + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->alias, f->alias_length);
     } else {
-        drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->name, f->name_length);
+        drawtextrange(x + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->name, f->name_length);
     }
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(32), f->status_message,
+    drawtextrange(x + SCALE(60), settings.window_width - SCALE(128), SCALE(32), f->status_message,
                   f->status_length);
 
     if (f->typing) {
@@ -65,23 +65,23 @@ static void draw_friend_request(int x, int y, int w, int h) {
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FRIENDREQUEST);
+    drawstr(x + SCALE(10), SCALE(20), FRIENDREQUEST);
 
     setfont(FONT_TEXT);
     utox_draw_text_multiline_within_box(x + SCALE(10), y + SCALE(70), w + x, y, y + h, font_small_lineheight,
                                         req->msg, req->length, ~0, ~0, 0, 0, true);
 }
 
-static void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
+static void draw_friend_settings(int x, int y, int UNUSED(width), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(10), FRIEND_PUBLIC_KEY);
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(60), FRIEND_ALIAS);
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
+    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(10), FRIEND_PUBLIC_KEY);
+    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(60), FRIEND_ALIAS);
+    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
 }
 
-static void draw_friend_deletion(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+static void draw_friend_deletion(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     FRIEND *f = flist_get_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
@@ -96,27 +96,27 @@ static void draw_friend_deletion(int UNUSED(x), int UNUSED(y), int UNUSED(w), in
     snprintf(str, length, "%.*s?", (int)f->name_length, f->name);
 
     const int push = UTOX_STR_WIDTH(DELETE_MESSAGE);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(70), DELETE_MESSAGE);
-    drawtextrange(push + MAIN_LEFT + SCALE(10), settings.window_width, SCALE(70), str, length - 1);
+    drawstr(x + SCALE(10), SCALE(70), DELETE_MESSAGE);
+    drawtextrange(push + x + SCALE(10), settings.window_width, SCALE(70), str, length - 1);
 }
 
 /* Draw add a friend window */
-static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
+static void draw_add_friend(int x, int UNUSED(y), int UNUSED(w), int height) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), ADDFRIENDS);
+    drawstr(x + SCALE(10), SCALE(20), ADDFRIENDS);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), TOXID);
+    drawstr(x + SCALE(10), MAIN_TOP + SCALE(10), TOXID);
 
-    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(58), MESSAGE);
+    drawstr(x + SCALE(10), MAIN_TOP + SCALE(58), MESSAGE);
 
     if (settings.force_proxy) {
         int push = UTOX_STR_WIDTH(TOXID);
         setfont(FONT_MISC);
         setcolor(C_RED);
-        drawstr(MAIN_LEFT + SCALE(20) + push, MAIN_TOP + SCALE(12), DNS_DISABLED);
+        drawstr(x + SCALE(20) + push, MAIN_TOP + SCALE(12), DNS_DISABLED);
     }
 
     if (addfriend_status) {
@@ -165,7 +165,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
                 break;
         }
 
-        utox_draw_text_multiline_within_box(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(166),
+        utox_draw_text_multiline_within_box(x + SCALE(10), MAIN_TOP + SCALE(166),
                                             settings.window_width - BM_SBUTTON_WIDTH - SCALE(10), 0, height,
                                             font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
     }

@@ -104,12 +104,12 @@ static void sidepanel_USERBADGE(void) {
 
 static void sidepanel_FLIST(void) {
     scrollbar_flist.panel.y      = ROSTER_TOP;
-    scrollbar_flist.panel.width  = MAIN_LEFT;
+    scrollbar_flist.panel.width  = SCALE(230); // TODO remove?
     scrollbar_flist.panel.height = ROSTER_BOTTOM;
 
     panel_flist.x      = 0;
     panel_flist.y      = ROSTER_TOP;
-    panel_flist.width  = MAIN_LEFT;
+    panel_flist.width  = SCALE(230); // TODO remove?
     panel_flist.height = ROSTER_BOTTOM;
 
 
@@ -221,13 +221,13 @@ void ui_set_scale(uint8_t scale) {
 
     /* DEFAULT positions */
 
-    panel_main.x = MAIN_LEFT;
     panel_main.y = 0;
 
     scrollbar_settings.panel.y        = SCALE(32);  /* TODO magic numbers are bad */
     scrollbar_settings.content_height = SCALE(300); /* TODO magic numbers are bad */
 
-    panel_settings_master.y        = MAIN_TOP_FRAME_THIN;
+    panel_settings_master.y        = 0;
+    panel_settings_subheader.y     = MAIN_TOP_FRAME_THIN;
     panel_settings_devices.y       = SCALE(32);
     panel_settings_adv.y           = SCALE(32);
 
@@ -434,6 +434,14 @@ void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32
 void ui_size(int width, int height) {
     panel_update(&panel_root, 0, 0, width, height);
     tooltip_reset();
+
+    if (height > width) {
+        panel_side_bar.disabled = true;
+        panel_main.x = SCALE(0);
+    } else {
+        panel_side_bar.disabled = false;
+        panel_main.x = SCALE(230);
+    }
 }
 
 void ui_mouseleave(void) {

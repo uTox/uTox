@@ -191,7 +191,6 @@ double ui_scale;
 
 
 /* Main panel defines */
-#define MAIN_LEFT SCALE(230)
 #define MAIN_TOP SCALE(60)
 
 /* Legacy defines, instead of using these, you should replace them with something more descriptive */

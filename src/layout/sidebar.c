@@ -28,6 +28,13 @@ SCROLLABLE scrollbar_flist = {
     .small = 1,
 };
 
+static void draw_background_sidebar(int x, int y, int width, int height) {
+    /* Friend list (roster) background   */
+    drawrect(x, y, width, height, COLOR_BKGRND_LIST);
+    /* Current user badge background     */
+    drawrect(x, y, width, ROSTER_TOP, COLOR_BKGRND_MENU);
+}
+
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
     if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
@@ -86,6 +93,7 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
 PANEL panel_side_bar = {
     .type = PANEL_NONE,
     .disabled = 0,
+    .drawfunc = draw_background_sidebar,
     .child = (PANEL*[]) {
         &panel_self,
         &panel_quick_buttons,

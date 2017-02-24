@@ -19,13 +19,13 @@
 #include "../main.h" // tox_thread
 
 /* Top bar for user settings */
-static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height)) {
-    (void) w;
+static void draw_settings_header(int x, int y, int w, int UNUSED(height)) {
+    (void)w; // Silence an irreverent warning when GIT_VERSION is undefined
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);
+    drawstr(x + SCALE(10), y + SCALE(10), UTOX_SETTINGS);
 #ifdef GIT_VERSION
-    int x = MAIN_LEFT + SCALE(10) + UTOX_STR_WIDTH(UTOX_SETTINGS) + SCALE(10);
+    x += SCALE(20) + UTOX_STR_WIDTH(UTOX_SETTINGS);
     setfont(FONT_TEXT);
     drawtext(x, SCALE(10), GIT_VERSION, strlen(GIT_VERSION));
     char ver_string[64];
@@ -130,66 +130,66 @@ static void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(hei
 
 /* draw switch profile top bar */
 /* Text content for settings page */
-static void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
+static void draw_settings_text_profile(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), STATUSMESSAGE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(110), TOXID);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), LANGUAGE);
+    drawstr(x + SCALE(10), y + SCALE(10), NAME);
+    drawstr(x + SCALE(10), y + SCALE(60), STATUSMESSAGE);
+    drawstr(x + SCALE(10), y + SCALE(110), TOXID);
+    drawstr(x + SCALE(10), y + SCALE(160), LANGUAGE);
 }
 
 // Devices settings page
-static void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
+static void draw_settings_text_devices(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), DEVICES_ADD_NEW);
+    drawstr(x + SCALE(10), y + SCALE(10), DEVICES_ADD_NEW);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
+    drawstr(x + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
 
     char   str[10];
     size_t strlen = snprintf(str, 10, "%zu", self.device_list_count);
 
-    drawtext(MAIN_LEFT + SCALE(10), y + SCALE(75), str, strlen);
+    drawtext(x + SCALE(10), y + SCALE(75), str, strlen);
 }
 
-static void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
+static void draw_settings_text_password(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(235), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), y + SCALE(235), PROFILE_PASSWORD);
 
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(285), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(299), PROFILE_PW_NO_RECOVER);
+    drawstr(x + SCALE(75), y + SCALE(285), PROFILE_PW_WARNING);
+    drawstr(x + SCALE(75), y + SCALE(299), PROFILE_PW_NO_RECOVER);
 }
 
-static void draw_nospam_settings(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)){
+static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(240), NOSPAM_WARNING);
+    drawstr(x + SCALE(75), y + SCALE(240), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(235), NOSPAM);
+    drawstr(x + SCALE(10), y + SCALE(235), NOSPAM);
 }
 
 // UI settings page
-static void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(150), y + SCALE(10),  DPI);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(10),  THEME);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(65),  SAVE_CHAT_HISTORY);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(95),  CLOSE_TO_TRAY);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(125), START_IN_TRAY);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(155), AUTO_STARTUP);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
+    drawstr(x + SCALE(150), y + SCALE(10),  DPI);
+    drawstr(x + SCALE(10),  y + SCALE(10),  THEME);
+    drawstr(x + SCALE(10),  y + SCALE(65),  SAVE_CHAT_HISTORY);
+    drawstr(x + SCALE(10),  y + SCALE(95),  CLOSE_TO_TRAY);
+    drawstr(x + SCALE(10),  y + SCALE(125), START_IN_TRAY);
+    drawstr(x + SCALE(10),  y + SCALE(155), AUTO_STARTUP);
+    drawstr(x + SCALE(10),  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
 }
 
 // Audio/Video settings page
-static void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_av(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
@@ -197,52 +197,52 @@ static void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSE
     uint16_t draw_pos_y = 10;
     uint16_t draw_pos_y_inc = 30;
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PUSH_TO_TALK);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), PUSH_TO_TALK);
     draw_pos_y += draw_pos_y_inc;
 #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
     draw_pos_y += draw_pos_y_inc;
 #endif
 
     // These are 60 apart as there needs to be room for a dropdown between them.
     draw_pos_y_inc = 60;
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOOUTPUTDEVICE);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOOUTPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), VIDEOINPUTDEVICE);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), VIDEOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
 }
 
 // Notification settings page
-static void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_notifications(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), RINGTONE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(40), STATUS_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(70), SEND_TYPING_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), GROUP_NOTIFICATIONS);
+    drawstr(x + SCALE(10), y + SCALE(10), RINGTONE);
+    drawstr(x + SCALE(10), y + SCALE(40), STATUS_NOTIFICATIONS);
+    drawstr(x + SCALE(10), y + SCALE(70), SEND_TYPING_NOTIFICATIONS);
+    drawstr(x + SCALE(10), y + SCALE(100), GROUP_NOTIFICATIONS);
 }
 
-static void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_adv(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), WARNING);
+    drawstr(x + SCALE(10), y + SCALE(10), WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(30),  IPV6);
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(60),  UDP);
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(90),  PROXY);
-    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(94), ":", 1); // Little addr port separator
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
+    drawstr(x  + SCALE(10),  y + SCALE(30),  IPV6);
+    drawstr(x  + SCALE(10),  y + SCALE(60),  UDP);
+    drawstr(x  + SCALE(10),  y + SCALE(90),  PROXY);
+    drawtext(x + SCALE(264), y + SCALE(94), ":", 1); // Little addr port separator
+    drawstr(x  + SCALE(10),  y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
 
-    drawstr(MAIN_LEFT + SCALE(10),   y + SCALE(150), AUTO_UPDATE);
-    drawstr(MAIN_LEFT + SCALE(10),   y + SCALE(180), BLOCK_FRIEND_REQUESTS);
+    drawstr(x + SCALE(10),   y + SCALE(150), AUTO_UPDATE);
+    drawstr(x + SCALE(10),   y + SCALE(180), BLOCK_FRIEND_REQUESTS);
 }
 
 
@@ -252,14 +252,14 @@ SCROLLABLE scrollbar_settings = {
 };
 
 /* Draw the text for profile password window */
-static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+static void draw_profile_password(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), SCALE(20), PROFILE_PASSWORD);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
 }
 
 PANEL
