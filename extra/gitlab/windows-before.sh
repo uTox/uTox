@@ -3,33 +3,10 @@ set -eux
 
 . ./extra/gitlab/env.sh
 
-# install libsodium, needed for crypto
-if ! [ -d libsodium ]; then
-  git clone --depth=1 --branch=stable https://github.com/jedisct1/libsodium.git
-fi
-cd libsodium
-git rev-parse HEAD > libsodium.sha
-if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libsodium.sha); then
-  ./autogen.sh
-  ./configure --host=x86_64-w64-mingw32 --prefix="$CACHE_DIR/usr"
-  make -j`nproc`
-  make install
-  mv libsodium.sha "$CACHE_DIR/libsodium.sha"
-fi
-cd ..
-rm -rf libsodium
+export TARGET_HOST="--host=x86_64-w64-mingw32"
 
-# install libopus, needed for audio encoding/decoding
-if ! [ -f $CACHE_DIR/usr/lib/pkgconfig/opus.pc ]; then
-  curl http://downloads.xiph.org/releases/opus/opus-1.1.4.tar.gz -o opus.tar.gz
-  tar xzf opus.tar.gz
-  cd opus-1.1.4
-  ./configure --host=x86_64-w64-mingw32 --prefix=$CACHE_DIR/usr
-  make -j`nproc`
-  make install
-  cd ..
-  rm -rf opus**
-fi
+. ./extra/common/build_nacl.sh
+. ./extra/common/build_opus.sh
 
 # install libvpx, needed for video encoding/decoding
 if ! [ -d libvpx ]; then

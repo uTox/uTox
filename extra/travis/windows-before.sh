@@ -3,21 +3,9 @@ set -eux
 
 . ./extra/travis/env.sh
 
-# install libsodium, needed for crypto
-if ! [ -d libsodium ]; then
-  git clone --depth=1 --branch=stable https://github.com/jedisct1/libsodium.git
-fi
-cd libsodium
-git rev-parse HEAD > libsodium.sha
-if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libsodium.sha); then
-  ./autogen.sh
-  ./configure --host=x86_64-w64-mingw32 --prefix="$CACHE_DIR/usr"
-  make -j`nproc`
-  make install
-  mv libsodium.sha "$CACHE_DIR/libsodium.sha"
-fi
-cd ..
-rm -rf libsodium
+export TARGET_HOST="--host=x86_64-w64-mingw32"
+
+. ./extra/common/build_nacl.sh
 
 # install libopus, needed for audio encoding/decoding
 if ! [ -f $CACHE_DIR/usr/lib/pkgconfig/opus.pc ]; then
