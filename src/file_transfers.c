@@ -1069,7 +1069,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
         LOG_ERR("FileTransfer", "Can't send data to friend without data");
         return UINT32_MAX;
     }
-    LOG_TRACE("FileTransfer", "Starting raw data transfer to friend %u." , friend_number);
+    LOG_INFO("FileTransfer", "Starting raw data transfer to friend %u." , friend_number);
 
     // TODO send the unset avatar command.
 
@@ -1134,6 +1134,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     }
     *msg = *ft;
     postmessage_utox(FILE_SEND_NEW, friend_number, file_number, msg);
+    LOG_INFO("FileTransfer", "Inline image sent to friend. FT %u, Friend %u", ft->file_number, ft->friend_number);
     return file_number;
 }
 
