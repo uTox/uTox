@@ -914,11 +914,11 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 }
 
 uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
-    if (!tox || self.avatar) {
+    if (!tox || !self.png_data) {
         LOG_ERR("FileTransfer", "Can't send an avatar without data");
         return UINT32_MAX;
     }
-    LOG_TRACE("FileTransfer", "Starting avatar to friend %u." , friend_number);
+    LOG_NOTE("FileTransfer", "Starting avatar to friend %u." , friend_number);
 
     // TODO send the unset avatar command.
 
@@ -956,16 +956,13 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
 
     ft->incoming = false;
     ft->avatar = true;
-
     ft->friend_number = friend_number;
     ft->file_number = file_number;
-
     memcpy(ft->data_hash, hash, TOX_HASH_LENGTH);
-
     ft->target_size = self.png_size;
-
     ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
 
+    LOG_INFO("FileTransfer", "File transfer #%u sent to friend %u", ft->file_number, ft->friend_number);
     return file_number;
 }
 

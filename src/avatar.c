@@ -189,14 +189,18 @@ void avatar_delete_self(void) {
 }
 
 bool avatar_on_friend_online(Tox *tox, uint32_t friend_number) {
-    size_t   avatar_size = 0;
-    uint8_t *avatar_data = load_img_data(self.id_str, &avatar_size);
-    if (!avatar_data) {
-        return false;
+    if (!self.png_data) {
+        uint8_t *avatar_data = load_img_data(self.id_str, &self.png_size);
+        if (!avatar_data) {
+            LOG_WARN("Avatar", "Unable to get out avatar data to send to friend.");
+            self.png_data = NULL;
+            self.png_size = 0;
+            return false;
+        }
+        self.png_data = avatar_data;
     }
 
     ft_send_avatar(tox, friend_number);
-    free(avatar_data);
     return true;
 }
 
