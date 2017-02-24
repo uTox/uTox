@@ -90,7 +90,9 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
 }
 
 /* Left side bar, holds the user, the roster, and the setting buttons */
-PANEL panel_side_bar = {
+PANEL
+
+panel_side_bar = {
     .type = PANEL_NONE,
     .disabled = 0,
     .drawfunc = draw_background_sidebar,
@@ -101,44 +103,44 @@ PANEL panel_side_bar = {
         NULL
     }
 },
-    /* The user badge and buttons */
-    panel_self = {
-        .type     = PANEL_NONE,
-        .disabled = 0,
-        .drawfunc = draw_user_badge,
-        .child    = (PANEL*[]) {
-            (PANEL*)&button_avatar, (PANEL*)&button_name,       (PANEL*)&button_usr_state,
-                                    (PANEL*)&button_status_msg,
-            NULL
-        }
-    },
-    /* Left sided toggles */
-    panel_quick_buttons = {
-        .type     = PANEL_NONE,
-        .disabled = 0,
-        .child    = (PANEL*[]) {
-            (PANEL*)&button_filter_friends, /* Top of roster */
-            (PANEL*)&edit_search,           /* Bottom of roster*/
-            (PANEL*)&button_settings,
-            (PANEL*)&button_add_new_contact,
-            NULL
-        }
-    },
-    /* The friends and group was called list */
-    panel_flist = {
-        .type     = PANEL_NONE,
-        .disabled = 0,
-        .child    = (PANEL*[]) {
-            // TODO rename these
-            &panel_flist_list,
-            (PANEL*)&scrollbar_flist,
-            NULL
-        }
-    },
-        panel_flist_list = {
-            .type           = PANEL_LIST,
-            .content_scroll = &scrollbar_flist,
-        };
+/* The user badge and buttons */
+panel_self = {
+    .type     = PANEL_NONE,
+    .disabled = 0,
+    .drawfunc = draw_user_badge,
+    .child    = (PANEL*[]) {
+        (PANEL*)&button_avatar, (PANEL*)&button_name,       (PANEL*)&button_usr_state,
+                                (PANEL*)&button_status_msg,
+        NULL
+    }
+},
+/* Left sided toggles */
+panel_quick_buttons = {
+    .type     = PANEL_NONE,
+    .disabled = 0,
+    .child    = (PANEL*[]) {
+        (PANEL*)&button_filter_friends, /* Top of roster */
+        (PANEL*)&edit_search,           /* Bottom of roster*/
+        (PANEL*)&button_settings,
+        (PANEL*)&button_add_new_contact,
+        NULL
+    }
+},
+/* The friends and group was called list */
+panel_flist = {
+    .type     = PANEL_NONE,
+    .disabled = 0,
+    .child    = (PANEL*[]) {
+        // TODO rename these
+        &panel_flist_list,
+        (PANEL*)&scrollbar_flist,
+        NULL
+    }
+},
+    panel_flist_list = {
+        .type           = PANEL_LIST,
+        .content_scroll = &scrollbar_flist,
+    };
 
 
 #include "../friend.h"
