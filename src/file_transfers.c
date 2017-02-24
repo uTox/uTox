@@ -646,6 +646,12 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
 {
     LOG_TRACE("FileTransfer", "Incoming avatar from friend %u." , friend_number);
 
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("FileTransfer", "This friend doesn't exist... This is bad!");
+        return;
+    }
+
     if (size == 0) {
         LOG_TRACE("FileTransfer", "Avatar from friend %u deleted." , friend_number);
         postmessage_utox(FRIEND_AVATAR_UNSET, friend_number, 0, NULL);
@@ -671,6 +677,13 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
     }
 
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
+    if (!ft) {
+        LOG_ERR("FileTransfer", "Unable to malloc ft to accept incoming avatar!");
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
+        return;
+    }
+    f->ft_incoming_active_count++;
+
     memset(ft, 0, sizeof(FILE_TRANSFER));
     ft->in_use = true;
 
@@ -698,12 +711,19 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
 static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t file_number, size_t size) {
     LOG_INFO("FileTransfer", "Getting an incoming inline image" );
 
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("FileTransfer", "This friend doesn't exist... This is bad!");
+        return;
+    }
+
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
         LOG_ERR("FileTransfer", "Unable to malloc ft to accept incoming inline image!");
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return;
     }
+    f->ft_incoming_active_count++;
 
     memset(ft, 0, sizeof(*ft));
     ft->in_use      = true;
