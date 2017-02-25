@@ -36,7 +36,7 @@
  */
 static uint8_t *utox_data_load_custom_theme(size_t *out);
 static void read_custom_theme(const uint8_t *data, size_t length);
-static uint32_t try_parse_hex_colour(char *color, int *error);
+static uint32_t try_parse_hex_colour(char *color, bool *error);
 
 void theme_load(const THEME loadtheme) {
     // Update the settings dropdown UI
@@ -416,7 +416,6 @@ void theme_load(const THEME loadtheme) {
             COLOR_EDGE_NORMAL         = COLOR_PROC(SOLAR_VIOLET);
             COLOR_EDGE_HOVER          = COLOR_PROC(SOLAR_BLUE);
             COLOR_EDGE_ACTIVE         = COLOR_PROC(SOLAR_ORANGE);
-            COLOR_EDGE_ACTIVE         = COLOR_PROC(SOLAR_CYAN);
             COLOR_ACTIVEOPTION_BKGRND = COLOR_BKGRND_LIST_HOVER;
             COLOR_ACTIVEOPTION_TEXT   = COLOR_MAIN_TEXT;
 
@@ -543,10 +542,10 @@ void theme_load(const THEME loadtheme) {
             size_t size;
             uint8_t *themedata = utox_data_load_custom_theme(&size);
             if (!themedata) {
-                LOG_ERR("Theme", "Failed to load custom theme.");
                 return;
             }
             read_custom_theme(themedata, size);
+            free(themedata);
             break;
         }
         case THEME_DEFAULT: {
@@ -566,21 +565,19 @@ uint32_t *find_colour_pointer(char *color) {
         ++color;
     }
 
-    int l = strlen(color) - 1;
-    for (; l > 0; --l) {
+    for (int l = strlen(color) - 1; l > 0; --l) {
         if (color[l] != ' ' && color[l] != '\t') {
+            color[l + 1] = '\0';
             break;
         }
     }
 
-    color[l + 1] = '\0';
-
-    // remove "COLOR_" prefix
+    // Skip past "COLOR_" prefix
     if (!strncmp(color, "COLOR_", 6)) {
         color += 6;
     }
 
-    LOG_INFO("Theme", "Colour: %s" , color);
+    LOG_INFO("Theme", "Color: %s" , color);
 
     for (int i = 0;; ++i) {
         const char *s = COLOUR_NAME_TABLE[i];
@@ -593,26 +590,25 @@ uint32_t *find_colour_pointer(char *color) {
             return COLOUR_POINTER_TABLE[i];
         }
     }
+
     return NULL;
 }
 
-static uint32_t try_parse_hex_colour(char *color, int *error) {
+static uint32_t try_parse_hex_colour(char *color, bool *error) {
     while (*color == 0 || *color == ' ' || *color == '\t') {
         color++;
     }
 
-    int l = strlen(color) - 1;
-    for (; l > 0; --l) {
+    for (int l = strlen(color) - 1; l > 0; --l) {
         if (color[l] != ' ' && color[l] != '\n') {
+            color[++l] = '\0';
+
+            if (l != 6) {
+                *error = true;
+                return 0;
+            }
             break;
         }
-    }
-
-    color[++l] = '\0';
-
-    if (l != 6) {
-        *error = 1;
-        return 0;
     }
 
     char hex[3] = { 0 };
@@ -652,11 +648,11 @@ static void read_custom_theme(const uint8_t *data, size_t length) {
             continue;
         }
 
-        int err = 0;
-        uint32_t col = try_parse_hex_colour(color, &err);
+        bool err = false;
+        const uint32_t col = try_parse_hex_colour(color, &err);
 
         if (err) {
-            LOG_ERR(__FILE__, "error: parsing hex color failed");
+            LOG_ERR("Theme", "Error: Parsing hex color failed.");
             continue;
         } else {
             *colorp = COLOR_PROC(col);
@@ -668,17 +664,19 @@ static uint8_t *utox_data_load_custom_theme(size_t *out) {
     FILE *fp = native_get_file((uint8_t *)"utox_theme.ini", out, UTOX_FILE_OPTS_READ);
 
     if (fp == NULL) {
+        LOG_ERR("Theme", "Failed to open custom theme file.");
         return NULL;
     }
 
     uint8_t *data = calloc(1, *out + 1);
     if (data == NULL) {
+        LOG_ERR("Theme", "Failed to allocate memory for custom theme.");
         fclose(fp);
         return NULL;
     }
 
     if (fread(data, *out, 1, fp) != 1) {
-        LOG_ERR("Theme", "Could not read custom theme from file");
+        LOG_ERR("Theme", "Could not read custom theme from file.");
         fclose(fp);
         free(data);
         return NULL;
