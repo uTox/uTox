@@ -22,6 +22,11 @@ configure_file(${uTox_SOURCE_DIR}/src/cocoa/Info.plist.in
 configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
                ${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml)
 
+if(${CMAKE_BUILD_TYPE} MATCHES Debug)
+    execute_process(COMMAND git describe --abbrev=8 --dirty --always --tags
+                    OUTPUT_VARIABLE GIT_VERSION)
+    string(REPLACE "\n" " " GIT_VERSION ${GIT_VERSION})
+endif()
 
 #######################################################################
 #
@@ -75,6 +80,11 @@ IF(CMAKE_C_COMPILER_ID MATCHES "GNU")
     IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack")
     endif()
+endif()
+
+# set define for GIT_VERSION
+if(GIT_VERSION)
+    add_cflag("-DGIT_VERSION='\"${GIT_VERSION}\"'")
 endif()
 
 #######################################################################
