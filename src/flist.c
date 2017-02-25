@@ -66,86 +66,88 @@ static bool selected_item_mousedown_move_pend;
 
 static int selected_item_dy; // y offset of selected item being dragged from its original position
 
-static void flist_draw_itembox(ITEM *i, int y) {
-    int height = 0;
+static void flist_draw_itembox(ITEM *i, int x, int y, int width) {
+    int height;
 
     if (settings.use_mini_flist) {
-        height = ROSTER_BOX_HEIGHT / 2;
+        height = SCALE(ROSTER_BOX_HEIGHT / 2);
     } else {
-        height = ROSTER_BOX_HEIGHT;
+        height = SCALE(ROSTER_BOX_HEIGHT);
     }
 
     if (selected_item == i) {
-        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + height, COLOR_BKGRND_MAIN);
+        drawrect(x, y + 1, width, y + height, COLOR_BKGRND_MAIN);
     } else if (mouseover_item == i) {
-        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + height, COLOR_BKGRND_LIST_HOVER);
+        drawrect(x, y + 1, width, y + height, COLOR_BKGRND_LIST_HOVER);
     }
 }
 
-static void flist_draw_name(ITEM *i, int y, char *name, char *msg, uint16_t name_length, uint16_t msg_length,
+static void flist_draw_name(ITEM *i, int x, int y, int width, char *name, char *msg, uint16_t name_length, uint16_t msg_length,
                             bool color_overide, uint32_t color) {
     if (!color_overide) {
         color = (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
     }
     setcolor(color);
     setfont(FONT_LIST_NAME);
+    /* Always draw name*/
+    drawtextwidth(x, width, y, name, name_length);
 
-    if (settings.use_mini_flist) {
-        /* Name only*/
-        drawtextwidth(ROSTER_NAME_LEFT / 2 + SCALE(5), SIDEBAR_WIDTH - ROSTER_NAME_LEFT / 2 - SCALE(32),
-                      y + ROSTER_NAME_TOP / 2, name, name_length);
-    } else {
+    if (!settings.use_mini_flist) {
         /* Name + user status msg*/
-        drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE(32), y + ROSTER_NAME_TOP, name,
-                      name_length);
-
         if (!color_overide) {
             color = (selected_item == i) ? COLOR_MAIN_TEXT_SUBTEXT : COLOR_LIST_TEXT_SUBTEXT;
         }
         setcolor(color);
         setfont(FONT_STATUS);
-        drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE(32), y + ROSTER_STATUS_MSG_TOP, msg,
-                      msg_length);
+        drawtextwidth(x, width, y + SCALE(16), msg, msg_length);
     }
 }
 
-static void flist_draw_status_icon(uint8_t status, int y, bool notify) {
-    int y_n = y;
-    if (settings.use_mini_flist) {
-        y += (ROSTER_BOX_HEIGHT / 4) - (BM_STATUS_WIDTH / 2);
-        y_n += (ROSTER_BOX_HEIGHT / 4) - (BM_STATUS_NOTIFY_WIDTH / 2);
-    } else {
-        y += (ROSTER_BOX_HEIGHT / 2) - (BM_STATUS_WIDTH / 2);
-        y_n += (ROSTER_BOX_HEIGHT / 2) - (BM_STATUS_NOTIFY_WIDTH / 2);
-    }
+static void flist_draw_status_icon(uint8_t status, int x, int y, bool notify) {
+    y -= BM_STATUS_WIDTH / 2;
+    x -= BM_STATUS_WIDTH / 2;
+    drawalpha(BM_ONLINE + status, x, y, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 
-    int xpos   = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_WIDTH / 2;
-    int xpos_n = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_NOTIFY_WIDTH / 2;
-
-    drawalpha(BM_ONLINE + status, xpos, y, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
-    if (notify) {
-        drawalpha(BM_STATUS_NOTIFY, xpos_n, y_n, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
+    if (!notify) {
+        y += BM_STATUS_WIDTH / 2;
+        y -= BM_STATUS_NOTIFY_WIDTH / 2;
+        x += BM_STATUS_WIDTH / 2;
+        x -= BM_STATUS_NOTIFY_WIDTH / 2;
+        drawalpha(BM_STATUS_NOTIFY, x, y, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
     }
 }
 
-static void drawitem(ITEM *i, int UNUSED(x), int y) {
-    flist_draw_itembox(i, y);
+static void drawitem(ITEM *i, int x, int y, int width) {
+    flist_draw_itembox(i, x + SCALE(SCROLL_WIDTH), y, width);
 
-    int default_w      = 0;
-    int ava_top        = 0;
-    int group_bitmap   = 0;
-    int contact_bitmap = 0;
+    int box_height;
+    int avatar_x;
+    int avatar_y;
+    int name_x;
+    int name_y;
+    int default_w;
+    int group_bitmap;
+    int contact_bitmap;
+
 
     if (settings.use_mini_flist) {
-        default_w      = BM_CONTACT_WIDTH / 2;
-        ava_top        = ROSTER_AVATAR_TOP / 2;
-        group_bitmap   = BM_GROUP_MINI;
-        contact_bitmap = BM_CONTACT_MINI;
+        box_height      = SCALE(ROSTER_BOX_HEIGHT / 2);
+        avatar_x        = SCALE(x + SCROLL_WIDTH);
+        avatar_y        = y + SCALE(ROSTER_AVATAR_TOP / 2);
+        name_x          = SCALE(avatar_x + BM_CONTACT_WIDTH / 2);
+        name_y          = y + SCALE(ROSTER_NAME_TOP / 2);
+        default_w       = BM_CONTACT_WIDTH / 2;
+        group_bitmap    = BM_GROUP_MINI;
+        contact_bitmap  = BM_CONTACT_MINI;
     } else {
-        default_w      = BM_CONTACT_WIDTH;
-        ava_top        = ROSTER_AVATAR_TOP;
-        group_bitmap   = BM_GROUP;
-        contact_bitmap = BM_CONTACT;
+        box_height      = SCALE(ROSTER_BOX_HEIGHT);
+        avatar_x        = SCALE(x + SCROLL_WIDTH);
+        avatar_y        = y + SCALE(ROSTER_AVATAR_TOP);
+        name_x          = SCALE(avatar_x + BM_CONTACT_WIDTH);
+        name_y          = y + SCALE(ROSTER_NAME_TOP);
+        default_w       = BM_CONTACT_WIDTH;
+        group_bitmap    = BM_GROUP;
+        contact_bitmap  = BM_CONTACT;
     }
 
     switch (i->item) {
@@ -155,23 +157,23 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
             // draw avatar or default image
             if (friend_has_avatar(f)) {
-                draw_avatar_image(f->avatar.img, ROSTER_AVATAR_LEFT, y + ava_top, f->avatar.width, f->avatar.height,
+                draw_avatar_image(f->avatar.img, avatar_x, avatar_y, f->avatar.width, f->avatar.height,
                                   default_w, default_w);
             } else {
-                drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w,
+                drawalpha(contact_bitmap, avatar_x, avatar_y, default_w, default_w,
                           (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             }
 
-            flist_draw_name(i, y, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length,
+            flist_draw_name(i, name_x, name_y, width, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length,
                             0, 0);
 
-            flist_draw_status_icon(status, y, f->unread_msg);
+            flist_draw_status_icon(status, width - SCALE(15), y + box_height / 2, f->unread_msg);
             break;
         }
 
         case ITEM_GROUP: {
             GROUPCHAT *g = i->data;
-            drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w,
+            drawalpha(group_bitmap, avatar_x, avatar_y, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             bool     color_overide = 0;
             uint32_t color         = 0;
@@ -191,9 +193,9 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
                 }
             }
 
-            flist_draw_name(i, y, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
+            flist_draw_name(i, name_x, name_y, width, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
 
-            flist_draw_status_icon(0, y, g->unread_msg);
+            flist_draw_status_icon(0, SCALE(width - 15), y + box_height / 2, g->unread_msg);
             break;
         }
 
@@ -203,16 +205,16 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
             char name[TOX_ADDRESS_SIZE * 2];
             id_to_string(name, f->id);
 
-            drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w,
+            drawalpha(contact_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            flist_draw_name(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
+            flist_draw_name(i, name_x, name_y, width, name, f->msg, sizeof(name), f->length, 0, 0);
             break;
         }
 
         case ITEM_GROUP_CREATE: {
-            drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w,
+            drawalpha(group_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            flist_draw_name(i, y, S(CREATEGROUPCHAT), S(CURSOR_CLICK_RIGHT), SLEN(CREATEGROUPCHAT),
+            flist_draw_name(i, name_x, name_y, width, S(CREATEGROUPCHAT), S(CURSOR_CLICK_RIGHT), SLEN(CREATEGROUPCHAT),
                             SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             break;
         }
@@ -237,7 +239,11 @@ static int find_item_shown_index(ITEM *it) {
 }
 
 void flist_re_scale(void) {
-    scrollbar_flist.content_height = showncount * (ROSTER_BOX_HEIGHT / (!!settings.use_mini_flist + 1));
+    if (settings.use_mini_flist) {
+        scrollbar_flist.content_height = SCALE(ROSTER_BOX_HEIGHT / 2) * showncount;
+    } else {
+        scrollbar_flist.content_height = SCALE(ROSTER_BOX_HEIGHT) * showncount;
+    }
 }
 
 bool friend_matches_search_string(FRIEND *f, char *str) {
@@ -270,34 +276,29 @@ static ITEM *newitem(void) {
 
 // return item that the user is mousing over
 static ITEM *item_hit(int mx, int my, int UNUSED(height)) {
-    int real_height = 0;
+    int real_height = SCALE(ROSTER_BOX_HEIGHT);
     if (settings.use_mini_flist) {
-        real_height = ROSTER_BOX_HEIGHT / 2;
-    } else {
-        real_height = ROSTER_BOX_HEIGHT;
+        real_height /= 2;
     }
 
-    /* Mouse is outsite the list */
-    if (mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH || my < 0
+    /* Mouse is outside the list */
+    if (mx < SCROLL_WIDTH || mx >= 230 || my < 0 // TODO magic numbers are bad 230 should be width
         || my >= (int)(showncount * real_height)) { /* TODO: Height is a bit buggy, Height needs /2
                                                      * figure out why!  */
         mouse_in_list = 0;
         return NULL;
+    } else {
+        mouse_in_list = 1;
     }
 
-    uint32_t item_idx = my;
-    item_idx /= real_height;
+    uint32_t item_idx = my / real_height;
 
     /* mouse is below the last item */
     if (item_idx >= showncount) {
-        mouse_in_list = 1;
         return NULL;
     }
 
-    ITEM *i;
-    i             = &item[shown_list[item_idx]];
-    mouse_in_list = 1;
-    return i;
+    return &item[shown_list[item_idx]];
 }
 
 uint8_t flist_get_filter(void) {
@@ -843,12 +844,12 @@ ITEM_TYPE flist_get_type(void) {
  ****** UI functions                                                     ******
  ******************************************************************************/
 
-void flist_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
+void flist_draw(void *UNUSED(n), int x, int y, int width, int UNUSED(height)) {
     int real_height = 0;
     if (settings.use_mini_flist) {
-        real_height = ROSTER_BOX_HEIGHT / 2;
+        real_height = SCALE(ROSTER_BOX_HEIGHT / 2);
     } else {
-        real_height = ROSTER_BOX_HEIGHT;
+        real_height = SCALE(ROSTER_BOX_HEIGHT);
     }
 
     ITEM *mi = NULL; // item being dragged
@@ -860,18 +861,19 @@ void flist_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UN
             mi = it;
             my = y + selected_item_dy;
         } else {
-            drawitem(it, ROSTER_BOX_LEFT, y);
+            drawitem(it, x, y, width);
         }
         y += real_height;
     }
 
     if (mi) {
-        drawitem(mi, ROSTER_BOX_LEFT, my);
+        drawitem(mi, x, my, width);
     }
 }
 
 bool flist_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my,
-                 int UNUSED(dx), int dy) {
+                 int UNUSED(dx), int dy)
+{
     int real_height = 0;
 
     if (settings.use_mini_flist) {

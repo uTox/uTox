@@ -29,10 +29,11 @@ SCROLLABLE scrollbar_flist = {
 };
 
 static void draw_background_sidebar(int x, int y, int width, int height) {
+    /* We need to SCALE @width here because it's a static define */
     /* Friend list (roster) background   */
-    drawrect(x, y, width, height, COLOR_BKGRND_LIST);
+    drawrect(SCALE(x), SCALE(y), width, height, COLOR_BKGRND_LIST);
     /* Current user badge background     */
-    drawrect(x, y, width, ROSTER_TOP, COLOR_BKGRND_MENU);
+    drawrect(SCALE(x), SCALE(y), width, SCALE(80), COLOR_BKGRND_MENU);
 }
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
@@ -79,12 +80,12 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
 
         setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
         setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_WIDTH - SIDEBAR_AVATAR_LEFT, SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED));
+        drawtextrange(SIDEBAR_NAME_LEFT, SCALE(230) - SIDEBAR_AVATAR_LEFT, SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED)); // TODO rm magic number
 
         if (tox_thread_init == UTOX_TOX_THREAD_INIT_ERROR) {
             setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
             setfont(FONT_STATUS);
-            drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_WIDTH, SIDEBAR_STATUSMSG_TOP, S(NOT_CONNECTED_SETTINGS), SLEN(NOT_CONNECTED_SETTINGS));
+            drawtextrange(SIDEBAR_STATUSMSG_LEFT, SCALE(230), SIDEBAR_STATUSMSG_TOP, S(NOT_CONNECTED_SETTINGS), SLEN(NOT_CONNECTED_SETTINGS)); // TODO rm magic number
         }
     }
 }
@@ -96,6 +97,7 @@ panel_side_bar = {
     .type = PANEL_NONE,
     .disabled = 0,
     .drawfunc = draw_background_sidebar,
+    .width = 230,
     .child = (PANEL*[]) {
         &panel_self,
         &panel_quick_buttons,

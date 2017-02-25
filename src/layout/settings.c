@@ -23,108 +23,103 @@ static void draw_settings_header(int x, int y, int w, int UNUSED(height)) {
     (void)w; // Silence an irreverent warning when GIT_VERSION is undefined
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), y + SCALE(10), UTOX_SETTINGS);
+    drawstr(SCALE(x + 10), SCALE(y + 10), UTOX_SETTINGS);
 #ifdef GIT_VERSION
     x += SCALE(20) + UTOX_STR_WIDTH(UTOX_SETTINGS);
     setfont(FONT_TEXT);
-    drawtext(x, SCALE(10), GIT_VERSION, strlen(GIT_VERSION));
+    drawtext(SCALE(x), SCALE(10), GIT_VERSION, strlen(GIT_VERSION));
     char ver_string[64];
     int  count;
     count = snprintf(ver_string, 64, "Toxcore v%u.%u.%u", tox_version_major(), tox_version_minor(), tox_version_patch());
-    drawtextwidth_right(w + SIDEBAR_WIDTH - textwidth(ver_string, count), textwidth(ver_string, count), SCALE(10),
+    drawtextwidth_right(w - textwidth(ver_string, count), textwidth(ver_string, count), SCALE(10),
                         ver_string, count);
 #endif
 }
 
-#define DRAW_UNDERLINE() drawhline(x, y + SCALE(30), x_right_edge, COLOR_EDGE_NORMAL)
-#define DRAW_OVERLINE()                                   \
-    drawhline(x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE); \
-    drawhline(x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE)
+#define DRAW_UNDERLINE() drawhline(x, SCALE(y + 30), next_x, COLOR_EDGE_NORMAL)
+#define DRAW_OVERLINE()  drawhline(x, SCALE(y + 0), next_x, COLOR_EDGE_ACTIVE); \
+                         drawhline(x, SCALE(y + 1), next_x, COLOR_EDGE_ACTIVE)
 
-static void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_sub_header(int x, int y, int width, int UNUSED(height)) {
     setfont(FONT_SELF_NAME);
+    int last_x = x + width;
 
     /* Draw the text and bars for general settings */
     setcolor(!button_settings_sub_profile.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    int x_right_edge = x + SCALE(10) + UTOX_STR_WIDTH(PROFILE_BUTTON) + SCALE(10);
-    drawstr(x + SCALE(10), y + SCALE(10), PROFILE_BUTTON);
+    int next_x = SCALE(x + 20) + UTOX_STR_WIDTH(PROFILE_BUTTON);
+    drawstr(SCALE(x + 10), SCALE(y + 10), PROFILE_BUTTON);
 
     if (panel_settings_profile.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, SCALE(y), SCALE(y + 30), COLOR_EDGE_NORMAL);
+    x = next_x;
 
     /* Draw the text and bars for device settings */
     #ifdef ENABLE_MULTIDEVICE
     setcolor(!button_settings_sub_devices.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(DEVICES_BUTTON) + SCALE(10);
-    drawstr(x + SCALE(10), y + SCALE(10), DEVICES_BUTTON);
-
+    next_x += SCALE(20) + UTOX_STR_WIDTH(DEVICES_BUTTON);
+    drawstr(SCALE(x + 10), SCALE(y + 10), DEVICES_BUTTON);
     if (panel_settings_devices.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, SCALE(y), SCALE(y + 30), COLOR_EDGE_NORMAL);
+    x = next_x;
     #endif
 
     /* Draw the text and bars for User interface settings */
     setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON) + SCALE(10);
-    drawstr(x + SCALE(10), y + SCALE(10), USER_INTERFACE_BUTTON);
-
+    next_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
+    drawstr(SCALE(x + 10), SCALE(y + 10), USER_INTERFACE_BUTTON);
     if (panel_settings_ui.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y, y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, SCALE(y), SCALE(y + 30), COLOR_EDGE_NORMAL);
+    x = next_x;
 
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON) + SCALE(10);
-    drawstr(x + SCALE(10), y + SCALE(10), AUDIO_VIDEO_BUTTON);
-
+    next_x += SCALE(20) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON);
+    drawstr(SCALE(x + 10), SCALE(y + 10), AUDIO_VIDEO_BUTTON);
     if (panel_settings_av.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, SCALE(y), SCALE(y + 30), COLOR_EDGE_NORMAL);
+    x = next_x;
 
     /* Draw the text and bars for notification settings */
     setcolor(!button_settings_sub_notifications.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON) + SCALE(10);
-    drawstr(x + SCALE(10), y + SCALE(10), NOTIFICATIONS_BUTTON);
-
+    next_x += SCALE(20) + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON);
+    drawstr(SCALE(x + 10), SCALE(y + 10), NOTIFICATIONS_BUTTON);
     if (panel_settings_notifications.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, SCALE(y), SCALE(y + 30), COLOR_EDGE_NORMAL);
+    x = next_x;
 
     /* Draw the text and bars for advanced settings */
     setcolor(!button_settings_sub_adv.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(ADVANCED_BUTTON) + SCALE(10);
-    drawstr(x + SCALE(10), y + SCALE(10), ADVANCED_BUTTON);
-
+    next_x += SCALE(20) + UTOX_STR_WIDTH(ADVANCED_BUTTON);
+    drawstr(SCALE(x + 10), SCALE(y + 10), ADVANCED_BUTTON);
     if (panel_settings_adv.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, SCALE(y), SCALE(y + 30), COLOR_EDGE_NORMAL);
+    x = next_x;
 
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(1000);
+    next_x = last_x;
     DRAW_UNDERLINE();
 }
 
@@ -133,59 +128,59 @@ static void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(hei
 static void draw_settings_text_profile(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), y + SCALE(10), NAME);
-    drawstr(x + SCALE(10), y + SCALE(60), STATUSMESSAGE);
-    drawstr(x + SCALE(10), y + SCALE(110), TOXID);
-    drawstr(x + SCALE(10), y + SCALE(160), LANGUAGE);
+    drawstr(SCALE(x + 10), SCALE(y + 10), NAME);
+    drawstr(SCALE(x + 10), SCALE(y + 60), STATUSMESSAGE);
+    drawstr(SCALE(x + 10), SCALE(y + 110), TOXID);
+    drawstr(SCALE(x + 10), SCALE(y + 160), LANGUAGE);
 }
 
 // Devices settings page
 static void draw_settings_text_devices(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), y + SCALE(10), DEVICES_ADD_NEW);
+    drawstr(SCALE(x + 10), SCALE(y + 10), DEVICES_ADD_NEW);
 
-    drawstr(x + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
+    drawstr(SCALE(x + 10), SCALE(y + 60), DEVICES_NUMBER);
 
     char   str[10];
     size_t strlen = snprintf(str, 10, "%zu", self.device_list_count);
 
-    drawtext(x + SCALE(10), y + SCALE(75), str, strlen);
+    drawtext(SCALE(x + 10), SCALE(y + 75), str, strlen);
 }
 
 static void draw_settings_text_password(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), y + SCALE(235), PROFILE_PASSWORD);
+    drawstr(SCALE(x + 10), SCALE(y + 235), PROFILE_PASSWORD);
 
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(75), y + SCALE(285), PROFILE_PW_WARNING);
-    drawstr(x + SCALE(75), y + SCALE(299), PROFILE_PW_NO_RECOVER);
+    drawstr(x + 75, y + 285, PROFILE_PW_WARNING);
+    drawstr(x + 75, y + 299, PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(75), y + SCALE(240), NOSPAM_WARNING);
+    drawstr(x + 75, y + 240, NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + SCALE(235), NOSPAM);
+    drawstr(SCALE(x + 10), SCALE(y + 235), NOSPAM);
 }
 
 // UI settings page
 static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(150), y + SCALE(10),  DPI);
-    drawstr(x + SCALE(10),  y + SCALE(10),  THEME);
-    drawstr(x + SCALE(10),  y + SCALE(65),  SAVE_CHAT_HISTORY);
-    drawstr(x + SCALE(10),  y + SCALE(95),  CLOSE_TO_TRAY);
-    drawstr(x + SCALE(10),  y + SCALE(125), START_IN_TRAY);
-    drawstr(x + SCALE(10),  y + SCALE(155), AUTO_STARTUP);
-    drawstr(x + SCALE(10),  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
+    drawstr(x + 150, y + 10,  DPI);
+    drawstr(SCALE(x + 10),  y + 10,  THEME);
+    drawstr(SCALE(x + 10),  y + 65,  SAVE_CHAT_HISTORY);
+    drawstr(SCALE(x + 10),  y + 95,  CLOSE_TO_TRAY);
+    drawstr(SCALE(x + 10),  y + 125, START_IN_TRAY);
+    drawstr(SCALE(x + 10),  y + 155, AUTO_STARTUP);
+    drawstr(SCALE(x + 10),  y + 185, SETTINGS_UI_MINI_ROSTER);
 }
 
 // Audio/Video settings page
@@ -197,23 +192,23 @@ static void draw_settings_text_av(int x, int y, int UNUSED(w), int UNUSED(height
     uint16_t draw_pos_y = 10;
     uint16_t draw_pos_y_inc = 30;
 
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), PUSH_TO_TALK);
+    drawstr(SCALE(x + 10), SCALE(y + draw_pos_y), PUSH_TO_TALK);
     draw_pos_y += draw_pos_y_inc;
 #ifdef AUDIO_FILTERING
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
+    drawstr(SCALE(x + 10), SCALE(y + draw_pos_y), AUDIOFILTERING);
     draw_pos_y += draw_pos_y_inc;
 #endif
 
     // These are 60 apart as there needs to be room for a dropdown between them.
     draw_pos_y_inc = 60;
 
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
+    drawstr(SCALE(x + 10), SCALE(y + draw_pos_y), AUDIOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOOUTPUTDEVICE);
+    drawstr(SCALE(x + 10), SCALE(y + draw_pos_y), AUDIOOUTPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), VIDEOINPUTDEVICE);
+    drawstr(SCALE(x + 10), SCALE(y + draw_pos_y), VIDEOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
+    drawstr(SCALE(x + 10), SCALE(y + draw_pos_y), PREVIEW);
 }
 
 // Notification settings page
@@ -221,28 +216,28 @@ static void draw_settings_text_notifications(int x, int y, int UNUSED(w), int UN
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + SCALE(10), RINGTONE);
-    drawstr(x + SCALE(10), y + SCALE(40), STATUS_NOTIFICATIONS);
-    drawstr(x + SCALE(10), y + SCALE(70), SEND_TYPING_NOTIFICATIONS);
-    drawstr(x + SCALE(10), y + SCALE(100), GROUP_NOTIFICATIONS);
+    drawstr(SCALE(x + 10), SCALE(y + 10), RINGTONE);
+    drawstr(SCALE(x + 10), SCALE(y + 40), STATUS_NOTIFICATIONS);
+    drawstr(SCALE(x + 10), SCALE(y + 70), SEND_TYPING_NOTIFICATIONS);
+    drawstr(SCALE(x + 10), SCALE(y + 100), GROUP_NOTIFICATIONS);
 }
 
 static void draw_settings_text_adv(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(10), y + SCALE(10), WARNING);
+    drawstr(SCALE(x + 10), SCALE(y + 10), WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x  + SCALE(10),  y + SCALE(30),  IPV6);
-    drawstr(x  + SCALE(10),  y + SCALE(60),  UDP);
-    drawstr(x  + SCALE(10),  y + SCALE(90),  PROXY);
-    drawtext(x + SCALE(264), y + SCALE(94), ":", 1); // Little addr port separator
-    drawstr(x  + SCALE(10),  y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
+    drawstr(SCALE(x + 10), SCALE(y + 30),  IPV6);
+    drawstr(SCALE(x + 10), SCALE(y + 60),  UDP);
+    drawstr(SCALE(x + 10), SCALE(y + 90),  PROXY);
+    drawtext(SCALE(x + 264), SCALE(y + 94), ":", 1); // Little addr port separator
+    drawstr(SCALE(x + 10), SCALE(y + 120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
 
-    drawstr(x + SCALE(10),   y + SCALE(150), AUTO_UPDATE);
-    drawstr(x + SCALE(10),   y + SCALE(180), BLOCK_FRIEND_REQUESTS);
+    drawstr(SCALE(x + 10), SCALE(y + 150), AUTO_UPDATE);
+    drawstr(SCALE(x + 10), SCALE(y + 180), BLOCK_FRIEND_REQUESTS);
 }
 
 
@@ -255,11 +250,11 @@ SCROLLABLE scrollbar_settings = {
 static void draw_profile_password(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), SCALE(20), PROFILE_PASSWORD);
+    drawstr(SCALE(x + 10), 20, PROFILE_PASSWORD);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(x + SCALE(10), MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
+    drawstr(SCALE(x + 10), MAIN_TOP + 10, PROFILE_PASSWORD);
 }
 
 PANEL

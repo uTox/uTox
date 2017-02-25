@@ -91,25 +91,21 @@ bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
  *                                                                     *
  **********************************************************************/
 static void sidepanel_USERBADGE(void) {
-    panel_side_bar.x     = 0;
-    panel_side_bar.y     = 0;
-    panel_side_bar.width = SIDEBAR_WIDTH;
-
     CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-    CREATE_BUTTON(name, SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - SCALE(2));
+    CREATE_BUTTON(name, SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - 2);
     CREATE_BUTTON(status_msg, SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_TOP,
-                  (SELF_STATUS_ICON_LEFT - SIDEBAR_STATUSMSG_LEFT - SCALE(2)), SIDEBAR_STATUSMSG_HEIGHT - SCALE(2));
+                  (SELF_STATUS_ICON_LEFT - SIDEBAR_STATUSMSG_LEFT - 2), SIDEBAR_STATUSMSG_HEIGHT - 2);
     CREATE_BUTTON(usr_state, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
 }
 
 static void sidepanel_FLIST(void) {
-    scrollbar_flist.panel.y      = ROSTER_TOP;
-    scrollbar_flist.panel.width  = SCALE(230); // TODO remove?
-    scrollbar_flist.panel.height = ROSTER_BOTTOM;
+    scrollbar_flist.panel.y      = 0;
+    // scrollbar_flist.panel.width  = 230; // TODO remove?
+    scrollbar_flist.panel.height = -1;
 
     panel_flist.x      = 0;
-    panel_flist.y      = ROSTER_TOP;
-    panel_flist.width  = SCALE(230); // TODO remove?
+    panel_flist.y      = SCALE(80);
+    panel_flist.width  = 230; // TODO remove?
     panel_flist.height = ROSTER_BOTTOM;
 
 
@@ -124,36 +120,36 @@ static void sidepanel_FLIST(void) {
 
 
 static void settings_PROFILE(void) {
-    panel_settings_profile.y       = SCALE(32);
+    panel_settings_profile.y = 32;
 
-    CREATE_EDIT(name, SCALE(10), SCALE(27), SCALE(-10), SCALE(24));
+    CREATE_EDIT(name, 10, 27, -10, 24);
 
-    CREATE_EDIT(status_msg, SCALE(10), SCALE(76), SCALE(-10), SCALE(24));
+    CREATE_EDIT(status_msg, 10, 76, -10, 24);
 
-    CREATE_EDIT(toxid, SCALE(10), SCALE(126), SCALE(-10), SCALE(24));
-    CREATE_BUTTON(copyid, SCALE(66), SCALE(106), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_EDIT(toxid, 10, 126, -10, 24);
+    CREATE_BUTTON(copyid, 66, 106, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    CREATE_DROPDOWN(language, SCALE(10), SCALE(177), SCALE(24), SCALE(-10));
+    CREATE_DROPDOWN(language, 10, 177, 24, -10);
 }
 
 static void settings_UI(void) {
-    panel_settings_ui.y            = SCALE(32);
+    panel_settings_ui.y            = 32;
 
-    CREATE_DROPDOWN(theme, SCALE(10), SCALE(30), SCALE(24), SCALE(120));
+    CREATE_DROPDOWN(theme, 10, 30, 24, 120);
 
-    CREATE_DROPDOWN(dpi,   SCALE(150), SCALE(30), SCALE(24), SCALE(200));
+    CREATE_DROPDOWN(dpi,   150, 30, 24, 200);
 
-    CREATE_SWITCH(save_chat_history, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(close_to_tray,     SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(start_in_tray,     SCALE(-10) - BM_SWITCH_WIDTH, SCALE(120), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(auto_startup,      SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(mini_contacts,     SCALE(-10) - BM_SWITCH_WIDTH, SCALE(180), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(save_chat_history, -10 - BM_SWITCH_WIDTH, 60, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(close_to_tray,     -10 - BM_SWITCH_WIDTH, 90, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(start_in_tray,     -10 - BM_SWITCH_WIDTH, 120, BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(auto_startup,      -10 - BM_SWITCH_WIDTH, 150, BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(mini_contacts,     -10 - BM_SWITCH_WIDTH, 180, BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
 }
 
 static void settings_AV(void) {
-    panel_settings_av.y            = SCALE(32);
+    panel_settings_av.y            = 32;
 
-    CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(5), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(push_to_talk, -10 - BM_SWITCH_WIDTH, 5, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
     #ifndef AUDIO_FILTERING
         const uint16_t start_draw_y = 30;
@@ -161,51 +157,51 @@ static void settings_AV(void) {
     #else
         const uint16_t start_draw_y = 60;
         const uint16_t preview_button_pos_y = 275;
-        CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(35), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+        CREATE_SWITCH(audio_filtering, -10 - BM_SWITCH_WIDTH, 35, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     #endif
 
 
     const uint16_t draw_y_vect = 30;
-    CREATE_DROPDOWN(audio_in,  SCALE(10), SCALE(start_draw_y + draw_y_vect), SCALE(24), SCALE(360));
-    CREATE_DROPDOWN(audio_out, SCALE(10), SCALE(start_draw_y + draw_y_vect + 60), SCALE(24), SCALE(360));
-    CREATE_DROPDOWN(video,     SCALE(10), SCALE(start_draw_y + draw_y_vect + 120), SCALE(24), SCALE(360));
+    CREATE_DROPDOWN(audio_in,  10, (start_draw_y + draw_y_vect), 24, 360);
+    CREATE_DROPDOWN(audio_out, 10, (start_draw_y + draw_y_vect + 60), 24, 360);
+    CREATE_DROPDOWN(video,     10, (start_draw_y + draw_y_vect + 120), 24, 360);
 
-    CREATE_BUTTON(callpreview, SCALE(10), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(videopreview, SCALE(70), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(callpreview, 10, (preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(videopreview, 70, (preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
 }
 
 static void settings_NOTIFY(void) {
-    panel_settings_notifications.y = SCALE(32);
+    panel_settings_notifications.y = 32;
 
-    CREATE_SWITCH(audible_notifications,        SCALE(-10) - BM_SWITCH_WIDTH, SCALE( 10), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(status_notifications,         SCALE(-10) - BM_SWITCH_WIDTH, SCALE( 40), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(typing_notes,                 SCALE(-10) - BM_SWITCH_WIDTH, SCALE( 70), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_DROPDOWN(global_group_notifications, SCALE( 10),                   SCALE(120),       SCALE(24),       SCALE(100));
+    CREATE_SWITCH(audible_notifications,        -10 - BM_SWITCH_WIDTH, 10, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(status_notifications,         -10 - BM_SWITCH_WIDTH, 40, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(typing_notes,                 -10 - BM_SWITCH_WIDTH, 70, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_DROPDOWN(global_group_notifications, 10,                   120,       24,       100);
 }
 
 static void settings_ADV(void) {
-    panel_settings_adv.y = SCALE(32);
+    panel_settings_adv.y = 32;
 
-    CREATE_SWITCH(ipv6, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(udp,  SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(ipv6, -10 - BM_SWITCH_WIDTH, 30, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(udp,  -10 - BM_SWITCH_WIDTH, 60, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
-    CREATE_SWITCH(proxy,       SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_EDIT(proxy_ip,      SCALE(140), SCALE(90), SCALE(120), SCALE(24));
-    CREATE_EDIT(proxy_port,    SCALE(270), SCALE(90), SCALE(60),  SCALE(24));
-    CREATE_SWITCH(proxy_force, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(120), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(proxy,       -10 - BM_SWITCH_WIDTH, 90,  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_EDIT(proxy_ip,      140, 90, 120, 24);
+    CREATE_EDIT(proxy_port,    270, 90, 60,  24);
+    CREATE_SWITCH(proxy_force, -10 - BM_SWITCH_WIDTH, 120, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
-    CREATE_SWITCH(auto_update,           SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(block_friend_requests, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(180), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(auto_update,           -10 - BM_SWITCH_WIDTH, 150, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(block_friend_requests, -10 - BM_SWITCH_WIDTH, 180, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
-    CREATE_BUTTON(show_password_settings, SCALE(10),  SCALE(210), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(show_nospam,            SCALE(170), SCALE(210), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_password_settings, 10,  210, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_nospam,            170, 210, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    CREATE_EDIT(nospam,           SCALE(10),  SCALE(255), SCALE(-10), SCALE(24));
-    CREATE_BUTTON(change_nospam,  SCALE(10),  SCALE(285), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(revert_nospam,  SCALE(200), SCALE(285), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_EDIT(nospam,           10,  255, -10, 24);
+    CREATE_BUTTON(change_nospam,  10,  285, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(revert_nospam,  200, 285, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    CREATE_EDIT(profile_password, SCALE(10),  SCALE(88) + (SCALE(167) * panel_profile_password.disabled), SCALE(-10), SCALE(24));
-    CREATE_BUTTON(lock_uTox,      SCALE(10),  SCALE(285), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_EDIT(profile_password, 10,  88 + (167 * panel_profile_password.disabled), -10, 24);
+    CREATE_BUTTON(lock_uTox,      10,  285, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 }
 
 void ui_set_scale(uint8_t scale) {
@@ -223,18 +219,18 @@ void ui_set_scale(uint8_t scale) {
 
     panel_main.y = 0;
 
-    scrollbar_settings.panel.y        = SCALE(32);  /* TODO magic numbers are bad */
-    scrollbar_settings.content_height = SCALE(300); /* TODO magic numbers are bad */
+    scrollbar_settings.panel.y        = 32;  /* TODO magic numbers are bad */
+    scrollbar_settings.content_height = 300; /* TODO magic numbers are bad */
 
     panel_settings_master.y        = 0;
     panel_settings_subheader.y     = MAIN_TOP_FRAME_THIN;
-    panel_settings_devices.y       = SCALE(32);
-    panel_settings_adv.y           = SCALE(32);
+    panel_settings_devices.y       = 32;
+    panel_settings_adv.y           = 32;
 
     scrollbar_friend.panel.y      = MAIN_TOP;
     scrollbar_friend.panel.height = CHAT_BOX_TOP;
     messages_friend.y             = MAIN_TOP;
-    messages_friend.height        = CHAT_BOX_TOP - SCALE(10);
+    messages_friend.height        = CHAT_BOX_TOP - 10;
     messages_friend.width         = -SCROLL_WIDTH;
 
     scrollbar_group.panel.y      = MAIN_TOP;
@@ -255,94 +251,94 @@ void ui_set_scale(uint8_t scale) {
     settings_ADV();
 
     // FIXME for testing, remove
-    CREATE_BUTTON(notify_create, SCALE(2), SCALE(2), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(notify_one, SCALE(0), SCALE(-50), SCALE(40), SCALE(50));
-    CREATE_BUTTON(notify_two, SCALE(200), SCALE(-50), SCALE(40), SCALE(50));
-    CREATE_BUTTON(notify_three, SCALE(-40), SCALE(-50), SCALE(40), SCALE(50));
+    CREATE_BUTTON(notify_create, 2, 2, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(notify_one, 0, -50, 40, 50);
+    CREATE_BUTTON(notify_two, 200, -50, 40, 50);
+    CREATE_BUTTON(notify_three, -40, -50, 40, 50);
 
-    CREATE_BUTTON(move_notify, SCALE(-40), SCALE(-40), SCALE(40), SCALE(40));
+    CREATE_BUTTON(move_notify, -40, -40, 40, 40);
 
 
     /* Setting pages */
-    CREATE_BUTTON(settings_sub_profile, 1, 1, SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON), SCALE(28));
-    uint32_t settings_tab_x = SCALE(22) + UTOX_STR_WIDTH(PROFILE_BUTTON);
+    CREATE_BUTTON(settings_sub_profile, 1, 1, 22 + UTOX_STR_WIDTH(PROFILE_BUTTON), 28);
+    uint32_t settings_tab_x = 24 + UTOX_STR_WIDTH(PROFILE_BUTTON);
 
 #ifdef ENABLE_MULTIDEVICE
-    CREATE_BUTTON(settings_sub_devices, settings_tab_x, 1, SCALE(22) + UTOX_STR_WIDTH(DEVICES_BUTTON), SCALE(28));
-    settings_tab_x += SCALE(22) + UTOX_STR_WIDTH(DEVICES_BUTTON);
+    CREATE_BUTTON(settings_sub_devices, settings_tab_x, 1, 22 + UTOX_STR_WIDTH(DEVICES_BUTTON), 28);
+    settings_tab_x += 24 + UTOX_STR_WIDTH(DEVICES_BUTTON);
 #endif
 
-    CREATE_BUTTON(settings_sub_ui, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON), SCALE(28));
-    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
+    CREATE_BUTTON(settings_sub_ui, settings_tab_x, 1, 20 + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON), 28);
+    settings_tab_x += 24 + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
 
-    CREATE_BUTTON(settings_sub_av, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON), SCALE(28));
-    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
+    CREATE_BUTTON(settings_sub_av, settings_tab_x, 1, 20 + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON), 28);
+    settings_tab_x += 22 + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
 
-    CREATE_BUTTON(settings_sub_notifications, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON), SCALE(28));
-    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
+    CREATE_BUTTON(settings_sub_notifications, settings_tab_x, 1, 18 + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON), 28);
+    settings_tab_x += 18 + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
 
-    CREATE_BUTTON(settings_sub_adv, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(ADVANCED_BUTTON), SCALE(28));
+    CREATE_BUTTON(settings_sub_adv, settings_tab_x, 1, 20 + UTOX_STR_WIDTH(ADVANCED_BUTTON), 28);
 
 
     /* Devices */
-    CREATE_BUTTON(add_new_device_to_self, SCALE(-10) - BM_SBUTTON_WIDTH, SCALE(28), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(add_new_device_to_self, -10 - BM_SBUTTON_WIDTH, 28, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    CREATE_EDIT(add_new_device_to_self, SCALE(10), SCALE(27), SCALE(0) - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH,
-                SCALE(24));
+    CREATE_EDIT(add_new_device_to_self, 10, 27, 0 - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH,
+                24);
 
 
     /* Friend Add Page */
-    CREATE_BUTTON(send_friend_request, SCALE(-10) - BM_SBUTTON_WIDTH, MAIN_TOP + SCALE(168), BM_SBUTTON_WIDTH,
+    CREATE_BUTTON(send_friend_request, -10 - BM_SBUTTON_WIDTH, MAIN_TOP + 168, BM_SBUTTON_WIDTH,
                   BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(accept_friend, SCALE(-60), SCALE(-80), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(accept_friend, -60, -80, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     /* Friend Settings Page */
-    CREATE_BUTTON(export_chatlog, SCALE(10), SCALE(220), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(export_chatlog, 10, 220, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    CREATE_EDIT(friend_pubkey,          SCALE(10), SCALE(88), SCALE(-10), SCALE(24));
-    CREATE_EDIT(friend_alias,           SCALE(10), SCALE(138), SCALE(-10), SCALE(24));
+    CREATE_EDIT(friend_pubkey,          10, 88, -10, 24);
+    CREATE_EDIT(friend_alias,           10, 138, -10, 24);
 
-    CREATE_SWITCH(friend_autoaccept_ft, SCALE(-10) -BM_SWITCH_WIDTH, SCALE(170), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(friend_autoaccept_ft, -10 -BM_SWITCH_WIDTH, 170, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
     /* Group Settings */
-    CREATE_EDIT(group_topic, SCALE(10), SCALE(95), SCALE(-10), SCALE(24));
+    CREATE_EDIT(group_topic, 10, 95, -10, 24);
 
     /* Friend / Group Page  */
-    CREATE_BUTTON(call_decline, SCALE(-186), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(call_audio, SCALE(-124), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(call_video, SCALE(-62), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(group_audio, SCALE(-62), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(call_decline, -186, 10, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(call_audio, -124, 10, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(call_video, -62, 10, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(group_audio, -62, 10, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
     /* bottom left button in chat */
-    CREATE_BUTTON(send_file, SCALE(6), SCALE(-46), BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
+    CREATE_BUTTON(send_file, 6, -46, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
     /* button to the right of b_chat_left */
-    CREATE_BUTTON(send_screenshot, SCALE(8) + BM_CHAT_BUTTON_WIDTH, SCALE(-46), BM_CHAT_BUTTON_WIDTH,
+    CREATE_BUTTON(send_screenshot, 8 + BM_CHAT_BUTTON_WIDTH, -46, BM_CHAT_BUTTON_WIDTH,
                   BM_CHAT_BUTTON_HEIGHT);
 
-    CREATE_BUTTON(chat_send_friend, SCALE(-6) - BM_CHAT_SEND_WIDTH, SCALE(-46), BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
-    CREATE_BUTTON(chat_send_group,  SCALE(-6) - BM_CHAT_SEND_WIDTH, SCALE(-46), BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
+    CREATE_BUTTON(chat_send_friend, -6 - BM_CHAT_SEND_WIDTH, -46, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
+    CREATE_BUTTON(chat_send_group,  -6 - BM_CHAT_SEND_WIDTH, -46, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
 
     setfont(FONT_TEXT);
 
     // Add friend panel
-    CREATE_EDIT(add_new_friend_id, SCALE(10), SCALE(28) + MAIN_TOP, SCALE(-10), SCALE(24));
-    CREATE_EDIT(add_new_friend_msg, SCALE(10), SCALE(76) + MAIN_TOP, SCALE(-10), SCALE(84));
+    CREATE_EDIT(add_new_friend_id, 10, 28 + MAIN_TOP, -10, 24);
+    CREATE_EDIT(add_new_friend_msg, 10, 76 + MAIN_TOP, -10, 84);
 
     /* Message entry box for friends and groups */
-    CREATE_EDIT(chat_msg_friend, SCALE(10) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
-                SCALE(-46), SCALE(-64), SCALE(40)); /* text is 8 high. 8 * 2.5 = 20. */
+    CREATE_EDIT(chat_msg_friend, 10 + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
+                -46, -64, 40); /* text is 8 high. 8 * 2.5 = 20. */
 
-    CREATE_EDIT(chat_msg_group, SCALE(6), SCALE(-46), SCALE(-10) - BM_CHAT_SEND_WIDTH, SCALE(40));
+    CREATE_EDIT(chat_msg_group, 6, -46, -10 - BM_CHAT_SEND_WIDTH, 40);
 
     /* Confirm deletion */
-    CREATE_BUTTON(confirm_deletion, SCALE(10), MAIN_TOP + SCALE(40), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(deny_deletion,    SCALE(80), MAIN_TOP + SCALE(40), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(confirm_deletion, 10, MAIN_TOP + 40, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(deny_deletion,    80, MAIN_TOP + 40, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     setscale();
 }
 
 /* Use the preprocessor to build function prototypes for all user interactions
  * These are functions that are (must be) defined elsewehere. The preprocessor in this case creates the prototypes that
- * will then be used by panel_draw_sub to call the correct function
+ * will then be used by panel_draw_core to call the correct function
 */
 #define MAKE_FUNC(ret, x, ...)                                                                                          \
     static ret (*x##func[])(void *p, ##__VA_ARGS__) = {                                                                 \
@@ -372,8 +368,8 @@ MAKE_FUNC(bool, mleave);
         int rely = (p->y < 0) ? height + p->y : p->y;                      \
         x += relx;                                                         \
         y += rely;                                                         \
-        width  = (p->width <= 0) ? width + p->width - relx : p->width;     \
-        height = (p->height <= 0) ? height + p->height - rely : p->height; \
+        width  = (p->width <= 0) ? width + p->width - relx : SCALE(p->width);     \
+        height = (p->height <= 0) ? height + p->height - rely : SCALE(p->height); \
     }
 
 static void panel_update(PANEL *p, int x, int y, int width, int height) {
@@ -405,6 +401,10 @@ static void panel_update(PANEL *p, int x, int y, int width, int height) {
 
     PANEL **pp = p->child;
     if (pp) {
+        if (p->update) {
+            p->update(width, height, ui_scale);
+        }
+
         PANEL *subp;
         while ((subp = *pp++)) {
             panel_update(subp, x, y, width, height);
@@ -437,10 +437,10 @@ void ui_size(int width, int height) {
 
     if (height > width) {
         panel_side_bar.disabled = true;
-        panel_main.x = SCALE(0);
+        panel_main.x = 0;
     } else {
         panel_side_bar.disabled = false;
-        panel_main.x = SCALE(230);
+        panel_main.x = 230;
     }
 }
 
@@ -450,7 +450,7 @@ void ui_mouseleave(void) {
     redraw();
 }
 
-static void panel_draw_sub(PANEL *p, int x, int y, int width, int height) {
+static void panel_draw_core(PANEL *p, int x, int y, int width, int height) {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
     if (p->content_scroll) {
@@ -471,7 +471,7 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height) {
         PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
-                panel_draw_sub(subp, x, y, width, height);
+                panel_draw_core(subp, x, y, width, height);
             }
         }
     }
@@ -484,25 +484,7 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height) {
 void panel_draw(PANEL *p, int x, int y, int width, int height) {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
-    // pushclip(x, y, width, height);
-
-    if (p->type) {
-        drawfunc[p->type - 1](p, x, y, width, height);
-    } else {
-        if (p->drawfunc) {
-            p->drawfunc(x, y, width, height);
-        }
-    }
-
-    PANEL **pp = p->child;
-    if (pp) {
-        PANEL *subp;
-        while ((subp = *pp++)) {
-            if (!subp->disabled) {
-                panel_draw_sub(subp, x, y, width, height);
-            }
-        }
-    }
+    panel_draw_core(p, x, y, width, height);
 
     // popclip();
 

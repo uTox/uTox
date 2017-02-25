@@ -114,7 +114,8 @@ char search_data[1024]; // TODO this is NOT where this belongs
 
 double ui_scale;
 
-#define SCALE(x) (((int)((ui_scale / 10.0) * ((double)x))) ?: 1)
+#define SCALE(x) (((int)((ui_scale / 10.0) * ((double)x))))
+#define SCALE_DIV(x) (((int)((ui_scale / 10.0) * ((double)x))) ?: 1)
 #define UI_FSCALE(x) (((ui_scale / 10.0) * ((double)x)) ?: 1)
 
 #define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
@@ -131,75 +132,69 @@ double ui_scale;
  * _width/_height postfix, and should be used to replace the originals whenever possible.
  * If you're able to replace an original, replace all occurrences, and delete the define. */
 
-/* Left sidebar defines */
-#define SIDEBAR_WIDTH SCALE(230)
+
 /* User badge */
-#define SIDEBAR_AVATAR_TOP SCALE(10)
-#define SIDEBAR_AVATAR_LEFT SCALE(10)
-#define SIDEBAR_AVATAR_WIDTH SCALE(10)
-#define SIDEBAR_AVATAR_HEIGHT SCALE(10)
-#define SIDEBAR_NAME_TOP SCALE(16)
-#define SIDEBAR_NAME_LEFT SCALE(64)
-#define SIDEBAR_NAME_WIDTH SCALE(125)
-#define SIDEBAR_NAME_HEIGHT SCALE(18)
-#define SIDEBAR_STATUSMSG_TOP SCALE(32)
-#define SIDEBAR_STATUSMSG_LEFT SCALE(64)
-#define SIDEBAR_STATUSMSG_WIDTH SCALE(125)
-#define SIDEBAR_STATUSMSG_HEIGHT SCALE(12)
-#define SELF_STATUS_ICON_LEFT SCALE(200)
-#define SELF_STATUS_ICON_TOP SCALE(10)
+#define SIDEBAR_AVATAR_TOP 10
+#define SIDEBAR_AVATAR_LEFT 10
+#define SIDEBAR_AVATAR_WIDTH 10
+#define SIDEBAR_AVATAR_HEIGHT 10
+#define SIDEBAR_NAME_TOP 16
+#define SIDEBAR_NAME_LEFT 64
+#define SIDEBAR_NAME_WIDTH 125
+#define SIDEBAR_NAME_HEIGHT 18
+#define SIDEBAR_STATUSMSG_TOP 32
+#define SIDEBAR_STATUSMSG_LEFT 64
+#define SIDEBAR_STATUSMSG_WIDTH 125
+#define SIDEBAR_STATUSMSG_HEIGHT 12
+#define SELF_STATUS_ICON_LEFT 200
+#define SELF_STATUS_ICON_TOP 10
 
 /* Sidebar buttons and settings */
-#define SIDEBAR_FILTER_FRIENDS_TOP SCALE(60)
-#define SIDEBAR_FILTER_FRIENDS_LEFT SCALE(10)
-#define SIDEBAR_FILTER_FRIENDS_WIDTH SCALE(168)
-#define SIDEBAR_FILTER_FRIENDS_HEIGHT SCALE(12)
+#define SIDEBAR_FILTER_FRIENDS_TOP 60
+#define SIDEBAR_FILTER_FRIENDS_LEFT 10
+#define SIDEBAR_FILTER_FRIENDS_WIDTH 168
+#define SIDEBAR_FILTER_FRIENDS_HEIGHT 12
 
 /* Roster defines */
-#define ROSTER_TOP SCALE(80)
-#define ROSTER_LEFT SCALE(16)
-#define ROSTER_BOTTOM SCALE(-30)
-#define ROSTER_BOX_LEFT SCALE(8)
-#define ROSTER_BOX_HEIGHT SCALE(50)
-#define ROSTER_AVATAR_TOP SCALE(5)
-#define ROSTER_AVATAR_LEFT SCALE(10)
+#define ROSTER_LEFT 16
+#define ROSTER_BOTTOM -30
+#define ROSTER_BOX_HEIGHT 50
+#define ROSTER_AVATAR_TOP 5
+#define ROSTER_AVATAR_LEFT 10
 
-#define ROSTER_NAME_TOP SCALE(12)
-#define ROSTER_NAME_LEFT SCALE(60)
-#define ROSTER_STATUS_MSG_TOP SCALE(26)
+#define ROSTER_NAME_TOP 12
 
 /* Sidebar Lower search box and setting button */
-#define SIDEBAR_SEARCH_TOP SCALE(-30)
-#define SIDEBAR_SEARCH_LEFT SCALE(0)
-#define SIDEBAR_SEARCH_WIDTH SCALE(199)
-#define SIDEBAR_SEARCH_HEIGHT SCALE(30)
+#define SIDEBAR_SEARCH_TOP -30
+#define SIDEBAR_SEARCH_LEFT 0
+#define SIDEBAR_SEARCH_WIDTH 199
+#define SIDEBAR_SEARCH_HEIGHT 30
 
-#define SIDEBAR_BUTTON_TOP SCALE(-30)
-#define SIDEBAR_BUTTON_LEFT SCALE(200)
-#define SIDEBAR_BUTTON_WIDTH SCALE(30)
-#define SIDEBAR_BUTTON_HEIGHT SCALE(30)
-
+#define SIDEBAR_BUTTON_TOP -30
+#define SIDEBAR_BUTTON_LEFT 200
+#define SIDEBAR_BUTTON_WIDTH 30
+#define SIDEBAR_BUTTON_HEIGHT 30
 
 /* Main box/Chat box size settings */
-#define CHAT_BOX_TOP SCALE(-52) /* size of the bottom message box */
-#define MAIN_TOP_FRAME_THIN SCALE(30)
-#define MAIN_TOP_FRAME_THICK SCALE(60)
+#define CHAT_BOX_TOP -52 /* size of the bottom message box */
+#define MAIN_TOP_FRAME_THIN 30
+#define MAIN_TOP_FRAME_THICK 60
 
 /* Global UI size settings... */
-#define SCROLL_WIDTH SCALE(8) // must be divisible by 2
-#define FILE_TRANSFER_BOX_HEIGHT SCALE(28)
+#define SCROLL_WIDTH 8 // must be divisible by 2
+#define FILE_TRANSFER_BOX_HEIGHT 28
 
 
 /* Main panel defines */
-#define MAIN_TOP SCALE(60)
+#define MAIN_TOP 60
 
 /* Legacy defines, instead of using these, you should replace them with something more descriptive */
-#define LIST_Y2 SCALE(86)
-#define LIST_BUTTON_Y SCALE(-26)
-#define MESSAGES_SPACING SCALE(4)
-#define MESSAGES_X SCALE(110)
-#define TIME_WIDTH SCALE(45)
-#define ACTUAL_TIME_WIDTH SCALE(32)
-#define NAME_OFFSET SCALE(14)
+#define LIST_Y2 86
+#define LIST_BUTTON_Y -26
+#define MESSAGES_SPACING 4
+#define MESSAGES_X 110
+#define TIME_WIDTH 45
+#define ACTUAL_TIME_WIDTH 32
+#define NAME_OFFSET 14
 
 #endif
