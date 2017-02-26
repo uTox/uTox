@@ -10,7 +10,7 @@
 #define BM_STATUSAREA_WIDTH SCALE(20)
 #define BM_STATUSAREA_HEIGHT SCALE(40)
 /* Text button on the add a new friend page */
-#define _BM_ADD_WIDTH 9
+#define _BM_ADD_WIDTH 18
 #define BM_ADD_WIDTH SCALE(18)
 #define BM_STATUS_WIDTH SCALE(9)
 #define BM_STATUS_NOTIFY_WIDTH SCALE(14)
@@ -38,9 +38,9 @@
 /* something to do with contacts? */
 #define BM_CONTACT_WIDTH SCALE(40)
 /* no idea */
-#define _BM_LBICON_WIDTH 11
+#define _BM_LBICON_WIDTH 22
 #define BM_LBICON_WIDTH SCALE(22)
-#define _BM_LBICON_HEIGHT 10
+#define _BM_LBICON_HEIGHT 20
 #define BM_LBICON_HEIGHT SCALE(20)
 /* small file transfer button maybe? */
 #define BM_FB_WIDTH SCALE(12)
@@ -50,31 +50,31 @@
 #define BM_CHAT_BUTTON_WIDTH SCALE(40)
 #define BM_CHAT_BUTTON_HEIGHT SCALE(40)
 /* camera box */
-#define _BM_CHAT_BUTTON_OVERLAY_WIDTH 14
+#define _BM_CHAT_BUTTON_OVERLAY_WIDTH 28
 #define BM_CHAT_BUTTON_OVERLAY_WIDTH SCALE(28)
 
-#define _BM_CHAT_BUTTON_OVERLAY_HEIGHT 14
+#define _BM_CHAT_BUTTON_OVERLAY_HEIGHT 28
 #define BM_CHAT_BUTTON_OVERLAY_HEIGHT SCALE(28)
 /* Large chat button */
 #define BM_CHAT_SEND_WIDTH SCALE(56)
 #define BM_CHAT_SEND_HEIGHT SCALE(40)
 /* Chat speech bubble */
-#define _BM_CHAT_SEND_OVERLAY_WIDTH 20
+#define _BM_CHAT_SEND_OVERLAY_WIDTH 40
 #define BM_CHAT_SEND_OVERLAY_WIDTH SCALE(40)
-#define _BM_CHAT_SEND_OVERLAY_HEIGHT 16
+#define _BM_CHAT_SEND_OVERLAY_HEIGHT 32
 #define BM_CHAT_SEND_OVERLAY_HEIGHT SCALE(32)
 
-#define _BM_FILE_WIDTH 11
+#define _BM_FILE_WIDTH 22
 #define BM_FILE_WIDTH SCALE(22)
-#define _BM_FILE_HEIGHT 10
+#define _BM_FILE_HEIGHT 20
 #define BM_FILE_HEIGHT SCALE(20)
 
-#define _BM_FILE_BIG_WIDTH 22
+#define _BM_FILE_BIG_WIDTH 44
 #define BM_FILE_BIG_WIDTH SCALE(44)
-#define _BM_FILE_BIG_HEIGHT 20
+#define _BM_FILE_BIG_HEIGHT 40
 #define BM_FILE_BIG_HEIGHT SCALE(40)
 
-#define _BM_CI_WIDTH 10
+#define _BM_CI_WIDTH 20
 #define BM_CI_WIDTH SCALE(20)
 
 /* SVG Bitmap names. */

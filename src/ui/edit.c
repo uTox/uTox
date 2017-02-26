@@ -83,8 +83,8 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
         pushclip(x + 1, y + 1, width - 2, height - 2);
 
         SCROLLABLE *scroll = edit->scroll;
-        scroll->content_height =
-            text_height(width - SCALE(8) - SCALE(SCROLL_WIDTH), font_small_lineheight, edit->data, edit->length) + SCALE(8);
+        scroll->content_height = text_height(width - SCALE(8) - SCALE(SCROLL_WIDTH),
+                                             font_small_lineheight, edit->data, edit->length) + SCALE(8);
         scroll_draw(scroll, x, y, width, height);
         yy -= scroll_gety(scroll, height);
     }

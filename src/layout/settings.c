@@ -36,12 +36,12 @@ static void draw_settings_header(int x, int y, int w, int UNUSED(height)) {
 #endif
 }
 
-#define DRAW_UNDERLINE() drawhline(x, SCALE(y + 28), next_x, COLOR_EDGE_NORMAL)
-#define DRAW_OVERLINE()  drawhline(x, SCALE(y + 0), next_x, COLOR_EDGE_ACTIVE); \
-                         drawhline(x, SCALE(y + 1), next_x, COLOR_EDGE_ACTIVE)
+#define DRAW_UNDERLINE() drawhline(x, y + SCALE(28), next_x, COLOR_EDGE_NORMAL)
+#define DRAW_OVERLINE()  drawhline(x, y + SCALE(0), next_x, COLOR_EDGE_ACTIVE); \
+                         drawhline(x, y + SCALE(1), next_x, COLOR_EDGE_ACTIVE)
 
 static void draw_settings_sub_header(int x, int y, int width, int UNUSED(height)) {
-    drawhline(x, SCALE(y), x + width, COLOR_EDGE_NORMAL);
+    drawhline(x, y, x + width, COLOR_EDGE_NORMAL);
 
     setfont(FONT_SELF_NAME);
     int last_x = x + width;
@@ -49,76 +49,76 @@ static void draw_settings_sub_header(int x, int y, int width, int UNUSED(height)
     /* Draw the text and bars for general settings */
     setcolor(!button_settings_sub_profile.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
     int next_x = x + SCALE(20) + UTOX_STR_WIDTH(PROFILE_BUTTON);
-    drawstr(x + SCALE(10), SCALE(y + 10), PROFILE_BUTTON);
+    drawstr(x + SCALE(10), y + SCALE(10), PROFILE_BUTTON);
 
     if (panel_settings_profile.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(next_x, SCALE(y), SCALE(y + 28), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
     x = next_x;
 
     /* Draw the text and bars for device settings */
     #ifdef ENABLE_MULTIDEVICE
     setcolor(!button_settings_sub_devices.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
     next_x += SCALE(20) + UTOX_STR_WIDTH(DEVICES_BUTTON);
-    drawstr(x + SCALE(10), SCALE(y + 10), DEVICES_BUTTON);
+    drawstr(x + SCALE(10), y, + SCALE(10), DEVICES_BUTTON);
     if (panel_settings_devices.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(next_x, SCALE(y), SCALE(y + 28), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, , y, + 28), COLOR_EDGE_NORMAL);
     x = next_x;
     #endif
 
     /* Draw the text and bars for User interface settings */
     setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
     next_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
-    drawstr(x + SCALE(10), SCALE(y + 10), USER_INTERFACE_BUTTON);
+    drawstr(x + SCALE(10), y + SCALE(10), USER_INTERFACE_BUTTON);
     if (panel_settings_ui.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(next_x, SCALE(y), SCALE(y + 28), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
     x = next_x;
 
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
     next_x += SCALE(20) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON);
-    drawstr(x + SCALE(10), SCALE(y + 10), AUDIO_VIDEO_BUTTON);
+    drawstr(x + SCALE(10), y + SCALE(10), AUDIO_VIDEO_BUTTON);
     if (panel_settings_av.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(next_x, SCALE(y), SCALE(y + 28), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
     x = next_x;
 
     /* Draw the text and bars for notification settings */
     setcolor(!button_settings_sub_notifications.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
     next_x += SCALE(20) + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON);
-    drawstr(x + SCALE(10), SCALE(y + 10), NOTIFICATIONS_BUTTON);
+    drawstr(x + SCALE(10), y + SCALE(10), NOTIFICATIONS_BUTTON);
     if (panel_settings_notifications.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(next_x, SCALE(y), SCALE(y + 28), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
     x = next_x;
 
     /* Draw the text and bars for advanced settings */
     setcolor(!button_settings_sub_adv.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
     next_x += SCALE(20) + UTOX_STR_WIDTH(ADVANCED_BUTTON);
-    drawstr(x + SCALE(10), SCALE(y + 10), ADVANCED_BUTTON);
+    drawstr(x + SCALE(10), y + SCALE(10), ADVANCED_BUTTON);
     if (panel_settings_adv.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(next_x, SCALE(y), SCALE(y + 28), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
     x = next_x;
 
     next_x = last_x;
@@ -157,14 +157,14 @@ static void draw_settings_text_password(int x, int y, int UNUSED(w), int UNUSED(
 
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + 75, y + 285, PROFILE_PW_WARNING);
-    drawstr(x + 75, y + 299, PROFILE_PW_NO_RECOVER);
+    drawstr(x + SCALE(75), y + SCALE(285), PROFILE_PW_WARNING);
+    drawstr(x + SCALE(75), y + SCALE(299), PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + 75, y + 240, NOSPAM_WARNING);
+    drawstr(x + SCALE(75), y + SCALE(240), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -176,13 +176,13 @@ static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
 static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + 150, y + 10,  DPI);
-    drawstr(x + SCALE(10),  y + 10,  THEME);
-    drawstr(x + SCALE(10),  y + 65,  SAVE_CHAT_HISTORY);
-    drawstr(x + SCALE(10),  y + 95,  CLOSE_TO_TRAY);
-    drawstr(x + SCALE(10),  y + 125, START_IN_TRAY);
-    drawstr(x + SCALE(10),  y + 155, AUTO_STARTUP);
-    drawstr(x + SCALE(10),  y + 185, SETTINGS_UI_MINI_ROSTER);
+    drawstr(x + SCALE(150), y + SCALE(10),  DPI);
+    drawstr(x + SCALE(10),  y + SCALE(10),  THEME);
+    drawstr(x + SCALE(10),  y + SCALE(65),  SAVE_CHAT_HISTORY);
+    drawstr(x + SCALE(10),  y + SCALE(95),  CLOSE_TO_TRAY);
+    drawstr(x + SCALE(10),  y + SCALE(125), START_IN_TRAY);
+    drawstr(x + SCALE(10),  y + SCALE(155), AUTO_STARTUP);
+    drawstr(x + SCALE(10),  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
 }
 
 // Audio/Video settings page

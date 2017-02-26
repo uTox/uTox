@@ -168,6 +168,9 @@ UTOX_SAVE *config_load(void) {
     settings.window_height = save->window_height;
 
     settings.last_version = save->utox_last_version;
+    if (settings.last_version != settings.curr_version) {
+        settings.show_splash = true;
+    }
 
     loaded_audio_out_device = save->audio_device_out;
     loaded_audio_in_device  = save->audio_device_in;

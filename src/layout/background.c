@@ -17,19 +17,19 @@
 
 static void draw_background(int x, int y, int width, int height) {
     /* Default background                */
-    drawrect(SCALE(x), SCALE(y), width, height, COLOR_BKGRND_MAIN);
+    drawrect(x, y, width, height, COLOR_BKGRND_MAIN);
 
     if (!panel_chat.disabled) {
         /* Top frame for main chat panel */
-        drawrect(SCALE(x), 0, width, MAIN_TOP_FRAME_THICK, COLOR_BKGRND_ALT);
-        drawhline(SCALE(x), SCALE(-1 + MAIN_TOP_FRAME_THICK), width, COLOR_EDGE_NORMAL);
+        drawrect(x, 0, width, SCALE(MAIN_TOP_FRAME_THICK), COLOR_BKGRND_ALT);
+        drawhline(x, SCALE(MAIN_TOP_FRAME_THICK), width, COLOR_EDGE_NORMAL);
         /* Frame for the bottom chat text entry box */
-        drawrect(SCALE(x), SCALE(height + CHAT_BOX_TOP), width, height, COLOR_BKGRND_ALT);
-        drawhline(SCALE(x), SCALE(height + CHAT_BOX_TOP), width, COLOR_EDGE_NORMAL);
+        drawrect(x, height + SCALE(CHAT_BOX_TOP), width, height, COLOR_BKGRND_ALT);
+        drawhline(x, height + SCALE(CHAT_BOX_TOP), width, COLOR_EDGE_NORMAL);
     }
     // Chat and chat header separation
     if (panel_settings_master.disabled) {
-        drawhline(SCALE(x), SCALE(MAIN_TOP_FRAME_THICK), width, COLOR_EDGE_NORMAL);
+        drawhline(x, SCALE(MAIN_TOP_FRAME_THICK), width, COLOR_EDGE_NORMAL);
     }
 }
 

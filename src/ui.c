@@ -113,8 +113,8 @@ static void sidepanel_FLIST(void) {
                   SIDEBAR_FILTER_FRIENDS_HEIGHT);
     CREATE_EDIT(search, SIDEBAR_SEARCH_LEFT, SIDEBAR_SEARCH_TOP, SIDEBAR_SEARCH_WIDTH, SIDEBAR_SEARCH_HEIGHT);
 
-    CREATE_BUTTON(settings, SCALE(SIDEBAR_BUTTON_LEFT), SCALE(ROSTER_BOTTOM), SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
-    CREATE_BUTTON(add_new_contact, SCALE(SIDEBAR_BUTTON_LEFT), SCALE(ROSTER_BOTTOM), SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
+    CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
+    CREATE_BUTTON(add_new_contact, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
     button_add_new_contact.panel.disabled = true;
 }
 
@@ -139,11 +139,11 @@ static void settings_UI(void) {
 
     CREATE_DROPDOWN(dpi,   150, 30, 24, 200);
 
-    CREATE_SWITCH(save_chat_history, -10 - BM_SWITCH_WIDTH, 60, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(close_to_tray,     -10 - BM_SWITCH_WIDTH, 90, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(start_in_tray,     -10 - BM_SWITCH_WIDTH, 120, BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(auto_startup,      -10 - BM_SWITCH_WIDTH, 150, BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(mini_contacts,     -10 - BM_SWITCH_WIDTH, 180, BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(save_chat_history, -10 - BM_SWITCH_WIDTH, 60,  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(close_to_tray,     -10 - BM_SWITCH_WIDTH, 90,  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(start_in_tray,     -10 - BM_SWITCH_WIDTH, 120, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(auto_startup,      -10 - BM_SWITCH_WIDTH, 150, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(mini_contacts,     -10 - BM_SWITCH_WIDTH, 180, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 }
 
 static void settings_AV(void) {
@@ -363,12 +363,12 @@ MAKE_FUNC(bool, mleave);
  * if w/h <0 use parent panel width (maybe?)    */
 #define FIX_XY_CORDS_FOR_SUBPANELS()                                       \
     {                                                                      \
-        int relx = (p->x < 0) ? width + p->x : p->x;                       \
-        int rely = (p->y < 0) ? height + p->y : p->y;                      \
+        int relx = (p->x < 0) ? width + SCALE(p->x) : SCALE(p->x);                       \
+        int rely = (p->y < 0) ? height + SCALE(p->y) : SCALE(p->y);                      \
         x += relx;                                                         \
         y += rely;                                                         \
-        width  = (p->width <= 0) ? width + p->width - relx : SCALE(p->width);     \
-        height = (p->height <= 0) ? height + p->height - rely : SCALE(p->height); \
+        width  = (p->width <= 0) ? width + SCALE(p->width) - relx : SCALE(p->width);     \
+        height = (p->height <= 0) ? height + SCALE(p->height) - rely : SCALE(p->height); \
     }
 
 static void panel_update(PANEL *p, int x, int y, int width, int height) {
@@ -439,7 +439,7 @@ void ui_size(int width, int height) {
         panel_main.x = 0;
     } else {
         panel_side_bar.disabled = false;
-        panel_main.x = SCALE(230);
+        panel_main.x = panel_flist.width;
     }
 }
 
