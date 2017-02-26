@@ -30,8 +30,6 @@ static void draw_background(int x, int y, int width, int height) {
     // Chat and chat header separation
     if (panel_settings_master.disabled) {
         drawhline(SCALE(x), SCALE(MAIN_TOP_FRAME_THICK), width, COLOR_EDGE_NORMAL);
-    } else {
-        drawhline(SCALE(x), SCALE(MAIN_TOP_FRAME_THIN), width, COLOR_EDGE_NORMAL);
     }
 }
 

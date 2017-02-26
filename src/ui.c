@@ -94,8 +94,8 @@ static void sidepanel_USERBADGE(void) {
     CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     CREATE_BUTTON(name, SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - 2);
     CREATE_BUTTON(status_msg, SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_TOP,
-                  (SELF_STATUS_ICON_LEFT - SIDEBAR_STATUSMSG_LEFT - 2), SIDEBAR_STATUSMSG_HEIGHT - 2);
-    CREATE_BUTTON(usr_state, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
+                  (SCALE(200) - SIDEBAR_STATUSMSG_LEFT - 2), SIDEBAR_STATUSMSG_HEIGHT - 2);
+    CREATE_BUTTON(usr_state, SCALE(200), SCALE(10), BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
 }
 
 static void sidepanel_FLIST(void) {
@@ -104,7 +104,7 @@ static void sidepanel_FLIST(void) {
     scrollbar_flist.panel.height = -1;
 
     panel_flist.x      = 0;
-    panel_flist.y      = SCALE(80);
+    panel_flist.y      = SCALE(70);
     panel_flist.width  = 230; // TODO remove?
     panel_flist.height = ROSTER_BOTTOM;
 
@@ -113,8 +113,8 @@ static void sidepanel_FLIST(void) {
                   SIDEBAR_FILTER_FRIENDS_HEIGHT);
     CREATE_EDIT(search, SIDEBAR_SEARCH_LEFT, SIDEBAR_SEARCH_TOP, SIDEBAR_SEARCH_WIDTH, SIDEBAR_SEARCH_HEIGHT);
 
-    CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
-    CREATE_BUTTON(add_new_contact, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
+    CREATE_BUTTON(settings, SCALE(SIDEBAR_BUTTON_LEFT), SCALE(ROSTER_BOTTOM), SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
+    CREATE_BUTTON(add_new_contact, SCALE(SIDEBAR_BUTTON_LEFT), SCALE(ROSTER_BOTTOM), SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
     button_add_new_contact.panel.disabled = true;
 }
 
@@ -223,7 +223,6 @@ void ui_set_scale(uint8_t scale) {
     scrollbar_settings.content_height = 300; /* TODO magic numbers are bad */
 
     panel_settings_master.y        = 0;
-    panel_settings_subheader.y     = MAIN_TOP_FRAME_THIN;
     panel_settings_devices.y       = 32;
     panel_settings_adv.y           = 32;
 
@@ -440,7 +439,7 @@ void ui_size(int width, int height) {
         panel_main.x = 0;
     } else {
         panel_side_bar.disabled = false;
-        panel_main.x = 230;
+        panel_main.x = SCALE(230);
     }
 }
 

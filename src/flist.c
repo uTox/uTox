@@ -108,7 +108,7 @@ static void flist_draw_status_icon(uint8_t status, int x, int y, bool notify) {
     x -= BM_STATUS_WIDTH / 2;
     drawalpha(BM_ONLINE + status, x, y, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 
-    if (!notify) {
+    if (notify) {
         y += BM_STATUS_WIDTH / 2;
         y -= BM_STATUS_NOTIFY_WIDTH / 2;
         x += BM_STATUS_WIDTH / 2;
@@ -282,7 +282,7 @@ static ITEM *item_hit(int mx, int my, int UNUSED(height)) {
     }
 
     /* Mouse is outside the list */
-    if (mx < SCROLL_WIDTH || mx >= 230 || my < 0 // TODO magic numbers are bad 230 should be width
+    if (mx < SCROLL_WIDTH || mx >= SCALE(230) || my < 0 // TODO magic numbers are bad 230 should be width
         || my >= (int)(showncount * real_height)) { /* TODO: Height is a bit buggy, Height needs /2
                                                      * figure out why!  */
         mouse_in_list = 0;

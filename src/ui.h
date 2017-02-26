@@ -134,6 +134,7 @@ double ui_scale;
 
 
 /* User badge */
+#define SIDEBAR_PADDING 6
 #define SIDEBAR_AVATAR_TOP 10
 #define SIDEBAR_AVATAR_LEFT 10
 #define SIDEBAR_AVATAR_WIDTH 10
@@ -146,8 +147,7 @@ double ui_scale;
 #define SIDEBAR_STATUSMSG_LEFT 64
 #define SIDEBAR_STATUSMSG_WIDTH 125
 #define SIDEBAR_STATUSMSG_HEIGHT 12
-#define SELF_STATUS_ICON_LEFT 200
-#define SELF_STATUS_ICON_TOP 10
+
 
 /* Sidebar buttons and settings */
 #define SIDEBAR_FILTER_FRIENDS_TOP 60
