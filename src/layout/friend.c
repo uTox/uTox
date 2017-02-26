@@ -437,9 +437,9 @@ static void button_menu_update(BUTTON *b) {
 }
 
 BUTTON button_add_new_contact = {
-    .bm2          = BM_ADD,
-    .bw           = _BM_ADD_WIDTH,
-    .bh           = _BM_ADD_WIDTH,
+    .bm_icon          = BM_ADD,
+    .icon_w       = _BM_ADD_WIDTH,
+    .icon_h       = _BM_ADD_WIDTH,
     .update       = button_menu_update,
     .on_mup       = button_add_new_contact_on_mup,
     .disabled     = true,
@@ -448,7 +448,7 @@ BUTTON button_add_new_contact = {
 };
 
 BUTTON button_send_friend_request = {
-    .bm          = BM_SBUTTON,
+    .bm_fill         = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update      = button_setcolors_success,
     .on_mup      = button_send_friend_request_on_mup,
@@ -457,10 +457,10 @@ BUTTON button_send_friend_request = {
 
 
 BUTTON button_call_decline = {
-    .bm           = BM_LBUTTON,
-    .bm2          = BM_DECLINE,
-    .bw           = _BM_LBICON_WIDTH,
-    .bh           = _BM_LBICON_HEIGHT,
+    .bm_fill          = BM_LBUTTON,
+    .bm_icon          = BM_DECLINE,
+    .icon_w       = _BM_LBICON_WIDTH,
+    .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_decline_on_mup,
     .update       = button_call_decline_update,
     .tooltip_text = {.i18nal = STR_CALL_DECLINE },
@@ -469,20 +469,20 @@ BUTTON button_call_decline = {
 };
 
 BUTTON button_call_audio = {
-    .bm           = BM_LBUTTON,
-    .bm2          = BM_CALL,
-    .bw           = _BM_LBICON_WIDTH,
-    .bh           = _BM_LBICON_HEIGHT,
+    .bm_fill          = BM_LBUTTON,
+    .bm_icon          = BM_CALL,
+    .icon_w       = _BM_LBICON_WIDTH,
+    .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_audio_on_mup,
     .update       = button_call_audio_update,
     .tooltip_text = {.i18nal = STR_CALL_START_AUDIO },
 };
 
 BUTTON button_call_video = {
-    .bm           = BM_LBUTTON,
-    .bm2          = BM_VIDEO,
-    .bw           = _BM_LBICON_WIDTH,
-    .bh           = _BM_LBICON_HEIGHT,
+    .bm_fill          = BM_LBUTTON,
+    .bm_icon          = BM_VIDEO,
+    .icon_w       = _BM_LBICON_WIDTH,
+    .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_video_on_mup,
     .update       = button_call_video_update,
     .tooltip_text = {.i18nal = STR_CALL_START_VIDEO },
@@ -518,10 +518,10 @@ static void button_send_file_update(BUTTON *b) {
 }
 
 BUTTON button_send_file = {
-    .bm           = BM_CHAT_BUTTON_LEFT,
-    .bm2          = BM_FILE,
-    .bw           = _BM_FILE_WIDTH,
-    .bh           = _BM_FILE_HEIGHT,
+    .bm_fill          = BM_CHAT_BUTTON_LEFT,
+    .bm_icon          = BM_FILE,
+    .icon_w       = _BM_FILE_WIDTH,
+    .icon_h       = _BM_FILE_HEIGHT,
     .on_mup       = button_send_file_on_mup,
     .update       = button_send_file_update,
     .disabled     = true,
@@ -553,17 +553,17 @@ static void button_send_screenshot_update(BUTTON *b) {
 }
 
 BUTTON button_send_screenshot = {
-    .bm           = BM_CHAT_BUTTON_RIGHT,
-    .bm2          = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
-    .bw           = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
-    .bh           = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+    .bm_fill          = BM_CHAT_BUTTON_RIGHT,
+    .bm_icon          = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
+    .icon_w       = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
+    .icon_h       = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
     .update       = button_send_screenshot_update,
     .on_mup       = button_send_screenshot_on_mup,
     .tooltip_text = {.i18nal = STR_SENDSCREENSHOT },
 };
 
 BUTTON button_accept_friend = {
-    .bm          = BM_SBUTTON,
+    .bm_fill         = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update      = button_setcolors_success,
     .on_mup      = button_accept_friend_on_mup,
@@ -782,10 +782,10 @@ static void button_chat_send_friend_update(BUTTON *b) {
 }
 
 BUTTON button_chat_send_friend = {
-    .bm           = BM_CHAT_SEND,
-    .bm2          = BM_CHAT_SEND_OVERLAY,
-    .bw           = _BM_CHAT_SEND_OVERLAY_WIDTH,
-    .bh           = _BM_CHAT_SEND_OVERLAY_HEIGHT,
+    .bm_fill          = BM_CHAT_SEND,
+    .bm_icon          = BM_CHAT_SEND_OVERLAY,
+    .icon_w       = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .icon_h       = _BM_CHAT_SEND_OVERLAY_HEIGHT,
     .on_mup       = button_chat_send_friend_on_mup,
     .update       = button_chat_send_friend_update,
     .tooltip_text = {.i18nal = STR_SENDMESSAGE },
@@ -801,7 +801,7 @@ static void button_deny_deletion_on_mup(void) {
 }
 
 BUTTON button_confirm_deletion = {
-    .bm           = BM_SBUTTON,
+    .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_danger,
     .tooltip_text = {.i18nal = STR_DELETE},
     .button_text  = {.i18nal = STR_DELETE},
@@ -809,7 +809,7 @@ BUTTON button_confirm_deletion = {
 };
 
 BUTTON button_deny_deletion = {
-    .bm           = BM_SBUTTON,
+    .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .tooltip_text = {.i18nal = STR_KEEP},
     .button_text  = {.i18nal = STR_KEEP},

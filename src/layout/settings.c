@@ -438,9 +438,9 @@ static void button_settings_on_mup(void) {
 }
 
 BUTTON button_settings = {
-    .bm2          = BM_SETTINGS,
-    .bw           = _BM_ADD_WIDTH,
-    .bh           = _BM_ADD_WIDTH,
+    .bm_icon          = BM_SETTINGS,
+    .icon_w       = _BM_ADD_WIDTH,
+    .icon_h       = _BM_ADD_WIDTH,
     .update       = button_bottommenu_update,
     .on_mup       = button_settings_on_mup,
     .disabled     = false,
@@ -540,7 +540,7 @@ button_settings_sub_notifications = {
 },
 
 button_add_new_device_to_self = {
-    .bm          = BM_SBUTTON,
+    .bm_fill         = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     // .update   = button_setcolors_success,
     .on_mup      = button_add_device_to_self_mdown,
@@ -640,7 +640,7 @@ static void button_videopreview_update(BUTTON *b) {
     }
 }
 BUTTON button_copyid = {
-    .bm       = BM_SBUTTON,
+    .bm_fill  = BM_SBUTTON,
     .update   = button_setcolors_success,
     .on_mup   = button_copyid_on_mup,
     .disabled = false,
@@ -648,68 +648,68 @@ BUTTON button_copyid = {
 };
 
 BUTTON button_callpreview = {
-    .bm       = BM_LBUTTON,
-    .bm2      = BM_CALL,
-    .bw       = _BM_LBICON_WIDTH,
-    .bh       = _BM_LBICON_HEIGHT,
+    .bm_fill  = BM_LBUTTON,
+    .bm_icon  = BM_CALL,
+    .icon_w   = _BM_LBICON_WIDTH,
+    .icon_h   = _BM_LBICON_HEIGHT,
     .on_mup   = button_audiopreview_on_mup,
     .update   = button_audiopreview_update,
     .disabled = false,
 };
 
 BUTTON button_videopreview = {
-    .bm       = BM_LBUTTON,
-    .bm2      = BM_VIDEO,
-    .bw       = _BM_LBICON_WIDTH,
-    .bh       = _BM_LBICON_HEIGHT,
+    .bm_fill  = BM_LBUTTON,
+    .bm_icon  = BM_VIDEO,
+    .icon_w   = _BM_LBICON_WIDTH,
+    .icon_h   = _BM_LBICON_HEIGHT,
     .on_mup   = button_videopreview_on_mup,
     .update   = button_videopreview_update,
     .disabled = false,
 };
 
 BUTTON button_lock_uTox = {
-    .bm     = BM_SBUTTON,
-    .update = button_setcolors_success,
-    .on_mup = button_lock_uTox_on_mup,
-    .button_text = {.i18nal = STR_LOCK },
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_lock_uTox_on_mup,
+    .button_text  = {.i18nal = STR_LOCK },
     .tooltip_text = {.i18nal = STR_LOCK_UTOX },
 };
 
 BUTTON button_show_password_settings = {
-    .bm     = BM_SBUTTON,
-    .update = button_setcolors_success,
-    .on_mup = button_show_password_settings_on_mup,
-    .button_text = {.i18nal = STR_SHOW_UI_PASSWORD },
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_show_password_settings_on_mup,
+    .button_text  = {.i18nal = STR_SHOW_UI_PASSWORD },
     .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD_TOOLTIP },
 };
 
 BUTTON button_export_chatlog = {
-    .bm     = BM_SBUTTON,
-    .update = button_setcolors_success,
-    .on_mup = button_export_chatlog_on_mup,
-    .disabled = false,
+    .bm_fill     = BM_SBUTTON,
+    .update      = button_setcolors_success,
+    .on_mup      = button_export_chatlog_on_mup,
+    .disabled    = false,
     .button_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
 };
 
 BUTTON button_change_nospam = {
-    .bm     = BM_SBUTTON,
-    .update = button_setcolors_success,
-    .on_mup = button_change_nospam_on_mup,
-    .tooltip_text = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_change_nospam_on_mup,
     .button_text  = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .tooltip_text = {.i18nal = STR_RANDOMIZE_NOSPAM},
 };
 
 BUTTON button_revert_nospam = {
-    .bm       = BM_SBUTTON,
-    .update   = button_setcolors_success,
-    .on_mup   = button_revert_nospam_on_mup,
-    .disabled = true,
-    .tooltip_text = {.i18nal = STR_REVERT_NOSPAM},
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_revert_nospam_on_mup,
+    .disabled     = true,
     .button_text  = {.i18nal = STR_REVERT_NOSPAM},
+    .tooltip_text = {.i18nal = STR_REVERT_NOSPAM},
 };
 
 BUTTON button_show_nospam = {
-    .bm           = BM_SBUTTON,
+    .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .tooltip_text = {.i18nal = STR_SHOW_NOSPAM},
     .button_text  = {.i18nal = STR_SHOW_NOSPAM},
@@ -1226,11 +1226,11 @@ static void edit_change_nospam_onenter(EDIT *UNUSED(edit)) {
 }
 
 EDIT edit_nospam = {
-    .maxlength         = sizeof(edit_nospam_data),
-    .data              = edit_nospam_data,
-    .noborder          = false,
-    .onenter           = edit_change_nospam_onenter,
-    .onlosefocus       = edit_change_nospam_onenter,
+    .maxlength    = sizeof(edit_nospam_data),
+    .data         = edit_nospam_data,
+    .noborder     = false,
+    .onenter      = edit_change_nospam_onenter,
+    .onlosefocus  = edit_change_nospam_onenter,
 };
 
 

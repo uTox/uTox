@@ -171,10 +171,10 @@ static void button_group_audio_update(BUTTON *b) {
 }
 
 BUTTON button_group_audio = {
-    .bm           = BM_LBUTTON,
-    .bm2          = BM_CALL,
-    .bw           = _BM_LBICON_WIDTH,
-    .bh           = _BM_LBICON_HEIGHT,
+    .bm_fill          = BM_LBUTTON,
+    .bm_icon          = BM_CALL,
+    .icon_w       = _BM_LBICON_WIDTH,
+    .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_group_audio_on_mup,
     .update       = button_group_audio_update,
     .tooltip_text = {.i18nal = STR_GROUPCHAT_JOIN_AUDIO },
@@ -567,10 +567,10 @@ static void button_chat_send_group_update(BUTTON *b) {
 }
 
 BUTTON button_chat_send_group = {
-    .bm             = BM_CHAT_SEND,
-    .bm2            = BM_CHAT_SEND_OVERLAY,
-    .bw             = _BM_CHAT_SEND_OVERLAY_WIDTH,
-    .bh             = _BM_CHAT_SEND_OVERLAY_HEIGHT,
+    .bm_fill        = BM_CHAT_SEND,
+    .bm_icon        = BM_CHAT_SEND_OVERLAY,
+    .icon_w         = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .icon_h         = _BM_CHAT_SEND_OVERLAY_HEIGHT,
     .on_mup         = button_chat_send_on_mup,
     .update         = button_chat_send_group_update,
     .tooltip_text   = {.i18nal = STR_SENDMESSAGE },
