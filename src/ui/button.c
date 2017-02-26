@@ -52,15 +52,15 @@ void button_draw(BUTTON *b, int x, int y, int width, int height) {
     uint32_t color_background = b->mousedown ? b->c3 : (b->mouseover ? b->c2 : b->c1);
 
     if (b->bm_fill) {
-        drawalpha(b->bm_fill, x, y, width, height, color_background);
+        drawalpha(b->bm_fill, x, y, real_w, height, color_background);
     } else {
-        draw_rect_fill(x, y, width, height, b->disabled ? b->cd : color_background);
+        draw_rect_fill(x, y, real_w, height, b->disabled ? b->cd : color_background);
     }
 
     if (b->bm_icon) {
-        const int icon_x = width / 2 - b->icon_w / 2;
-        const int icon_y = height / 2 - b->icon_h / 2;
-        drawalpha(b->bm_icon, x + SCALE(icon_x), y + SCALE(icon_y), SCALE(b->icon_w), SCALE(b->icon_w), color_text);
+        const int icon_x =  width / 2 - SCALE(b->icon_w) / 2;
+        const int icon_y = height / 2 - SCALE(b->icon_h) / 2;
+        drawalpha(b->bm_icon, x + icon_x, y + icon_y, SCALE(b->icon_w), SCALE(b->icon_w), color_text);
     }
 
     if (maybe_i18nal_string_is_valid(&b->button_text)) {
@@ -69,7 +69,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height) {
                 // The text didn't fit into the original width.
                 // Fill the rest of the new width with the image
                 // and hope for the best.
-                drawalpha(b->bm_fill, x - SCALE(width + real_w), SCALE(y), width, height, color_background);
+                drawalpha(b->bm_fill, x - width + SCALE(real_w), SCALE(y), width, height, color_background);
                 real_w -= width / 2 + 1;
             }
         }

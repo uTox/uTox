@@ -104,7 +104,7 @@ static void sidepanel_FLIST(void) {
     scrollbar_flist.panel.height = -1;
 
     panel_flist.x      = 0;
-    panel_flist.y      = SCALE(70);
+    panel_flist.y      = 70;
     panel_flist.width  = 230; // TODO remove?
     panel_flist.height = ROSTER_BOTTOM;
 
@@ -139,11 +139,11 @@ static void settings_UI(void) {
 
     CREATE_DROPDOWN(dpi,   150, 30, 24, 200);
 
-    CREATE_SWITCH(save_chat_history, -10 - BM_SWITCH_WIDTH, 60,  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(close_to_tray,     -10 - BM_SWITCH_WIDTH, 90,  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(start_in_tray,     -10 - BM_SWITCH_WIDTH, 120, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(auto_startup,      -10 - BM_SWITCH_WIDTH, 150, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(mini_contacts,     -10 - BM_SWITCH_WIDTH, 180, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(save_chat_history, -10 - _BM_SWITCH_WIDTH, 60,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(close_to_tray,     -10 - _BM_SWITCH_WIDTH, 90,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(start_in_tray,     -10 - _BM_SWITCH_WIDTH, 120, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(auto_startup,      -10 - _BM_SWITCH_WIDTH, 150, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(mini_contacts,     -10 - _BM_SWITCH_WIDTH, 180, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
 }
 
 static void settings_AV(void) {
@@ -303,18 +303,20 @@ void ui_set_scale(uint8_t scale) {
     CREATE_EDIT(group_topic, 10, 95, -10, 24);
 
     /* Friend / Group Page  */
-    CREATE_BUTTON(call_decline, -186, 10, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(call_audio, -124, 10, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(call_video, -62, 10, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(group_audio, -62, 10, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    /* bottom left button in chat */
-    CREATE_BUTTON(send_file, 6, -46, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
-    /* button to the right of b_chat_left */
-    CREATE_BUTTON(send_screenshot, 8 + BM_CHAT_BUTTON_WIDTH, -46, BM_CHAT_BUTTON_WIDTH,
-                  BM_CHAT_BUTTON_HEIGHT);
+    CREATE_BUTTON(call_decline, -186, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(call_audio,   -124, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(call_video,    -62, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(group_audio,   -62, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
 
-    CREATE_BUTTON(chat_send_friend, -6 - BM_CHAT_SEND_WIDTH, -46, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
-    CREATE_BUTTON(chat_send_group,  -6 - BM_CHAT_SEND_WIDTH, -46, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
+    /* bottom left button in chat */
+    CREATE_BUTTON(send_file,  6, -46,
+                    _BM_CHAT_BUTTON_WIDTH, _BM_CHAT_BUTTON_HEIGHT);
+    /* button to the right of b_chat_left */
+    CREATE_BUTTON(send_screenshot, 8 + _BM_CHAT_BUTTON_WIDTH, -46,
+                    _BM_CHAT_BUTTON_WIDTH, _BM_CHAT_BUTTON_HEIGHT);
+
+    CREATE_BUTTON(chat_send_friend, -6 - _BM_CHAT_SEND_WIDTH, -46, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
+    CREATE_BUTTON(chat_send_group,  -6 - _BM_CHAT_SEND_WIDTH, -46, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
 
     setfont(FONT_TEXT);
 
@@ -323,7 +325,7 @@ void ui_set_scale(uint8_t scale) {
     CREATE_EDIT(add_new_friend_msg, 10, 76 + MAIN_TOP, -10, 84);
 
     /* Message entry box for friends and groups */
-    CREATE_EDIT(chat_msg_friend, 10 + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
+    CREATE_EDIT(chat_msg_friend, 10 + _BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
                 -46, -64, 40); /* text is 8 high. 8 * 2.5 = 20. */
 
     CREATE_EDIT(chat_msg_group, 6, -46, -10 - BM_CHAT_SEND_WIDTH, 40);
@@ -500,8 +502,8 @@ bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, 
         mouse.y = my;
     }
 
-    mx -= (p->x < 0) ? width + p->x : p->x;
-    my -= (p->y < 0) ? height + p->y : p->y;
+    mx -= (p->x < 0) ? width + SCALE(p->x) : SCALE(p->x);
+    my -= (p->y < 0) ? height + SCALE(p->y) : SCALE(p->y);
     FIX_XY_CORDS_FOR_SUBPANELS();
 
     int mmy = my;

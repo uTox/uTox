@@ -183,63 +183,63 @@ PANEL messages_friend = {
 
 PANEL
 panel_friend = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .child = (PANEL*[]) {
-            &panel_friend_chat,
-            &panel_friend_video,
-            &panel_friend_settings,
-            &panel_friend_confirm_deletion,
-            NULL
-        }
-    },
-    panel_friend_chat = {
-        .type = PANEL_NONE,
-        .disabled = 0,
-        .drawfunc = draw_friend,
-        .child = (PANEL*[]) {
-            (PANEL*)&scrollbar_friend,
-            (PANEL*)&edit_chat_msg_friend, // this needs to be one of the first, to get events before the others
-            (PANEL*)&messages_friend,
-            (PANEL*)&button_call_decline,
-            (PANEL*)&button_call_audio,
-            (PANEL*)&button_call_video,
-            (PANEL*)&button_send_file,
-            (PANEL*)&button_send_screenshot,
-            (PANEL*)&button_chat_send_friend,
-            NULL
-        }
-    },
-    panel_friend_video = {
-        .type = PANEL_INLINE_VIDEO,
-        .disabled = 1,
-        .child = (PANEL*[]) {
-            NULL
-        }
-    },
-    panel_friend_settings = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = draw_friend_settings,
-        .child = (PANEL*[]) {
-            (PANEL*)&edit_friend_pubkey,
-            (PANEL*)&edit_friend_alias,
-            (PANEL*)&switch_friend_autoaccept_ft,
-            (PANEL*)&button_export_chatlog,
-            NULL
-        }
-    },
-    panel_friend_confirm_deletion = {
-        .type = PANEL_NONE,
-        .disabled = true,
-        .drawfunc = draw_friend_deletion,
-        .child = (PANEL*[]) {
-            (PANEL *)&button_confirm_deletion,
-            (PANEL *)&button_deny_deletion,
-            NULL
-        }
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .child = (PANEL*[]) {
+        &panel_friend_chat,
+        &panel_friend_video,
+        &panel_friend_settings,
+        &panel_friend_confirm_deletion,
+        NULL
+    }
+},
+panel_friend_chat = {
+    .type = PANEL_NONE,
+    .disabled = 0,
+    .drawfunc = draw_friend,
+    .child = (PANEL*[]) {
+        (PANEL*)&scrollbar_friend,
+        (PANEL*)&edit_chat_msg_friend, // this needs to be one of the first, to get events before the others
+        (PANEL*)&messages_friend,
+        (PANEL*)&button_call_decline,
+        (PANEL*)&button_call_audio,
+        (PANEL*)&button_call_video,
+        (PANEL*)&button_send_file,
+        (PANEL*)&button_send_screenshot,
+        (PANEL*)&button_chat_send_friend,
+        NULL
+    }
+},
+panel_friend_video = {
+    .type = PANEL_INLINE_VIDEO,
+    .disabled = 1,
+    .child = (PANEL*[]) {
+        NULL
+    }
+},
+panel_friend_settings = {
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .drawfunc = draw_friend_settings,
+    .child = (PANEL*[]) {
+        (PANEL*)&edit_friend_pubkey,
+        (PANEL*)&edit_friend_alias,
+        (PANEL*)&switch_friend_autoaccept_ft,
+        (PANEL*)&button_export_chatlog,
+        NULL
+    }
+},
+panel_friend_confirm_deletion = {
+    .type = PANEL_NONE,
+    .disabled = true,
+    .drawfunc = draw_friend_deletion,
+    .child = (PANEL*[]) {
+        (PANEL *)&button_confirm_deletion,
+        (PANEL *)&button_deny_deletion,
+        NULL
+    }
 
-    },
+},
 panel_friend_request = {
     .type = PANEL_NONE,
     .disabled = 1,
@@ -437,7 +437,7 @@ static void button_menu_update(BUTTON *b) {
 }
 
 BUTTON button_add_new_contact = {
-    .bm_icon          = BM_ADD,
+    .bm_icon      = BM_ADD,
     .icon_w       = _BM_ADD_WIDTH,
     .icon_h       = _BM_ADD_WIDTH,
     .update       = button_menu_update,
@@ -455,7 +455,6 @@ BUTTON button_send_friend_request = {
     .disabled    = false,
 };
 
-
 BUTTON button_call_decline = {
     .bm_fill          = BM_LBUTTON,
     .bm_icon          = BM_DECLINE,
@@ -469,8 +468,8 @@ BUTTON button_call_decline = {
 };
 
 BUTTON button_call_audio = {
-    .bm_fill          = BM_LBUTTON,
-    .bm_icon          = BM_CALL,
+    .bm_fill      = BM_LBUTTON,
+    .bm_icon      = BM_CALL,
     .icon_w       = _BM_LBICON_WIDTH,
     .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_audio_on_mup,
@@ -479,8 +478,8 @@ BUTTON button_call_audio = {
 };
 
 BUTTON button_call_video = {
-    .bm_fill          = BM_LBUTTON,
-    .bm_icon          = BM_VIDEO,
+    .bm_fill      = BM_LBUTTON,
+    .bm_icon      = BM_VIDEO,
     .icon_w       = _BM_LBICON_WIDTH,
     .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_video_on_mup,
@@ -518,8 +517,8 @@ static void button_send_file_update(BUTTON *b) {
 }
 
 BUTTON button_send_file = {
-    .bm_fill          = BM_CHAT_BUTTON_LEFT,
-    .bm_icon          = BM_FILE,
+    .bm_fill      = BM_CHAT_BUTTON_LEFT,
+    .bm_icon      = BM_FILE,
     .icon_w       = _BM_FILE_WIDTH,
     .icon_h       = _BM_FILE_HEIGHT,
     .on_mup       = button_send_file_on_mup,
@@ -553,8 +552,8 @@ static void button_send_screenshot_update(BUTTON *b) {
 }
 
 BUTTON button_send_screenshot = {
-    .bm_fill          = BM_CHAT_BUTTON_RIGHT,
-    .bm_icon          = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
+    .bm_fill      = BM_CHAT_BUTTON_RIGHT,
+    .bm_icon      = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
     .icon_w       = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
     .icon_h       = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
     .update       = button_send_screenshot_update,
@@ -782,8 +781,8 @@ static void button_chat_send_friend_update(BUTTON *b) {
 }
 
 BUTTON button_chat_send_friend = {
-    .bm_fill          = BM_CHAT_SEND,
-    .bm_icon          = BM_CHAT_SEND_OVERLAY,
+    .bm_fill      = BM_CHAT_SEND,
+    .bm_icon      = BM_CHAT_SEND_OVERLAY,
     .icon_w       = _BM_CHAT_SEND_OVERLAY_WIDTH,
     .icon_h       = _BM_CHAT_SEND_OVERLAY_HEIGHT,
     .on_mup       = button_chat_send_friend_on_mup,

@@ -17,14 +17,21 @@
 #define BM_NMSG_WIDTH SCALE(18)
 
 /* Standard large size button */
+#define _BM_LBUTTON_WIDTH 52
+#define _BM_LBUTTON_HEIGHT 40
 #define BM_LBUTTON_WIDTH SCALE(52)
 #define BM_LBUTTON_HEIGHT SCALE(40)
 /* Standard small size button */
 #define BM_SBUTTON_WIDTH SCALE(52)
 #define BM_SBUTTON_HEIGHT SCALE(20)
 
-#define BM_SWITCH_WIDTH SCALE(60)
-#define BM_SWITCH_HEIGHT SCALE(25)
+#define _BM_SWITCH_WIDTH 60
+#define _BM_SWITCH_HEIGHT 25
+#define BM_SWITCH_WIDTH  SCALE(60)
+#define BM_SWITCH_HEIGHT  SCALE(25)
+
+#define _BM_SWITCH_TOGGLE_WIDTH 26
+#define _BM_SWITCH_TOGGLE_HEIGHT 21
 #define BM_SWITCH_TOGGLE_WIDTH SCALE(26)
 #define BM_SWITCH_TOGGLE_HEIGHT SCALE(21)
 
@@ -47,7 +54,9 @@
 #define BM_FB_HEIGHT SCALE(10)
 
 /* small button placements */
+#define _BM_CHAT_BUTTON_WIDTH 40
 #define BM_CHAT_BUTTON_WIDTH SCALE(40)
+#define _BM_CHAT_BUTTON_HEIGHT 40
 #define BM_CHAT_BUTTON_HEIGHT SCALE(40)
 /* camera box */
 #define _BM_CHAT_BUTTON_OVERLAY_WIDTH 28
@@ -56,6 +65,7 @@
 #define _BM_CHAT_BUTTON_OVERLAY_HEIGHT 28
 #define BM_CHAT_BUTTON_OVERLAY_HEIGHT SCALE(28)
 /* Large chat button */
+#define _BM_CHAT_SEND_WIDTH 56
 #define BM_CHAT_SEND_WIDTH SCALE(56)
 #define BM_CHAT_SEND_HEIGHT SCALE(40)
 /* Chat speech bubble */
