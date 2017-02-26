@@ -25,14 +25,15 @@ static void draw_settings_header(int x, int y, int w, int UNUSED(height)) {
     setfont(FONT_SELF_NAME);
     drawstr(x + SCALE(10), y + SCALE(10), UTOX_SETTINGS);
 #ifdef GIT_VERSION
-    x += SCALE(20) + UTOX_STR_WIDTH(UTOX_SETTINGS);
     setfont(FONT_TEXT);
-    drawtext(SCALE(x), SCALE(10), GIT_VERSION, strlen(GIT_VERSION));
     char ver_string[64];
-    int  count;
-    count = snprintf(ver_string, 64, "Toxcore v%u.%u.%u", tox_version_major(), tox_version_minor(), tox_version_patch());
-    drawtextwidth_right(w - textwidth(ver_string, count), textwidth(ver_string, count), SCALE(10),
+    int  count = snprintf(ver_string, 64, "Toxcore v%u.%u.%u",
+                            tox_version_major(), tox_version_minor(), tox_version_patch());
+    drawtextwidth_right(x + w - textwidth(ver_string, count) , textwidth(ver_string, count), SCALE(10),
                         ver_string, count);
+
+    x += SCALE(25) + UTOX_STR_WIDTH(UTOX_SETTINGS);
+    drawtext(x, SCALE(10), GIT_VERSION, strlen(GIT_VERSION));
 #endif
 }
 
