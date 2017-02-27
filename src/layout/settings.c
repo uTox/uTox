@@ -20,6 +20,7 @@
 
 /* Top bar for user settings */
 static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height)) {
+    (void) w;
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);

@@ -32,10 +32,6 @@
 
 extern XIC xic;
 
-static void expose(void) {
-
-}
-
 static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
     if (pointergrab) { // TODO super globals are bad mm'kay?
         GRAB_POS grab = grab_pos();

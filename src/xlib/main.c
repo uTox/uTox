@@ -567,6 +567,8 @@ void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_
     if (unity_running) {
         mm_notify(obj->name, f_cid);
     }
+#else
+    (void)f_cid;
 #endif
 }
 
