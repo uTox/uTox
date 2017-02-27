@@ -110,7 +110,7 @@ bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool 
 bool panel_mup(PANEL *p);
 bool panel_mleave(PANEL *p);
 
-char search_data[1024]; // this is NOT where this belongs
+char search_data[1024]; // TODO this is NOT where this belongs
 
 double ui_scale;
 

@@ -79,7 +79,6 @@ typedef struct msg_header {
 
     // true, if we're the author, false, if someone else.
     bool    our_msg;
-    bool    from_disk;
 
     uint32_t height;
     time_t   time;

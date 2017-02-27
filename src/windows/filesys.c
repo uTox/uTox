@@ -40,10 +40,10 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
     return _fdopen(_open_osfhandle((intptr_t)winFile, 0), mode);
 }
 
-FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
+FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bool portable_mode) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
-    if (settings.portable_mode) {
+    if (portable_mode) {
         strcpy(path, portable_mode_save_path);
     } else {
         if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {
@@ -170,35 +170,35 @@ bool native_create_dir(const uint8_t *filepath) {
     }
 }
 
-bool native_remove_file(const uint8_t *name, size_t length) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
+bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) {
+    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
-    if (settings.portable_mode) {
-        strcpy((char *)path, portable_mode_save_path);
+    if (portable_mode) {
+        strcpy(path, portable_mode_save_path);
     } else {
         bool have_path = false;
-        have_path      = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char *)path));
+        have_path      = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path));
 
         if (!have_path) {
-            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char *)path));
+            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path));
         }
 
         if (!have_path) {
-            strcpy((char *)path, portable_mode_save_path);
+            strcpy(path, portable_mode_save_path);
             have_path = true;
         }
     }
 
 
-    if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + length >= UTOX_FILE_NAME_LENGTH) {
         LOG_TRACE("WinFilesys", "File/directory name too long, unable to remove" );
         return false;
     } else {
-        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path),
+        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path),
                  "\\Tox\\%.*s", (int)length, (char *)name);
     }
 
-    if (remove((const char *)path)) {
+    if (remove(path)) {
         LOG_ERR("WinFilesys", "Unable to delete file!\n\t\t%s" , path);
         return false;
     } else {

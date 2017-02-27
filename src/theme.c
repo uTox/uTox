@@ -661,7 +661,7 @@ static void read_custom_theme(const uint8_t *data, size_t length) {
 }
 
 static uint8_t *utox_data_load_custom_theme(size_t *out) {
-    FILE *fp = native_get_file((uint8_t *)"utox_theme.ini", out, UTOX_FILE_OPTS_READ);
+    FILE *fp = utox_get_file((uint8_t *)"utox_theme.ini", out, UTOX_FILE_OPTS_READ);
 
     if (fp == NULL) {
         LOG_ERR("Theme", "Failed to open custom theme file.");
