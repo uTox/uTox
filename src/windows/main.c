@@ -150,8 +150,7 @@ void openfileavatar(void) {
 void file_save_inline_image_png(MSG_HEADER *msg) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
-        LOG_ERR("file_save_inline_image_png", "Could not allocate memory for path.");
-        return;
+        LOG_FATAL_ERR(EXIT_MALLOC, "file_save_inline_image_png", "Could not allocate memory for path.");
     }
 
     snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)msg->via.ft.name_length, (char *)msg->via.ft.name);
