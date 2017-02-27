@@ -24,8 +24,8 @@ typedef enum UTOX_FILE_OPTS {
  * This function takes care of the environment, checking for portable mode.
  *
  * @param name file name, relative to utox storage folder.
- * @param size size of name.
- * @param opts
+ * @param size size of the file. This variable is written to by the function. Can be NULL if you don't care about the size.
+ * @param opts options to apply when opening the file, see UTOX_FILE_OPTS for available options.
  * @return open file pointer, or NULL on failure.
  */
 FILE *utox_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts);

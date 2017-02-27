@@ -1,6 +1,7 @@
-#include "settings.h"
-#include "../test.h"
 #include "branding.h"
+#include "settings.h"
+
+#include "../test.h"
 
 
 SETTINGS settings = {
