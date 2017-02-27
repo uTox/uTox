@@ -29,11 +29,10 @@ SCROLLABLE scrollbar_flist = {
 };
 
 static void draw_background_sidebar(int x, int y, int width, int height) {
-    /* We need to SCALE @width here because it's a static define */
     /* Friend list (roster) background   */
-    drawrect(SCALE(x), SCALE(y), width, height, COLOR_BKGRND_LIST);
+    drawrect(x, y, width, height, COLOR_BKGRND_LIST);
     /* Current user badge background     */
-    drawrect(SCALE(x), SCALE(y), width, SCALE(70), COLOR_BKGRND_MENU);
+    drawrect(x, y, width, SCALE(70), COLOR_BKGRND_MENU); // TODO magic numbers are bad
 }
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
