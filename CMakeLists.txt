@@ -10,7 +10,7 @@ project(uTox LANGUAGES C)
 # versions in a synchronised way.
 set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "13")
-set(PROJECT_VERSION_PATCH "0")
+set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 # make version available in C files

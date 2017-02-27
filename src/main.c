@@ -258,12 +258,6 @@ void parse_args(int argc, char *argv[],
 }
 
 void utox_init(void) {
-    /* Called by the native main for every platform after loading utox setting, before showing/drawing any windows. */
-    // Moved to settings.c
-    // if (settings.curr_version != settings.last_version) {
-    //     settings.show_splash = true;
-    // }
-
     // TODO(grayhatter)
     //#ifdef ENABLE_UPDATER
     // if (settings.auto_update) {
