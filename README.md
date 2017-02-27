@@ -1,4 +1,4 @@
-# μTox [![Build Status](https://travis-ci.org/uTox/uTox.svg?branch=develop)](https://travis-ci.org/uTox/uTox)
+# μTox [![Build Status](https://travis-ci.org/uTox/uTox.svg?branch=develop)](https://travis-ci.org/uTox/uTox) [![Coverage](https://img.shields.io/badge/coverage-0.01%25-red.svg)](#)
 
 The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
