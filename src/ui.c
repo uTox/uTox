@@ -205,7 +205,7 @@ static void settings_ADV(void) {
 }
 
 void ui_set_scale(uint8_t scale) {
-    if (scale >= 6 && scale <= 26) {
+    if (scale >= 5 && scale <= 25) {
         ui_scale = scale;
     } else if (scale != 0) {
         return ui_set_scale(10);

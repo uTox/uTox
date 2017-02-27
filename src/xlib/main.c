@@ -727,7 +727,7 @@ int main(int argc, char *argv[]) {
     setfont(FONT_TEXT);
 
     /* load fonts and scalable bitmaps */
-    ui_set_scale(save->scale + 1);
+    ui_set_scale(save->scale);
 
     /* done with save */
     free(save);

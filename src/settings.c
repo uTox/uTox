@@ -199,7 +199,7 @@ void config_save(UTOX_SAVE *save_in) {
     save->window_height = save_in->window_height;
 
     save->save_version                  = UTOX_SAVE_VERSION;
-    save->scale                         = ui_scale - 1;
+    save->scale                         = ui_scale;
     save->proxyenable                   = switch_proxy.switch_on;
     save->logging_enabled               = settings.logging_enabled;
     save->close_to_tray                 = settings.close_to_tray;

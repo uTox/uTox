@@ -855,7 +855,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         dropdown_theme.selected = save->theme;
         settings.theme          = save->theme;
     }
+
     theme_load(settings.theme);
+    ui_set_scale(save->scale);
 
     utox_init();
 

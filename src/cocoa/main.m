@@ -415,7 +415,7 @@ void launch_at_startup(int should) {
 
                             self.utox_window.contentView =
                                 [[[uToxView alloc] initWithFrame:(CGRect){ 0, 0, self.utox_window.frame.size }] autorelease];
-                            ui_set_scale((save->scale + 1) ?: 2);
+                            ui_set_scale((save->scale) ?: 2);
                             ui_size(settings.window_width, settings.window_height);
 
                             /* start the tox thread */
