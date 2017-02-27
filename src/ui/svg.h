@@ -22,6 +22,8 @@
 #define BM_LBUTTON_WIDTH SCALE(52)
 #define BM_LBUTTON_HEIGHT SCALE(40)
 /* Standard small size button */
+#define _BM_SBUTTON_WIDTH 52
+#define _BM_SBUTTON_HEIGHT 20
 #define BM_SBUTTON_WIDTH SCALE(52)
 #define BM_SBUTTON_HEIGHT SCALE(20)
 

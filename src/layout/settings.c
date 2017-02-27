@@ -236,8 +236,8 @@ static void draw_settings_text_adv(int x, int y, int UNUSED(w), int UNUSED(heigh
     drawstr(x + SCALE(10), y + SCALE(30),  IPV6);
     drawstr(x + SCALE(10), y + SCALE(60),  UDP);
     drawstr(x + SCALE(10), y + SCALE(90),  PROXY);
-    drawtext(SCALE(x + 264), y + SCALE(94), ":", 1); // Little addr port separator
     drawstr(x + SCALE(10), y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
+    drawtext(x + SCALE(264), y + SCALE(94), ":", 1); // Little addr port separator
 
     drawstr(x + SCALE(10), y + SCALE(150), AUTO_UPDATE);
     drawstr(x + SCALE(10), y + SCALE(180), BLOCK_FRIEND_REQUESTS);
@@ -507,37 +507,43 @@ BUTTON
 button_settings_sub_profile = {
     .nodraw = true,
     .on_mup = button_settings_sub_profile_on_mup,
-    .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
+    .tooltip_text = {.i18nal = STR_PROFILE_BUTTON },
+    .button_text  = {.i18nal = STR_PROFILE_BUTTON },
 },
 
 button_settings_sub_devices = {
     .nodraw = true,
     .on_mup = button_settings_sub_devices_on_mup,
-    .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
+    .tooltip_text = {.i18nal = STR_DEVICES_BUTTON },
+    .button_text  = {.i18nal = STR_DEVICES_BUTTON },
 },
 
 button_settings_sub_ui = {
     .nodraw = true,
     .on_mup = button_settings_sub_ui_on_mup,
-    .tooltip_text = {.i18nal = STR_USERSETTINGS },
+    .tooltip_text = {.i18nal = STR_USER_INTERFACE_BUTTON },
+    .button_text  = {.i18nal = STR_USER_INTERFACE_BUTTON },
 },
 
 button_settings_sub_av = {
     .nodraw = true,
     .on_mup = button_settings_sub_av_on_mup,
-    .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
-},
-
-button_settings_sub_adv = {
-    .nodraw = true,
-    .on_mup = button_settings_sub_adv_on_mup,
-    .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
+    .tooltip_text = {.i18nal = STR_AUDIO_VIDEO_BUTTON },
+    .button_text  = {.i18nal = STR_AUDIO_VIDEO_BUTTON },
 },
 
 button_settings_sub_notifications = {
     .nodraw = true,
     .on_mup = button_settings_sub_notifications_on_mup,
     .tooltip_text = {.i18nal = STR_NOTIFICATIONS_BUTTON },
+    .button_text  = {.i18nal = STR_NOTIFICATIONS_BUTTON },
+},
+
+button_settings_sub_adv = {
+    .nodraw = true,
+    .on_mup = button_settings_sub_adv_on_mup,
+    .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
+    .button_text  = {.i18nal = STR_ADVANCED_BUTTON },
 },
 
 button_add_new_device_to_self = {

@@ -176,7 +176,7 @@ static void settings_NOTIFY(void) {
     CREATE_SWITCH(audible_notifications,        -10 - _BM_SWITCH_WIDTH, 10, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
     CREATE_SWITCH(status_notifications,         -10 - _BM_SWITCH_WIDTH, 40, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
     CREATE_SWITCH(typing_notes,                 -10 - _BM_SWITCH_WIDTH, 70, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_DROPDOWN(global_group_notifications, 10,                   120,       24,       100);
+    CREATE_DROPDOWN(global_group_notifications,  10,                   120,       24,       100);
 }
 
 static void settings_ADV(void) {
@@ -193,8 +193,8 @@ static void settings_ADV(void) {
     CREATE_SWITCH(auto_update,           -10 - _BM_SWITCH_WIDTH, 150, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
     CREATE_SWITCH(block_friend_requests, -10 - _BM_SWITCH_WIDTH, 180, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
 
-    CREATE_BUTTON(show_password_settings, 10,  210, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(show_nospam,            170, 210, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_password_settings, 10,  210, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_nospam,            170, 210, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(nospam,           10,  255, -10, 24);
     CREATE_BUTTON(change_nospam,  10,  285, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
@@ -259,24 +259,25 @@ void ui_set_scale(uint8_t scale) {
 
 
     /* Setting pages */
-    CREATE_BUTTON(settings_sub_profile, 1, 1, 22 + UTOX_STR_WIDTH(PROFILE_BUTTON), 28);
-    uint32_t settings_tab_x = 24 + UTOX_STR_WIDTH(PROFILE_BUTTON);
+    uint32_t settings_x = 4;
+    CREATE_BUTTON(settings_sub_profile,         settings_x, 0, 12, 28);
+    settings_x += 20 + UN_SCALE(UTOX_STR_WIDTH(PROFILE_BUTTON));
 
 #ifdef ENABLE_MULTIDEVICE
-    CREATE_BUTTON(settings_sub_devices, settings_tab_x, 1, 22 + UTOX_STR_WIDTH(DEVICES_BUTTON), 28);
-    settings_tab_x += 24 + UTOX_STR_WIDTH(DEVICES_BUTTON);
+    CREATE_BUTTON(settings_sub_devices,         settings_x, 0, 12, 28);
+    settings_x += 20 + UN_SCALE(UTOX_STR_WIDTH(DEVICES_BUTTON));
 #endif
 
-    CREATE_BUTTON(settings_sub_ui, settings_tab_x, 1, 20 + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON), 28);
-    settings_tab_x += 24 + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
+    CREATE_BUTTON(settings_sub_ui,              settings_x, 0, 12, 28);
+    settings_x += 20 + UN_SCALE(UTOX_STR_WIDTH(USER_INTERFACE_BUTTON));
 
-    CREATE_BUTTON(settings_sub_av, settings_tab_x, 1, 20 + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON), 28);
-    settings_tab_x += 22 + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
+    CREATE_BUTTON(settings_sub_av,              settings_x, 0, 12, 28);
+    settings_x += 20 + UN_SCALE(UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON));
 
-    CREATE_BUTTON(settings_sub_notifications, settings_tab_x, 1, 18 + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON), 28);
-    settings_tab_x += 18 + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
+    CREATE_BUTTON(settings_sub_notifications,   settings_x, 0, 12, 28);
+    settings_x += 20 + UN_SCALE(UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON));
 
-    CREATE_BUTTON(settings_sub_adv, settings_tab_x, 1, 20 + UTOX_STR_WIDTH(ADVANCED_BUTTON), 28);
+    CREATE_BUTTON(settings_sub_adv,             settings_x, 0, 12, 28);
 
 
     /* Devices */

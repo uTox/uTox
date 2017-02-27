@@ -8,22 +8,24 @@
 #include "../ui.h"
 
 static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
-    int old_w = *w;
+    int real_w = *w;
 
     // Increase width if needed, so that button text fits.
     if (maybe_i18nal_string_is_valid(&b->button_text)) {
-        STRING *s = maybe_i18nal_string_get(&b->button_text);
-        int     needed_w = textwidth(s->str, s->length) + SCALE(12);
+        STRING *str = maybe_i18nal_string_get(&b->button_text);
 
-        if (*w < needed_w) {
-            *w = needed_w;
+        int min_w = textwidth(str->str, str->length);
+
+        if (*w < min_w) {
+            *w = min_w + SCALE(12); // 12 seems like a perfectly fine number,
+                                    // eventually we should use logic here.
         }
     }
 
     // Push away from the right border to fit,
     // if our panel is right-adjusted.
     if (b->panel.x < 0) {
-        *x -= *w - old_w;
+        *x -= *w - real_w;
     }
 }
 
@@ -49,12 +51,12 @@ void button_draw(BUTTON *b, int x, int y, int width, int height) {
     calculate_pos_and_width(b, &x, &width);
 
     // Button background color
-    uint32_t color_background = b->mousedown ? b->c3 : (b->mouseover ? b->c2 : b->c1);
+    uint32_t color_bg = b->mousedown ? b->c3 : (b->mouseover ? b->c2 : b->c1);
 
     if (b->bm_fill) {
-        drawalpha(b->bm_fill, x, y, real_w, height, color_background);
+        drawalpha(b->bm_fill, x, y, real_w, height, color_bg);
     } else {
-        draw_rect_fill(x, y, real_w, height, b->disabled ? b->cd : color_background);
+        draw_rect_fill(x, y, real_w, height, b->disabled ? b->cd : color_bg);
     }
 
     if (b->bm_icon) {
@@ -69,8 +71,8 @@ void button_draw(BUTTON *b, int x, int y, int width, int height) {
                 // The text didn't fit into the original width.
                 // Fill the rest of the new width with the image
                 // and hope for the best.
-                drawalpha(b->bm_fill, x - width + SCALE(real_w), SCALE(y), width, height, color_background);
-                real_w -= width / 2 + 1;
+                drawalpha(b->bm_fill, x + width - real_w, y, width, height, color_bg);
+                width -= real_w / 2 + 1;
             }
         }
         STRING *s = maybe_i18nal_string_get(&b->button_text);

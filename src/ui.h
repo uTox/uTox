@@ -114,9 +114,13 @@ char search_data[1024]; // TODO this is NOT where this belongs
 
 double ui_scale;
 
-#define SCALE(x) (((int)((ui_scale / 10.0) * ((double)x))))
-#define SCALE_DIV(x) (((int)((ui_scale / 10.0) * ((double)x))) ?: 1)
-#define UI_FSCALE(x) (((ui_scale / 10.0) * ((double)x)) ?: 1)
+#define SCALE(x)      ((int)(((double)x) * (ui_scale / 10.0)))
+#define SCALE_DIV(x) (((int)(((double)x) * (ui_scale / 10.0))) ?: 1)
+
+#define UI_FSCALE(x)      (((double)x) * (ui_scale / 10.0))
+#define UI_FSCALE_DIV(x) ((((double)x) * (ui_scale / 10.0)) ?: 1)
+
+#define UN_SCALE(x) (((int)(((double)x) / (ui_scale / 10.0))))
 
 #define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char *)str, sizeof(str) - 1)
