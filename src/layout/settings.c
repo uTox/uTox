@@ -32,7 +32,9 @@ static void draw_settings_header(int x, int y, int w, int UNUSED(height)) {
     drawtextwidth_right(x + w - textwidth(ver_string, count) , textwidth(ver_string, count), SCALE(10),
                         ver_string, count);
 
+    setfont(FONT_SELF_NAME); // x adjustment depends on the font type being set first
     x += SCALE(25) + UTOX_STR_WIDTH(UTOX_SETTINGS);
+    setfont(FONT_TEXT);
     drawtext(x, SCALE(10), GIT_VERSION, strlen(GIT_VERSION));
 #endif
 }
