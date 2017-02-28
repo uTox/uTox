@@ -12,3 +12,5 @@ export PKG_CONFIG_PATH="$CACHE_DIR/usr/lib/pkgconfig"
 
 # Cross compilation default targets.
 export TARGET_HOST=""
+
+export MAKEFLAGS="-j8"
