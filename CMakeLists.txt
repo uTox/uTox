@@ -106,6 +106,11 @@ endif()
 
 option(ENABLE_TESTS "Whether to build test binaries (currently linux only)" ON)
 
+option(ENABLE_WERROR "Error on Warning, whether to put -Werror flag to the compiler" OFF)
+if(ENABLE_WERROR)
+    add_cflag("-Werror")
+endif()
+
 option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
     add_cflag("-DAUDIO_FILTERING")
@@ -148,11 +153,12 @@ endif()
 
 # print a summary of build options
 message("Build options:")
-message("- Add ASAN:        ${ENABLE_ASAN}")
-message("- Filter Audio:    ${FILTER_AUDIO}")
-message("- uTox Static:     ${UTOX_STATIC}")
-message("- Toxcore Static:  ${TOXCORE_STATIC}")
-message("- Windows Legacy:  ${WIN_XP_LEGACY}")
+message("- Add ASAN:         ${ENABLE_ASAN}")
+message("- Error on Warning: ${ENABLE_WERROR}")
+message("- Filter Audio:     ${FILTER_AUDIO}")
+message("- uTox Static:      ${UTOX_STATIC}")
+message("- Toxcore Static:   ${TOXCORE_STATIC}")
+message("- Windows Legacy:   ${WIN_XP_LEGACY}")
 
 message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
 message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
