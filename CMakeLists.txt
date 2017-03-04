@@ -6,7 +6,6 @@ project(uTox LANGUAGES C)
 # project version
 #
 #######################################################################
-
 # This version is for the entire project. All libraries (core, av, ...) move in
 # versions in a synchronised way.
 set(PROJECT_VERSION_MAJOR "0")
@@ -33,7 +32,6 @@ endif()
 # C compiler flags
 #
 #######################################################################
-
 set(CMAKE_C_STANDARD 11) # this requires at least cmake 3.1
 
 include(CheckCCompilerFlag)
@@ -65,8 +63,11 @@ add_cflag("-Wextra")
 # Warnings we don't tolerate
 add_cflag("-Werror=implicit-function-declaration")
 
-# Warnings we don't care about
+#
+## Warnings we don't care about
+#
 add_cflag("-Wformat=0")
+add_cflag("-Wno-misleading-indentation")
 
 # Everything Else
 add_cflag("-fno-strict-aliasing")
@@ -105,6 +106,11 @@ if (ENABLE_ASAN)
 endif()
 
 option(ENABLE_TESTS "Whether to build test binaries (currently linux only)" ON)
+
+option(ENABLE_WERROR "Error on Warning, whether to put -Werror flag to the compiler" OFF)
+if(ENABLE_WERROR)
+    add_cflag("-Werror")
+endif()
 
 option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
@@ -148,11 +154,12 @@ endif()
 
 # print a summary of build options
 message("Build options:")
-message("- Add ASAN:        ${ENABLE_ASAN}")
-message("- Filter Audio:    ${FILTER_AUDIO}")
-message("- uTox Static:     ${UTOX_STATIC}")
-message("- Toxcore Static:  ${TOXCORE_STATIC}")
-message("- Windows Legacy:  ${WIN_XP_LEGACY}")
+message("- Add ASAN:         ${ENABLE_ASAN}")
+message("- Error on Warning: ${ENABLE_WERROR}")
+message("- Filter Audio:     ${FILTER_AUDIO}")
+message("- uTox Static:      ${UTOX_STATIC}")
+message("- Toxcore Static:   ${TOXCORE_STATIC}")
+message("- Windows Legacy:   ${WIN_XP_LEGACY}")
 
 message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
 message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
