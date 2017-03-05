@@ -460,7 +460,11 @@ uint16_t native_video_detect(void) {
                 postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
                 break;
             default: {
-                         FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];
+                         FRIEND *f = get_friend(((uToxIroncladWindow *)notification.object).video_id - 1);
+                         if (!f) {
+                             LOG_ERR("Cocoa", "Could not get friend with number: %u", ((uToxIroncladWindow *)notification.object).video_id - 1);
+                             return;
+                         }
                          postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
                          break;
                      }

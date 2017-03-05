@@ -128,8 +128,13 @@ void native_export_chatlog_init(uint32_t friend_number) {
         ugtk_save_chatlog(friend_number);
     } else {
         char name[TOX_MAX_NAME_LENGTH + sizeof(".txt")];
-        snprintf((char *)name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length,
-                 friend[friend_number].name);
+        FRIEND *f = get_friend(friend_number);
+        if (!f) {
+            LOG_ERR("Filesys", "Could not get friend with number: %u", friend_number);
+            return;
+        }
+        snprintf((char *)name, sizeof(name), "%.*s.txt", (int)f->name_length,
+                 f->name);
 
         FILE *file = fopen((char *)name, "wb");
         if (file) {

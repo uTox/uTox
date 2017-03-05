@@ -193,7 +193,12 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
         /* File transfer messages */
         case FILE_SEND_NEW: {
-            FRIEND *f = &friend[param1];
+            FRIEND *f = get_friend(param1);
+            if (!f) {
+                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                return;
+            }
+
             FILE_TRANSFER *file = data;
 
             MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
@@ -308,7 +313,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
          * param1: friend id
          * param2: new online status(bool) */
         case FRIEND_ONLINE: {
-            FRIEND *f = &friend[param1];
+            FRIEND *f = get_friend(param1);
 
             if (friend_set_online(f, param2)) {
                 redraw();
@@ -317,7 +322,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case FRIEND_NAME: {
-            FRIEND *f = &friend[param1];
+            FRIEND *f = get_friend(param1);
             friend_setname(f, data, param2);
 
             redraw();
@@ -325,7 +330,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case FRIEND_STATUS_MESSAGE: {
-            FRIEND *f = &friend[param1];
+            FRIEND *f = get_friend(param1);
             free(f->status_message);
             f->status_length  = param2;
             f->status_message = data;
@@ -333,7 +338,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case FRIEND_STATE: {
-            FRIEND *f = &friend[param1];
+            FRIEND *f = get_friend(param1);
             f->status = param2;
             redraw();
             break;
@@ -342,11 +347,11 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             /* param1: friend id
              * param2: png size
              * data: png data    */
-            FRIEND *f = &friend[param1];
+            FRIEND *f = get_friend(param1);
             uint8_t *avatar = data;
             size_t   size   = param2;
 
-            avatar_set(friend[param1].avatar, avatar, size);
+            avatar_set(f->avatar, avatar, size);
             avatar_save(f->id_str, avatar, size);
 
             free(avatar);
@@ -354,8 +359,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case FRIEND_AVATAR_UNSET: {
-            FRIEND *f = &friend[param1];
+            FRIEND *f = get_friend(param1);
             avatar_unset(f->avatar);
+            // remove avatar from disk
             avatar_delete(f->id_str);
 
             redraw();
@@ -363,7 +369,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         /* Interactions */
         case FRIEND_TYPING: {
-            FRIEND *f = &friend[param1];
+            FRIEND *f = get_friend(param1);
             friend_set_typing(f, param2);
             redraw();
             break;
@@ -387,7 +393,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case FRIEND_ACCEPT_REQUEST: {
             /* confirmation that friend has been added to friend list (accept) */
             if (!param1) {
-                FRIEND *   f   = &friend[param2];
+                FRIEND *   f   = get_friend(param2);
                 FRIENDREQ *req = data;
                 flist_addfriend2(f, req);
                 flist_reselect_current();
@@ -407,7 +413,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 edit_add_new_friend_id.length  = 0;
                 edit_add_new_friend_msg.length = 0;
 
-                FRIEND *f = &friend[param2];
+                FRIEND *f = get_friend(param2);
                 memcpy(f->cid, data, sizeof(f->cid));
                 flist_addfriend(f);
 
@@ -430,22 +436,46 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
 
         case AV_CALL_INCOMING: {
-            call_notify(&friend[param1], UTOX_AV_INVITE);
+            FRIEND *f = get_friend(param1);
+            if (!f) {
+                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                return;
+            }
+
+            call_notify(f, UTOX_AV_INVITE);
             redraw();
             break;
         }
         case AV_CALL_RINGING: {
-            call_notify(&friend[param1], UTOX_AV_RINGING);
+            FRIEND *f = get_friend(param1);
+            if (!f) {
+                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                return;
+            }
+
+            call_notify(f, UTOX_AV_RINGING);
             redraw();
             break;
         }
         case AV_CALL_ACCEPTED: {
-            call_notify(&friend[param1], UTOX_AV_STARTED);
+            FRIEND *f = get_friend(param1);
+            if (!f) {
+                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                return;
+            }
+
+            call_notify(f, UTOX_AV_STARTED);
             redraw();
             break;
         }
         case AV_CALL_DISCONNECTED: {
-            call_notify(&friend[param1], UTOX_AV_NONE);
+            FRIEND *f = get_friend(param1);
+            if (!f) {
+                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                return;
+            }
+
+            call_notify(f, UTOX_AV_NONE);
             redraw();
             break;
         }

@@ -736,7 +736,7 @@ static void e_chat_msg_onchange(EDIT *UNUSED(edit)) {
             return;
         }
 
-        postmessage_toxcore(TOX_SEND_TYPING, (f - friend), 0, NULL);
+        postmessage_toxcore(TOX_SEND_TYPING, f->number, 0, NULL);
     }
 }
 

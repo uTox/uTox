@@ -880,13 +880,19 @@ void update_tray(void) {
 
 void native_export_chatlog_init(uint32_t fid) {
 
+    FRIEND *f = get_friend(fid);
+    if (!f) {
+        LOG_ERR("Cocoa", "Could not get friend with number: %u", fid);
+        return;
+    }
+
     NSSavePanel *picker = [NSSavePanel savePanel];
-    NSString *fname     = [[NSString alloc] initWithBytesNoCopy:friend[fid].name
-                                                     length:friend[fid].name_length
+    NSString *fname     = [[NSString alloc] initWithBytesNoCopy:f->name
+                                                     length:f->name_length
                                                    encoding:NSUTF8StringEncoding
                                                freeWhenDone:NO];
     picker.message = [NSString
-        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), friend[fid].name_length, friend[fid].name];
+        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), f->name_length, f->name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];

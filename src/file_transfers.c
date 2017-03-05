@@ -161,7 +161,7 @@ static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
         }
     } else {
         snprintf(name, UTOX_FILE_NAME_LENGTH, "%.*s%02i.ftoutfo",
-                    TOX_PUBLIC_KEY_SIZE * 2, friend[ft->friend_number].id_str,
+                 TOX_PUBLIC_KEY_SIZE * 2, get_friend(ft->friend_number)->id_str,
                     ft->file_number % 100);
     }
 
@@ -676,8 +676,8 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
     tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);
 
     /* Verify this is a new avatar */
-    if ((friend[friend_number].avatar->format)
-        && memcmp(friend[friend_number].avatar->hash, file_id, TOX_HASH_LENGTH) == 0) {
+    if ((f->avatar->format)
+        && memcmp(f->avatar->hash, file_id, TOX_HASH_LENGTH) == 0) {
         LOG_TRACE("FileTransfer", "Avatar from friend (%u) rejected: Same as Current" , friend_number);
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;

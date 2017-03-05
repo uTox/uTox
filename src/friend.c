@@ -112,7 +112,8 @@ static void friend_meta_data_read(FRIEND *f) {
 }
 
 void utox_friend_init(Tox *tox, uint32_t friend_number) {
-    FRIEND *f = &friend[friend_number];
+    // get friend pointer
+    FRIEND *f = get_friend(friend_number);
     uint8_t name[TOX_MAX_NAME_LENGTH];
 
     memset(f, 0, sizeof(FRIEND));
@@ -169,8 +170,7 @@ void utox_friend_list_init(Tox *tox) {
      * we just set both to the number when we init, and hope for the best! */
     self.friend_list_count = self.friend_list_size = tox_self_get_friend_list_size(tox);
 
-    uint32_t i;
-    for (i = 0; i < self.friend_list_count; ++i) {
+    for (uint32_t i = 0; i < self.friend_list_count; ++i) {
         utox_friend_init(tox, i);
     }
 }
@@ -362,9 +362,10 @@ void friend_free(FRIEND *f) {
 
 FRIEND *find_friend_by_name(uint8_t *name) {
     for (size_t i = 0; i < self.friend_list_count; i++) {
-        if ((friend[i].alias && memcmp(friend[i].alias, name, friend[i].alias_length) == 0)
-            || memcmp(friend[i].name, name, friend[i].name_length) == 0) {
-            return &friend[i];
+        FRIEND *f = get_friend(i);
+        if ((f->alias && memcmp(f->alias, name, f->alias_length) == 0)
+            || memcmp(f->name, name, f->name_length) == 0) {
+            return f;
         }
     }
     return NULL;

@@ -126,15 +126,15 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 return false;
             }
 
-            int i;
-            for (i = 0; i != COUNTOF(friend); i++) {
+            uint32_t i;
+            for (i = 0; i != self.friend_list_count; i++) {
                 if (video_hwnd[i + 1] == window) {
-                    FRIEND *f = &friend[i];
+                    FRIEND *f = get_friend(i);
                     postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
                     break;
                 }
             }
-            if (i == COUNTOF(friend)) {
+            if (i == self.friend_list_count) {
                 LOG_ERR("Events", "CreateWindowExW() failed" );
             }
         }
