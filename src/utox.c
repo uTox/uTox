@@ -20,6 +20,7 @@
 #include "ui/edit.h"
 #include "ui/tooltip.h"
 
+#include "layout/friend.h"
 #include "layout/settings.h"
 
 /** Translates status code to text then sends back to the user */
@@ -85,7 +86,6 @@ static void call_notify(FRIEND *f, uint8_t status) {
     friend_notify_msg(f, str->str, str->length);
 }
 
-#include "layout/friend.h"
 void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param2, void *data) {
     switch (utox_msg_id) {
         /* General core and networking messages */
@@ -231,8 +231,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             uint16_t width, height;
             uint8_t *image;
             memcpy(&width, data, sizeof(uint16_t));
-            memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
-            memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
+            memcpy(&height, (uint8_t *)data + sizeof(uint16_t), sizeof(uint16_t));
+            memcpy(&image, (uint8_t *)data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
             // Save and store image
             friend_recvimage(f, (NATIVE_IMAGE *)image, width, height);
             redraw();

@@ -89,7 +89,7 @@ typedef struct utox_friend_request {
     uint16_t length;
     uint8_t  id[TOX_ADDRESS_SIZE];
 
-    char msg[0];
+    char msg[];
 } FRIENDREQ;
 
 
