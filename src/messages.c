@@ -1536,7 +1536,7 @@ bool messages_mleave(PANEL *UNUSED(m)) {
     return false;
 }
 
-int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
+int messages_selection(PANEL *panel, char *buffer, uint32_t len, bool names) {
     MESSAGES *m = panel->object;
 
     if (m->number == 0) {
@@ -1615,7 +1615,7 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
 
                 if (len <= length) {
                     *p = 0;
-                    return (void *)p - buffer;
+                    return p - buffer;
                 }
 
                 memcpy(p, data, length);
@@ -1653,7 +1653,7 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
         }
     }
 
-    return (void *)p - buffer;
+    return p - buffer;
 }
 
 void messages_updateheight(MESSAGES *m, int width) {
