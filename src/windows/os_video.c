@@ -91,7 +91,7 @@ uint8_t *     frame_data;
 HRESULT STDMETHODCALLTYPE test_SampleCB(ISampleGrabberCB *UNUSED(lpMyObj), double UNUSED(SampleTime), IMediaSample *pSample) {
     // you can call functions like:
     // REFERENCE_TIME   tStart, tStop;
-    void *sampleBuffer;
+    uint8_t *sampleBuffer;
 
     pSample->lpVtbl->GetPointer(pSample, (BYTE **)&sampleBuffer);
     uint16_t length = pSample->lpVtbl->GetActualDataLength(pSample);
@@ -330,7 +330,7 @@ uint16_t native_video_detect(void) {
                 hr = pMoniker->lpVtbl->BindToObject(pMoniker, NULL, NULL, &IID_IBaseFilter, (void **)&pFilter);
                 if (SUCCEEDED(hr)) {
                     int   len  = wcslen(varName.bstrVal);
-                    void *data = malloc(sizeof(*pFilter) + len * 2);
+                    char *data = malloc(sizeof(*pFilter) + len * 2);
                     WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(*pFilter), len * 2, NULL, 0);
                     memcpy(data, &pFilter, sizeof(pFilter));
                     utox_video_append_device(data, 0, data + 8, 1);
