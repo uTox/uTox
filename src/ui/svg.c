@@ -10,7 +10,6 @@
 #include <stdlib.h>
 
 #define SQRT2 1.41421356237309504880168872420969807856967187537694807317667973799
-uint8_t *svg_data = NULL;
 
 static uint8_t pixel(double d) {
     if (d >= 1.0) {
@@ -400,6 +399,8 @@ static void drawgroup(uint8_t *data, int width) {
 }
 
 bool svg_draw(bool needmemory) {
+    static uint8_t *svg_data = NULL;
+
     if (svg_data) {
         free(svg_data);
     }
