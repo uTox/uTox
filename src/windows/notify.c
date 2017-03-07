@@ -18,7 +18,7 @@ static void redraw_notify(UTOX_WINDOW *win) {
 }
 
 LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
-    UTOX_WINDOW *win = native_window_find_notify(window);
+    UTOX_WINDOW *win = native_window_find_notify(&window);
 
     static int mdown_x, mdown_y;
     switch (msg) {

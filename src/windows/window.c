@@ -126,10 +126,10 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel
     return popup;
 }
 
-UTOX_WINDOW *native_window_find_notify(HWND window) {
+UTOX_WINDOW *native_window_find_notify(void *window) {
     UTOX_WINDOW *win = popup;
     while (win) {
-        if (win->window == window) {
+        if (win->window == *(HWND *)window) {
             return win;
         }
         win = win->_.next;

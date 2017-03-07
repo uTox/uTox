@@ -143,10 +143,10 @@ void native_window_create_video() {
     return;
 }
 
-UTOX_WINDOW *native_window_find_notify(Window window) {
+UTOX_WINDOW *native_window_find_notify(void *window) {
     UTOX_WINDOW *win = &popup_window;
     while (win) {
-        if (win->window == window) {
+        if (win->window == *(Window *)window) {
             return win;
         }
         win = win->_.next;

@@ -7,7 +7,7 @@
 // TODO find a better place for these!
 void native_window_raze(UTOX_WINDOW *win);
 UTOX_WINDOW *native_window_create_video(int x, int y, int w, int h);
-UTOX_WINDOW *native_window_find_notify(UTOX_WINDOW *win);
+UTOX_WINDOW *native_window_find_notify(void *win);
 UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel);
 void native_window_tween(UTOX_WINDOW *win);
 void native_window_create_screen_select(void);
