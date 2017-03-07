@@ -55,12 +55,15 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
 
 # Warn on non-ISO C.
 #add_cflag("-pedantic") # throws a lot of warning, quite sure we do not want this at current state.
-
-# Add all warning flags we can.
+#
+## Add all warning flags we can.
+#
 add_cflag("-Wall")
 add_cflag("-Wextra")
 
-# Warnings we don't tolerate
+#
+## Warnings we don't tolerate
+#
 add_cflag("-Werror=implicit-function-declaration")
 
 #
@@ -69,17 +72,27 @@ add_cflag("-Werror=implicit-function-declaration")
 add_cflag("-Wformat=0")
 add_cflag("-Wno-misleading-indentation")
 
-# Everything Else
+#
+## Everything Else
+#
 add_cflag("-fno-strict-aliasing")
 
+#
+## Optimization Flags
+#
+add_cflag("-flto")
 # Have ld strip the symbols from Release and MinSizeRel build types.
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
-set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -s")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
+set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Oz")
 
 # Fix GNU stack
-IF(CMAKE_C_COMPILER_ID MATCHES "GNU")
-    IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+if(CMAKE_C_COMPILER_ID MATCHES "GNU")
+    if(CMAKE_SYSTEM_NAME MATCHES "Linux")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack")
+    endif()
+elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
+    if(NOT ENABLE_ASAN)
+        add_cflag("-fsanitize=safe-stack")
     endif()
 endif()
 
