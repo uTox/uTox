@@ -139,9 +139,10 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **UNUSED
     return &main_window;
 }
 
-void native_window_create_video() {
-    return;
+UTOX_WINDOW *native_window_create_video(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h)) {
+    return NULL;
 }
+
 
 UTOX_WINDOW *native_window_find_notify(void *window) {
     UTOX_WINDOW *win = &popup_window;
