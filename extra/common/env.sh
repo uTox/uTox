@@ -4,7 +4,7 @@ export CACHE_DIR=${CACHE_DIR=""}
 
 export TOXCORE_REPO="TokTok/c-toxcore"
 
-export CFLAGS="-I$CACHE_DIR/usr/include"
+export CFLAGS="-I$CACHE_DIR/usr/include -I$CACHE_DIR/usr/include/opus"
 export LDFLAGS="-L$CACHE_DIR/usr/lib"
 
 export LD_LIBRARY_PATH="$CACHE_DIR/usr/lib"
