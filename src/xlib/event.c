@@ -521,7 +521,6 @@ bool doevent(XEvent event) {
         }
 
         case SelectionNotify: {
-
             LOG_TRACE(__FILE__, "SelectionNotify" );
 
             XSelectionEvent *ev = &event.xselection;

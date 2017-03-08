@@ -92,8 +92,8 @@ void video_end(uint32_t id) {
     LOG_TRACE(__FILE__, "killed window %u" , id);
 }
 
-Display *deskdisplay;
-int      deskscreen;
+static Display *deskdisplay;
+static int      deskscreen;
 
 XShmSegmentInfo shminfo;
 
@@ -112,8 +112,7 @@ uint16_t native_video_detect(void) {
     // Indicate that we support desktop capturing.
     utox_video_append_device((void *)1, 1, (void *)STR_VIDEO_IN_DESKTOP, 0);
 
-    int i;
-    for (i = 0; i != 64; i++) { /* TODO: magic numbers are bad mm'kay? */
+    for (int i = 0; i != 64; i++) { /* TODO: magic numbers are bad mm'kay? */
         snprintf(dev_name + 10, sizeof(dev_name) - 10, "%i", i);
 
         struct stat st;
@@ -129,14 +128,14 @@ uint16_t native_video_detect(void) {
             // return 0;
         }
 
-        void *p = malloc(sizeof(void *) + sizeof(dev_name)), *pp = p + sizeof(void *);
+        uint8_t *p = malloc(sizeof(void *) + sizeof(dev_name)), *pp = p + sizeof(void *);
         memcpy(p, &pp, sizeof(void *));
         memcpy(p + sizeof(void *), dev_name, sizeof(dev_name));
         if (!first) {
             first = pp;
-            utox_video_append_device(p, 0, p + sizeof(void *), 1);
+            utox_video_append_device((void *)p, 0, p + sizeof(void *), 1);
         } else {
-            utox_video_append_device(p, 0, p + sizeof(void *), 0);
+            utox_video_append_device((void *)p, 0, p + sizeof(void *), 0);
         }
         device_count++;
     }
@@ -175,24 +174,24 @@ bool native_video_init(void *handle) {
         if (!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen),
                                              DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo,
                                              video_width, video_height))) {
-            return 0;
+            return false;
         }
 
         if ((shminfo.shmid = shmget(IPC_PRIVATE, screen_image->bytes_per_line * screen_image->height, IPC_CREAT | 0777))
             < 0) {
-            return 0;
+            return false;
         }
 
         if ((shminfo.shmaddr = screen_image->data = (char *)shmat(shminfo.shmid, 0, 0)) == (char *)-1) {
-            return 0;
+            return false;
         }
 
         shminfo.readOnly = False;
         if (!XShmAttach(deskdisplay, &shminfo)) {
-            return 0;
+            return false;
         }
 
-        return 1;
+        return true;
     }
 
     return v4l_init(handle);
@@ -209,7 +208,7 @@ void native_video_close(void *handle) {
 
 bool native_video_startread(void) {
     if (utox_v4l_fd == -1) {
-        return 1;
+        return true;
     }
 
     return v4l_startread();
@@ -217,7 +216,7 @@ bool native_video_startread(void) {
 
 bool native_video_endread(void) {
     if (utox_v4l_fd == -1) {
-        return 1;
+        return true;
     }
 
     return v4l_endread();
