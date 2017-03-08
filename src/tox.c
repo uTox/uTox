@@ -128,6 +128,7 @@ static void toxcore_bootstrap(Tox *tox, bool ipv6_enabled) {
         if (!ipv6_enabled && d->ipv6) {
             continue;
         }
+        LOG_TRACE("Toxcore", "Bootstrapping with node %s udp: %d, tcp: %d", d->address, d->port_udp, d->port_tcp);
         tox_bootstrap(tox, d->address, d->port_udp, d->key, 0);
         tox_add_tcp_relay(tox, d->address, d->port_tcp, d->key, 0);
         i++;
