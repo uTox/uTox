@@ -108,7 +108,7 @@ struct {
 struct {
     int   len, left;
     Atom  type;
-    void *data;
+    char *data;
 } pastebuf;
 
 Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format);
