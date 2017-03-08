@@ -128,15 +128,17 @@ uint16_t native_video_detect(void) {
             // return 0;
         }
 
-        uint8_t *p = malloc(sizeof(void *) + sizeof(dev_name)), *pp = p + sizeof(void *);
+        char *p = malloc(sizeof(void *) + sizeof(dev_name)), *pp = p + sizeof(void *);
         memcpy(p, &pp, sizeof(void *));
         memcpy(p + sizeof(void *), dev_name, sizeof(dev_name));
+
         if (!first) {
             first = pp;
             utox_video_append_device((void *)p, 0, p + sizeof(void *), 1);
         } else {
             utox_video_append_device((void *)p, 0, p + sizeof(void *), 0);
         }
+
         device_count++;
     }
 
