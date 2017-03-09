@@ -29,7 +29,6 @@
 
 #include "../main.h" // main_width
 
-static bool flashing;
 static bool hidden;
 
 static TRACKMOUSEEVENT tme = {
@@ -211,13 +210,13 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_SETFOCUS: {
             if (flashing) {
-                FlashWindow(main_window.window, 0);
+                FlashWindow(main_window.window, false);
                 flashing = false;
 
                 NOTIFYICONDATAW nid = {
                     .uFlags = NIF_ICON,
                     .hWnd   = main_window.window,
-                    .hIcon  = my_icon,
+                    .hIcon  = black_icon,
                     .cbSize = sizeof(nid),
                 };
 

@@ -66,11 +66,13 @@ enum {
 
 HFONT   font[32];
 HCURSOR cursors[8];
-HICON   my_icon, unread_messages_icon;
+HICON   black_icon, unread_messages_icon;
 
 HBRUSH    hdc_brush;
 
 HWND      video_hwnd[128]; // todo fixme
+
+extern bool flashing;
 
 #define NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
 #define NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)

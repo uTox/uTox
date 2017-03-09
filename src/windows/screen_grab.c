@@ -157,14 +157,14 @@ static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LP
 }
 
 void screen_grab_init(HINSTANCE app_instance) {
-    HICON black_icon  = LoadIcon(app_instance, MAKEINTRESOURCE(101));
+    HICON screengrab_black_icon  = LoadIcon(app_instance, MAKEINTRESOURCE(101));
     wchar_t screen_grab_class[] = L"uToxgrab";
 
     WNDCLASSW grab_window_class = {
         .hInstance     = app_instance,
         .lpfnWndProc   = screen_grab_sys,
         .lpszClassName = screen_grab_class,
-        .hIcon         = black_icon,
+        .hIcon         = screengrab_black_icon,
         .hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
     };
     RegisterClassW(&grab_window_class);

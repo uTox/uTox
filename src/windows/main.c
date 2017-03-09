@@ -27,9 +27,13 @@
 #include "../ui/edit.h"
 #include "../ui/svg.h"
 
+#include "../layout/settings.h" // TODO remove, in for dropdown.lang
+#include "../layout/friend.h"
+#include "../layout/group.h"
+
 #include <windowsx.h>
 
-static bool flashing;
+bool flashing = false;
 static bool hidden;
 
 bool  draw      = false;
@@ -72,10 +76,14 @@ void openfilesend(void) {
     };
 
     if (GetOpenFileName(&ofn)) {
-        FRIEND *f = flist_get_selected()->data;
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR("Windows", "Unable to get friend for file send msg.");
+        }
+
         UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
         if (!msg) {
-            LOG_ERR("Windows", "Unable to calloc for file send msg");
+            LOG_ERR("Windows", "Unable to calloc for file send msg.");
             return;
         }
         msg->file = fopen(filepath, "rb");
@@ -83,7 +91,7 @@ void openfilesend(void) {
 
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
     } else {
-        LOG_ERR("NATIVE", "GetOpenFileName() failed");
+        LOG_ERR("Windows", "GetOpenFileName() failed.");
     }
     SetCurrentDirectoryW(dir);
 }
@@ -149,7 +157,7 @@ void openfileavatar(void) {
 
 void file_save_inline_image_png(MSG_HEADER *msg) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
-    if (path == NULL) {
+    if (!path) {
         LOG_FATAL_ERR(EXIT_MALLOC, "file_save_inline_image_png", "Could not allocate memory for path.");
     }
 
@@ -225,15 +233,13 @@ uint64_t get_time(void) {
 }
 
 void openurl(char *str) {
-    ShellExecute(NULL, "open", (char *)str, NULL, NULL, SW_SHOW);
+    ShellExecute(NULL, "open", str, NULL, NULL, SW_SHOW);
 }
 
 void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {
     // TODO: Implement.
 }
 
-#include "../layout/friend.h"
-#include "../layout/group.h"
 void copy(int value) {
     const uint16_t max_size = INT16_MAX + 1;
     char data[max_size]; //! TODO: De-hardcode this value.
@@ -263,10 +269,11 @@ void copy(int value) {
 /* TODO DRY, this exists in screen_grab.c */
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image = calloc(1, sizeof(NATIVE_IMAGE));
-    if (image == NULL) {
+    if (!image) {
         LOG_ERR("create_utox_image", " Could not allocate memory for image." );
         return NULL;
     }
+
     image->bitmap        = bmp;
     image->has_alpha     = has_alpha;
     image->width         = width;
@@ -334,15 +341,14 @@ void paste(void) {
             if (!f->online) {
                 return;
             }
-            HBITMAP copy;
+
             BITMAP  bm;
-            HDC     tempdc;
             GetObject(h, sizeof(bm), &bm);
 
-            tempdc = CreateCompatibleDC(NULL);
+            HDC tempdc = CreateCompatibleDC(NULL);
             SelectObject(tempdc, h);
 
-            copy = CreateCompatibleBitmap(main_window.mem_DC, bm.bmWidth, bm.bmHeight);
+            HBITMAP copy = CreateCompatibleBitmap(main_window.mem_DC, bm.bmWidth, bm.bmHeight);
             SelectObject(main_window.mem_DC, copy);
             BitBlt(main_window.mem_DC, 0, 0, bm.bmWidth, bm.bmHeight, tempdc, 0, 0, SRCCOPY);
 
@@ -371,14 +377,16 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
         return NULL; // invalid image
     }
 
-    BITMAPINFO bmi = {.bmiHeader = {
-                          .biSize        = sizeof(BITMAPINFOHEADER),
-                          .biWidth       = width,
-                          .biHeight      = -height,
-                          .biPlanes      = 1,
-                          .biBitCount    = 32,
-                          .biCompression = BI_RGB,
-                      } };
+    BITMAPINFO bmi = {
+        .bmiHeader = {
+            .biSize        = sizeof(BITMAPINFOHEADER),
+            .biWidth       = width,
+            .biHeight      = -height,
+            .biPlanes      = 1,
+            .biBitCount    = 32,
+            .biCompression = BI_RGB,
+        }
+    };
 
     // create device independent bitmap, we can write the bytes to out
     // to put them in the bitmap
@@ -468,16 +476,16 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
         return;
     }
 
-    FlashWindow(main_window.window, 1);
+    FlashWindow(main_window.window, true);
     flashing = true;
 
     NOTIFYICONDATAW nid = {
-        .uFlags      = NIF_ICON | NIF_INFO,
+        .cbSize      = sizeof(nid),
         .hWnd        = main_window.window,
+        .uFlags      = NIF_ICON | NIF_INFO,
         .hIcon       = unread_messages_icon,
         .uTimeout    = 5000,
         .dwInfoFlags = 0,
-        .cbSize      = sizeof(nid),
     };
 
     utf8tonative(title, nid.szInfoTitle, title_length > sizeof(nid.szInfoTitle) / sizeof(*nid.szInfoTitle) - 1 ?
@@ -510,19 +518,15 @@ void redraw(void) {
  * sets struct .cbSize, and resets the tibtab to native self.name;
  */
 void update_tray(void) {
-    uint32_t tip_length;
-    char *   tip;
-
-    /* TODO; this is likely to over/under-run FIXME! */
-
-    tip = malloc(128 * sizeof(char)); // 128 is the max length of nid.szTip
+    // FIXME: this is likely to over/under-run
+    char *tip = calloc(1, 128); // 128 is the max length of nid.szTip
     if (tip == NULL) {
         LOG_TRACE("update_trip", " Could not allocate memory." );
         return;
     }
 
-    snprintf(tip, 127 * sizeof(char), "%s : %s", self.name, self.statusmsg);
-    tip_length = self.name_length + 3 + self.statusmsg_length;
+    snprintf(tip, 127, "%s : %s", self.name, self.statusmsg);
+    uint32_t tip_length = self.name_length + 3 + self.statusmsg_length;
 
     NOTIFYICONDATAW nid = {
         .uFlags = NIF_TIP,
@@ -740,8 +744,6 @@ static bool auto_update(PSTR cmd) {
     }
     return false;
 }
-
-#include "../layout/settings.h" // TODO remove, in for dropdown.lang
 
 /** client main()
  *
