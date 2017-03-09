@@ -174,7 +174,7 @@ bool messages_mleave(PANEL *m);
 // Relay keypress to message panel.
 // Returns bool indicating whether a redraw is needed or not.
 bool messages_char(uint32_t ch);
-int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names);
+int messages_selection(PANEL *panel, char *buffer, uint32_t len, bool names);
 
 void messages_updateheight(MESSAGES *m, int width);
 

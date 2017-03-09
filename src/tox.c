@@ -688,7 +688,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 STRING *default_add_msg = SPTR(DEFAULT_FRIEND_REQUEST_MESSAGE);
                 fid = tox_friend_add(tox, data, (const uint8_t *)default_add_msg->str, default_add_msg->length, &f_err);
             } else {
-                fid = tox_friend_add(tox, data, data + TOX_ADDRESS_SIZE, param1, &f_err);
+                fid = tox_friend_add(tox, data, (uint8_t *)data + TOX_ADDRESS_SIZE, param1, &f_err);
             }
 
             if (f_err != TOX_ERR_FRIEND_ADD_OK) {

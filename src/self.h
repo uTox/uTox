@@ -30,7 +30,7 @@ struct utox_self {
     char nospam_str[(sizeof(uint32_t) * 2) + 1];
 
     AVATAR *avatar;
-    void  *png_data;
+    uint8_t *png_data;
     size_t png_size;
 } self;
 

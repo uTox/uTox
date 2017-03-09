@@ -275,7 +275,7 @@ static void dns_thread(void *data) {
     bool    success = false;
 
     void *  dns3 = NULL;
-    int64_t ret  = parseargument(result, data + sizeof(size_t), length, &dns3);
+    int64_t ret  = parseargument(result, (char *)data + sizeof(size_t), length, &dns3);
     if (ret == -1)
         goto FAIL;
 
@@ -285,7 +285,7 @@ static void dns_thread(void *data) {
     DNS_RECORD *record = NULL;
     DnsQuery((char *)result, DNS_TYPE_TEXT, 0, NULL, &record, NULL);
     while (record) {
-        /* just take the first successfully parsed record (for now), and only parse the first string (seems to work) */
+        // just take the first successfully parsed record (for now), and only parse the first string (seems to work)
         DNS_TXT_DATA *txt = &record->Data.Txt;
         if (record->wType == DNS_TYPE_TEXT && txt->dwStringCount) {
             if (txt->pStringArray[0]) {
@@ -456,10 +456,10 @@ void dns_request(char *name, size_t length) {
     }
 
     // alocate memory to put length and the string + 1 NULL byte into it
-    void *data = calloc(1, sizeof(length) + (length + 1) * sizeof(char));
+    uint8_t *data = calloc(1, sizeof(length) + length + 1);
 
     memcpy(data, &length, sizeof(length));
-    memcpy(data + sizeof(length), name, length * sizeof(char));
+    memcpy(data + sizeof(length), name, length);
 
-    thread(dns_thread, data);
+    thread(dns_thread, (void *)data);
 }

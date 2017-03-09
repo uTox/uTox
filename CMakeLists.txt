@@ -60,6 +60,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
 #
 add_cflag("-Wall")
 add_cflag("-Wextra")
+add_cflag("-Wpointer-arith")
 
 #
 ## Warnings we don't tolerate

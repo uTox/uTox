@@ -293,9 +293,9 @@ void friend_set_typing(FRIEND *f, int typing) {
 }
 
 void friend_addid(uint8_t *id, char *msg, uint16_t msg_length) {
-    void *data = malloc(TOX_ADDRESS_SIZE + msg_length * sizeof(char));
+    char *data = malloc(TOX_ADDRESS_SIZE + msg_length);
     memcpy(data, id, TOX_ADDRESS_SIZE);
-    memcpy(data + TOX_ADDRESS_SIZE, msg, msg_length * sizeof(char));
+    memcpy(data + TOX_ADDRESS_SIZE, msg, msg_length);
 
     postmessage_toxcore(TOX_FRIEND_NEW, msg_length, 0, data);
 }
@@ -309,8 +309,7 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     uint8_t  name_cleaned[length];
     uint16_t length_cleaned = 0;
 
-    unsigned int i;
-    for (i = 0; i < length; ++i) {
+    for (unsigned int i = 0; i < length; ++i) {
         if (name[i] != ' ') {
             name_cleaned[length_cleaned] = name[i];
             ++length_cleaned;

@@ -453,10 +453,16 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) 
     // TODO: move the decode out of file_transfers.c
     NATIVE_IMAGE *native_image = utox_image_to_native((UTOX_IMAGE)data, size, &width, &height, 0);
     if (NATIVE_IMAGE_IS_VALID(native_image)) {
-        void *msg = malloc(sizeof(uint16_t) * 2 + sizeof(uint8_t *));
+        uint8_t *msg = malloc(sizeof(uint16_t) * 2 + sizeof(NATIVE_IMAGE *));
+        if (!msg) {
+            LOG_ERR("decode_inline_png", "Unable to malloc for inline data.");
+            return;
+        }
+
         memcpy(msg, &width, sizeof(uint16_t));
         memcpy(msg + sizeof(uint16_t), &height, sizeof(uint16_t));
-        memcpy(msg + sizeof(uint16_t) * 2, &native_image, sizeof(uint8_t *));
+        memcpy(msg + sizeof(uint16_t) * 2, &native_image, sizeof(NATIVE_IMAGE *));
+
         postmessage_utox(FILE_INCOMING_NEW_INLINE, friend_id, 0, msg);
     }
 }
