@@ -114,19 +114,24 @@ static int utox_decrypt_data(void *cypher_data, size_t cypher_length, uint8_t *c
 }
 
 /* bootstrap to dht with bootstrap_nodes */
-static void toxcore_bootstrap(Tox *tox) {
+static void toxcore_bootstrap(Tox *tox, bool ipv6_enabled) {
     static unsigned int j = 0;
 
-    if (j == 0)
+    if (j == 0) {
         j = rand();
+    }
 
     int i = 0;
     while (i < 4) {
-        struct bootstrap_node *d = &bootstrap_nodes[j % COUNTOF(bootstrap_nodes)];
-        tox_bootstrap(tox, d->address, d->port, d->key, 0);
-        tox_add_tcp_relay(tox, d->address, d->port, d->key, 0);
+        struct bootstrap_node *d = &bootstrap_nodes[j++ % COUNTOF(bootstrap_nodes)];
+        // do not add IPv6 bootstrap nodes if IPv6 is not enabled
+        if (!ipv6_enabled && d->ipv6) {
+            continue;
+        }
+        LOG_TRACE("Toxcore", "Bootstrapping with node %s udp: %d, tcp: %d", d->address, d->port_udp, d->port_tcp);
+        tox_bootstrap(tox, d->address, d->port_udp, d->key, 0);
+        tox_add_tcp_relay(tox, d->address, d->port_tcp, d->key, 0);
         i++;
-        j++;
     }
 }
 
@@ -412,7 +417,7 @@ static int init_toxcore(Tox **tox) {
     set_callbacks(*tox);
 
     /* Connect to bootstrapped nodes in "tox_bootstrap.h" */
-    toxcore_bootstrap(*tox);
+    toxcore_bootstrap(*tox, settings.enable_ipv6);
 
     if (save_status == -2) {
         LOG_NOTE("Toxcore", "No save file, using defaults" );
@@ -519,7 +524,7 @@ void toxcore_thread(void *UNUSED(args)) {
             if (time - last_connection >= (uint64_t)10 * 1000 * 1000 * 1000) {
                 last_connection = time;
                 if (!connected) {
-                    toxcore_bootstrap(tox);
+                    toxcore_bootstrap(tox, settings.enable_ipv6);
                 }
 
                 // save every 1000.
