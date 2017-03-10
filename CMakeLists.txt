@@ -6,12 +6,11 @@ project(uTox LANGUAGES C)
 # project version
 #
 #######################################################################
-
 # This version is for the entire project. All libraries (core, av, ...) move in
 # versions in a synchronised way.
 set(PROJECT_VERSION_MAJOR "0")
-set(PROJECT_VERSION_MINOR "12")
-set(PROJECT_VERSION_PATCH "2")
+set(PROJECT_VERSION_MINOR "13")
+set(PROJECT_VERSION_PATCH "0")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 # make version available in C files
@@ -22,13 +21,17 @@ configure_file(${uTox_SOURCE_DIR}/src/cocoa/Info.plist.in
 configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
                ${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml)
 
+if(${CMAKE_BUILD_TYPE} MATCHES Debug)
+    execute_process(COMMAND git describe --abbrev=8 --dirty --always --tags
+                    OUTPUT_VARIABLE GIT_VERSION)
+    string(REPLACE "\n" " " GIT_VERSION ${GIT_VERSION})
+endif()
 
 #######################################################################
 #
 # C compiler flags
 #
 #######################################################################
-
 set(CMAKE_C_STANDARD 11) # this requires at least cmake 3.1
 
 include(CheckCCompilerFlag)
@@ -52,27 +55,53 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
 
 # Warn on non-ISO C.
 #add_cflag("-pedantic") # throws a lot of warning, quite sure we do not want this at current state.
-
-# Add all warning flags we can.
+#
+## Add all warning flags we can.
+#
 add_cflag("-Wall")
 add_cflag("-Wextra")
-# Warnings we don't tolerate
-add_cflag("-Werror=implicit-function-declaration")
-# Warnings we don't care about
-add_cflag("-Wformat=0")
+add_cflag("-Wpointer-arith")
 
-# Everything Else
+#
+## Warnings we don't tolerate
+#
+add_cflag("-Werror=implicit-function-declaration")
+
+#
+## Warnings we don't care about
+#
+add_cflag("-Wformat=0")
+add_cflag("-Wno-misleading-indentation")
+
+#
+## Everything Else
+#
 add_cflag("-fno-strict-aliasing")
 
+#
+## Optimization Flags
+#
+add_cflag("-flto")
 # Have ld strip the symbols from Release and MinSizeRel build types.
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
-set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -s")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
+set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Oz")
 
 # Fix GNU stack
-IF(CMAKE_C_COMPILER_ID MATCHES "GNU")
-    IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+if(CMAKE_C_COMPILER_ID MATCHES "GNU")
+    if(CMAKE_SYSTEM_NAME MATCHES "Linux")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack")
     endif()
+elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
+    if(NOT ENABLE_ASAN)
+        if(NOT APPLE)
+            add_cflag("-fsanitize=safe-stack")
+        endif()
+    endif()
+endif()
+
+# set define for GIT_VERSION
+if(GIT_VERSION)
+    add_cflag("-DGIT_VERSION='\"${GIT_VERSION}\"'")
 endif()
 
 #######################################################################
@@ -92,6 +121,13 @@ if (ENABLE_ASAN)
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
+option(ENABLE_TESTS "Whether to build test binaries (currently linux only)" ON)
+
+option(ENABLE_WERROR "Error on Warning, whether to put -Werror flag to the compiler" OFF)
+if(ENABLE_WERROR)
+    add_cflag("-Werror")
+endif()
+
 option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
     add_cflag("-DAUDIO_FILTERING")
@@ -100,6 +136,11 @@ endif()
 option(UTOX_STATIC "Link uTox statically" OFF)
 if(UTOX_STATIC)
     add_cflag("-static")
+endif()
+
+option(ENABLE_UPDATER "Enable updater" ON)
+if(NOT UNIX AND ENABLE_UPDATER)
+    add_cflag("-DENABLE_UPDATER")
 endif()
 
 option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
@@ -129,11 +170,12 @@ endif()
 
 # print a summary of build options
 message("Build options:")
-message("- Add ASAN:        ${ENABLE_ASAN}")
-message("- Filter Audio:    ${FILTER_AUDIO}")
-message("- uTox Static:     ${UTOX_STATIC}")
-message("- Toxcore Static:  ${TOXCORE_STATIC}")
-message("- Windows Legacy:  ${WIN_XP_LEGACY}")
+message("- Add ASAN:         ${ENABLE_ASAN}")
+message("- Error on Warning: ${ENABLE_WERROR}")
+message("- Filter Audio:     ${FILTER_AUDIO}")
+message("- uTox Static:      ${UTOX_STATIC}")
+message("- Toxcore Static:   ${TOXCORE_STATIC}")
+message("- Windows Legacy:   ${WIN_XP_LEGACY}")
 
 message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
 message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
@@ -170,13 +212,8 @@ elseif(APPLE)
     set(MACOSX_BUNDLE_INFO_PLIST src/cocoa/Info.plist)
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
+    set(LIBRARIES "opus")
 elseif(UNIX)
-    find_package(Freetype REQUIRED)
-    include_directories(${FREETYPE_INCLUDE_DIRS})
-    message("Found Freetype version ${FREETYPE_VERSION_STRING}")
-    message("Freetype include: ${FREETYPE_INCLUDE_DIRS}")
-    message("Freetype library: ${FREETYPE_LIBRARIES}")
-
     add_subdirectory(src/xlib)
 endif()
 
@@ -243,4 +280,16 @@ elseif(UNIX)
     install(TARGETS utox
         RUNTIME DESTINATION "bin"
         )
+endif()
+
+#
+# testing
+#
+
+if (ENABLE_TESTS)
+  if(UNIX)
+    # tests currently only run on linux
+    enable_testing()
+    add_subdirectory(tests)
+  endif()
 endif()

@@ -353,7 +353,7 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
 
         NATIVE_IMAGE *native_image = utox_image_to_native(data, size, &width, &height, 0);
         if (NATIVE_IMAGE_IS_VALID(native_image)) {
-            LOG_INFO("XLIB MAIN", "Pasted image: %dx%d\n", width, height);
+            LOG_INFO("XLIB MAIN", "Pasted image: %dx%d", width, height);
 
             UTOX_IMAGE png_image = malloc(size);
             memcpy(png_image, data, size);
@@ -567,6 +567,8 @@ void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_
     if (unity_running) {
         mm_notify(obj->name, f_cid);
     }
+#else
+    (void)f_cid;
 #endif
 }
 
@@ -644,8 +646,11 @@ int main(int argc, char *argv[]) {
     int8_t set_show_window;
     bool   skip_updater, from_updater;
 
+    // Load settings before calling utox_init()
+    utox_init();
+
     #ifdef HAVE_DBUS
-    LOG_INFO("XLIB MAIN", "Compiled with dbus support!\n");
+    LOG_INFO("XLIB MAIN", "Compiled with dbus support!");
     #endif
 
     parse_args(argc, argv,
@@ -656,11 +661,11 @@ int main(int argc, char *argv[]) {
                &set_show_window);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        debug_notice("Start on boot not supported on this OS, please use your distro suggested method!\n");
+        LOG_NOTE(__FILE__, "Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
 
     if (skip_updater == true) {
-        debug_notice("Disabling the updater is not supported on this OS. Updates are managed by your distro's package "
+        LOG_NOTE(__FILE__, "Disabling the updater is not supported on this OS. Updates are managed by your distro's package "
                      "manager.\n");
     }
 
@@ -672,12 +677,8 @@ int main(int argc, char *argv[]) {
     LOG_INFO("XLIB MAIN", "Setting theme to:\t%d", settings.theme);
     theme_load(settings.theme);
 
-    // Load settings before calling utox_init()
-    utox_init();
-
     if (!XInitThreads()) {
-        LOG_FATAL_ERR(2, "XLIB MAIN", "XInitThreads failed.");
-        return 2;
+        LOG_FATAL_ERR(EXIT_FAILURE, "XLIB MAIN", "XInitThreads failed.");
     }
     if (!native_window_init()) {
         return 2;
@@ -689,7 +690,7 @@ int main(int argc, char *argv[]) {
     setlocale(LC_ALL, "");
     XSetLocaleModifiers("");
     if ((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
-        LOG_ERR("XLIB", "Cannot open input method\n");
+        LOG_ERR("XLIB", "Cannot open input method");
     }
 
 
@@ -778,7 +779,7 @@ int main(int argc, char *argv[]) {
                              XNFocusWindow, main_window.window, NULL))) {
             XSetICFocus(xic);
         } else {
-            LOG_ERR("XLIB", "Cannot open input method\n");
+            LOG_ERR("XLIB", "Cannot open input method");
             XCloseIM(xim);
             xim = 0;
         }
@@ -880,7 +881,9 @@ int main(int argc, char *argv[]) {
         yieldcpu(1);
     }
 
-    LOG_ERR("XLIB", "XLIB main:\tClean exit\n");
+    LOG_INFO("XLIB", "XLIB main:\tClean exit");
+
+    utox_raze();
 
     return 0;
 }

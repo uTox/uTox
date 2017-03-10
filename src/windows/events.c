@@ -164,7 +164,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         case WM_CREATE: {
-            LOG_INFO("Windows", "WM_CREATE\n");
+            LOG_INFO("Windows", "WM_CREATE");
             return false;
         }
 

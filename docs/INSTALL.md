@@ -1,6 +1,6 @@
 # Install
 
-The following will help you get μTox installed on your computron/toaster/carrier pigeon. The focus of this guide is to get you running ASAP. And mostly deals with precomplied binaries. If you're looking to contribute (you're the real MVP) you're probably looking for [Building](BUILD.md).
+The following steps install μTox on your computron/toaster/carrier pigeon. This guide gets you running ASAP. It mostly deals with precomplied binaries. If you're looking to contribute (you're the real MVP) you're probably looking for [Building](BUILD.md).
 
 For any and all of the following, you'll need to have [toxcore](https://github.com/TokTok/c-toxcore) installed first.
 

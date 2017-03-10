@@ -34,7 +34,7 @@ HWND native_window_create_video(int x, int y, int w, int h);
 
 UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel);
 
-UTOX_WINDOW *native_window_find_notify(HWND window);
+UTOX_WINDOW *native_window_find_notify(void *window);
 
 void native_window_create_screen_select();
 

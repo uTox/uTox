@@ -1,12 +1,14 @@
 #include "chatlog.h"
 
 #include "filesys.h"
+// TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
+#include "filesys_native.h"
 #include "debug.h"
-#include "main_native.h"
 #include "messages.h"
 #include "text.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 
 static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
@@ -14,14 +16,14 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
 
     FILE *file;
     if (append) {
-        file = native_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+        file = utox_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
         if (!file) {
             return NULL;
         }
 
         fseek(file, 0, SEEK_END);
     } else {
-        file = native_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ);
+        file = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ);
     }
 
     return file;
@@ -65,7 +67,7 @@ static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
          * If !feof() this means that the file has an incomplete record,
          * which would prevent it from loading forever, even though
          * new records will keep being appended as usual. */
-        LOG_ERR("Chatlog", "Log read err; trying to count history for friend %.*s\n", TOX_PUBLIC_KEY_SIZE * 2, hex);
+        LOG_ERR("Chatlog", "Log read err; trying to count history for friend %.*s", TOX_PUBLIC_KEY_SIZE * 2, hex);
         fclose(file);
         return 0;
     }
@@ -151,15 +153,8 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
                 fclose(file);
                 return NULL;
             }
-            msg->our_msg    = header.author;
-
-            /* TEMP Fix to recover logs from v0.8.* */
-            if (header.log_version == 0) {
-                msg->receipt_time = 1;
-            } else {
-                msg->receipt_time = header.receipt;
-            }
-
+            msg->our_msg       = header.author;
+            msg->receipt_time  = header.receipt;
             msg->time          = header.time;
             msg->msg_type      = header.msg_type;
             msg->disk_offset   = file_offset;
@@ -185,7 +180,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             // }
 
             if (fread(msg->via.txt.msg, msg->via.txt.length, 1, file) != 1) {
-                LOG_ERR("Chatlog", "Log read:\tError reading record %u of length %u at offset %lu: stopping.\n",
+                LOG_ERR("Chatlog", "Log read:\tError reading record %u of length %u at offset %lu: stopping.",
                             count, msg->via.txt.length, msg->disk_offset);
                 // free(msg->via.txt.author);
                 free(msg->via.txt.msg);
@@ -248,8 +243,8 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
     FILE *file = chatlog_get_file(hex, false);
 
     LOG_FILE_MSG_HEADER header;
-    while (1 == fread(&header, sizeof(header), 1, file)) {
-        char c;
+    while (fread(&header, sizeof(header), 1, file) == 1) {
+        int c;
         /* Write Author */
         fwrite("<", 1, 1, dest_file);
         for (size_t i = 0; i < header.author_length; ++i) {

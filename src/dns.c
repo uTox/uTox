@@ -49,9 +49,11 @@ static void writechecksum(uint8_t *address) {
 static int64_t parseargument(uint8_t *dest, char *src, size_t length, void **pdns3) {
     /* parses format groupbot@utox.org -> groupbot._tox.utox.org */
 
-    bool     reset = 0, at = 0;
-    char *   a = src, *b = src + length;
-    uint8_t *d   = dest;
+    bool reset = 0;
+    bool at = 0;
+    char *a = src;
+    char *b = src + length;
+    uint8_t *d = dest;
     uint32_t pin = 0;
     while (a != b) {
         if (*a == ':') {
@@ -115,7 +117,7 @@ static int64_t parseargument(uint8_t *dest, char *src, size_t length, void **pdn
 
                 memcpy(d, "._tox.", 6);
                 d += 6;
-                at = 1;
+                at = true;
                 break;
             }
 
@@ -270,10 +272,10 @@ static bool parserecord(uint8_t *dest, uint8_t *src, uint32_t pin, void *dns3) {
 static void dns_thread(void *data) {
     size_t  length = *(size_t *)data;
     uint8_t result[256];
-    bool    success = 0;
+    bool    success = false;
 
     void *  dns3 = NULL;
-    int64_t ret  = parseargument(result, data + 2, length, &dns3);
+    int64_t ret  = parseargument(result, (char *)data + sizeof(size_t), length, &dns3);
     if (ret == -1)
         goto FAIL;
 
@@ -283,7 +285,7 @@ static void dns_thread(void *data) {
     DNS_RECORD *record = NULL;
     DnsQuery((char *)result, DNS_TYPE_TEXT, 0, NULL, &record, NULL);
     while (record) {
-        /* just take the first successfully parsed record (for now), and only parse the first string (seems to work) */
+        // just take the first successfully parsed record (for now), and only parse the first string (seems to work)
         DNS_TXT_DATA *txt = &record->Data.Txt;
         if (record->wType == DNS_TYPE_TEXT && txt->dwStringCount) {
             if (txt->pStringArray[0]) {
@@ -453,10 +455,11 @@ void dns_request(char *name, size_t length) {
         return;
     }
 
-    void *data = malloc((sizeof(length) + length < TOX_ADDRESS_SIZE) ? TOX_ADDRESS_SIZE :
-                                                                              2u + length * sizeof(char));
-    memcpy(data, &length, sizeof(length));
-    memcpy(data + sizeof(length), name, length * sizeof(char));
+    // alocate memory to put length and the string + 1 NULL byte into it
+    uint8_t *data = calloc(1, sizeof(length) + length + 1);
 
-    thread(dns_thread, data);
+    memcpy(data, &length, sizeof(length));
+    memcpy(data + sizeof(length), name, length);
+
+    thread(dns_thread, (void *)data);
 }

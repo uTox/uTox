@@ -164,8 +164,7 @@ bool v4l_init(char *dev_name) {
     }
 
     if (req.count < 2) {
-        fprintf(stderr, "Insufficient buffer memory on %s\n", dev_name);
-        exit(EXIT_FAILURE);
+        LOG_FATAL_ERR(EXIT_MALLOC, __FILE__, "Insufficient buffer memory on %s", dev_name);
     }
 
     buffers = calloc(req.count, sizeof(*buffers));

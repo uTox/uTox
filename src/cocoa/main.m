@@ -34,15 +34,6 @@ struct thread_call {
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-// TODO move these function to a logging.m file to provide implementation for what is declared in logging.h
-int debug(const char *fmt, ...) {
-    va_list l;
-    va_start(l, fmt);
-    NSLogv(@(fmt), l);
-    va_end(l);
-    return 0;
-}
-
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) {
     return img != NULL && img->image != nil;
 }
@@ -211,10 +202,10 @@ void ensure_directory_r(char *path, int perm) {
     }
 }
 
-bool native_remove_file(const uint8_t *name, size_t length) {
+bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
-    if (settings.portable_mode) {
+    if (portable_mode) {
         const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
     } else {
@@ -369,6 +360,8 @@ void launch_at_startup(int should) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    utox_init();
+
     setup_cursors();
     NSImageView *dock_icon                                 = [[NSImageView alloc] initWithFrame:CGRectZero];
     dock_icon.image                                        = [NSApplication sharedApplication].applicationIconImage;
@@ -401,9 +394,6 @@ void launch_at_startup(int should) {
         dropdown_theme.selected = save->theme;
     }
     theme_load(settings.theme);
-
-
-    utox_init();
 
     char title_name[128];
     snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
@@ -490,6 +480,8 @@ void launch_at_startup(int should) {
     }
 
     LOG_TRACE(__FILE__, "clean exit" );
+
+    utox_raze();
 }
 
 - (void)soilWindowContents {

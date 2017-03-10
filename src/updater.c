@@ -74,7 +74,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
         }
 
         if (send(sock, reqst, size, 0) != (ssize_t)size) {
-            LOG_ERR(__FILE__, "Unable to send request to update server, [%s]x%lu\n", host, size);
+            LOG_ERR(__FILE__, "Unable to send request to update server, [%s]x%lu", host, size);
             close(sock);
             continue;
         }
@@ -100,7 +100,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                 // Get the real file length
                 char *str = strstr((char*)buffer, "Content-Length: ");
                 if (!str) {
-                    debug_notice("invalid HTTP response (1)\n");
+                    LOG_NOTE("Updater", "invalid HTTP response (1)\n");
                     break;
                 }
 
@@ -111,7 +111,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                 /* find the end of the http response header */
                 str = strstr(str, "\r\n\r\n");
                 if (!str) {
-                    LOG_ERR(__FILE__, "invalid HTTP response (2)\n");
+                    LOG_ERR(__FILE__, "invalid HTTP response (2)");
                     break;
                 }
                 str += sizeof("\r\n\r\n") - 1; // and trim
@@ -119,11 +119,11 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                 /* allocate buffer to read into) */
                 data = calloc(header_len, 1);
                 if (!data) {
-                    LOG_ERR(__FILE__, "malloc failed (1) (%u)\n", header_len);
+                    LOG_ERR(__FILE__, "malloc failed (1) (%u)", header_len);
                     break;
                 }
 
-                debug_info("Download size: %u\n", header_len);
+                LOG_INFO(__FILE__, "Download size: %u\n", header_len);
 
                 /* read the first piece */
                 real_len = len - (str - (char*)buffer);
@@ -219,11 +219,11 @@ bool updater_check(void) {
     LOG_INFO("Updater", "Current version %u, newest version version %u." , UTOX_VERSION_NUMBER, version);
 
     if (version > UTOX_VERSION_NUMBER) {
-        debug_warning("Updater:\tNew version of uTox available [%u.%u.%u]\n",
+        LOG_WARN("Updater", "New version of uTox available [%u.%u.%u]",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
         return true;
     } else if (version == UTOX_VERSION_NUMBER) {
-        debug_warning("Updater:\tRunning the latest version of uTox [%u.%u.%u]\n",
+        LOG_WARN("Updater", "Running the latest version of uTox [%u.%u.%u]",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
 
     }

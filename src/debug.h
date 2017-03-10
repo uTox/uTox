@@ -1,11 +1,15 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-enum exit_codes {
-    EXIT_NORMAL,
-    EXIT_UNKNOWN,
-    EXIT_MALLOC,
-};
+#include "stdlib.h"
+
+#ifndef EXIT_SUCCESS // should be defined in stdlib.h
+#define EXIT_SUCCESS 0 /* Successful exit status. */
+#endif
+#ifndef EXIT_FAILURE // should be defined in stdlib.h
+#define EXIT_FAILURE 1 /* Generic failing exit status. */
+#endif
+#define EXIT_MALLOC  2 /* Malloc failure exit status. */
 
 /* uTox debug levels */
 typedef enum {
@@ -25,19 +29,15 @@ int utox_verbosity();
 
 // define debugging macros in a platform specific way
 
-#if defined __WIN32__
-#include "windows/logging.h"
-#elif defined __ANDROID__
+#ifdef __ANDROID__
 #include "android/logging.h"
-#elif defined __OBJC__
-#include "cocoa/logging.h"
 #else
-#include "xlib/logging.h"
+void debug(const char *fmt, ...);
 #endif
 
 #define VERB(x) (utox_verbosity() >= LOG_LVL_##x)
 
-#define LOG_FATAL_ERR(ex, file, str, ...) (VERB(FATAL) ? debug("\n\n%-14s:" str "\n\n", file ": ", ## __VA_ARGS__ ) ? exit(ex) : exit(ex) : ((void)(0)) )
+#define LOG_FATAL_ERR(ex, file, str, ...) debug("\n\n%-14s:" str "\n\n", file ": ", ## __VA_ARGS__ ); exit(ex)
 
 #define LOG_ERR(file, str, ...)       (VERB(ERROR)     ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
 #define LOG_WARN(file, str, ...)      (VERB(WARNING)   ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
@@ -49,11 +49,5 @@ int utox_verbosity();
 
 // User requested
 #define LOG_NORM(...)       (VERB(OFF) ? debug(__VA_ARGS__ ) : ((void)(0)))
-
-
-// TODO remove, here for backwards compat
-#define debug_warning(f, ...) LOG_WARN(__FILE__ "_OLD",  f, ## __VA_ARGS__)
-#define debug_notice(f, ...)  LOG_WARN(__FILE__ "_OLD",  f, ## __VA_ARGS__)
-#define debug_info(f, ...)    LOG_WARN(__FILE__ "_OLD",  f, ## __VA_ARGS__)
 
 #endif // DEBUG_H

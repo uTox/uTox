@@ -36,7 +36,7 @@ void utox_write_metadata(FRIEND *f) {
     uint8_t dest[UTOX_FILE_NAME_LENGTH];
     snprintf((char *)dest, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
 
-    FILE *file = native_get_file((uint8_t *)dest, NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *file = utox_get_file((uint8_t *)dest, NULL, UTOX_FILE_OPTS_WRITE);
     if (file) {
 
         FRIEND_META_DATA metadata;
@@ -71,7 +71,7 @@ static void friend_meta_data_read(FRIEND *f) {
     snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2,  f->id_str);
 
     size_t size = 0;
-    FILE *file = native_get_file(path, &size, UTOX_FILE_OPTS_READ);
+    FILE *file = utox_get_file(path, &size, UTOX_FILE_OPTS_READ);
 
     if (!file) {
         LOG_TRACE("Friend", "Meta Data not found %s", path);
@@ -205,8 +205,12 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     f->name[f->name_length] = 0;
 
     if (!f->alias_length) {
-        if (flist_get_selected()->item == ITEM_FRIEND) {
-            FRIEND *selected = flist_get_selected()->data;
+        if (flist_get_type()== ITEM_FRIEND) {
+            FRIEND *selected = flist_get_friend();
+            if (!selected) {
+                LOG_ERR(__FILE__, "Unable to get selected friend.");
+                return;
+            }
             if (selected && f->number == selected->number) {
                 maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
             }
@@ -262,7 +266,7 @@ void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
     postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
     notify(title, title_length, msg, msg_length, f, 0);
 
-    if (flist_get_selected()->data != f) {
+    if (flist_get_friend() != f) {
         f->unread_msg = 1;
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }
@@ -289,9 +293,9 @@ void friend_set_typing(FRIEND *f, int typing) {
 }
 
 void friend_addid(uint8_t *id, char *msg, uint16_t msg_length) {
-    void *data = malloc(TOX_ADDRESS_SIZE + msg_length * sizeof(char));
+    char *data = malloc(TOX_ADDRESS_SIZE + msg_length);
     memcpy(data, id, TOX_ADDRESS_SIZE);
-    memcpy(data + TOX_ADDRESS_SIZE, msg, msg_length * sizeof(char));
+    memcpy(data + TOX_ADDRESS_SIZE, msg, msg_length);
 
     postmessage_toxcore(TOX_FRIEND_NEW, msg_length, 0, data);
 }
@@ -305,8 +309,7 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     uint8_t  name_cleaned[length];
     uint16_t length_cleaned = 0;
 
-    unsigned int i;
-    for (i = 0; i < length; ++i) {
+    for (unsigned int i = 0; i < length; ++i) {
         if (name[i] != ' ') {
             name_cleaned[length_cleaned] = name[i];
             ++length_cleaned;

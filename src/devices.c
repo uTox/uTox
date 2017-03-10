@@ -31,16 +31,14 @@ static bool realloc_devices_list(uint16_t new_size) {
 
 void utox_devices_init(void) {
     if (devices) {
-        LOG_ERR("Devices", "Unable to init base devices, *devices exists");
-        exit(1);
+        LOG_FATAL_ERR(EXIT_FAILURE, "Devices", "Unable to init base devices, *devices exists");
     }
 
     devices               = calloc(self.device_list_count, sizeof(UTOX_DEVICE));
     self.device_list_size = self.device_list_count;
 
     if (devices == NULL) {
-        LOG_ERR("Devices", "Unable to init base devices, *devices is null");
-        exit(2);
+        LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Unable to init base devices, *devices is null");
     }
 };
 
@@ -90,7 +88,7 @@ static void devices_self_add_submit(uint8_t *name, size_t length, uint8_t id[TOX
     postmessage_toxcore(TOX_SELF_NEW_DEVICE, length, 0, data);
 }
 
-static void delete_this_device(void) { LOG_ERR(__FILE__, "Delete button pressed\n"); }
+static void delete_this_device(void) { LOG_ERR(__FILE__, "Delete button pressed"); }
 
 void devices_update_list(void) {}
 
@@ -118,8 +116,7 @@ void devices_update_ui(void) {
         BUTTON *dele = calloc(1, sizeof(BUTTON));
 
         if (!edit) {
-            LOG_ERR(__FILE__, "Can't malloc for an extra device\n");
-            exit(7);
+            LOG_FATAL_ERR(EXIT_MALLOC, __FILE__, "Can't malloc for an extra device");
         }
 
         PANEL p_edit =
@@ -177,7 +174,7 @@ void devices_self_add(uint8_t *device, size_t length) {
         /* TODO, names! */
         devices_self_add_submit((uint8_t *)"Default device name", 19, id);
     } else {
-        LOG_ERR(__FILE__, "error trying to add this device\n");
+        LOG_ERR(__FILE__, "error trying to add this device");
     }
 }
 

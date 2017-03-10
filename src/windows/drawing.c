@@ -134,15 +134,16 @@ void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_
 }
 
 void draw_inline_image(uint8_t *img_data, size_t UNUSED(size), uint16_t w, uint16_t h, int x, int y) {
-
-    BITMAPINFO bmi = {.bmiHeader = {
-                          .biSize        = sizeof(BITMAPINFOHEADER),
-                          .biWidth       = w,
-                          .biHeight      = -h,
-                          .biPlanes      = 1,
-                          .biBitCount    = 32,
-                          .biCompression = BI_RGB,
-                      } };
+    BITMAPINFO bmi = {
+        .bmiHeader = {
+            .biSize        = sizeof(BITMAPINFOHEADER),
+            .biWidth       = w,
+            .biHeight      = -h,
+            .biPlanes      = 1,
+            .biBitCount    = 32,
+            .biCompression = BI_RGB,
+            }
+        };
 
     SetDIBitsToDevice(curr->draw_DC, x, y, w, h, 0, 0, 0, h, img_data, &bmi, DIB_RGB_COLORS);
 }

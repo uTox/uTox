@@ -81,17 +81,17 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
     if (r == S_OK) {
         HDROP h = medium.hGlobal;
         int count = DragQueryFile(h, ~0, NULL, 0);
-        debug_info("%u files dropped\n", count);
+        LOG_INFO(__FILE__, "%u files dropped\n", count);
 
         for (int i = 0; i < count; i++) {
-            debug_notice ("WINDND:\tSending file number %i\n", i);
+            LOG_NOTE("WINDND", "Sending file number %i", i);
             UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
             if (!msg) {
                 LOG_ERR("WINDND", "Unable to alloc for UTOX_MSG_FT");
                 return 0;
             }
 
-            uint8_t *path = calloc(UTOX_FILE_NAME_LENGTH, sizeof(uint8_t));
+            char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
             if (!path) {
                 LOG_ERR("WINDND", "Unable to alloc for UTOX_MSG_FT");
                 free(msg);
@@ -108,14 +108,14 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
                 return 0;
             }
 
-            msg->name = path;
+            msg->name = (uint8_t *)path;
             postmessage_toxcore(TOX_FILE_SEND_NEW, ((FRIEND*)flist_get_selected()->data)->number, 0, msg);
             LOG_INFO("WINDND", "File number %i sent!" , i);
         }
 
         ReleaseStgMedium(&medium);
     } else {
-        LOG_ERR(__FILE__, "itz failed! %lX\n", r);
+        LOG_ERR(__FILE__, "itz failed! %lX", r);
     }
 
     return S_OK;

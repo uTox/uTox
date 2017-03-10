@@ -132,8 +132,6 @@ typedef enum {
     BM_ENDMARKER,
 } SVG_IMG;
 
-void *svg_data;
-
 bool svg_draw(bool needmemory);
 
 #endif

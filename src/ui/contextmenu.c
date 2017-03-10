@@ -156,7 +156,7 @@ void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t)
     b->x     = mouse.x;
     b->width = CONTEXT_WIDTH;
 
-    b->open      = 1;
+    b->open      = true;
     b->count     = count;
     b->over      = 0xFF;
     b->onselect  = onselect;

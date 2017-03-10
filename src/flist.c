@@ -531,7 +531,7 @@ static void page_open(ITEM *i) {
         }
 
         default: {
-            LOG_ERR("F-List", "Trying to switch to an item that we shouldn't be selecting\n");
+            LOG_ERR("F-List", "Trying to switch to an item that we shouldn't be selecting.");
             break;
         }
     }
@@ -819,6 +819,24 @@ void flist_reload_contacts(void) {
 
 ITEM *flist_get_selected(void) {
     return selected_item;
+}
+
+FRIEND *flist_get_friend(void) {
+    if (flist_get_type() == ITEM_FRIEND) {
+        return selected_item->data;
+    }
+    return NULL;
+}
+
+GROUPCHAT *flist_get_groupchat(void) {
+    if (flist_get_type() == ITEM_GROUP) {
+        return selected_item->data;
+    }
+    return NULL;
+}
+
+ITEM_TYPE flist_get_type(void) {
+    return selected_item->item;
 }
 
 /******************************************************************************

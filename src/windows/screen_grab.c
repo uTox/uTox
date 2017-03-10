@@ -19,7 +19,7 @@ static bool desktopgrab_video = false;
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        LOG_ERR("NATIVE Screengrab", "create_utox_image:\t Could not allocate memory for image.\n");
+        LOG_ERR("NATIVE Screengrab", "create_utox_image:\t Could not allocate memory for image.");
         return NULL;
     }
     image->bitmap        = bmp;
@@ -67,12 +67,12 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     }
 
     int size = 0;
-    UTOX_IMAGE *out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
+    UTOX_IMAGE out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
 
     free(bits);
 
     NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(flist_get_selected()->data, image, width, height, (UTOX_IMAGE)out, size);
+    friend_sendimage(flist_get_selected()->data, image, width, height, out, size);
 }
 
 static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {

@@ -2,7 +2,7 @@
 
 set -eux
 
-. ./travis/env.sh
+. ./extra/travis/env.sh
 
 echo "======================================================"
 echo "== DEBUGING FAILURE "

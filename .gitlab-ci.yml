@@ -1,0 +1,77 @@
+stages:
+  - build
+  - test
+
+#
+# build
+#
+
+linux:
+  stage: build
+  cache:
+    # keep cache across stages
+    key: "$CI_BUILD_REF_NAME/linux"
+    paths:
+      - cache/
+  variables:
+    TOXCORE_REPO: "TokTok/c-toxcore"
+    GL_BUILD: "lin64"
+  before_script:
+    - ./extra/gitlab/linux-before.sh
+  script:
+    - ./extra/gitlab/linux-script.sh
+  artifacts:
+    # keep compiled files as artifacts to pass to the test stage
+    # remove them after one hour
+    expire_in: 1h
+    untracked: true
+
+windows:
+  stage: build
+  cache:
+    paths:
+      - cache/
+  variables:
+    TOXCORE_REPO: "TokTok/c-toxcore"
+    GL_BUILD: "win64"
+  before_script:
+    - ./extra/gitlab/windows-before.sh
+  script:
+    - ./extra/gitlab/windows-script.sh
+
+windows_legacy:
+  stage: build
+  cache:
+    paths:
+      - cache/
+  variables:
+    TOXCORE_REPO: "TokTok/c-toxcore"
+    GL_BUILD: "winXP"
+  before_script:
+    - ./extra/gitlab/windows_legacy-before.sh
+  script:
+    - ./extra/gitlab/windows_legacy-script.sh
+
+OSX:
+  stage: build
+  cache:
+    paths:
+      - cache/
+  script:
+    docker run --rm -u $(id -u):$(id -g) -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin arch-build ./extra/gitlab/osx-docker.sh
+
+#
+# test
+#
+
+linux-test:
+  stage: test
+  cache:
+    # keep cache across stages
+    key: "$CI_BUILD_REF_NAME/linux"
+    paths:
+      - cache/
+  script:
+    - ./run_tests.sh
+  dependencies:
+    - linux

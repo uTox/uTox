@@ -4,9 +4,7 @@
 #include "window.h"
 
 #include "../debug.h"
-
 #include "../ui.h"
-// #include "../ui/layout_notify.h"
 
 #include <windowsx.h>
 
@@ -20,7 +18,7 @@ static void redraw_notify(UTOX_WINDOW *win) {
 }
 
 LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
-    UTOX_WINDOW *win = native_window_find_notify(window);
+    UTOX_WINDOW *win = native_window_find_notify(&window);
 
     static int mdown_x, mdown_y;
     switch (msg) {
@@ -47,7 +45,7 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_CREATE: {
-            LOG_ERR("Win Notify", "NOTIFY::\tCreate\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tCreate");
             if (win) {
                 win->window_DC = GetDC(window);
                 win->draw_DC   = CreateCompatibleDC(win->window_DC);
@@ -58,7 +56,7 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_SIZE: {
-            LOG_ERR("Win Notify", "NOTIFY::\tSize\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tSize");
             int w, h;
 
             w = GET_X_LPARAM(lParam);
@@ -82,13 +80,13 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_ERASEBKGND: {
-            LOG_ERR("Win Notify", "NOTIFY::\tBGND\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tBGND");
             redraw_notify(win);
             return true;
         }
 
         case WM_PAINT: {
-            LOG_ERR("Win Notify", "NOTIFY::\tPAINT\n");
+            LOG_ERR("Win Notify", "NOTIFY::\tPAINT");
             PAINTSTRUCT ps;
 
             BeginPaint(window, &ps);

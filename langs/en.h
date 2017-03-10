@@ -15,13 +15,31 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.12.2! Release name: Make uTox Great Again [Again]")
+msgstr("You have just upgraded to version 0.13.0! Release name: uTox ist Ihr Privatsphärezeug!")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.12.2")
+msgstr("Changes in v0.13.0 (besides our new website, utox.io)")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
+"\n  Features:\n"
+"    You can now paste UTF8 characters in uTox.\n"
+"    You can now manually set your nospam!\n"
+"\n  Fixes:\n"
+"    Mostly fix groupchats. (At least they no longer crash uTox instantly..)\n"
+"    Chatlogs can now be saved on Windows again.\n"
+"    Clearing chat backlog no longer crashes uTox.\n"
+"    Plug a lot of memory leaks.\n"
+"    Scrolling with pgup/pgdn now redraws the chat window.\n"
+"    Avatars now load again.\n"
+"    Custom themes now work and won't crash uTox if you try to switch to it when it doesn't exist.\n"
+"    Lots of build system improvements.\n"
+"    Lots of file transfer fixes.\n"
+"\n  Development\n"
+"    uTox now has a unit test implemented! (Hopefully this means we'll never have a bug ever again.)\n"
+"    UI files separated into UI components and layout.\n"
+"    We now have our own build server!\n"
+"\nv0.12.2\n"
 "    Fixed a Windows UI hang during file transfers.\n"
 "    Fixed a Windows Crash during file transfers.\n"
 "\nv0.11.1\n"

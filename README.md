@@ -1,4 +1,4 @@
-# μTox [![Build Status](https://travis-ci.org/uTox/uTox.svg?branch=develop)](https://travis-ci.org/uTox/uTox)
+# μTox [![Build Status](https://travis-ci.org/uTox/uTox.svg?branch=develop)](https://travis-ci.org/uTox/uTox) [![Coverage](https://img.shields.io/badge/coverage-0.01%25-red.svg)](#)
 
 The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
@@ -37,7 +37,7 @@ You shouldn't have to choose a new client for every device: So µTox works every
 - Emoticons
 - Auto-updates on Windows.
 
-Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help, if you do encounter any bugs or problems please open an issue.
+Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help, if you do encounter any bugs or problems please [open an issue](https://github.com/uTox/uTox/issues/new).
 
 ### Screenshots
 μTox running on Windows 10

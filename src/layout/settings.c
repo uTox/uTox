@@ -1,24 +1,26 @@
 #include "settings.h"
 
-#include "../macros.h"
-#include "../theme.h"
-#include "../self.h"
+#include "../debug.h"
 #include "../flist.h"
+#include "../macros.h"
+#include "../self.h"
+#include "../theme.h"
 
-#include "../ui/draw.h"
-#include "../ui/svg.h"
-#include "../ui/scrollable.h"
 #include "../ui/button.h"
-#include "../ui/switch.h"
-#include "../ui/edit.h"
+#include "../ui/draw.h"
 #include "../ui/dropdown.h"
+#include "../ui/edit.h"
+#include "../ui/scrollable.h"
+#include "../ui/svg.h"
+#include "../ui/switch.h"
 
 #include <stdio.h>
 
 #include "../main.h" // tox_thread
 
 /* Top bar for user settings */
-static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height)) {
+    (void) w;
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);
@@ -568,21 +570,26 @@ static void button_show_password_settings_on_mup(void) {
 #include "../flist.h"
 #include "../friend.h"
 static void button_export_chatlog_on_mup(void) {
-    utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR(__FILE__, "Could not get selected friend.");
+        return;
+    }
+    utox_export_chatlog_init(f->number);
 }
 
 static void button_change_nospam_on_mup(void) {
     button_revert_nospam.disabled = false;
-    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 1, 0, NULL);
+    long int nospam = rand() | rand() << 16;
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, nospam, 0, NULL);
 }
 
-#include "../debug.h"
 static void button_revert_nospam_on_mup(void) {
     if (self.old_nospam == 0 || self.nospam == self.old_nospam) { //nospam can not be 0
-        LOG_ERR("Settings", "Invalid or current nospam: %u.\n", self.old_nospam);
+        LOG_ERR("Settings", "Invalid or current nospam: %u.", self.old_nospam);
         return;
     }
-    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 0, 0, NULL);
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, self.old_nospam, 0, NULL);
     button_revert_nospam.disabled = true;
 }
 
@@ -622,7 +629,7 @@ static void button_videopreview_on_mup(void) {
     } else if (video_width && video_height) {
         postmessage_utoxav(UTOXAV_START_VIDEO, 0, 1, NULL);
     } else {
-        debug("Button ERR:\tVideo_width = 0, can't preview\n");
+        LOG_ERR("Button", "Video_width = 0, can't preview\n");
     }
     settings.video_preview = !settings.video_preview;
 }
@@ -1016,9 +1023,14 @@ static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)
 
 #include"../groups.h"
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    GROUPCHAT *g = flist_get_selected()->data;
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        return;
+    }
+
     g->notify    = i;
-    debug("g->notify = %u\n", i);
+    LOG_INFO(__FILE__, "g->notify = %u\n", i);
 }
 
 static void dropdown_global_group_notifications_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
@@ -1100,7 +1112,8 @@ static char edit_name_data[128],
             edit_status_msg_data[128],
             edit_proxy_ip_data[256],
             edit_proxy_port_data[8],
-            edit_profile_password_data[65535];
+            edit_profile_password_data[65535],
+            edit_nospam_data[sizeof(uint32_t) * 2];
 #ifdef ENABLE_MULTIDEVICE
 static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4];
 #endif
@@ -1205,12 +1218,21 @@ EDIT edit_toxid = {
     .select_completely = 1,
 };
 
+static void edit_change_nospam_onenter(EDIT *UNUSED(edit)) {
+    long int nospam = strtol(edit_nospam_data, NULL, 16);
+    if (nospam == 0 || nospam < 0) {
+        LOG_ERR("Nospam", "Invalid nospam value: %lu", nospam);
+        return;
+    }
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, nospam, 0, NULL);
+}
+
 EDIT edit_nospam = {
-    .length            = sizeof(uint32_t) * 2,
-    .data              = self.nospam_str,
-    .readonly          = true,
+    .maxlength         = sizeof(edit_nospam_data),
+    .data              = edit_nospam_data,
     .noborder          = false,
-    .select_completely = true,
+    .onenter           = edit_change_nospam_onenter,
+    .onlosefocus       = edit_change_nospam_onenter,
 };
 
 
@@ -1226,4 +1248,3 @@ EDIT edit_add_new_device_to_self = {
     .maxlength = sizeof edit_add_new_device_to_self_data - 1,
     .onenter   = edit_add_new_device_to_self_onenter,
 };
-

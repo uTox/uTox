@@ -84,17 +84,12 @@ uint64_t get_time(void);
 /* use the file chooser to pick an avatar and set it as the user's */
 void openfileavatar(void);
 
-void native_export_chatlog_init(uint32_t friend_number);
-
-void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file);
-
-bool native_move_file(const uint8_t *current_name, const uint8_t *new_name);
-
 // Push-to-talk
 /** returns 0 if push to talk is enabled, and the button is up, else returns 1. */
 void init_ptt(void);
 bool get_ptt_key(void); // Never used. Remove?
 bool set_ptt_key(void); // Never used. Remove?
+// Returns a bool indicating whether you should send audio or not.
 bool check_ptt_key(void);
 void exit_ptt(void);
 

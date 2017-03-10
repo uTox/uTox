@@ -32,10 +32,6 @@
 
 extern XIC xic;
 
-static void expose(void) {
-
-}
-
 static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
     if (pointergrab) { // TODO super globals are bad mm'kay?
         GRAB_POS grab = grab_pos();
@@ -68,7 +64,8 @@ static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
 
     XDefineCursor(display, window->window, cursors[cursor]);
 
-    LOG_TRACE("XLIB", "MotionEvent: (%u %u) %u\n", event->x, event->y, event->state);
+    // uncomment this to log mouse movements. Commented because it spams too much
+    //LOG_TRACE("XLIB", "MotionEvent: (%u %u) %u", event->x, event->y, event->state);
 }
 
 static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
@@ -120,7 +117,7 @@ static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
         }
     }
 
-    LOG_TRACE("XLIB", "ButtonEvent: %u %u\n", event->state, event->button);
+    LOG_TRACE("XLIB", "ButtonEvent: %u %u", event->state, event->button);
 }
 
 static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
@@ -191,7 +188,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
             break;
         }
     }
-    LOG_TRACE("XLIB", "ButtonEvent: %u %u\n", event->state, event->button);
+    LOG_TRACE("XLIB", "ButtonEvent: %u %u", event->state, event->button);
 }
 
 
@@ -199,7 +196,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
 static bool popup_event(XEvent event, UTOX_WINDOW *win) {
     switch (event.type) {
         case Expose: {
-            LOG_TRACE("XLIB", "Main window expose\n");
+            LOG_TRACE("XLIB", "Main window expose");
             native_window_set_target(win);
             panel_draw(win->_.panel , 0, 0, win->_.w, win->_.h);
             XCopyArea(display, win->drawbuf, win->window, win->gc, 0, 0, win->_.w, win->_.h, 0, 0);
@@ -210,11 +207,11 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
              * in case we do, we already have the response ready.  */
             Atom ping = XInternAtom(display, "_NET_WM_PING", 0);
             if ((Atom)event.xclient.data.l[0] == ping) {
-                debug_notice("ping\n");
+                LOG_TRACE("XLIB", "ping");
                 event.xany.window = root_window;
                 XSendEvent(display, root_window, False, NoEventMask, &event);
             } else {
-                debug_notice("not ping\n");
+                LOG_TRACE("XLIB", "not ping");
             }
             break;
         }
@@ -232,7 +229,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
         }
 
         case EnterNotify: {
-            debug_notice("EVENT: set focus\n");
+            LOG_TRACE("XLIB", "set focus");
             window_set_focus(win);
             break;
         }
@@ -241,7 +238,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
             break;
         }
         default: {
-            LOG_WARN("XLIB", "other event: %u\n", event.type);
+            LOG_WARN("XLIB", "other event: %u", event.type);
             break;
         }
 
@@ -257,9 +254,9 @@ bool doevent(XEvent event) {
 
     if (event.xany.window && event.xany.window != main_window.window) {
 
-        if (native_window_find_notify(event.xany.window)) {
+        if (native_window_find_notify(&event.xany.window)) {
             // TODO perhaps we should roll this into one?
-            return popup_event(event, native_window_find_notify(event.xany.window));
+            return popup_event(event, native_window_find_notify(&event.xany.window));
             // return true;
         }
 
@@ -524,7 +521,6 @@ bool doevent(XEvent event) {
         }
 
         case SelectionNotify: {
-
             LOG_TRACE(__FILE__, "SelectionNotify" );
 
             XSelectionEvent *ev = &event.xselection;
@@ -600,7 +596,7 @@ bool doevent(XEvent event) {
                 XChangeProperty(display, ev->requestor, ev->property, XA_ATOM, 32, PropModeReplace, (void *)&supported,
                                 COUNTOF(supported));
             } else {
-                debug_notice("XLIB selection request: unknown request\n");
+                LOG_NOTE("XLIB selection request", " unknown request");
                 resp.xselection.property = None;
             }
 
@@ -681,7 +677,7 @@ bool doevent(XEvent event) {
                 LOG_TRACE(__FILE__, "status" );
             } else if (ev->message_type == XdndDrop) {
                 XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, main_window.window, CurrentTime);
-                LOG_NOTE("XLIB", "Drag was dropped\n");
+                LOG_NOTE("XLIB", "Drag was dropped");
             } else if (ev->message_type == XdndLeave) {
                 LOG_TRACE(__FILE__, "leave" );
             } else {

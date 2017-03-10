@@ -138,10 +138,10 @@ void native_export_chatlog_init(uint32_t friend_number) {
     }
 }
 
-bool native_remove_file(const uint8_t *name, size_t length) {
+bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
-    if (settings.portable_mode) {
+    if (portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
@@ -204,7 +204,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 }
 
 // TODO: This function has the worst name.
-void file_save_inline(MSG_HEADER *msg) {
+void file_save_inline_image_png(MSG_HEADER *msg) {
     if (libgtk) {
         ugtk_file_save_inline(msg);
     } else {
@@ -221,31 +221,31 @@ void file_save_inline(MSG_HEADER *msg) {
 }
 
 int file_lock(FILE *file, uint64_t start, size_t length) {
-    int          result = -1;
     struct flock fl;
     fl.l_type   = F_WRLCK;
     fl.l_whence = SEEK_SET;
     fl.l_start  = start;
     fl.l_len    = length;
 
-    result = fcntl(fileno(file), F_SETLK, &fl);
+    int result = fcntl(fileno(file), F_SETLK, &fl);
     if (result == -1) {
         return 0;
     }
+
     return 1;
 }
 
 int file_unlock(FILE *file, uint64_t start, size_t length) {
-    int          result = -1;
     struct flock fl;
     fl.l_type   = F_UNLCK;
     fl.l_whence = SEEK_SET;
     fl.l_start  = start;
     fl.l_len    = length;
 
-    result = fcntl(fileno(file), F_SETLK, &fl);
+    int result = fcntl(fileno(file), F_SETLK, &fl);
     if (result == -1) {
         return 0;
     }
+
     return 1;
 }

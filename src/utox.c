@@ -3,6 +3,9 @@
 #include "commands.h"
 #include "debug.h"
 #include "dns.h"
+#include "filesys.h"
+// TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
+#include "filesys_native.h"
 #include "file_transfers.h"
 #include "flist.h"
 #include "friend.h"
@@ -17,6 +20,7 @@
 #include "ui/edit.h"
 #include "ui/tooltip.h"
 
+#include "layout/friend.h"
 #include "layout/settings.h"
 
 /** Translates status code to text then sends back to the user */
@@ -82,7 +86,6 @@ static void call_notify(FRIEND *f, uint8_t status) {
     friend_notify_msg(f, str->str, str->length);
 }
 
-#include "layout/friend.h"
 void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param2, void *data) {
     switch (utox_msg_id) {
         /* General core and networking messages */
@@ -192,12 +195,13 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FRIEND *f = &friend[param1];
             FILE_TRANSFER *file = data;
 
-            // TODO(grayhatter) This can easily become a use after free (realloc) when a friend sends multiple files at once.
             MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);
-            file->ui_data = m;
+            ft_set_ui_data(file->file_number, file->friend_number, m);
+
+            free(data);
             redraw();
             break;
         }
@@ -215,7 +219,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);
-            file->ui_data = m;
+            ft_set_ui_data(file->friend_number, file->file_number, m);
+            free(data);
             redraw();
             break;
         }
@@ -226,8 +231,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             uint16_t width, height;
             uint8_t *image;
             memcpy(&width, data, sizeof(uint16_t));
-            memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
-            memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
+            memcpy(&height, (uint8_t *)data + sizeof(uint16_t), sizeof(uint16_t));
+            memcpy(&image, (uint8_t *)data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
             // Save and store image
             friend_recvimage(f, (NATIVE_IMAGE *)image, width, height);
             redraw();
@@ -242,7 +247,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);
-            file->ui_data = m;
+            ft_set_ui_data(file->friend_number, file->file_number, m);
             redraw();
             break;
         }
@@ -257,10 +262,11 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FILE_TRANSFER *file = data;
 
             if (file->ui_data) {
-                file->ui_data->via.ft.progress = file->current_size;
-                file->ui_data->via.ft.speed    = file->speed;
+                file->ui_data->via.ft.progress    = file->current_size;
+                file->ui_data->via.ft.speed       = file->speed;
                 file->ui_data->via.ft.file_status = param1;
             }
+            free(data);
             redraw();
             break;
         }
@@ -280,6 +286,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                     }
                 }
             }
+
             file->decon_wait = false;
             LOG_NOTE("uTox", "FT data was saved" );
             redraw();

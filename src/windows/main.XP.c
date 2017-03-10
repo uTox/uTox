@@ -32,12 +32,12 @@ void native_export_chatlog_init(uint32_t friend_number) {
     };
 
     if (GetSaveFileName(&ofn)) {
-        // TODO: native_get_file instead of fopen.
+        // TODO: utox_get_file instead of fopen.
         FILE *file = fopen(path, "wb");
         if (file) {
-            utox_export_chatlog(friend_number, file);
+            utox_export_chatlog(get_friend(friend_number)->id_str, file);
         } else {
-            LOG_ERR(__FILE__, "Opening file %s failed\n", path);
+            LOG_ERR(__FILE__, "Opening file %s failed", path);
         }
     } else {
         LOG_TRACE(__FILE__, "GetSaveFileName() failed" );
@@ -95,7 +95,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
                       "wb");
 
     postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
-    debug_notice("Native:\tAuto Accept Directory: \"%s\"", second);
+    LOG_NOTE("Native", "Auto Accept Directory: \"%s\"", second);
 }
 
 void launch_at_startup(int is_launch_at_startup) {

@@ -76,6 +76,11 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *nam
 
 uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t size, uint8_t *name, size_t name_length);
 
+/** Sets the UI pointer to the File Transfer Message pointer.
+ *
+ * This is non robust and could use some LTC */
+bool ft_set_ui_data(uint32_t friend_number, uint32_t file_number, MSG_HEADER *ui_data);
+
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file);
 
 void utox_set_callbacks_file_transfer(Tox *tox);

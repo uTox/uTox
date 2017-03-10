@@ -93,15 +93,15 @@ git:
   depth: 5
 
 before_script:
-  - ./travis/env.sh
-  - ./travis/${BUILD}-before.sh
-  - ./travis/filter_audio.sh
+  - ./extra/travis/env.sh
+  - ./extra/travis/${BUILD}-before.sh
+  - ./extra/travis/filter_audio.sh
 
 script:
-  - ./travis/${BUILD}-script.sh
+  - ./extra/travis/${BUILD}-script.sh
 
 after_failure:
-  - ./travis/debug_failure.sh
+  - ./extra/travis/debug_failure.sh
 
 
 notifications:

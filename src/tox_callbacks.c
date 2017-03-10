@@ -22,7 +22,7 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
                                     void *UNUSED(userdata)) {
 
     if (settings.block_friend_requests) {
-        LOG_WARN("Tox Callbacks", "Friend request ignored.\n"); // TODO move to friend.c
+        LOG_WARN("Tox Callbacks", "Friend request ignored."); // TODO move to friend.c
         return;
     }
 
@@ -242,7 +242,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
             g->peer = calloc(number_peers, sizeof(void *));
 
             if (!g->peer) {
-                LOG_FATAL_ERR(44, "Tox Callbacks", "Group:\tToxcore is very broken, but we couldn't alloc here.");
+                LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks", "Group:\tToxcore is very broken, but we couldn't alloc here.");
             }
 
             /* I'm about to break some uTox style here, because I'm expecting
@@ -253,8 +253,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
                 tox_conference_peer_get_name(tox, gid, i, tmp, NULL);
                 GROUP_PEER *peer = calloc(1, len * sizeof(void *) + sizeof(*peer));
                 if (!peer) {
-                    debug("Group:\tToxcore is very broken, but we couldn't calloc here.");
-                    exit(45);
+                    LOG_FATAL_ERR(EXIT_MALLOC, "Group", "Toxcore is very broken, but we couldn't calloc here.");
                 }
                 /* name and id number (it's worthless, but it's needed */
                 memcpy(peer->name, tmp, len);
@@ -307,7 +306,7 @@ void utox_set_callbacks_groups(Tox *tox) {
 
 #ifdef ENABLE_MULTIDEVICE
 static void callback_friend_list_change(Tox *tox, void *user_data) {
-    LOG_ERR(__FILE__, "friend list change, updating roster\n");
+    LOG_ERR(__FILE__, "friend list change, updating roster");
 
     flist_dump_contacts();
     utox_friend_list_init(tox);

@@ -1,8 +1,8 @@
 #ifndef THEME_H
 #define THEME_H
 
-#include <inttypes.h>
 #include <stddef.h>
+#include <stdint.h>
 
 typedef enum {
     THEME_DEFAULT,

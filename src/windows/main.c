@@ -32,8 +32,6 @@
 static bool flashing;
 static bool hidden;
 
-static TRACKMOUSEEVENT tme           = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0 };
-
 bool  draw      = false;
 float scale     = 1.0;
 bool  connected = false;
@@ -45,11 +43,11 @@ bool  havefocus;
  * Returns: number of chars writen, or 0 on failure.
  *
  */
-static int utf8tonative(char *str, wchar_t *out, int length) {
+static int utf8tonative(const char *str, wchar_t *out, int length) {
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, length, out, length);
 }
 
-static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
+static int utf8_to_nativestr(const char *str, wchar_t *out, int length) {
     /* must be null terminated string                   ↓ */
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, -1, out, length);
 }
@@ -85,21 +83,24 @@ void openfilesend(void) {
 
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
     } else {
-        LOG_ERR(__FILE__, "GetOpenFileName() failed\n");
+        LOG_ERR(__FILE__, "GetOpenFileName() failed");
     }
     SetCurrentDirectoryW(dir);
 }
 
 void openfileavatar(void) {
-    char *filepath = malloc(UTOX_FILE_NAME_LENGTH);
-    filepath[0]    = 0;
+    char *filepath = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (!filepath) {
+        LOG_ERR("openfileavatar", "Could not allocate memory for path.");
+        return;
+    }
 
     wchar_t dir[UTOX_FILE_NAME_LENGTH];
     GetCurrentDirectoryW(COUNTOF(dir), dir);
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
-        .lpstrFilter = "Supported Images\0*.GIF;*.PNG;*.JPG;*.JPEG" /* TODO: add all the supported types */
+        .lpstrFilter = "Supported Images\0*.GIF;*.PNG;*.JPG;*.JPEG" // TODO: add all the supported types.
                        "All Files\0*.*\0"
                        "GIF Files\0*.GIF\0"
                        "PNG Files\0*.PNG\0"
@@ -121,7 +122,7 @@ void openfileavatar(void) {
             } else if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
                 free(file_data);
                 char message[1024];
-                if (sizeof(message) < SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
+                if (sizeof(message) < (unsigned)SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
                     debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%"PRIu64" bytes)\n",
                           sizeof(message));
                     break;
@@ -146,12 +147,12 @@ void openfileavatar(void) {
     SetCurrentDirectoryW(dir);
 }
 
-void file_save_inline(MSG_HEADER *msg) {
+void file_save_inline_image_png(MSG_HEADER *msg) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
-        LOG_ERR("file_save_inline", "Could not allocate memory for path.");
-        return;
+        LOG_FATAL_ERR(EXIT_MALLOC, "file_save_inline_image_png", "Could not allocate memory for path.");
     }
+
     snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)msg->via.ft.name_length, (char *)msg->via.ft.name);
 
     OPENFILENAME ofn = {
@@ -173,28 +174,13 @@ void file_save_inline(MSG_HEADER *msg) {
             snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", path);
             msg->via.ft.inline_png = false;
         } else {
-            LOG_ERR(__FILE__, "file_save_inline:\tCouldn't open path: `%s` to save inline file.", path);
+            LOG_ERR(__FILE__, "file_save_inline_image_png:\tCouldn't open path: `%s` to save inline file.", path);
         }
     } else {
-        LOG_ERR(__FILE__, "GetSaveFileName() failed\n");
+        LOG_ERR(__FILE__, "GetSaveFileName() failed");
     }
     free(path);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size) {
     /* must be null terminated string          ↓                     */
@@ -211,17 +197,15 @@ void init_ptt(void) {
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
-        // LOG_TRACE(__FILE__, "PTT is disabled" );
-        return true; /* If push to talk is disabled, return true. */
+        // PTT is disabled. Always send audio.
+        return true;
     }
 
     if (GetAsyncKeyState(VK_LCONTROL)) {
-        // LOG_TRACE(__FILE__, "PTT key is down" );
         return true;
-    } else {
-        // LOG_TRACE(__FILE__, "PTT key is up" );
-        return false;
     }
+
+    return false;
 }
 
 void exit_ptt(void) {
@@ -241,26 +225,27 @@ uint64_t get_time(void) {
 }
 
 void openurl(char *str) {
-    //! convert
     ShellExecute(NULL, "open", (char *)str, NULL, NULL, SW_SHOW);
 }
 
-void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {}
-
+void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {
+    // TODO: Implement.
+}
 
 #include "../layout/friend.h"
 #include "../layout/group.h"
 void copy(int value) {
-    char data[32768]; //! TODO: De-hardcode this value.
-    int  len;
+    const uint16_t max_size = INT16_MAX + 1;
+    char data[max_size]; //! TODO: De-hardcode this value.
+    int len = 0;
 
     if (edit_active()) {
-        len       = edit_copy(data, 32767);
+        len = edit_copy(data, max_size - 1);
         data[len] = 0;
     } else if (flist_get_selected()->item == ITEM_FRIEND) {
-        len = messages_selection(&messages_friend, data, 32768, value);
+        len = messages_selection(&messages_friend, data, max_size, value);
     } else if (flist_get_selected()->item == ITEM_GROUP) {
-        len = messages_selection(&messages_group, data, 32768, value);
+        len = messages_selection(&messages_group, data, max_size, value);
     } else {
         return;
     }
@@ -277,9 +262,9 @@ void copy(int value) {
 
 /* TODO DRY, this exists in screen_grab.c */
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
-    NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
+    NATIVE_IMAGE *image = calloc(1, sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        LOG_TRACE("create_utox_image", " Could not allocate memory for image." );
+        LOG_ERR("create_utox_image", " Could not allocate memory for image." );
         return NULL;
     }
     image->bitmap        = bmp;
@@ -295,8 +280,9 @@ static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t wid
 
 /* TODO DRY, this exists in screen_grab.c */
 static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
-    if (width == 0 || height == 0)
+    if (width == 0 || height == 0) {
         return;
+    }
 
     BITMAPINFO info = {
         .bmiHeader = {
@@ -309,15 +295,17 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
         }
     };
 
-    void *bits = malloc((width + 3) * height * 3);
+    void *bits = calloc(1, (width + 3) * height * 3);
 
     GetDIBits(mem, hbm, 0, height, bits, &info, DIB_RGB_COLORS);
 
-    uint8_t pbytes = width & 3, *p = bits, *pp = bits, *end = p + width * height * 3;
-    // uint32_t offset = 0;
+    uint8_t pbytes = width & 3;
+    uint8_t *p = bits;
+    uint8_t *pp = bits;
+    uint8_t *end = p + width * height * 3;
+
     while (p != end) {
-        int i;
-        for (i = 0; i != width; i++) {
+        for (int i = 0; i != width; i++) {
             uint8_t b    = pp[i * 3];
             p[i * 3]     = pp[i * 3 + 2];
             p[i * 3 + 1] = pp[i * 3 + 1];
@@ -328,12 +316,12 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     }
 
     int size = 0;
-    uint8_t *out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
 
+    UTOX_IMAGE out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
     free(bits);
 
     NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(flist_get_selected()->data, image, width, height, (UTOX_IMAGE)out, size);
+    friend_sendimage(flist_get_selected()->data, image, width, height, out, size);
 }
 
 void paste(void) {
@@ -364,10 +352,10 @@ void paste(void) {
         }
     } else {
         wchar_t *d = GlobalLock(h);
-        char     data[65536]; // TODO: De-hardcode this value.
-        int      len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char *)data, sizeof(data), NULL, 0);
+        char data[65536]; // TODO: De-hardcode this value.
+        int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, data, sizeof(data), NULL, NULL);
         if (edit_active()) {
-            edit_paste(data, len, 0);
+            edit_paste(data, len, false);
         }
     }
 
@@ -734,7 +722,7 @@ static void cursors_init(void) {
 
 static bool auto_update(PSTR cmd) {
     char path[MAX_PATH + 20];
-    int  len = GetModuleFileName(NULL, path, MAX_PATH);
+    unsigned len = GetModuleFileName(NULL, path, MAX_PATH);
 
     /* Is the uTox exe named like the updater one. */
     char *file = path + len - (sizeof("uTox.exe") - 1);
@@ -764,22 +752,28 @@ static bool auto_update(PSTR cmd) {
  * also handles call from other apps.
  */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cmd, int nCmdShow) {
-
     pthread_mutex_init(&messages_lock, NULL);
 
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     HANDLE utox_mutex = CreateMutex(NULL, 0, TITLE);
 
     if (!utox_mutex) {
-        return false;
+        return 0;
     }
+
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND window = FindWindow(TITLE, NULL);
+
         if (window) {
-            COPYDATASTRUCT data = {.cbData = strlen(cmd), .lpData = cmd };
+            COPYDATASTRUCT data = {
+                .cbData = strlen(cmd),
+                .lpData = cmd
+            };
+
             SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
         }
-        return false;
+
+        return 0;
     }
 
     /* Process argc/v the backwards (read: windows) way. */
@@ -789,7 +783,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     if (NULL == argv) {
         LOG_TRACE(__FILE__, "CommandLineToArgvA failed" );
-        return true;
+        return 0;
     }
 
     bool   theme_was_set_on_argv;
@@ -800,14 +794,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     parse_args(argc, argv, &skip_updater, &from_updater, &theme_was_set_on_argv,
                &should_launch_at_startup, &set_show_window );
 
+    // Free memory allocated by CommandLineToArgvA
+    GlobalFree(argv);
+
     if (settings.portable_mode == true) {
         /* force the working directory if opened with portable command */
         HMODULE      hModule = GetModuleHandle(NULL);
         char         path[MAX_PATH];
         int          len = GetModuleFileName(hModule, path, MAX_PATH);
         unsigned int i;
-        for (i = (len - 1); path[i] != '\\'; --i);
-        path[i] = 0; //!
+        for (i = len - 1; path[i] != '\\'; --i) {
+            // Do nothing until we reach the folder separator.
+        }
+        path[i] = 0;
         SetCurrentDirectory(path);
         strcpy(portable_mode_save_path, (char *)path);
     }
@@ -819,7 +818,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     if (!skip_updater) {
-        LOG_ERR(__FILE__, "don't skip updater\n");
+        LOG_ERR(__FILE__, "don't skip updater");
         if (auto_update(cmd)) {
             CloseHandle(utox_mutex);
             return 0;
@@ -832,11 +831,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         LOG_TRACE(__FILE__, "Normal windows build" );
     #endif
 
-    // Free memory allocated by CommandLineToArgvA
-    GlobalFree(argv);
-
     #ifdef GIT_VERSION
-        debug_notice("uTox version %s \n", GIT_VERSION);
+        LOG_NOTE(__FILE__, "uTox version %s \n", GIT_VERSION);
     #endif
 
     cursors_init();
@@ -846,7 +842,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     screen_grab_init(hInstance);
 
     OleInitialize(NULL);
-
 
     uint16_t langid = GetUserDefaultUILanguage() & 0xFFFF;
 
@@ -878,7 +873,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     native_notify_init(hInstance);
 
     hdc_brush = GetStockObject(DC_BRUSH);
-    tme.hwndTrack = main_window.window;
 
     tray_icon_init(main_window.window, LoadIcon(hInstance, MAKEINTRESOURCE(101)));
 
@@ -895,7 +889,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     if (*cmd) {
-        int len = strlen(cmd);
+        const int len = strlen(cmd);
         do_tox_url((uint8_t *)cmd, len);
     }
 
@@ -948,7 +942,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     };
     config_save(&d);
 
-    LOG_INFO("uTox", "Clean exit." );
+    LOG_INFO("uTox", "Clean exit.");
 
-    return false;
+    utox_raze();
+
+    // TODO: This should be a non-zero value determined by a message's wParam.
+    return 0;
 }

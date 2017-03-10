@@ -4,6 +4,7 @@
 
 #include "../branding.h"
 #include "../debug.h"
+#include "../macros.h"
 #include "../main_native.h"
 
 #include "../ui/draw.h"
@@ -119,15 +120,14 @@ void native_window_raze(UTOX_WINDOW *window) {
     }
 }
 
-UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **argv, int argc) {
+UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **UNUSED(argv), int UNUSED(argc)) {
     char *title = calloc(1, 256); // TODO there's a better way to do this
                                   // and leaks
     snprintf(title, 256, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 
     if (!native_window_create(&main_window, title, CWBackPixmap | CWBorderPixel | CWEventMask,
                       x, y, w, h, MAIN_WIDTH, MAIN_HEIGHT, &panel_root, false)) {
-        LOG_FATAL_ERR(2, __FILE__, "Unable to create main window.");
-        return NULL;
+        LOG_FATAL_ERR(EXIT_FAILURE, __FILE__, "Unable to create main window.");
     }
 
     Atom a_pid  = XInternAtom(display, "_NET_WM_PID", 0);
@@ -139,14 +139,15 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **argv, 
     return &main_window;
 }
 
-void native_window_create_video() {
-    return;
+UTOX_WINDOW *native_window_create_video(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h)) {
+    return NULL;
 }
 
-UTOX_WINDOW *native_window_find_notify(Window window) {
+
+UTOX_WINDOW *native_window_find_notify(void *window) {
     UTOX_WINDOW *win = &popup_window;
     while (win) {
-        if (win->window == window) {
+        if (win->window == *(Window *)window) {
             return win;
         }
         win = win->_.next;

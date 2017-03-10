@@ -7,6 +7,7 @@
 #include "messages.h"
 
 #include "layout/background.h"
+#include "layout/create.h"
 #include "layout/friend.h"
 #include "layout/group.h"
 #include "layout/notify.h"
@@ -28,24 +29,30 @@
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
     return;
 }
+
 static bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height),
                       int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
-    return 0;
+    return false;
 }
+
 static bool background_mdown(PANEL *UNUSED(p)) {
-    return 0;
+    return false;
 }
+
 static bool background_mright(PANEL *UNUSED(p)) {
-    return 0;
+    return false;
 }
+
 static bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) {
-    return 0;
+    return false;
 }
+
 static bool background_mup(PANEL *UNUSED(p)) {
-    return 0;
+    return false;
 }
+
 static bool background_mleave(PANEL *UNUSED(p)) {
-    return 0;
+    return false;
 }
 
 
@@ -77,36 +84,6 @@ STRING *maybe_i18nal_string_get(MAYBE_I18NAL_STRING *mis) {
 bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
     return (mis->plain.str || ((UI_STRING_ID_INVALID != mis->i18nal) && (mis->i18nal < NUM_STRS)));
 }
-
-/***** MAYBE_I18NAL_STRING helpers end *****/
-
-#define CREATE_BUTTON(n, a, b, w, h)            \
-    button_##n.panel.type     = PANEL_BUTTON;   \
-    button_##n.panel.x        = a;              \
-    button_##n.panel.y        = b;              \
-    button_##n.panel.width    = w;              \
-    button_##n.panel.height   = h;
-
-#define CREATE_EDIT(n, a, b, w, h)              \
-    edit_##n.panel.type       = PANEL_EDIT;     \
-    edit_##n.panel.x          = a;              \
-    edit_##n.panel.y          = b;              \
-    edit_##n.panel.width      = w;              \
-    edit_##n.panel.height     = h;
-
-#define CREATE_SWITCH(n, a, b, w, h)            \
-    switch_##n.panel.type     = PANEL_SWITCH;   \
-    switch_##n.panel.x        = a;              \
-    switch_##n.panel.y        = b;              \
-    switch_##n.panel.width    = w;              \
-    switch_##n.panel.height   = h;
-
-#define CREATE_DROPDOWN(n, a, b, h, w)          \
-    dropdown_##n.panel.type   = PANEL_DROPDOWN; \
-    dropdown_##n.panel.x      = a;              \
-    dropdown_##n.panel.y      = b;              \
-    dropdown_##n.panel.height = h;              \
-    dropdown_##n.panel.width  = w;
 
 /***********************************************************************
  *                                                                     *
@@ -307,14 +284,14 @@ void ui_set_scale(uint8_t scale) {
     CREATE_BUTTON(settings_sub_adv, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(ADVANCED_BUTTON), SCALE(28));
 
 
-    /* Devices              */
+    /* Devices */
     CREATE_BUTTON(add_new_device_to_self, SCALE(-10) - BM_SBUTTON_WIDTH, SCALE(28), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(add_new_device_to_self, SCALE(10), SCALE(27), SCALE(0) - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH,
                 SCALE(24));
 
 
-    /* Friend Add Page      */
+    /* Friend Add Page */
     CREATE_BUTTON(send_friend_request, SCALE(-10) - BM_SBUTTON_WIDTH, MAIN_TOP + SCALE(168), BM_SBUTTON_WIDTH,
                   BM_SBUTTON_HEIGHT);
     CREATE_BUTTON(accept_friend, SCALE(-60), SCALE(-80), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
@@ -421,11 +398,14 @@ static void panel_update(PANEL *p, int x, int y, int width, int height) {
             break;
         }
 
-        default: { break; }
+        default: {
+            break;
+        }
     }
 
-    PANEL **pp = p->child, *subp;
+    PANEL **pp = p->child;
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             panel_update(subp, x, y, width, height);
         }
@@ -436,14 +416,14 @@ void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32
                        uint32_t targetheight)
 {
     /* get smallest of width or height */
-    double scale = (width > height) ? (double)targetheight / height : (double)targetwidth / width;
+    const double scale = (width > height) ? (double)targetheight / height : (double)targetwidth / width;
 
     image_set_scale(image, scale);
     image_set_filter(image, FILTER_BILINEAR);
 
     /* set position to show the middle of the image in the center  */
-    int xpos = (int)((double)width * scale / 2 - (double)targetwidth / 2);
-    int ypos = (int)((double)height * scale / 2 - (double)targetheight / 2);
+    const int xpos = (int)((double)width * scale / 2 - (double)targetwidth / 2);
+    const int ypos = (int)((double)height * scale / 2 - (double)targetheight / 2);
 
     draw_image(image, x, y, targetwidth, targetheight, xpos, ypos);
 
@@ -478,8 +458,9 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height) {
         }
     }
 
-    PANEL **pp = p->child, *subp;
+    PANEL **pp = p->child;
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 panel_draw_sub(subp, x, y, width, height);
@@ -505,8 +486,9 @@ void panel_draw(PANEL *p, int x, int y, int width, int height) {
         }
     }
 
-    PANEL **pp = p->child, *subp;
+    PANEL **pp = p->child;
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 panel_draw_sub(subp, x, y, width, height);
@@ -553,8 +535,9 @@ bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, 
     if (p == &panel_root) {
         draw |= tooltip_mmove();
     }
-    PANEL **pp = p->child, *subp;
+    PANEL **pp = p->child;
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 draw |= panel_mmove(subp, x, y, width, height, mx, my, dx, dy);
@@ -577,8 +560,9 @@ static bool panel_mdown_sub(PANEL *p) {
         return true;
     }
 
-    PANEL **pp = p->child, *subp;
+    PANEL **pp = p->child;
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 if (panel_mdown_sub(subp)) {
@@ -599,9 +583,10 @@ void panel_mdown(PANEL *p) {
 
     bool draw = edit_active();
 
-    PANEL **pp = p->child, *subp;
+    PANEL **pp = p->child;
 
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 draw |= panel_mdown_sub(subp);
@@ -622,8 +607,9 @@ bool panel_dclick(PANEL *p, bool triclick) {
         draw = messages_dclick(p, triclick);
     }
 
-    PANEL **pp = p->child, *subp;
+    PANEL **pp = p->child;
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 draw = panel_dclick(subp, triclick);
@@ -642,9 +628,10 @@ bool panel_dclick(PANEL *p, bool triclick) {
 }
 
 bool panel_mright(PANEL *p) {
-    bool    draw = p->type ? mrightfunc[p->type - 1](p) : false;
-    PANEL **pp   = p->child, *subp;
+    bool draw = p->type ? mrightfunc[p->type - 1](p) : false;
+    PANEL **pp = p->child;
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 draw |= panel_mright(subp);
@@ -662,9 +649,10 @@ bool panel_mright(PANEL *p) {
 bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool smooth) {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
-    bool    draw = p->type ? mwheelfunc[p->type - 1](p, height, d) : false;
-    PANEL **pp   = p->child, *subp;
+    bool draw = p->type ? mwheelfunc[p->type - 1](p, height, d) : false;
+    PANEL **pp = p->child;
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 draw |= panel_mwheel(subp, x, y, width, height, d, smooth);
@@ -680,9 +668,10 @@ bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool 
 }
 
  bool panel_mup(PANEL *p) {
-    bool    draw = p->type ? mupfunc[p->type - 1](p) : false;
-    PANEL **pp   = p->child, *subp;
+    bool draw = p->type ? mupfunc[p->type - 1](p) : false;
+    PANEL **pp = p->child;
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 draw |= panel_mup(subp);
@@ -703,8 +692,9 @@ bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool 
 
 bool panel_mleave(PANEL *p) {
     bool    draw = p->type ? mleavefunc[p->type - 1](p) : false;
-    PANEL **pp   = p->child, *subp;
+    PANEL **pp   = p->child;
     if (pp) {
+        PANEL *subp;
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 draw |= panel_mleave(subp);

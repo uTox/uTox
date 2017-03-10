@@ -1,34 +1,23 @@
 #!/bin/sh
 set -eux
 
-. ./travis/env.sh
+. ./extra/travis/env.sh
 
-# install libsodium, needed for crypto
-if ! [ -d libsodium ]; then
-  git clone --depth=1 --branch=stable https://github.com/jedisct1/libsodium.git
-fi
-cd libsodium
-git rev-parse HEAD > libsodium.sha
-if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libsodium.sha); then
-  ./autogen.sh
-  ./configure --host=i686-w64-mingw32 --prefix="$CACHE_DIR/usr"
-  make -j`nproc`
-  make install
-  mv libsodium.sha "$CACHE_DIR/libsodium.sha"
-fi
-cd ..
-rm -rf libsodium
+export TARGET_HOST="--host=i686-w64-mingw32"
+
+. ./extra/common/build_nacl.sh
+
 
 # install libopus, needed for audio encoding/decoding
 if ! [ -f $CACHE_DIR/usr/lib/pkgconfig/opus.pc ]; then
-  curl http://downloads.xiph.org/releases/opus/opus-1.1.tar.gz -o opus-1.1.tar.gz
-  tar xzf opus-1.1.tar.gz
-  cd opus-1.1
+  curl http://downloads.xiph.org/releases/opus/opus-1.1.4.tar.gz -o opus.tar.gz
+  tar xzf opus.tar.gz
+  cd opus-1.1.4
   ./configure --host=i686-w64-mingw32 --prefix=$HOME/cache/usr
   make -j`nproc`
   make install
   cd ..
-  rm -rf opus-1.1*
+  rm -rf opus**
 fi
 
 # install libvpx, needed for video encoding/decoding
@@ -99,5 +88,5 @@ fi
 cd ..
 rm -rf openal
 
-mv $CACHE_DIR/usr/lib/libOpenAL32.a $CACHE_DIR/usr/lib/libopenal.a || true
+cp $CACHE_DIR/usr/lib/libOpenAL32.a $CACHE_DIR/usr/lib/libopenal.a || true
 # sudo curl https://cmdline.org/travis/32/shell32.a > $CACHE_DIR/usr/lib/libshell32.a

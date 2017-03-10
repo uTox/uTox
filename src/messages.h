@@ -19,13 +19,13 @@ typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_NOTICE,
     MSG_TYPE_NOTICE_DAY_CHANGE, // Seperated so I can localize this later!
     /* MSG_TEXT should end here */
-    MSG_TYPE_OTHER, // Unused, expect to seperate MSG_TEXT type
+    // MSG_TYPE_OTHER, // Unused, expect to seperate MSG_TEXT type
     MSG_TYPE_IMAGE,
-    MSG_TYPE_IMAGE_HISTORY,
+    // MSG_TYPE_IMAGE_HISTORY,
     MSG_TYPE_FILE,
-    MSG_TYPE_FILE_HISTORY,
-    MSG_TYPE_CALL_ACTIVE,
-    MSG_TYPE_CALL_HISTORY,
+    // MSG_TYPE_FILE_HISTORY,
+    // MSG_TYPE_CALL_ACTIVE,
+    // MSG_TYPE_CALL_HISTORY,
 } UTOX_MSG_TYPE;
 
 typedef struct {
@@ -79,7 +79,6 @@ typedef struct msg_header {
 
     // true, if we're the author, false, if someone else.
     bool    our_msg;
-    bool    from_disk;
 
     uint32_t height;
     time_t   time;
@@ -175,7 +174,7 @@ bool messages_mleave(PANEL *m);
 // Relay keypress to message panel.
 // Returns bool indicating whether a redraw is needed or not.
 bool messages_char(uint32_t ch);
-int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names);
+int messages_selection(PANEL *panel, char *buffer, uint32_t len, bool names);
 
 void messages_updateheight(MESSAGES *m, int width);
 

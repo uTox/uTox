@@ -84,8 +84,7 @@ static int utox_encrypt_data(void *clear_text, size_t clear_length, uint8_t *cyp
     tox_pass_encrypt((uint8_t *)clear_text, clear_length, (uint8_t *)passphrase, passphrase_length, cypher_data, &err);
 
     if (err) {
-        LOG_ERR(__FILE__, "Fatal Error; unable to encrypt data!\n");
-        exit(10);
+        LOG_FATAL_ERR(EXIT_FAILURE, __FILE__, "Fatal Error; unable to encrypt data!\n");
     }
 
     return err;
@@ -115,19 +114,24 @@ static int utox_decrypt_data(void *cypher_data, size_t cypher_length, uint8_t *c
 }
 
 /* bootstrap to dht with bootstrap_nodes */
-static void toxcore_bootstrap(Tox *tox) {
+static void toxcore_bootstrap(Tox *tox, bool ipv6_enabled) {
     static unsigned int j = 0;
 
-    if (j == 0)
+    if (j == 0) {
         j = rand();
+    }
 
     int i = 0;
     while (i < 4) {
-        struct bootstrap_node *d = &bootstrap_nodes[j % COUNTOF(bootstrap_nodes)];
-        tox_bootstrap(tox, d->address, d->port, d->key, 0);
-        tox_add_tcp_relay(tox, d->address, d->port, d->key, 0);
+        struct bootstrap_node *d = &bootstrap_nodes[j++ % COUNTOF(bootstrap_nodes)];
+        // do not add IPv6 bootstrap nodes if IPv6 is not enabled
+        if (!ipv6_enabled && d->ipv6) {
+            continue;
+        }
+        LOG_TRACE("Toxcore", "Bootstrapping with node %s udp: %d, tcp: %d", d->address, d->port_udp, d->port_tcp);
+        tox_bootstrap(tox, d->address, d->port_udp, d->key, 0);
+        tox_add_tcp_relay(tox, d->address, d->port_tcp, d->key, 0);
         i++;
-        j++;
     }
 }
 
@@ -286,7 +290,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
                 return 0;
             }
         } else {
-            LOG_INFO("Toxcore", "Using unencrypted save file; this could be insecure!\n");
+            LOG_INFO("Toxcore", "Using unencrypted save file; this could be insecure!");
             options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
             options->savedata_data   = raw_data;
             options->savedata_length = raw_length;
@@ -305,7 +309,7 @@ static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file
     } else if (func) {
         LOG_NET_TRACE("Toxcore", "TOXCORE LOGGING ERROR: %s" , func);
     } else {
-        LOG_ERR("Toxcore logging", "TOXCORE LOGGING is broken!!:\tOpen an bug upstream\n");
+        LOG_ERR("Toxcore logging", "TOXCORE LOGGING is broken!!:\tOpen an bug upstream");
     }
 }
 
@@ -379,10 +383,10 @@ static int init_toxcore(Tox **tox) {
 
     if (*tox == NULL) {
         if (settings.force_proxy) {
-            LOG_ERR("Toxcore", "\t\tError #%u, Not going to try without proxy because of user settings.\n", tox_new_err);
+            LOG_ERR("Toxcore", "\t\tError #%u, Not going to try without proxy because of user settings.", tox_new_err);
             return -2;
         }
-        LOG_ERR("Toxcore", "\t\tError #%u, Going to try without proxy.\n", tox_new_err);
+        LOG_ERR("Toxcore", "\t\tError #%u, Going to try without proxy.", tox_new_err);
 
         // reset proxy options as well as GUI and settings
         topt.proxy_type = TOX_PROXY_TYPE_NONE;
@@ -392,7 +396,7 @@ static int init_toxcore(Tox **tox) {
         *tox = tox_new(&topt, &tox_new_err);
 
         if (*tox == NULL) {
-            LOG_ERR("Toxcore", "\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
+            LOG_ERR("Toxcore", "\t\tError #%u, Going to try without IPv6.", tox_new_err);
 
             // reset IPv6 options as well as GUI and settings
             topt.ipv6_enabled = 0;
@@ -401,7 +405,7 @@ static int init_toxcore(Tox **tox) {
             *tox = tox_new(&topt, &tox_new_err);
 
             if (*tox == NULL) {
-                LOG_ERR("Toxcore", "\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
+                LOG_ERR("Toxcore", "\t\tFatal Error creating a Tox instance... Error #%u", tox_new_err);
                 return -2;
             }
         }
@@ -413,7 +417,7 @@ static int init_toxcore(Tox **tox) {
     set_callbacks(*tox);
 
     /* Connect to bootstrapped nodes in "tox_bootstrap.h" */
-    toxcore_bootstrap(*tox);
+    toxcore_bootstrap(*tox, settings.enable_ipv6);
 
     if (save_status == -2) {
         LOG_NOTE("Toxcore", "No save file, using defaults" );
@@ -520,7 +524,7 @@ void toxcore_thread(void *UNUSED(args)) {
             if (time - last_connection >= (uint64_t)10 * 1000 * 1000 * 1000) {
                 last_connection = time;
                 if (!connected) {
-                    toxcore_bootstrap(tox);
+                    toxcore_bootstrap(tox, settings.enable_ipv6);
                 }
 
                 // save every 1000.
@@ -565,13 +569,13 @@ void toxcore_thread(void *UNUSED(args)) {
         }
 
         // Stop av threads, and toxcore.
-        LOG_TRACE("Toxcore", "av_thread exit, tox thread ending" );
+        LOG_TRACE("Toxcore", "av_thread exit, tox thread ending");
         toxav_kill(av);
         tox_kill(tox);
     }
 
     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
-    LOG_TRACE("Toxcore", "Tox thread:\tClean exit!" );
+    LOG_TRACE("Toxcore", "Tox thread:\tClean exit!");
 }
 
 /** General recommendations for working with threads in uTox
@@ -617,16 +621,11 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         }
 
         case TOX_SELF_CHANGE_NOSPAM: {
-            /* param1: 0 for revert to old_nospam 1 for random nospam
+            /* param1: new nospam value
              */
             char *old_id = self.id_str;
 
-            if (param1 == 0){
-                self.nospam = self.old_nospam;
-            } else {
-                long int newspam = rand();
-                self.nospam = (uint32_t)newspam;
-            }
+            self.nospam = param1;
 
             sprintf(self.nospam_str, "%08X", self.nospam);
             tox_self_set_nospam(tox, self.nospam);
@@ -638,6 +637,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             /* Update avatar */
             avatar_move((uint8_t *)old_id, (uint8_t *)self.id_str);
+            edit_setstr(&edit_nospam, self.nospam_str, sizeof(uint32_t) * 2);
 
             save_needed = true;
             break;
@@ -688,7 +688,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 STRING *default_add_msg = SPTR(DEFAULT_FRIEND_REQUEST_MESSAGE);
                 fid = tox_friend_add(tox, data, (const uint8_t *)default_add_msg->str, default_add_msg->length, &f_err);
             } else {
-                fid = tox_friend_add(tox, data, data + TOX_ADDRESS_SIZE, param1, &f_err);
+                fid = tox_friend_add(tox, data, (uint8_t *)data + TOX_ADDRESS_SIZE, param1, &f_err);
             }
 
             if (f_err != TOX_ERR_FRIEND_ADD_OK) {

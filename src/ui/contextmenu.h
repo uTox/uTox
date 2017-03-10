@@ -1,5 +1,5 @@
-#ifndef CONTEXTMENU_H
-#define CONTEXTMENU_H
+#ifndef UI_CONTEXTMENU_H
+#define UI_CONTEXTMENU_H
 
 #include "../ui.h"
 

@@ -222,7 +222,7 @@ CGFloat           desktop_capture_scale = 1.0;
 #else
 #define AV_SESSION_CHK()                  \
     if (!active_video_session) {          \
-        debug("no active video session"); \
+        LOG_WARN("uToxAV", "no active video session"); \
         abort();                          \
     }
 #endif

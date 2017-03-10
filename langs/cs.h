@@ -64,10 +64,10 @@ msgstr("Přenos souboru dokončen")
 msgid(CALL_CANCELLED)
 msgstr("Hovor zrušen")
 
-msgid(CALL_INVITED)
+//msgid(CALL_INVITED)
 //msgstr("Call invited")
 
-msgid(CALL_RINGING)
+//msgid(CALL_RINGING)
 //msgstr("Call ringing")
 
 msgid(CALL_STARTED)

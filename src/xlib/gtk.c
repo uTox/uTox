@@ -114,7 +114,7 @@ static void update_image_preview(void *filechooser, void *image) {
 }
 
 static void ugtk_opensendthread(void *args) {
-    uint32_t fid = (uint32_t)args;
+    size_t fid = (size_t)args;
 
     void *dialog = utoxGTK_file_chooser_dialog_new((const char *)S(SEND_FILE), NULL, GTK_FILE_CHOOSER_ACTION_OPEN,
                                                    "_Cancel", GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
@@ -142,7 +142,7 @@ static void ugtk_opensendthread(void *args) {
             LOG_INFO("GTK", "Sending file %s" , p->data);
             send->file = fopen(p->data, "rb");
             send->name = (uint8_t*)strdup(p->data);
-            postmessage_toxcore(TOX_FILE_SEND_NEW, fid, 0, send);
+            postmessage_toxcore(TOX_FILE_SEND_NEW, (uint32_t)fid, 0, send);
             utoxGTK_free(p->data);
             p = p->next;
         }
@@ -311,10 +311,10 @@ static void ugtk_save_data_thread(void *args) {
 }
 
 static void ugtk_save_chatlog_thread(void *args) {
-    uint32_t friend_number = (uint32_t)args;
+    size_t friend_number = (size_t)args;
 
     char name[TOX_MAX_NAME_LENGTH + sizeof ".txt"];
-    snprintf(name, sizeof name, "%.*s.txt", (int)friend[friend_number].name_length, friend[friend_number].name);
+    snprintf(name, sizeof name, "%.*s.txt", (int)friend[(uint32_t)friend_number].name_length, friend[(uint32_t)friend_number].name);
 
     void *dialog = utoxGTK_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
                                                    "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
@@ -325,7 +325,7 @@ static void ugtk_save_chatlog_thread(void *args) {
 
         FILE *fp = fopen(file_name, "wb");
         if (fp) {
-            utox_export_chatlog(friend[friend_number].id_str, fp);
+            utox_export_chatlog(friend[(uint32_t)friend_number].id_str, fp);
         }
     }
 
@@ -389,7 +389,7 @@ void ugtk_save_chatlog(uint32_t friend_number) {
     do {                                                               \
         utoxGTK_##name = dlsym(lib, #trgt "_" #name);                  \
         if (!utoxGTK_##name) {                                         \
-            LOG_ERR(__FILE__, "Unable to load " #name " (%s)\n", dlerror()); \
+            LOG_ERR(__FILE__, "Unable to load " #name " (%s)", dlerror()); \
             dlclose(lib);                                              \
             return NULL;                                               \
         }                                                              \
@@ -399,7 +399,7 @@ void ugtk_save_chatlog(uint32_t friend_number) {
     do {                                                               \
         utoxGDK_##name = dlsym(lib, "gdk_" #name);                     \
         if (!utoxGDK_##name) {                                         \
-            LOG_ERR(__FILE__, "Unable to load " #name " (%s)\n", dlerror()); \
+            LOG_ERR(__FILE__, "Unable to load " #name " (%s)", dlerror()); \
             dlclose(lib);                                              \
             return NULL;                                               \
         }                                                              \

@@ -1,7 +1,8 @@
 #include "../filesys.h"
+#include "../filesys_native.h"
 
 #include "../debug.h"
-#include "../settings.h"
+
 
 #ifdef __OBJC__
 #include "../main.h"
@@ -41,10 +42,10 @@ static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
     return;
 }
 
-FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
+FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bool portable_mode) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
-    if (settings.portable_mode) {
+    if (portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
