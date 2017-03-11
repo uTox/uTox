@@ -3,7 +3,19 @@
  * play(does it make a difference?)
  */
 
+#include "main.h"
+
 #include "../debug.h"
+#include "../settings.h"
+#include "../macros.h"
+#include "../utox.h"
+#include "../main_native.h"
+#include "../../langs/i18n_decls.h"
+
+#include <pthread.h>
+
+#include <SLES/OpenSLES.h>
+#include <SLES/OpenSLES_Android.h>
 
 static SLObjectItf engineObject = NULL;
 static SLEngineItf engineEngine;
@@ -29,7 +41,7 @@ typedef struct {
     short *                       buf;
 } AUDIO_PLAYER;
 
-AUDIO_PLAYER loopback, call_player[MAX_CALLS];
+AUDIO_PLAYER loopback, call_player[32];
 
 static SLDataFormat_PCM format_pcm = {.formatType    = SL_DATAFORMAT_PCM,
                                       .numChannels   = 1,
@@ -39,7 +51,7 @@ static SLDataFormat_PCM format_pcm = {.formatType    = SL_DATAFORMAT_PCM,
                                       .channelMask   = SL_SPEAKER_FRONT_CENTER,
                                       .endianness    = SL_BYTEORDER_LITTLEENDIAN };
 
-volatile bool call[MAX_CALLS];
+volatile bool call[32];
 
 pthread_mutex_t callback_lock;
 
@@ -120,9 +132,9 @@ void encoder_thread(void *arg) {
 
         pthread_mutex_lock(&callback_lock);
 
-        c = volatile(frame_count);
+        c = frame_count;
         if (c) {
-            frame = volatile(frames[0]);
+            frame = frames[0];
             memmove(&frames[0], &frames[1], (c - 1) * sizeof(void *));
             frame_count--;
         }
@@ -130,14 +142,14 @@ void encoder_thread(void *arg) {
         pthread_mutex_unlock(&callback_lock);
 
         if (c) {
-            if (volatile(settings.audio_preview)) {
+            if (settings.audio_preview) {
                 player_queue(&loopback, frame, 1);
             }
 
 
             // TODO fix this
             int i;
-            for (i = 0; i < MAX_CALLS; i++) {
+            for (i = 0; i < 32; i++) {
                 if (call[i]) {
                     int     r;
                     uint8_t dest[960 * 2];
@@ -307,9 +319,9 @@ bool audio_frame(int16_t *buffer) {
 
     pthread_mutex_lock(&callback_lock);
 
-    c = volatile(frame_count);
+    c = frame_count;
     if (c) {
-        frame = volatile(frames[0]);
+        frame = frames[0];
         memmove(&frames[0], &frames[1], (c - 1) * sizeof(void *));
         frame_count--;
     }

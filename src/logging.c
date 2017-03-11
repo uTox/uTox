@@ -9,6 +9,8 @@ int utox_verbosity() {
     return settings.verbose;
 }
 
+#ifndef __ANDROID__ // Android needs to provide it's own logging functions
+
 void debug(const char *fmt, ...){
     va_list list;
 
@@ -20,3 +22,5 @@ void debug(const char *fmt, ...){
     fflush(settings.debug_file);
     #endif
 }
+
+#endif

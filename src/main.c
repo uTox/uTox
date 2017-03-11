@@ -278,8 +278,3 @@ void utox_raze(void) {
         fclose(settings.debug_file);
     }
 }
-
-/** Android is still a bit legacy, so we just include it all here. */
-#if defined __ANDROID__
-#include "android/main.c"
-#endif

@@ -9,6 +9,11 @@
 
 #include <tox/toxdns.h>
 
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
+
 static struct tox3 {
     uint8_t *name;
     void *   dns3;

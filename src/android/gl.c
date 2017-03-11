@@ -1,12 +1,15 @@
+#include "gl.h"
+
+#include "main.h"
+#include "freetype.h"
+
 #include "../debug.h"
+#include "../main_native.h"
 #include "../settings.h"
+#include "../macros.h"
 
-typedef struct {
-    int16_t  x, y;
-    uint16_t tx, ty;
-} VERTEX2D;
-
-typedef struct { VERTEX2D vertex[4]; } QUAD2D;
+#include "../ui.h"
+#include "../ui/svg.h"
 
 const char vertex_shader[] = "uniform vec4 matrix;"
                              "attribute vec2 pos;"
@@ -77,7 +80,7 @@ static void makeline(QUAD2D *quad, int16_t x, int16_t y, int16_t x2, int16_t y2)
 }
 
 
-static void makeglyph(QUAD2D *quad, int16_t x, int16_t y, uint16_t mx, uint16_t my, uint16_t width, uint16_t height) {
+void makeglyph(QUAD2D *quad, int16_t x, int16_t y, uint16_t mx, uint16_t my, uint16_t width, uint16_t height) {
     quad->vertex[0].x  = x;
     quad->vertex[0].y  = y;
     quad->vertex[0].tx = mx * 64;
@@ -361,3 +364,179 @@ bool gl_init(void) {
 
     return 1;
 }
+
+/* gl initialization with EGL */
+bool init_display(ANativeWindow *window) {
+    const EGLint attrib_list[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+
+    const EGLint attribs[] = { EGL_SURFACE_TYPE,
+                               EGL_WINDOW_BIT,
+                               EGL_RENDERABLE_TYPE,
+                               EGL_OPENGL_ES2_BIT,
+                               EGL_BLUE_SIZE,
+                               8,
+                               EGL_GREEN_SIZE,
+                               8,
+                               EGL_RED_SIZE,
+                               8,
+                               EGL_ALPHA_SIZE,
+                               8,
+                               EGL_DEPTH_SIZE,
+                               0,
+                               EGL_NONE };
+
+    EGLint numConfigs;
+
+    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    eglInitialize(display, NULL, NULL);
+    eglChooseConfig(display, attribs, &config, 1, &numConfigs);
+
+    EGLint format;
+    eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
+
+    ANativeWindow_setBuffersGeometry(window, 0, 0, format);
+    surface = eglCreateWindowSurface(display, config, window, NULL);
+    context = eglCreateContext(display, config, NULL, attrib_list);
+
+    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
+        return 0;
+    }
+
+    int32_t w, h;
+    eglQuerySurface(display, surface, EGL_WIDTH, &w);
+    eglQuerySurface(display, surface, EGL_HEIGHT, &h);
+
+    settings.window_width  = w;
+    settings.window_height = h;
+
+    return gl_init();
+}
+
+void GL_draw_image(const NATIVE_IMAGE *data, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
+    GLuint texture = data;
+
+    makequad(&quads[0], x - imgx, y - imgy, x + width, y + height);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    float one[]  = { 1.0, 1.0, 1.0 };
+    float zero[] = { 0.0, 0.0, 0.0 };
+    glUniform3fv(k, 1, one);
+    glUniform3fv(k2, 1, zero);
+
+    glDrawQuads(0, 1);
+
+    glUniform3fv(k2, 1, one);
+}
+
+NATIVE_IMAGE *GL_utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+    unsigned width, height, bpp;
+    uint8_t *out = stbi_load_from_memory(data, size, &width, &height, &bpp, 3);
+
+    if (out == NULL || width == 0 || height == 0) {
+        return 0;
+    }
+
+    *w = width;
+    *h = height;
+    GLuint texture = 0;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, out);
+    free(out);
+
+    return texture;
+}
+
+int GL_utox_android_redraw_window() {
+    int32_t new_width, new_height;
+    eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
+    eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
+
+    if (new_width != settings.window_width || new_height != settings.window_height) {
+        settings.window_width  = new_width;
+        settings.window_height = new_height;
+
+        float vec[4];
+        vec[0] = -(float)settings.window_width / 2.0;
+        vec[1] = -(float)settings.window_height / 2.0;
+        vec[2] = 2.0 / (float)settings.window_width;
+        vec[3] = -2.0 / (float)settings.window_height;
+        glUniform4fv(matrix, 1, vec);
+
+        ui_size(settings.window_width, settings.window_height);
+
+        glViewport(0, 0, settings.window_width, settings.window_height);
+
+        return 1;
+    }
+}
+
+void GL_raze_surface(void) {
+    // eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    eglDestroyContext(display, context);
+    eglDestroySurface(display, surface);
+    eglTerminate(display);
+}
+
+int GL_drawtext(int x, int xmax, int y, char *str, uint16_t length) {
+    glUniform3fv(k, 1, colorf);
+    glBindTexture(GL_TEXTURE_2D, sfont->texture);
+    int c = 0;
+
+    GLYPH *  g;
+    uint8_t  len;
+    uint32_t ch;
+    while (length) {
+        len = utf8_len_read(str, &ch);
+        str += len;
+        length -= len;
+
+        g = font_getglyph(sfont, ch);
+        if (g) {
+            if (x + g->xadvance > xmax) {
+                x = -x;
+                break;
+            }
+
+            if (c == 64) {
+                glDrawQuads(0, 64);
+                c = 0;
+            }
+
+            makeglyph(&quads[c++], x + g->x, y + g->y, g->mx, g->my, g->width, g->height);
+
+            x += g->xadvance;
+        }
+    }
+
+    glDrawQuads(0, c);
+
+    return x;
+}
+
+#if 0
+void drawimage(NATIVE_IMAGE data, int x, int y, int width, int height, int maxwidth, bool zoom, double position)
+{
+    GLuint texture = data;
+
+    if(!zoom && width > maxwidth) {
+        makequad(&quads[0], x, y, x + maxwidth, y + (height * maxwidth / width));
+    } else {
+        makequad(&quads[0], x - (int)((double)(width - maxwidth) * position), y, x + width, y + height);
+    }
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    float one[] = {1.0, 1.0, 1.0};
+    float zero[] = {0.0, 0.0, 0.0};
+    glUniform3fv(k, 1, one);
+    glUniform3fv(k2, 1, zero);
+
+    glDrawQuads(0, 1);
+
+    glUniform3fv(k2, 1, one);
+}
+#endif

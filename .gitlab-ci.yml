@@ -1,13 +1,26 @@
 stages:
   - build
   - test
+  - deploy
 
 #
 # build
 #
 
+android:
+  stage: build
+  tags:
+    - android
+  variables:
+    TOXCORE_REPO: "TokTok/c-toxcore"
+    GL_BUILD: "android"
+  script:
+    - ./tools/build-android.sh
+
 linux:
   stage: build
+  tags:
+    - linux
   cache:
     # keep cache across stages
     key: "$CI_BUILD_REF_NAME/linux"
@@ -28,6 +41,8 @@ linux:
 
 windows:
   stage: build
+  tags:
+    - mingw64
   cache:
     paths:
       - cache/
@@ -75,3 +90,19 @@ linux-test:
     - ./run_tests.sh
   dependencies:
     - linux
+
+#
+## Deployment SKEL
+#
+
+deploy:
+  stage: deploy
+  tags:
+    - dist
+  only:
+    - tags
+    - triggers
+  environment:
+    name: dist
+  script:
+    - ./tools/script.sh

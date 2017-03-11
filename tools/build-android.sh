@@ -1,103 +1,120 @@
 #!/usr/bin/env bash
-mkdir -p ./build/{lib/armeabi,java}
-
-set -e
-set -x
-
 # read settings from a custom settings file.
 [ -f settings.android ] && source settings.android
 
+set -ex
 
-# ./lib/arm/lib is the compilation of all the required dependencies you can scrape from build.tox.chat needed to
-# cross compile uTox to Android, you might choose to store them elsewhere.
-LDFLAGS=${LDFLAGS--L./lib/arm/lib/}
-
-DEV_VERSION="23.0.2"
+# You may need to change these values, to what ever your system has available
+DEV_VERSION="25.0.0"
 SDK_VERSION="android-23"
 NDK_VERSION="android-12"
 
-KEYSTORE=${KEYSTORE-~/.android/utox.keystore}
+# $TOXCLIORE_LIBS is the compilation of all the required dependencies you can
+# scrape from build.tox.chat needed to cross compile uTox to Android, you
+# might choose to store them elsewhere.
+TOXCORE_LIBS=${TOXCORE_LIBS-./libs/android/lib}
+LDFLAGS=${LDFLAGS--L$TOXCORE_LIBS/}
+TOOLCHAIN=${TOOLCHAIN-./toolchain}
+
+BUILD_DIR=${BUILD_DIR-./build_android}
 
 # Standard dev kit locations on posix
 ANDROID_NDK_HOME=${ANDROID_NDK_HOME-/opt/android-ndk}
 ANDROID_SDK_HOME=${ANDROID_SDK_HOME-/opt/android-sdk}
+
+KEYSTORE=${KEYSTORE-.android/utox.keystore}
+
 SYSROOT=${SYSROOT-${ANDROID_NDK_HOME}/platforms/${NDK_VERSION}/arch-arm}
-TOOLCHAIN=${TOOLCHAIN-./toolchain}
+
 AAPT=${AAPT-$ANDROID_SDK_HOME/build-tools/${DEV_VERSION}/aapt}
+DX=${DX-ANDROID_SDK_HOME/build-tools/${DEV_VERSION}/dx}
+
+
+mkdir -p ${BUILD_DIR}/{lib/armeabi,java}
 
 [ -d ${TOOLCHAIN} ] || "$ANDROID_NDK_HOME/build/tools/make-standalone-toolchain.sh" \
         --ndk-dir="$ANDROID_NDK_HOME" \
         --toolchain="arm-linux-androideabi-clang" \
-        --install-dir=$TOOLCHAIN/ \
+        --install-dir=${TOOLCHAIN}/ \
         --platform=${NDK_VERSION}
 
 TOX_LIBS=${TOX_LIBS-\
-    ./lib/arm/lib/libtoxcore.a \
-    ./lib/arm/lib/libtoxdns.a \
-    ./lib/arm/lib/libtoxav.a \
-    ./lib/arm/lib/libtoxencryptsave.a}
+    $TOXCORE_LIBS/libtoxcore.a \
+    $TOXCORE_LIBS/libtoxdns.a \
+    $TOXCORE_LIBS/libtoxav.a \
+    $TOXCORE_LIBS/libtoxencryptsave.a }
 
 MORE_LIBS=${MORE_LIBS-\
-    ./lib/arm/lib/libsodium.a \
-    ./lib/arm/lib/libopus.a \
-    ./lib/arm/lib/libvpx.a \
-    ./lib/arm/lib/libopenal.a \
-    ./lib/arm/lib/libfreetype.a}
+    $TOXCORE_LIBS/libsodium.a \
+    $TOXCORE_LIBS/libopus.a \
+    $TOXCORE_LIBS/libvpx.a \
+    $TOXCORE_LIBS/libopenal.a \
+    $TOXCORE_LIBS/libfreetype.a }
 
 PLATFORM_LIBS=${PLATFORM_LIBS--llog -landroid -lEGL -lGLESv2 -lOpenSLES -lm -lz -ldl}
 
-${TOOLCHAIN}/bin/arm-linux-androideabi-gcc \
-    -Wl,--unresolved-symbols=report-all \
-    -I ./toolchain/include \
-    -I ./lib/arm/include/freetype2/ \
-    -I ./lib/arm/include/freetype2/freetype/ \
-    -I ./lib/arm/include/ \
-    ${CPPFLAGS} \
-    ./src/*.c \
-    ./src/ui/*.c \
-    ./src/av/*.c \
-    ${LDFLAGS} \
-    ${TOX_LIBS} \
-    ${MORE_LIBS} \
-    $ANDROID_NDK_HOME/sources/android/cpufeatures/cpu-features.c \
-    -o ./build/lib/armeabi/libuTox.so \
-    --sysroot=$SYSROOT \
-    ${PLATFORM_LIBS} \
-    -shared -s
+if ! [ -f ${BUILD_DIR}/lib/armeabi/libuTox.so ]; then
+    ${TOOLCHAIN}/bin/arm-linux-androideabi-clang -std=gnu11 \
+        -Wformat=0 \
+        -Wl,--unresolved-symbols=report-all \
+        -I ./toolchain/include \
+        -I ./libs/android/include/freetype2/ \
+        -I ./libs/android/include/ \
+        ${CPPFLAGS} \
+        ./src/*.c \
+        ./src/ui/*.c \
+        ./src/av/*.c \
+        ./src/layout/*.c \
+        ./src/android/*.c \
+        ../toxcore/toxcore/*.c \
+        ../toxcore/toxav/*.c \
+        ../toxcore/toxencryptsave/*.c \
+        ../toxcore/toxdns/*.c \
+        $ANDROID_NDK_HOME/sources/android/cpufeatures/cpu-features.c \
+        ${LDFLAGS} \
+        ${MORE_LIBS} \
+        -o ${BUILD_DIR}/lib/armeabi/libuTox.so \
+        --sysroot=$SYSROOT \
+        ${PLATFORM_LIBS} \
+        -shared -s
+fi
 
 $AAPT package -f \
     -M ./src/android/AndroidManifest.xml \
     -S ./src/android/res \
     -I $ANDROID_SDK_HOME/platforms/${SDK_VERSION}/android.jar \
-    -F ./build/uTox.apk \
-    -J ./build/java
+    -F ${BUILD_DIR}/uTox.apk \
+    -J ${BUILD_DIR}/java
 
-javac -d ./build/java ./build/java/R.java
+javac \
+    -d ${BUILD_DIR}/java \
+    -source 7 \
+    -target 7 \
+    ${BUILD_DIR}/java/R.java
 
-$ANDROID_SDK_HOME/build-tools/23.0.2/dx \
-    --dex \
-    --output=./build/classes.dex \
-    ./build/java
-
+$DX --dex \
+    --output="${BUILD_DIR}/classes.dex" \
+    ${BUILD_DIR}/java
 
 java \
-    -classpath $ANDROID_SDK_HOME/tools/lib/sdklib.jar com.android.sdklib.build.ApkBuilderMain \
-    ./build/uTox.unsigned.apk \
-    -u -z ./build/uTox.apk \
-    -f ./build/classes.dex \
-    -nf ./build/lib
+    -classpath $ANDROID_SDK_HOME/tools/lib/sdklib.jar \
+    com.android.sdklib.build.ApkBuilderMain \
+    ${BUILD_DIR}/uTox.unsigned.apk \
+    -u -z ${BUILD_DIR}/uTox.apk \
+    -f ${BUILD_DIR}/classes.dex \
+    -nf ${BUILD_DIR}/lib
 
 
 jarsigner \
     -sigalg SHA1withRSA \
     -digestalg SHA1 \
     -keystore ${KEYSTORE} \
-    ./build/uTox.unsigned.apk \
+    ${BUILD_DIR}/uTox.unsigned.apk \
     utox-dev
 
-mv ./build/uTox.unsigned.apk ./build/uTox.signed.apk
+mv ${BUILD_DIR}/uTox.unsigned.apk ${BUILD_DIR}/uTox.signed.apk
 
 $ANDROID_SDK_HOME/build-tools/${DEV_VERSION}/zipalign \
     -f 4 \
-    ./build/uTox.signed.apk \
+    ${BUILD_DIR}/uTox.signed.apk \
     ./uTox.ready.apk

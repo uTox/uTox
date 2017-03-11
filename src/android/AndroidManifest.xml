@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="tox.client.utox"
-        android:versionName="0.13.0"
-        android:versionCode="3"> <!-- versionCode must int. inc for patches -->
+          package="tox.client.utox"
+          android:versionName="v0.13.0"
+          android:versionCode="5"> <!-- versionCode must int. inc for patches -->
 
     <!-- This is the platform API where NativeActivity was introduced. -->
     <uses-sdk android:minSdkVersion="12" />
@@ -15,18 +15,18 @@
 
     <!-- This .apk has no Java code itself, so set hasCode to false. -->
     <application android:label="μTox"
-            android:icon="@drawable/i"
-            android:hasCode="false">
+                 android:icon="@drawable/i"
+                 android:hasCode="false">
         <!-- Our activity is the built-in NativeActivity framework class.
              This will take care of integrating with our NDK code. -->
         <activity android:name="android.app.NativeActivity"
-                android:label="μTox"
-                android:configChanges="orientation"
-                android:screenOrientation="sensor"
-                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                  android:label="μTox"
+                  android:configChanges="orientation"
+                  android:screenOrientation="sensor"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
-                    android:value="uTox" />
+                       android:value="uTox" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

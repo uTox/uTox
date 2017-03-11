@@ -1,30 +1,35 @@
+#include "main.h"
+
+#include "gl.h"
+#include "freetype.h"
 
 #include "../debug.h"
 #include "../filesys.h"
 #include "../settings.h"
+#include "../utox.h"
+#include "../theme.h"
+#include "../tox.h"
+#include "../flist.h"
+#include "../main.h"
+
+#include "../ui.h"
+
+#include "../ui/svg.h"
+#include "../ui/edit.h"
+
+#include "../layout/background.h"
 
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 
-#include <android/native_activity.h>
-
-#include <GLES2/gl2.h>
-#define _GNU_SOURCE
-#include <EGL/egl.h>
-#include <SLES/OpenSLES.h>
-#include <SLES/OpenSLES_Android.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
-#include <sys/mman.h>
 
-#include "audio.c"
-
-static void loadfonts(void);
-static void freefonts(void);
-#include "freetype.c"
-#include "gl.c"
-
+#include <android/native_activity.h>
 
 static volatile bool destroy, focused;
 
@@ -70,52 +75,12 @@ void image_set_scale(NATIVE_IMAGE *image, double scale) { /* Unsupported on andr
 }
 
 void draw_image(const NATIVE_IMAGE *data, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
-    GLuint texture = data;
-
-    makequad(&quads[0], x - imgx, y - imgy, x + width, y + height);
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    float one[]  = { 1.0, 1.0, 1.0 };
-    float zero[] = { 0.0, 0.0, 0.0 };
-    glUniform3fv(k, 1, one);
-    glUniform3fv(k2, 1, zero);
-
-    glDrawQuads(0, 1);
-
-    glUniform3fv(k2, 1, one);
+    GL_draw_image(data, x, y, width, height, imgx, imgy);
 }
 
 void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
     draw_image(img_data, x, y, w, h, 0, 0);
 }
-
-
-/* this function is no longer used, but it might contain handy information for creating the newer image draw functions
-   on android. Currently drawing images is unsupported.
-    void drawimage(NATIVE_IMAGE data, int x, int y, int width, int height, int maxwidth, bool zoom, double
-   position)
-    {
-        GLuint texture = data;
-
-        if(!zoom && width > maxwidth) {
-            makequad(&quads[0], x, y, x + maxwidth, y + (height * maxwidth / width));
-        } else {
-            makequad(&quads[0], x - (int)((double)(width - maxwidth) * position), y, x + width, y + height);
-        }
-
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        float one[] = {1.0, 1.0, 1.0};
-        float zero[] = {0.0, 0.0, 0.0};
-        glUniform3fv(k, 1, one);
-        glUniform3fv(k2, 1, zero);
-
-        glDrawQuads(0, 1);
-
-        glUniform3fv(k2, 1, one);
-    }
-*/
 
 void thread(void func(void *), void *args) {
     pthread_t thread_temp;
@@ -146,6 +111,8 @@ void openfilesend(void) { /* Unsupported on android */
 }
 void openfileavatar(void) { /* Unsupported on android */
 }
+
+typedef struct msg_header MSG_HEADER;
 void file_save_inline_image_png(MSG_HEADER *msg) { /* Unsupported on android */
 }
 void setselection(char *data, uint16_t length) { /* Unsupported on android */
@@ -154,28 +121,11 @@ void edit_will_deactivate(void) { /* Unsupported on android */
 }
 
 NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
-    unsigned width, height, bpp;
-    uint8_t *out = stbi_load_from_memory(data, size, &width, &height, &bpp, 3);
-
-    if (out == NULL || width == 0 || height == 0) {
-        return 0;
-    }
-
-    *w             = width;
-    *h             = height;
-    GLuint texture = 0;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, out);
-    free(out);
-
-    return texture;
+    return GL_utox_image_to_native(data, size, w, h, keep_alpha);
 }
 
 void image_free(NATIVE_IMAGE *image) {
-    if (!img) {
+    if (!image) {
         return;
     }
     GLuint texture = image;
@@ -248,7 +198,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
     }
 
     if (opts == UTOX_FILE_OPTS_DELETE) {
-        remove(path);
+        remove((char *)path);
         return NULL;
     }
 
@@ -286,7 +236,7 @@ bool native_move_file(const uint8_t *current_name, const uint8_t *new_name) {
     return rename((char *)current_name, (char *)new_name);
 }
 
-void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
+void native_select_dir_ft(uint32_t fid, void *file) {
     return; /* TODO unsupported on android
     //fall back to working dir
     char *path = malloc(file->name_length + 1);
@@ -296,13 +246,21 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path); */
 }
 
-void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+void native_autoselect_dir_ft(uint32_t fid, void *file) {
     return; /* TODO unsupported on android
     /* TODO: maybe do something different here?
     char *path = malloc(file->name_length + 1);
     memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
     postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path); */
+}
+
+bool native_create_dir(const uint8_t *filepath) {
+    const int status = mkdir((char *)filepath, S_IRWXU);
+    if (status == 0 || errno == EEXIST) {
+        return true;
+    }
+    return false;
 }
 
 bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) {
@@ -327,6 +285,9 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
     }
     return 1;
 }
+
+void native_export_chatlog_init(uint32_t friend_number)
+{   /* Unsupported on Android */ }
 
 void flush_file(FILE *file) {
     fflush(file);
@@ -376,90 +337,52 @@ void setscale(void) {
 }
 
 void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object,
-            bool is_group) { /* Unsupported on android */
-}
-void desktopgrab(bool video) { /* Unsupported on android */
-}
+            bool is_group)
+{ /* Unsupported on android */ }
+
+void desktopgrab(bool video)
+{ /* Unsupported on android */ }
+
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height,
-                 bool resize) { /* Unsupported on android */
-}
+                 bool resize)
+{ /* Unsupported on android */ }
+
 void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width,
-                 uint16_t height) { /* Unsupported on android */
-}
-void video_end(uint32_t id) { /* Unsupported on android */
-}
-uint16_t native_video_detect(void) {
-    return 0; /* Unsupported on android */
-}
-bool video_init(void *handle) {
-    return 0; /* Unsupported on android */
-}
-void video_close(void *handle) { /* Unsupported on android */
-}
-bool video_startread(void) {
-    return 1; /* Unsupported on android */
-}
-bool video_endread(void) {
-    return 1; /* Unsupported on android */
-}
-int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
-    return 0; /* Unsupported on android */
-}
+                 uint16_t height)
+{ /* Unsupported on android */ }
 
-/* gl initialization with EGL */
-static bool init_display(void) {
-    const EGLint attrib_list[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+void video_end(uint32_t id)
+{ /* Unsupported on android */ }
 
-    const EGLint attribs[] = { EGL_SURFACE_TYPE,
-                               EGL_WINDOW_BIT,
-                               EGL_RENDERABLE_TYPE,
-                               EGL_OPENGL_ES2_BIT,
-                               EGL_BLUE_SIZE,
-                               8,
-                               EGL_GREEN_SIZE,
-                               8,
-                               EGL_RED_SIZE,
-                               8,
-                               EGL_ALPHA_SIZE,
-                               8,
-                               EGL_DEPTH_SIZE,
-                               0,
-                               EGL_NONE };
+uint16_t native_video_detect(void)
+{ return 0; /* Unsupported on android */ }
 
-    EGLint numConfigs;
+bool video_init(void *handle)
+{ return 0; /* Unsupported on android */ }
 
-    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    eglInitialize(display, NULL, NULL);
-    eglChooseConfig(display, attribs, &config, 1, &numConfigs);
+void video_close(void *handle)
+{ /* Unsupported on android */ }
 
-    EGLint format;
-    eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
+bool video_startread(void)
+{ return 1; /* Unsupported on android */ }
 
-    ANativeWindow_setBuffersGeometry(window, 0, 0, format);
-    surface = eglCreateWindowSurface(display, config, window, NULL);
-    context = eglCreateContext(display, config, NULL, attrib_list);
+bool video_endread(void)
+{ return 1; /* Unsupported on android */ }
 
-    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-        return 0;
-    }
+int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
+{ return 0; /* Unsupported on android */ }
 
-    int32_t w, h;
-    eglQuerySurface(display, surface, EGL_WIDTH, &w);
-    eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-    settings.window_width  = w;
-    settings.window_height = h;
 
-    return gl_init();
-}
+#define MAP(x, y) case AKEYCODE_##x : return y
+
+#define MAPS(x, y, z) case AKEYCODE_##x : return ((shift) ? z : y)
+
+#define MAPC(x) case AKEYCODE_##x : return (#x[0] + ((shift) ? 0 : ('a' - 'A')))
+
+#define MAPN(x, y) case AKEYCODE_##x : return ((shift) ? y : #x[0])
 
 static uint32_t getkeychar(int32_t key) /* get a character from an android keycode */ {
-#define MAP(x, y)                                                                                 \
-    case AKEYCODE_##x:                                                                            \
-        return y #define MAPS(x, y, z) case AKEYCODE_##x                                          \
-            : return ((shift) ? z : y) #define MAPC(x) case AKEYCODE_##x                          \
-              : return (#x[0] + ((shift) ? 0 : ('a' - 'A'))) #define MAPN(x, y) case AKEYCODE_##x \
-                : return ((shift) ? y : #x[0])
 
     switch (key) {
         MAP(ENTER, KEY_RETURN);
@@ -549,28 +472,8 @@ void update_tray(void) { /* Unsupported on android */
 void config_osdefaults(UTOX_SAVE *r) { /* Unsupported on android */
 }
 
-void utox_android_redraw_window() {
-    int32_t new_width, new_height;
-    eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
-    eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
-
-    if (new_width != settings.window_width || new_height != settings.window_height) {
-        settings.window_width  = new_width;
-        settings.window_height = new_height;
-
-        float vec[4];
-        vec[0] = -(float)settings.window_width / 2.0;
-        vec[1] = -(float)settings.window_height / 2.0;
-        vec[2] = 2.0 / (float)settings.window_width;
-        vec[3] = -2.0 / (float)settings.window_height;
-        glUniform4fv(matrix, 1, vec);
-
-        ui_size(settings.window_width, settings.window_height);
-
-        glViewport(0, 0, settings.window_width, settings.window_height);
-
-        _redraw = 1;
-    }
+void utox_android_redraw_window(void) {
+    _redraw = GL_utox_android_redraw_window();
 
     if (_redraw) {
         _redraw = 0;
@@ -733,17 +636,12 @@ static void android_main(struct android_app *state) {
     pipe(pipefd);
     fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
 
-    LANG                       = DEFAULT_LANG;
-    dropdown_language.selected = dropdown_language.over = LANG;
-
     UTOX_SAVE *save = config_load();
     theme_load(THEME_DEFAULT);
 
     thread(toxcore_thread, NULL);
 
     initfonts();
-
-    dropdown_dpi.selected = dropdown_dpi.over = 15;
     ui_set_scale(21);
 
     /* wait for tox thread to start */
@@ -788,16 +686,13 @@ static void android_main(struct android_app *state) {
         if (win != window) { // new window
             if (window != NULL) {
                 freefonts();
-                // eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-                eglDestroyContext(display, context);
-                eglDestroySurface(display, surface);
-                eglTerminate(display);
+                GL_raze_surface();
             }
 
             window = win;
 
             if (window != NULL) {
-                if (!init_display()) {
+                if (!init_display(window)) {
                     ANativeActivity_finish(activity);
                     break;
                 }

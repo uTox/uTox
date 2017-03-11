@@ -1,7 +1,7 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#ifdef __WIN32__ // Windows likes to be broken
+#if (defined __WIN32__ || defined  __ANDROID__) // Windows likes to be broken
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #else

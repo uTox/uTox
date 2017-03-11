@@ -6,18 +6,13 @@
 #define ANDROID_MAIN_H
 #define MAIN_H
 
-#include <android/log.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <sys/system_properties.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-
-#include <errno.h>
-
 
 #define KEY_BACK 1
 #define KEY_RETURN 2
@@ -34,7 +29,7 @@
 
 // Early include to obtain GLuint.
 #include <GLES2/gl2.h>
-typedef struct android_native_image { GLuint img; } NATIVE_IMAGE;
+typedef struct native_image { GLuint img; } NATIVE_IMAGE;
 
 #define NATIVE_IMAGE_IS_VALID(x) (0 != (x))
 

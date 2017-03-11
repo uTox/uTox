@@ -4,6 +4,7 @@
 #include "settings.h"
 #include "branding.h"
 
+#include <arpa/inet.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -16,6 +17,11 @@
 #ifdef __WIN32__
 #include <ws2tcpip.h>
 #include <winsock2.h>
+#elif __ANDROID__
+#define IPPROTO_TCP 0 // I'm not really sure what this does, so hopefully this is fine.
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
 #else
 #include <sys/socket.h>
 #include <sys/types.h>
