@@ -29,8 +29,6 @@
 
 #include "../main.h" // main_width
 
-static bool hidden;
-
 static TRACKMOUSEEVENT tme = {
     sizeof(TRACKMOUSEEVENT),
     TME_LEAVE,
@@ -39,8 +37,6 @@ static TRACKMOUSEEVENT tme = {
 };
 
 static bool mouse_tracked = false;
-
-bool havefocus;
 
 /** Toggles the main window to/from hidden to tray/shown. */
 static void togglehide(int show) {
@@ -85,8 +81,6 @@ static void ShowContextMenu(void) {
     }
 }
 
-
-
 /* TODO should this be moved to window.c? */
 static void move_window(int x, int y){
     debug("delta x == %i\n", x);
@@ -96,7 +90,6 @@ static void move_window(int x, int y){
     main_window._.x += x;
     main_window._.y += y;
 }
-
 
 #define setstatus(x)                                         \
     if (self.status != x) {                                  \
@@ -126,7 +119,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             }
 
             int i;
-            for (i = 0; i != COUNTOF(friend); i++) {
+            for (i = 0; i < COUNTOF(friend); i++) {
                 if (video_hwnd[i + 1] == window) {
                     FRIEND *f = &friend[i];
                     postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
@@ -180,10 +173,8 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
             }
 
-            int w, h;
-
-            w = GET_X_LPARAM(lParam);
-            h = GET_Y_LPARAM(lParam);
+            int w = GET_X_LPARAM(lParam);
+            int h = GET_Y_LPARAM(lParam);
 
             if (w != 0) {
                 RECT r;
@@ -201,7 +192,8 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                     DeleteObject(main_window.draw_BM);
                 }
 
-                main_window.draw_BM = CreateCompatibleBitmap(main_window.window_DC, settings.window_width, settings.window_height);
+                main_window.draw_BM = CreateCompatibleBitmap(main_window.window_DC, settings.window_width,
+                                                             settings.window_height);
                 SelectObject(main_window.window_DC, main_window.draw_BM);
                 redraw();
             }
@@ -242,7 +234,8 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             BeginPaint(window, &ps);
 
             RECT r = ps.rcPaint;
-            BitBlt(main_window.window_DC, r.left, r.top, r.right - r.left, r.bottom - r.top, main_window.draw_DC, r.left, r.top, SRCCOPY);
+            BitBlt(main_window.window_DC, r.left, r.top, r.right - r.left, r.bottom - r.top,
+                   main_window.draw_DC, r.left, r.top, SRCCOPY);
 
             EndPaint(window, &ps);
             return false;
@@ -250,9 +243,9 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_SYSKEYDOWN: // called instead of WM_KEYDOWN when ALT is down or F10 is pressed
         case WM_KEYDOWN: {
-            bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
-            bool shift   = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
-            bool alt     = ((GetKeyState(VK_MENU) & 0x80) != 0); /* Be careful not to clobber alt+num symbols */
+            bool control = (GetKeyState(VK_CONTROL) & 0x80) != 0;
+            bool shift   = (GetKeyState(VK_SHIFT) & 0x80) != 0;
+            bool alt     = (GetKeyState(VK_MENU) & 0x80) != 0; /* Be careful not to clobber alt+num symbols */
 
             if (wParam >= VK_NUMPAD0 && wParam <= VK_NUMPAD9) {
                 // normalize keypad and non-keypad numbers
@@ -291,7 +284,9 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             if (edit_active()) {
                 if (control) {
                     switch (wParam) {
-                        case 'V': paste(); return false;
+                        case 'V':
+                            paste();
+                            return false;
                         case 'X':
                             copy(0);
                             edit_char(KEY_DEL, 1, 0);
@@ -316,10 +311,10 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 if (wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
                     wParam = '\n';
                 }
+
                 if (wParam != KEY_TAB) {
                     edit_char(wParam, 0, 0);
                 }
-                return false;
             }
 
             return false;
@@ -370,11 +365,10 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             // Intentional fall through to save the original mdown location.
         }
         case WM_LBUTTONDBLCLK: {
-            int x, y;
             mdown = true;
 
-            x = GET_X_LPARAM(lParam);
-            y = GET_Y_LPARAM(lParam);
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
 
             if (x != mx || y != my) {
                 panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, x, y, x - mx, y - my);
@@ -432,18 +426,22 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                     togglehide(0);
                     break;
                 }
+
                 case TRAY_EXIT: {
                     PostQuitMessage(0);
                     break;
                 }
+
                 case TRAY_STATUS_AVAILABLE: {
                     setstatus(TOX_USER_STATUS_NONE);
                     break;
                 }
+
                 case TRAY_STATUS_AWAY: {
                     setstatus(TOX_USER_STATUS_AWAY);
                     break;
                 }
+
                 case TRAY_STATUS_BUSY: {
                     setstatus(TOX_USER_STATUS_BUSY);
                     break;
@@ -465,6 +463,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                     togglehide(0);
                     break;
                 }
+
                 case WM_LBUTTONDBLCLK: {
                     togglehide(1);
                     break;
@@ -484,6 +483,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                     break;
                 }
             }
+
             return false;
         }
 
@@ -494,6 +494,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             if (data->lpData) {
                 do_tox_url(data->lpData, data->cbData);
             }
+
             return false;
         }
 

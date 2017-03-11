@@ -27,19 +27,16 @@
 #include "../ui/edit.h"
 #include "../ui/svg.h"
 
-#include "../layout/settings.h" // TODO remove, in for dropdown.lang
+#include "../layout/background.h" // TODO do we want to remove this?
 #include "../layout/friend.h"
 #include "../layout/group.h"
+#include "../layout/settings.h" // TODO remove, in for dropdown.lang
 
 #include <windowsx.h>
 
 bool flashing = false;
-static bool hidden;
-
-bool  draw      = false;
-float scale     = 1.0;
-bool  connected = false;
-bool  havefocus;
+bool havefocus = true;
+bool hidden = false;
 
 /** Translate a char* from UTF-8 encoding to OS native;
  *
@@ -79,6 +76,7 @@ void openfilesend(void) {
         FRIEND *f = flist_get_friend();
         if (!f) {
             LOG_ERR("Windows", "Unable to get friend for file send msg.");
+            return;
         }
 
         UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
@@ -86,6 +84,7 @@ void openfilesend(void) {
             LOG_ERR("Windows", "Unable to calloc for file send msg.");
             return;
         }
+
         msg->file = fopen(filepath, "rb");
         msg->name = (uint8_t *)filepath;
 
@@ -187,11 +186,11 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
     } else {
         LOG_ERR("NATIVE", "GetSaveFileName() failed");
     }
+
     free(path);
 }
 
-int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size) {
-    /* must be null terminated string          ↓                     */
+int native_to_utf8str(const wchar_t *str_in, char *str_out, uint32_t max_size) {
     return WideCharToMultiByte(CP_UTF8, 0, str_in, -1, str_out, max_size, NULL, NULL);
 }
 
@@ -502,7 +501,6 @@ void showkeyboard(bool UNUSED(show)) {} /* Added for android support. */
 
 void edit_will_deactivate(void) {}
 
-#include "../layout/background.h" // TODO do we want to remove this?
 /* Redraws the main UI window */
 void redraw(void) {
     native_window_set_target(&main_window);
@@ -525,8 +523,7 @@ void update_tray(void) {
         return;
     }
 
-    snprintf(tip, 127, "%s : %s", self.name, self.statusmsg);
-    uint32_t tip_length = self.name_length + 3 + self.statusmsg_length;
+    uint32_t tip_length = MIN(snprintf(tip, 127, "%s : %s", self.name, self.statusmsg), 127);
 
     NOTIFYICONDATAW nid = {
         .uFlags = NIF_TIP,
@@ -581,8 +578,8 @@ void loadfonts() {
     lf.lfUnderline = 1;
     font[FONT_MSG_LINK] = CreateFontIndirect(&lf);*/
 
-    TEXTMETRIC tm;
     SelectObject(main_window.draw_DC, font[FONT_TEXT]);
+    TEXTMETRIC tm;
     GetTextMetrics(main_window.draw_DC, &tm);
     font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
     // SelectObject(main_window.draw_DC, font[FONT_MSG]);
@@ -612,32 +609,21 @@ void config_osdefaults(UTOX_SAVE *r) {
  * Credit: http://alter.org.ua/docs/win/args
  */
 PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
-    PCHAR *argv;
-    PCHAR  _argv;
-    ULONG  len;
-    ULONG  argc;
-    CHAR   a;
-    ULONG  i, j;
+    ULONG len = strlen(CmdLine);
+    ULONG i = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
+    PCHAR *argv = (PCHAR *)GlobalAlloc(GMEM_FIXED, i + (len + 2) * sizeof(CHAR));
+    PCHAR _argv = (PCHAR)(((PUCHAR)argv) + i);
 
-    BOOLEAN in_QM;
-    BOOLEAN in_TEXT;
-    BOOLEAN in_SPACE;
-
-    len = strlen(CmdLine);
-    i   = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
-
-    argv = (PCHAR *)GlobalAlloc(GMEM_FIXED, i + (len + 2) * sizeof(CHAR));
-
-    _argv = (PCHAR)(((PUCHAR)argv) + i);
-
-    argc       = 0;
+    ULONG argc = 0;
     argv[argc] = _argv;
-    in_QM      = FALSE;
-    in_TEXT    = FALSE;
-    in_SPACE   = TRUE;
-    i          = 0;
-    j          = 0;
+    i = 0;
 
+    BOOLEAN in_QM    = FALSE;
+    BOOLEAN in_TEXT  = FALSE;
+    BOOLEAN in_SPACE = TRUE;
+
+    CHAR a;
+    ULONG j = 0;
     while ((a = CmdLine[i])) {
         if (in_QM) {
             if (a == '\"') {
@@ -779,12 +765,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     /* Process argc/v the backwards (read: windows) way. */
-    PCHAR *argv;
-    int    argc;
-    argv = CommandLineToArgvA(GetCommandLineA(), &argc);
+    int argc;
+    PCHAR *argv = CommandLineToArgvA(GetCommandLineA(), &argc);
 
-    if (NULL == argv) {
-        LOG_TRACE("NATIVE", "CommandLineToArgvA failed" );
+    if (!argv) {
+        LOG_TRACE("Windows", "CommandLineToArgvA failed.");
         return 0;
     }
 
@@ -810,7 +795,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         }
         path[i] = 0;
         SetCurrentDirectory(path);
-        strcpy(portable_mode_save_path, (char *)path);
+        strcpy(portable_mode_save_path, path);
     }
 
     if (should_launch_at_startup == 1) {
@@ -895,7 +880,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         do_tox_url((uint8_t *)cmd, len);
     }
 
-    draw = true;
     redraw();
     update_tray();
 
