@@ -3,6 +3,7 @@
 #include "settings.h"
 #include "sidebar.h"
 
+#include "../avatar.h"
 #include "../debug.h"
 #include "../flist.h"
 #include "../friend.h"
@@ -29,7 +30,7 @@ static void draw_friend(int x, int y, int w, int height) {
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        draw_avatar_image(f->avatar.img, MAIN_LEFT + SCALE(10), SCALE(10), f->avatar.width, f->avatar.height,
+        draw_avatar_image(f->avatar->img, MAIN_LEFT + SCALE(10), SCALE(10), f->avatar->width, f->avatar->height,
                           BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
         drawalpha(BM_CONTACT, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);

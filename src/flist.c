@@ -2,6 +2,7 @@
 
 // TODO: Separate from UI or include in UI.
 
+#include "avatar.h"
 #include "friend.h"
 #include "groups.h"
 #include "debug.h"
@@ -150,12 +151,12 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
     switch (i->item) {
         case ITEM_FRIEND: {
-            FRIEND *f      = i->data;
+            FRIEND *f = i->data;
             uint8_t status = f->online ? f->status : 3;
 
             // draw avatar or default image
             if (friend_has_avatar(f)) {
-                draw_avatar_image(f->avatar.img, ROSTER_AVATAR_LEFT, y + ava_top, f->avatar.width, f->avatar.height,
+                draw_avatar_image(f->avatar->img, ROSTER_AVATAR_LEFT, y + ava_top, f->avatar->width, f->avatar->height,
                                   default_w, default_w);
             } else {
                 drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w,

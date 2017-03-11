@@ -1,5 +1,6 @@
 #include "utox.h"
 
+#include "avatar.h"
 #include "commands.h"
 #include "debug.h"
 #include "dns.h"
@@ -345,7 +346,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             uint8_t *avatar = data;
             size_t   size   = param2;
 
-            avatar_set(&friend[param1].avatar, avatar, size);
+            avatar_set(friend[param1].avatar, avatar, size);
             avatar_save(f->id_str, avatar, size);
 
             free(avatar);
@@ -354,8 +355,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         case FRIEND_AVATAR_UNSET: {
             FRIEND *f = &friend[param1];
-            avatar_unset(&f->avatar);
-            // remove avatar from disk
+            avatar_unset(f->avatar);
             avatar_delete(f->id_str);
 
             redraw();

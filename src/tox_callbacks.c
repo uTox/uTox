@@ -1,5 +1,6 @@
 #include "tox_callbacks.h"
 
+#include "avatar.h"
 #include "file_transfers.h"
 #include "friend.h"
 #include "groups.h"

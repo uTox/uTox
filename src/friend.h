@@ -1,11 +1,11 @@
 #ifndef FRIEND_H
 #define FRIEND_H
 
-#include "avatar.h"
 #include "messages.h"
 
 #include <tox/tox.h>
 
+typedef struct avatar AVATAR;
 typedef struct edit_change EDIT_CHANGE;
 typedef struct file_transfer FILE_TRANSFER;
 typedef uint8_t *UTOX_IMAGE;
@@ -59,7 +59,7 @@ typedef struct utox_friend {
     bool    typing;
     bool    video_inline;
 
-    AVATAR avatar;
+    AVATAR *avatar;
 
     /* Messages */
     bool          skip_msg_logging;
@@ -74,7 +74,7 @@ typedef struct utox_friend {
     ALuint   audio_dest;
 
     /* File transfers */
-    bool     ft_autoaccept;
+    bool ft_autoaccept;
 
     FILE_TRANSFER  *ft_incoming;
     uint16_t        ft_incoming_size;

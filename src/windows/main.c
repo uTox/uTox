@@ -4,6 +4,7 @@
 #include "screen_grab.h"
 #include "window.h"
 
+#include "../avatar.h"
 #include "../commands.h"
 #include "../file_transfers.h"
 #include "../filesys.h"

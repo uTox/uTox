@@ -1,5 +1,6 @@
 #include "tox.h"
 
+#include "avatar.h"
 #include "dns.h"
 #include "file_transfers.h"
 #include "flist.h"

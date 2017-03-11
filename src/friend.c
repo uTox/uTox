@@ -1,5 +1,6 @@
 #include "friend.h"
 
+#include "avatar.h"
 #include "chatlog.h"
 #include "debug.h"
 #include "dns.h"
@@ -15,11 +16,9 @@
 
 #include "av/audio.h"
 #include "ui/scrollable.h"
-
-#include "layout/friend.h"  // TODO, remove this and sent the name differently
-                            // utox_friend_init()
 #include "ui/edit.h"        // friend_set_name()
 
+#include "layout/friend.h"  // TODO, remove this and sent the name differently
 
 #include "main.h" // addfriend_status
 
@@ -113,8 +112,6 @@ static void friend_meta_data_read(FRIEND *f) {
 }
 
 void utox_friend_init(Tox *tox, uint32_t friend_number) {
-    int size;
-    // get friend pointer
     FRIEND *f = &friend[friend_number];
     uint8_t name[TOX_MAX_NAME_LENGTH];
 
@@ -137,7 +134,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     f->number = friend_number;
 
     // Get and set friend name and length
-    size = tox_friend_get_name_size(tox, friend_number, 0);
+    int size = tox_friend_get_name_size(tox, friend_number, 0);
     tox_friend_get_name(tox, friend_number, name, 0);
     // Set the name for utox as well
     friend_setname(f, name, size);
@@ -153,7 +150,8 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     f->online = tox_friend_get_connection_status(tox, friend_number, NULL);
     f->status = tox_friend_get_status(tox, friend_number, NULL);
 
-    avatar_init(f->id_str, &f->avatar);
+    f->avatar = calloc(1, sizeof(AVATAR));
+    avatar_init(f->id_str, f->avatar);
 
     MESSAGES *m = &f->msg;
     messages_init(m, friend_number);
@@ -331,29 +329,24 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
 
 void friend_history_clear(FRIEND *f) {
     messages_clear_all(&f->msg);
-
     utox_remove_friend_chatlog(f->id_str);
 }
 
 void friend_free(FRIEND *f) {
-    uint16_t j = 0;
-    while (j != f->edit_history_length) {
-        free(f->edit_history[j]);
-        j++;
+    for (uint16_t i = 0; i < f->edit_history_length; ++i) {
+        free(f->edit_history[i]);
     }
     free(f->edit_history);
 
     free(f->name);
     free(f->status_message);
     free(f->typed);
+    free(f->avatar);
 
-    uint32_t i = 0;
-    while (i < f->msg.number) {
+    for (uint32_t i = 0; i < f->msg.number; ++i) {
         MSG_HEADER *msg = f->msg.data[i];
         message_free(msg);
-        i++;
     }
-
     free(f->msg.data);
 
     if (f->call_state_self) {
@@ -364,7 +357,7 @@ void friend_free(FRIEND *f) {
         }*/
     }
 
-    memset(f, 0, sizeof(FRIEND)); //
+    memset(f, 0, sizeof(FRIEND));
 }
 
 FRIEND *find_friend_by_name(uint8_t *name) {
