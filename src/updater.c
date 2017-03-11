@@ -1,26 +1,26 @@
 #include "updater.h"
 
+#include "branding.h"
 #include "debug.h"
 #include "settings.h"
-#include "branding.h"
 
-#include <arpa/inet.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <sodium.h>
 
 #ifdef __WIN32__
-#include <ws2tcpip.h>
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #else
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <netdb.h>
 #endif
 
 #if __ANDROID__
