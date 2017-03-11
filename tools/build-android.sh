@@ -24,12 +24,13 @@ BUILD_DIR=${BUILD_DIR-./build_android}
 ANDROID_NDK_HOME=${ANDROID_NDK_HOME-/opt/android-ndk}
 ANDROID_SDK_HOME=${ANDROID_SDK_HOME-/opt/android-sdk}
 
-KEYSTORE=${KEYSTORE-.android/utox.keystore}
+KEYSTORE=${KEYSTORE-~/.android/utox.keystore}
 
 SYSROOT=${SYSROOT-${ANDROID_NDK_HOME}/platforms/${NDK_VERSION}/arch-arm}
 
 AAPT=${AAPT-${ANDROID_SDK_HOME}/build-tools/${DEV_VERSION}/aapt}
 DX=${DX-${ANDROID_SDK_HOME}/build-tools/${DEV_VERSION}/dx}
+ZIPALIGN=${ZIPALIGN-$ANDROID_SDK_HOME/build-tools/${DEV_VERSION}/zipalign}
 
 mkdir -p ${BUILD_DIR}/{lib/armeabi,java}
 mkdir -p ./.android/
@@ -42,12 +43,6 @@ fi
 if [ $1 == "--auto-CI" ]; then
     curl -O https://utox.io/android.tar.gz
     tar xf android.tar.gz
-fi
-
-if [ "$1" == "--destroy" ] && [ "$2" == "--confirm" ]; then
-    rm ${BUILD_DIR}/lib/armeabi/libuTox.so
-    rm ./${KEYSTORE} # KEYSTORE is prepended with ./ to make sure we don't destroy
-                     # anything outside `pwd`
 fi
 
 [ -d ${TOOLCHAIN} ] || "$ANDROID_NDK_HOME/build/tools/make-standalone-toolchain.sh" \
@@ -122,10 +117,10 @@ java \
     -f ${BUILD_DIR}/classes.dex \
     -nf ${BUILD_DIR}/lib
 
-if ! [ -f ${KEYSTORE} ]; then
+if [ "$1" == "--auto-CI"  ]; then
     keytool -genkeypair -v \
         -dname "cn=uToxer, ou=uTox, o=Tox, c=US" \
-        -keystore ${KEYSTORE} \
+        -keystore ./tmp.keystore \
         -keyalg RSA \
         -keysize 2048 \
         -validity 36500 \
@@ -136,7 +131,7 @@ if ! [ -f ${KEYSTORE} ]; then
     jarsigner \
         -sigalg SHA1withRSA \
         -digestalg SHA1 \
-        -keystore ${KEYSTORE} \
+        -keystore ./tmp.keystore \
         ${BUILD_DIR}/uTox.unsigned.apk \
         -keypass   "the default password...really?" \
         -storepass "the default password...really?" \
@@ -152,7 +147,7 @@ fi
 
 mv ${BUILD_DIR}/uTox.unsigned.apk ${BUILD_DIR}/uTox.signed.apk
 
-$ANDROID_SDK_HOME/build-tools/${DEV_VERSION}/zipalign \
+$ZIPALIGN \
     -f 4 \
     ${BUILD_DIR}/uTox.signed.apk \
     ./uTox.ready.apk
