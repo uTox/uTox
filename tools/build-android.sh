@@ -4,6 +4,8 @@
 
 set -ex
 
+
+
 # You may need to change these values, to what ever your system has available
 DEV_VERSION="25.0.0"
 SDK_VERSION="android-23"
@@ -26,14 +28,24 @@ KEYSTORE=${KEYSTORE-.android/utox.keystore}
 
 SYSROOT=${SYSROOT-${ANDROID_NDK_HOME}/platforms/${NDK_VERSION}/arch-arm}
 
-AAPT=${AAPT-$ANDROID_SDK_HOME/build-tools/${DEV_VERSION}/aapt}
-DX=${DX-ANDROID_SDK_HOME/build-tools/${DEV_VERSION}/dx}
-
+AAPT=${AAPT-${ANDROID_SDK_HOME}/build-tools/${DEV_VERSION}/aapt}
+DX=${DX-${ANDROID_SDK_HOME}/build-tools/${DEV_VERSION}/dx}
 
 mkdir -p ${BUILD_DIR}/{lib/armeabi,java}
+mkdir -p ./.android/
+
+
+if [ $1 == "--new" ]; then
+    rm ${BUILD_DIR}/lib/armeabi/libuTox.so
+fi
+
+if [ $1 == "--destroy" ] && [ $2 == "--confirm" ]; then
+    rm ${BUILD_DIR}/lib/armeabi/libuTox.so
+    rm ./${KEYSTORE} # KEYSTORE is prepended with ./ to make sure we don't destroy
+                     # anything outside `pwd`
+fi
 
 [ -d ${TOOLCHAIN} ] || "$ANDROID_NDK_HOME/build/tools/make-standalone-toolchain.sh" \
-        --ndk-dir="$ANDROID_NDK_HOME" \
         --toolchain="arm-linux-androideabi-clang" \
         --install-dir=${TOOLCHAIN}/ \
         --platform=${NDK_VERSION}
@@ -104,13 +116,33 @@ java \
     -f ${BUILD_DIR}/classes.dex \
     -nf ${BUILD_DIR}/lib
 
+if ! [ -f ${KEYSTORE} ]; then
+    keytool -genkeypair -v \
+        -dname "cn=uToxer, ou=uTox, o=Tox, c=US" \
+        -keystore ${KEYSTORE} \
+        -keyalg RSA \
+        -keysize 2048 \
+        -validity 36500 \
+        -alias "utox-default" \
+        -keypass   "the default password...really?" \
+        -storepass "the default password...really?"
 
-jarsigner \
-    -sigalg SHA1withRSA \
-    -digestalg SHA1 \
-    -keystore ${KEYSTORE} \
-    ${BUILD_DIR}/uTox.unsigned.apk \
-    utox-dev
+    jarsigner \
+        -sigalg SHA1withRSA \
+        -digestalg SHA1 \
+        -keystore ${KEYSTORE} \
+        ${BUILD_DIR}/uTox.unsigned.apk \
+        -keypass   "the default password...really?" \
+        -storepass "the default password...really?" \
+        "utox-default"
+else
+    jarsigner \
+        -sigalg SHA1withRSA \
+        -digestalg SHA1 \
+        -keystore ${KEYSTORE} \
+        ${BUILD_DIR}/uTox.unsigned.apk \
+        utox-dev
+fi
 
 mv ${BUILD_DIR}/uTox.unsigned.apk ${BUILD_DIR}/uTox.signed.apk
 

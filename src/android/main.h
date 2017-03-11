@@ -14,6 +14,12 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
+
+
 #define KEY_BACK 1
 #define KEY_RETURN 2
 #define KEY_LEFT 3
