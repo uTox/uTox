@@ -16,6 +16,10 @@ android:
     GL_BUILD: "android"
   script:
     - ./tools/build-android.sh --auto-CI
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - ./uTox.ready.apk
 
 linux:
   stage: build
