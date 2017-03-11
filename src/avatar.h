@@ -57,6 +57,9 @@ bool avatar_set_self(const uint8_t *data, size_t size);
 /* Helper function to unset the user's avatar. */
 void avatar_unset_self(void);
 
+/* Helper function to delete users avatar file. */
+void avatar_delete_self(void);
+
 /* Unsets an avatar by setting its format to UTOX_AVATAR_FORMAT_NONE and freeing its image. */
 void avatar_unset(AVATAR *avatar);
 

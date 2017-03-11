@@ -89,7 +89,7 @@ static void button_status_on_mup(void) {
 
 static void contextmenu_avatar_onselect(uint8_t i) {
     if (i == 0) {
-        avatar_unset_self();
+        avatar_delete_self();
     }
 }
 
