@@ -393,7 +393,12 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case FRIEND_ACCEPT_REQUEST: {
             /* confirmation that friend has been added to friend list (accept) */
             if (!param1) {
-                FRIEND *   f   = get_friend(param2);
+                FRIEND *f = get_friend(param2);
+                if (!f) {
+                    LOG_ERR("uTox", "Could not get friend with number: %u", param2);
+                    return;
+                }
+
                 FRIENDREQ *req = data;
                 flist_addfriend2(f, req);
                 flist_reselect_current();
@@ -414,6 +419,11 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 edit_add_new_friend_msg.length = 0;
 
                 FRIEND *f = get_friend(param2);
+                if (!f) {
+                    LOG_ERR("uTox", "Could not get friend with number: %u", param2);
+                    return;
+                }
+
                 memcpy(f->cid, data, sizeof(f->cid));
                 flist_addfriend(f);
 
