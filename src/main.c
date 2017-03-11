@@ -279,6 +279,8 @@ void utox_raze(void) {
     if (settings.debug_file != stdout) {
         fclose(settings.debug_file);
     }
+
+    free_friends();
 }
 
 /** Android is still a bit legacy, so we just include it all here. */

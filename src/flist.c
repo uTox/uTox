@@ -435,6 +435,10 @@ static void page_open(ITEM *i) {
 
         case ITEM_FRIEND: {
             FRIEND *f = i->data;
+            if (!f) {
+                LOG_ERR("Flist", "Could not get friend data from item");
+                return;
+            }
 
             #ifdef UNITY
             if (unity_running) {

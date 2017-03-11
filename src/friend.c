@@ -22,12 +22,48 @@
 
 #include "main.h" // addfriend_status
 
-FRIEND* get_friend(uint32_t friend_number){
-    if (friend_number >= 128) {
-        return NULL; // artifical limit while we discuss the limmit of friends we want to support
+FRIEND *friend;
+
+FRIEND *get_friend(uint32_t friend_number) {
+    if (friend_number >= self.friend_list_size) { //friend doesnt exist if true
+        LOG_ERR("Friend", "Friend number out of bounds.");
+        return NULL;
     }
 
     return &friend[friend_number];
+}
+
+static FRIEND *make_friend(uint32_t friend_number) {
+    if (friend_number >= self.friend_list_size) {
+        LOG_TRACE("Friend", "Reallocating friend array to %u. Current size: %u", (friend_number + 1), self.friend_list_size);
+        FRIEND *tmp = realloc(friend, sizeof(FRIEND) * (friend_number + 1));
+        if (!tmp) {
+            LOG_ERR("Friend", "Could not reallocate friends array.");
+            return NULL;
+        }
+
+        friend = tmp;
+
+        self.friend_list_size = friend_number + 1;
+
+    }
+
+    return &friend[friend_number];
+}
+
+void free_friends() {
+    for (uint32_t i = 0; i < self.friend_list_count; i++){
+        FRIEND *f = get_friend(i);
+        if (!f) {
+            LOG_WARN("Friend", "Could not get friend %u. Skipping", i);
+            continue;
+        }
+        friend_free(f);
+    }
+
+    if (friend) {
+        free(friend);
+    }
 }
 
 void utox_write_metadata(FRIEND *f) {
@@ -112,8 +148,14 @@ static void friend_meta_data_read(FRIEND *f) {
 }
 
 void utox_friend_init(Tox *tox, uint32_t friend_number) {
-    // get friend pointer
-    FRIEND *f = get_friend(friend_number);
+    LOG_INFO("Friend", "Initializing friend: %u", friend_number);
+    FRIEND *f = make_friend(friend_number); // get friend pointer
+    if (!f) {
+        LOG_ERR("Friend", "Could not create init friend %u", friend_number);
+        return;
+    }
+    self.friend_list_count++;
+
     uint8_t name[TOX_MAX_NAME_LENGTH];
 
     memset(f, 0, sizeof(FRIEND));
@@ -165,14 +207,19 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
 }
 
 void utox_friend_list_init(Tox *tox) {
-    /* Eventually count should be the literal number of current friends
-     * and size will be the capacity. Without dynamic sized friend array
-     * we just set both to the number when we init, and hope for the best! */
-    self.friend_list_count = self.friend_list_size = tox_self_get_friend_list_size(tox);
+    LOG_INFO("Friend", "Initializing friend list.");
 
-    for (uint32_t i = 0; i < self.friend_list_count; ++i) {
+    self.friend_list_size = tox_self_get_friend_list_size(tox);
+
+    friend = calloc(self.friend_list_size, sizeof(FRIEND));
+    if (!friend) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not allocate friend list with size: %u", self.friend_list_size);
+    }
+
+    for (uint32_t i = 0; i < self.friend_list_size; ++i) {
         utox_friend_init(tox, i);
     }
+    LOG_INFO("Friend", "Friendlist sucessfully initialized with %u friends.", self.friend_list_size);
 }
 
 void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
@@ -333,6 +380,7 @@ void friend_history_clear(FRIEND *f) {
 }
 
 void friend_free(FRIEND *f) {
+    LOG_INFO("Friend", "Freeing friend: %u", f->number);
     for (uint16_t i = 0; i < f->edit_history_length; ++i) {
         free(f->edit_history[i]);
     }
@@ -356,6 +404,8 @@ void friend_free(FRIEND *f) {
             postmessage_video(VIDEO_CALL_END, f->number, 0, NULL);
         }*/
     }
+
+    self.friend_list_count--;
 
     memset(f, 0, sizeof(FRIEND));
 }
