@@ -15,7 +15,7 @@ android:
     TOXCORE_REPO: "TokTok/c-toxcore"
     GL_BUILD: "android"
   script:
-    - ./tools/build-android.sh
+    - ./tools/build-android.sh --auto-CI
 
 linux:
   stage: build

@@ -17,17 +17,15 @@
 #ifdef __WIN32__
 #include <ws2tcpip.h>
 #include <winsock2.h>
-#elif __ANDROID__
-#define IPPROTO_TCP 0 // I'm not really sure what this does, so hopefully this is fine.
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netdb.h>
 #else
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
 #endif
 
+#if __ANDROID__
+#define IPPROTO_TCP 0 // I'm not really sure what this does, so hopefully this is fine.
+#endif
 
 static const uint8_t pk[crypto_sign_ed25519_PUBLICKEYBYTES] = {
     0x64, 0x3B, 0xF6, 0xEF, 0x40, 0xAF, 0x61, 0x94,

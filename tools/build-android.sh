@@ -39,7 +39,12 @@ if [ $1 == "--new" ]; then
     rm ${BUILD_DIR}/lib/armeabi/libuTox.so
 fi
 
-if [ $1 == "--destroy" ] && [ $2 == "--confirm" ]; then
+if [ $1 == "--auto-CI" ]; then
+    curl -O https://utox.io/android.tar.gz
+    tar xf android.tar.gz
+fi
+
+if [ "$1" == "--destroy" ] && [ "$2" == "--confirm" ]; then
     rm ${BUILD_DIR}/lib/armeabi/libuTox.so
     rm ./${KEYSTORE} # KEYSTORE is prepended with ./ to make sure we don't destroy
                      # anything outside `pwd`
@@ -72,16 +77,17 @@ if ! [ -f ${BUILD_DIR}/lib/armeabi/libuTox.so ]; then
         -I ./toolchain/include \
         -I ./libs/android/include/freetype2/ \
         -I ./libs/android/include/ \
-        ${CPPFLAGS} \
+        -I ./sys/ \
+        ${CFLAGS} \
         ./src/*.c \
         ./src/ui/*.c \
         ./src/av/*.c \
         ./src/layout/*.c \
         ./src/android/*.c \
-        ../toxcore/toxcore/*.c \
-        ../toxcore/toxav/*.c \
-        ../toxcore/toxencryptsave/*.c \
-        ../toxcore/toxdns/*.c \
+        ./toxcore/toxcore/*.c \
+        ./toxcore/toxav/*.c \
+        ./toxcore/toxencryptsave/*.c \
+        ./toxcore/toxdns/*.c \
         $ANDROID_NDK_HOME/sources/android/cpufeatures/cpu-features.c \
         ${LDFLAGS} \
         ${MORE_LIBS} \
