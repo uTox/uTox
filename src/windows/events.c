@@ -118,7 +118,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 return false;
             }
 
-            int i;
+            unsigned int i;
             for (i = 0; i < COUNTOF(friend); i++) {
                 if (video_hwnd[i + 1] == window) {
                     FRIEND *f = &friend[i];
