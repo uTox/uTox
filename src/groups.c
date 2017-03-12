@@ -154,7 +154,7 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
     GROUP_PEER *peer = g->peer[peer_id];
 
     if (peer) {
-        LOG_TRACE(__FILE__, "Freeing peer %u, name %.*s" , peer_id, (int)peer->name_length, peer->name);
+        LOG_TRACE("Groupchat", "Freeing peer %u, name %.*s" , peer_id, (int)peer->name_length, peer->name);
         free(peer);
     } else {
         LOG_TRACE("Groupchat", "Unable to find peer for deletion" );

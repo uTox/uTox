@@ -31,7 +31,7 @@ SCROLLABLE scrollbar_group = {
 static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        LOG_ERR("Group", "Could not get selected groupchat.");
         return;
     }
 
@@ -138,7 +138,7 @@ panel_group = {
 static void button_group_audio_on_mup(void) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        LOG_ERR("Group", "Could not get selected groupchat.");
         return;
     }
 
@@ -153,7 +153,7 @@ static void button_group_audio_on_mup(void) {
 static void button_group_audio_update(BUTTON *b) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        LOG_ERR("Group", "Could not get selected groupchat.");
         return;
     }
 
@@ -233,7 +233,7 @@ static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int directio
     static size_t dedup_size[65536]; /* TODO magic numbers */
     GROUPCHAT *   g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        LOG_ERR("Group", "Could not get selected groupchat.");
         return 0;
     }
 
@@ -344,7 +344,7 @@ static void e_chat_msg_ontab(EDIT *edit) {
             if ((length == 6 && !memcmp(text, "/topic", 6)) || (length == 7 && !memcmp(text, "/topic ", 7))) {
                 GROUPCHAT *g = flist_get_groupchat();
                 if (!g) {
-                    LOG_ERR(__FILE__, "Could not get selected groupchat.");
+                    LOG_ERR("Group", "Could not get selected groupchat.");
                     return;
                 }
 
@@ -404,7 +404,7 @@ void e_chat_msg_onenter(EDIT *edit) {
         return;
     }
 
-    // LOG_NOTE(__FILE__, "cmd %u\n", command_length);
+    // LOG_NOTE("Group", "cmd %u\n", command_length);
 
     bool action = false;
     if (command_length) {

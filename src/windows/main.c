@@ -83,7 +83,7 @@ void openfilesend(void) {
 
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
     } else {
-        LOG_ERR(__FILE__, "GetOpenFileName() failed");
+        LOG_ERR("NATIVE", "GetOpenFileName() failed");
     }
     SetCurrentDirectoryW(dir);
 }
@@ -138,7 +138,7 @@ void openfileavatar(void) {
                 break;
             }
         } else {
-            LOG_TRACE(__FILE__, "GetOpenFileName() failed when trying to grab an avatar." );
+            LOG_TRACE("NATIVE", "GetOpenFileName() failed when trying to grab an avatar." );
             break;
         }
     }
@@ -174,10 +174,10 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
             snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", path);
             msg->via.ft.inline_png = false;
         } else {
-            LOG_ERR(__FILE__, "file_save_inline_image_png:\tCouldn't open path: `%s` to save inline file.", path);
+            LOG_ERR("NATIVE", "file_save_inline_image_png:\tCouldn't open path: `%s` to save inline file.", path);
         }
     } else {
-        LOG_ERR(__FILE__, "GetSaveFileName() failed");
+        LOG_ERR("NATIVE", "GetSaveFileName() failed");
     }
     free(path);
 }
@@ -782,7 +782,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     argv = CommandLineToArgvA(GetCommandLineA(), &argc);
 
     if (NULL == argv) {
-        LOG_TRACE(__FILE__, "CommandLineToArgvA failed" );
+        LOG_TRACE("NATIVE", "CommandLineToArgvA failed" );
         return 0;
     }
 
@@ -818,7 +818,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     if (!skip_updater) {
-        LOG_ERR(__FILE__, "don't skip updater");
+        LOG_ERR("NATIVE", "don't skip updater");
         if (auto_update(cmd)) {
             CloseHandle(utox_mutex);
             return 0;
@@ -826,13 +826,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     #ifdef __WIN_LEGACY
-        LOG_TRACE(__FILE__, "Legacy windows build" );
+        LOG_TRACE("NATIVE", "Legacy windows build" );
     #else
-        LOG_TRACE(__FILE__, "Normal windows build" );
+        LOG_TRACE("NATIVE", "Normal windows build" );
     #endif
 
     #ifdef GIT_VERSION
-        LOG_NOTE(__FILE__, "uTox version %s \n", GIT_VERSION);
+        LOG_NOTE("NATIVE", "uTox version %s \n", GIT_VERSION);
     #endif
 
     cursors_init();

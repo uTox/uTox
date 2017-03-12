@@ -180,13 +180,13 @@ void native_screen_grab_desktop(bool video) {
     w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-    LOG_TRACE(__FILE__, "result: %i %i %i %i" , x, y, w, h);
+    LOG_TRACE("Native Screengrab", "result: %i %i %i %i" , x, y, w, h);
 
     grab_window = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_LAYERED, L"uToxgrab", L"Tox", WS_POPUP,
                                  x, y, w, h,
                                  NULL, NULL, grab_instance, NULL);
     if (!grab_window) {
-        LOG_TRACE(__FILE__, "CreateWindowExW() failed" );
+        LOG_TRACE("Native Screengrab", "CreateWindowExW() failed" );
         return;
     }
 

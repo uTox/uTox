@@ -572,7 +572,7 @@ static void button_show_password_settings_on_mup(void) {
 static void button_export_chatlog_on_mup(void) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Settings", "Could not get selected friend.");
         return;
     }
     utox_export_chatlog_init(f->number);
@@ -1025,12 +1025,12 @@ static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        LOG_ERR("Settings", "Could not get selected groupchat.");
         return;
     }
 
     g->notify    = i;
-    LOG_INFO(__FILE__, "g->notify = %u\n", i);
+    LOG_INFO("Settings", "g->notify = %u\n", i);
 }
 
 static void dropdown_global_group_notifications_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {

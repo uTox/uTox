@@ -127,7 +127,7 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **UNUSED
 
     if (!native_window_create(&main_window, title, CWBackPixmap | CWBorderPixel | CWEventMask,
                       x, y, w, h, MAIN_WIDTH, MAIN_HEIGHT, &panel_root, false)) {
-        LOG_FATAL_ERR(EXIT_FAILURE, __FILE__, "Unable to create main window.");
+        LOG_FATAL_ERR(EXIT_FAILURE, "XLIB Wind", "Unable to create main window.");
     }
 
     Atom a_pid  = XInternAtom(display, "_NET_WM_PID", 0);

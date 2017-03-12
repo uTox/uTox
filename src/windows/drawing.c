@@ -71,7 +71,7 @@ void image_set_filter(NATIVE_IMAGE *image, uint8_t filter) {
     switch (filter) {
         case FILTER_NEAREST: image->stretch_mode  = COLORONCOLOR; break;
         case FILTER_BILINEAR: image->stretch_mode = HALFTONE; break;
-        default: LOG_TRACE(__FILE__, "Warning: Tried to set image to unrecognized filter(%u)." , filter); return;
+        default: LOG_TRACE("Drawing", "Warning: Tried to set image to unrecognized filter(%u)." , filter); return;
     }
 }
 

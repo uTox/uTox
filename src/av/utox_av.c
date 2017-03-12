@@ -51,7 +51,7 @@ void utox_av_ctrl_thread(void *args) {
     ToxAV *av = args;
 
     utox_av_ctrl_init = 1;
-    LOG_TRACE(__FILE__, "Toxav thread init" );
+    LOG_TRACE("uToxAv", "Toxav thread init" );
 
     volatile uint32_t call_count = 0;
     volatile bool     audio_in   = 0;
@@ -134,7 +134,7 @@ void utox_av_ctrl_thread(void *args) {
                         // device_in = alcopencapture(audio_device);
                         // alccapturestart(device_in);
                         // record_on = 1;
-                        LOG_TRACE(__FILE__, "Starting Audio GroupCall" );
+                        LOG_TRACE("uToxAv", "Starting Audio GroupCall" );
                         // }
                     }
                     VERIFY_AUDIO_IN();
@@ -252,12 +252,12 @@ void utox_av_ctrl_thread(void *args) {
 }
 
 static void utox_av_incoming_call(ToxAV *UNUSED(av), uint32_t friend_number, bool audio, bool video, void *UNUSED(userdata)) {
-    LOG_TRACE(__FILE__, "A/V Invite (%u)" , friend_number);
+    LOG_TRACE("uToxAv", "A/V Invite (%u)" , friend_number);
     FRIEND *f = &friend[friend_number];
 
     f->call_state_self   = 0;
     f->call_state_friend = (audio << 2 | video << 3 | audio << 4 | video << 5);
-    LOG_TRACE(__FILE__, "uTox AV:\tcall friend (%u) state for incoming call: %i" , friend_number, f->call_state_friend);
+    LOG_TRACE("uToxAv", "uTox AV:\tcall friend (%u) state for incoming call: %i" , friend_number, f->call_state_friend);
     postmessage_utoxav(UTOXAV_INCOMING_CALL_PENDING, friend_number, 0, NULL);
     postmessage_utox(AV_CALL_INCOMING, friend_number, video, NULL);
 }
@@ -348,7 +348,7 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
  */
 static void utox_av_incoming_frame_a(ToxAV *UNUSED(av), uint32_t friend_number, const int16_t *pcm, size_t sample_count,
                                      uint8_t channels, uint32_t sample_rate, void *UNUSED(userdata)) {
-// LOG_TRACE(__FILE__, "Incoming audio frame for friend %u " , friend_number);
+// LOG_TRACE("uToxAv", "Incoming audio frame for friend %u " , friend_number);
 #ifdef NATIVE_ANDROID_AUDIO
     audio_play(friend_number, pcm, sample_count, channels);
 #else

@@ -23,12 +23,12 @@
 bool utox_data_save_tox(uint8_t *data, size_t length) {
     FILE *fp= utox_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
     if (fp == NULL) {
-        LOG_ERR(__FILE__, "Can not open tox_save.tox to write to it.");
+        LOG_ERR("uTox", "Can not open tox_save.tox to write to it.");
         return true;
     }
 
     if (fwrite(data, length, 1, fp) != 1) {
-        LOG_ERR(__FILE__, "Unable to write Tox save to file.");
+        LOG_ERR("uTox", "Unable to write Tox save to file.");
         return true;
     }
 
@@ -52,14 +52,14 @@ uint8_t *utox_data_load_tox(size_t *size) {
         uint8_t *data = calloc(1, length + 1);
 
         if (data == NULL) {
-            LOG_ERR(__FILE__, "Could not allocate memory for tox save.");
+            LOG_ERR("uTox", "Could not allocate memory for tox save.");
             fclose(fp);
             // Quit. We're out of memory, calloc will fail again.
             return NULL;
         }
 
         if (fread(data, length, 1, fp) != 1) {
-            LOG_ERR(__FILE__, "Could not read: %s.", name[i]);
+            LOG_ERR("uTox", "Could not read: %s.", name[i]);
             fclose(fp);
             free(data);
             // Return NULL, because if a Tox save exits we don't want to fall
@@ -86,7 +86,7 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
     }
 
     if (fwrite(data, length, 1, fp) != 1) {
-        LOG_ERR(__FILE__, "Unable to write ftinfo to file.");
+        LOG_ERR("uTox", "Unable to write ftinfo to file.");
         fclose(fp);
         return false;
     }
@@ -252,7 +252,7 @@ void parse_args(int argc, char *argv[],
                 break;
             }
 
-            case '?': LOG_TRACE(__FILE__, ", (char)optopt" ); break;
+            case '?': LOG_TRACE("uTox", "%c", (char)optopt ); break;
         }
     }
 }

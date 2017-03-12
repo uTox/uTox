@@ -479,7 +479,7 @@ void launch_at_startup(int should) {
         yieldcpu(1);
     }
 
-    LOG_TRACE(__FILE__, "clean exit" );
+    LOG_TRACE("NATIVE", "clean exit" );
 
     utox_raze();
 }
@@ -543,15 +543,15 @@ int main(int argc, char const *argv[]) {
                &set_show_window);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        LOG_TRACE(__FILE__, "Start on boot not supported on this OS!" );
+        LOG_TRACE("NATIVE", "Start on boot not supported on this OS!" );
     }
 
     if (set_show_window == 1 || set_show_window == -1) {
-        LOG_TRACE(__FILE__, "Showing/hiding windows not supported on this OS!" );
+        LOG_TRACE("NATIVE", "Showing/hiding windows not supported on this OS!" );
     }
 
     if (skip_updater == true) {
-        LOG_TRACE(__FILE__, "Disabling the updater is not supported on this OS. Updates are managed by the app store." );
+        LOG_TRACE("NATIVE", "Disabling the updater is not supported on this OS. Updates are managed by the app store." );
     }
 
     setlocale(LC_ALL, "");

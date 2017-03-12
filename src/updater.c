@@ -36,14 +36,14 @@ static size_t mk_request(char *host, char *file, char *data) {
 
 static uint8_t *download(char *host, char *file, uint32_t *out_len) {
     if (settings.force_proxy) {
-        LOG_ERR(__FILE__, "Updater:\tUnable to download with a proxy set and forced!");
+        LOG_ERR("Updater", "Updater:\tUnable to download with a proxy set and forced!");
         return NULL;
     }
 
     struct addrinfo *root;
 
     if (getaddrinfo(host, "80", NULL, &root)) {
-        LOG_ERR(__FILE__, "Updater:\tNo host found at [%s]", host);
+        LOG_ERR("Updater", "Updater:\tNo host found at [%s]", host);
         return NULL;
     }
 
@@ -74,7 +74,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
         }
 
         if (send(sock, reqst, size, 0) != (ssize_t)size) {
-            LOG_ERR(__FILE__, "Unable to send request to update server, [%s]x%lu", host, size);
+            LOG_ERR("Updater", "Unable to send request to update server, [%s]x%lu", host, size);
             close(sock);
             continue;
         }
@@ -111,7 +111,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                 /* find the end of the http response header */
                 str = strstr(str, "\r\n\r\n");
                 if (!str) {
-                    LOG_ERR(__FILE__, "invalid HTTP response (2)");
+                    LOG_ERR("Updater", "invalid HTTP response (2)");
                     break;
                 }
                 str += sizeof("\r\n\r\n") - 1; // and trim
@@ -119,11 +119,11 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                 /* allocate buffer to read into) */
                 data = calloc(header_len, 1);
                 if (!data) {
-                    LOG_ERR(__FILE__, "malloc failed (1) (%u)", header_len);
+                    LOG_ERR("Updater", "malloc failed (1) (%u)", header_len);
                     break;
                 }
 
-                LOG_INFO(__FILE__, "Download size: %u\n", header_len);
+                LOG_INFO("Updater", "Download size: %u\n", header_len);
 
                 /* read the first piece */
                 real_len = len - (str - (char*)buffer);

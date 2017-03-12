@@ -242,7 +242,7 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
     }
 
     if (fwrite(data, size, 1, fp) != 1) {
-        LOG_ERR(__FILE__, "Unable to write uTox settings to file.");
+        LOG_ERR("Settings", "Unable to write uTox settings to file.");
         return false;
     }
 
@@ -267,7 +267,7 @@ UTOX_SAVE *utox_data_load_utox(void) {
     }
 
     if (fread(save, size, 1, fp) != 1) {
-        LOG_ERR(__FILE__, "Could not read save file");
+        LOG_ERR("Settings", "Could not read save file");
 
         fclose(fp);
         free(save);

@@ -609,7 +609,7 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
             break;
         }
         default: {
-            LOG_ERR(__FILE__, "FileTransfer:\tThere was an error(%u) sending the command."
+            LOG_ERR("FileTransfer", "FileTransfer:\tThere was an error(%u) sending the command."
                         "You probably want to see to that!\n", error);
             break;
         }
@@ -917,7 +917,7 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         fflush(ft->via.file);
         file_unlock(ft->via.file, position, length);
         if (write_size != length) {
-            LOG_ERR(__FILE__, "\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
+            LOG_ERR("FileTransfer", "\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
             ft_local_control(tox, friend_number, file_number, TOX_FILE_CANCEL);
             return;
         }
@@ -963,7 +963,7 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, self.png_size, hash, NULL, 0, &error);
     if (error || file_number == UINT32_MAX) {
-        LOG_ERR(__FILE__, "tox_file_send() failed error code %u", error);
+        LOG_ERR("FileTransfer", "tox_file_send() failed error code %u", error);
         return UINT32_MAX;
     };
 
@@ -1037,7 +1037,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
             }
             case TOX_ERR_FILE_SEND_OK: { break; }
         }
-        LOG_ERR(__FILE__, "tox_file_send() failed error code %u", error);
+        LOG_ERR("FileTransfer", "tox_file_send() failed error code %u", error);
         return UINT32_MAX;
     }
 
@@ -1111,7 +1111,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, hash, name, name_length, &error);
     if (error || file_number == UINT32_MAX) {
-        LOG_ERR(__FILE__, "tox_file_send() failed error code %u", error);
+        LOG_ERR("FileTransfer", "tox_file_send() failed error code %u", error);
         return UINT32_MAX;
     };
 
@@ -1240,7 +1240,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file) {
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft) {
-        LOG_ERR(__FILE__, "FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
+        LOG_ERR("FileTransfer", "FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
                     friend_number, file_number);
         return -1;
     }

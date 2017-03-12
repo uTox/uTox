@@ -1044,7 +1044,7 @@ static void contextmenu_list_onselect(uint8_t i) {
                 }
             }
             default: {
-                LOG_TRACE(__FILE__, "blerg" );
+                LOG_TRACE("F-List", "blerg" );
                 return;
             }
         }
