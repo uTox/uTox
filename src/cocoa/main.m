@@ -479,9 +479,6 @@ void launch_at_startup(int should) {
         yieldcpu(1);
     }
 
-    LOG_TRACE("NATIVE", "clean exit" );
-
-    utox_raze();
 }
 
 - (void)soilWindowContents {

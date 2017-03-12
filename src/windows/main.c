@@ -942,10 +942,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     };
     config_save(&d);
 
-    LOG_INFO("uTox", "Clean exit.");
-
-    utox_raze();
-
     // TODO: This should be a non-zero value determined by a message's wParam.
     return 0;
 }
