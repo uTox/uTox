@@ -624,7 +624,7 @@ static void edit_add_new_contact(EDIT *UNUSED(edit)) {
 static char e_friend_pubkey_str[TOX_PUBLIC_KEY_SIZE * 2];
 EDIT edit_friend_pubkey = {
     .length            = sizeof e_friend_pubkey_str,
-    .maxlength         = sizeof e_friend_pubkey_str - 1,
+    .maxlength         = sizeof e_friend_pubkey_str,
     .data              = e_friend_pubkey_str,
     .readonly          = true,
     .noborder          = false,
