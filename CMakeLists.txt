@@ -87,17 +87,24 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU")
 
     # Have ld strip the symbols from Release and MinSizeRel build types.
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE} -Os")
+    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os")
 
     if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+        # enable Link Time Optimization on gcc (linux only currently)
+        # TODO someone should figure out how this works on windows, or we need to have gitlab-ci for GCC
+        add_cflag("-flto")
+        set(CMAKE_AR "gcc-ar")
+        set(CMAKE_RANLIB "gcc-ranlib")
+
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack")
     endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
     # enable Link Time Optimization on clang
     add_cflag("-flto")
-    # Have ld strip the symbols from MinSizeRel build types. (-Oz is clang specific)
+
+    # Have ld strip the symbols from Release and MinSizeRel build types. (-Oz is clang specific)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_RELEASE} -Oz")
+    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Oz")
 
     if(NOT ENABLE_ASAN)
         if(NOT APPLE)
