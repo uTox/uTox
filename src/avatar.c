@@ -185,6 +185,7 @@ bool self_set_and_save_avatar(const uint8_t *data, uint32_t size) {
 
 void avatar_delete_self(void) {
     avatar_unset(self.avatar);
+    avatar_delete(self.id_str);
     postmessage_toxcore(TOX_AVATAR_UNSET, 0, 0, NULL);
 }
 
