@@ -88,7 +88,7 @@ static void devices_self_add_submit(uint8_t *name, size_t length, uint8_t id[TOX
     postmessage_toxcore(TOX_SELF_NEW_DEVICE, length, 0, data);
 }
 
-static void delete_this_device(void) { LOG_ERR(__FILE__, "Delete button pressed"); }
+static void delete_this_device(void) { LOG_ERR("Devices", "Delete button pressed"); }
 
 void devices_update_list(void) {}
 
@@ -116,7 +116,7 @@ void devices_update_ui(void) {
         BUTTON *dele = calloc(1, sizeof(BUTTON));
 
         if (!edit) {
-            LOG_FATAL_ERR(EXIT_MALLOC, __FILE__, "Can't malloc for an extra device");
+            LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Can't malloc for an extra device");
         }
 
         PANEL p_edit =
@@ -174,7 +174,7 @@ void devices_self_add(uint8_t *device, size_t length) {
         /* TODO, names! */
         devices_self_add_submit((uint8_t *)"Default device name", 19, id);
     } else {
-        LOG_ERR(__FILE__, "error trying to add this device");
+        LOG_ERR("Devices", "error trying to add this device");
     }
 }
 

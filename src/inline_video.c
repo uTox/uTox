@@ -50,7 +50,7 @@ void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int width, int heigh
         return;
     }
 
-    LOG_TRACE(__FILE__, "Inline Video:\tDrawing new frame." );
+    LOG_TRACE("Inline Video", "Drawing new frame." );
 
     if (current_frame.img && current_frame.size) {
         draw_inline_image(current_frame.img, current_frame.size,

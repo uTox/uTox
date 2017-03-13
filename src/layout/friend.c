@@ -23,7 +23,7 @@
 static void draw_friend(int x, int y, int w, int height) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.\n");
+        LOG_ERR("Friend", "Could not get selected friend.\n");
         return;
     }
 
@@ -84,7 +84,7 @@ static void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UN
 static void draw_friend_deletion(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 
@@ -281,7 +281,7 @@ static void button_send_friend_request_on_mup(void) {
 static void button_call_decline_on_mup(void) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 
@@ -297,7 +297,7 @@ static void button_call_decline_on_mup(void) {
 static void button_call_decline_update(BUTTON *b) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 
@@ -315,7 +315,7 @@ static void button_call_decline_update(BUTTON *b) {
 static void button_call_audio_on_mup(void) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 
@@ -342,7 +342,7 @@ static void button_call_audio_on_mup(void) {
 static void button_call_audio_update(BUTTON *b) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 
@@ -367,7 +367,7 @@ static void button_call_audio_update(BUTTON *b) {
 static void button_call_video_on_mup(void) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 
@@ -396,7 +396,7 @@ static void button_call_video_on_mup(void) {
 static void button_call_video_update(BUTTON *b) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 
@@ -492,7 +492,7 @@ BUTTON button_call_video = {
 static void button_send_file_on_mup(void) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 
@@ -504,7 +504,7 @@ static void button_send_file_on_mup(void) {
 static void button_send_file_update(BUTTON *b) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 
@@ -539,7 +539,7 @@ static void button_send_screenshot_on_mup(void) {
 static void button_send_screenshot_update(BUTTON *b) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 
@@ -635,7 +635,7 @@ EDIT edit_friend_pubkey = {
 static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Friend", "Could not get selected friend.");
         return;
     }
 

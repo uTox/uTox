@@ -99,7 +99,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
 
     FILE *file = chatlog_get_file(hex, false);
     if (!file) {
-        LOG_TRACE(__FILE__, "Log read:\tUnable to access file provided." );
+        LOG_TRACE("Chatlog", "Log read:\tUnable to access file provided." );
         return NULL;
     }
 

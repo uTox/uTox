@@ -81,7 +81,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
     if (r == S_OK) {
         HDROP h = medium.hGlobal;
         int count = DragQueryFile(h, ~0, NULL, 0);
-        LOG_INFO(__FILE__, "%u files dropped\n", count);
+        LOG_INFO("WINDND", "%u files dropped\n", count);
 
         for (int i = 0; i < count; i++) {
             LOG_NOTE("WINDND", "Sending file number %i", i);
@@ -115,7 +115,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
 
         ReleaseStgMedium(&medium);
     } else {
-        LOG_ERR(__FILE__, "itz failed! %lX", r);
+        LOG_ERR("WINDND", "itz failed! %lX", r);
     }
 
     return S_OK;

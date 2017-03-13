@@ -208,7 +208,7 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
         if (flist_get_type()== ITEM_FRIEND) {
             FRIEND *selected = flist_get_friend();
             if (!selected) {
-                LOG_ERR(__FILE__, "Unable to get selected friend.");
+                LOG_ERR("Friend", "Unable to get selected friend.");
                 return;
             }
             if (selected && f->number == selected->number) {

@@ -135,7 +135,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
             }
             if (i == COUNTOF(friend)) {
-                LOG_ERR(__FILE__, "CreateWindowExW() failed" );
+                LOG_ERR("Events", "CreateWindowExW() failed" );
             }
         }
 
@@ -147,7 +147,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_CLOSE:
         case WM_DESTROY: {
             if (settings.close_to_tray) {
-                LOG_INFO(__FILE__, "Closing to tray." );
+                LOG_INFO("Events", "Closing to tray." );
                 togglehide(0);
                 return true;
             } else {
@@ -506,4 +506,3 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 
     return DefWindowProcW(window, msg, wParam, lParam);
 }
-

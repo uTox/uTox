@@ -84,7 +84,7 @@ static int utox_encrypt_data(void *clear_text, size_t clear_length, uint8_t *cyp
     tox_pass_encrypt((uint8_t *)clear_text, clear_length, (uint8_t *)passphrase, passphrase_length, cypher_data, &err);
 
     if (err) {
-        LOG_FATAL_ERR(EXIT_FAILURE, __FILE__, "Fatal Error; unable to encrypt data!\n");
+        LOG_FATAL_ERR(EXIT_FAILURE, "Toxcore", "Fatal Error; unable to encrypt data!\n");
     }
 
     return err;

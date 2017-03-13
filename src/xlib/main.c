@@ -70,7 +70,7 @@ void     init_ptt(void) {
 
     ptt_keyboard_handle = fopen((const char *)path, "r");
     if (!ptt_keyboard_handle) {
-        LOG_TRACE(__FILE__, "Could not access ptt-kbd in data directory" );
+        LOG_TRACE("XLIB", "Could not access ptt-kbd in data directory" );
         ptt_display = XOpenDisplay(0);
         XSynchronize(ptt_display, True);
     }
@@ -78,7 +78,7 @@ void     init_ptt(void) {
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
-        // LOG_TRACE(__FILE__, "PTT is disabled" );
+        // LOG_TRACE("XLIB", "PTT is disabled" );
         return 1; /* If push to talk is disabled, return true. */
     }
     int ptt_key;
@@ -95,10 +95,10 @@ bool check_ptt_key(void) {
         int mask = 1 << (ptt_key % 8);   // Put 1 in the same column as our key state
 
         if (keyb & mask) {
-            LOG_TRACE(__FILE__, "PTT key is down" );
+            LOG_TRACE("XLIB", "PTT key is down" );
             return 1;
         } else {
-            LOG_TRACE(__FILE__, "PTT key is up" );
+            LOG_TRACE("XLIB", "PTT key is up" );
             return 0;
         }
     }
@@ -110,10 +110,10 @@ bool check_ptt_key(void) {
     if (ptt_display) {
         XQueryKeymap(ptt_display, keys);
         if (keys[ptt_key / 8] & (0x1 << (ptt_key % 8))) {
-            LOG_TRACE(__FILE__, "PTT key is down (according to XQueryKeymap" );
+            LOG_TRACE("XLIB", "PTT key is down (according to XQueryKeymap" );
             return 1;
         } else {
-            LOG_TRACE(__FILE__, "PTT key is up (according to XQueryKeymap" );
+            LOG_TRACE("XLIB", "PTT key is up (according to XQueryKeymap" );
             return 0;
         }
     }
@@ -149,7 +149,7 @@ void image_set_filter(NATIVE_IMAGE *image, uint8_t filter) {
     switch (filter) {
         case FILTER_NEAREST: xfilter  = FilterNearest; break;
         case FILTER_BILINEAR: xfilter = FilterBilinear; break;
-        default: LOG_TRACE(__FILE__, "Warning: Tried to set image to unrecognized filter(%u)." , filter); return;
+        default: LOG_TRACE("XLIB", "Warning: Tried to set image to unrecognized filter(%u)." , filter); return;
     }
     XRenderSetPictureFilter(display, image->rgb, xfilter, NULL, 0);
     if (image->alpha) {
@@ -291,9 +291,9 @@ void pastebestformat(const Atom atoms[], size_t len, Atom selection) {
     for (i = 0; i < len; i++) {
         char *name = XGetAtomName(display, atoms[i]);
         if (name) {
-            LOG_TRACE(__FILE__, "Supported type: %s" , name);
+            LOG_TRACE("XLIB", "Supported type: %s" , name);
         } else {
-            LOG_TRACE(__FILE__, "Unsupported type!!: Likely a bug, please report!" );
+            LOG_TRACE("XLIB", "Unsupported type!!: Likely a bug, please report!" );
         }
     }
 
@@ -661,11 +661,11 @@ int main(int argc, char *argv[]) {
                &set_show_window);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        LOG_NOTE(__FILE__, "Start on boot not supported on this OS, please use your distro suggested method!\n");
+        LOG_NOTE("XLIB", "Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
 
     if (skip_updater == true) {
-        LOG_NOTE(__FILE__, "Disabling the updater is not supported on this OS. Updates are managed by your distro's package "
+        LOG_NOTE("XLIB", "Disabling the updater is not supported on this OS. Updates are managed by your distro's package "
                      "manager.\n");
     }
 

@@ -37,10 +37,10 @@ void native_export_chatlog_init(uint32_t friend_number) {
         if (file) {
             utox_export_chatlog(get_friend(friend_number)->id_str, file);
         } else {
-            LOG_ERR(__FILE__, "Opening file %s failed", path);
+            LOG_ERR("WinXP", "Opening file %s failed", path);
         }
     } else {
-        LOG_TRACE(__FILE__, "GetSaveFileName() failed" );
+        LOG_TRACE("WinXP", "GetSaveFileName() failed" );
     }
 }
 
@@ -113,20 +113,20 @@ void launch_at_startup(int is_launch_at_startup) {
             path_length += 2;
             ret = RegSetValueExW(hKey, L"uTox", NULL, REG_SZ, (uint8_t *)path, path_length * 2); /*2 bytes per wchar_t */
             if (ret == ERROR_SUCCESS) {
-                LOG_TRACE(__FILE__, "Successful auto start addition." );
+                LOG_TRACE("WinXP", "Successful auto start addition." );
             }
             RegCloseKey(hKey);
         }
     }
     if (is_launch_at_startup == 0) {
-        LOG_TRACE(__FILE__, "Going to delete auto start key." );
+        LOG_TRACE("WinXP", "Going to delete auto start key." );
         if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
-            LOG_TRACE(__FILE__, "Successful key opened." );
+            LOG_TRACE("WinXP", "Successful key opened." );
             ret = RegDeleteValueW(hKey, L"uTox");
             if (ret == ERROR_SUCCESS) {
-                LOG_TRACE(__FILE__, "Successful auto start deletion." );
+                LOG_TRACE("WinXP", "Successful auto start deletion." );
             } else {
-                LOG_TRACE(__FILE__, "UN-Successful auto start deletion." );
+                LOG_TRACE("WinXP", "UN-Successful auto start deletion." );
             }
             RegCloseKey(hKey);
         }

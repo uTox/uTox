@@ -127,7 +127,7 @@ void tray_window_event(XEvent event) {
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
             if (tray_window._.w != ev->width || tray_window._.h != ev->height) {
-                LOG_NOTE(__FILE__, "Tray resized w:%i h:%i\n", ev->width, ev->height);
+                LOG_NOTE("Tray", "Tray resized w:%i h:%i\n", ev->width, ev->height);
 
                 if (ev->width > tray_window._.w || ev->height > tray_window._.h) {
                     tray_window._.w  = ev->width;

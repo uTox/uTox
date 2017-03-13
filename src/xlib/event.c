@@ -521,7 +521,7 @@ bool doevent(XEvent event) {
         }
 
         case SelectionNotify: {
-            LOG_TRACE(__FILE__, "SelectionNotify" );
+            LOG_TRACE("Event", "SelectionNotify" );
 
             XSelectionEvent *ev = &event.xselection;
 
@@ -541,8 +541,8 @@ bool doevent(XEvent event) {
                 break;
             }
 
-            LOG_TRACE(__FILE__, "Type: %s" , XGetAtomName(display, type));
-            LOG_TRACE(__FILE__, "Property: %s" , XGetAtomName(display, ev->property));
+            LOG_TRACE("Event", "Type: %s" , XGetAtomName(display, type));
+            LOG_TRACE("Event", "Property: %s" , XGetAtomName(display, ev->property));
 
             if (ev->property == XA_ATOM) {
                 pastebestformat((Atom *)data, len, ev->selection);
@@ -608,7 +608,7 @@ bool doevent(XEvent event) {
         case PropertyNotify: {
             XPropertyEvent *ev = &event.xproperty;
             if (ev->state == PropertyNewValue && ev->atom == targets && pastebuf.data) {
-                LOG_TRACE(__FILE__, "Property changed: %s" , XGetAtomName(display, ev->atom));
+                LOG_TRACE("Event", "Property changed: %s" , XGetAtomName(display, ev->atom));
 
                 Atom              type;
                 int               format;
@@ -619,7 +619,7 @@ bool doevent(XEvent event) {
                                    &bytes_left, (unsigned char **)&data);
 
                 if (len == 0) {
-                    LOG_TRACE(__FILE__, "Got 0 length data, pasting" );
+                    LOG_TRACE("Event", "Got 0 length data, pasting" );
                     pastedata(pastebuf.data, type, pastebuf.len, False);
                     pastebuf.data = NULL;
                     break;
@@ -651,7 +651,7 @@ bool doevent(XEvent event) {
             if (ev->message_type == wm_protocols) {
                 if ((Atom)event.xclient.data.l[0] == wm_delete_window) {
                     if (settings.close_to_tray) {
-                        LOG_TRACE(__FILE__, "Closing to tray." );
+                        LOG_TRACE("Event", "Closing to tray." );
                         togglehide();
                     } else {
                         return false;
@@ -661,7 +661,7 @@ bool doevent(XEvent event) {
             }
 
             if (ev->message_type == XdndEnter) {
-                LOG_TRACE(__FILE__, "enter" );
+                LOG_TRACE("Event", "enter" );
             } else if (ev->message_type == XdndPosition) {
                 Window src         = ev->data.l[0];
                 XEvent reply_event = {.xclient = {.type         = ClientMessage,
@@ -672,16 +672,16 @@ bool doevent(XEvent event) {
                                                   .data = {.l = { main_window.window, 1, 0, 0, XdndActionCopy } } } };
 
                 XSendEvent(display, src, 0, 0, &reply_event);
-                // LOG_TRACE(__FILE__, "position (version=%u)" , ev->data.l[1] >> 24);
+                // LOG_TRACE("Event", "position (version=%u)" , ev->data.l[1] >> 24);
             } else if (ev->message_type == XdndStatus) {
-                LOG_TRACE(__FILE__, "status" );
+                LOG_TRACE("Event", "status" );
             } else if (ev->message_type == XdndDrop) {
                 XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, main_window.window, CurrentTime);
                 LOG_NOTE("XLIB", "Drag was dropped");
             } else if (ev->message_type == XdndLeave) {
-                LOG_TRACE(__FILE__, "leave" );
+                LOG_TRACE("Event", "leave" );
             } else {
-                LOG_TRACE(__FILE__, "dragshit" );
+                LOG_TRACE("Event", "dragshit" );
             }
             break;
         }
