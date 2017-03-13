@@ -1,5 +1,6 @@
 #include "gtk.h"
 
+#include "../avatar.h"
 #include "../chatlog.h"
 #include "../debug.h"
 #include "../file_transfers.h"

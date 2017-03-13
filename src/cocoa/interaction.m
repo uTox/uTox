@@ -834,7 +834,7 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
         if (!is_group) {
             FRIEND *f = object;
             if (friend_has_avatar(f)) {
-                NATIVE_IMAGE *im = f->avatar.img;
+                NATIVE_IMAGE *im = f->avatar->img;
                 size_t        w = CGImageGetWidth(im->image) / im->scale, h = CGImageGetHeight(im->image) / im->scale;
                 NSImage *i = [[NSImage alloc] initWithCGImage:im->image size:(CGSize){ w, h }];
                 if ([usernotification respondsToSelector:@selector(set_identityImage:)]) {

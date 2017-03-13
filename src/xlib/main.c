@@ -5,6 +5,7 @@
 #include "tray.h"
 #include "window.h"
 
+#include "../avatar.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../debug.h"
