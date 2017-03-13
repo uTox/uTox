@@ -266,10 +266,8 @@ void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
     postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
     notify(title, title_length, msg, msg_length, f, 0);
 
-    if (flist_get_friend() != f) {
-        f->unread_msg = 1;
-        postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
-    }
+    f->unread_msg = 1;
+    postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
 }
 
 bool friend_set_online(FRIEND *f, bool online) {
