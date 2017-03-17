@@ -92,11 +92,12 @@ bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
  *                                                                     *
  **********************************************************************/
 static void sidepanel_USERBADGE(void) {
-    CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-    CREATE_BUTTON(name, SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - 2);
-    CREATE_BUTTON(status_msg, SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_TOP,
-                  (SCALE(200) - SIDEBAR_STATUSMSG_LEFT - 2), SIDEBAR_STATUSMSG_HEIGHT - 2);
-    CREATE_BUTTON(usr_state, SCALE(200), SCALE(10), BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
+    // Converting DEFINES to magic becaues this will be moved to layout/
+    // and will then get a different format/selection
+    CREATE_BUTTON(avatar,     10, SIDEBAR_AVATAR_TOP, 40, 40);
+    CREATE_BUTTON(name,       64, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - 2);
+    CREATE_BUTTON(status_msg, 64, SIDEBAR_STATUSMSG_TOP, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_HEIGHT - 2);
+    CREATE_BUTTON(usr_state,  210, 10, 20, 40);
 }
 
 static void sidepanel_FLIST(void) {
@@ -167,8 +168,8 @@ static void settings_AV(void) {
     CREATE_DROPDOWN(audio_out, 10, (start_draw_y + draw_y_vect + 60), 24, 360);
     CREATE_DROPDOWN(video,     10, (start_draw_y + draw_y_vect + 120), 24, 360);
 
-    CREATE_BUTTON(callpreview, 10, (preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(videopreview, 70, (preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(callpreview,  10, (preview_button_pos_y), _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(videopreview, 70, (preview_button_pos_y), _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
 }
 
 static void settings_NOTIFY(void) {
@@ -310,15 +311,11 @@ void ui_set_scale(uint8_t scale) {
     CREATE_BUTTON(call_video,    -62, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
     CREATE_BUTTON(group_audio,   -62, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
 
-    /* bottom left button in chat */
-    CREATE_BUTTON(send_file,  6, -46,
-                    _BM_CHAT_BUTTON_WIDTH, _BM_CHAT_BUTTON_HEIGHT);
-    /* button to the right of b_chat_left */
-    CREATE_BUTTON(send_screenshot, 8 + _BM_CHAT_BUTTON_WIDTH, -46,
-                    _BM_CHAT_BUTTON_WIDTH, _BM_CHAT_BUTTON_HEIGHT);
+    CREATE_BUTTON(send_file,         6, -46, _BM_CHAT_BUTTON_WIDTH, _BM_CHAT_BUTTON_HEIGHT);
+    CREATE_BUTTON(send_screenshot,   8 + _BM_CHAT_BUTTON_WIDTH, -46, _BM_CHAT_BUTTON_WIDTH, _BM_CHAT_BUTTON_HEIGHT);
 
-    CREATE_BUTTON(chat_send_friend, -6 - _BM_CHAT_SEND_WIDTH, -46, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
-    CREATE_BUTTON(chat_send_group,  -6 - _BM_CHAT_SEND_WIDTH, -46, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
+    CREATE_BUTTON(chat_send_friend, -6 - _BM_CHAT_SEND_WIDTH, -46, _BM_CHAT_SEND_WIDTH, _BM_CHAT_SEND_HEIGHT);
+    CREATE_BUTTON(chat_send_group,  -6 - _BM_CHAT_SEND_WIDTH, -46, _BM_CHAT_SEND_WIDTH, _BM_CHAT_SEND_HEIGHT);
 
     setfont(FONT_TEXT);
 
