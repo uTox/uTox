@@ -23,7 +23,7 @@ if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libso
   # libtool is broken when it comes to spaces in vars, so we have to neuter them
   # I live in backslash escapement hell...
   # This is also why we can't use ../common/*
-  find . -type f -exec sed -i 's/libsodium\\\\ 1.0.11/libnacl-str/g' {} +
+  find . -type f -exec sed -i 's/libsodium\\\\ 1.0.12/libnacl-str/g' {} +
   make -j8
   make install
   mv libsodium.sha "$CACHE_DIR/libsodium.sha"
