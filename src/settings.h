@@ -34,19 +34,22 @@ typedef struct utox_settings {
     uint16_t proxy_port;
 
     // User interface settings
-    bool close_to_tray;
-    bool logging_enabled;
     bool audiofilter_enabled;
-    bool start_in_tray;
-    bool start_with_system;
     bool push_to_talk;
     bool audio_preview;
     bool video_preview;
     bool send_typing_status;
-    bool use_mini_flist;
     bool inline_video;
     bool use_long_time_msg;
     bool accept_inline_images;
+
+    // UX Settings
+    bool logging_enabled;
+    bool close_to_tray;
+    bool start_in_tray;
+    bool start_with_system;
+    bool use_mini_flist;
+    bool magic_flist_enabled;
 
     // Notifications / Alerts
     bool    ringtone_enabled;
@@ -99,7 +102,7 @@ typedef struct utox_save {
     uint8_t use_mini_flist       : 1;
     uint8_t group_notifications  : 4;
     uint8_t status_notifications : 1;
-    uint8_t zero                 : 1;
+    uint8_t magic_flist_enabled  : 1;
 
     uint32_t utox_last_version; // I don't like this here either,
     // but I'm not ready to rewrite and update this struct yet.

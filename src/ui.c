@@ -5,6 +5,7 @@
 #include "macros.h"
 #include "main_native.h"
 #include "messages.h"
+#include "settings.h"
 
 #include "layout/background.h"
 #include "layout/create.h"
@@ -437,12 +438,14 @@ void ui_size(int width, int height) {
     panel_update(&panel_root, 0, 0, width, height);
     tooltip_reset();
 
-    if (height > width) {
-        panel_side_bar.disabled = true;
-        panel_main.x = 0;
-    } else {
-        panel_side_bar.disabled = false;
-        panel_main.x = panel_flist.width;
+    if (settings.magic_flist_enabled) {
+        if (height > width) {
+            panel_side_bar.disabled = true;
+            panel_main.x = 0;
+        } else {
+            panel_side_bar.disabled = false;
+            panel_main.x = panel_flist.width;
+        }
     }
 }
 

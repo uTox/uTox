@@ -186,6 +186,7 @@ static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height
     drawstr(x + SCALE(10),  y + SCALE(125), START_IN_TRAY);
     drawstr(x + SCALE(10),  y + SCALE(155), AUTO_STARTUP);
     drawstr(x + SCALE(10),  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
+    drawstr(x + SCALE(10),  y + SCALE(215), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
 }
 
 // Audio/Video settings page
@@ -362,6 +363,7 @@ panel_settings_master = {
             (PANEL*)&switch_start_in_tray,
             (PANEL*)&switch_auto_startup,
             (PANEL*)&switch_mini_contacts,
+            (PANEL*)&switch_magic_sidebar,
             NULL
         }
     },
@@ -815,6 +817,28 @@ UISWITCH switch_mini_contacts = {
     .update         = switch_update,
     .on_mup         = switchfxn_mini_contacts,
     .tooltip_text   = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER },
+};
+
+
+static void switchfxn_magic_sidebar(void) {
+    settings.magic_flist_enabled = !settings.magic_flist_enabled;
+}
+
+UISWITCH switch_magic_sidebar = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = -10 - _BM_SWITCH_WIDTH,
+        .y      = 210,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT
+    },
+    .style_outer    = BM_SWITCH,
+    .style_toggle   = BM_SWITCH_TOGGLE,
+    .style_icon_off = BM_NO,
+    .style_icon_on  = BM_YES,
+    .update         = switch_update,
+    .on_mup         = switchfxn_magic_sidebar,
+    .tooltip_text   = {.i18nal = STR_SETTINGS_UI_AUTO_HIDE_SIDEBAR },
 };
 
 UISWITCH switch_ipv6 = {
