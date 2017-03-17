@@ -1,3 +1,5 @@
+#ifndef ANDROID_FREETYPE_H
+#define ANDROID_FREETYPE_H
 #include <stdint.h>
 
 #include <ft2build.h>
@@ -23,6 +25,10 @@ typedef struct {
 extern FT_Library ftlib;
 extern FONT       font[16], *sfont;
 
+GLYPH *font_getglyph(FONT *f, uint32_t ch);
+
 void initfonts(void);
 void loadfonts(void);
 void freefonts(void);
+
+#endif // ANDROID_FREETYPE_H

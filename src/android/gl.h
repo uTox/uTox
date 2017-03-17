@@ -1,3 +1,6 @@
+#ifndef ANDROID_GL_H
+#define ANDROID_GL_H
+
 #include "main.h"
 
 #include "../main.h"
@@ -77,3 +80,5 @@ void drawimage(NATIVE_IMAGE data, int x, int y, int width, int height, int maxwi
     glUniform3fv(k2, 1, one);
 }
 #endif
+
+#endif // ANDROID_GL_H

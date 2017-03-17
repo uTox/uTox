@@ -4,6 +4,7 @@
 #include "freetype.h"
 
 #include "../debug.h"
+#include "../text.h"
 #include "../main_native.h"
 #include "../settings.h"
 #include "../macros.h"
@@ -450,6 +451,7 @@ NATIVE_IMAGE *GL_utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16
     return texture;
 }
 
+// Returns 1 if redraw is needed
 int GL_utox_android_redraw_window() {
     int32_t new_width, new_height;
     eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
@@ -472,6 +474,7 @@ int GL_utox_android_redraw_window() {
 
         return 1;
     }
+    return 0;
 }
 
 void GL_raze_surface(void) {
@@ -489,7 +492,7 @@ int GL_drawtext(int x, int xmax, int y, char *str, uint16_t length) {
     GLYPH *  g;
     uint8_t  len;
     uint32_t ch;
-    while (length) {
+    while (length > 0) {
         len = utf8_len_read(str, &ch);
         str += len;
         length -= len;
