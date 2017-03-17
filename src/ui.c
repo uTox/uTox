@@ -438,13 +438,13 @@ void ui_size(int width, int height) {
     panel_update(&panel_root, 0, 0, width, height);
     tooltip_reset();
 
+    panel_side_bar.disabled = false;
+    panel_main.x = panel_flist.width;
+
     if (settings.magic_flist_enabled) {
-        if (height > width) {
+        if (width <= panel_flist.width * 2 || height > width) {
             panel_side_bar.disabled = true;
             panel_main.x = 0;
-        } else {
-            panel_side_bar.disabled = false;
-            panel_main.x = panel_flist.width;
         }
     }
 }
