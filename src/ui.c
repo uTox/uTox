@@ -198,8 +198,8 @@ static void settings_ADV(void) {
     CREATE_BUTTON(show_nospam,            170, 210, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(nospam,           10,  255, -10, 24);
-    CREATE_BUTTON(change_nospam,  10,  285, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(revert_nospam,  200, 285, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(change_nospam,  10,  285, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(revert_nospam,  200, 285, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(profile_password, 10,  88 + (167 * panel_profile_password.disabled), -10, 24);
     CREATE_BUTTON(lock_uTox,      10,  285, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
