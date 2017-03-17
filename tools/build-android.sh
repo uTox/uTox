@@ -109,8 +109,9 @@ $DX --dex \
     --output="${BUILD_DIR}/classes.dex" \
     ${BUILD_DIR}/java
 
+# the class path is likely hacky, but I can't be arsed to find the real fix now
 java \
-    -classpath $ANDROID_SDK_HOME/tools/lib/sdklib.jar \
+    -classpath $ANDROID_SDK_HOME/tools/lib/sdklib-25.3.0.jar \
     com.android.sdklib.build.ApkBuilderMain \
     ${BUILD_DIR}/uTox.unsigned.apk \
     -u -z ${BUILD_DIR}/uTox.apk \
