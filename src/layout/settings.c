@@ -72,7 +72,7 @@ static void draw_settings_sub_header(int x, int y, int width, int UNUSED(height)
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(next_x, y, , y, + 28), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y, + SCALE(28), COLOR_EDGE_NORMAL);
     x = next_x;
     #endif
 
@@ -693,11 +693,12 @@ BUTTON button_show_password_settings = {
 };
 
 BUTTON button_export_chatlog = {
-    .bm_fill     = BM_SBUTTON,
-    .update      = button_setcolors_success,
-    .on_mup      = button_export_chatlog_on_mup,
-    .disabled    = false,
-    .button_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_export_chatlog_on_mup,
+    .disabled     = false,
+    .button_text  = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
+    .tooltip_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
 };
 
 BUTTON button_change_nospam = {
