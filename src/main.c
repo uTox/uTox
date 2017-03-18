@@ -271,9 +271,11 @@ void utox_init(void) {
     //#endif
 
     settings.debug_file = stdout;
+    atexit(utox_raze);
 }
 
 void utox_raze(void) {
+    LOG_INFO("uTox", "Clean exit.");
     if (settings.debug_file != stdout) {
         fclose(settings.debug_file);
     }

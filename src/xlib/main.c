@@ -881,10 +881,6 @@ int main(int argc, char *argv[]) {
         yieldcpu(1);
     }
 
-    LOG_INFO("XLIB", "XLIB main:\tClean exit");
-
-    utox_raze();
-
     return 0;
 }
 
