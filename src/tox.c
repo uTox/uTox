@@ -576,6 +576,7 @@ void toxcore_thread(void *UNUSED(args)) {
     }
 
     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
+    free_friends();
     LOG_TRACE("Toxcore", "Tox thread:\tClean exit!");
 }
 
