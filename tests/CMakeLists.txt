@@ -34,3 +34,14 @@ set_target_properties(test_chatlog PROPERTIES
 target_link_libraries(test_chatlog utox-test-mock)
 add_test(NAME test_chatlog COMMAND test_chatlog)
 
+add_executable(test_updater
+    test_updater.c
+
+    ../src/updater.c
+)
+set_target_properties(test_chatlog PROPERTIES
+    COMPILE_FLAGS "-Wno-unused-parameter"
+)
+target_link_libraries(test_updater utox-test-mock)
+target_link_libraries(test_updater sodium)
+add_test(NAME test_updater COMMAND test_chatlog)
