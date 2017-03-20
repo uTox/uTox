@@ -262,7 +262,7 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
     }
 
     if (auth && send) {
-        postmessage_toxcore(TOX_SEND_MESSAGE, f->number, length, msg);
+        postmessage_toxcore(TOX_SEND_MESSAGE, m->id, length, msg);
     }
 
     return message_add(m, msg);

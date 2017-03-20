@@ -106,7 +106,7 @@ FRIEND *get_friend(uint32_t friend_number);
 /*
  * Frees all of your friends
  */
-void free_friends();
+void free_friends(void);
 
 void utox_friend_init(Tox *tox, uint32_t friend_number);
 

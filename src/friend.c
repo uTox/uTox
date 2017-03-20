@@ -22,7 +22,7 @@
 
 #include "main.h" // addfriend_status
 
-FRIEND *friend;
+FRIEND *friend = NULL;
 
 FRIEND *get_friend(uint32_t friend_number) {
     if (friend_number >= self.friend_list_size) { //friend doesnt exist if true
@@ -33,7 +33,7 @@ FRIEND *get_friend(uint32_t friend_number) {
     return &friend[friend_number];
 }
 
-static FRIEND *make_friend(uint32_t friend_number) {
+static FRIEND *friend_make(uint32_t friend_number) {
     if (friend_number >= self.friend_list_size) {
         LOG_TRACE("Friend", "Reallocating friend array to %u. Current size: %u", (friend_number + 1), self.friend_list_size);
         FRIEND *tmp = realloc(friend, sizeof(FRIEND) * (friend_number + 1));
@@ -51,7 +51,7 @@ static FRIEND *make_friend(uint32_t friend_number) {
     return &friend[friend_number];
 }
 
-void free_friends() {
+void free_friends(void) {
     for (uint32_t i = 0; i < self.friend_list_count; i++){
         FRIEND *f = get_friend(i);
         if (!f) {
@@ -149,7 +149,7 @@ static void friend_meta_data_read(FRIEND *f) {
 
 void utox_friend_init(Tox *tox, uint32_t friend_number) {
     LOG_INFO("Friend", "Initializing friend: %u", friend_number);
-    FRIEND *f = make_friend(friend_number); // get friend pointer
+    FRIEND *f = friend_make(friend_number); // get friend pointer
     if (!f) {
         LOG_ERR("Friend", "Could not create init friend %u", friend_number);
         return;
@@ -413,6 +413,11 @@ void friend_free(FRIEND *f) {
 FRIEND *find_friend_by_name(uint8_t *name) {
     for (size_t i = 0; i < self.friend_list_count; i++) {
         FRIEND *f = get_friend(i);
+        if (!f) {
+            LOG_ERR("Friend", "Could not get friend %u", i);
+            continue;
+        }
+
         if ((f->alias && memcmp(f->alias, name, f->alias_length) == 0)
             || memcmp(f->name, name, f->name_length) == 0) {
             return f;
