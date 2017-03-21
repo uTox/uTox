@@ -282,7 +282,6 @@ bool doevent(XEvent event) {
                         break;
                     }
                 }
-                assert(i != self.friend_list_count);
             }
         }
 
