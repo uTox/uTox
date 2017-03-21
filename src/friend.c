@@ -418,8 +418,8 @@ FRIEND *find_friend_by_name(uint8_t *name) {
             continue;
         }
 
-        if ((f->alias && memcmp(f->alias, name, f->alias_length) == 0)
-            || memcmp(f->name, name, f->name_length) == 0) {
+        if ((f->alias && memcmp(f->alias, name, MIN(f->alias_length, strlen((char *)name))) == 0)
+            || memcmp(f->name, name, MIN(f->name_length, strlen((char *)name))) == 0) {
             return f;
         }
     }
