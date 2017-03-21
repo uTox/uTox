@@ -6,6 +6,7 @@
 #include "dns.h"
 #include "filesys.h"
 #include "flist.h"
+#include "macros.h"
 #include "main_native.h"
 #include "self.h"
 #include "settings.h"
