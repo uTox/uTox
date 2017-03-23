@@ -890,5 +890,4 @@ int main(int argc, char *argv[]) {
 }
 
 /* Dummy functions used in other systems... */
-/* Used in windows only... */
 void launch_at_startup(int UNUSED(is_launch_at_startup)) {}
