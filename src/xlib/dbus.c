@@ -4,6 +4,8 @@
 #include "../debug.h"
 #include "../macros.h"
 
+#include "../text.h"
+
 #include <dbus/dbus.h>
 #include <signal.h>
 #include <stdlib.h>

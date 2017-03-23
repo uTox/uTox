@@ -7,8 +7,6 @@ if(ENABLE_DBUS)
     find_package(DBUS)
     include_directories(${DBUS_INCLUDE_DIR} "/usr/lib/dbus-1.0/include")
     add_cflag("-DHAVE_DBUS=1")
-else()
-    add_cflag("-DNO_DBUS=1")
 endif()
 
 #########################################
