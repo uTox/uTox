@@ -8,7 +8,6 @@
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h" // openurl, NATIVE_IMAGE_IS_VALID, setselection, key codes
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -29,6 +28,7 @@
 // TODO including native .h files should never be needed, refactor filesys.h to provide necessary API
 #include "native/filesys.h"
 #include "native/image.h"
+#include "native/main.h" // openurl, NATIVE_IMAGE_IS_VALID, setselection, key codes
 
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 

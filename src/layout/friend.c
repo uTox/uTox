@@ -8,9 +8,10 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
-#include "../main_native.h" // openfilesend
 #include "../settings.h"
 #include "../theme.h"
+
+#include "../native/main.h" // openfilesend
 
 #include "../ui/draw.h"
 #include "../ui/edit.h"

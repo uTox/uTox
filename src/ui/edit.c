@@ -7,13 +7,13 @@
 
 #include "../macros.h"
 #include "../main.h"
-#include "../main_native.h"
 #include "../settings.h"
 #include "../text.h"
 #include "../theme.h"
 #include "../ui.h"
 
 #include "../native/clipboard.h"
+#include "../native/main.h"
 #include "../native/ui.h"
 
 static EDIT *active_edit;

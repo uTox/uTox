@@ -6,10 +6,10 @@
 #include "../avatar.h"
 #include "../flist.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../self.h"
 #include "../theme.h"
 
+#include "../native/main.h"
 #include "../native/ui.h"
 
 #include "../ui.h"

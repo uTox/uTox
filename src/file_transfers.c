@@ -4,7 +4,6 @@
 #include "friend.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h" // NATIVE_IMAGE_IS_VALID
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -13,6 +12,7 @@
 
 #include "native/filesys.h"
 #include "native/image.h"
+#include "native/main.h" // NATIVE_IMAGE_IS_VALID
 #include "native/thread.h"
 #include "native/time.h"
 

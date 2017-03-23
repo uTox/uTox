@@ -8,7 +8,6 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../text.h"
 #include "../tox.h"
 #include "../ui.h"
@@ -16,6 +15,7 @@
 
 #include "../main.h"
 
+#include "../native/main.h"
 #include "../native/thread.h"
 
 #include <dlfcn.h>

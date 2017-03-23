@@ -5,9 +5,10 @@
 #include "../avatar.h"
 #include "../flist.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../self.h"
 #include "../tox.h"
+
+#include "../native/main.h"
 
 #include "../ui/button.h"
 #include "../ui/contextmenu.h"

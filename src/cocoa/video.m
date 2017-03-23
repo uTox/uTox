@@ -3,7 +3,6 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../main.h"
-#include "../main_native.h"
 #include "../settings.h"
 #include "../tox.h"
 
@@ -13,6 +12,7 @@
 #include "../av/video.h"
 
 #include "../native/audio.h"
+#include "../native/main.h"
 #include "../native/ui.h"
 #include "../native/video.h"
 

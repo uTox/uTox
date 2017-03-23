@@ -3,8 +3,8 @@
 #include "window.h"
 
 #include "../debug.h"
-#include "../main_native.h"
 
+#include "../native/main.h"
 #include "../native/image.h"
 #include "../native/ui.h"
 

@@ -7,7 +7,6 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h" // Needed for redraw(), this is probably wrong
 #include "../notify.h"
 #include "../self.h"
 #include "../settings.h"
@@ -18,6 +17,7 @@
 #include "../av/utox_av.h"
 
 #include "../native/clipboard.h"
+#include "../native/main.h"
 #include "../native/ui.h"
 
 #include "../ui/draw.h" // Needed for enddraw. This should probably be changed.

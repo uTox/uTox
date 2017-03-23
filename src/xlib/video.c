@@ -5,11 +5,11 @@
 
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../ui.h"
 
 #include "../av/video.h"
 
+#include "../native/main.h"
 #include "../native/time.h"
 
 #include <stdio.h>

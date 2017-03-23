@@ -1,6 +1,6 @@
 #include "window.h"
 
-#include "main_native.h"
+#include "native/main.h"
 
 // TODO find a better place for these!
 void native_window_raze(UTOX_WINDOW *win);

@@ -5,8 +5,8 @@
 #include "../branding.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
 
+#include "../native/main.h"
 #include "../native/thread.h"
 #include "../native/time.h"
 

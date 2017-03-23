@@ -10,7 +10,6 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
@@ -21,6 +20,7 @@
 #include "../av/utox_av.h"
 
 #include "../native/image.h"
+#include "../native/main.h"
 #include "../native/ui.h"
 
 #include "../ui/draw.h"

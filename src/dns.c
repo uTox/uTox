@@ -15,12 +15,8 @@
 #include <windows.h>
 #include <windns.h>
 #else
-#ifdef __ANDROID__
-
-#else
-// I don't really know where the includes are on these platforms.
-#include "main_native.h"
-#endif
+// I don't really know where the includes are on these platforms. Someone else PTAL.
+#include "native/main.h"
 #endif
 
 static struct tox3 {
