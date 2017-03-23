@@ -8,9 +8,10 @@
 #include "../friend.h"
 #include "../inline_video.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../tox.h"
 #include "../utox.h"
+
+#include "../native/thread.h"
 
 #include <stdlib.h>
 

@@ -2,9 +2,11 @@
 
 #include "debug.h"
 #include "file_transfers.h"
-#include "main_native.h"
+#include "main_native.h" // NATIVE_IMAGE_IS_VALID
 #include "self.h"
 #include "tox.h"
+
+#include "native/image.h"
 
 /* frees the image of an avatar, does nothing if image is NULL */
 static void avatar_free_image(AVATAR *avatar) {

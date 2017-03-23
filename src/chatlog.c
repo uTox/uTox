@@ -2,10 +2,11 @@
 
 #include "filesys.h"
 // TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
-#include "filesys_native.h"
 #include "debug.h"
 #include "messages.h"
 #include "text.h"
+
+#include "native/filesys.h"
 
 #include <stdint.h>
 #include <stdlib.h>

@@ -3,14 +3,12 @@
 #include "chatlog.h"
 #include "file_transfers.h"
 #include "filesys.h"
-// TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
-#include "filesys_native.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
+#include "main_native.h" // openurl, NATIVE_IMAGE_IS_VALID, setselection, key codes
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -26,6 +24,11 @@
 
 #include "layout/friend.h"
 #include "layout/group.h"
+
+#include "native/clipboard.h"
+// TODO including native .h files should never be needed, refactor filesys.h to provide necessary API
+#include "native/filesys.h"
+#include "native/image.h"
 
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 

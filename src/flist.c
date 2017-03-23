@@ -7,7 +7,6 @@
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -29,6 +28,9 @@
 #include "layout/group.h"
 #include "layout/settings.h"
 #include "layout/sidebar.h"
+
+#include "native/time.h"
+#include "native/ui.h"
 
 #include <limits.h>
 #include <stdlib.h>

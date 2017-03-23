@@ -4,12 +4,19 @@
 #include "friend.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
+#include "main_native.h" // NATIVE_IMAGE_IS_VALID
 #include "self.h"
 #include "settings.h"
 #include "text.h"
 #include "tox.h"
 #include "utox.h"
+
+#include "native/filesys.h"
+#include "native/image.h"
+#include "native/thread.h"
+#include "native/time.h"
+
+#include <string.h>
 
 #define MAX_INCOMING_COUNT 32
 

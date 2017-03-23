@@ -13,6 +13,9 @@
 #include "../theme.h"
 #include "../ui.h"
 
+#include "../native/clipboard.h"
+#include "../native/ui.h"
+
 static EDIT *active_edit;
 
 static struct {

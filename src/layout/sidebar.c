@@ -10,6 +10,8 @@
 #include "../self.h"
 #include "../theme.h"
 
+#include "../native/ui.h"
+
 #include "../ui.h"
 #include "../ui/draw.h"
 #include "../ui/scrollable.h"

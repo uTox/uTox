@@ -6,7 +6,7 @@
 #include "dns.h"
 #include "flist.h"
 #include "macros.h"
-#include "main_native.h"
+#include "main_native.h" // NATIVE_IMAGE_IS_VALID
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -14,9 +14,12 @@
 #include "utox.h"
 
 #include "av/audio.h"
-#include "ui/edit.h"        // friend_set_name()
 
 #include "layout/friend.h"  // TODO, remove this and sent the name differently
+
+#include "native/notify.h"
+
+#include "ui/edit.h"        // friend_set_name()
 
 #include "main.h" // addfriend_status
 

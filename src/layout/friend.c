@@ -8,6 +8,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
+#include "../main_native.h" // openfilesend
 #include "../settings.h"
 #include "../theme.h"
 
@@ -485,7 +486,6 @@ BUTTON button_call_video = {
     .tooltip_text = {.i18nal = STR_CALL_START_VIDEO },
 };
 
-#include "../main_native.h"
 static void button_send_file_on_mup(void) {
     FRIEND *f = flist_get_friend();
     if (!f) {

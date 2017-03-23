@@ -1,7 +1,5 @@
 #include "window.h"
 
-#include "main.h"
-
 #include "main_native.h"
 
 // TODO find a better place for these!

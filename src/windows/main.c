@@ -23,6 +23,7 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+#include "../layout/background.h" // TODO do we want to remove this?
 #include "../ui/draw.h"
 #include "../ui/dropdown.h"
 #include "../ui/edit.h"

@@ -6,6 +6,10 @@
 #include "../self.h"
 #include "../theme.h"
 
+#include "../native/clipboard.h"
+#include "../native/notify.h"
+#include "../native/ptt.h"
+
 #include "../ui/button.h"
 #include "../ui/draw.h"
 #include "../ui/dropdown.h"
