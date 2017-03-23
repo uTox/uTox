@@ -489,15 +489,13 @@ int GL_drawtext(int x, int xmax, int y, char *str, uint16_t length) {
     glBindTexture(GL_TEXTURE_2D, sfont->texture);
     int c = 0;
 
-    GLYPH *  g;
-    uint8_t  len;
-    uint32_t ch;
     while (length > 0) {
-        len = utf8_len_read(str, &ch);
+        uint32_t ch;
+        uint8_t  len = utf8_len_read(str, &ch);
         str += len;
         length -= len;
 
-        g = font_getglyph(sfont, ch);
+        GLYPH *g = font_getglyph(sfont, ch);
         if (g) {
             if (x + g->xadvance > xmax) {
                 x = -x;
