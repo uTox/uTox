@@ -1,8 +1,8 @@
 #include "../filesys.h"
-#include "../filesys_native.h"
 
 #include "../debug.h"
 
+#include "../native/filesys.h"
 
 #ifdef __OBJC__
 #include "../main.h"

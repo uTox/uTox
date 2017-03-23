@@ -12,8 +12,15 @@
 #include <string.h>
 
 #ifdef __WIN32__
-#include <WinDef.h>
-#include <Windns.h>
+#include <windows.h>
+#include <windns.h>
+#else
+#ifdef __ANDROID__
+
+#else
+// I don't really know where the includes are on these platforms.
+#include "main_native.h"
+#endif
 #endif
 
 static struct tox3 {

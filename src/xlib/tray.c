@@ -5,6 +5,9 @@
 #include "../debug.h"
 #include "../main_native.h"
 
+#include "../native/image.h"
+#include "../native/ui.h"
+
 #include <string.h>
 #include <inttypes.h>
 

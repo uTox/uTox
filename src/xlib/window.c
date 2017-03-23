@@ -7,6 +7,9 @@
 #include "../macros.h"
 #include "../main_native.h"
 
+#include "../native/thread.h"
+#include "../native/time.h"
+
 #include "../ui/draw.h"
 
 #include "../layout/background.h"

@@ -16,6 +16,8 @@
 
 #include "../main.h"
 
+#include "../native/thread.h"
+
 #include <dlfcn.h>
 #include <errno.h>
 #include <stdbool.h>

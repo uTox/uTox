@@ -13,6 +13,8 @@
 
 #include "../av/utox_av.h"
 
+#include "../native/notify.h"
+
 #include "../ui/dropdown.h"
 
 #include "../layout/settings.h"

@@ -19,6 +19,10 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/clipboard.h"
+#include "../native/ui.h"
+
 #include "../ui/edit.h"
 #include "../ui/panel.h"
 

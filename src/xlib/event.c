@@ -16,6 +16,10 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/clipboard.h"
+#include "../native/ui.h"
+
 #include "../ui/draw.h" // Needed for enddraw. This should probably be changed.
 #include "../ui/edit.h"
 
