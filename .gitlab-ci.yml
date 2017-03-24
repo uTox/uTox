@@ -3,11 +3,11 @@ stages:
   - test
   - deploy
 
+
 #
 # build
 #
-
-linux:
+build:linux:64:
   stage: build
   cache:
     # keep cache across stages
@@ -27,8 +27,32 @@ linux:
     expire_in: 1h
     untracked: true
 
-windows:
+build:linux:muslc:
   stage: build
+  tags:
+    - alpine-tox
+  cache:
+    # keep cache across stages
+    key: "$CI_BUILD_REF_NAME/linux"
+    paths:
+      - cache/
+  variables:
+    TOXCORE_REPO: "TokTok/c-toxcore"
+    GL_BUILD: "linMUSL"
+  before_script:
+    - ./extra/gitlab/linux-before.sh
+  script:
+    - ./extra/gitlab/linux-script.sh
+  artifacts:
+    # keep compiled files as artifacts to pass to the test stage
+    # remove them after one hour
+    expire_in: 1h
+    untracked: true
+
+build:windows:64:
+  stage: build
+  tags:
+    - mingw64
   cache:
     paths:
       - cache/
@@ -40,32 +64,36 @@ windows:
   script:
     - ./extra/gitlab/windows-script.sh
 
-windows_legacy:
+build:windows:legacy:
   stage: build
+  tags:
+    - mingw64
   cache:
     paths:
       - cache/
   variables:
     TOXCORE_REPO: "TokTok/c-toxcore"
-    GL_BUILD: "winXP"
+    GL_BUILD: "winLEGACY"
   before_script:
     - ./extra/gitlab/windows_legacy-before.sh
   script:
     - ./extra/gitlab/windows_legacy-script.sh
 
-OSX:
+build:OSX:
   stage: build
+  tags:
+    - osx
   cache:
     paths:
       - cache/
   script:
     docker run --rm -u $(id -u):$(id -g) -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin arch-build ./extra/gitlab/osx-docker.sh
 
+
 #
 # test
 #
-
-linux-test:
+test:linux:
   stage: test
   cache:
     # keep cache across stages
@@ -75,7 +103,7 @@ linux-test:
   script:
     - ./run_tests.sh
   dependencies:
-    - linux
+    - build:linux:64
 
 
 #
