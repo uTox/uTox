@@ -96,6 +96,11 @@ deploy:nightly:
   stage: deploy
   script:
     - echo "Deploying to live server"
+    - pwd
+    - ls -la
+    - ls -la ../
+    - whoami
+    - ls -la /srv/http/utox.io/*
   environment:
     name: utox.io
     url: https://utox.io/nightly
