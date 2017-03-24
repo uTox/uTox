@@ -83,6 +83,8 @@ linux-test:
 #
 deploy:main:
   stage: deploy
+  tags:
+    - utox.io
   script:
     - echo "Deploying to live server"
   environment:
@@ -94,6 +96,8 @@ deploy:main:
 
 deploy:nightly:
   stage: deploy
+  tags:
+    - utox.io
   script:
     - echo "Deploying to live server"
     - pwd
