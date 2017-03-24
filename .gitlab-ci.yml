@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - deploy
 
 #
 # build
@@ -75,3 +76,31 @@ linux-test:
     - ./run_tests.sh
   dependencies:
     - linux
+
+
+#
+## Deploy
+#
+deploy:main:
+  stage: deploy
+  script:
+    - echo "Deploying to live server"
+  environment:
+    name: utox.io
+    url: https://utox.io/
+  when: manual
+  only:
+    - master
+
+deploy:nightly:
+  stage: deploy
+  script:
+    - echo "Deploying to live server"
+  environment:
+    name: utox.io
+    url: https://utox.io/nightly
+  when: manual
+  only:
+    - master
+    - develop
+    - deploy
