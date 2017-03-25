@@ -47,14 +47,13 @@ build:linux:muslc:
     - ./extra/common/filter_audio.sh
     - ./extra/gitlab/linux-muslc-before.sh
   script:
-    - ./extra/gitlab/linux-script.sh
+    - ./extra/gitlab/linux-muslc-script.sh
     - cp utox uTox-muslc-64
     # TODO static build here
   artifacts:
-    # keep compiled files as artifacts to pass to the test stage
-    # remove them after one hour
+    paths:
+      - uTox-muslc-64
     expire_in: 1h
-    untracked: true
 
 build:windows:64:
   stage: build
