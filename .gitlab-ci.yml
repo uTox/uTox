@@ -29,9 +29,10 @@ build:linux:64:
     untracked: true
 
 build:linux:muslc:
+  image: alpine-tox-xvfb
   stage: build
   tags:
-    - alpine-tox
+    - alpine-tox-xvfb
   cache:
     # keep cache across stages
     key: "$CI_BUILD_REF_NAME/linux"
