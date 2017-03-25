@@ -43,6 +43,7 @@ build:linux:muslc:
     GL_BUILD: "linMUSL"
   before_script:
     - apk add freetype-dev
+    - apk add openal-soft-dev
     - ./extra/gitlab/linux-muslc-before.sh
   script:
     - ./extra/gitlab/linux-script.sh
