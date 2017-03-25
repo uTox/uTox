@@ -1,8 +1,8 @@
 stages:
   - build
+  - dev_tool
   - test
   - deploy
-  - dev_env
 
 #
 # build
@@ -67,7 +67,7 @@ build:windows:64:
     - ./extra/gitlab/windows-before.sh
   script:
     - ./extra/gitlab/windows-script.sh
-    - cp utox.exe uTox-Win64.exe
+    - cp build_win/utox.exe uTox-Win64.exe
   artifacts:
     paths:
       - uTox-Win64.exe
@@ -87,7 +87,7 @@ build:windows:legacy:
     - ./extra/gitlab/windows_legacy-before.sh
   script:
     - ./extra/gitlab/windows_legacy-script.sh
-    - cp utox.exe uTox-Win32-LEGACY.exe
+    - cp build_win/utox.exe uTox-Win32-LEGACY.exe
   artifacts:
     paths:
       - uTox-Win32-LEGACY.exe
@@ -105,6 +105,24 @@ build:macos:
     - ls -la
     - ls -la ./*
 
+
+#
+## Create development zip
+#
+dev_tool:windows:
+  stage: dev_tool
+  tags:
+    - mingw64
+  script:
+    - echo "Creating development files for windows"
+    - echo "Pulling headers"
+    - echo "Pulling libs from build:windows"
+    - echo "zipping folder"
+    - echo "archving stuff :D"
+  only:
+    - master
+    - tags
+    - triggers
 
 #
 # test
@@ -157,4 +175,3 @@ deploy:nightly:
     - master
     - develop
     - deploy
-
