@@ -82,7 +82,8 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
 
         uint8_t *data = NULL;
 
-        uint32_t len = 0, real_len = 0, header_len = 0;
+        ssize_t len = 0;
+        uint32_t real_len = 0, header_len = 0;
         uint8_t *buffer = calloc(1, 0x10000);
         if (!buffer) {
             LOG_ERR("Updater", "Unable to malloc for the updater");
