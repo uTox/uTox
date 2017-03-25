@@ -160,6 +160,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
             if (out_len) {
                 *out_len = real_len;
             }
+
             return data;
         }
 
@@ -168,6 +169,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
     }
 
     LOG_ERR("Updater", "Generic error in updater. (This should never happen!)");
+    freeaddrinfo(root);
     return NULL;
 }
 
