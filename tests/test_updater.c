@@ -1,5 +1,4 @@
 #include "updater.h"
-#include "branding.h"
 
 #include "test.h"
 
