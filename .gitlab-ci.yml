@@ -43,7 +43,7 @@ build:linux:muslc:
     GL_BUILD: "linMUSL"
   before_script:
     - apk add freetype-dev
-    - ./extra/gitlab/linux-before.sh
+    - ./extra/gitlab/linux-muslc-before.sh
   script:
     - ./extra/gitlab/linux-script.sh
     - cp utox uTox-muslc-64
