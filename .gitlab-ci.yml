@@ -2,7 +2,7 @@ stages:
   - build
   - test
   - deploy
-
+  - dev_env
 
 #
 # build
@@ -21,6 +21,7 @@ build:linux:64:
     - ./extra/gitlab/linux-before.sh
   script:
     - ./extra/gitlab/linux-script.sh
+    - cp utox uTox-linux-x64
   artifacts:
     # keep compiled files as artifacts to pass to the test stage
     # remove them after one hour
@@ -40,9 +41,12 @@ build:linux:muslc:
     TOXCORE_REPO: "TokTok/c-toxcore"
     GL_BUILD: "linMUSL"
   before_script:
+    - apk add freetype-dev
     - ./extra/gitlab/linux-before.sh
   script:
     - ./extra/gitlab/linux-script.sh
+    - cp utox uTox-muslc-64
+    # TODO static build here
   artifacts:
     # keep compiled files as artifacts to pass to the test stage
     # remove them after one hour
@@ -63,6 +67,11 @@ build:windows:64:
     - ./extra/gitlab/windows-before.sh
   script:
     - ./extra/gitlab/windows-script.sh
+    - cp utox.exe uTox-Win64.exe
+  artifacts:
+    paths:
+      - uTox-Win64.exe
+    expire_in: 6h
 
 build:windows:legacy:
   stage: build
@@ -78,8 +87,13 @@ build:windows:legacy:
     - ./extra/gitlab/windows_legacy-before.sh
   script:
     - ./extra/gitlab/windows_legacy-script.sh
+    - cp utox.exe uTox-Win32-LEGACY.exe
+  artifacts:
+    paths:
+      - uTox-Win32-LEGACY.exe
+    expire_in: 6h
 
-build:OSX:
+build:macos:
   stage: build
   tags:
     - osx
@@ -87,7 +101,9 @@ build:OSX:
     paths:
       - cache/
   script:
-    docker run --rm -u $(id -u):$(id -g) -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin arch-build ./extra/gitlab/osx-docker.sh
+    - docker run --rm -u $(id -u):$(id -g) -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin arch-build ./extra/gitlab/osx-docker.sh
+    - ls -la
+    - ls -la ./*
 
 
 #
@@ -141,3 +157,4 @@ deploy:nightly:
     - master
     - develop
     - deploy
+
