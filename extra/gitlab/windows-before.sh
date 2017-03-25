@@ -72,7 +72,7 @@ cd ..
 rm -rf openal
 
 export CC=x86_64-w64-mingw32-gcc
-. ./extra/gitlab/filter_audio.sh
+. ./extra/common/filter_audio.sh
 x86_64-w64-mingw32-ranlib $CACHE_DIR/usr/lib/libfilteraudio.a
 unset CC
 

@@ -44,6 +44,7 @@ build:linux:muslc:
   before_script:
     - apk add freetype-dev
     - apk add openal-soft-dev
+    - ./extra/common/filter_audio.sh
     - ./extra/gitlab/linux-muslc-before.sh
   script:
     - ./extra/gitlab/linux-script.sh
