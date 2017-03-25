@@ -44,4 +44,4 @@ set_target_properties(test_chatlog PROPERTIES
 )
 target_link_libraries(test_updater utox-test-mock)
 target_link_libraries(test_updater sodium)
-add_test(NAME test_updater COMMAND test_chatlog)
+add_test(NAME test_updater COMMAND test_updater)
