@@ -1,5 +1,5 @@
-#ifndef NATIVE_WIN_KEYCODES_H
-#define NATIVE_WIN_KEYCODES_H
+#ifndef NATIVE_XLIB_KEYCODES_H
+#define NATIVE_XLIB_KEYCODES_H
 
 #include <X11/keysymdef.h>
 
