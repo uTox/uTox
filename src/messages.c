@@ -28,7 +28,9 @@
 // TODO including native .h files should never be needed, refactor filesys.h to provide necessary API
 #include "native/filesys.h"
 #include "native/image.h"
-#include "native/main.h" // openurl, NATIVE_IMAGE_IS_VALID, setselection, key codes
+#include "native/keyboard.h"
+#include "native/main.h" // NATIVE_IMAGE_IS_VALID
+#include "native/os.h"
 
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 

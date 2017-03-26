@@ -8,7 +8,7 @@
 #include "../self.h"
 #include "../tox.h"
 
-#include "../native/main.h"
+#include "../native/dialog.h"
 
 #include "../ui/button.h"
 #include "../ui/contextmenu.h"

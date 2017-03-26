@@ -11,7 +11,7 @@
 #include "../settings.h"
 #include "../theme.h"
 
-#include "../native/main.h" // openfilesend
+#include "../native/dialog.h"
 
 #include "../ui/draw.h"
 #include "../ui/edit.h"

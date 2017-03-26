@@ -7,9 +7,8 @@
 #include "../theme.h"
 
 #include "../native/clipboard.h"
-// #include "../native/main.h"
+#include "../native/keyboard.h"
 #include "../native/notify.h"
-#include "../native/ptt.h"
 
 #include "../ui/button.h"
 #include "../ui/draw.h"

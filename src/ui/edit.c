@@ -13,7 +13,8 @@
 #include "../ui.h"
 
 #include "../native/clipboard.h"
-#include "../native/main.h"
+#include "../native/keyboard.h"
+#include "../native/os.h"
 #include "../native/ui.h"
 
 static EDIT *active_edit;

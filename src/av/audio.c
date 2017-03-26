@@ -3,8 +3,8 @@
 #include "utox_av.h"
 
 #include "../native/audio.h"
+#include "../native/keyboard.h"
 #include "../native/thread.h"
-#include "../native/ptt.h"
 
 #include "../debug.h"
 #include "../friend.h"

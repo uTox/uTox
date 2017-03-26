@@ -23,7 +23,7 @@
 
 #include "../av/utox_av.h"
 
-#include "../native/main.h"
+#include "../native/os.h"
 
 #include "../ui/draw.h"
 #include "../ui/dropdown.h"

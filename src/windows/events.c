@@ -17,6 +17,7 @@
 #include "../av/utox_av.h"
 
 #include "../native/clipboard.h"
+#include "../native/keyboard.h"
 #include "../native/ui.h"
 
 #include "../ui/dropdown.h"
