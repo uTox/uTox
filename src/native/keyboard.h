@@ -3,16 +3,20 @@
 
 // Push-to-talk
 
+// Enable push-to-talk.
 void init_ptt(void);
 
-bool get_ptt_key(void); // Never used. Remove?
-
-bool set_ptt_key(void); // Never used. Remove?
+// Disable push-to-talk.
+void exit_ptt(void);
 
 // Returns a bool indicating whether you should send audio or not.
 bool check_ptt_key(void);
 
-void exit_ptt(void);
+// TODO: Make it possible to rebind push-to-talk key.
+// Unimplemented.
+bool get_ptt_key(void);
+// Unimplemented.
+bool set_ptt_key(void);
 
 
 // Native keycodes

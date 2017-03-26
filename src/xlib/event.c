@@ -17,7 +17,7 @@
 #include "../av/utox_av.h"
 
 #include "../native/clipboard.h"
-#include "../native/main.h"
+#include "../native/keyboard.h"
 #include "../native/ui.h"
 
 #include "../ui/draw.h" // Needed for enddraw. This should probably be changed.
