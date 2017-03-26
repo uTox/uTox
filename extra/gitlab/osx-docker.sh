@@ -70,7 +70,7 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
   # mkdir _build
   # autoreconf -fi
   # (cd _build && ../configure --prefix=$CACHE_DIR/usr)
-  make -C_build -j8
+  make -C_build  || make -C_build VERBOSE=1
   make -C_build install
   mv toxcore.sha "$CACHE_DIR/toxcore.sha"
 fi
@@ -79,5 +79,11 @@ cd ..
 
 ls -la $CACHE_DIR
 
-cmake . -DCMAKE_SYSTEM_NAME=Darwin -DENABLE_ASAN=OFF -DFILTER_AUDIO=OFF -DUTOX_STATIC=OFF -DTOXCORE_STATIC=ON -DENABLE_TESTS=OFF -DENABLE_WERROR=OFF
+cmake . -DCMAKE_SYSTEM_NAME=Darwin \
+        -DENABLE_ASAN=OFF \
+        -DFILTER_AUDIO=OFF \
+        -DUTOX_STATIC=OFF \
+        -DTOXCORE_STATIC=ON \
+        -DENABLE_TESTS=OFF \
+        -DENABLE_WERROR=OFF
 make
