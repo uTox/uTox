@@ -52,7 +52,7 @@ cd ..
 
 # install toxcore
 if ! [ -d toxcore ]; then
-  git clone --depth=1 --branch=master https://github.com/TokTok/c-toxcore.git toxcore
+  git clone --depth=1 --branch=$TOXCORE_REPO_BRANCH $TOXCORE_REPO_URI toxcore
 fi
 cd toxcore
 git rev-parse HEAD > toxcore.sha
@@ -61,7 +61,12 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
     rm -rf _build
   fi
   find . -type f -exec sed -i 's/BUILD_TOXAV FALSE/BUILD_TOXAV TRUE/g' {} +
-  cmake -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DCMAKE_SYSTEM_NAME=Darwin -DBUILD_TOXAV=ON
+  cmake -B_build -H. \
+        -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr \
+        -DENABLE_STATIC=ON \
+        -DENABLE_SHARED=OFF \
+        -DCMAKE_SYSTEM_NAME=Darwin \
+        -DBUILD_TOXAV=ON
   # mkdir _build
   # autoreconf -fi
   # (cd _build && ../configure --prefix=$CACHE_DIR/usr)

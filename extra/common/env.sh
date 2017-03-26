@@ -3,6 +3,9 @@
 export CACHE_DIR=${CACHE_DIR=""}
 
 export TOXCORE_REPO="TokTok/c-toxcore"
+export TOXCORE_REPO_URI="https://github.com/TokTok/c-toxcore.git"
+# export TOXCORE_REPO_URI="https://gitlab.com/Toxcore/toxcore.git"
+export TOXCORE_REPO_BRANCH="v0.1.4"
 
 export CFLAGS="-I$CACHE_DIR/usr/include -I$CACHE_DIR/usr/include/opus"
 export LDFLAGS="-L$CACHE_DIR/usr/lib"
