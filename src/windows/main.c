@@ -73,7 +73,7 @@ void openfilesend(void) {
     };
 
     if (GetOpenFileName(&ofn)) {
-        FRIEND *f = flist_get_selected()->data;
+        FRIEND *f = flist_get_friend();
         UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
         if (!msg) {
             LOG_ERR("Windows", "Unable to calloc for file send msg");
@@ -243,9 +243,9 @@ void copy(int value) {
     if (edit_active()) {
         len = edit_copy(data, max_size - 1);
         data[len] = 0;
-    } else if (flist_get_selected()->item == ITEM_FRIEND) {
+    } else if (flist_get_friend()) {
         len = messages_selection(&messages_friend, data, max_size, value);
-    } else if (flist_get_selected()->item == ITEM_GROUP) {
+    } else if (flist_get_groupchat()) {
         len = messages_selection(&messages_group, data, max_size, value);
     } else {
         return;
@@ -322,7 +322,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     free(bits);
 
     NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(flist_get_selected()->data, image, width, height, out, size);
+    friend_sendimage(flist_get_friend(), image, width, height, out, size);
 }
 
 void paste(void) {
@@ -330,8 +330,8 @@ void paste(void) {
     HANDLE h = GetClipboardData(CF_UNICODETEXT);
     if (!h) {
         h = GetClipboardData(CF_BITMAP);
-        if (h && flist_get_selected()->item == ITEM_FRIEND) {
-            FRIEND *f = flist_get_selected()->data;
+        if (h && flist_get_friend()) {
+            FRIEND *f = flist_get_friend();
             if (!f->online) {
                 return;
             }

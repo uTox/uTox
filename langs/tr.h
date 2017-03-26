@@ -87,7 +87,7 @@ msgstr("Mesaj Gönder")
 msgid(ADD)
 msgstr("Ekle")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Arkadaşlık Talebi")
 
 msgid(USERSETTINGS)

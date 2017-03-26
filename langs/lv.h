@@ -79,7 +79,7 @@ msgstr("Ziņa")
 msgid(ADD)
 msgstr("Pievienot")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Draugu pieprasījums")
 
 msgid(USERSETTINGS)

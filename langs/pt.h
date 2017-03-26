@@ -103,7 +103,7 @@ msgstr("Adicionar")
 msgid(CREATEGROUPCHAT)
 msgstr("Criar Conversa de Grupo")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Pedido de Amizade")
 
 msgid(USERSETTINGS)

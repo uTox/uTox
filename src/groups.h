@@ -56,9 +56,6 @@ typedef struct groupchat {
     GROUP_PEER **peer;
 } GROUPCHAT;
 
-// #pragma message "GROUPCHAT needs to become dynamic"
-GROUPCHAT group[UTOX_MAX_NUM_GROUPS];
-
 /* Initialize a new groupchat */
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group);
 

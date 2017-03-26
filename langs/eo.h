@@ -133,7 +133,7 @@ msgstr("Aldoni")
 msgid(CREATEGROUPCHAT)
 msgstr("Krei Grupbabilejo")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Amikiĝpeto")
 
 msgid(USERSETTINGS)

@@ -136,7 +136,7 @@ msgstr("Додати")
 msgid(CREATEGROUPCHAT)
 msgstr("Створити групову бесіду")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Запит на додавання до списку друзів")
 
 msgid(USERSETTINGS)

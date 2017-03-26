@@ -6,7 +6,7 @@
 
 typedef struct groupchat GROUPCHAT;
 typedef struct utox_friend FRIEND;
-typedef struct utox_friend_request FRIENDREQ;
+typedef struct utox_friend_request FREQUEST;
 
 // call to switch to previous or next friend in list
 void flist_previous_tab(void);
@@ -31,24 +31,21 @@ typedef enum {
     ITEM_SETTINGS,
     ITEM_ADD,
     ITEM_FRIEND,
-    ITEM_FRIEND_ADD,
+    ITEM_FREQUEST,
     ITEM_GROUP,
     ITEM_GROUP_CREATE,
 } ITEM_TYPE;
 
 typedef struct {
     ITEM_TYPE item;
-    char      namestr[15];
-    void *    data;
+    uint32_t id_number;
 } ITEM;
 
-ITEM *right_mouse_item;
-
 void flist_start(void);
-void flist_addfriend(FRIEND *f);
-void flist_addfriend2(FRIEND *f, FRIENDREQ *req);
-void flist_addgroup(GROUPCHAT *g);
-void flist_addfriendreq(FRIENDREQ *f);
+void flist_add_friend(FRIEND *f);
+void flist_add_friend_accepted(FRIEND *f, FREQUEST *req);
+void flist_add_group(GROUPCHAT *g);
+void flist_add_frequest(FREQUEST *f);
 void flist_deletesitem(void);
 void flist_delete_rmouse_item(void);
 
@@ -67,8 +64,8 @@ void flist_select_last(void);
 void flist_dump_contacts(void);
 void flist_reload_contacts(void);
 
-ITEM *flist_get_selected(void);
 FRIEND *flist_get_friend(void);
+FREQUEST *flist_get_frequest(void);
 GROUPCHAT *flist_get_groupchat(void);
 ITEM_TYPE flist_get_type(void);
 

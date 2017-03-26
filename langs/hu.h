@@ -85,7 +85,7 @@ msgstr("Üzenet")
 msgid(ADD)
 msgstr("Hozzáadás")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Partnerkérelem")
 
 msgid(USERSETTINGS)

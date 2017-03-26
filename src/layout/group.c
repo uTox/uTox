@@ -143,9 +143,9 @@ static void button_group_audio_on_mup(void) {
     }
 
     if (g->audio_calling) {
-        postmessage_toxcore(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
+        postmessage_toxcore(TOX_GROUP_AUDIO_END, g->number, 0, NULL);
     } else {
-        postmessage_toxcore(TOX_GROUP_AUDIO_START, (g - group), 0, NULL);
+        postmessage_toxcore(TOX_GROUP_AUDIO_START, g->number, 0, NULL);
     }
 }
 
@@ -431,7 +431,7 @@ void e_chat_msg_onenter(EDIT *edit) {
             return;
         }
         memcpy(d, text, length);
-        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
+        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), g->number, length, d);
     }
 
     completion.active = 0;
@@ -489,10 +489,15 @@ EDIT edit_chat_msg_group = {
 };
 
 static void e_group_topic_onenter(EDIT *edit) {
-    GROUPCHAT *g = right_mouse_item->data;
-    void *     d = malloc(edit->length);
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR("Layout Groups", "Can't set a topic when a group isn't selected!");
+        return;
+    }
+
+    void *d = malloc(edit->length);
     memcpy(d, edit->data, edit->length);
-    postmessage_toxcore(TOX_GROUP_SET_TOPIC, (g - group), edit->length, d);
+    postmessage_toxcore(TOX_GROUP_SET_TOPIC, g->number, edit->length, d);
 }
 
 static char e_group_topic_data[1024];
@@ -546,7 +551,7 @@ void e_msg_onenter_group(EDIT *edit) {
             return;
         }
         memcpy(d, text, length);
-        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
+        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), g->number, length, d);
     }
 
     completion.active = 0;

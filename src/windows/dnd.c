@@ -65,7 +65,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
     *pdwEffect = DROPEFFECT_COPY;
     LOG_NOTE("DnD", "Droppped!" );
 
-    if (flist_get_selected()->item != ITEM_FRIEND) {
+    if (!flist_get_friend()) {
         return S_OK;
     }
 
@@ -109,7 +109,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
             }
 
             msg->name = (uint8_t *)path;
-            postmessage_toxcore(TOX_FILE_SEND_NEW, ((FRIEND*)flist_get_selected()->data)->number, 0, msg);
+            postmessage_toxcore(TOX_FILE_SEND_NEW, flist_get_friend()->number, 0, msg);
             LOG_INFO("WINDND", "File number %i sent!" , i);
         }
 

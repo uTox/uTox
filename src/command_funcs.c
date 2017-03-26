@@ -64,7 +64,7 @@ bool slash_topic(void *object, char *arg, int arg_length) {
     void *d = malloc(arg_length);
     if (d) {
         memcpy(d, arg, arg_length);
-        postmessage_toxcore(TOX_GROUP_SET_TOPIC, (g - group), arg_length, d);
+        postmessage_toxcore(TOX_GROUP_SET_TOPIC, g->number, arg_length, d);
         return true;
     }
     LOG_ERR("slash_topic", " Could not allocate memory.");

@@ -136,7 +136,7 @@ msgstr("添加")
 msgid(CREATEGROUPCHAT)
 msgstr("创建一个群聊")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("好友请求")
 
 msgid(USERSETTINGS)

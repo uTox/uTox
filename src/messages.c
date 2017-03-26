@@ -179,7 +179,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
 
     message_updateheight(m, msg);
 
-    if (m->is_groupchat && flist_get_selected()->data == &group[m->id]) {
+    if (flist_get_groupchat() && m->is_groupchat && flist_get_groupchat() == get_group(m->id)) {
         m->panel.content_scroll->content_height = m->height;
     } else if (flist_get_friend() && flist_get_friend()->number == get_friend(m->id)->number) {
         m->panel.content_scroll->content_height = m->height;
@@ -1691,11 +1691,12 @@ void messages_updateheight(MESSAGES *m, int width) {
 bool messages_char(uint32_t ch) {
     MESSAGES *m;
 
-    if (flist_get_selected()->item == ITEM_FRIEND) {
+    if (flist_get_friend()) {
         m = messages_friend.object;
-    } else if (flist_get_selected()->item == ITEM_GROUP) {
+    } else if (flist_get_groupchat()) {
         m = messages_group.object;
     } else {
+        LOG_TRACE("Messages", "Can't type to nowhere");
         return false;
     }
 

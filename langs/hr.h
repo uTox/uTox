@@ -130,7 +130,7 @@ msgstr("Dodaj")
 msgid(CREATEGROUPCHAT)
 msgstr("Stvori grupni chat")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Zahtjev za prijateljstvom")
 
 msgid(USERSETTINGS)

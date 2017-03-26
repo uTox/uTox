@@ -59,7 +59,8 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
     int i = 0;
     while(commands[i].cmd){
         if (commands[i].cmd_length == cmd_length && memcmp(commands[i].cmd, *cmd, cmd_length) == 0) {
-            bool ret = commands[i].func(flist_get_selected()->data, *argument, argument_length);
+            void* object = flist_get_friend() ? (void*)flist_get_friend() : (void*)flist_get_groupchat();
+            bool ret = commands[i].func(object, *argument, argument_length);
             if (ret) {
                 cmd_length = -1;
             }

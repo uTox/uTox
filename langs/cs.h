@@ -85,7 +85,7 @@ msgstr("Zpráva")
 msgid(ADD)
 msgstr("Přidej")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Žádost o kontakt")
 
 msgid(USERSETTINGS)

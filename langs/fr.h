@@ -224,7 +224,7 @@ msgstr("Basculer le filtrage des contacts hors ligne.")
 msgid(ADD)
 msgstr("Ajouter")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Demande d'ami")
 
 msgid(USERSETTINGS)

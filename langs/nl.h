@@ -88,7 +88,7 @@ msgstr("Bericht")
 msgid(ADD)
 msgstr("Toevoegen")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Vriendschapsverzoek")
 
 msgid(USERSETTINGS)

@@ -266,7 +266,7 @@ msgstr("Filterung von offline Kontakten umschalten.")
 msgid(ADD)
 msgstr("Hinzufügen")
 
-msgid(FRIENDREQUEST)
+msgid(FREQUESTUEST)
 msgstr("Freundschaftsanfrage")
 
 msgid(USERSETTINGS)
