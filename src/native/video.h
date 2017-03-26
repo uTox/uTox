@@ -1,5 +1,5 @@
-#ifndef NATIVE_TIME_H
-#define NATIVE_TIME_H
+#ifndef NATIVE_VIDEO_H
+#define NATIVE_VIDEO_H
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize);
 void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height);
