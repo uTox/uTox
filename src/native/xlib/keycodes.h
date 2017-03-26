@@ -1,6 +1,7 @@
 #ifndef NATIVE_XLIB_KEYCODES_H
 #define NATIVE_XLIB_KEYCODES_H
 
+#define XK_MISCELLANY
 #include <X11/keysymdef.h>
 
 #define KEY_BACK XK_BackSpace
