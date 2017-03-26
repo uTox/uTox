@@ -14,9 +14,11 @@
 #ifdef __WIN32__
 #include <windows.h>
 #include <windns.h>
-#else
-// I don't really know where the includes are on these platforms. Someone else PTAL.
+#elif defined __ANDROID__
+// TODO: Include the right things for Android.
 #include "native/main.h"
+#else
+#include <resolv.h>
 #endif
 
 static struct tox3 {
