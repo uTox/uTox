@@ -85,7 +85,7 @@ msgstr("Besked")
 msgid(ADD)
 msgstr("Tilføj")
 
-msgid(FREQUESTUEST)
+msgid(FRIENDREQUEST)
 msgstr("Venneanmodning")
 
 msgid(USERSETTINGS)

@@ -85,7 +85,7 @@ msgstr("Mensagem")
 msgid(ADD)
 msgstr("Adicionar")
 
-msgid(FREQUESTUEST)
+msgid(FRIENDREQUEST)
 msgstr("Pedidos de amizade")
 
 msgid(USERSETTINGS)

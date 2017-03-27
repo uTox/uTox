@@ -296,7 +296,7 @@ msgstr("Tylko podłączone kontakty")
 msgid(ADD)
 msgstr("Dodaj")
 
-msgid(FREQUESTUEST)
+msgid(FRIENDREQUEST)
 msgstr("Prośba o dodanie do znajomych")
 
 msgid(USERSETTINGS)

@@ -46,7 +46,7 @@ void flist_add_friend(FRIEND *f);
 void flist_add_friend_accepted(FRIEND *f, FREQUEST *req);
 void flist_add_group(GROUPCHAT *g);
 void flist_add_frequest(FREQUEST *f);
-void flist_deletesitem(void);
+void flist_delete_sitem(void);
 void flist_delete_rmouse_item(void);
 
 void flist_selectchat(int index);

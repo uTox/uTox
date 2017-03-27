@@ -97,7 +97,7 @@ msgstr("Legg til")
 msgid(CREATEGROUPCHAT)
 msgstr("Lag Gruppesamtale")
 
-msgid(FREQUESTUEST)
+msgid(FRIENDREQUEST)
 msgstr("Venneforespørsel")
 
 msgid(USERSETTINGS)

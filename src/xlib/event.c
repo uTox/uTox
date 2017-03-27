@@ -153,7 +153,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
                 XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grab.dn_x, grab.dn_y, grab.up_x, grab.up_y);
                 if (pointergrab == 1) {
                     FRIEND *f = flist_get_friend();
-                    if (flist_get_friend() && f->online) {
+                    if (f && f->online) {
                         XImage *img = XGetImage(display, RootWindow(display, def_screen_num), grab.dn_x, grab.dn_y, grab.up_x,
                                                 grab.up_y, XAllPlanes(), ZPixmap);
                         if (img) {

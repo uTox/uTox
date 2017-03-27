@@ -96,7 +96,7 @@ msgstr("Meddelande")
 msgid(ADD)
 msgstr("Lägg till")
 
-msgid(FREQUESTUEST)
+msgid(FRIENDREQUEST)
 msgstr("Vänskapsinbjudan")
 
 msgid(USERSETTINGS)

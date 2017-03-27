@@ -23,7 +23,7 @@
 
 #include "main.h" // addfriend_status
 
-FRIEND *friend = NULL;
+static FRIEND *friend = NULL;
 
 FRIEND *get_friend(uint32_t friend_number) {
     if (friend_number >= self.friend_list_size) { //friend doesnt exist if true
@@ -53,8 +53,8 @@ static FRIEND *friend_make(uint32_t friend_number) {
     return &friend[friend_number];
 }
 
-FREQUEST *frequests = NULL;
-uint16_t frequest_list_size = 0;
+static FREQUEST *frequests = NULL;
+static uint16_t frequest_list_size = 0;
 
 FREQUEST *get_frequest(uint16_t frequest_number) {
     if (frequest_number >= frequest_list_size) { //frequest doesnt exist if true
@@ -115,7 +115,7 @@ void friend_request_free(uint16_t number) {
 
     // TODO this needs a test
     if (r->number >= frequest_list_size -1) {
-        FREQUEST *tmp = realloc(frequests, sizeof(FREQUEST) * frequest_list_size -1);
+        FREQUEST *tmp = realloc(frequests, sizeof(FREQUEST) * (frequest_list_size - 1));
         if (tmp) {
             frequests = tmp;
             --frequest_list_size;
@@ -451,6 +451,7 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
 void friend_history_clear(FRIEND *f) {
     if (!f) {
         LOG_ERR("FList", "Unable to clear history for missing friend.");
+        return;
     }
     messages_clear_all(&f->msg);
     utox_remove_friend_chatlog(f->id_str);

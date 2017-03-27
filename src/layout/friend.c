@@ -70,7 +70,7 @@ static void draw_friend_request(int x, int y, int w, int h) {
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FREQUESTUEST);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FRIENDREQUEST);
 
     if (req->msg && req->length) {
         setfont(FONT_TEXT);

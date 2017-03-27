@@ -358,7 +358,7 @@ msgstr("Toggle filtering of offline contacts.")
 msgid(ADD)
 msgstr("Add")
 
-msgid(FREQUESTUEST)
+msgid(FRIENDREQUEST)
 msgstr("Friend Request")
 
 msgid(USERSETTINGS)

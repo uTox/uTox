@@ -19,7 +19,7 @@
 #include <string.h>
 #include <tox/tox.h>
 
-GROUPCHAT group[UTOX_MAX_NUM_GROUPS];
+static GROUPCHAT group[UTOX_MAX_NUM_GROUPS];
 
 GROUPCHAT *get_group(uint32_t group_number) {
     if (group_number >= UTOX_MAX_NUM_GROUPS) {

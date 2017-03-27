@@ -99,7 +99,7 @@ msgstr("संदेश")
 //msgid(SWITCHPROFILE)
 //msgstr("Switch Profile")
 
-msgid(FREQUESTUEST)
+msgid(FRIENDREQUEST)
 msgstr("मित्र Request")
 
 //TODO: Same as in English? Localize or remove.

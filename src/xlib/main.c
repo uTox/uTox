@@ -351,6 +351,7 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
     FRIEND *f = flist_get_friend();
     if (!f) {
         LOG_ERR("XLIB", "Can't paste data to missing friend.");
+        return;
     }
 
     size_t size = (size_t)len;

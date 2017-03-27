@@ -87,7 +87,7 @@ msgstr("メッセージ")
 msgid(ADD)
 msgstr("追加")
 
-msgid(FREQUESTUEST)
+msgid(FRIENDREQUEST)
 msgstr("フレンド要求")
 
 msgid(USERSETTINGS)

@@ -688,7 +688,7 @@ static void deleteitem(ITEM *i) {
     redraw(); // flist_draw();
 }
 
-void flist_deletesitem(void) {
+void flist_delete_sitem(void) {
     if (selected_item >= item && selected_item < item + COUNTOF(item)) {
         deleteitem(selected_item);
     }
@@ -774,6 +774,7 @@ static void push_selected(void) {
                 LOG_ERR("Flist", "id_number is out of sync with friend_list"); // TODO should this be an exit code?
                                                                                // It's a critical error that could do
                                                                                // a lot of damage
+                return;
             }
             memcpy(push_pop.data, &f->cid, TOX_PUBLIC_KEY_SIZE);
             break;

@@ -496,6 +496,10 @@ static void e_group_topic_onenter(EDIT *edit) {
     }
 
     void *d = malloc(edit->length);
+    if (!d){
+        LOG_ERR("Layout Groups", "Unable to change group topic.");
+        return;
+    }
     memcpy(d, edit->data, edit->length);
     postmessage_toxcore(TOX_GROUP_SET_TOPIC, g->number, edit->length, d);
 }
