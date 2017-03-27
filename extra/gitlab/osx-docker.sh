@@ -1,15 +1,29 @@
 #!/bin/sh
-
-set -eux
+set -eu
 
 export GL_BUILD="macos"
 
 . ./extra/gitlab/env.sh
 
-export CFLAGS=" -m64 -I/workdir/cache/macos/usr/include -isystem /workdir/cache/macos/usr/include -isystem /workdir/cache/macos/usr/include/opus -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk -mmacosx-version-min=10.10 -m64 -arch x86_64 -DNDEBUG -O3 -Wall"
-export LDFLAGS="-L/workdir/cache/macos/usr/lib -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk -mmacosx-version-min=10.10 -m64 -arch x86_64"
+mkdir -p ${CACHE_DIR}/usr/lib
+mkdir -p ${CACHE_DIR}/usr/include
 
-# brew install yasm
+export TARGET_HOST="--host=x86_64-apple-darwin14"
+export TARGET_TRGT="--target=x86_64-darwin14-gcc"
+
+export CFLAGS="${CFLAGS} -m64 "
+export CFLAGS="${CFLAGS} -I/workdir/cache/macos/usr/include "
+export CFLAGS="${CFLAGS} -I${CACHE_DIR}/usr/include "
+export CFLAGS="${CFLAGS} -isystem /workdir/cache/macos/usr/include "
+export CFLAGS="${CFLAGS} -isystem /workdir/cache/macos/usr/include/opus "
+export CFLAGS="${CFLAGS} -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk "
+export CFLAGS="${CFLAGS} -mmacosx-version-min=10.10 "
+export CFLAGS="${CFLAGS} -m64 -arch x86_64 -DNDEBUG -O3 -Wall"
+
+export LDFLAGS="${LDFLAGS} -L/workdir/cache/macos/usr/lib "
+export LDFLAGS="${LDFLAGS} -L${CACHE_DIR}/usr/lib "
+export LDFLAGS="${LDFLAGS} -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk "
+export LDFLAGS="${LDFLAGS} -mmacosx-version-min=10.10 -m64 -arch x86_64"
 
 # install libsodium, needed for crypto
 if ! [ -d libsodium ]; then
@@ -19,7 +33,9 @@ cd libsodium
 git rev-parse HEAD > libsodium.sha
 if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libsodium.sha); then
   ./autogen.sh
-  ./configure --prefix="$CACHE_DIR/usr" --host="x86_64-apple-darwin14" --quiet
+  ./configure $TARGET_HOST \
+              --prefix="$CACHE_DIR/usr" \
+              --quiet
   # libtool is broken when it comes to spaces in vars, so we have to neuter them
   # I live in backslash escapement hell...
   # This is also why we can't use ../common/*
@@ -31,24 +47,8 @@ fi
 cd ..
 # rm -rf libsodium
 
-
-export TARGET_HOST="--host=x86_64-apple-darwin14"
 . ./extra/common/build_opus.sh
-
-# install libvpx, needed for video encoding/decoding
-if ! [ -d libvpx ]; then
-  git clone --depth=1 --branch=v1.6.0 https://chromium.googlesource.com/webm/libvpx
-fi
-cd libvpx
-git rev-parse HEAD > libvpx.sha
-if ! ([ -f "$CACHE_DIR/libvpx.sha" ] && diff "$CACHE_DIR/libvpx.sha" libvpx.sha); then
-  ./configure --target="x86_64-darwin14-gcc" --prefix=$CACHE_DIR/usr --enable-static --disable-examples --disable-unit-tests --disable-shared
-  make -j8
-  make install
-  mv libvpx.sha "$CACHE_DIR/libvpx.sha"
-fi
-cd ..
-# rm -rf libvpx
+. ./extra/common/build_vpx.sh
 
 # install toxcore
 if ! [ -d toxcore ]; then
@@ -61,12 +61,16 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
     rm -rf _build
   fi
   find . -type f -exec sed -i 's/BUILD_TOXAV FALSE/BUILD_TOXAV TRUE/g' {} +
+  # OSXCROSS is trying to be fancy, it's also wrong.
+  # We can't use a common build_toxcore.sh because we need to
+  # be able to set our own PKG_CONFIG_EXE
   cmake -B_build -H. \
         -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr \
         -DENABLE_STATIC=ON \
         -DENABLE_SHARED=OFF \
         -DCMAKE_SYSTEM_NAME=Darwin \
-        -DBUILD_TOXAV=ON
+        -DBUILD_TOXAV=ON \
+        -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config
   # mkdir _build
   # autoreconf -fi
   # (cd _build && ../configure --prefix=$CACHE_DIR/usr)
