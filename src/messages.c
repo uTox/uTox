@@ -671,12 +671,10 @@ static int messages_draw_image(MSG_IMG *img, int x, int y, uint32_t maxwidth) {
         draw_image(img->image, x, y, maxwidth, img->h * maxwidth / img->w, 0, 0);
 
         image_set_scale(img->image, 1.0);
+    } else if (img->w > maxwidth) {
+        draw_image(img->image, x, y, maxwidth, img->h, (int)((double)(img->w - maxwidth) * img->position), 0);
     } else {
-        if (img->w > maxwidth) {
-            draw_image(img->image, x, y, maxwidth, img->h, (int)((double)(img->w - maxwidth) * img->position), 0);
-        } else {
-            draw_image(img->image, x, y, img->w, img->h, 0, 0);
-        }
+        draw_image(img->image, x, y, img->w, img->h, 0, 0);
     }
 
     return (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;

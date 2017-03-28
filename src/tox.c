@@ -838,6 +838,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             break;
         }
+
         case TOX_FILE_SEND_NEW_INLINE: {
             /* param1: friend id
                data: pointer to a TOX_SEND_INLINE_MSG struct
@@ -850,11 +851,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             free(data);
             break;
         }
+
         case TOX_FILE_ACCEPT: {
             /* param1: friend #
              * param2: file #
              * data: path to write file */
-            if (utox_file_start_write(param1, param2, data, 0) == 0) {
+            if (utox_file_start_write(param1, param2, data, 0)) {
                 /*  tox, friend#, file#,        START_FILE      */
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
@@ -863,11 +865,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             free(data);
             break;
         }
+
         case TOX_FILE_ACCEPT_AUTO: {
             /* param1: friend #
              * param2: file #
              * data: open handle to file */
-            if (utox_file_start_write(param1, param2, data, 1) == 0) {
+            if (utox_file_start_write(param1, param2, data, 1)) {
                 /*  tox, friend#, file#,        START_FILE      */
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
@@ -875,6 +878,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
             break;
         }
+
         case TOX_FILE_RESUME: {
             if (data) {
                 param2 = ((FILE_TRANSFER*)data)->file_number;
@@ -882,6 +886,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             break;
         }
+
         case TOX_FILE_PAUSE: {
             if (data) {
                 param2 = ((FILE_TRANSFER*)data)->file_number;
@@ -889,6 +894,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
             break;
         }
+
         case TOX_FILE_CANCEL: {
             if (data) {
                 param2 = ((FILE_TRANSFER*)data)->file_number;
@@ -896,6 +902,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             break;
         }
+
 
         /* Audio & Video */
         case TOX_CALL_SEND: {

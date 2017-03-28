@@ -1246,7 +1246,8 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
 bool ft_set_ui_data(uint32_t friend_number, uint32_t file_number, MSG_HEADER *ui_data) {
     FILE_TRANSFER *file = get_file_transfer(friend_number, file_number);
     if (!file) {
-        LOG_WARN("FileTransfer", "Unable to set ui_data for unknown file number");
+        LOG_WARN("FileTransfer", "Unable to set ui_data for unknown file number %u with friend %u",
+                 file_number, friend_number);
         return false;
     }
 
@@ -1273,7 +1274,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         return;
     }
 
-    TOX_ERR_FILE_SEND_CHUNK error;
+    TOX_ERR_FILE_SEND_CHUNK error = 0;
     if (ft->in_memory) {
         if (!ft->via.memory) {
             LOG_ERR("FileTransfer", "ERROR READING FROM MEMORY! (%u & %u)", friend_number, file_number);
@@ -1319,30 +1320,30 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     ft->current_size += length;
 }
 
-int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file) {
+bool utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file) {
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft) {
         LOG_ERR("FileTransfer", "FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
                     friend_number, file_number);
-        return -1;
+        return false;
     }
 
     if (is_file && file) {
         ft->via.file = (FILE *)file;
-        return 0;
-    } else {
-        snprintf((char *)ft->path, UTOX_FILE_NAME_LENGTH, "%s", file);
-
-        // TODO use native functions to open this file
-        ft->via.file = fopen(file, "wb");
-        if (!ft->via.file) {
-            LOG_ERR("FileTransfer", "The file we're supposed to write to couldn't be opened\n\t\t\"%s\"", ft->path);
-            break_file(ft);
-            return -1;
-        }
+        return true;
     }
 
-    return 0;
+    snprintf((char *)ft->path, UTOX_FILE_NAME_LENGTH, "%s", file);
+
+    // TODO use native functions to open this file
+    ft->via.file = fopen(file, "wb");
+    if (!ft->via.file) {
+        LOG_ERR("FileTransfer", "The file we're supposed to write to couldn't be opened\n\t\t\"%s\"", ft->path);
+        break_file(ft);
+        return false;
+    }
+
+    return true;
 }
 
 void utox_set_callbacks_file_transfer(Tox *tox) {

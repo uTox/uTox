@@ -193,6 +193,10 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
 
         /* File transfer messages */
+
+        // data:   FILE_TRANSFER *file
+        // param1: uint32_t friend_number
+        // param2: uint32_t file_number
         case FILE_SEND_NEW: {
             if (!data) {
                 break;
@@ -210,7 +214,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);
-            ft_set_ui_data(file->file_number, file->friend_number, m);
+            ft_set_ui_data(file->friend_number, file->file_number, m);
 
             free(data);
             redraw();
@@ -347,8 +351,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         // param1: UTOX_FILE_TRANSFER_STATUS file_status
         // File is done, failed or broken.
         case FILE_STATUS_DONE: {
+            LOG_INFO("uTox", "FT done. Updating UI.");
             if (!data) {
-                LOG_ERR("uTox", "FT done but no data about it.");
+                LOG_INFO("uTox", "FT done but no data about it.");
                 break;
             }
 
