@@ -19,12 +19,14 @@ static void fid_to_string(char *dest, uint8_t *src) {
     to_hex(dest, src, TOX_FILE_ID_LENGTH);
 }
 
+// Accepts a file number and returns indicating whether it's an incoming one or not.
 static bool is_incoming_ft(uint32_t file_number) {
     // This is Toxcore magic.
     return file_number >= (1 << 16);
 }
 
-static uint32_t unmagic_incoming_file_number(uint32_t file_number) {
+// Accepts a Toxcore incoming file number and returns a normal one.
+static uint32_t detox_incoming_file_number(uint32_t file_number) {
     return (file_number >> 16) - 1;
 }
 
@@ -35,7 +37,7 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
     }
 
     if (is_incoming_ft(file_number)) {
-        file_number = unmagic_incoming_file_number(file_number);
+        file_number = detox_incoming_file_number(file_number);
         if (f->ft_incoming_size && f->ft_incoming_size >= file_number) {
             return &f->ft_incoming[file_number];
         }
@@ -53,7 +55,7 @@ static FILE_TRANSFER *make_file_transfer(uint32_t friend_number, uint32_t file_n
     }
 
     if (is_incoming_ft(file_number)) {
-        file_number = unmagic_incoming_file_number(file_number);
+        file_number = detox_incoming_file_number(file_number);
         if (f->ft_incoming_size <= file_number) {
             LOG_TRACE("FileTransfer", "Realloc incoming %u|%u" , friend_number, file_number + 1);
 
@@ -928,7 +930,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     }
 
     *msg = *ft;
-    postmessage_utox(FILE_INCOMING_NEW, friend_number, unmagic_incoming_file_number(file_number), msg);
+    postmessage_utox(FILE_INCOMING_NEW, friend_number, detox_incoming_file_number(file_number), msg);
     /* The file doesn't exist on disk where we expected, let's prompt the user to accept it as a new file */
     LOG_NOTE("FileTransfer", "New incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s",
           friend_number, file_number, name);
