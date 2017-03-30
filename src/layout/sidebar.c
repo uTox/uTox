@@ -9,7 +9,6 @@
 #include "../self.h"
 #include "../theme.h"
 
-#include "../native/main.h"
 #include "../native/ui.h"
 
 #include "../ui.h"

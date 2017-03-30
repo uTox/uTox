@@ -4,7 +4,6 @@
 
 #include "../debug.h"
 
-#include "../native/main.h"
 #include "../native/image.h"
 #include "../native/ui.h"
 

@@ -16,7 +16,7 @@
 
 #include "layout/friend.h"  // TODO, remove this and sent the name differently
 
-#include "native/main.h" // NATIVE_IMAGE_IS_VALID
+#include "native/image.h"
 #include "native/notify.h"
 
 #include "ui/edit.h"        // friend_set_name()

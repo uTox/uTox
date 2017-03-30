@@ -12,7 +12,6 @@
 
 #include "../av/utox_av.h"
 
-#include "../native/main.h"
 #include "../native/notify.h"
 
 #include "../ui/dropdown.h"

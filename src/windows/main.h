@@ -60,8 +60,6 @@ extern bool flashing;
 extern bool havefocus;
 extern bool hidden;
 
-#define NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
-#define NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
 // internal representation of an image
 typedef struct native_image {
     HBITMAP bitmap; // 32 bit bitmap containing

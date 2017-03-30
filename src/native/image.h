@@ -37,4 +37,18 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE, size_t size, uint16_t *w, u
 /* free an image created by utox_image_to_native */
 void image_free(NATIVE_IMAGE *image);
 
+
+// OS-dependent macros
+
+#if defined __WIN32__
+#include "win/image.h"
+#elif defined __ANDROID__
+#include "android/image.h"
+#elif defined __OBJC__
+// TODO: OS X uses functions instead of macros.
+#include "main.h"
+#else
+#include "xlib/image.h"
+#endif
+
 #endif

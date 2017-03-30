@@ -12,7 +12,6 @@
 #include "../av/video.h"
 
 #include "../native/audio.h"
-#include "../native/main.h"
 #include "../native/ui.h"
 #include "../native/video.h"
 

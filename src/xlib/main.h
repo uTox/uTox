@@ -50,9 +50,6 @@ struct native_image {
     XID alpha;
 };
 
-#define NATIVE_IMAGE_IS_VALID(x) (None != (x))
-#define NATIVE_IMAGE_HAS_ALPHA(x) (None != (x->alpha))
-
 Atom wm_protocols, wm_delete_window;
 
 Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;

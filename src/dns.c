@@ -17,6 +17,9 @@
 #elif defined __ANDROID__
 // TODO: Include the right things for Android.
 #include "native/main.h"
+#elif defined __OBJC__
+// TODO: Include the right things for OS X.
+#include "native/main.h"
 #else
 #include <resolv.h>
 #endif

@@ -20,7 +20,6 @@
 #include "../av/utox_av.h"
 
 #include "../native/image.h"
-#include "../native/main.h"
 #include "../native/ui.h"
 
 #include "../ui/draw.h"

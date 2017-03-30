@@ -6,7 +6,6 @@
 #include "../macros.h"
 
 #include "../native/image.h"
-#include "../native/main.h"
 
 #include "../ui/svg.h"
 

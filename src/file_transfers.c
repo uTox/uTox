@@ -12,7 +12,6 @@
 
 #include "native/filesys.h"
 #include "native/image.h"
-#include "native/main.h" // NATIVE_IMAGE_IS_VALID
 #include "native/thread.h"
 #include "native/time.h"
 

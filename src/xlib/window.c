@@ -6,7 +6,6 @@
 #include "../debug.h"
 #include "../macros.h"
 
-#include "../native/main.h"
 #include "../native/thread.h"
 #include "../native/time.h"
 

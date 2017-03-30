@@ -15,7 +15,6 @@
 
 #include "../main.h"
 
-#include "../native/main.h"
 #include "../native/thread.h"
 
 #include <dlfcn.h>

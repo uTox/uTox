@@ -7,7 +7,6 @@
 
 #include "../av/video.h"
 
-#include "../native/main.h"
 #include "../native/time.h"
 
 #include "../../langs/i18n_decls.h"

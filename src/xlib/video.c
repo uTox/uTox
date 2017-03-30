@@ -9,7 +9,6 @@
 
 #include "../av/video.h"
 
-#include "../native/main.h"
 #include "../native/time.h"
 
 #include <stdio.h>
