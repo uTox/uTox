@@ -422,9 +422,6 @@ void launch_at_startup(int should) {
 
                             [self.utox_window makeFirstResponder:self.utox_window.contentView];
                             [self.utox_window makeKeyAndOrderFront:self];
-
-                            /* done with save */
-                            free(save);
 }
 
 - (NSMenu *)applicationDockMenu:(NSApplication *)sender {
