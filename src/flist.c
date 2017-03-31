@@ -120,10 +120,10 @@ static void flist_draw_status_icon(uint8_t status, int y, bool notify) {
     }
 
     int xpos   = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_WIDTH / 2;
-    int xpos_n = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_NOTIFY_WIDTH / 2;
-
     drawalpha(BM_ONLINE + status, xpos, y, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+
     if (notify) {
+        int xpos_n = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_NOTIFY_WIDTH / 2;
         drawalpha(BM_STATUS_NOTIFY, xpos_n, y_n, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
     }
 }
@@ -170,22 +170,22 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         }
 
         case ITEM_GROUP: {
-            GROUPCHAT *g = i->data;
             drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            bool     color_overide = 0;
-            uint32_t color         = 0;
 
+            bool color_overide = false;
+            uint32_t color = 0;
+
+            GROUPCHAT *g = i->data;
             if (g->muted) {
-                color_overide = 1;
-                color         = COLOR_GROUP_MUTED;
+                color_overide = true;
+                color = COLOR_GROUP_MUTED;
             } else {
-                uint64_t     time = get_time();
-                unsigned int j;
-                for (j = 0; j < g->peer_count; ++j) {
+                uint64_t time = get_time();
+                for (unsigned int j = 0; j < g->peer_count; ++j) {
                     if (time - g->last_recv_audio[j] <= (uint64_t)1 * 1000 * 1000 * 1000) {
-                        color_overide = 1;
-                        color         = COLOR_GROUP_AUDIO;
+                        color_overide = true;
+                        color = COLOR_GROUP_AUDIO;
                         break;
                     }
                 }
@@ -226,12 +226,10 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
 // find index of given item in shown_list, or INT_MAX if it can't be found
 static int find_item_shown_index(ITEM *it) {
-    unsigned int i = 0;
-    while (i < showncount) {
+    for (unsigned int i = 0; i < showncount; ++i) {
         if (shown_list[i] == it - item) { // (it - item) returns the index of the item in the full items list
             return i;
         }
-        i++;
     }
     return INT_MAX; // can't be found!
 }
@@ -241,13 +239,12 @@ void flist_re_scale(void) {
 }
 
 bool friend_matches_search_string(FRIEND *f, char *str) {
-    return !str || strstr_case((char *)f->name, (char *)str) || (f->alias && strstr_case((char *)f->alias, (char *)str));
+    return !str || strstr_case(f->name, str) || (f->alias && strstr_case(f->alias, str));
 }
 
 void flist_update_shown_list(void) {
-    uint32_t i; // index in item array
     uint32_t j; // index in shown_list array
-    for (i = j = 0; i < itemcount; i++) {
+    for (uint32_t i = j = 0; i < itemcount; i++) {
         ITEM  *it = &item[i];
         FRIEND *f = it->data;
         if (it->item != ITEM_FRIEND || ((!filter || f->online) && friend_matches_search_string(f, search_string))) {
@@ -260,7 +257,7 @@ void flist_update_shown_list(void) {
 }
 
 static ITEM *newitem(void) {
-    ITEM *i              = &item[itemcount - 1];
+    ITEM *i = &item[itemcount - 1];
     item[itemcount].item = ITEM_GROUP_CREATE;
     item[itemcount].data = NULL;
     itemcount++;
@@ -281,22 +278,21 @@ static ITEM *item_hit(int mx, int my, int UNUSED(height)) {
     if (mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH || my < 0
         || my >= (int)(showncount * real_height)) { /* TODO: Height is a bit buggy, Height needs /2
                                                      * figure out why!  */
-        mouse_in_list = 0;
+        mouse_in_list = false;
         return NULL;
     }
+
+    mouse_in_list = true;
 
     uint32_t item_idx = my;
     item_idx /= real_height;
 
     /* mouse is below the last item */
     if (item_idx >= showncount) {
-        mouse_in_list = 1;
         return NULL;
     }
 
-    ITEM *i;
-    i             = &item[shown_list[item_idx]];
-    mouse_in_list = 1;
+    ITEM *i = &item[shown_list[item_idx]];
     return i;
 }
 
@@ -349,8 +345,13 @@ static void page_close(ITEM *i) {
 
             free(f->typed);
             f->typed_length = edit_chat_msg_friend.length;
-            f->typed        = calloc(1, edit_chat_msg_friend.length);
-            memcpy(f->typed, edit_chat_msg_friend.data, edit_chat_msg_friend.length);
+            f->typed = calloc(1, f->typed_length);
+            if (!f->typed) {
+                LOG_ERR("flist", "Unable to calloc for f->typed.");
+                return;
+            }
+
+            memcpy(f->typed, edit_chat_msg_friend.data, f->typed_length);
 
             f->msg.scroll = messages_friend.content_scroll->d;
 
@@ -369,8 +370,8 @@ static void page_close(ITEM *i) {
         }
 
         case ITEM_FRIEND_ADD: {
-            panel_chat.disabled           = 1;
-            panel_friend_request.disabled = 1;
+            panel_chat.disabled           = true;
+            panel_friend_request.disabled = true;
             break;
         }
 
@@ -381,8 +382,13 @@ static void page_close(ITEM *i) {
 
             free(g->typed);
             g->typed_length = edit_chat_msg_group.length;
-            g->typed        = calloc(1, edit_chat_msg_group.length);
-            memcpy(g->typed, edit_chat_msg_group.data, edit_chat_msg_group.length);
+            g->typed = calloc(1, g->typed_length);
+            if (!g->typed) {
+                LOG_ERR("flist", "Unable to calloc for g->typed.");
+                return;
+            }
+
+            memcpy(g->typed, edit_chat_msg_group.data, g->typed_length);
 
             g->msg.scroll = messages_group.content_scroll->d;
 
@@ -390,35 +396,38 @@ static void page_close(ITEM *i) {
             g->edit_history_cur    = edit_chat_msg_group.history_cur;
             g->edit_history_length = edit_chat_msg_group.history_length;
 
-            panel_chat.disabled  = 1;
-            panel_group.disabled = 1;
+            panel_chat.disabled  = true;
+            panel_group.disabled = true;
             break;
         }
 
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
-                panel_splash_page.disabled = 1;
-                settings.show_splash       = 0;
+                panel_splash_page.disabled = true;
+                settings.show_splash = false;
 
-                panel_settings_master.disabled = 1;
-                panel_overhead.disabled        = 1;
+                panel_settings_master.disabled = true;
+                panel_overhead.disabled = true;
 
                 panel_profile_password_settings.disabled = true;
                 panel_nospam_settings.disabled = true;
 
-                button_settings.disabled = 0;
+                button_settings.disabled = false;
             }
             break;
         }
 
         case ITEM_ADD: {
-            button_add_new_contact.disabled = 0;
-            panel_add_friend.disabled       = 1;
+            button_add_new_contact.disabled = false;
+            panel_add_friend.disabled       = true;
             break;
         }
 
-        default: {
-            LOG_ERR("F-List", "Trying to switch to an item that we shouldn't be selecting");
+        case ITEM_GROUP_CREATE: {
+            break;
+        }
+
+        case ITEM_NONE: {
             break;
         }
     }
@@ -427,8 +436,8 @@ static void page_close(ITEM *i) {
 static void page_open(ITEM *i) {
     switch (i->item) {
         case ITEM_FRIEND_ADD: {
-            panel_chat.disabled           = 0;
-            panel_friend_request.disabled = 0;
+            panel_chat.disabled = false;
+            panel_friend_request.disabled = false;
             break;
         }
 
@@ -450,7 +459,7 @@ static void page_open(ITEM *i) {
 
             f->msg.width  = current_width;
             f->msg.id     = f->number;
-            f->unread_msg = 0;
+            f->unread_msg = false;
             /* We use the MESSAGES struct from the friend, but we need the info from the panel. */
             messages_friend.object = ((void **)&f->msg);
             messages_updateheight((MESSAGES *)messages_friend.object, current_width);
@@ -534,8 +543,7 @@ static void page_open(ITEM *i) {
             break;
         }
 
-        default: {
-            LOG_ERR("F-List", "Trying to switch to an item that we shouldn't be selecting.");
+        case ITEM_NONE: {
             break;
         }
     }
@@ -560,7 +568,7 @@ static void show_page(ITEM *i) {
 
 void flist_start(void) {
     selected_item            = &item_settings;
-    button_settings.disabled = 1;
+    button_settings.disabled = true;
 
     item_add.item      = ITEM_ADD;
     item_settings.item = ITEM_SETTINGS;
@@ -588,8 +596,7 @@ void flist_addfriend(FRIEND *f) {
 }
 
 void flist_addfriend2(FRIEND *f, FRIENDREQ *req) {
-    uint32_t i = 0;
-    while (i < itemcount) {
+    for (uint32_t i = 0; i < itemcount; ++i) {
         if (item[i].data == req) {
             if (&item[i] == selected_item) {
                 // panel_item[selected_item->item - 1].disabled = 1;
@@ -607,7 +614,6 @@ void flist_addfriend2(FRIEND *f, FRIENDREQ *req) {
             item[i].data = f;
             return;
         }
-        i++;
     }
 }
 
@@ -660,7 +666,9 @@ static void deleteitem(ITEM *i) {
             break;
         }
 
-        default: { return; }
+        default: {
+            return;
+        }
     }
 
     itemcount--;
@@ -689,8 +697,7 @@ void flist_delete_rmouse_item(void) {
 }
 
 void flist_freeall(void) {
-    ITEM *i;
-    for (i = item; i != item + itemcount; i++) {
+    for (ITEM *i = item; i != item + itemcount; i++) {
         switch (i->item) {
             case ITEM_FRIEND: {
                 friend_free(i->data);
@@ -707,7 +714,9 @@ void flist_freeall(void) {
                 break;
             }
 
-            default: { break; }
+            default: {
+                break;
+            }
         }
         i->item = ITEM_NONE;
     }
@@ -755,12 +764,14 @@ static void push_selected(void) {
         case ITEM_ADD: {
             return;
         }
+
         case ITEM_FRIEND: {
             push_pop.data = calloc(1, TOX_PUBLIC_KEY_SIZE);
             FRIEND *f     = selected_item->data;
             memcpy(push_pop.data, &f->cid, TOX_PUBLIC_KEY_SIZE);
             break;
         }
+
         case ITEM_FRIEND_ADD:
         case ITEM_GROUP:
         case ITEM_GROUP_CREATE: {
@@ -783,8 +794,7 @@ static void pop_selected(void) {
         }
 
         case ITEM_FRIEND: {
-            uint16_t i;
-            for (i = 0; i < itemcount; ++i) {
+            for (uint16_t i = 0; i < itemcount; ++i) {
                 if (item[i].item == ITEM_FRIEND) {
                     FRIEND *f = item[i].data;
                     if (memcmp(push_pop.data, &f->cid, TOX_PUBLIC_KEY_SIZE) == 0) {
@@ -829,6 +839,7 @@ FRIEND *flist_get_friend(void) {
     if (flist_get_type() == ITEM_FRIEND) {
         return selected_item->data;
     }
+
     return NULL;
 }
 
@@ -836,6 +847,7 @@ GROUPCHAT *flist_get_groupchat(void) {
     if (flist_get_type() == ITEM_GROUP) {
         return selected_item->data;
     }
+
     return NULL;
 }
 
@@ -886,11 +898,11 @@ bool flist_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
 
     ITEM *i = item_hit(mx, my, height);
 
-    bool draw = 0;
+    bool draw = false;
 
     if (i != mouseover_item) {
         mouseover_item = i;
-        draw           = 1;
+        draw = true;
     }
 
     if (selected_item_mousedown) {
@@ -922,7 +934,7 @@ bool flist_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
             }
         }
 
-        draw = 1;
+        draw = true;
     } else {
         tooltip_draw();
     }
@@ -938,15 +950,16 @@ bool flist_mdown(void *UNUSED(n)) {
         selected_item_mousedown_move_pend = true;
         return true;
     }
+
     return false;
 }
 
 static void flist_init_friend_settings_page(void) {
     FRIEND *f = right_mouse_item->data;
 
-    panel_friend_chat.disabled     = 1;
-    panel_friend_video.disabled    = 1;
-    panel_friend_settings.disabled = 0;
+    panel_friend_chat.disabled     = true;
+    panel_friend_video.disabled    = true;
+    panel_friend_settings.disabled = false;
 
     edit_setstr(&edit_friend_pubkey, (char *)&f->id_str, TOX_PUBLIC_KEY_SIZE * 2);
 
@@ -959,9 +972,9 @@ static void flist_init_friend_settings_page(void) {
 static void flist_init_group_settings_page(void) {
     GROUPCHAT *g = right_mouse_item->data;
 
-    panel_group_chat.disabled     = 1;
-    panel_group_video.disabled    = 1;
-    panel_group_settings.disabled = 0;
+    panel_group_chat.disabled     = true;
+    panel_group_video.disabled    = true;
+    panel_group_settings.disabled = false;
 
     edit_setstr(&edit_group_topic, g->name, g->name_length);
 
@@ -971,34 +984,38 @@ static void flist_init_group_settings_page(void) {
 static void contextmenu_friend(uint8_t rcase) {
     FRIEND *f = right_mouse_item->data;
 
-    panel_friend_chat.disabled     = 0;
-    panel_friend_video.disabled    = 1;
-    panel_friend_settings.disabled = 1;
+    panel_friend_chat.disabled     = false;
+    panel_friend_video.disabled    = true;
+    panel_friend_settings.disabled = true;
     switch (rcase) {
         case 0: {
             /* should be settings page */
             flist_init_friend_settings_page();
             break;
         }
+
         case 1: {
             /* Should be show inline video */
-            panel_friend_chat.disabled     = 1;
-            panel_friend_video.disabled    = 0;
-            panel_friend_settings.disabled = 1;
-            settings.inline_video          = 1;
-            f->video_inline                = 1;
+            panel_friend_chat.disabled     = true;
+            panel_friend_video.disabled    = false;
+            panel_friend_settings.disabled = true;
+            settings.inline_video          = true;
+            f->video_inline                = true;
             postmessage_utox(AV_CLOSE_WINDOW, f->number + 1, 0, NULL);
             break;
         }
+
         case 2: {
             /* should be clean history */
             friend_history_clear((FRIEND *)right_mouse_item->data);
             break;
         }
+
         case 3: {
             /* Should be: delete friend */
             panel_friend_chat.disabled             = true;
             panel_friend_confirm_deletion.disabled = false;
+            break;
         }
     }
 }
@@ -1010,8 +1027,9 @@ static void contextmenu_list_onselect(uint8_t i) {
                 contextmenu_friend(i);
                 return;
             }
+
             case ITEM_GROUP: {
-                panel_group_chat.disabled = 0;
+                panel_group_chat.disabled = false;
                 GROUPCHAT *g              = right_mouse_item->data;
                 if (i == 0) {
                     flist_init_group_settings_page();
@@ -1024,14 +1042,16 @@ static void contextmenu_list_onselect(uint8_t i) {
                     strcpy(str, "/topic ");
                     memcpy(str + 7, g->name, g->name_length);
                     edit_setfocus(&edit_chat_msg_group);
-                    edit_paste((char *)str, sizeof(str), 0);
+                    edit_paste(str, sizeof(str), 0);
                 } else if (i == 2 && g->av_group) {
                     g->muted = !g->muted;
                 } else {
                     flist_delete_rmouse_item();
                 }
+
                 return;
             }
+
             case ITEM_FRIEND_ADD: {
                 if (i == 0) {
                     FRIENDREQ *req = right_mouse_item->data;
@@ -1046,7 +1066,9 @@ static void contextmenu_list_onselect(uint8_t i) {
                 } else {
                     postmessage_toxcore(TOX_GROUP_CREATE, 0, 0, NULL);
                 }
+                return;
             }
+
             default: {
                 LOG_TRACE("F-List", "blerg" );
                 return;
@@ -1114,16 +1136,17 @@ bool flist_mright(void *UNUSED(n)) {
             }
         }
 
-        return 1;
+        return true;
     } else if (mouse_in_list) {
         right_mouse_item = NULL; /* Unset right_mouse_item so that we don't interact with the incorrect context menu
                                   * I'm not sure if this belongs here or in flist_mmove, or maybe item_hit. */
     }
-    return 0;
+
+    return false;
 }
 
 bool flist_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) {
-    return 0;
+    return false;
 }
 
 bool flist_mup(void *UNUSED(n)) {
@@ -1139,9 +1162,7 @@ bool flist_mup(void *UNUSED(n)) {
         if (nitem && find_item_shown_index(nitem) != INT_MAX) {
             if (selected_item->item == ITEM_FRIEND) {
                 if (nitem->item == ITEM_FRIEND) {
-                    ITEM temp;
-
-                    temp           = *selected_item;
+                    ITEM temp      = *selected_item;
                     *selected_item = *nitem;
                     *nitem         = temp;
 
@@ -1149,7 +1170,7 @@ bool flist_mup(void *UNUSED(n)) {
                 }
 
                 if (nitem->item == ITEM_GROUP) {
-                    FRIEND *   f = selected_item->data;
+                    FRIEND    *f = selected_item->data;
                     GROUPCHAT *g = nitem->data;
 
                     if (f->online) {
@@ -1160,9 +1181,7 @@ bool flist_mup(void *UNUSED(n)) {
 
             if (selected_item->item == ITEM_GROUP) {
                 if (nitem->item == ITEM_FRIEND || nitem->item == ITEM_GROUP) {
-                    ITEM temp;
-
-                    temp           = *selected_item;
+                    ITEM temp      = *selected_item;
                     *selected_item = *nitem;
                     *nitem         = temp;
 
@@ -1186,8 +1205,8 @@ bool flist_mup(void *UNUSED(n)) {
 bool flist_mleave(void *UNUSED(n)) {
     if (mouseover_item) {
         mouseover_item = NULL;
-        return 1;
+        return true;
     }
 
-    return 0;
+    return false;
 }

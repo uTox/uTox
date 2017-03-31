@@ -38,8 +38,8 @@ typedef enum {
 
 typedef struct {
     ITEM_TYPE item;
-    char      namestr[15];
-    void *    data;
+    char namestr[15];
+    void *data;
 } ITEM;
 
 ITEM *right_mouse_item;
