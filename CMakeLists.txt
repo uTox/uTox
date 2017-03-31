@@ -149,7 +149,11 @@ endif()
 
 option(UTOX_STATIC "Link uTox statically" OFF)
 if(UTOX_STATIC)
-    add_cflag("-static")
+	if(UNIX)
+		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl") 
+	else()
+		add_cflag("-static") 
+	endif()
 endif()
 
 option(ENABLE_UPDATER "Enable updater" ON)
@@ -229,6 +233,14 @@ elseif(APPLE)
     set(LIBRARIES "opus")
 elseif(UNIX)
     add_subdirectory(src/xlib)
+    set(LIBRARIES
+		dl
+		rt
+		opus
+		openal
+		v4lconvert
+		filteraudio
+		)
 endif()
 
 # include utoxUI

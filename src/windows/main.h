@@ -66,11 +66,15 @@ enum {
 
 HFONT   font[32];
 HCURSOR cursors[8];
-HICON   my_icon, unread_messages_icon;
+HICON   black_icon, unread_messages_icon;
 
 HBRUSH    hdc_brush;
 
 HWND      video_hwnd[128]; // todo fixme
+
+extern bool flashing;
+extern bool havefocus;
+extern bool hidden;
 
 #define NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
 #define NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
@@ -106,12 +110,12 @@ enum {
 
 // TODO move these into os_video.c
 int  video_grab_x, video_grab_y, video_grab_w, video_grab_h;
-bool grabbing;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 /* Included in dnd.c */
 void dnd_init(HWND window);
 
-int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size);
+// Converts a Windows wide null-terminated string to utf8.
+int native_to_utf8str(const wchar_t *str_in, char *str_out, uint32_t max_size);
 
 #endif
