@@ -36,7 +36,7 @@ rm -rf libvpx
 
 # install toxcore
 if ! [ -d toxcore ]; then
-  git clone --depth=1 --branch=master https://github.com/TokTok/c-toxcore.git toxcore
+  git clone --depth=1 --branch=$TOXCORE_REPO_BRANCH $TOXCORE_REPO_URI toxcore
 fi
 cd toxcore
 git rev-parse HEAD > toxcore.sha

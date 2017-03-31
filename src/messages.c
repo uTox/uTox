@@ -16,7 +16,6 @@
 #include "text.h"
 #include "theme.h"
 #include "tox.h"
-#include "ui.h"
 #include "utox.h"
 
 #include "ui/contextmenu.h"
@@ -181,7 +180,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
 
     if (m->is_groupchat && flist_get_selected()->data == &group[m->id]) {
         m->panel.content_scroll->content_height = m->height;
-    } else if (flist_get_friend()->number == get_friend(m->id)->number) {
+    } else if (flist_get_friend() && flist_get_friend()->number == get_friend(m->id)->number) {
         m->panel.content_scroll->content_height = m->height;
     }
 

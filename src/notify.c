@@ -1,12 +1,11 @@
 #include "notify.h"
 
-#include "main.h"
 #include "debug.h"
-
-#include "ui.h"
 #include "window.h"
 
 #include "layout/notify.h"
+
+#include <stdint.h>
 
 static uint16_t notification_number = 0;
 
