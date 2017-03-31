@@ -283,6 +283,7 @@ void updater_thread(void *ptr) {
             fwrite(data + 4, data_size - 4, 1, file);
             fclose(file);
             free(data);
+            LOG_NOTE("Updater", "Wrote binary to %s", name);
         }
 
         yieldcpu(1000 * 6 * 5);
