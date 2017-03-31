@@ -1009,7 +1009,7 @@ static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     LANG = (UTOX_LANG)i;
     /* The draw functions need the fonts' and scale to be reset when changing languages. */
-    ui_set_scale(ui_scale);
+    ui_rescale(ui_scale);
 }
 static STRING *dropdown_language_ondisplay(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     UTOX_LANG l = (UTOX_LANG)i;

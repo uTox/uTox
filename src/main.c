@@ -97,21 +97,15 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
 void parse_args(int argc, char *argv[],
                 bool *skip_updater,
                 bool *from_updater,
-                bool *theme_was_set_on_argv,
                 int8_t *should_launch_at_startup,
                 int8_t *set_show_window
                 ) {
     // set default options
-    settings.theme = THEME_DEFAULT;
-    settings.portable_mode = false;
     if (skip_updater) {
         *skip_updater = false;
     }
     if (from_updater) {
         *from_updater = false;
-    }
-    if (theme_was_set_on_argv) {
-        *theme_was_set_on_argv = false;
     }
     if (should_launch_at_startup) {
         *should_launch_at_startup = 0;
@@ -153,7 +147,6 @@ void parse_args(int argc, char *argv[],
                     LOG_NORM("Please specify correct theme (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
                 }
-                *theme_was_set_on_argv = 1;
                 break;
             }
 
@@ -166,11 +159,17 @@ void parse_args(int argc, char *argv[],
 
             case 's': {
                 if (!strcmp(optarg, "start-on-boot")) {
-                    *should_launch_at_startup = 1;
+                    if (should_launch_at_startup) {
+                        *should_launch_at_startup = 1;
+                    }
                 } else if (!strcmp(optarg, "show-window")) {
-                    *set_show_window = 1;
+                    if (set_show_window) {
+                        *set_show_window = 1;
+                    }
                 } else if (!strcmp(optarg, "hide-window")) {
-                    *set_show_window = -1;
+                    if (set_show_window) {
+                        *set_show_window = -1;
+                    }
                 } else {
                     LOG_NORM("Please specify a correct set option (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
@@ -180,7 +179,9 @@ void parse_args(int argc, char *argv[],
 
             case 'u': {
                 if (!strcmp(optarg, "start-on-boot")) {
-                    *should_launch_at_startup = -1;
+                    if (should_launch_at_startup) {
+                        *should_launch_at_startup = -1;
+                    }
                 } else {
                     LOG_NORM("Please specify a correct unset option (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
@@ -255,6 +256,11 @@ void parse_args(int argc, char *argv[],
 }
 
 void utox_init(void) {
+    settings.debug_file = stdout;
+
+    UTOX_SAVE *save = config_load();
+    free(save);
+
     /* Called by the native main for every platform after loading utox setting, before showing/drawing any windows. */
     if (settings.curr_version != settings.last_version) {
         settings.show_splash = true;
@@ -267,7 +273,6 @@ void utox_init(void) {
     // }
     //#endif
 
-    settings.debug_file = stdout;
     atexit(utox_raze);
 }
 

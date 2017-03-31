@@ -96,6 +96,7 @@ void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32
                        uint32_t targetheight);
 
 void ui_set_scale(uint8_t scale);
+void ui_rescale(uint8_t scale);
 void ui_size(int width, int height);
 
 void ui_mouseleave(void);

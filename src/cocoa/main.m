@@ -71,8 +71,6 @@ void image_free(NATIVE_IMAGE *img) {
     free(img);
 }
 
-static BOOL theme_set_on_argv = NO;
-
 void *thread_trampoline(void *call) {
     struct thread_call args = *(struct thread_call *)call;
     free(call);
@@ -360,8 +358,6 @@ void launch_at_startup(int should) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
-    utox_init();
-
     setup_cursors();
     NSImageView *dock_icon                                 = [[NSImageView alloc] initWithFrame:CGRectZero];
     dock_icon.image                                        = [NSApplication sharedApplication].applicationIconImage;
@@ -388,11 +384,6 @@ void launch_at_startup(int should) {
     }
 
     /* load save data */
-    UTOX_SAVE *save = config_load();
-    if (!theme_set_on_argv) {
-        settings.theme          = save->theme;
-        dropdown_theme.selected = save->theme;
-    }
     theme_load(settings.theme);
 
     char title_name[128];
@@ -400,7 +391,7 @@ void launch_at_startup(int should) {
 
 #define WINDOW_MASK (NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask)
     self.utox_window = [[NSWindow alloc]
-        initWithContentRect:(NSRect) { save->window_x, save->window_y, save->window_width, save->window_height }
+        initWithContentRect:(NSRect) { settings.window_x, settings.window_y, settings.window_width, settings.window_height }
                   styleMask:WINDOW_MASK
                     backing:NSBackingStoreBuffered
                       defer:NO
@@ -415,7 +406,6 @@ void launch_at_startup(int should) {
 
                             self.utox_window.contentView =
                                 [[[uToxView alloc] initWithFrame:(CGRect){ 0, 0, self.utox_window.frame.size }] autorelease];
-                            ui_set_scale((save->scale + 1) ?: 2);
                             ui_size(settings.window_width, settings.window_height);
 
                             /* start the tox thread */
@@ -527,15 +517,18 @@ void launch_at_startup(int should) {
 @end
 
 int main(int argc, char const *argv[]) {
-    bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
     bool   skip_updater, from_updater;
 
+    utox_init();
+
+    settings.window_width  = DEFAULT_WIDTH;
+    settings.window_height = DEFAULT_HEIGHT;
+
     parse_args(argc, argv,
                &skip_updater,
                &from_updater,
-               &theme_was_set_on_argv,
                &should_launch_at_startup,
                &set_show_window);
 
@@ -557,8 +550,7 @@ int main(int argc, char const *argv[]) {
     dropdown_language.selected = dropdown_language.over = LANG;
 
     /* set the width/height of the drawing region */
-    settings.window_width  = DEFAULT_WIDTH;
-    settings.window_height = DEFAULT_HEIGHT;
+
     ui_size(settings.window_width, settings.window_height);
 
     /* event loop */

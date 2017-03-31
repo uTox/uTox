@@ -252,10 +252,10 @@ void copy(int value) {
 }
 
 int hold_x11s_hand(Display *UNUSED(d), XErrorEvent *event) {
-    LOG_ERR("XLIB", "X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
-    LOG_ERR("XLIB", "    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
-    LOG_ERR("XLIB", "    err:\tError code: %u || Request: %u || Minor: %u \n", event->error_code, event->request_code,
-                event->minor_code);
+    LOG_ERR("XLIB", "X11 err:\tX11 tried to kill itself, so I hit him with a shovel.");
+    LOG_ERR("XLIB", "    err:\tResource: %lu || Serial %lu", event->resourceid, event->serial);
+    LOG_ERR("XLIB", "    err:\tError code: %u || Request: %u || Minor: %u",
+        event->error_code, event->request_code, event->minor_code);
     LOG_ERR("uTox", "This would be a great time to submit a bug!");
 
     return 0;
@@ -642,10 +642,13 @@ static void cursors_init(void) {
 
 #include "../ui/dropdown.h" // this is for dropdown.language TODO provide API
 int main(int argc, char *argv[]) {
-    bool   theme_was_set_on_argv;
-    int8_t should_launch_at_startup;
-    int8_t set_show_window;
-    bool   skip_updater, from_updater;
+    if (!XInitThreads()) {
+        LOG_FATAL_ERR(EXIT_FAILURE, "XLIB MAIN", "XInitThreads failed.");
+    }
+    if (!native_window_init()) {
+        return 2;
+    }
+    initfonts();
 
     // Load settings before calling utox_init()
     utox_init();
@@ -654,10 +657,12 @@ int main(int argc, char *argv[]) {
     LOG_INFO("XLIB MAIN", "Compiled with dbus support!");
     #endif
 
+    int8_t should_launch_at_startup;
+    int8_t set_show_window;
+    bool   skip_updater, from_updater;
     parse_args(argc, argv,
                &skip_updater,
                &from_updater,
-               &theme_was_set_on_argv,
                &should_launch_at_startup,
                &set_show_window);
 
@@ -670,20 +675,8 @@ int main(int argc, char *argv[]) {
                      "manager.\n");
     }
 
-    UTOX_SAVE *save = config_load();
-    if (!theme_was_set_on_argv) {
-        settings.theme = save->theme;
-    }
-
     LOG_INFO("XLIB MAIN", "Setting theme to:\t%d", settings.theme);
     theme_load(settings.theme);
-
-    if (!XInitThreads()) {
-        LOG_FATAL_ERR(EXIT_FAILURE, "XLIB MAIN", "XInitThreads failed.");
-    }
-    if (!native_window_init()) {
-        return 2;
-    }
 
     XSetErrorHandler(hold_x11s_hand);
 
@@ -694,12 +687,11 @@ int main(int argc, char *argv[]) {
         LOG_ERR("XLIB", "Cannot open input method");
     }
 
-
-    native_window_create_main(save->window_x, save->window_y, settings.window_width, settings.window_height, argv, argc);
-
-    main_window.gc = DefaultGC(display, def_screen_num);
-
     atom_init();
+
+    native_window_create_main(settings.window_x, settings.window_y, settings.window_width, settings.window_height, argv, argc);
+    main_window.gc = DefaultGC(display, def_screen_num);
+    main_window.drawbuf = XCreatePixmap(display, main_window.window, settings.window_width, settings.window_height, default_depth);
 
 
     LANG = systemlang();
@@ -710,9 +702,6 @@ int main(int argc, char *argv[]) {
         // try Qt
     }
 
-    /* create the draw buffer */
-    main_window.drawbuf = XCreatePixmap(display, main_window.window, settings.window_width, settings.window_height, default_depth);
-
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, main_window.window, &wm_delete_window, 1);
 
@@ -721,19 +710,12 @@ int main(int argc, char *argv[]) {
     XChangeProperty(display, main_window.window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t *)&dndversion, 1);
 
     /* initialize fontconfig */
-    initfonts();
-
-    /* Set the default font so we don't segfault on ui_set_scale() when it goes looking for fonts. */
     loadfonts();
     setfont(FONT_TEXT);
 
-    /* load fonts and scalable bitmaps */
-    ui_set_scale(save->scale + 1);
-
-    /* done with save */
-    free(save);
-
     cursors_init();
+
+    ui_rescale(0);
 
     /* */
     XGCValues gcval;

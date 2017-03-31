@@ -16,8 +16,10 @@
 #include "main.h" // UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
 
 SETTINGS settings = {
-    .curr_version = UTOX_VERSION_NUMBER,
     // .last_version                // included here to match the full struct
+    .curr_version = UTOX_VERSION_NUMBER,
+    .next_version = UTOX_VERSION_NUMBER,
+
     .show_splash = false,
 
     // Low level settings (network, profile, portable-mode)
@@ -65,6 +67,8 @@ SETTINGS settings = {
 
     // .theme                       // included here to match the full struct
     // OS interface settings
+    .window_x             = 0,
+    .window_y             = 0,
     .window_height        = MAIN_HEIGHT,
     .window_width         = MAIN_WIDTH,
     .window_baseline      = 0,
@@ -80,7 +84,7 @@ UTOX_SAVE *config_load(void) {
     if (!save) {
         LOG_ERR("Settings", "unable to load utox_save data");
         /* Create and set defaults */
-        save              = calloc(1, sizeof(UTOX_SAVE));
+        save = calloc(1, sizeof(UTOX_SAVE));
         save->enableipv6  = 1;
         save->disableudp  = 0;
         save->proxyenable = 0;
@@ -152,31 +156,34 @@ UTOX_SAVE *config_load(void) {
         }
     }
 
-    settings.logging_enabled     = save->logging_enabled;
-    settings.close_to_tray       = save->close_to_tray;
-    settings.start_in_tray       = save->start_in_tray;
-    settings.start_with_system   = save->auto_startup;
-    settings.ringtone_enabled    = save->audible_notifications_enabled;
-    settings.audiofilter_enabled = save->audio_filtering_enabled;
-    settings.use_mini_flist      = save->use_mini_flist;
+    settings.logging_enabled        = save->logging_enabled;
+    settings.close_to_tray          = save->close_to_tray;
+    settings.start_in_tray          = save->start_in_tray;
+    settings.start_with_system      = save->auto_startup;
+    settings.ringtone_enabled       = save->audible_notifications_enabled;
+    settings.audiofilter_enabled    = save->audio_filtering_enabled;
+    settings.use_mini_flist         = save->use_mini_flist;
 
-    settings.send_typing_status   = !save->no_typing_notifications;
-    settings.group_notifications  = save->group_notifications;
-    settings.status_notifications = save->status_notifications;
+    settings.send_typing_status     = !save->no_typing_notifications;
+    settings.group_notifications    = save->group_notifications;
+    settings.status_notifications   = save->status_notifications;
 
-    settings.window_width  = save->window_width;
-    settings.window_height = save->window_height;
+    settings.window_width           = save->window_width;
+    settings.window_height          = save->window_height;
 
-    settings.last_version = save->utox_last_version;
+    settings.last_version           = save->utox_last_version;
 
-    loaded_audio_out_device = save->audio_device_out;
-    loaded_audio_in_device  = save->audio_device_in;
+    loaded_audio_out_device         = save->audio_device_out;
+    loaded_audio_in_device          = save->audio_device_in;
 
     settings.auto_update            = save->auto_update;
     switch_auto_update.switch_on    = save->auto_update;
     settings.update_to_develop      = save->update_to_develop;
     settings.send_version           = save->send_version;
 
+    settings.theme                  = save->theme;
+
+    ui_set_scale(save->scale + 1);
 
     if (save->push_to_talk) {
         init_ptt();
@@ -190,10 +197,10 @@ void config_save(UTOX_SAVE *save_in) {
     UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + 256);
 
     /* Copy the data from the in data to protect the calloc */
-    save->window_x      = save_in->window_x;
-    save->window_y      = save_in->window_y;
-    save->window_width  = save_in->window_width;
-    save->window_height = save_in->window_height;
+    save->window_x                      = save_in->window_x;
+    save->window_y                      = save_in->window_y;
+    save->window_width                  = save_in->window_width;
+    save->window_height                 = save_in->window_height;
 
     save->save_version                  = UTOX_SAVE_VERSION;
     save->scale                         = ui_scale - 1;

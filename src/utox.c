@@ -157,7 +157,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         /* Client/User Interface messages. */
         case REDRAW: {
             if (param1) {
-                ui_set_scale(ui_scale);
+                ui_rescale(ui_scale);
             } else {
                 ui_set_scale(0);
             }

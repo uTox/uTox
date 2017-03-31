@@ -230,3 +230,11 @@ bool updater_check(void) {
 
     return false;
 }
+
+static bool updater_running = false;
+
+void updater_thread(void *ptr) {
+    while (updater_running) {
+        (void)(ptr);
+    }
+}

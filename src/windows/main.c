@@ -774,13 +774,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         return 0;
     }
 
-    bool   theme_was_set_on_argv;
+    utox_init();
+
+
     int8_t should_launch_at_startup;
     int8_t set_show_window;
     bool   skip_updater, from_updater;
 
-    parse_args(argc, argv, &skip_updater, &from_updater, &theme_was_set_on_argv,
-               &should_launch_at_startup, &set_show_window );
+    parse_args(argc, argv,
+               &skip_updater,
+               &from_updater,
+               &should_launch_at_startup,
+               &set_show_window);
 
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
@@ -837,18 +842,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     dropdown_language.selected = dropdown_language.over = LANG;
 
-    UTOX_SAVE *save = config_load();
-
-    if (!theme_was_set_on_argv) {
-        dropdown_theme.selected = save->theme;
-        settings.theme          = save->theme;
-    }
     theme_load(settings.theme);
 
-    utox_init();
 
-    save->window_width  = save->window_width < SCALE(MAIN_WIDTH) ? SCALE(MAIN_WIDTH) : save->window_width;
-    save->window_height = save->window_height < SCALE(MAIN_HEIGHT) ? SCALE(MAIN_HEIGHT) : save->window_height;
+    settings.window_width  = settings.window_width  < (uint32_t)SCALE(MAIN_WIDTH)  ? SCALE(MAIN_WIDTH)  : settings.window_width;
+    settings.window_height = settings.window_height < (uint32_t)SCALE(MAIN_HEIGHT) ? SCALE(MAIN_HEIGHT) : settings.window_height;
 
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
@@ -856,7 +854,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     wchar_t title[title_size];
     mbstowcs(title, pretitle, title_size);
 
-    native_window_create_main(save->window_x, save->window_y, save->window_width, save->window_height);
+    native_window_create_main(settings.window_x, settings.window_y, settings.window_width, settings.window_height);
 
     native_notify_init(hInstance);
 
