@@ -3,6 +3,13 @@ project(uTox LANGUAGES C)
 
 #######################################################################
 #
+# CMake Settings
+#
+#######################################################################
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
+#######################################################################
+#
 # project version
 #
 #######################################################################
@@ -146,9 +153,9 @@ endif()
 option(UTOX_STATIC "Link uTox statically" OFF)
 if(UTOX_STATIC)
 	if(UNIX)
-		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl") 
+		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
 	else()
-		add_cflag("-static") 
+		add_cflag("-static")
 	endif()
 endif()
 
@@ -290,10 +297,11 @@ elseif(UNIX)
 endif()
 
 
+#######################################################################
 #
-# testing
+# Testing
 #
-
+#######################################################################
 if (ENABLE_TESTS)
   if(UNIX)
     # tests currently only run on linux
@@ -304,13 +312,15 @@ endif()
 
 # print a summary of build options
 message("Build options:")
-message("- Add ASAN:        ${ENABLE_ASAN}")
-message("- Error on Warning: ${ENABLE_WERROR}")
-message("- Filter Audio:    ${FILTER_AUDIO}")
-message("- uTox Static:     ${UTOX_STATIC}")
-message("- Toxcore Static:  ${TOXCORE_STATIC}")
-message("- Windows Legacy:  ${WIN_XP_LEGACY}")
-message("- Enable DBus:     ${ENABLE_DBUS}")
+message("- CMake Module Path:        ${CMAKE_MODULE_PATH}")
+message("----------------------------------")
+message("- Add ASAN:                ${ENABLE_ASAN}")
+message("- Error on Warning:        ${ENABLE_WERROR}")
+message("- Filter Audio:            ${FILTER_AUDIO}")
+message("- uTox Static:             ${UTOX_STATIC}")
+message("- Toxcore Static:          ${TOXCORE_STATIC}")
+message("- Windows Legacy:          ${WIN_XP_LEGACY}")
+message("- Enable DBus:             ${ENABLE_DBUS}")
 
 message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
 message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
