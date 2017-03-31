@@ -4,7 +4,6 @@
 #include "chatlog.h"
 #include "debug.h"
 #include "dns.h"
-#include "filesys.h"
 #include "flist.h"
 #include "macros.h"
 #include "main_native.h"
@@ -12,11 +11,9 @@
 #include "settings.h"
 #include "text.h"
 #include "tox.h"
-#include "ui.h"
 #include "utox.h"
 
 #include "av/audio.h"
-#include "ui/scrollable.h"
 #include "ui/edit.h"        // friend_set_name()
 
 #include "layout/friend.h"  // TODO, remove this and sent the name differently
