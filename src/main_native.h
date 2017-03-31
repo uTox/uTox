@@ -14,7 +14,6 @@
 typedef struct file_transfer FILE_TRANSFER;
 typedef struct native_image NATIVE_IMAGE;
 typedef struct utox_save UTOX_SAVE;
-typedef uint8_t *UTOX_IMAGE;
 
 enum {
     FILTER_NEAREST, // ugly and quick filtering
@@ -72,7 +71,7 @@ void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_
 void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y);
 
 /* converts a png to a NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
-NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha);
+NATIVE_IMAGE *utox_image_to_native(const uint8_t *img, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha);
 
 /* free an image created by utox_image_to_native */
 void image_free(NATIVE_IMAGE *image);

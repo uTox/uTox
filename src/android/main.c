@@ -473,12 +473,14 @@ void config_osdefaults(UTOX_SAVE *r) { /* Unsupported on android */
 }
 
 void utox_android_redraw_window(void) {
-    _redraw = GL_utox_android_redraw_window();
-
-    if (_redraw) {
-        _redraw = 0;
-        panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
+    if (!_redraw) {
+        return;
     }
+
+    panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
+    GL_utox_android_redraw_window();
+
+    _redraw = 0;
 }
 
 int         lx = 0, ly = 0;
@@ -617,6 +619,8 @@ static void android_main(struct android_app *state) {
                &set_show_window
                );
 
+    settings.verbose = ~0;
+
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         LOG_TRACE("Android", "Start on boot not supported on this OS!" );
     }
@@ -638,6 +642,9 @@ static void android_main(struct android_app *state) {
 
     UTOX_SAVE *save = config_load();
     theme_load(THEME_DEFAULT);
+
+    // Override to max spam for android
+    settings.verbose = LOG_LVL_TRACE;
 
     thread(toxcore_thread, NULL);
 

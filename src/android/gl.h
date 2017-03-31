@@ -1,15 +1,15 @@
 #ifndef ANDROID_GL_H
 #define ANDROID_GL_H
 
-#include "main.h"
-
-#include "../main.h"
+#include <stdbool.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 
 #include <GLES2/gl2.h>
 #define _GNU_SOURCE
 #include <EGL/egl.h>
-#include <fcntl.h>
-#include <sys/mman.h>
+
+typedef struct native_image NATIVE_IMAGE;
 
 typedef struct {
     int16_t  x, y;
@@ -49,7 +49,7 @@ bool init_display(ANativeWindow *window);
 
 void GL_draw_image(const NATIVE_IMAGE *data, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
 
-NATIVE_IMAGE *GL_utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha);
+NATIVE_IMAGE *GL_utox_image_to_native(const uint8_t *data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha);
 
 int GL_utox_android_redraw_window();
 

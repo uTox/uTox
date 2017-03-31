@@ -12,6 +12,8 @@
 #include "../ui.h"
 #include "../ui/svg.h"
 
+#include "../main.h" // stbi
+
 const char vertex_shader[] = "uniform vec4 matrix;"
                              "attribute vec2 pos;"
                              "attribute vec2 tex;"
@@ -219,7 +221,9 @@ void popclip(void) {
 
 void enddraw(int x, int y, int width, int height) { eglSwapBuffers(display, surface); }
 
+#define DEBUG 1
 bool gl_init(void) {
+    LOG_INFO("AndroidGL", "gl init\n");
     GLuint        vertshader, fragshader;
     GLint         status;
     const GLchar *data;
@@ -230,7 +234,7 @@ bool gl_init(void) {
         return 0;
     }
 
-    data = &vertex_shader[0];
+    data = vertex_shader;
     glShaderSource(vertshader, 1, &data, NULL);
     glCompileShader(vertshader);
     glGetShaderiv(vertshader, GL_COMPILE_STATUS, &status);
@@ -368,6 +372,7 @@ bool gl_init(void) {
 
 /* gl initialization with EGL */
 bool init_display(ANativeWindow *window) {
+    LOG_INFO("AndroidGL", "gl display init\n");
     const EGLint attrib_list[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
 
     const EGLint attribs[] = { EGL_SURFACE_TYPE,
@@ -430,7 +435,7 @@ void GL_draw_image(const NATIVE_IMAGE *data, int x, int y, uint32_t width, uint3
     glUniform3fv(k2, 1, one);
 }
 
-NATIVE_IMAGE *GL_utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+NATIVE_IMAGE *GL_utox_image_to_native(const uint8_t *data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     unsigned width, height, bpp;
     uint8_t *out = stbi_load_from_memory(data, size, &width, &height, &bpp, 3);
 
@@ -457,7 +462,7 @@ int GL_utox_android_redraw_window() {
     eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
     eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
 
-    if (new_width != settings.window_width || new_height != settings.window_height) {
+    if (new_width != (int32_t)settings.window_width || new_height != (int32_t)settings.window_height) {
         settings.window_width  = new_width;
         settings.window_height = new_height;
 

@@ -37,7 +37,7 @@ mkdir -p ./.android/
 
 
 if [ $1 == "--new" ]; then
-    rm ${BUILD_DIR}/lib/armeabi/libuTox.so
+    rm ${BUILD_DIR}/lib/armeabi/libuTox.so || true
 fi
 
 if [ $1 == "--auto-CI" ]; then
