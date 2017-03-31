@@ -10,6 +10,10 @@ int utox_verbosity() {
 }
 
 void debug(const char *fmt, ...){
+    if (!settings.debug_file) {
+        return;
+    }
+
     va_list list;
 
     va_start(list, fmt);
