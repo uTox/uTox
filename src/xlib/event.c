@@ -9,6 +9,7 @@
 #include "../macros.h"
 #include "../main_native.h" // Needed for redraw(), this is probably wrong
 #include "../notify.h"
+#include "../self.h"
 #include "../settings.h"
 #include "../tox.h"
 #include "../ui.h"
@@ -273,15 +274,14 @@ bool doevent(XEvent event) {
                     return true;
                 }
 
-                int i;
-                for (i = 0; i != COUNTOF(friend); i++) {
+                uint32_t i;
+                for (i = 0; i != self.friend_list_count; i++) {
                     if (video_win[i + 1] == ev->window) {
-                        FRIEND *f = &friend[i];
+                        FRIEND *f = get_friend(i);
                         postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
                         break;
                     }
                 }
-                assert(i != COUNTOF(friend));
             }
         }
 
@@ -549,7 +549,12 @@ bool doevent(XEvent event) {
             } else if (ev->property == XdndDATA) {
                 char *path = malloc(len + 1);
                 formaturilist(path, (char *)data, len);
-                postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND *)(flist_get_selected()->data) - friend, 0xFFFF, path);
+                FRIEND *f = flist_get_friend();
+                if (!f) {
+                    LOG_ERR("Event", "Could not get selected friend.");
+                    return false;
+                }
+                postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0xFFFF, path);
             } else if (type == XA_INCR) {
                 if (pastebuf.data) {
                     /* already pasting something, give up on that */

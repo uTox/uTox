@@ -4,6 +4,7 @@
 #include "screen_grab.h"
 #include "window.h"
 
+#include "../avatar.h"
 #include "../commands.h"
 #include "../file_transfers.h"
 #include "../filesys.h"
@@ -27,15 +28,16 @@
 #include "../ui/edit.h"
 #include "../ui/svg.h"
 
+#include "../layout/background.h" // TODO do we want to remove this?
+#include "../layout/friend.h"
+#include "../layout/group.h"
+#include "../layout/settings.h" // TODO remove, in for dropdown.lang
+
 #include <windowsx.h>
 
-static bool flashing;
-static bool hidden;
-
-bool  draw      = false;
-float scale     = 1.0;
-bool  connected = false;
-bool  havefocus;
+bool flashing = false;
+bool havefocus = true;
+bool hidden = false;
 
 /** Translate a char* from UTF-8 encoding to OS native;
  *
@@ -72,18 +74,24 @@ void openfilesend(void) {
     };
 
     if (GetOpenFileName(&ofn)) {
-        FRIEND *f = flist_get_selected()->data;
-        UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
-        if (!msg) {
-            LOG_ERR("Windows", "Unable to calloc for file send msg");
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR("Windows", "Unable to get friend for file send msg.");
             return;
         }
+
+        UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
+        if (!msg) {
+            LOG_ERR("Windows", "Unable to calloc for file send msg.");
+            return;
+        }
+
         msg->file = fopen(filepath, "rb");
         msg->name = (uint8_t *)filepath;
 
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
     } else {
-        LOG_ERR("NATIVE", "GetOpenFileName() failed");
+        LOG_ERR("Windows", "GetOpenFileName() failed.");
     }
     SetCurrentDirectoryW(dir);
 }
@@ -149,7 +157,7 @@ void openfileavatar(void) {
 
 void file_save_inline_image_png(MSG_HEADER *msg) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
-    if (path == NULL) {
+    if (!path) {
         LOG_FATAL_ERR(EXIT_MALLOC, "file_save_inline_image_png", "Could not allocate memory for path.");
     }
 
@@ -179,11 +187,11 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
     } else {
         LOG_ERR("NATIVE", "GetSaveFileName() failed");
     }
+
     free(path);
 }
 
-int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size) {
-    /* must be null terminated string          ↓                     */
+int native_to_utf8str(const wchar_t *str_in, char *str_out, uint32_t max_size) {
     return WideCharToMultiByte(CP_UTF8, 0, str_in, -1, str_out, max_size, NULL, NULL);
 }
 
@@ -225,15 +233,13 @@ uint64_t get_time(void) {
 }
 
 void openurl(char *str) {
-    ShellExecute(NULL, "open", (char *)str, NULL, NULL, SW_SHOW);
+    ShellExecute(NULL, "open", str, NULL, NULL, SW_SHOW);
 }
 
 void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {
     // TODO: Implement.
 }
 
-#include "../layout/friend.h"
-#include "../layout/group.h"
 void copy(int value) {
     const uint16_t max_size = INT16_MAX + 1;
     char data[max_size]; //! TODO: De-hardcode this value.
@@ -263,10 +269,11 @@ void copy(int value) {
 /* TODO DRY, this exists in screen_grab.c */
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image = calloc(1, sizeof(NATIVE_IMAGE));
-    if (image == NULL) {
+    if (!image) {
         LOG_ERR("create_utox_image", " Could not allocate memory for image." );
         return NULL;
     }
+
     image->bitmap        = bmp;
     image->has_alpha     = has_alpha;
     image->width         = width;
@@ -334,15 +341,14 @@ void paste(void) {
             if (!f->online) {
                 return;
             }
-            HBITMAP copy;
+
             BITMAP  bm;
-            HDC     tempdc;
             GetObject(h, sizeof(bm), &bm);
 
-            tempdc = CreateCompatibleDC(NULL);
+            HDC tempdc = CreateCompatibleDC(NULL);
             SelectObject(tempdc, h);
 
-            copy = CreateCompatibleBitmap(main_window.mem_DC, bm.bmWidth, bm.bmHeight);
+            HBITMAP copy = CreateCompatibleBitmap(main_window.mem_DC, bm.bmWidth, bm.bmHeight);
             SelectObject(main_window.mem_DC, copy);
             BitBlt(main_window.mem_DC, 0, 0, bm.bmWidth, bm.bmHeight, tempdc, 0, 0, SRCCOPY);
 
@@ -371,14 +377,16 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
         return NULL; // invalid image
     }
 
-    BITMAPINFO bmi = {.bmiHeader = {
-                          .biSize        = sizeof(BITMAPINFOHEADER),
-                          .biWidth       = width,
-                          .biHeight      = -height,
-                          .biPlanes      = 1,
-                          .biBitCount    = 32,
-                          .biCompression = BI_RGB,
-                      } };
+    BITMAPINFO bmi = {
+        .bmiHeader = {
+            .biSize        = sizeof(BITMAPINFOHEADER),
+            .biWidth       = width,
+            .biHeight      = -height,
+            .biPlanes      = 1,
+            .biBitCount    = 32,
+            .biCompression = BI_RGB,
+        }
+    };
 
     // create device independent bitmap, we can write the bytes to out
     // to put them in the bitmap
@@ -468,16 +476,16 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
         return;
     }
 
-    FlashWindow(main_window.window, 1);
+    FlashWindow(main_window.window, true);
     flashing = true;
 
     NOTIFYICONDATAW nid = {
-        .uFlags      = NIF_ICON | NIF_INFO,
+        .cbSize      = sizeof(nid),
         .hWnd        = main_window.window,
+        .uFlags      = NIF_ICON | NIF_INFO,
         .hIcon       = unread_messages_icon,
         .uTimeout    = 5000,
         .dwInfoFlags = 0,
-        .cbSize      = sizeof(nid),
     };
 
     utf8tonative(title, nid.szInfoTitle, title_length > sizeof(nid.szInfoTitle) / sizeof(*nid.szInfoTitle) - 1 ?
@@ -494,7 +502,6 @@ void showkeyboard(bool UNUSED(show)) {} /* Added for android support. */
 
 void edit_will_deactivate(void) {}
 
-#include "../layout/background.h" // TODO do we want to remove this?
 /* Redraws the main UI window */
 void redraw(void) {
     native_window_set_target(&main_window);
@@ -510,19 +517,14 @@ void redraw(void) {
  * sets struct .cbSize, and resets the tibtab to native self.name;
  */
 void update_tray(void) {
-    uint32_t tip_length;
-    char *   tip;
-
-    /* TODO; this is likely to over/under-run FIXME! */
-
-    tip = malloc(128 * sizeof(char)); // 128 is the max length of nid.szTip
+    // FIXME: this is likely to over/under-run
+    char *tip = calloc(1, 128); // 128 is the max length of nid.szTip
     if (tip == NULL) {
         LOG_TRACE("update_trip", " Could not allocate memory." );
         return;
     }
 
-    snprintf(tip, 127 * sizeof(char), "%s : %s", self.name, self.statusmsg);
-    tip_length = self.name_length + 3 + self.statusmsg_length;
+    uint32_t tip_length = MIN(snprintf(tip, 127, "%s : %s", self.name, self.statusmsg), 127);
 
     NOTIFYICONDATAW nid = {
         .uFlags = NIF_TIP,
@@ -577,8 +579,8 @@ void loadfonts() {
     lf.lfUnderline = 1;
     font[FONT_MSG_LINK] = CreateFontIndirect(&lf);*/
 
-    TEXTMETRIC tm;
     SelectObject(main_window.draw_DC, font[FONT_TEXT]);
+    TEXTMETRIC tm;
     GetTextMetrics(main_window.draw_DC, &tm);
     font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
     // SelectObject(main_window.draw_DC, font[FONT_MSG]);
@@ -608,32 +610,21 @@ void config_osdefaults(UTOX_SAVE *r) {
  * Credit: http://alter.org.ua/docs/win/args
  */
 PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
-    PCHAR *argv;
-    PCHAR  _argv;
-    ULONG  len;
-    ULONG  argc;
-    CHAR   a;
-    ULONG  i, j;
+    ULONG len = strlen(CmdLine);
+    ULONG i = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
+    PCHAR *argv = (PCHAR *)GlobalAlloc(GMEM_FIXED, i + (len + 2) * sizeof(CHAR));
+    PCHAR _argv = (PCHAR)(((PUCHAR)argv) + i);
 
-    BOOLEAN in_QM;
-    BOOLEAN in_TEXT;
-    BOOLEAN in_SPACE;
-
-    len = strlen(CmdLine);
-    i   = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
-
-    argv = (PCHAR *)GlobalAlloc(GMEM_FIXED, i + (len + 2) * sizeof(CHAR));
-
-    _argv = (PCHAR)(((PUCHAR)argv) + i);
-
-    argc       = 0;
+    ULONG argc = 0;
     argv[argc] = _argv;
-    in_QM      = FALSE;
-    in_TEXT    = FALSE;
-    in_SPACE   = TRUE;
-    i          = 0;
-    j          = 0;
+    i = 0;
 
+    BOOLEAN in_QM    = FALSE;
+    BOOLEAN in_TEXT  = FALSE;
+    BOOLEAN in_SPACE = TRUE;
+
+    CHAR a;
+    ULONG j = 0;
     while ((a = CmdLine[i])) {
         if (in_QM) {
             if (a == '\"') {
@@ -741,8 +732,6 @@ static bool auto_update(PSTR cmd) {
     return false;
 }
 
-#include "../layout/settings.h" // TODO remove, in for dropdown.lang
-
 /** client main()
  *
  * Main thread
@@ -777,12 +766,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     /* Process argc/v the backwards (read: windows) way. */
-    PCHAR *argv;
-    int    argc;
-    argv = CommandLineToArgvA(GetCommandLineA(), &argc);
+    int argc;
+    PCHAR *argv = CommandLineToArgvA(GetCommandLineA(), &argc);
 
-    if (NULL == argv) {
-        LOG_TRACE("NATIVE", "CommandLineToArgvA failed" );
+    if (!argv) {
+        LOG_TRACE("Windows", "CommandLineToArgvA failed.");
         return 0;
     }
 
@@ -808,7 +796,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         }
         path[i] = 0;
         SetCurrentDirectory(path);
-        strcpy(portable_mode_save_path, (char *)path);
+        strcpy(portable_mode_save_path, path);
     }
 
     if (should_launch_at_startup == 1) {
@@ -893,7 +881,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         do_tox_url((uint8_t *)cmd, len);
     }
 
-    draw = true;
     redraw();
     update_tray();
 
@@ -941,10 +928,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         .window_height = (wndrect.bottom - wndrect.top),
     };
     config_save(&d);
-
-    LOG_INFO("uTox", "Clean exit.");
-
-    utox_raze();
 
     // TODO: This should be a non-zero value determined by a message's wParam.
     return 0;

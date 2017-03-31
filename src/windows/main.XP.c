@@ -19,8 +19,14 @@ void native_export_chatlog_init(uint32_t friend_number) {
         return;
     }
 
-    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)friend[friend_number].name_length,
-             friend[friend_number].name);
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("WindowsXP", "Could not get friend with number: %u", friend_number);
+        return;
+    }
+
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length,
+             f->name);
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
@@ -35,7 +41,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
         // TODO: utox_get_file instead of fopen.
         FILE *file = fopen(path, "wb");
         if (file) {
-            utox_export_chatlog(get_friend(friend_number)->id_str, file);
+            utox_export_chatlog(f->id_str, file);
         } else {
             LOG_ERR("WinXP", "Opening file %s failed", path);
         }

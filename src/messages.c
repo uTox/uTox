@@ -16,7 +16,6 @@
 #include "text.h"
 #include "theme.h"
 #include "tox.h"
-#include "ui.h"
 #include "utox.h"
 
 #include "ui/contextmenu.h"
@@ -181,7 +180,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
 
     if (m->is_groupchat && flist_get_selected()->data == &group[m->id]) {
         m->panel.content_scroll->content_height = m->height;
-    } else if (flist_get_selected()->data == &friend[m->id]) {
+    } else if (flist_get_friend() && flist_get_friend()->number == get_friend(m->id)->number) {
         m->panel.content_scroll->content_height = m->height;
     }
 
@@ -238,6 +237,8 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
     msg->via.txt.msg    = calloc(1, length);
     msg->via.txt.length = length;
 
+    FRIEND *f = get_friend(m->id);
+
     if (auth) {
         msg->via.txt.author_length = self.name_length;
         if (!send) {
@@ -245,7 +246,7 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
             msg->receipt_time = 1;
         }
     } else {
-        msg->via.txt.author_length = friend[m->id].name_length;
+        msg->via.txt.author_length = f->name_length;
     }
 
     memcpy(msg->via.txt.msg, msgtxt, length);
@@ -260,7 +261,7 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
     }
 
     if (auth && send) {
-        postmessage_toxcore(TOX_SEND_MESSAGE, friend[m->id].number, length, msg);
+        postmessage_toxcore(TOX_SEND_MESSAGE, m->id, length, msg);
     }
 
     return message_add(m, msg);
@@ -276,6 +277,8 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
     msg->via.action.msg = calloc(1, length);
     msg->via.action.length = length;
 
+    FRIEND *f = get_friend(m->id);
+
     if (auth) {
         msg->via.txt.author_length = self.name_length;
         if (!send) {
@@ -283,7 +286,7 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
             msg->receipt_time = 1;
         }
     } else {
-        msg->via.txt.author_length = friend[m->id].name_length;
+        msg->via.txt.author_length = f->name_length;
     }
 
     memcpy(msg->via.action.msg, msgtxt, length);
@@ -293,7 +296,7 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
     }
 
     if (auth && send) {
-        postmessage_toxcore(TOX_SEND_ACTION, friend[m->id].number, length, msg);
+        postmessage_toxcore(TOX_SEND_ACTION, f->number, length, msg);
     }
 
     return message_add(m, msg);
@@ -387,7 +390,13 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
         return false;
     }
 
-    FRIEND *f = &friend[m->id];
+    FRIEND *f = get_friend(m->id);
+
+    if (!f) {
+        LOG_ERR("Messages", "Could not get friend with number: %u", m->id);
+        return false;
+    }
+
     if (f->skip_msg_logging) {
         return false;
     }
@@ -443,7 +452,13 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
 bool messages_read_from_log(uint32_t friend_number) {
     size_t    actual_count = 0;
 
-    MSG_HEADER **data = utox_load_chatlog(friend[friend_number].id_str, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("Messages", "Could not get friend with number: %u", friend_number);
+        return false;
+    }
+
+    MSG_HEADER **data = utox_load_chatlog(f->id_str, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
 
     time_t last = 0;
 
@@ -453,11 +468,11 @@ bool messages_read_from_log(uint32_t friend_number) {
         while (actual_count--) {
             msg = *p++;
             if (msg) {
-                if (msg_add_day_notice(&friend[friend_number].msg, last, msg->time)) {
+                if (msg_add_day_notice(&f->msg, last, msg->time)) {
                     last = msg->time;
                 }
 
-                message_add(&friend[friend_number].msg, msg);
+                message_add(&f->msg, msg);
             }
         }
         free(data);
@@ -547,7 +562,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     data          = calloc(1, length);
                     memcpy(data, &header, sizeof(header));
 
-                    char *hex = friend[m->id].id_str;
+                    char *hex = get_friend(m->id)->id_str;
                     if (msg->disk_offset) {
                         LOG_TRACE("Messages", "Updating message -> disk_offset is %lu" , msg->disk_offset);
                         utox_update_chatlog(hex, msg->disk_offset, data, length);
@@ -994,7 +1009,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
             if (draw_author) {
                 if (msg->our_msg != lastauthor) {
-                    FRIEND *f = &friend[m->id];
+                    FRIEND *f = get_friend(m->id);
                     if (msg->our_msg) {
                         messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length,
                                              COLOR_MAIN_TEXT_SUBTEXT);
@@ -1557,7 +1572,7 @@ int messages_selection(PANEL *panel, char *buffer, uint32_t len, bool names) {
                 p += msg->via.grp.author_length;
                 len -= msg->via.grp.author_length;
             } else {
-                const FRIEND *f = &friend[m->id];
+                const FRIEND *f = get_friend(m->id);
 
                 if (!msg->our_msg) {
                     if (len <= f->name_length) {

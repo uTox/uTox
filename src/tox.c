@@ -1,5 +1,6 @@
 #include "tox.h"
 
+#include "avatar.h"
 #include "dns.h"
 #include "file_transfers.h"
 #include "flist.h"
@@ -575,6 +576,7 @@ void toxcore_thread(void *UNUSED(args)) {
     }
 
     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
+    free_friends();
     LOG_TRACE("Toxcore", "Tox thread:\tClean exit!");
 }
 
@@ -998,7 +1000,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend # */
             LOG_TRACE("Toxcore", "Starting video for active call!" );
             utox_av_local_call_control(av, param1, TOXAV_CALL_CONTROL_SHOW_VIDEO);
-            friend[param1].call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;
+            get_friend(param1)->call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;
             break;
         }
         case TOX_CALL_DISCONNECT: {

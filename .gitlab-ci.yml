@@ -77,7 +77,8 @@ OSX:
     paths:
       - cache/
   script:
-    docker run --rm -u $(id -u):$(id -g) -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin arch-build ./extra/gitlab/osx-docker.sh
+    - pwd
+    - docker run --rm -u $(id -u):$(id -g) -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin arch-build ./extra/gitlab/osx-docker.sh
 
 #
 # test

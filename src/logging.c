@@ -12,6 +12,10 @@ int utox_verbosity() {
 #ifndef __ANDROID__ // Android needs to provide it's own logging functions
 
 void debug(const char *fmt, ...){
+    if (!settings.debug_file) {
+        return;
+    }
+
     va_list list;
 
     va_start(list, fmt);

@@ -13,7 +13,7 @@ bool slash_send_file(void *object, char *filepath, int UNUSED(arg_length)) {
     if (filepath) {
         FRIEND *f = object;
         LOG_TRACE("slash_send_file", "File path is: %s" , filepath);
-        postmessage_toxcore(TOX_FILE_SEND_NEW_SLASH, f - friend, 0xFFFF, (void *)filepath);
+        postmessage_toxcore(TOX_FILE_SEND_NEW_SLASH, f->number, 0xFFFF, (void *)filepath);
         return true;
     }
 

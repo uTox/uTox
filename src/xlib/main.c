@@ -5,6 +5,7 @@
 #include "tray.h"
 #include "window.h"
 
+#include "../avatar.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../debug.h"
@@ -880,10 +881,6 @@ int main(int argc, char *argv[]) {
     while (tox_thread_init) {
         yieldcpu(1);
     }
-
-    LOG_INFO("XLIB", "XLIB main:\tClean exit");
-
-    utox_raze();
 
     return 0;
 }

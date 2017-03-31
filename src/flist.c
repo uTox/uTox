@@ -2,6 +2,7 @@
 
 // TODO: Separate from UI or include in UI.
 
+#include "avatar.h"
 #include "friend.h"
 #include "groups.h"
 #include "debug.h"
@@ -20,7 +21,6 @@
 #include "ui/edit.h"
 #include "ui/button.h"
 #include "ui/scrollable.h"
-#include "ui/svg.h"
 #include "ui/switch.h"
 #include "ui/tooltip.h"
 
@@ -150,12 +150,12 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
     switch (i->item) {
         case ITEM_FRIEND: {
-            FRIEND *f      = i->data;
+            FRIEND *f = i->data;
             uint8_t status = f->online ? f->status : 3;
 
             // draw avatar or default image
             if (friend_has_avatar(f)) {
-                draw_avatar_image(f->avatar.img, ROSTER_AVATAR_LEFT, y + ava_top, f->avatar.width, f->avatar.height,
+                draw_avatar_image(f->avatar->img, ROSTER_AVATAR_LEFT, y + ava_top, f->avatar->width, f->avatar->height,
                                   default_w, default_w);
             } else {
                 drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w,
@@ -434,6 +434,10 @@ static void page_open(ITEM *i) {
 
         case ITEM_FRIEND: {
             FRIEND *f = i->data;
+            if (!f) {
+                LOG_ERR("Flist", "Could not get friend data from item");
+                return;
+            }
 
             #ifdef UNITY
             if (unity_running) {
@@ -445,7 +449,7 @@ static void page_open(ITEM *i) {
             edit_chat_msg_friend.length = f->typed_length;
 
             f->msg.width  = current_width;
-            f->msg.id     = f - friend;
+            f->msg.id     = f->number;
             f->unread_msg = 0;
             /* We use the MESSAGES struct from the friend, but we need the info from the panel. */
             messages_friend.object = ((void **)&f->msg);
@@ -563,7 +567,7 @@ void flist_start(void) {
 
     ITEM *i = item;
     for (uint32_t num = 0; num < self.friend_list_count; ++num) {
-        FRIEND *f = &friend[num];
+        FRIEND *f = get_friend(num);
         i->item   = ITEM_FRIEND;
         i->data   = f;
         i++;
@@ -596,7 +600,7 @@ void flist_addfriend2(FRIEND *f, FRIENDREQ *req) {
                 messages_friend.content_scroll->content_height        = f->msg.height;
                 messages_friend.content_scroll->d                     = f->msg.scroll;
 
-                f->msg.id = f - friend;
+                f->msg.id = f->number;
             }
 
             item[i].item = ITEM_FRIEND;
@@ -640,7 +644,7 @@ static void deleteitem(ITEM *i) {
     switch (i->item) {
         case ITEM_FRIEND: {
             FRIEND *f = i->data;
-            postmessage_toxcore(TOX_FRIEND_DELETE, (f - friend), 0, f);
+            postmessage_toxcore(TOX_FRIEND_DELETE, f->number, 0, f);
             break;
         }
 
@@ -1149,7 +1153,7 @@ bool flist_mup(void *UNUSED(n)) {
                     GROUPCHAT *g = nitem->data;
 
                     if (f->online) {
-                        postmessage_toxcore(TOX_GROUP_SEND_INVITE, (g - group), (f - friend), NULL);
+                        postmessage_toxcore(TOX_GROUP_SEND_INVITE, (g - group), f->number, NULL);
                     }
                 }
             }
