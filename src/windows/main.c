@@ -6,11 +6,11 @@
 
 #include "../avatar.h"
 #include "../commands.h"
+#include "../debug.h"
 #include "../file_transfers.h"
 #include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../debug.h"
 #include "../macros.h"
 #include "../main.h"
 #include "../main_native.h"
@@ -20,6 +20,7 @@
 #include "../theme.h"
 #include "../tox.h"
 #include "../ui.h"
+#include "../updater.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"
@@ -844,9 +845,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     theme_load(settings.theme);
 
-
-    settings.window_width  = settings.window_width  < (uint32_t)SCALE(MAIN_WIDTH)  ? SCALE(MAIN_WIDTH)  : settings.window_width;
-    settings.window_height = settings.window_height < (uint32_t)SCALE(MAIN_HEIGHT) ? SCALE(MAIN_HEIGHT) : settings.window_height;
+    settings.window_width  = MAX((uint32_t)SCALE(MAIN_WIDTH), settings.window_width);
+    settings.window_height = MAX((uint32_t)SCALE(MAIN_HEIGHT), settings.window_height);
 
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
@@ -868,6 +868,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     // start tox thread (main_window.window needs to be set first)
     thread(toxcore_thread, NULL);
+    thread(updater_thread, NULL);
 
     // wait for tox_thread init
     while (!tox_thread_init && !settings.save_encryption) {

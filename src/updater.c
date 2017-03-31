@@ -4,6 +4,8 @@
 #include "settings.h"
 #include "branding.h"
 
+#include "main.h" // File name length
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -22,6 +24,7 @@
 #include <netdb.h>
 #endif
 
+#include "main_native.h" // Include after winsock2
 
 static const uint8_t pk[crypto_sign_ed25519_PUBLICKEYBYTES] = {
     0x64, 0x3B, 0xF6, 0xEF, 0x40, 0xAF, 0x61, 0x94,
@@ -34,7 +37,7 @@ static size_t mk_request(char *host, char *file, char *data) {
     return snprintf(data, 1024, "GET /%s HTTP/1.0\r\n""Host: %s\r\n\r\n", file, host);
 }
 
-static uint8_t *download(char *host, char *file, uint32_t *out_len) {
+static uint8_t *download(char *host, char *file, size_t *out_len) {
     if (settings.force_proxy) {
         LOG_ERR("Updater", "Updater:\tUnable to download with a proxy set and forced!");
         return NULL;
@@ -184,7 +187,7 @@ static uint8_t *verify_sig(uint8_t *raw, uint32_t len, size_t *out_len) {
 }
 
 static uint32_t download_version(void) {
-    uint32_t len = 0;
+    size_t len = 0;
     uint8_t *raw = download("downloads.utox.io", "utox_version_stable", &len);
     if (!raw) {
         LOG_ERR("Updater", "Download failed.");
@@ -214,27 +217,74 @@ static uint32_t download_version(void) {
 }
 
 // Returns true if there's a new version.
-bool updater_check(void) {
+uint32_t updater_check(void) {
     uint32_t version = download_version();
     LOG_INFO("Updater", "Current version %u, newest version version %u." , UTOX_VERSION_NUMBER, version);
 
     if (version > UTOX_VERSION_NUMBER) {
         LOG_WARN("Updater", "New version of uTox available [%u.%u.%u]",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
-        return true;
+        return version;
     } else if (version == UTOX_VERSION_NUMBER) {
         LOG_WARN("Updater", "Running the latest version of uTox [%u.%u.%u]",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
-
+    } else {
+        LOG_WARN("Updater", "Running an unpublished version of uTox published is [%u.%u.%u]",
+                      (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
     }
 
-    return false;
+    return 0;
 }
 
 static bool updater_running = false;
 
+#define HOST "win"
+#define ARCH 64u
+
 void updater_thread(void *ptr) {
+    (void)(ptr);
+    updater_running = true;
+    static uint32_t version = 0;
+
+    char pwd[UTOX_FILE_NAME_LENGTH];
+    getcwd(pwd, sizeof pwd);
+
+
+    char name[UTOX_FILE_NAME_LENGTH];
+
     while (updater_running) {
-        (void)(ptr);
+        if (!settings.auto_update) {
+            updater_running = false;
+            return;
+        }
+
+        if ((version = updater_check())) {
+            char str[100];
+            snprintf(str, 100, "%.3s_%u-%u.%u.%u", HOST, ARCH, (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
+
+            snprintf(name, UTOX_FILE_NAME_LENGTH, "%s/uTox.exe", pwd);
+            FILE *file = fopen(name, "wb");
+            if (!file) {
+                continue;
+            }
+
+            size_t raw_size = 0;
+            uint8_t *raw = download("downloads.utox.io", str, &raw_size);
+            LOG_NOTE("Updater", "Got size bin %u", raw_size);
+
+            size_t data_size = 0;
+            uint8_t *data = verify_sig(raw, raw_size, &data_size);
+            free(raw);
+
+            if (!data) {
+                LOG_ERR("Updater", "Signature failed. This is bad; consider reporting this.");
+            }
+
+            fwrite(data + 4, data_size - 4, 1, file);
+            fclose(file);
+            free(data);
+        }
+
+        yieldcpu(1000 * 6 * 5);
     }
 }

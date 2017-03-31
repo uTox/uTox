@@ -5,6 +5,7 @@
 #include "../macros.h"
 #include "../self.h"
 #include "../theme.h"
+#include "../updater.h"
 
 #include "../ui/button.h"
 #include "../ui/draw.h"
@@ -785,7 +786,10 @@ static void switchfxn_audio_filtering(void) { settings.audiofilter_enabled = !se
 
 static void switchfxn_status_notifications(void) { settings.status_notifications = !settings.status_notifications; }
 
-static void switchfxn_auto_update(void) { settings.auto_update = !settings.auto_update; }
+static void switchfxn_auto_update(void) {
+    settings.auto_update = !settings.auto_update;
+    thread(updater_thread, NULL);
+}
 
 static void switchfxn_block_friend_requests(void) { settings.block_friend_requests = !settings.block_friend_requests; }
 

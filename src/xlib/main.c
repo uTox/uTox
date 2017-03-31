@@ -6,26 +6,27 @@
 #include "window.h"
 
 #include "../avatar.h"
+#include "../debug.h"
+#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../debug.h"
 #include "../macros.h"
 #include "../main_native.h"
 #include "../settings.h"
+#include "../text.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../text.h"
+#include "../updater.h"
 #include "../utox.h"
-#include "../filesys.h"
 
 #include "../av/utox_av.h"
 #include "../ui/draw.h"
 #include "../ui/edit.h"
 
+#include "../layout/background.h"
 #include "../layout/friend.h"
 #include "../layout/group.h"
 #include "../layout/settings.h"
-#include "../layout/background.h"
 
 #include "../main.h" // STBI
 
@@ -786,6 +787,7 @@ int main(int argc, char *argv[]) {
 
     // start toxcore thread
     thread(toxcore_thread, NULL);
+    thread(updater_thread, NULL);
 
     /* event loop */
     while (true) {
