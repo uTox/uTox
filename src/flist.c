@@ -21,7 +21,6 @@
 #include "ui/edit.h"
 #include "ui/button.h"
 #include "ui/scrollable.h"
-#include "ui/svg.h"
 #include "ui/switch.h"
 #include "ui/tooltip.h"
 

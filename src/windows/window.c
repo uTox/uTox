@@ -19,7 +19,7 @@ void native_window_init(HINSTANCE instance) {
 
     curr_instance = instance;
 
-    HICON black_icon     = LoadIcon(curr_instance, MAKEINTRESOURCE(101));
+    black_icon = LoadIcon(curr_instance, MAKEINTRESOURCE(101));
     unread_messages_icon = LoadIcon(curr_instance, MAKEINTRESOURCE(102));
 
     WNDCLASSW main_window_class = {
@@ -29,6 +29,7 @@ void native_window_init(HINSTANCE instance) {
         .hIcon         = black_icon,
         .lpszClassName = main_classname,
     };
+
     RegisterClassW(&main_window_class);
 }
 
@@ -85,13 +86,13 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel
     static uint16_t notification_number = 0;
 
     static wchar_t class_name[] = L"uTox Notification";
-    HICON black_icon  = LoadIcon(curr_instance, MAKEINTRESOURCE(101));
+    HICON notify_black_icon  = LoadIcon(curr_instance, MAKEINTRESOURCE(101));
 
     WNDCLASSW notify_window_class = {
         .style         = CS_DBLCLKS,
         .lpfnWndProc   = notify_msg_sys,
         .hInstance     = curr_instance,
-        .hIcon         = black_icon,
+        .hIcon         = notify_black_icon,
         .lpszClassName = class_name,
         .hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
     };
