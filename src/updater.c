@@ -39,14 +39,14 @@ static size_t mk_request(char *host, char *file, char *data) {
 
 static uint8_t *download(char *host, char *file, size_t *out_len) {
     if (settings.force_proxy) {
-        LOG_ERR("Updater", "Updater:\tUnable to download with a proxy set and forced!");
+        LOG_ERR("Updater", "Unable to download with a proxy set and forced!");
         return NULL;
     }
 
     struct addrinfo *root;
 
     if (getaddrinfo(host, "80", NULL, &root)) {
-        LOG_ERR("Updater", "Updater:\tNo host found at [%s]", host);
+        LOG_ERR("Updater", "No host found at [%s]", host);
         return NULL;
     }
 
@@ -103,7 +103,7 @@ static uint8_t *download(char *host, char *file, size_t *out_len) {
                 // Get the real file length
                 char *str = strstr((char*)buffer, "Content-Length: ");
                 if (!str) {
-                    LOG_NOTE("Updater", "invalid HTTP response (1)\n");
+                    LOG_NOTE("Updater", "invalid HTTP response (1)");
                     break;
                 }
 
@@ -126,7 +126,7 @@ static uint8_t *download(char *host, char *file, size_t *out_len) {
                     break;
                 }
 
-                LOG_INFO("Updater", "Download size: %u\n", header_len);
+                LOG_INFO("Updater", "Download size: %u", header_len);
 
                 /* read the first piece */
                 real_len = len - (str - (char*)buffer);

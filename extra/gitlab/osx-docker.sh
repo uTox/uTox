@@ -19,6 +19,8 @@ export CFLAGS="${CFLAGS} -isystem /workdir/cache/macos/usr/include/opus "
 export CFLAGS="${CFLAGS} -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk "
 export CFLAGS="${CFLAGS} -mmacosx-version-min=10.10 "
 export CFLAGS="${CFLAGS} -m64 -arch x86_64 -DNDEBUG -O3 -Wall"
+export CFLAGS="${CFLAGS} -Wno-unused-parameter"
+export CFLAGS="${CFLAGS} -Wno-missing-braces"
 
 export LDFLAGS="${LDFLAGS} -L/workdir/cache/macos/usr/lib "
 export LDFLAGS="${LDFLAGS} -L${CACHE_DIR}/usr/lib "
