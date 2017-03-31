@@ -191,8 +191,17 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
 
+
         /* File transfer messages */
+
+        // data:   FILE_TRANSFER *file
+        // param1: uint32_t friend_number
+        // param2: uint32_t file_number
         case FILE_SEND_NEW: {
+            if (!data) {
+                break;
+            }
+
             FRIEND *f = get_friend(param1);
             if (!f) {
                 LOG_ERR("uTox", "Could not get friend with number: %u", param1);
@@ -205,33 +214,52 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);
-            ft_set_ui_data(file->file_number, file->friend_number, m);
+            ft_set_ui_data(file->friend_number, file->file_number, m);
 
             free(data);
             redraw();
             break;
         }
+
         case FILE_INCOMING_NEW: {
-            FILE_TRANSFER *file = data;
+            if (!data) {
+                break;
+            }
 
             FRIEND *f = get_friend(param1);
+            if (!f) {
+                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                return;
+            }
+
+            FILE_TRANSFER *file = data;
 
             if (f->ft_autoaccept) {
                 LOG_TRACE("Toxcore", "Auto Accept enabled for this friend: sending accept to system" );
                 native_autoselect_dir_ft(param1, file);
             }
 
-            MSG_HEADER *m = message_add_type_file(&f->msg, (param2 + 1) << 16, file->incoming, file->inline_img, file->status,
-                                                  file->name, file->name_length,
+            MSG_HEADER *m = message_add_type_file(&f->msg, (param2 + 1) << 16, file->incoming, file->inline_img,
+                                                  file->status, file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);
             ft_set_ui_data(file->friend_number, file->file_number, m);
+
             free(data);
             redraw();
             break;
         }
+
         case FILE_INCOMING_NEW_INLINE: {
+            if (!data) {
+                break;
+            }
+
             FRIEND *f = get_friend(param1);
+            if (!f) {
+                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                return;
+            }
 
             // Process image data
             uint16_t width, height;
@@ -239,32 +267,49 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             memcpy(&width, data, sizeof(uint16_t));
             memcpy(&height, (uint8_t *)data + sizeof(uint16_t), sizeof(uint16_t));
             memcpy(&image, (uint8_t *)data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
+
             // Save and store image
             friend_recvimage(f, (NATIVE_IMAGE *)image, width, height);
+
             redraw();
             free(data);
             break;
         }
+
         case FILE_INCOMING_NEW_INLINE_DONE: {
-            // Add file transfer message so user can save the inline.
+            if (!data) {
+                break;
+            }
+
             FRIEND *f = get_friend(param1);
+            if (!f) {
+                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                return;
+            }
+
             FILE_TRANSFER *file = data;
+
+            // Add file transfer message so user can save the inline.
             MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
                                                   file->name, file->name_length,
                                                   file->target_size, file->current_size);
             file_notify(f, m);
             ft_set_ui_data(file->friend_number, file->file_number, m);
+
             redraw();
             break;
         }
+
         case FILE_INCOMING_ACCEPT: {
             postmessage_toxcore(TOX_FILE_ACCEPT, param1, param2 << 16, data);
             break;
         }
+
         case FILE_STATUS_UPDATE: {
             if (!data) {
                 break;
             }
+
             FILE_TRANSFER *file = data;
 
             if (file->ui_data) {
@@ -272,14 +317,17 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 file->ui_data->via.ft.speed       = file->speed;
                 file->ui_data->via.ft.file_status = param1;
             }
+
             free(data);
             redraw();
             break;
         }
+
         case FILE_STATUS_UPDATE_DATA: {
             if (!data) {
                 break;
             }
+
             FILE_TRANSFER *file = data;
 
             if (file->ui_data) {
@@ -298,12 +346,20 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             redraw();
             break;
         }
+
+        // data:   MSG_HEADER *ui_data
+        // param1: UTOX_FILE_TRANSFER_STATUS file_status
+        // File is done, failed or broken.
         case FILE_STATUS_DONE: {
-            // Could also be failed or broken
-            MSG_HEADER *msg = data;
-            if (msg) {
-                msg->via.ft.file_status = param1;
+            LOG_INFO("uTox", "FT done. Updating UI.");
+            if (!data) {
+                LOG_INFO("uTox", "FT done but no data about it.");
+                break;
             }
+
+            MSG_HEADER *msg = data;
+            msg->via.ft.file_status = param1;
+
             redraw();
             break;
         }
