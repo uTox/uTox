@@ -1,6 +1,8 @@
 #/usr/bin/env zsh
 #
 
+# openal is a windows thing, just fyi
+
 if ! [ -d openal ]; then
   git clone --depth=1 https://github.com/irungentoo/openal-soft-tox.git openal
 fi

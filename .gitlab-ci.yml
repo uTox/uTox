@@ -29,9 +29,8 @@ build:linux:64:
     untracked: true
 
 build:linux:muslc:
-  allow_failure: true
-  image: alpine-tox-xvfb
   stage: build
+  image: alpine-tox-xvfb
   tags:
     - alpine-tox-xvfb
   cache:
@@ -134,7 +133,7 @@ dev_tool:windows:
 #
 # test
 #
-.tests: &tests
+.test: &test
   stage: test
   cache:
     # keep cache across stages
@@ -144,14 +143,14 @@ dev_tool:windows:
   dependencies:
     - build:linux:64
 
-tests:chatlog:
-  <<: *tests
+test:chatlog:
+  <<: *test
   script:
     - cd build/tests/
     - ctest -VV -R test_chatlog
 
-tests:updater:
-  <<: *tests
+test:updater:
+  <<: *test
   script:
     - cd build/tests/
     - ctest -VV -R test_updater
