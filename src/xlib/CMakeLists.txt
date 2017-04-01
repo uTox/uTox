@@ -4,7 +4,6 @@ option(ENABLE_DBUS "Compile with dbus notification support" ON)
 
 
 if(ENABLE_DBUS)
-    include(${CMAKE_SOURCE_DIR}/cmake/FindDBus.cmake)
     find_package(DBus REQUIRED)
     include_directories(${DBUS_INCLUDE_DIR} "/usr/lib/dbus-1.0/include")
     add_cflag("-DHAVE_DBUS=1")
