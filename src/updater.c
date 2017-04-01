@@ -64,6 +64,14 @@ static size_t mk_request(char *host, char *file, char *data) {
     return snprintf(data, 1024, "GET /%s HTTP/1.0\r\n""Host: %s\r\n\r\n", file, host);
 }
 
+// I don't like it either, but windows is a dirty dirty liar!
+#if defined(_WIN32) || defined(__WIN32__)
+#define VALID_SOCKET(s) ((uint64_t)s == INVALID_SOCKET)
+#else
+#define VALID_SOCKET(s) (s < 0)
+#endif
+
+
 static uint8_t *download(char *host, char *file, size_t *out_len) {
     if (settings.force_proxy) {
         LOG_ERR("Updater", "Unable to download with a proxy set and forced!");
@@ -82,8 +90,8 @@ static uint8_t *download(char *host, char *file, size_t *out_len) {
             continue;
         }
 
-        int32_t sock = socket(info->ai_family, SOCK_STREAM, IPPROTO_TCP);
-        if (sock < 0) {
+        int64_t sock = socket(info->ai_family, SOCK_STREAM, IPPROTO_TCP);
+        if (VALID_SOCKET(sock)) {
             LOG_ERR("Updater", "Can't get socket!");
             continue;
         }
@@ -265,7 +273,7 @@ uint32_t updater_check(void) {
 
 static bool updater_running = false;
 void updater_thread(void *UNUSED(ptr)) {
-#ifndef DONT_AUTO_UPDATE_UTOX
+#ifndef DO_NOT_AUTO_UPDATE_UTOX
     updater_running = true;
 
     char pwd[UTOX_FILE_NAME_LENGTH];
