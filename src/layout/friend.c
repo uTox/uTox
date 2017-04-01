@@ -62,15 +62,21 @@ static void draw_friend(int x, int y, int w, int height) {
 
 /* Draw an invite to be a friend window */
 static void draw_friend_request(int x, int y, int w, int h) {
-    FRIENDREQ *req = (flist_get_selected()->data);
+    FREQUEST *req = flist_get_frequest();
+    if (!req) {
+        LOG_ERR("Layout Friend", "Unable to draw a friend request without a friend request.");
+        return;
+    }
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FRIENDREQUEST);
 
-    setfont(FONT_TEXT);
-    utox_draw_text_multiline_within_box(x + SCALE(10), y + SCALE(70), w + x, y, y + h, font_small_lineheight,
-                                        req->msg, req->length, ~0, ~0, 0, 0, true);
+    if (req->msg && req->length) {
+        setfont(FONT_TEXT);
+        utox_draw_text_multiline_within_box(x + SCALE(10), y + SCALE(70), w + x, y, y + h, font_small_lineheight,
+                                            req->msg, req->length, ~0, ~0, 0, 0, true);
+    }
 }
 
 static void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
@@ -415,7 +421,7 @@ static void button_call_video_update(BUTTON *b) {
 }
 
 static void button_accept_friend_on_mup(void) {
-    FRIENDREQ *req = flist_get_selected()->data;
+    FREQUEST *req = flist_get_frequest();
     postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
     panel_friend_request.disabled = true;
 }

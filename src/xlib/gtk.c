@@ -348,7 +348,7 @@ void ugtk_openfilesend(void) {
         return;
     }
     utoxGTK_open = true;
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
     uint32_t number = f->number;
     thread(ugtk_opensendthread, (void*)(size_t)number);
 }

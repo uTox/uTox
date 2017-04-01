@@ -239,10 +239,13 @@ void copy(int value) {
     int len;
     if (edit_active()) {
         len = edit_copy((char *)clipboard.data, sizeof(clipboard.data));
-    } else if (flist_get_selected()->item == ITEM_FRIEND) {
+    } else if (flist_get_friend()) {
         len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
-    } else {
+    } else if (flist_get_groupchat()) {
         len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), value);
+    } else {
+        LOG_ERR("XLIB", "Copy from Unsupported flist type.");
+        return;
     }
 
     if (len) {
@@ -345,9 +348,12 @@ void formaturilist(char *out, const char *in, size_t len) {
 
 // TODO(robinli): Go over this function and see if either len or size are removeable.
 void pastedata(void *data, Atom type, size_t len, bool select) {
-    // TODO we shouldn't blindly trust this function to return a friend.
-    // We need to write another funtion that promises a friend (idealy the last active or null.)
-    FRIEND *f = (FRIEND *)flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR("XLIB", "Can't paste data to missing friend.");
+        return;
+    }
+
     size_t size = (size_t)len;
     if (type == XA_PNG_IMG) {
         uint16_t width, height;

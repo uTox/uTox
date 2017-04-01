@@ -440,28 +440,25 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         /* Adding and deleting */
         case FRIEND_INCOMING_REQUEST: {
-            /* data: pointer to FRIENDREQ structure
+            /* data: pointer to FREQUEST structure
              */
-            flist_addfriendreq(data);
+            flist_add_frequest(get_frequest(param1));
             redraw();
             break;
         }
         case FRIEND_ACCEPT_REQUEST: {
             /* confirmation that friend has been added to friend list (accept) */
-            if (!param1) {
-                FRIEND *f = get_friend(param2);
-                if (!f) {
-                    LOG_ERR("uTox", "Could not get friend with number: %u", param2);
-                    return;
-                }
+            FREQUEST *req = data;
 
-                FRIENDREQ *req = data;
-                flist_addfriend2(f, req);
-                flist_reselect_current();
-                redraw();
+            FRIEND *f = get_friend(param1);
+            if (!f) {
+                LOG_ERR("uTox", "Could not get friend with number: %u", param2);
+                return;
             }
 
-            free(data);
+            flist_add_friend_accepted(f, req);
+            flist_reselect_current();
+            redraw();
             break;
         }
         case FRIEND_SEND_REQUEST: {
@@ -481,7 +478,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 }
 
                 memcpy(f->cid, data, sizeof(f->cid));
-                flist_addfriend(f);
+                flist_add_friend(f);
 
                 addfriend_status = ADDF_SENT;
             }
@@ -582,7 +579,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 return;
             }
 
-            GROUPCHAT *selected = flist_get_selected()->data;
+            GROUPCHAT *selected = flist_get_groupchat();
             if (selected != g) {
                 g->unread_msg = true;
             }
@@ -624,7 +621,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 g->topic_length = sizeof(g->topic) - 1;
             }
 
-            GROUPCHAT *selected = flist_get_selected()->data;
+            GROUPCHAT *selected = flist_get_groupchat();
             if (selected != g) {
                 g->unread_msg = true;
             }

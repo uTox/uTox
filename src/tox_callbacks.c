@@ -29,13 +29,9 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
 
     length = utf8_validate(msg, length);
 
-    FRIENDREQ *req = malloc(sizeof(FRIENDREQ) + length);
+    uint16_t r_number = friend_request_new(id, msg, length);
 
-    req->length = length;
-    memcpy(req->id, id, sizeof(req->id));
-    memcpy(req->msg, msg, length);
-
-    postmessage_utox(FRIEND_INCOMING_REQUEST, 0, 0, req);
+    postmessage_utox(FRIEND_INCOMING_REQUEST, r_number, 0, NULL);
     postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_REQUEST, 0, NULL);
 }
 
@@ -158,7 +154,7 @@ static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE ty
     int gid = -1;
     if (type == TOX_CONFERENCE_TYPE_TEXT) {
         gid = tox_conference_join(tox, fid, data, length, NULL);
-        group_init(&group[gid], gid, 0);
+        group_init(get_group(gid), gid, 0);
     } else if (type == TOX_CONFERENCE_TYPE_AV) {
         // TODO FIX THIS AFTER NEW GROUP API IS RELEASED
         // gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
@@ -173,7 +169,7 @@ static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE ty
 
 static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, TOX_MESSAGE_TYPE type,
                                    const uint8_t *message, size_t length, void *UNUSED(userdata)) {
-    GROUPCHAT *g = &group[gid];
+    GROUPCHAT *g = get_group(gid);
 
     switch (type) {
         case TOX_MESSAGE_TYPE_ACTION: {
@@ -193,7 +189,7 @@ static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid,
 
 static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid, TOX_CONFERENCE_STATE_CHANGE change,
                                            void *UNUSED(userdata)) {
-    GROUPCHAT *g = &group[gid];
+    GROUPCHAT *g = get_group(gid);
 
     switch (change) {
         case TOX_CONFERENCE_STATE_CHANGE_PEER_JOIN: {
