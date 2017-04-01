@@ -332,11 +332,9 @@ static void button_call_audio_on_mup(void) {
     } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
         LOG_TRACE("Layout Friend", "Accept Call: %u", f->number);
         postmessage_toxcore(TOX_CALL_ANSWER, f->number, 0, NULL);
-    } else {
-        if (f->online) {
-            postmessage_toxcore(TOX_CALL_SEND, f->number, 0, NULL);
-            LOG_TRACE("Layout Friend", "Calling friend: %u", f->number);
-        }
+    } else if (f->online) {
+        postmessage_toxcore(TOX_CALL_SEND, f->number, 0, NULL);
+        LOG_TRACE("Layout Friend", "Calling friend: %u", f->number);
     }
 }
 
@@ -386,11 +384,9 @@ static void button_call_video_on_mup(void) {
     } else if (f->call_state_friend) {
         LOG_TRACE("Layout Friend", "Accept Call (video): %u %u", f->number, f->call_state_friend);
         postmessage_toxcore(TOX_CALL_ANSWER, f->number, 1, NULL);
-    } else {
-        if (f->online) {
-            postmessage_toxcore(TOX_CALL_SEND, f->number, 1, NULL);
-            LOG_TRACE("Layout Friend", "Calling friend (video): %u", f->number);
-        }
+    } else if (f->online) {
+        postmessage_toxcore(TOX_CALL_SEND, f->number, 1, NULL);
+        LOG_TRACE("Layout Friend", "Calling friend (video): %u", f->number);
     }
 }
 
@@ -759,13 +755,11 @@ EDIT edit_chat_msg_friend = {
 /* Button to send chat message */
 static void button_chat_send_friend_on_mup(void) {
     FRIEND *f = flist_get_friend();
-    if (f) {
-        if (f->online) {
-            // TODO clear the chat bar with a /slash command
-            e_chat_msg_onenter(&edit_chat_msg_friend);
-            // reset focus to the chat window on send to prevent segfault. May break on android.
-            edit_setfocus(&edit_chat_msg_friend);
-        }
+    if (f && f->online) {
+        // TODO clear the chat bar with a /slash command
+        e_chat_msg_onenter(&edit_chat_msg_friend);
+        // reset focus to the chat window on send to prevent segfault. May break on android.
+        edit_setfocus(&edit_chat_msg_friend);
     }
 }
 
