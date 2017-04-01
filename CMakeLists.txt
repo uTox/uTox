@@ -77,6 +77,7 @@ add_cflag("-Wno-misleading-indentation")
 ## Everything Else
 #
 add_cflag("-fno-strict-aliasing")
+add_cflag("-fPIC")
 
 #
 ## Optimization Flags
@@ -150,9 +151,9 @@ endif()
 option(UTOX_STATIC "Link uTox statically" OFF)
 if(UTOX_STATIC)
 	if(UNIX)
-		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl") 
+		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
 	else()
-		add_cflag("-static") 
+		add_cflag("-static")
 	endif()
 endif()
 
@@ -195,6 +196,7 @@ message("- uTox Static:      ${UTOX_STATIC}")
 message("- Toxcore Static:   ${TOXCORE_STATIC}")
 message("- Windows Legacy:   ${WIN_XP_LEGACY}")
 
+message("* CMAKE SYSTEM is '${CMAKE_SYSTEM_NAME}'")
 message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
 message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
 message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")

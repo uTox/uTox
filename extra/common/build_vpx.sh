@@ -18,4 +18,4 @@ if ! ([ -f "${CACHE_DIR}/libvpx.sha" ] && diff "${CACHE_DIR}/libvpx.sha" libvpx.
   mv libvpx.sha "${CACHE_DIR}/libvpx.sha"
 fi
 cd ..
-# rm -rf libvpx
+rm -rf libvpx
