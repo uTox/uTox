@@ -1,8 +1,9 @@
 #include "updater.h"
 
-#include "debug.h"
-#include "settings.h"
 #include "branding.h"
+#include "debug.h"
+#include "macros.h"
+#include "settings.h"
 
 #include "main.h" // File name length
 
@@ -10,8 +11,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <sodium.h>
 
@@ -25,6 +26,32 @@
 #endif
 
 #include "main_native.h" // Include after winsock2
+
+#if defined __WIN32__
+#define UPDATER_HOST "win"
+#define UPDATER_OUT "uTox.exe"
+#elif defined __ANDROID__
+#define UPDATER_HOST "and"
+#define UPDATER_OUT "uTox.apk"
+#elif defined __OBJC__
+#define UPDATER_HOST "osx"
+#define UPDATER_OUT "uTox.dmg"
+#else
+#define UPDATER_HOST "unx"
+#define UPDATER_OUT "utox"
+#endif
+
+
+#if (defined __WIN64__ || defined _WIN64 || defined __x86_64__ || defined __ppc64__ )
+#define UPDATER_ARCH 64u
+#else
+#define UPDATER_ARCH 32u
+#endif
+
+
+#define UPDATER_VERSION_URI "utox_stable_" UPDATER_HOST
+
+
 
 static const uint8_t pk[crypto_sign_ed25519_PUBLICKEYBYTES] = {
     0x64, 0x3B, 0xF6, 0xEF, 0x40, 0xAF, 0x61, 0x94,
@@ -188,7 +215,7 @@ static uint8_t *verify_sig(uint8_t *raw, uint32_t len, size_t *out_len) {
 
 static uint32_t download_version(void) {
     size_t len = 0;
-    uint8_t *raw = download("downloads.utox.io", "utox_version_stable", &len);
+    uint8_t *raw = download("downloads.utox.io", UPDATER_VERSION_URI, &len);
     if (!raw) {
         LOG_ERR("Updater", "Download failed.");
         return 0;
@@ -237,20 +264,12 @@ uint32_t updater_check(void) {
 }
 
 static bool updater_running = false;
-
-#define HOST "win"
-#define ARCH 64u
-
-void updater_thread(void *ptr) {
-    (void)(ptr);
+void updater_thread(void *UNUSED(ptr)) {
+#ifndef DONT_AUTO_UPDATE_UTOX
     updater_running = true;
-    static uint32_t version = 0;
 
     char pwd[UTOX_FILE_NAME_LENGTH];
     getcwd(pwd, sizeof pwd);
-
-
-    char name[UTOX_FILE_NAME_LENGTH];
 
     while (updater_running) {
         if (!settings.auto_update) {
@@ -258,14 +277,18 @@ void updater_thread(void *ptr) {
             return;
         }
 
+        static uint32_t version;
         if ((version = updater_check())) {
             char str[100];
-            snprintf(str, 100, "%.3s_%u-%u.%u.%u", HOST, ARCH, (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
+            snprintf(str, 100, "%.3s_%u-%u.%u.%u", UPDATER_HOST, UPDATER_ARCH, (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
 
-            snprintf(name, UTOX_FILE_NAME_LENGTH, "%s/uTox.exe", pwd);
+            char name[UTOX_FILE_NAME_LENGTH];
+            snprintf(name, UTOX_FILE_NAME_LENGTH, "%s/%s", pwd, UPDATER_OUT);
             FILE *file = fopen(name, "wb");
             if (!file) {
-                continue;
+                LOG_ERR("Updater", "Can't write to working dir");
+                LOG_ERR("Updater", "      %s", name);
+                break;
             }
 
             size_t raw_size = 0;
@@ -286,6 +309,7 @@ void updater_thread(void *ptr) {
             LOG_NOTE("Updater", "Wrote binary to %s", name);
         }
 
-        yieldcpu(1000 * 6 * 5);
+        yieldcpu(1000 * 60 * 5);
     }
+#endif
 }
