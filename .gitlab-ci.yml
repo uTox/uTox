@@ -173,7 +173,7 @@ test:XVFB:
     - apk add openal-soft-dev
     - ls -la
     - (sleep 3m && killall uTox-muslc-64) &
-    - ./uTox-muslc-64 -vvvvv
+    - ./uTox-muslc-64 -vvvvv || true
 #
 ## Deploy
 #
