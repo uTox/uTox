@@ -155,6 +155,24 @@ test:updater:
     - cd build/tests/
     - ctest -VV -R test_updater
 
+test:XVFB:
+  stage: test
+  image: alpine-tox-xvfb
+  tags:
+    - alpine-tox-xvfb
+  cache:
+    key: "$CI_BUILD_REF_NAME/linux"
+    paths:
+      - cache/
+  dependencies:
+    - build:linux:muslc
+  script:
+    - Xvfb :99 &
+    - export DISPLAY=:99
+    - sleep 4
+    - ls -la
+    - (sleep 3m && killall uTox-muslc-64) &
+    - ./uTox-muslc-64
 #
 ## Deploy
 #
