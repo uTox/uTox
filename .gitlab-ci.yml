@@ -20,6 +20,7 @@ build:linux:64:
   before_script:
     - ./extra/gitlab/linux-before.sh
   script:
+    - pkg-config --list-all | sort
     - ./extra/gitlab/linux-script.sh
     - cp build/utox uTox-linux-x64
   artifacts:

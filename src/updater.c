@@ -66,9 +66,9 @@ static size_t mk_request(char *host, char *file, char *data) {
 
 // I don't like it either, but windows is a dirty dirty liar!
 #if defined(_WIN32) || defined(__WIN32__)
-#define VALID_SOCKET(s) ((uint64_t)s == INVALID_SOCKET)
+#define INVALID_SOCKET(s) ((uint64_t)s == INVALID_SOCKET)
 #else
-#define VALID_SOCKET(s) (s < 0)
+#define INVALID_SOCKET(s) (s < 0)
 #endif
 
 
@@ -91,7 +91,7 @@ static uint8_t *download(char *host, char *file, size_t *out_len) {
         }
 
         int64_t sock = socket(info->ai_family, SOCK_STREAM, IPPROTO_TCP);
-        if (VALID_SOCKET(sock)) {
+        if (INVALID_SOCKET(sock)) {
             LOG_ERR("Updater", "Can't get socket!");
             continue;
         }
