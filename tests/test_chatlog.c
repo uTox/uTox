@@ -1,8 +1,12 @@
-#include "chatlog.h"
-
 #include "test.h"
 
-#include <macros.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "../src/macros.h"
+#include "../src/chatlog.c"
+#include "../src/text.c"
 
 #define MOCK_FRIEND_ID "6460FF76319AF777A999ABA2024D5D0AEB202360688ECBABFE56C9403B872D2F"
 

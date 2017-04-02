@@ -1,4 +1,19 @@
 project(utoxTESTS LANGUAGES C)
+include(CTest)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
+find_package(Check)
+
+function(make_test name)
+    add_executable(test_${name} test_${name}.c)
+    set_target_properties(test_${name} PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
+    target_link_libraries(test_${name} utox-test-mock ${CHECK_LIBRARIES})
+    add_test(NAME test_${name} COMMAND test_${name})
+endfunction()
+
+configure_file(${utoxTESTS_SOURCE_DIR}/run_tests.sh
+               ${uTox_BINARY_DIR}/run_tests.sh)
 
 #
 # generic testing defines
@@ -13,44 +28,13 @@ add_library(utox-test-mock
             mock/mock_system_calls.c
 )
 
-set_target_properties(utox-test-mock PROPERTIES
-                      COMPILE_FLAGS "-Wno-unused-parameter"
-                      )
-
-configure_file(${utoxTESTS_SOURCE_DIR}/run_tests.sh
-               ${uTox_BINARY_DIR}/run_tests.sh)
+set_target_properties(utox-test-mock PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 
 #
 # tests
 #
-
 # TODO add a cmake macro for adding tests, this will be too verbose if we add more.
-add_executable(test_chatlog
-               test_chatlog.c
-               ../src/chatlog.c
-               ../src/text.c
-               )
+make_test(chatlog)
 
-set_target_properties(test_chatlog PROPERTIES
-                      COMPILE_FLAGS "-Wno-unused-parameter"
-                      )
-
-target_link_libraries(test_chatlog utox-test-mock)
-
-add_test(NAME test_chatlog COMMAND test_chatlog)
-
-add_executable(test_updater
-               test_updater.c
-               ../src/updater.c
-               )
-
-set_target_properties(test_chatlog PROPERTIES
-                      COMPILE_FLAGS "-Wno-unused-parameter"
-                      )
-
-target_link_libraries(test_updater
-                      utox-test-mock
-                      sodium
-                      )
-
-add_test(NAME test_updater COMMAND test_updater)
+make_test(updater)
+    target_link_libraries(test_updater sodium)
