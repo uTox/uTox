@@ -271,10 +271,9 @@ uint32_t updater_check(void) {
     return 0;
 }
 
-static bool updater_running = false;
 void updater_thread(void *UNUSED(ptr)) {
-#ifndef DO_NOT_AUTO_UPDATE_UTOX
-    updater_running = true;
+#ifdef ENABLE_AUTOUPDATE
+    static bool updater_running = true;
 
     char pwd[UTOX_FILE_NAME_LENGTH];
     getcwd(pwd, sizeof pwd);
