@@ -170,7 +170,7 @@ test:XVFB:
   script:
     - Xvfb :99 &
     - export DISPLAY=:99
-    - sleep 4
+    - apk add openal-soft-dev
     - ls -la
     - (sleep 3m && killall uTox-muslc-64) &
     - ./uTox-muslc-64
