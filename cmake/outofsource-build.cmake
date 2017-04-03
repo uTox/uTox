@@ -10,9 +10,9 @@
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 	message(FATAL_ERROR "CMake has been ran to create an in-source build. Please create a 'build' path like following and run cmake in there:
 
-$ mkdir build/
-$ cd ./build/
-$ cmake ../
+$ mkdir -p build/debug
+$ cd build/debug
+$ cmake ../.. -DCMAKE_BUILD_TYPE=Debug
 
 This allows you to have multiple builds (e.g. debug and release) from same source code tree and no build files are being mixed with source files.
 And please cleanup CMakeFiles/ and CMakeCache.txt, this cannot be done from a cmake file:
