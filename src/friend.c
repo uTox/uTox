@@ -24,7 +24,7 @@ static FRIEND *friend = NULL;
 
 FRIEND *get_friend(uint32_t friend_number) {
     if (friend_number >= self.friend_list_size) { //friend doesnt exist if true
-        LOG_ERR("Friend", "Friend number out of bounds.");
+        LOG_WARN("Friend", "Friend number (%u) out of bounds.", friend_number);
         return NULL;
     }
 
