@@ -8,7 +8,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-void send_message(Display *dpy, /* display */
+static void send_message(Display *dpy, /* display */
                   Window w, /* sender (tray window) */
                   long message, /* message opcode */
                   long data1, /* message data 1 */
@@ -110,6 +110,14 @@ static void draw_tray_icon(void) {
     }
 }
 
+static void tray_xembed(XClientMessageEvent *ev) {
+    LOG_NOTE("XEMBED Tray", "ClientMessage on display %u ", ev->display);
+    LOG_NOTE("XEMBED Tray", "Format (%i) as long %lu %lu parent window %lu proto version %lu %lu",
+        ev->format, ev->data.l[0], ev->data.l[1], ev->data.l[2], ev->data.l[3], ev->data.l[4]);
+    tray_reposition();
+    draw_tray_icon();
+}
+
 void create_tray_icon(void) {
     LOG_NOTE("XLib Tray", "Create Tray Icon");
 
@@ -144,14 +152,6 @@ void create_tray_icon(void) {
 
 void destroy_tray_icon(void) {
     XDestroyWindow(display, tray_window.window);
-}
-
-void tray_xembed(XClientMessageEvent *ev) {
-    LOG_NOTE("XEMBED Tray", "ClientMessage on display %u ", ev->display);
-    LOG_NOTE("XEMBED Tray", "Format (%i) as long %lu %lu parent window %lu proto version %lu %lu",
-        ev->format, ev->data.l[0], ev->data.l[1], ev->data.l[2], ev->data.l[3], ev->data.l[4]);
-    tray_reposition();
-    draw_tray_icon();
 }
 
 bool tray_window_event(XEvent event) {
