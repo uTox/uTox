@@ -16,7 +16,7 @@ Dependencies:
 
 |   Name       | Required |
 |--------------|----------|
-| dbus         |   yes    |
+| dbus         |   no     |
 | filter_audio |   no     |
 | freetype     |   yes    |
 | libvpx       |   yes    |
@@ -25,6 +25,7 @@ Dependencies:
 | xext         |   yes    |
 | xrender      |   yes    |
 | cmake        |   yes    |
+| GTK          |   no (runtime only) |
 
 1. First compile:
 
@@ -47,9 +48,15 @@ If make/install really isn't your thing, you can try some precomplied binaries.
 
 ### Archlinux
 
-If you're lucky enough to use Archlinux, someone has an AUR package just for you!
+If you're lucky enough to use Archlinux, uTox is in the community repo.
+ - [x86_64](https://www.archlinux.org/packages/community/x86_64/utox/)
+ - [i686](https://www.archlinux.org/packages/community/i686/utox/)
 
-https://aur.archlinux.org/packages/utox-git/
+Install by running:
+
+```bash
+sudo pacman -S utox
+```
 
 <a name="osx" />
 ## OS X

@@ -8,10 +8,11 @@ If you're looking for it to "just work" you're going to want [these instructions
 <a name="unix" />
 ## Unix Like
 
-### Xlib
+### Linux
 
 The easy way out is:
 ```sh
+git clone git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
@@ -27,6 +28,7 @@ make install
 
 or if you built toxcore statically:
 ```sh
+git clone git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
@@ -50,14 +52,14 @@ cd libsodium
 git checkout tags/1.0.3
 ./autogen.sh
 ./configure && make check
-sudo make install
+sudo checkinstall
 cd ..
 
 
 git clone git://github.com/irungentoo/filter_audio.git
 cd filter_audio
 make
-sudo make install
+sudo checkinstall
 cd ..
 
 
@@ -65,7 +67,7 @@ git clone git://github.com/TokTok/c-toxcore.git
 cd c-toxcore
 cmake .
 make
-sudo make install
+sudo checkinstall
 cd ..
 
 sudo ldconfig
@@ -76,7 +78,7 @@ mkdir build
 cd build
 cmake ..
 make
-sudo make install
+sudo checkinstall
 ```
 
 Have fun!
@@ -90,7 +92,7 @@ If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In f
 Make sure you grab a copy of toxcore, openal, and filter_audio from
 https://jenkins.libtoxcore.so/ (Make sure you grab the right bit version.)
 
-You will need a working cygwin environment or unix desktop to compile windows.
+You will need a working Cygwin environment or Unix desktop to compile windows.
 
 For 32 bit:
 ```bash
