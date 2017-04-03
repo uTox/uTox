@@ -579,6 +579,7 @@ void toxcore_thread(void *UNUSED(args)) {
 
     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
     free_friends();
+    free_groups();
     LOG_TRACE("Toxcore", "Tox thread:\tClean exit!");
 }
 
@@ -1042,7 +1043,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
 
             if (g_num != -1) {
-                GROUPCHAT *g = get_group(g_num);
+                GROUPCHAT *g = group_make(g_num);
                 if (!g) {
                     return;
                 }

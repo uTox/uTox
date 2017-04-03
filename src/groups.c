@@ -20,12 +20,28 @@
 #include <string.h>
 #include <tox/tox.h>
 
-static GROUPCHAT group[UTOX_MAX_NUM_GROUPS];
+static GROUPCHAT *group = NULL;
 
 GROUPCHAT *get_group(uint32_t group_number) {
-    if (group_number >= UTOX_MAX_NUM_GROUPS) {
+    if (group_number >= self.groups_list_size) {
         LOG_ERR("get_group", " index: %u is out of bounds." , group_number);
         return NULL;
+    }
+
+    return &group[group_number];
+}
+
+GROUPCHAT *group_make(uint32_t group_number) {
+    if (group_number >= self.groups_list_size) {
+        LOG_INFO("Group", "Reallocating groupchat array to %u. Current size: %u", (group_number + 1), self.groups_list_size);
+        GROUPCHAT *tmp = realloc(group, sizeof(GROUPCHAT) * (group_number + 1));
+        if (!tmp) {
+            LOG_ERR("Group", "Could not reallocate groupchat array to %u.", group_number + 1);
+            return NULL;
+        }
+
+        group = tmp;
+        self.groups_list_size++;
     }
 
     return &group[group_number];
@@ -65,6 +81,8 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
 
     flist_add_group(g);
     flist_select_last();
+
+    self.groups_list_count++;
 }
 
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
@@ -254,6 +272,23 @@ void group_free(GROUPCHAT *g) {
     free(g->msg.data);
 
     memset(g, 0, sizeof(GROUPCHAT));
+
+    self.groups_list_count--;
+}
+
+void free_groups(void) {
+    for (size_t i = 0; i < self.groups_list_count; i++) {
+        GROUPCHAT *g = get_group(i);
+        if (!g) {
+            LOG_ERR("Group", "Could not get group %u. Skipping...", i);
+            continue;
+        }
+        group_free(g);
+    }
+
+    if (group) {
+        free(group);
+    }
 }
 
 
