@@ -7,6 +7,8 @@
 # $ cd build
 # $ cmake ../
 #
+# But I recommend something like shown in error message below.
+
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 	message(FATAL_ERROR "CMake has been ran to create an in-source build. Please create a 'build' path like following and run cmake in there:
 
