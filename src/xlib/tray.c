@@ -119,9 +119,10 @@ void create_tray_icon(void) {
                                              BlackPixel(display, def_screen_num),
                                              WhitePixel(display, def_screen_num));
 
-    XSelectInput(display, tray_window.window, ExposureMask    | ButtonReleaseMask   | EnterWindowMask |
-                                              LeaveWindowMask | StructureNotifyMask | FocusChangeMask |
-                                              PropertyChangeMask);
+    XSelectInput(display, tray_window.window,
+                    ExposureMask        | ButtonPressMask | ButtonReleaseMask |
+                    EnterWindowMask     | LeaveWindowMask |
+                    StructureNotifyMask | FocusChangeMask | PropertyChangeMask);
 
     /* Get ready to draw a tray icon */
     tray_window.gc        = XCreateGC(display, root_window, 0, 0);
@@ -216,6 +217,10 @@ bool tray_window_event(XEvent event) {
             return true;
         }
         case ButtonPress: {
+            // Can't ignore this if you want mup -_- SRSLY Xlib?
+            return true;
+        }
+        case ButtonRelease: {
             LOG_NOTE("XLib Tray", "Tray button down event");
             XButtonEvent *ev = &event.xbutton;
 
@@ -224,6 +229,29 @@ bool tray_window_event(XEvent event) {
             }
             return true;
             tray_reposition();
+        }
+
+        case FocusIn: {
+            LOG_INFO("XLib Tray", "FocusIn");
+            return true;
+        }
+        case FocusOut: {
+            LOG_INFO("XLib Tray", "FocusOut");
+            return true;
+        }
+
+        case EnterNotify: {
+            LOG_INFO("XLib Tray", "EnterNotify");
+            return true;
+        }
+        case LeaveNotify: {
+            LOG_INFO("XLib Tray", "LeaveNotify");
+            return true;
+        }
+
+        case ReparentNotify: {
+            LOG_ERR("XLib Tray", "ReparentNotify");
+            break;
         }
 
         default: {
