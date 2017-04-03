@@ -119,7 +119,9 @@ void create_tray_icon(void) {
                                              BlackPixel(display, def_screen_num),
                                              WhitePixel(display, def_screen_num));
 
-    XSelectInput(display, tray_window.window, ButtonPress);
+    XSelectInput(display, tray_window.window, ExposureMask    | ButtonReleaseMask   | EnterWindowMask |
+                                              LeaveWindowMask | StructureNotifyMask | FocusChangeMask |
+                                              PropertyChangeMask);
 
     /* Get ready to draw a tray icon */
     tray_window.gc        = XCreateGC(display, root_window, 0, 0);
@@ -128,6 +130,7 @@ void create_tray_icon(void) {
                                           default_depth);
     XWindowAttributes attr;
     XGetWindowAttributes(display, root_window, &attr);
+
     tray_window.pictformat = XRenderFindVisualFormat(display, attr.visual);
     tray_window.renderpic = XRenderCreatePicture(display, tray_window.drawbuf, tray_window.pictformat, 0, NULL);
 
@@ -163,7 +166,7 @@ bool tray_window_event(XEvent event) {
             return true;
         }
         case NoExpose: {
-            LOG_WARN("XLib Tray", "NoExpose");
+            LOG_TRACE("XLib Tray", "NoExpose");
             return true;
         }
         case ClientMessage: {
