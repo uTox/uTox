@@ -8,7 +8,7 @@
 #
 # $TOXDIR is an environment variable building Toxcore.
 #
-# Initially created by Erik Hofman for SimGear project
+# Initially created by Erik Hofman for AAX for SimGear project
 #
 # Cleaned up for utox
 
