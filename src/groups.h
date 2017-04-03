@@ -7,7 +7,6 @@ typedef unsigned int ALuint;
 typedef struct edit_change EDIT_CHANGE;
 
 #define UTOX_MAX_GROUP_PEERS 256
-#define UTOX_MAX_NUM_GROUPS 64
 
 /*  UTOX_SAVE limits 8 as the max */
 typedef enum {
@@ -82,5 +81,14 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t length);
 
 /* Gets the group qt the specified index */
 GROUPCHAT *get_group(uint32_t group_number);
+
+/*
+ * Create a new slot for the group if group_number is greater than self.groups_list_size and return a pointer to it
+ * If gorup_number is less than self.groups_list_size return a pointer to that slot
+ */
+GROUPCHAT *group_make(uint32_t group_number);
+
+/* Free all groups */
+void free_groups(void);
 
 #endif
