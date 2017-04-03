@@ -13,7 +13,6 @@
 #include "../debug.h"
 #include "../macros.h"
 #include "../main.h"
-#include "../main_native.h"
 #include "../self.h"
 #include "../settings.h"
 #include "../text.h"
@@ -23,6 +22,9 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/os.h"
+
 #include "../ui/draw.h"
 #include "../ui/dropdown.h"
 #include "../ui/edit.h"

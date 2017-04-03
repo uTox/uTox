@@ -10,7 +10,6 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
@@ -19,6 +18,10 @@
 #include "../filesys.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/image.h"
+#include "../native/ui.h"
+
 #include "../ui/draw.h"
 #include "../ui/edit.h"
 
@@ -892,5 +895,4 @@ int main(int argc, char *argv[]) {
 }
 
 /* Dummy functions used in other systems... */
-/* Used in windows only... */
 void launch_at_startup(int UNUSED(is_launch_at_startup)) {}

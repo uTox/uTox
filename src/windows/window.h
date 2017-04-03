@@ -3,8 +3,6 @@
 
 #include "../window.h"
 
-#include "main.h"
-
 #include <windows.h>
 
 struct native_window {
@@ -39,4 +37,5 @@ UTOX_WINDOW *native_window_find_notify(void *window);
 void native_window_create_screen_select();
 
 void native_window_tween(UTOX_WINDOW *win);
+
 #endif

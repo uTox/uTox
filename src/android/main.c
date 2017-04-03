@@ -3,6 +3,8 @@
 #include "../filesys.h"
 #include "../settings.h"
 
+#include "../native/keyboard.h"
+
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>

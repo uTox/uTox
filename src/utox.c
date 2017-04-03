@@ -5,14 +5,11 @@
 #include "debug.h"
 #include "dns.h"
 #include "filesys.h"
-// TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
-#include "filesys_native.h"
 #include "file_transfers.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
 #include "main.h" // addfriend_status
-#include "main_native.h"
 #include "tox.h"
 
 #include "av/utox_av.h"
@@ -23,6 +20,12 @@
 
 #include "layout/friend.h"
 #include "layout/settings.h"
+
+// TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
+#include "native/filesys.h"
+#include "native/notify.h"
+#include "native/ui.h"
+#include "native/video.h"
 
 /** Translates status code to text then sends back to the user */
 static void file_notify(FRIEND *f, MSG_HEADER *msg) {
