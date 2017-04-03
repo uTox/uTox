@@ -25,13 +25,15 @@ make install
 > In that case you want to set the env variable  `ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer`  for the address sanitizer (ASAN) to show nicer stack traces.
 > See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.
 
-
-But if the hard way is more your thing, this might work:
-```clang -o utox *.c png/png.c -g -Wall -Wshadow -pthread `pkg-config --libs --cflags fontconfig freetype2 libtoxav libtoxcore openal vpx x11 xext xrender dbus-1 libv4lconvert filteraudio` -pthread -lm  -lresolv -ldl```
-
-or if you built toxcore statically, less likely to work:
-
-`cc -o uTox.o *.c ./png/png.c -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus -lvpx -lm -pthread -lresolv -ldl -lfilteraudio -lfontconfig -lfreetype -lv4lconvert -I/usr/include/freetype2 -ldbus-1`
+or if you built toxcore statically:
+```sh
+cd uTox/
+mkdir build
+cd build
+cmake .. -DTOXCORE_STATIC=ON
+make
+make install
+```
 
 For the build to pass you need to install the following from sources: [filteraudio](https://github.com/irungentoo/filter_audio) [libtoxcore](https://github.com/TokTok/c-toxcore)
 
@@ -48,14 +50,14 @@ cd libsodium
 git checkout tags/1.0.3
 ./autogen.sh
 ./configure && make check
-sudo checkinstall
+sudo make install
 cd ..
 
 
 git clone git://github.com/irungentoo/filter_audio.git
 cd filter_audio
 make
-sudo checkinstall
+sudo make install
 cd ..
 
 
@@ -63,8 +65,10 @@ git clone git://github.com/TokTok/c-toxcore.git
 cd c-toxcore
 cmake .
 make
-sudo checkinstall
+sudo make install
 cd ..
+
+sudo ldconfig
 
 git clone git://github.com/uTox/uTox.git
 cd uTox/
@@ -72,9 +76,7 @@ mkdir build
 cd build
 cmake ..
 make
-sudo checkinstall
-
-sudo ldconfig
+sudo make install
 ```
 
 Have fun!
@@ -85,22 +87,26 @@ If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In f
 
 ### Compiling for Windows
 
-If you have mingw-w64 and a working cygwin enviroment, the build script provided in
-tools/ should just work. You must specify if you want 32 or 64 bit and the enviroment
- you want to use.
-
-64bit should be `tools/cross-compile-windows.sh`
-
-32bit should be `tools/cross-compile-windows.sh -32`
-
 Make sure you grab a copy of toxcore, openal, and filter_audio from
 https://jenkins.libtoxcore.so/ (Make sure you grab the right bit version.)
 
-You can also cross compile from unix if that's more your thing; again you'll need mingw-w64 and then just:
+You will need a working cygwin environment or unix desktop to compile windows.
 
-`tools/cross-compile-windows.sh -unix`
+For 32 bit:
+```bash
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake"
+make
+```
 
-Don't forget to add -32 if you'd rather build the 32bit version.
+For 64 bit:
+```bash
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake"
+make
+```
 
 <a name="osx" />
 ## OSX
