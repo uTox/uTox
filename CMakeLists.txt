@@ -193,6 +193,8 @@ message("- Filter Audio:     ${FILTER_AUDIO}")
 message("- uTox Static:      ${UTOX_STATIC}")
 message("- Toxcore Static:   ${TOXCORE_STATIC}")
 message("- Windows Legacy:   ${WIN_XP_LEGACY}")
+message("- build type:       ${CMAKE_BUILD_TYPE}")
+
 
 message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
 message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
