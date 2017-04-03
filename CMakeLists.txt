@@ -1,3 +1,6 @@
+# Prevent in-source-tree build and enforce out-of-source builds
+include(cmake/outofsource-build.cmake)
+
 cmake_minimum_required(VERSION 3.2)
 project(uTox LANGUAGES C)
 
