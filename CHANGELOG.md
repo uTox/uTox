@@ -1,4 +1,4 @@
-# Change Log
+# Changelog
 
 ## [Unreleased](https://github.com/uTox/uTox/tree/HEAD)
 
