@@ -85,7 +85,6 @@ uint8_t pointergrab;
 
 bool     havefocus;
 bool     _redraw;
-uint16_t drawwidth, drawheight;
 
 Window  video_win[32]; // TODO we should allocate this dynamically but this'll work for now
 XImage *screen_image;
@@ -115,8 +114,6 @@ Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format);
 
 bool doevent(XEvent event);
 
-void tray_window_event(XEvent event);
-void draw_tray_icon(void);
 void togglehide(void);
 
 void pasteprimary(void);

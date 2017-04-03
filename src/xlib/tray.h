@@ -26,12 +26,10 @@ void send_message(Display *dpy, /* display */
                   long data2, /* message data 2 */
                   long data3 /* message data 3 */);
 
-void draw_tray_icon(void);
-
 void create_tray_icon(void);
 
 void destroy_tray_icon(void);
 
-void tray_window_event(XEvent event);
+bool tray_window_event(XEvent event);
 
 #endif

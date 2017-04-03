@@ -215,11 +215,8 @@ void setselection(char *data, uint16_t length) {
 /** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(void) {
     if (hidden) {
-        int      x, y;
-        uint32_t w, h, border;
-        XGetGeometry(display, main_window.window, &root_window, &x, &y, &w, &h, &border, (uint *)&default_depth);
+        XMoveWindow(display, main_window.window, main_window._.x, main_window._.y);
         XMapWindow(display, main_window.window);
-        XMoveWindow(display, main_window.window, x, y);
         redraw();
         hidden = 0;
     } else {

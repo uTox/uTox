@@ -1,7 +1,8 @@
 #include "main.h"
 
-#include "window.h"
 #include "screen_grab.h"
+#include "tray.h"
+#include "window.h"
 
 #include "../flist.h"
 #include "../friend.h"
@@ -261,8 +262,7 @@ bool doevent(XEvent event) {
             // return true;
         }
 
-        if (event.xany.window == tray_window.window) {
-            tray_window_event(event);
+        if (tray_window_event(event)) {
             return true;
         }
 
@@ -291,7 +291,7 @@ bool doevent(XEvent event) {
     switch (event.type) {
         case Expose: {
             enddraw(0, 0, settings.window_width, settings.window_height);
-            draw_tray_icon();
+            // draw_tray_icon();
             break;
         }
 
@@ -329,18 +329,19 @@ bool doevent(XEvent event) {
 
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
-            if (settings.window_width != (unsigned)ev->width || settings.window_height != (unsigned)ev->height) {
+            main_window._.x = ev->x;
+            main_window._.y = ev->y;
+
+            if (settings.window_width != (unsigned)ev->width
+                || settings.window_height != (unsigned)ev->height) {
                 // Resize
 
-                if (ev->width > drawwidth || ev->height > drawheight) {
-                    drawwidth  = ev->width + 10;
-                    drawheight = ev->height + 10;
-
                     XFreePixmap(display, main_window.drawbuf);
-                    main_window.drawbuf = XCreatePixmap(display, main_window.window, drawwidth, drawheight, default_depth);
+                    main_window.drawbuf = XCreatePixmap(display, main_window.window,
+                                            ev->width + 10, ev->height + 10, default_depth);
                     XRenderFreePicture(display, main_window.renderpic);
-                    main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf, main_window.pictformat, 0, NULL);
-                }
+                    main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf,
+                                                main_window.pictformat, 0, NULL);
 
                 main_window._.w = settings.window_width  = ev->width;
                 main_window._.h = settings.window_height = ev->height;
