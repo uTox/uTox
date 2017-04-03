@@ -1,8 +1,10 @@
-# Prevent in-source-tree build and enforce out-of-source builds
-include(cmake/outofsource-build.cmake)
-
 cmake_minimum_required(VERSION 3.2)
 project(uTox LANGUAGES C)
+
+# Load all modules in cmake path (not recursive)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+include(OutOfSource-build)
 
 #######################################################################
 #
@@ -28,6 +30,13 @@ if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     execute_process(COMMAND git describe --abbrev=8 --dirty --always --tags
                     OUTPUT_VARIABLE GIT_VERSION)
     string(REPLACE "\n" " " GIT_VERSION ${GIT_VERSION})
+endif()
+
+# Try to find Toxcore
+find_package(Toxcore)
+
+if (NOT TOXCORE_FOUND)
+    message(FATAL_ERROR "CMake cannot find Toxcore. Please install it first, then try to build this project again.")
 endif()
 
 #######################################################################
@@ -201,6 +210,7 @@ message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
 message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
 message("* C flags for all types:   ${CMAKE_C_FLAGS}")
 
+message("Found Toxcore includes at ${TOXCORE_INCLUDE_DIR}")
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -285,11 +295,19 @@ add_executable(utox ${GUI_TYPE}
     )
 
 target_link_libraries(utox
+        ${TOXCORE_LIBRARY}
         utoxAV        utoxNATIVE      utoxUI
         ${TOX_LIBS}   ${LIBRARIES}    sodium
         vpx           pthread         m )
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
+
+target_include_directories(
+    utox
+    SYSTEM PRIVATE
+    ${TOXCORE_INCLUDE_DIR}
+)
+
 if(APPLE)
     install(TARGETS utox
         RUNTIME DESTINATION "bin"
