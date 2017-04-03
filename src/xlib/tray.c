@@ -86,7 +86,7 @@ static void draw_tray_icon(void) {
     uint8_t *icon_data = (uint8_t *)&_binary_icons_utox_128x128_png_start;
     size_t   icon_size = (size_t)&_binary_icons_utox_128x128_png_size;
 
-    NATIVE_IMAGE *icon = utox_image_to_native(icon_data, icon_size, &width, &height, 1);
+    NATIVE_IMAGE *icon = utox_image_to_native(icon_data, icon_size, &width, &height, 0);
     if (NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
         /* Resize the image from what the system tray dock tells us to be */
