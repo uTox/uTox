@@ -51,12 +51,21 @@ static void tray_reposition(void) {
     LOG_NOTE("XLib Tray", "Reposition Tray");
 
     uint32_t null;
-    // XMoveResizeWindow(display, tray_window.window, tray_window._.x, tray_window._.y,
-    //                                                tray_window._.w, tray_window._.h);
     XGetGeometry(display, tray_window.window, &root_window, &tray_window._.x, &tray_window._.y,
                 &tray_window._.w, &tray_window._.h,
                 &null, &null);
     LOG_WARN("XLib Tray", "New geometry x %u y %u w %u h %u", tray_window._.x, tray_window._.y, tray_window._.w, tray_window._.h);
+
+    XFreePixmap(display, tray_window.drawbuf);
+    tray_window.drawbuf = XCreatePixmap(display, tray_window.window,
+                                        tray_window._.w, tray_window._.h,
+                                        default_depth);
+
+    XRenderFreePicture(display, tray_window.renderpic);
+    tray_window.renderpic = XRenderCreatePicture(display, tray_window.drawbuf, tray_window.pictformat, 0, NULL);
+
+    // XMoveResizeWindow(display, tray_window.window, tray_window._.x, tray_window._.y,
+    //                                                tray_window._.w, tray_window._.h);
     /* TODO use xcb instead of xlib here!
     xcb_get_geometry_cookie_t xcb_get_geometry (xcb_connection_t *connection,
                                             xcb_drawable_t    drawable );
@@ -126,16 +135,6 @@ void create_tray_icon(void) {
     send_message(display, XGetSelectionOwner(display, XInternAtom(display, "_NET_SYSTEM_TRAY_S0", false)),
                  SYSTEM_TRAY_REQUEST_DOCK, tray_window.window, 0, 0);
     /* Draw the tray */
-    draw_tray_icon();
-    /* Reset the tray draw/picture buffers with the new tray size */
-    XFreePixmap(display, tray_window.drawbuf);
-    tray_window.drawbuf = XCreatePixmap(display, tray_window.window,
-                                        tray_window._.w, tray_window._.h,
-                                        default_depth);
-
-    XRenderFreePicture(display, tray_window.renderpic);
-    tray_window.renderpic = XRenderCreatePicture(display, tray_window.drawbuf, tray_window.pictformat, 0, NULL);
-    /* Redraw the tray one last time! */
     draw_tray_icon();
 }
 
