@@ -521,7 +521,7 @@ bool doevent(XEvent event) {
         }
 
         case SelectionNotify: {
-            LOG_TRACE("Event", "SelectionNotify" );
+            LOG_NOTE("XLib Event", "SelectionNotify" );
 
             XSelectionEvent *ev = &event.xselection;
 
@@ -541,8 +541,8 @@ bool doevent(XEvent event) {
                 break;
             }
 
-            LOG_TRACE("Event", "Type: %s" , XGetAtomName(display, type));
-            LOG_TRACE("Event", "Property: %s" , XGetAtomName(display, ev->property));
+            LOG_INFO("Event", "Type: %s" , XGetAtomName(ev->display, type));
+            LOG_INFO("Event", "Property: %s" , XGetAtomName(ev->display, ev->property));
 
             if (ev->property == XA_ATOM) {
                 pastebestformat((Atom *)data, len, ev->selection);
@@ -566,6 +566,7 @@ bool doevent(XEvent event) {
                 pastebuf.data = malloc(pastebuf.len);
                 /* Deleting the window property triggers incremental paste */
             } else {
+                LOG_ERR("XLib Event", "Type %s || Prop %s ", XGetAtomName(ev->display, type), XGetAtomName(ev->display, ev->property));
                 pastedata(data, type, len, ev->selection == XA_PRIMARY);
             }
 

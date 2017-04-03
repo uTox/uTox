@@ -115,7 +115,7 @@ static void draw_tray_icon(void) {
 }
 
 static void tray_xembed(XClientMessageEvent *ev) {
-    LOG_NOTE("XEMBED Tray", "ClientMessage on display %u ", ev->display);
+    LOG_NOTE("XEMBED Tray", "ClientMessage on display %u", ev->display);
     LOG_NOTE("XEMBED Tray", "Format (%i) as long %lu %lu parent window %lu proto version %lu %lu",
         ev->format, ev->data.l[0], ev->data.l[1], ev->data.l[2], ev->data.l[3], ev->data.l[4]);
     tray_reposition();
@@ -194,8 +194,6 @@ bool tray_window_event(XEvent event) {
             XConfigureEvent *ev = &event.xconfigure;
             tray_window._.x = ev->x;
             tray_window._.y = ev->y;
-            tray_window._.w = ev->width;
-            tray_window._.h = ev->height;
             if (tray_window._.w != (unsigned)ev->width || tray_window._.h != (unsigned)ev->height) {
                 LOG_NOTE("Tray", "Tray resized w:%i h:%i\n", ev->width, ev->height);
 
