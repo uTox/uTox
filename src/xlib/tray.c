@@ -8,6 +8,10 @@
 #include <string.h>
 #include <inttypes.h>
 
+// Converted to a binary and linked at build time
+extern uint8_t _binary_icons_utox_128x128_png_start;
+extern size_t  _binary_icons_utox_128x128_png_size;
+
 static void send_message(Display *dpy, /* display */
                   Window w, /* sender (tray window) */
                   long message, /* message opcode */
