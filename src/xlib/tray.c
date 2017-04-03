@@ -54,7 +54,7 @@ static void tray_reposition(void) {
     XGetGeometry(display, tray_window.window, &root_window, &tray_window._.x, &tray_window._.y,
                 &tray_window._.w, &tray_window._.h,
                 &null, &null);
-    LOG_WARN("XLib Tray", "New geometry x %u y %u w %u h %u", tray_window._.x, tray_window._.y, tray_window._.w, tray_window._.h);
+    LOG_NOTE("XLib Tray", "New geometry x %u y %u w %u h %u", tray_window._.x, tray_window._.y, tray_window._.w, tray_window._.h);
 
     XFreePixmap(display, tray_window.drawbuf);
     tray_window.drawbuf = XCreatePixmap(display, tray_window.window,
@@ -111,9 +111,9 @@ void draw_tray_icon(void) {
 }
 
 void create_tray_icon(void) {
-    LOG_WARN("XLib Tray", "Create Tray Icon");
+    LOG_NOTE("XLib Tray", "Create Tray Icon");
 
-    LOG_WARN("XLib Tray", "Resolution %u %u", tray_window._.w, tray_window._.h);
+    LOG_NOTE("XLib Tray", "Resolution %u %u", tray_window._.w, tray_window._.h);
     tray_window.window = XCreateSimpleWindow(display, RootWindow(display, def_screen_num), 0, 0,
                                              tray_window._.w, tray_window._.h, 0,
                                              BlackPixel(display, def_screen_num),
@@ -147,8 +147,8 @@ void destroy_tray_icon(void) {
 }
 
 void tray_xembed(XClientMessageEvent *ev) {
-    LOG_WARN("XEMBED Tray", "ClientMessage on display %u ", ev->send_event, ev->display);
-    LOG_WARN("XEMBED Tray", "Format (%i) as long %lu %lu parent window %lu proto version %lu %lu",
+    LOG_NOTE("XEMBED Tray", "ClientMessage on display %u ", ev->send_event, ev->display);
+    LOG_NOTE("XEMBED Tray", "Format (%i) as long %lu %lu parent window %lu proto version %lu %lu",
         ev->format, ev->data.l[0], ev->data.l[1], ev->data.l[2], ev->data.l[3], ev->data.l[4]);
     tray_reposition();
     draw_tray_icon();
@@ -162,12 +162,12 @@ bool tray_window_event(XEvent event) {
 
     switch (event.type) {
         case Expose: {
-            LOG_WARN("XLib Tray", "Expose");
+            LOG_NOTE("XLib Tray", "Expose");
             draw_tray_icon();
             return true;
         }
         case NoExpose: {
-            LOG_TRACE("XLib Tray", "NoExpose");
+            LOG_INFO("XLib Tray", "NoExpose");
             return true;
         }
         case ClientMessage: {
@@ -180,13 +180,13 @@ bool tray_window_event(XEvent event) {
             char *name = XGetAtomName(msg.display, msg.message_type);
             LOG_ERR("XLib Tray", "ClientMessage send_event %u display %u atom %u -- %s",
                 msg.send_event, msg.display, msg.message_type, name);
-            LOG_TRACE("XLib Tray", "Format (%i) as long %lu %lu %lu %lu %lu",
+            LOG_WARN("XLib Tray", "Format (%i) as long %lu %lu %lu %lu %lu",
                 msg.format, msg.data.l[0], msg.data.l[1], msg.data.l[2], msg.data.l[3], msg.data.l[4]);
             return true;
         }
 
         case ConfigureNotify: {
-            LOG_WARN("XLib Tray", "Tray configure event");
+            LOG_NOTE("XLib Tray", "Tray configure event");
             XConfigureEvent *ev = &event.xconfigure;
             tray_window._.x = ev->x;
             tray_window._.y = ev->y;
@@ -217,11 +217,12 @@ bool tray_window_event(XEvent event) {
             return true;
         }
         case ButtonPress: {
+            LOG_INFO("XLib Tray", "ButtonPress");
             // Can't ignore this if you want mup -_- SRSLY Xlib?
             return true;
         }
         case ButtonRelease: {
-            LOG_NOTE("XLib Tray", "Tray button down event");
+            LOG_INFO("XLib Tray", "ButtonRelease");
             XButtonEvent *ev = &event.xbutton;
 
             if (ev->button == Button1) {
@@ -229,6 +230,11 @@ bool tray_window_event(XEvent event) {
             }
             return true;
             tray_reposition();
+        }
+
+        case MapNotify: {
+            LOG_INFO("XLib Tray", "MapNotify");
+            return true;
         }
 
         case FocusIn: {
@@ -250,12 +256,12 @@ bool tray_window_event(XEvent event) {
         }
 
         case ReparentNotify: {
-            LOG_ERR("XLib Tray", "ReparentNotify");
-            break;
+            LOG_WARN("XLib Tray", "ReparentNotify");
+            return true;
         }
 
         default: {
-            LOG_WARN("XLib Tray", "Incoming tray window event (%u)", event.type);
+            LOG_ERR("XLib Tray", "Incoming tray window event (%u)", event.type);
             break;
         }
     }
