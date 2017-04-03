@@ -157,8 +157,8 @@ if(UTOX_STATIC)
 	endif()
 endif()
 
-option(ENABLE_AUTOUPDATE "Block auto-updater" OFF)
-if(DO_NOT_AUTO_UPDATE_UTOX)
+option(ENABLE_AUTOUPDATE "Enable Auto-updater" OFF)
+if(ENABLE_AUTOUPDATE)
     add_cflag("-DENABLE_AUTOUPDATE=1")
 endif()
 
