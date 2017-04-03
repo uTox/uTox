@@ -291,7 +291,6 @@ bool doevent(XEvent event) {
     switch (event.type) {
         case Expose: {
             enddraw(0, 0, settings.window_width, settings.window_height);
-            // draw_tray_icon();
             break;
         }
 

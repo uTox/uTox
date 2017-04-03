@@ -75,7 +75,7 @@ static void tray_reposition(void) {
     free (geom);*/
 }
 
-void draw_tray_icon(void) {
+static void draw_tray_icon(void) {
     LOG_NOTE("XLib Tray", "Draw Tray");
 
     uint16_t width, height;
@@ -147,7 +147,7 @@ void destroy_tray_icon(void) {
 }
 
 void tray_xembed(XClientMessageEvent *ev) {
-    LOG_NOTE("XEMBED Tray", "ClientMessage on display %u ", ev->send_event, ev->display);
+    LOG_NOTE("XEMBED Tray", "ClientMessage on display %u ", ev->display);
     LOG_NOTE("XEMBED Tray", "Format (%i) as long %lu %lu parent window %lu proto version %lu %lu",
         ev->format, ev->data.l[0], ev->data.l[1], ev->data.l[2], ev->data.l[3], ev->data.l[4]);
     tray_reposition();
