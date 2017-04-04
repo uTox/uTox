@@ -7,6 +7,8 @@
 
 #include "main.h" // File name length
 
+#include "native/thread.h"
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -25,7 +27,7 @@
 #include <netdb.h>
 #endif
 
-#include "main_native.h" // Include after winsock2
+#include "native/main.h" // Include after winsock2
 
 #if defined __WIN32__
 #define UPDATER_HOST "win"
@@ -285,9 +287,20 @@ uint32_t updater_check(void) {
     return 0;
 }
 
-void updater_thread(void *UNUSED(ptr)) {
 #ifdef ENABLE_AUTOUPDATE
-    static bool updater_running = true;
+void updater_thread(void *from_startup) {
+    static bool updater_running = false;
+
+    if (from_startup) {
+        // always start the updater thread if started during init
+        updater_running = true;
+    } else if (updater_running) {
+        // not called by startup, so we're already running
+        return;
+    } else {
+        // cool, thanks for re enabling updates :D
+        updater_running = true;
+    }
 
     char pwd[UTOX_FILE_NAME_LENGTH];
     getcwd(pwd, sizeof pwd);
@@ -324,6 +337,9 @@ void updater_thread(void *UNUSED(ptr)) {
                 LOG_ERR("Updater", "Signature failed. This is bad; consider reporting this.");
             }
 
+            // The default updater also adds a timestamp to the signature (the +4)
+            // I'm not sure I want to change how signatures are done yet, so I'm just
+            // gonna leave this hack here for now... -- grayhatter
             fwrite(data + 4, data_size - 4, 1, file);
             fclose(file);
             free(data);
@@ -332,5 +348,14 @@ void updater_thread(void *UNUSED(ptr)) {
 
         yieldcpu(1000 * 60 * 5);
     }
+}
+#else
+void updater_thread(void *from_startup)
+{
+    (void)from_startup;
+}
 #endif
+
+void updater_start(bool from_startup) {
+    thread(updater_thread, (void*)from_startup);
 }

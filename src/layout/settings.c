@@ -791,7 +791,7 @@ static void switchfxn_status_notifications(void) { settings.status_notifications
 
 static void switchfxn_auto_update(void) {
     settings.auto_update = !settings.auto_update;
-    thread(updater_thread, NULL);
+    updater_start(0);
 }
 
 static void switchfxn_block_friend_requests(void) { settings.block_friend_requests = !settings.block_friend_requests; }
