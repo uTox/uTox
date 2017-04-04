@@ -718,29 +718,28 @@ static void cursors_init(void) {
 static bool fresh_update(void) {
     char path[UTOX_FILE_NAME_LENGTH];
     GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
-    LOG_ERR("Win Updater", "Starting");
+    LOG_WARN("Win Updater", "Starting");
 
     // lol, windows is backwards... AGAIN
     char *name_start = strstr(path, "fresh_update_uTox.exe");
     if (!name_start) {
-        LOG_ERR("Win Updater", "can't find path ");
-        LOG_ERR("Win Updater", "%s", path);
+        LOG_NOTE("Win Updater", "Not the updater -- %s ", path);
         return false;
     }
     // This is the freshly downloaded exe.
 
-    LOG_ERR("Win Updater", "%s", path);
+    LOG_WARN("Win Updater", "Root %s", path);
 
     // make a backup of the old file
     char *backup[UTOX_FILE_NAME_LENGTH];
     strcpy(name_start, "backup_uTox.exe");
     memcpy(backup, path, UTOX_FILE_NAME_LENGTH);
-    LOG_ERR("Win Updater", "%s", backup);
+    LOG_NOTE("Win Updater", "Backup %s", backup);
 
     char *real[UTOX_FILE_NAME_LENGTH];
     strcpy(name_start, "uTox.exe");
     memcpy(real, path, UTOX_FILE_NAME_LENGTH);
-    LOG_ERR("Win Updater", "%s", real);
+    LOG_NOTE("Win Updater", "%s", real);
     if (MoveFile((const char*)real, (const char*)backup) == 0) {
         // Failed
         LOG_ERR("Win Updater", "move failed");
@@ -750,20 +749,19 @@ static bool fresh_update(void) {
     char *new[UTOX_FILE_NAME_LENGTH];
     strcpy(name_start, "fresh_update_uTox.exe");
     memcpy(new, path, UTOX_FILE_NAME_LENGTH);
-    LOG_ERR("Win Updater", "%s", new);
+    LOG_NOTE("Win Updater", "%s", new);
     if (CopyFile((const char*)new, (const char*)real, 0) == 0) {
         // Failed
         LOG_ERR("Win Updater", "copy failed");
         return false;
     }
 
-
-    ShellExecute(NULL, "open", (const char*)real, NULL, NULL, SW_SHOW);
+    LOG_ERR("Win Updater", "Launching new path %s", real);
+    ShellExecute(NULL, "open", (const char*)real, (const char*)real, NULL, SW_SHOW);
     return true;
 }
 
 static bool win_init_mutex(HANDLE *mutex) {
-
     *mutex = CreateMutex(NULL, 0, TITLE);
 
     return false;
@@ -779,7 +777,6 @@ static bool win_init_mutex(HANDLE *mutex) {
  */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cmd, int nCmdShow) {
     pthread_mutex_init(&messages_lock, NULL);
-
 
     /* Process argc/v the backwards (read: the windows way). */
     int argc;
@@ -848,7 +845,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     if (!skip_updater) {
-        LOG_ERR("NATIVE", "don't skip updater");
+        LOG_ERR("WinMain", "Not skipping updater");
         if (fresh_update()) {
             CloseHandle(utox_mutex);
             return 0;
@@ -856,13 +853,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     #ifdef __WIN_LEGACY
-        LOG_TRACE("NATIVE", "Legacy windows build" );
+        LOG_WARN("WinMain", "Legacy windows build");
     #else
-        LOG_TRACE("NATIVE", "Normal windows build" );
+        LOG_WARN("WinMain", "Normal windows build");
     #endif
 
     #ifdef GIT_VERSION
-        LOG_NOTE("NATIVE", "uTox version %s \n", GIT_VERSION);
+        LOG_NOTE("WinMain", "uTox version %s \n", GIT_VERSION);
     #endif
 
     cursors_init();
