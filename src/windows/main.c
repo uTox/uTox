@@ -25,6 +25,7 @@
 #include "../av/utox_av.h"
 
 #include "../native/os.h"
+#include "../native/filesys.h"
 
 #include "../ui/draw.h"
 #include "../ui/dropdown.h"
@@ -714,24 +715,52 @@ static void cursors_init(void) {
 #define UTOX_UPDATER_EXE "\\utox_runner.exe"
 #define UTOX_VERSION_FILE "\\version"
 
-static bool auto_update(PSTR cmd) {
-    char path[MAX_PATH + 20];
-    unsigned len = GetModuleFileName(NULL, path, MAX_PATH);
+static bool fresh_update(void) {
+    char path[UTOX_FILE_NAME_LENGTH];
+    GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
+    LOG_ERR("Win Updater", "Starting");
 
-    /* Is the uTox exe named like the updater one. */
-    char *file = path + len - (sizeof("uTox.exe") - 1);
-    if (len > sizeof("uTox.exe")) {
-        memcpy(file, "uTox_updater.exe", sizeof("uTox_updater.exe"));
-        FILE *fp = fopen(path, "rb");
-        if (fp) {
-            char real_cmd[strlen(cmd) * 2];
-            snprintf(real_cmd, strlen(cmd) * 2, "%s %S %2x%2x%2x", cmd, "--version ", VER_MAJOR, VER_MINOR, VER_PATCH);
-            fclose(fp);
-            /* This is an updater build not being run by the updater. Run the updater and exit. */
-            ShellExecute(NULL, "open", path, real_cmd, NULL, SW_SHOW);
-            return true;
-        }
+    char *name_start = strstr("fresh_update_uTox.exe", path);
+    if (!name_start) {
+        return false;
     }
+    // This is the freshly downloaded exe.
+
+    LOG_ERR("Win Updater", "%s", path);
+
+    // make a backup of the old file
+    char *backup[UTOX_FILE_NAME_LENGTH];
+    strcpy(name_start, "backup_uTox.exe");
+    memcpy(backup, path, UTOX_FILE_NAME_LENGTH);
+    LOG_ERR("Win Updater", "%s", backup);
+
+    char *real[UTOX_FILE_NAME_LENGTH];
+    strcpy(name_start, "uTox.exe");
+    memcpy(real, path, UTOX_FILE_NAME_LENGTH);
+    LOG_ERR("Win Updater", "%s", real);
+    if (MoveFile((const char*)real, (const char*)backup) == 0) {
+        // Failed
+        LOG_ERR("Win Updater", "move failed");
+        return false;
+    }
+
+    char *new[UTOX_FILE_NAME_LENGTH];
+    strcpy(name_start, "fresh_update_uTox.exe");
+    memcpy(new, path, UTOX_FILE_NAME_LENGTH);
+    LOG_ERR("Win Updater", "%s", new);
+    if (CopyFile((const char*)new, (const char*)real, 0) == 0) {
+        // Failed
+        LOG_ERR("Win Updater", "copy failed");
+        return false;
+    }
+
+    return true;
+}
+
+static bool win_init_mutex(HANDLE *mutex) {
+
+    *mutex = CreateMutex(NULL, 0, TITLE);
+
     return false;
 }
 
@@ -746,11 +775,35 @@ static bool auto_update(PSTR cmd) {
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cmd, int nCmdShow) {
     pthread_mutex_init(&messages_lock, NULL);
 
+
+    /* Process argc/v the backwards (read: the windows way). */
+    int argc;
+    PCHAR *argv = CommandLineToArgvA(GetCommandLineA(), &argc);
+    if (!argv) {
+        LOG_TRACE("Windows", "CommandLineToArgvA failed.");
+        return 0;
+    }
+
+    int8_t should_launch_at_startup;
+    int8_t set_show_window;
+    bool   skip_updater, from_updater;
+
+    parse_args(argc, argv,
+               &skip_updater,
+               &from_updater,
+               &should_launch_at_startup,
+               &set_show_window);
+
+    // Free memory allocated by CommandLineToArgvA
+    GlobalFree(argv);
+
+
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
-    HANDLE utox_mutex = CreateMutex(NULL, 0, TITLE);
+    HANDLE utox_mutex;
+    win_init_mutex(&utox_mutex);
 
     if (!utox_mutex) {
-        return 0;
+        LOG_FATAL_ERR(-4, "WinMain", "Unable to create windows mutex");
     }
 
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
@@ -768,30 +821,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         return 0;
     }
 
-    /* Process argc/v the backwards (read: windows) way. */
-    int argc;
-    PCHAR *argv = CommandLineToArgvA(GetCommandLineA(), &argc);
-
-    if (!argv) {
-        LOG_TRACE("Windows", "CommandLineToArgvA failed.");
-        return 0;
-    }
-
     utox_init();
-
-
-    int8_t should_launch_at_startup;
-    int8_t set_show_window;
-    bool   skip_updater, from_updater;
-
-    parse_args(argc, argv,
-               &skip_updater,
-               &from_updater,
-               &should_launch_at_startup,
-               &set_show_window);
-
-    // Free memory allocated by CommandLineToArgvA
-    GlobalFree(argv);
 
     if (settings.portable_mode == true) {
         /* force the working directory if opened with portable command */
@@ -815,7 +845,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     if (!skip_updater) {
         LOG_ERR("NATIVE", "don't skip updater");
-        if (auto_update(cmd)) {
+        if (fresh_update()) {
             CloseHandle(utox_mutex);
             return 0;
         }
