@@ -720,8 +720,11 @@ static bool fresh_update(void) {
     GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
     LOG_ERR("Win Updater", "Starting");
 
-    char *name_start = strstr("fresh_update_uTox.exe", path);
+    // lol, windows is backwards... AGAIN
+    char *name_start = strstr(path, "fresh_update_uTox.exe");
     if (!name_start) {
+        LOG_ERR("Win Updater", "can't find path ");
+        LOG_ERR("Win Updater", "%s", path);
         return false;
     }
     // This is the freshly downloaded exe.
@@ -754,6 +757,8 @@ static bool fresh_update(void) {
         return false;
     }
 
+
+    ShellExecute(NULL, "open", (const char*)real, NULL, NULL, SW_SHOW);
     return true;
 }
 
@@ -814,7 +819,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
                 .cbData = strlen(cmd),
                 .lpData = cmd
             };
-
             SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
         }
 
