@@ -7,17 +7,14 @@
 # the name of the target operating system
 set(CMAKE_SYSTEM_NAME Windows)
 
-set(COMPILER_PREFIX "x86_64-w64-mingw32")
-
-# Which compilers to use for C and C++
-set(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc )
-set(CMAKE_RC_COMPILER  x86_64-w64-mingw32-windres )
+set(COMPILER_PREFIX  "x86_64-w64-mingw32")
+set(CMAKE_C_COMPILER  x86_64-w64-mingw32-gcc )
+set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres )
 
 # Required to prevent duplication of flags from this file.
 UNSET(CMAKE_C_FLAGS CACHE)
 UNSET(CMAKE_C_FLAGS_DEBUG CACHE)
 UNSET(CMAKE_C_FLAGS_RELWITHDEBINFO CACHE)
-
 
 # Windows only compiles statically.
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAL_LIBTYPE_STATIC" CACHE STRING "" FORCE)
@@ -26,7 +23,6 @@ set(UTOX_STATIC ON CACHE STRING "" FORCE)
 # Required for line numbers in gdb on Windows.
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3" CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3" CACHE STRING "" FORCE)
-
 
 set(INCLUDE_DIRECTORIES SYSTEM /usr/share/mingw-w64/include/)
 
@@ -40,5 +36,6 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(WIN32 TRUE) # This is for cmake
 set(WIN64 TRUE) # This is for uTox lib dirs
 set(UNIX FALSE)
+set(CROSS_COMPILING TRUE)
 
 set(ENABLE_ASAN OFF CACHE STRING "" FORCE)

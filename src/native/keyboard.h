@@ -21,7 +21,7 @@ bool set_ptt_key(void);
 
 // Native keycodes
 
-#if defined __WIN32__
+#if defined __WIN32__ || defined _WIN32 || defined __CYGWIN__
 #include "win/keycodes.h"
 #elif defined __ANDROID__
 #include "android/keycodes.h"
