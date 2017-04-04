@@ -32,7 +32,7 @@ git clone git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
-cmake .. -DTOXCORE_STATIC=ON
+cmake -DTOXCORE_STATIC=ON ..
 make
 make install
 ```
@@ -89,24 +89,38 @@ If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In f
 
 ### Compiling for Windows
 
-Make sure you grab a copy of toxcore, openal, and filter_audio from
-https://jenkins.libtoxcore.so/ (Make sure you grab the right bit version.)
+Dependencies:
+
+|   Name       | Required |
+|--------------|----------|
+| cmake >= 3.2 |   yes    |
+| filter_audio |   no     |
+| libvpx       |   yes    |
+| openal       |   yes    |
+| opus         |   yes    |
+| toxcore      |   yes    |
+
+The dependencies can be downloaded from here: https://build.tox.chat/ (Make sure you grab the right bit version.) All the libraries should be place in $UTOX_ROOT/libs/windows-x64/.
 
 You will need a working Cygwin environment or Unix desktop to compile windows.
 
 For 32 bit:
 ```bash
+git clone https://github.com/uTox/uTox.git
+cd uTox/
 mkdir build
 cd build
-cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake"
+cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake" -DTOXCORE_STATIC=ON ..
 make
 ```
 
 For 64 bit:
 ```bash
+git clone https://github.com/uTox/uTox.git
+cd uTox/
 mkdir build
 cd build
-cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake"
+cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DTOXCORE_STATIC=ON ..
 make
 ```
 

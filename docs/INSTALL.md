@@ -16,16 +16,17 @@ Dependencies:
 
 |   Name       | Required |
 |--------------|----------|
+| cmake >= 3.2 |   yes    |
 | dbus         |   no     |
 | filter_audio |   no     |
 | freetype     |   yes    |
+| GTK          |   no (runtime only) |
 | libvpx       |   yes    |
 | openal       |   yes    |
+| toxcore      |   yes    |
 | v4l          |   yes    |
 | xext         |   yes    |
 | xrender      |   yes    |
-| cmake        |   yes    |
-| GTK          |   no (runtime only) |
 
 1. First compile:
 
@@ -57,6 +58,10 @@ Install by running:
 ```bash
 sudo pacman -S utox
 ```
+
+### Slackware
+
+If you use Slackware you can download the slack build from here: https://slackbuilds.org/repository/14.2/network/uTox/
 
 <a name="osx" />
 ## OS X
