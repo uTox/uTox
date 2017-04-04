@@ -3,7 +3,6 @@
 #include "flist.h"
 #include "inline_video.h"
 #include "macros.h"
-#include "main_native.h"
 #include "messages.h"
 
 #include "layout/background.h"
@@ -13,6 +12,9 @@
 #include "layout/notify.h"
 #include "layout/settings.h"
 #include "layout/sidebar.h"
+
+#include "native/image.h"
+#include "native/ui.h"
 
 #include "ui/button.h"
 #include "ui/contextmenu.h"

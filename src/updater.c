@@ -120,12 +120,15 @@ static uint8_t *download(char *host, char *file, size_t *out_len) {
 
         uint8_t *data = NULL;
 
-        uint32_t len = 0, real_len = 0, header_len = 0;
+        ssize_t len = 0;
+        uint32_t real_len = 0, header_len = 0;
         uint8_t *buffer = calloc(1, 0x10000);
         if (!buffer) {
             LOG_ERR("Updater", "Unable to malloc for the updater");
+            close(sock);
             return NULL;
         }
+
         bool have_header = false;
         while ((len = recv(sock, (char *)buffer, 0xffff, 0)) > 0) {
             if (!have_header) {
@@ -144,7 +147,13 @@ static uint8_t *download(char *host, char *file, size_t *out_len) {
 
                 /* parse the length field */
                 str += sizeof("Content-Length: ") - 1;
-                header_len = strtol(str, NULL, 10);
+                header_len = strtoul(str, NULL, 10);
+                if (header_len > 100 * 1024 * 1024) {
+                    LOG_ERR("Updater", "Can't download a file larger than 100MiB");
+                    close(sock);
+                    free(buffer);
+                    return NULL;
+                }
 
                 /* find the end of the http response header */
                 str = strstr(str, "\r\n\r\n");
@@ -173,6 +182,7 @@ static uint8_t *download(char *host, char *file, size_t *out_len) {
 
             if (real_len + len > header_len) {
                 LOG_ERR("Updater", "Corrupt download, can't continue with update.");
+                close(sock);
                 free(buffer);
                 free(data);
                 return NULL;
@@ -181,19 +191,23 @@ static uint8_t *download(char *host, char *file, size_t *out_len) {
             memcpy(data + real_len, buffer, len);
             real_len += len;
         }
+        close(sock);
+        free(buffer);
+
         if (have_header && data && real_len) {
             if (out_len) {
                 *out_len = real_len;
             }
-            free(buffer);
+
             return data;
         }
+
         LOG_ERR("Updater", "bad download from host [%s]" , host);
-        free(buffer);
         return NULL;
     }
 
     LOG_ERR("Updater", "Generic error in updater. (This should never happen!)");
+    freeaddrinfo(root);
     return NULL;
 }
 

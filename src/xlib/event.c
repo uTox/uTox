@@ -7,7 +7,6 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h" // Needed for redraw(), this is probably wrong
 #include "../notify.h"
 #include "../self.h"
 #include "../settings.h"
@@ -16,6 +15,11 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/clipboard.h"
+#include "../native/keyboard.h"
+#include "../native/ui.h"
+
 #include "../ui/draw.h" // Needed for enddraw. This should probably be changed.
 #include "../ui/edit.h"
 
@@ -152,8 +156,8 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
 
                 XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grab.dn_x, grab.dn_y, grab.up_x, grab.up_y);
                 if (pointergrab == 1) {
-                    FRIEND *f = flist_get_selected()->data;
-                    if (flist_get_selected()->item == ITEM_FRIEND && f->online) {
+                    FRIEND *f = flist_get_friend();
+                    if (f && f->online) {
                         XImage *img = XGetImage(display, RootWindow(display, def_screen_num), grab.dn_x, grab.dn_y, grab.up_x,
                                                 grab.up_y, XAllPlanes(), ZPixmap);
                         if (img) {
@@ -506,10 +510,10 @@ bool doevent(XEvent event) {
 
             if (ev->state & 4) {
                 if (sym == 'c' || sym == 'C') {
-                    if (flist_get_selected()->item == ITEM_FRIEND) {
+                    if (flist_get_friend()) {
                         clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
                         setclipboard();
-                    } else if (flist_get_selected()->item == ITEM_GROUP) {
+                    } else if (flist_get_groupchat()) {
                         clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
                         setclipboard();
                     }

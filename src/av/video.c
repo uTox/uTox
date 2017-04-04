@@ -5,11 +5,13 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../self.h"
 #include "../settings.h"
 #include "../tox.h"
 #include "../utox.h"
+
+#include "../native/thread.h"
+#include "../native/video.h"
 
 #include <tox/toxav.h>
 

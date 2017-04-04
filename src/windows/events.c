@@ -3,13 +3,11 @@
 #include "main.h"
 #include "window.h"
 
-// I'm getting tired, and lazy, all of these are probably not needed
 #include "../commands.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h" // needed for redraw(), this is likely wrong
 #include "../self.h"
 #include "../settings.h"
 #include "../theme.h"
@@ -17,6 +15,11 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/clipboard.h"
+#include "../native/keyboard.h"
+#include "../native/ui.h"
+
 #include "../ui/dropdown.h"
 #include "../ui/edit.h"
 #include "../ui/svg.h"

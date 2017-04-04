@@ -4,7 +4,6 @@
 #include "../debug.h"
 #include "../filesys.h"
 #include "../main.h"
-#include "../main_native.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
@@ -12,6 +11,8 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/notify.h"
 
 #include "../ui/dropdown.h"
 
