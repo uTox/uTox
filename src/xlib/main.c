@@ -345,14 +345,14 @@ void formaturilist(char *out, const char *in, size_t len) {
 
 // TODO(robinli): Go over this function and see if either len or size are removeable.
 void pastedata(void *data, Atom type, size_t len, bool select) {
-    FRIEND *f = flist_get_friend();
-    if (!f) {
-        LOG_ERR("XLIB", "Can't paste data to missing friend.");
-        return;
-    }
 
     size_t size = (size_t)len;
     if (type == XA_PNG_IMG) {
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR("XLIB", "Can't paste data to missing friend.");
+            return;
+        }
         uint16_t width, height;
 
         NATIVE_IMAGE *native_image = utox_image_to_native(data, size, &width, &height, 0);
@@ -364,6 +364,11 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
             friend_sendimage(f, native_image, width, height, png_image, size);
         }
     } else if (type == XA_URI_LIST) {
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR("XLIB", "Can't paste data to missing friend.");
+            return;
+        }
         char *path = malloc(len + 1);
         formaturilist(path, (char *)data, len);
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0xFFFF, path);

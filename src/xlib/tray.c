@@ -231,7 +231,6 @@ bool tray_window_event(XEvent event) {
                 togglehide();
             }
             return true;
-            tray_reposition();
         }
 
         case MapNotify: {
