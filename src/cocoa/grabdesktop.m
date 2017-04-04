@@ -9,6 +9,8 @@
 
 #include "../av/utox_av.h"
 
+#include "../native/keyboard.h"
+
 static void stardust_display_capping_done(bool video, uint64_t ret, NSWindow *window);
 static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
     return (CGRect){ { (r2.size.width - r1.size.width) / 2.0, (r2.size.height - r1.size.height) / 2.0 }, r1.size };
@@ -154,7 +156,7 @@ static void stardust_display_capping_done(bool video, uint64_t ret, NSWindow *wi
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
             CFRelease(dat);
 
-            friend_sendimage(flist_get_selected()->data, img, CGImageGetWidth(inliness), CGImageGetHeight(inliness),
+            friend_sendimage(flist_get_friend(), img, CGImageGetWidth(inliness), CGImageGetHeight(inliness),
                              (UTOX_IMAGE)owned_ptr, size);
         } else {
             desktop_capture_from  = screen_id;

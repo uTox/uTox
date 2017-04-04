@@ -3,20 +3,16 @@
 #include "chatlog.h"
 #include "file_transfers.h"
 #include "filesys.h"
-// TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
-#include "filesys_native.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
 #include "theme.h"
 #include "tox.h"
-#include "ui.h"
 #include "utox.h"
 
 #include "ui/contextmenu.h"
@@ -27,6 +23,15 @@
 
 #include "layout/friend.h"
 #include "layout/group.h"
+
+#include "native/clipboard.h"
+// TODO including native .h files should never be needed, refactor filesys.h to provide necessary API
+#include "native/filesys.h"
+#include "native/image.h"
+#include "native/keyboard.h"
+#include "native/os.h"
+
+#include <string.h>
 
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 
@@ -179,9 +184,9 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
 
     message_updateheight(m, msg);
 
-    if (m->is_groupchat && flist_get_selected()->data == &group[m->id]) {
+    if (flist_get_groupchat() && m->is_groupchat && flist_get_groupchat() == get_group(m->id)) {
         m->panel.content_scroll->content_height = m->height;
-    } else if (flist_get_selected()->data == &friend[m->id]) {
+    } else if (flist_get_friend() && flist_get_friend()->number == get_friend(m->id)->number) {
         m->panel.content_scroll->content_height = m->height;
     }
 
@@ -238,6 +243,8 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
     msg->via.txt.msg    = calloc(1, length);
     msg->via.txt.length = length;
 
+    FRIEND *f = get_friend(m->id);
+
     if (auth) {
         msg->via.txt.author_length = self.name_length;
         if (!send) {
@@ -245,7 +252,7 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
             msg->receipt_time = 1;
         }
     } else {
-        msg->via.txt.author_length = friend[m->id].name_length;
+        msg->via.txt.author_length = f->name_length;
     }
 
     memcpy(msg->via.txt.msg, msgtxt, length);
@@ -260,7 +267,7 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
     }
 
     if (auth && send) {
-        postmessage_toxcore(TOX_SEND_MESSAGE, friend[m->id].number, length, msg);
+        postmessage_toxcore(TOX_SEND_MESSAGE, m->id, length, msg);
     }
 
     return message_add(m, msg);
@@ -276,6 +283,8 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
     msg->via.action.msg = calloc(1, length);
     msg->via.action.length = length;
 
+    FRIEND *f = get_friend(m->id);
+
     if (auth) {
         msg->via.txt.author_length = self.name_length;
         if (!send) {
@@ -283,7 +292,7 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
             msg->receipt_time = 1;
         }
     } else {
-        msg->via.txt.author_length = friend[m->id].name_length;
+        msg->via.txt.author_length = f->name_length;
     }
 
     memcpy(msg->via.action.msg, msgtxt, length);
@@ -293,7 +302,7 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
     }
 
     if (auth && send) {
-        postmessage_toxcore(TOX_SEND_ACTION, friend[m->id].number, length, msg);
+        postmessage_toxcore(TOX_SEND_ACTION, f->number, length, msg);
     }
 
     return message_add(m, msg);
@@ -387,7 +396,13 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
         return false;
     }
 
-    FRIEND *f = &friend[m->id];
+    FRIEND *f = get_friend(m->id);
+
+    if (!f) {
+        LOG_ERR("Messages", "Could not get friend with number: %u", m->id);
+        return false;
+    }
+
     if (f->skip_msg_logging) {
         return false;
     }
@@ -443,7 +458,13 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
 bool messages_read_from_log(uint32_t friend_number) {
     size_t    actual_count = 0;
 
-    MSG_HEADER **data = utox_load_chatlog(friend[friend_number].id_str, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("Messages", "Could not get friend with number: %u", friend_number);
+        return false;
+    }
+
+    MSG_HEADER **data = utox_load_chatlog(f->id_str, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
 
     time_t last = 0;
 
@@ -453,11 +474,11 @@ bool messages_read_from_log(uint32_t friend_number) {
         while (actual_count--) {
             msg = *p++;
             if (msg) {
-                if (msg_add_day_notice(&friend[friend_number].msg, last, msg->time)) {
+                if (msg_add_day_notice(&f->msg, last, msg->time)) {
                     last = msg->time;
                 }
 
-                message_add(&friend[friend_number].msg, msg);
+                message_add(&f->msg, msg);
             }
         }
         free(data);
@@ -547,7 +568,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     data          = calloc(1, length);
                     memcpy(data, &header, sizeof(header));
 
-                    char *hex = friend[m->id].id_str;
+                    char *hex = get_friend(m->id)->id_str;
                     if (msg->disk_offset) {
                         LOG_TRACE("Messages", "Updating message -> disk_offset is %lu" , msg->disk_offset);
                         utox_update_chatlog(hex, msg->disk_offset, data, length);
@@ -655,43 +676,45 @@ static int messages_draw_image(MSG_IMG *img, int x, int y, uint32_t maxwidth) {
         draw_image(img->image, x, y, maxwidth, img->h * maxwidth / img->w, 0, 0);
 
         image_set_scale(img->image, 1.0);
+    } else if (img->w > maxwidth) {
+        draw_image(img->image, x, y, maxwidth, img->h, (int)((double)(img->w - maxwidth) * img->position), 0);
     } else {
-        if (img->w > maxwidth) {
-            draw_image(img->image, x, y, maxwidth, img->h, (int)((double)(img->w - maxwidth) * img->position), 0);
-        } else {
-            draw_image(img->image, x, y, img->w, img->h, 0, 0);
-        }
+        draw_image(img->image, x, y, img->w, img->h, 0, 0);
     }
 
     return (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
 }
 
 /* Draw macros added, to reduce future line edits. */
-#define draw_ft_rect(color) draw_rect_fill(dx, y, d_width, FILE_TRANSFER_BOX_HEIGHT, color)
-#define draw_ft_prog(color) draw_rect_fill(dx, y, prog_bar, FILE_TRANSFER_BOX_HEIGHT, color)
-#define draw_ft_cap(bg, fg)                                                                                 \
+#define DRAW_FT_RECT(color) draw_rect_fill(dx, y, d_width, FILE_TRANSFER_BOX_HEIGHT, color)
+
+#define DRAW_FT_PROG(color) draw_rect_fill(dx, y, prog_bar, FILE_TRANSFER_BOX_HEIGHT, color)
+
+#define DRAW_FT_CAP(bg, fg)                                                                                 \
     do {                                                                                                    \
         drawalpha(BM_FT_CAP, dx - room_for_clip, y, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, bg);                    \
         drawalpha(BM_FILE, dx - room_for_clip + SCALE(4), y + SCALE(4), BM_FILE_WIDTH, BM_FILE_HEIGHT, fg); \
     } while (0)
 
 /* Always first */
-#define draw_ft_no_btn()                                                                        \
+#define DRAW_FT_NO_BTN()                                                                        \
     do {                                                                                        \
         drawalpha(BM_FTB1, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,                                \
                   (mouse_left_btn ? COLOR_BTN_DANGER_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND)); \
         drawalpha(BM_NO, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,                    \
                   (mouse_left_btn ? COLOR_BTN_DANGER_TEXT_HOVER : COLOR_BTN_DANGER_TEXT));      \
     } while (0)
+
 /* Always last */
-#define draw_ft_yes_btn()                                                                           \
+#define DRAW_FT_YES_BTN()                                                                           \
     do {                                                                                            \
         drawalpha(BM_FTB2, btnx + btn_bg_w + SCALE(2), tbtn_bg_y, btn_bg_w, tbtn_bg_h,              \
                   (mouse_rght_btn ? COLOR_BTN_SUCCESS_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND));    \
         drawalpha(BM_YES, btnx + btn_bg_w + SCALE(2) + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh, \
                   (mouse_rght_btn ? COLOR_BTN_SUCCESS_TEXT_HOVER : COLOR_BTN_SUCCESS_TEXT));        \
     } while (0)
-#define draw_ft_pause_btn()                                                                           \
+
+#define DRAW_FT_PAUSE_BTN()                                                                           \
     do {                                                                                              \
         drawalpha(BM_FTB2, btnx + btn_bg_w + SCALE(2), tbtn_bg_y, btn_bg_w, tbtn_bg_h,                \
                   (mouse_rght_btn ? COLOR_BTN_SUCCESS_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND));      \
@@ -699,7 +722,7 @@ static int messages_draw_image(MSG_IMG *img, int x, int y, uint32_t maxwidth) {
                   (mouse_rght_btn ? COLOR_BTN_SUCCESS_TEXT_HOVER : COLOR_BTN_SUCCESS_TEXT));          \
     } while (0)
 
-#define draw_ft_resume_btn()                                                                           \
+#define DRAW_FT_RESUME_BTN()                                                                           \
     do {                                                                                               \
         drawalpha(BM_FTB2, btnx + btn_bg_w + SCALE(2), tbtn_bg_y, btn_bg_w, tbtn_bg_h,                 \
                   (mouse_rght_btn ? COLOR_BTN_SUCCESS_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND));       \
@@ -707,20 +730,23 @@ static int messages_draw_image(MSG_IMG *img, int x, int y, uint32_t maxwidth) {
                   (mouse_rght_btn ? COLOR_BTN_SUCCESS_TEXT_HOVER : COLOR_BTN_SUCCESS_TEXT));           \
     } while (0)
 
-#define draw_ft_text_right(str, len)                   \
+#define DRAW_FT_TEXT_RIGHT(str, len)                   \
     do {                                               \
         wbound -= (textwidth(str, len) + (SCALE(12))); \
         drawtext(wbound, y + SCALE(8), str, len);      \
     } while (0)
-#define draw_ft_alph_right(bm, col)                     \
+
+#define DRAW_FT_ALPH_RIGHT(bm, col)                     \
     do {                                                \
         wbound -= btnw + (SCALE(12));                   \
         drawalpha(bm, wbound, tbtn_y, btnw, btnh, col); \
     } while (0)
-#define drawstr_ft_right(t) draw_ft_text_right(S(t), SLEN(t))
+
+#define DRAWSTR_FT_RIGHT(t) DRAW_FT_TEXT_RIGHT(S(t), SLEN(t))
 
 
 static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, int x, int y, int w, int UNUSED(h)) {
+    // Used in macros.
     int room_for_clip = BM_FT_CAP_WIDTH + SCALE(2);
     int dx            = x + MESSAGES_X + room_for_clip;
     int d_width       = w - MESSAGES_X - TIME_WIDTH - room_for_clip;
@@ -744,7 +770,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
     long double file_percent = (double)file->progress / (double)file->size;
     if (file->progress > file->size) {
         file->progress = file->size;
-        file_percent  = 1.0;
+        file_percent = 1.0;
     }
 
     int max = file->name_length + 128;
@@ -753,9 +779,6 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
 
     text += snprintf(text, max, "%.*s ", (int)file->name_length, file->name);
     text += sprint_humanread_bytes(text, text - ft_text, file->size);
-
-    // progress rectangle
-    uint32_t prog_bar = 0;
 
     setfont(FONT_MISC);
     setcolor(COLOR_BKGRND_MAIN);
@@ -773,13 +796,16 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
             wbound -= ftb_allowance;
             break;
         }
-        default:
+
+        default: {
             // we'll round the corner even without buttons.
             d_width -= btn_bg_w;
             break;
+        }
     }
 
-    prog_bar = (file->size == 0) ? 0 : ((long double)d_width * file_percent);
+    // progress rectangle
+    uint32_t prog_bar = (file->size == 0) ? 0 : ((long double)d_width * file_percent);
 
     switch (file->file_status) {
         case FILE_TRANSFER_STATUS_COMPLETED: {
@@ -788,87 +814,92 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
                      background = mouse_over ? COLOR_BTN_SUCCESS_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND;
 
             setcolor(text);
-            draw_ft_cap(background, text);
-            draw_ft_rect(background);
+            DRAW_FT_CAP(background, text);
+            DRAW_FT_RECT(background);
             drawalpha(BM_FTB2, dx + d_width, tbtn_bg_y, btn_bg_w, tbtn_bg_h, background);
 
             if (file->inline_png) {
-                drawstr_ft_right(CLICKTOSAVE);
+                DRAWSTR_FT_RIGHT(CLICKTOSAVE);
             } else {
-                drawstr_ft_right(CLICKTOOPEN);
+                DRAWSTR_FT_RIGHT(CLICKTOOPEN);
             }
-            draw_ft_alph_right(BM_YES, text);
+            DRAW_FT_ALPH_RIGHT(BM_YES, text);
             break;
         }
+
         case FILE_TRANSFER_STATUS_KILLED: {
             setcolor(COLOR_BTN_DANGER_TEXT);
-            draw_ft_cap(COLOR_BTN_DANGER_BACKGROUND, COLOR_BTN_DANGER_TEXT);
-            draw_ft_rect(COLOR_BTN_DANGER_BACKGROUND);
+            DRAW_FT_CAP(COLOR_BTN_DANGER_BACKGROUND, COLOR_BTN_DANGER_TEXT);
+            DRAW_FT_RECT(COLOR_BTN_DANGER_BACKGROUND);
             drawalpha(BM_FTB2, dx + d_width, tbtn_bg_y, btn_bg_w, tbtn_bg_h, COLOR_BTN_DANGER_BACKGROUND);
 
-            drawstr_ft_right(TRANSFER_CANCELLED);
-            draw_ft_alph_right(BM_NO, COLOR_BTN_DANGER_TEXT);
+            DRAWSTR_FT_RIGHT(TRANSFER_CANCELLED);
+            DRAW_FT_ALPH_RIGHT(BM_NO, COLOR_BTN_DANGER_TEXT);
             break;
         }
+
         case FILE_TRANSFER_STATUS_BROKEN: {
             setcolor(COLOR_BTN_DANGER_TEXT);
-            draw_ft_cap(COLOR_BTN_DANGER_BACKGROUND, COLOR_BTN_DANGER_TEXT);
-            draw_ft_rect(COLOR_BTN_DANGER_BACKGROUND);
+            DRAW_FT_CAP(COLOR_BTN_DANGER_BACKGROUND, COLOR_BTN_DANGER_TEXT);
+            DRAW_FT_RECT(COLOR_BTN_DANGER_BACKGROUND);
             drawalpha(BM_FTB2, dx + d_width, tbtn_bg_y, btn_bg_w, tbtn_bg_h, COLOR_BTN_DANGER_BACKGROUND);
 
-            drawstr_ft_right(TRANSFER_BROKEN);
-            draw_ft_alph_right(BM_NO, COLOR_BTN_DANGER_TEXT);
+            DRAWSTR_FT_RIGHT(TRANSFER_BROKEN);
+            DRAW_FT_ALPH_RIGHT(BM_NO, COLOR_BTN_DANGER_TEXT);
             break;
         }
+
         case FILE_TRANSFER_STATUS_NONE: {
             /* ↑ used for incoming transfers */
             setcolor(COLOR_BTN_DISABLED_TRANSFER);
-            draw_ft_cap(COLOR_BTN_DISABLED_BKGRND, COLOR_BTN_DISABLED_TRANSFER);
-            draw_ft_rect(COLOR_BTN_DISABLED_BKGRND);
+            DRAW_FT_CAP(COLOR_BTN_DISABLED_BKGRND, COLOR_BTN_DISABLED_TRANSFER);
+            DRAW_FT_RECT(COLOR_BTN_DISABLED_BKGRND);
 
-            draw_ft_no_btn();
-            draw_ft_yes_btn();
+            DRAW_FT_NO_BTN();
+            DRAW_FT_YES_BTN();
 
-            draw_ft_prog(COLOR_BTN_DISABLED_FORGRND);
+            DRAW_FT_PROG(COLOR_BTN_DISABLED_FORGRND);
             break;
         }
+
         case FILE_TRANSFER_STATUS_ACTIVE: {
             setcolor(COLOR_BTN_INPROGRESS_TEXT);
-            draw_ft_cap(COLOR_BTN_INPROGRESS_BKGRND, COLOR_BTN_INPROGRESS_TEXT);
-            draw_ft_rect(COLOR_BTN_INPROGRESS_BKGRND);
+            DRAW_FT_CAP(COLOR_BTN_INPROGRESS_BKGRND, COLOR_BTN_INPROGRESS_TEXT);
+            DRAW_FT_RECT(COLOR_BTN_INPROGRESS_BKGRND);
 
-            draw_ft_no_btn();
-            draw_ft_pause_btn();
+            DRAW_FT_NO_BTN();
+            DRAW_FT_PAUSE_BTN();
 
             char speed[32] = {0};
             char *p = speed + sprint_humanread_bytes(speed, 32, file->speed);
             p += snprintf(p, speed - p, "/s %lus",
                                file->speed ? (file->size - file->progress) / file->speed : 0);
-            draw_ft_text_right(speed, p - speed);
+            DRAW_FT_TEXT_RIGHT(speed, p - speed);
 
-            draw_ft_prog(COLOR_BTN_INPROGRESS_FORGRND);
+            DRAW_FT_PROG(COLOR_BTN_INPROGRESS_FORGRND);
             break;
         }
+
         case FILE_TRANSFER_STATUS_PAUSED_US:
         case FILE_TRANSFER_STATUS_PAUSED_BOTH:
         case FILE_TRANSFER_STATUS_PAUSED_THEM: {
             setcolor(COLOR_BTN_DISABLED_TRANSFER);
 
-            draw_ft_cap(COLOR_BTN_DISABLED_BKGRND, COLOR_BTN_DISABLED_TRANSFER);
-            draw_ft_rect(COLOR_BTN_DISABLED_BKGRND);
+            DRAW_FT_CAP(COLOR_BTN_DISABLED_BKGRND, COLOR_BTN_DISABLED_TRANSFER);
+            DRAW_FT_RECT(COLOR_BTN_DISABLED_BKGRND);
 
-            draw_ft_no_btn();
+            DRAW_FT_NO_BTN();
 
             if (file->file_status == FILE_TRANSFER_STATUS_PAUSED_BOTH
                 || file->file_status == FILE_TRANSFER_STATUS_PAUSED_US) {
                 /* Paused by at least us */
-                draw_ft_resume_btn();
+                DRAW_FT_RESUME_BTN();
             } else {
                 /* Paused only by them */
-                draw_ft_pause_btn();
+                DRAW_FT_PAUSE_BTN();
             }
 
-            draw_ft_prog(COLOR_BTN_DISABLED_FORGRND);
+            DRAW_FT_PROG(COLOR_BTN_DISABLED_FORGRND);
             break;
         }
     }
@@ -994,7 +1025,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
             if (draw_author) {
                 if (msg->our_msg != lastauthor) {
-                    FRIEND *f = &friend[m->id];
+                    FRIEND *f = get_friend(m->id);
                     if (msg->our_msg) {
                         messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length,
                                              COLOR_MAIN_TEXT_SUBTEXT);
@@ -1557,7 +1588,7 @@ int messages_selection(PANEL *panel, char *buffer, uint32_t len, bool names) {
                 p += msg->via.grp.author_length;
                 len -= msg->via.grp.author_length;
             } else {
-                const FRIEND *f = &friend[m->id];
+                const FRIEND *f = get_friend(m->id);
 
                 if (!msg->our_msg) {
                     if (len <= f->name_length) {
@@ -1675,11 +1706,12 @@ void messages_updateheight(MESSAGES *m, int width) {
 bool messages_char(uint32_t ch) {
     MESSAGES *m;
 
-    if (flist_get_selected()->item == ITEM_FRIEND) {
+    if (flist_get_friend()) {
         m = messages_friend.object;
-    } else if (flist_get_selected()->item == ITEM_GROUP) {
+    } else if (flist_get_groupchat()) {
         m = messages_group.object;
     } else {
+        LOG_TRACE("Messages", "Can't type to nowhere");
         return false;
     }
 

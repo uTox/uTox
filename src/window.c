@@ -1,9 +1,5 @@
 #include "window.h"
 
-#include "main.h"
-
-#include "main_native.h"
-
 // TODO find a better place for these!
 void native_window_raze(UTOX_WINDOW *win);
 UTOX_WINDOW *native_window_create_video(int x, int y, int w, int h);

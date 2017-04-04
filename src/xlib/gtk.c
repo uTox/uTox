@@ -1,5 +1,6 @@
 #include "gtk.h"
 
+#include "../avatar.h"
 #include "../chatlog.h"
 #include "../debug.h"
 #include "../file_transfers.h"
@@ -7,13 +8,14 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../text.h"
 #include "../tox.h"
 #include "../ui.h"
 #include "../utox.h"
 
 #include "../main.h"
+
+#include "../native/thread.h"
 
 #include <dlfcn.h>
 #include <errno.h>
@@ -312,9 +314,14 @@ static void ugtk_save_data_thread(void *args) {
 
 static void ugtk_save_chatlog_thread(void *args) {
     size_t friend_number = (size_t)args;
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("GTK", "Could not get friend with number: %u", friend_number);
+        return;
+    }
 
     char name[TOX_MAX_NAME_LENGTH + sizeof ".txt"];
-    snprintf(name, sizeof name, "%.*s.txt", (int)friend[(uint32_t)friend_number].name_length, friend[(uint32_t)friend_number].name);
+    snprintf(name, sizeof name, "%.*s.txt", (int)f->name_length, f->name);
 
     void *dialog = utoxGTK_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
                                                    "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
@@ -325,7 +332,7 @@ static void ugtk_save_chatlog_thread(void *args) {
 
         FILE *fp = fopen(file_name, "wb");
         if (fp) {
-            utox_export_chatlog(friend[(uint32_t)friend_number].id_str, fp);
+            utox_export_chatlog(f->id_str, fp);
         }
     }
 
@@ -342,7 +349,7 @@ void ugtk_openfilesend(void) {
         return;
     }
     utoxGTK_open = true;
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
     uint32_t number = f->number;
     thread(ugtk_opensendthread, (void*)(size_t)number);
 }

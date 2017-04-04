@@ -15,12 +15,12 @@
 
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
 #include "settings.h"
-
 #include "ui.h"
 
 #include "av/video.h"
+
+#include "native/image.h"
 
 #include <stdlib.h>
 #include <string.h>

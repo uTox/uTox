@@ -3,7 +3,6 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../main.h"
-#include "../main_native.h"
 #include "../settings.h"
 #include "../tox.h"
 
@@ -11,6 +10,10 @@
 
 #include "../av/utox_av.h"
 #include "../av/video.h"
+
+#include "../native/audio.h"
+#include "../native/ui.h"
+#include "../native/video.h"
 
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
@@ -460,7 +463,11 @@ uint16_t native_video_detect(void) {
                 postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
                 break;
             default: {
-                         FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];
+                         FRIEND *f = get_friend(((uToxIroncladWindow *)notification.object).video_id - 1);
+                         if (!f) {
+                             LOG_ERR("Cocoa", "Could not get friend with number: %u", ((uToxIroncladWindow *)notification.object).video_id - 1);
+                             return;
+                         }
                          postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
                          break;
                      }

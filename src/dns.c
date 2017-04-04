@@ -2,12 +2,27 @@
 
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
 #include "settings.h"
-#include "tox.h"
 #include "utox.h"
 
+#include "native/thread.h"
+
 #include <tox/toxdns.h>
+
+#include <string.h>
+
+#ifdef __WIN32__
+#include <windows.h>
+#include <windns.h>
+#elif defined __ANDROID__
+// TODO: Include the right things for Android.
+#include "native/main.h"
+#elif defined __OBJC__
+// TODO: Include the right things for OS X.
+#include "native/main.h"
+#else
+#include <resolv.h>
+#endif
 
 static struct tox3 {
     uint8_t *name;
@@ -23,8 +38,7 @@ static struct tox3 {
 };
 
 static void *istox3(char *name, size_t name_length) {
-    int i;
-    for (i = 0; i != COUNTOF(tox3_server); i++) {
+    for (int i = 0; i != COUNTOF(tox3_server); i++) {
         struct tox3 *t = &tox3_server[i];
         if (memcmp(name, t->name, name_length) == 0 && t->name[name_length] == 0) {
             // what if two threads reach this point at the same time?->initialize all dns3 at start instead
@@ -40,10 +54,10 @@ static void *istox3(char *name, size_t name_length) {
 
 static void writechecksum(uint8_t *address) {
     uint8_t *checksum = address + 36;
-    uint32_t i;
 
-    for (i = 0; i < 36; ++i)
+    for (uint32_t i = 0; i < 36; ++i) {
         checksum[i % 2] ^= address[i];
+    }
 }
 
 static int64_t parseargument(uint8_t *dest, char *src, size_t length, void **pdns3) {
@@ -281,6 +295,7 @@ static void dns_thread(void *data) {
 
     uint32_t pin = ret;
 
+// TODO: This should be moved to a native file.
 #ifdef __WIN32__
     DNS_RECORD *record = NULL;
     DnsQuery((char *)result, DNS_TYPE_TEXT, 0, NULL, &record, NULL);

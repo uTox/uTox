@@ -1,11 +1,11 @@
 #ifndef FRIEND_H
 #define FRIEND_H
 
-#include "avatar.h"
 #include "messages.h"
 
 #include <tox/tox.h>
 
+typedef struct avatar AVATAR;
 typedef struct edit_change EDIT_CHANGE;
 typedef struct file_transfer FILE_TRANSFER;
 typedef uint8_t *UTOX_IMAGE;
@@ -59,7 +59,7 @@ typedef struct utox_friend {
     bool    typing;
     bool    video_inline;
 
-    AVATAR avatar;
+    AVATAR *avatar;
 
     /* Messages */
     bool          skip_msg_logging;
@@ -74,7 +74,7 @@ typedef struct utox_friend {
     ALuint   audio_dest;
 
     /* File transfers */
-    bool     ft_autoaccept;
+    bool ft_autoaccept;
 
     FILE_TRANSFER  *ft_incoming;
     uint16_t        ft_incoming_size;
@@ -86,21 +86,32 @@ typedef struct utox_friend {
 } FRIEND;
 
 typedef struct utox_friend_request {
-    uint16_t length;
-    uint8_t  id[TOX_ADDRESS_SIZE];
+    uint16_t number;
+    uint8_t  bin_id[TOX_ADDRESS_SIZE];
 
-    char msg[];
-} FRIENDREQ;
+    char *msg;
+    size_t length;
+} FREQUEST;
 
-
-#define friend_id(f) (f - friend)
 
 #define UTOX_FRIEND_NAME(f) ((f->alias) ? f->alias : f->name)
 #define UTOX_FRIEND_NAME_LENGTH(f) ((f->alias) ? f->alias_length : f->name_length)
 
-FRIEND friend[128];
+/*
+ * Gets the friend at position friend_number
+ */
+FRIEND *get_friend(uint32_t friend_number);
 
-FRIEND* get_friend(uint32_t friend_number);
+FREQUEST *get_frequest(uint16_t frequest_number);
+
+/* Add a new friend request */
+uint16_t friend_request_new(const uint8_t *id, const uint8_t *msg, size_t length);
+void friend_request_free(uint16_t number);
+
+/*
+ * Frees all of your friends
+ */
+void free_friends(void);
 
 void utox_friend_init(Tox *tox, uint32_t friend_number);
 

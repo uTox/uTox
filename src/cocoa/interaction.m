@@ -9,7 +9,6 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../main.h"
-#include "../main_native.h"
 #include "../messages.h"
 #include "../self.h"
 #include "../settings.h"
@@ -19,6 +18,11 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/clipboard.h"
+#include "../native/keyboard.h"
+#include "../native/ui.h"
+
 #include "../ui/edit.h"
 #include "../ui/panel.h"
 
@@ -796,7 +800,7 @@ void paste(void) {
 
         if (owned_ptr) {
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
-            friend_sendimage(flist_get_selected()->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
+            friend_sendimage(flist_get_friend(), i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
                              size);
         } else {
             free(i);
@@ -834,7 +838,7 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
         if (!is_group) {
             FRIEND *f = object;
             if (friend_has_avatar(f)) {
-                NATIVE_IMAGE *im = f->avatar.img;
+                NATIVE_IMAGE *im = f->avatar->img;
                 size_t        w = CGImageGetWidth(im->image) / im->scale, h = CGImageGetHeight(im->image) / im->scale;
                 NSImage *i = [[NSImage alloc] initWithCGImage:im->image size:(CGSize){ w, h }];
                 if ([usernotification respondsToSelector:@selector(set_identityImage:)]) {
@@ -880,13 +884,19 @@ void update_tray(void) {
 
 void native_export_chatlog_init(uint32_t fid) {
 
+    FRIEND *f = get_friend(fid);
+    if (!f) {
+        LOG_ERR("Cocoa", "Could not get friend with number: %u", fid);
+        return;
+    }
+
     NSSavePanel *picker = [NSSavePanel savePanel];
-    NSString *fname     = [[NSString alloc] initWithBytesNoCopy:friend[fid].name
-                                                     length:friend[fid].name_length
+    NSString *fname     = [[NSString alloc] initWithBytesNoCopy:f->name
+                                                     length:f->name_length
                                                    encoding:NSUTF8StringEncoding
                                                freeWhenDone:NO];
     picker.message = [NSString
-        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), friend[fid].name_length, friend[fid].name];
+        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), f->name_length, f->name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];

@@ -6,9 +6,10 @@
 #include "../avatar.h"
 #include "../flist.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../self.h"
 #include "../theme.h"
+
+#include "../native/ui.h"
 
 #include "../ui.h"
 #include "../ui/draw.h"

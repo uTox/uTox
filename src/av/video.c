@@ -5,11 +5,13 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../self.h"
 #include "../settings.h"
 #include "../tox.h"
 #include "../utox.h"
+
+#include "../native/thread.h"
+#include "../native/video.h"
 
 #include <tox/toxav.h>
 
@@ -273,7 +275,7 @@ void utox_video_thread(void *args) {
                         LOG_TRACE("uToxVideo", "sending video frame to friend %lu" , i);
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
-                        toxav_video_send_frame(av, friend[i].number, utox_video_frame.w, utox_video_frame.h,
+                        toxav_video_send_frame(av, get_friend(i)->number, utox_video_frame.w, utox_video_frame.h,
                                                utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, &error);
                         // LOG_TRACE("uToxVideo", "Sent video frame to friend %u" , i);
                         if (error) {
@@ -282,10 +284,10 @@ void utox_video_thread(void *args) {
                             } else if (error == TOXAV_ERR_SEND_FRAME_PAYLOAD_TYPE_DISABLED) {
                                 LOG_ERR("uToxVideo",
                                     "ToxAV disagrees with our AV state for friend %lu, self %u, friend %u",
-                                    i, friend[i].call_state_self, friend[i].call_state_friend);
+                                        i, get_friend(i)->call_state_self, get_friend(i)->call_state_friend);
                             } else {
                                 LOG_ERR("uToxVideo", "toxav_send_video error friend: %i error: %u",
-                                    friend[i].number, error);
+                                        get_friend(i)->number, error);
                             }
                         } else {
                             if (active_video_count >= UTOX_MAX_CALLS) {

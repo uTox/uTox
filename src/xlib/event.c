@@ -7,14 +7,19 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h" // Needed for redraw(), this is probably wrong
 #include "../notify.h"
+#include "../self.h"
 #include "../settings.h"
 #include "../tox.h"
 #include "../ui.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/clipboard.h"
+#include "../native/keyboard.h"
+#include "../native/ui.h"
+
 #include "../ui/draw.h" // Needed for enddraw. This should probably be changed.
 #include "../ui/edit.h"
 
@@ -151,8 +156,8 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
 
                 XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grab.dn_x, grab.dn_y, grab.up_x, grab.up_y);
                 if (pointergrab == 1) {
-                    FRIEND *f = flist_get_selected()->data;
-                    if (flist_get_selected()->item == ITEM_FRIEND && f->online) {
+                    FRIEND *f = flist_get_friend();
+                    if (f && f->online) {
                         XImage *img = XGetImage(display, RootWindow(display, def_screen_num), grab.dn_x, grab.dn_y, grab.up_x,
                                                 grab.up_y, XAllPlanes(), ZPixmap);
                         if (img) {
@@ -273,15 +278,14 @@ bool doevent(XEvent event) {
                     return true;
                 }
 
-                int i;
-                for (i = 0; i != COUNTOF(friend); i++) {
+                uint32_t i;
+                for (i = 0; i != self.friend_list_count; i++) {
                     if (video_win[i + 1] == ev->window) {
-                        FRIEND *f = &friend[i];
+                        FRIEND *f = get_friend(i);
                         postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
                         break;
                     }
                 }
-                assert(i != COUNTOF(friend));
             }
         }
 
@@ -506,10 +510,10 @@ bool doevent(XEvent event) {
 
             if (ev->state & 4) {
                 if (sym == 'c' || sym == 'C') {
-                    if (flist_get_selected()->item == ITEM_FRIEND) {
+                    if (flist_get_friend()) {
                         clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
                         setclipboard();
-                    } else if (flist_get_selected()->item == ITEM_GROUP) {
+                    } else if (flist_get_groupchat()) {
                         clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
                         setclipboard();
                     }
@@ -549,7 +553,12 @@ bool doevent(XEvent event) {
             } else if (ev->property == XdndDATA) {
                 char *path = malloc(len + 1);
                 formaturilist(path, (char *)data, len);
-                postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND *)(flist_get_selected()->data) - friend, 0xFFFF, path);
+                FRIEND *f = flist_get_friend();
+                if (!f) {
+                    LOG_ERR("Event", "Could not get selected friend.");
+                    return false;
+                }
+                postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0xFFFF, path);
             } else if (type == XA_INCR) {
                 if (pastebuf.data) {
                     /* already pasting something, give up on that */

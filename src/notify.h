@@ -1,7 +1,7 @@
 #ifndef NOTIFY_H
 #define NOTIFY_H
 
-#include "window.h"
+typedef struct native_window UTOX_WINDOW;
 
 typedef enum {
     NOTIFY_TYPE_NONE,

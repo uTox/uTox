@@ -18,10 +18,11 @@ static bool desktopgrab_video = false;
 // image should be freed with image_free
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
-    if (image == NULL) {
+    if (!image) {
         LOG_ERR("NATIVE Screengrab", "create_utox_image:\t Could not allocate memory for image.");
         return NULL;
     }
+
     image->bitmap        = bmp;
     image->has_alpha     = has_alpha;
     image->width         = width;
@@ -34,8 +35,9 @@ static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t wid
 }
 
 static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
-    if (width == 0 || height == 0)
+    if (width == 0 || height == 0) {
         return;
+    }
 
     BITMAPINFO info = {
         .bmiHeader = {
@@ -72,7 +74,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     free(bits);
 
     NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(flist_get_selected()->data, image, width, height, out, size);
+    friend_sendimage(flist_get_friend(), image, width, height, out, size);
 }
 
 static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -130,8 +132,8 @@ static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LP
                 DestroyWindow(window);
                 postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 1, 0, NULL);
             } else {
-                if (flist_get_selected()->item == ITEM_FRIEND) {
-                    FRIEND *f = flist_get_selected()->data;
+                if (flist_get_friend()) {
+                    FRIEND *f = flist_get_friend();
                     if (f->online) {
                         DestroyWindow(window);
                         HWND dwnd = GetDesktopWindow();
@@ -157,14 +159,14 @@ static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LP
 }
 
 void screen_grab_init(HINSTANCE app_instance) {
-    HICON black_icon  = LoadIcon(app_instance, MAKEINTRESOURCE(101));
+    HICON screengrab_black_icon  = LoadIcon(app_instance, MAKEINTRESOURCE(101));
     wchar_t screen_grab_class[] = L"uToxgrab";
 
     WNDCLASSW grab_window_class = {
         .hInstance     = app_instance,
         .lpfnWndProc   = screen_grab_sys,
         .lpszClassName = screen_grab_class,
-        .hIcon         = black_icon,
+        .hIcon         = screengrab_black_icon,
         .hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
     };
     RegisterClassW(&grab_window_class);
@@ -173,12 +175,10 @@ void screen_grab_init(HINSTANCE app_instance) {
 }
 
 void native_screen_grab_desktop(bool video) {
-    int x, y, w, h;
-
-    x = GetSystemMetrics(SM_XVIRTUALSCREEN);
-    y = GetSystemMetrics(SM_YVIRTUALSCREEN);
-    w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-    h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+    int x = GetSystemMetrics(SM_XVIRTUALSCREEN);
+    int y = GetSystemMetrics(SM_YVIRTUALSCREEN);
+    int w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    int h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
     LOG_TRACE("Native Screengrab", "result: %i %i %i %i" , x, y, w, h);
 

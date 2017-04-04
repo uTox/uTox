@@ -3,14 +3,15 @@
 #include "flist.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
 
 #include "av/audio.h"
+
+#include "native/notify.h"
+
 #include "ui/edit.h"
-#include "ui/scrollable.h"
 
 #include "layout/group.h"
 
@@ -18,6 +19,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <tox/tox.h>
+
+static GROUPCHAT group[UTOX_MAX_NUM_GROUPS];
 
 GROUPCHAT *get_group(uint32_t group_number) {
     if (group_number >= UTOX_MAX_NUM_GROUPS) {
@@ -60,7 +63,7 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     g->av_group = av_group;
     pthread_mutex_unlock(&messages_lock);
 
-    flist_addgroup(g);
+    flist_add_group(g);
     flist_select_last();
 }
 
@@ -265,7 +268,7 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
 
     notify(title, title_length, msg, msg_length, g, 1);
 
-    if (flist_get_selected()->data != g) {
+    if (flist_get_groupchat() != g) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }
 }

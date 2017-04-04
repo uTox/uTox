@@ -5,13 +5,12 @@
 #include "main.h"
 
 #include "debug.h"
-#include "flist.h"
-#include "friend.h"
-#include "groups.h"
-#include "main_native.h"
 #include "settings.h"
 #include "theme.h"
 #include "updater.h"
+
+#include "native/filesys.h"
+#include "native/main.h"
 
 #include <getopt.h>
 
@@ -266,9 +265,11 @@ void utox_init(void) {
     //#endif
 
     settings.debug_file = stdout;
+    atexit(utox_raze);
 }
 
 void utox_raze(void) {
+    LOG_INFO("uTox", "Clean exit.");
     if (settings.debug_file != stdout) {
         fclose(settings.debug_file);
     }

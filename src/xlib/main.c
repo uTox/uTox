@@ -5,11 +5,11 @@
 #include "tray.h"
 #include "window.h"
 
+#include "../avatar.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
@@ -18,6 +18,10 @@
 #include "../filesys.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/image.h"
+#include "../native/ui.h"
+
 #include "../ui/draw.h"
 #include "../ui/edit.h"
 
@@ -238,10 +242,13 @@ void copy(int value) {
     int len;
     if (edit_active()) {
         len = edit_copy((char *)clipboard.data, sizeof(clipboard.data));
-    } else if (flist_get_selected()->item == ITEM_FRIEND) {
+    } else if (flist_get_friend()) {
         len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
-    } else {
+    } else if (flist_get_groupchat()) {
         len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), value);
+    } else {
+        LOG_ERR("XLIB", "Copy from Unsupported flist type.");
+        return;
     }
 
     if (len) {
@@ -344,9 +351,12 @@ void formaturilist(char *out, const char *in, size_t len) {
 
 // TODO(robinli): Go over this function and see if either len or size are removeable.
 void pastedata(void *data, Atom type, size_t len, bool select) {
-    // TODO we shouldn't blindly trust this function to return a friend.
-    // We need to write another funtion that promises a friend (idealy the last active or null.)
-    FRIEND *f = (FRIEND *)flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR("XLIB", "Can't paste data to missing friend.");
+        return;
+    }
+
     size_t size = (size_t)len;
     if (type == XA_PNG_IMG) {
         uint16_t width, height;
@@ -881,13 +891,8 @@ int main(int argc, char *argv[]) {
         yieldcpu(1);
     }
 
-    LOG_INFO("XLIB", "XLIB main:\tClean exit");
-
-    utox_raze();
-
     return 0;
 }
 
 /* Dummy functions used in other systems... */
-/* Used in windows only... */
 void launch_at_startup(int UNUSED(is_launch_at_startup)) {}
