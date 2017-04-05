@@ -27,8 +27,8 @@ add_library(utox-test-mock
             mock/mock_threads.c
             mock/mock_system_calls.c
 )
-
 set_target_properties(utox-test-mock PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
+target_link_libraries(utox-test-mock pthread)
 
 #
 # tests
