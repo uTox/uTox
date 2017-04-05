@@ -39,8 +39,8 @@ static void send_message(Display *dpy, /* display */
 struct native_window tray_window = {
     ._.x = 0,
     ._.y = 0,
-    ._.w = 64u,
-    ._.h = 64u,
+    ._.w = 128u,
+    ._.h = 128u,
     ._.next = NULL,
     ._.panel = NULL,
     .window = 0,
@@ -59,6 +59,10 @@ static void tray_reposition(void) {
                 &tray_window._.w, &tray_window._.h,
                 &null, &null);
     LOG_NOTE("XLib Tray", "New geometry x %u y %u w %u h %u", tray_window._.x, tray_window._.y, tray_window._.w, tray_window._.h);
+
+    LOG_INFO("XLib Tray", "Setting to square");
+    tray_window._.w = tray_window._.h = MIN(tray_window._.w, tray_window._.h);
+    XResizeWindow(display, tray_window.window, tray_window._.w, tray_window._.h);
 
     XFreePixmap(display, tray_window.drawbuf);
     tray_window.drawbuf = XCreatePixmap(display, tray_window.window,
@@ -144,16 +148,15 @@ void create_tray_icon(void) {
     XWindowAttributes attr;
     XGetWindowAttributes(display, root_window, &attr);
 
+    // Todo, try and alloc on the stack for this
     XSizeHints *size_hints  = XAllocSizeHints();
     size_hints->flags       = PSize | PBaseSize | PMinSize | PMaxSize;
-    size_hints->x           = tray_window._.x;
-    size_hints->y           = tray_window._.y;
     size_hints->base_width  = tray_window._.w;
     size_hints->base_height = tray_window._.h;
-    size_hints->min_width   = tray_window._.w;
-    size_hints->min_height  = tray_window._.h;
-    size_hints->max_width   = tray_window._.w * 10;
-    size_hints->max_height  = tray_window._.h * 10;
+    size_hints->min_width   = 16;
+    size_hints->min_height  = 16;
+    size_hints->max_width   = tray_window._.w;
+    size_hints->max_height  = tray_window._.h;
     XSetWMNormalHints(display, tray_window.window, size_hints);
     XFree(size_hints);
 
