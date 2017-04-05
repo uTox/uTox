@@ -118,12 +118,12 @@ void parse_args(int argc, char *argv[],
     }
 
     static struct option long_options[] = {
-        { "theme", required_argument, NULL, 't' },  { "portable", no_argument, NULL, 'p' },
-        { "set", required_argument, NULL, 's' },    { "unset", required_argument, NULL, 'u' },
-        { "skip-updater", no_argument, NULL, 'N' }, { "signal-updater", no_argument, NULL, 'S' },
-        { "version", no_argument, NULL, 0 },
-        { "silent", no_argument, NULL, 1 },        { "verbose", no_argument, NULL, 'v' },
-        { "help", no_argument, NULL, 'h' },        { "debug", required_argument, NULL, 2 },
+        { "theme", required_argument, NULL, 't' },        { "portable", no_argument, NULL, 'p' },
+        { "set", required_argument, NULL, 's' },          { "unset", required_argument, NULL, 'u' },
+        { "skip-updater", no_argument, NULL, 'N' },       { "signal-updater", no_argument, NULL, 'S' },
+        { "delete-updater", required_argument, NULL, 3 }, { "version", no_argument, NULL, 0 },
+        { "silent", no_argument, NULL, 1 },               { "verbose", no_argument, NULL, 'v' },
+        { "help", no_argument, NULL, 'h' },               { "debug", required_argument, NULL, 2 },
         { 0, 0, 0, 0 }
     };
 
@@ -202,6 +202,10 @@ void parse_args(int argc, char *argv[],
                 if (from_updater) {
                     *from_updater = true;
                 }
+                break;
+            }
+            case 3: {
+                // Delete updater skel
                 break;
             }
 

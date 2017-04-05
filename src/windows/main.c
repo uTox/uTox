@@ -726,34 +726,34 @@ static bool fresh_update(void) {
 
     // This is the freshly downloaded exe.
     // make a backup of the old file
-    char *backup[UTOX_FILE_NAME_LENGTH];
+    char backup[UTOX_FILE_NAME_LENGTH];
     strcpy(name_start, "uTox_backup.exe");
     memcpy(backup, path, UTOX_FILE_NAME_LENGTH);
     LOG_NOTE("Win Updater", "Backup %s", backup);
 
-    char *real[UTOX_FILE_NAME_LENGTH];
+    char real[UTOX_FILE_NAME_LENGTH];
     strcpy(name_start, "uTox.exe");
     memcpy(real, path, UTOX_FILE_NAME_LENGTH);
     LOG_NOTE("Win Updater", "%s", real);
-    if (MoveFileEx((const char*)real, (const char*)backup, MOVEFILE_REPLACE_EXISTING) == 0) {
+    if (MoveFileEx(real, backup, MOVEFILE_REPLACE_EXISTING) == 0) {
         // Failed
         LOG_ERR("Win Updater", "move failed");
         return false;
     }
 
-    char *new[UTOX_FILE_NAME_LENGTH];
+    char new[UTOX_FILE_NAME_LENGTH];
     strcpy(name_start, "next_uTox.exe");
     memcpy(new, path, UTOX_FILE_NAME_LENGTH);
     LOG_NOTE("Win Updater", "%s", new);
-    if (CopyFile((const char*)new, (const char*)real, 0) == 0) {
+    if (CopyFile(new, real, 0) == 0) {
         // Failed
         LOG_ERR("Win Updater", "copy failed");
         return false;
     }
 
     LOG_ERR("Win Updater", "Launching new path %s", real);
-    ShellExecute(NULL, "open", (const char*)real, (const char*)real, NULL, SW_SHOW);
-    DeleteFile((const char*)new);
+    ShellExecute(NULL, "open", real, real, NULL, SW_SHOW);
+    DeleteFile(new);
     return true;
 }
 
@@ -771,14 +771,17 @@ static bool pending_update(void) {
     }
 
     if (name_start) {
-        char *next[UTOX_FILE_NAME_LENGTH];
+        char next[UTOX_FILE_NAME_LENGTH];
         strcpy(name_start, "next_uTox.exe");
         memcpy(next, path, UTOX_FILE_NAME_LENGTH);
-        FILE *f = fopen((const char*)next, "rb");
+        FILE *f = fopen(next, "rb");
         if (f) {
             LOG_ERR("Win Pending", "Updater waiting :D");
             fclose(f);
-            ShellExecute(NULL, "open", (const char*)next, (const char*)next, NULL, SW_SHOW);
+            char cmd[UTOX_FILE_NAME_LENGTH];
+            strcpy(name_start, "uTox.exe");
+            snprintf(cmd, UTOX_FILE_NAME_LENGTH, "%s --delete-updater %s", path, next);
+            ShellExecute(NULL, "open", next, cmd, NULL, SW_SHOW);
             return true;
         }
         LOG_WARN("Win Pending", "No updater waiting for us");
