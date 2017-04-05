@@ -765,6 +765,11 @@ static bool pending_update(void) {
 
     // lol, windows is backwards... AGAIN
     char *name_start = strstr(path, "uTox.exe");
+    if (!name_start) {
+        // Try lowercase too
+        name_start = strstr(path, "utox.exe");
+    }
+
     if (name_start) {
         char *next[UTOX_FILE_NAME_LENGTH];
         strcpy(name_start, "next_uTox.exe");
@@ -776,6 +781,7 @@ static bool pending_update(void) {
             ShellExecute(NULL, "open", (const char*)next, (const char*)next, NULL, SW_SHOW);
             return true;
         }
+        LOG_WARN("Win Pending", "No updater waiting for us");
     }
     LOG_ERR("Win Pending", "Bad file name -- %s ", path);
 
