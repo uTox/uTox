@@ -144,6 +144,19 @@ void create_tray_icon(void) {
     XWindowAttributes attr;
     XGetWindowAttributes(display, root_window, &attr);
 
+    XSizeHints *size_hints  = XAllocSizeHints();
+    size_hints->flags       = PSize | PBaseSize | PMinSize | PMaxSize;
+    size_hints->x           = tray_window._.x;
+    size_hints->y           = tray_window._.y;
+    size_hints->base_width  = tray_window._.w;
+    size_hints->base_height = tray_window._.h;
+    size_hints->min_width   = tray_window._.w;
+    size_hints->min_height  = tray_window._.h;
+    size_hints->max_width   = tray_window._.w * 10;
+    size_hints->max_height  = tray_window._.h * 10;
+    XSetWMNormalHints(display, tray_window.window, size_hints);
+    XFree(size_hints);
+
     tray_window.pictformat = XRenderFindVisualFormat(display, attr.visual);
     tray_window.renderpic = XRenderCreatePicture(display, tray_window.drawbuf, tray_window.pictformat, 0, NULL);
 
