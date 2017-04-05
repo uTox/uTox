@@ -69,8 +69,13 @@ static size_t mk_request(char *host, char *file, char *data) {
 // I don't like it either, but windows is a dirty dirty liar!
 #if defined(_WIN32) || defined(__WIN32__)
 #define SOCKET_SUCKS(s) ((uint64_t)s == INVALID_SOCKET)
+#define INIT_SOCKETS() do { \
+        WSADATA wsaData; \
+        WSAStartup(MAKEWORD(2, 2), &wsaData); \
+    } while(0)
 #else
 #define SOCKET_SUCKS(s) (s < 0)
+#define INIT_SOCKETS() // lol windows :D
 #endif
 
 
@@ -294,6 +299,7 @@ void updater_thread(void *from_startup) {
     if (from_startup) {
         // always start the updater thread if started during init
         updater_running = true;
+        INIT_SOCKETS();
     } else if (updater_running) {
         // not called by startup, so we're already running
         return;

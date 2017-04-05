@@ -735,7 +735,7 @@ static bool fresh_update(void) {
     strcpy(name_start, "uTox.exe");
     memcpy(real, path, UTOX_FILE_NAME_LENGTH);
     LOG_NOTE("Win Updater", "%s", real);
-    if (MoveFile((const char*)real, (const char*)backup) == 0) {
+    if (MoveFileEx((const char*)real, (const char*)backup, MOVEFILE_REPLACE_EXISTING) == 0) {
         // Failed
         LOG_ERR("Win Updater", "move failed");
         return false;
@@ -758,6 +758,7 @@ static bool fresh_update(void) {
 }
 
 static bool pending_update(void) {
+    LOG_WARN("Win Pending", "Starting");
     // Check if we're the fresh version.
     char path[UTOX_FILE_NAME_LENGTH];
     GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
@@ -768,14 +769,15 @@ static bool pending_update(void) {
         char *next[UTOX_FILE_NAME_LENGTH];
         strcpy(name_start, "next_uTox.exe");
         memcpy(next, path, UTOX_FILE_NAME_LENGTH);
-        FILE *f = fopen((const char*)next, "wb");
+        FILE *f = fopen((const char*)next, "rb");
         if (f) {
-            // There's a pending update
+            LOG_ERR("Win Pending", "Updater waiting :D");
             fclose(f);
             ShellExecute(NULL, "open", (const char*)next, (const char*)next, NULL, SW_SHOW);
             return true;
         }
     }
+    LOG_ERR("Win Pending", "Bad file name -- %s ", path);
 
     return false;
 }
