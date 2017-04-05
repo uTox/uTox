@@ -20,7 +20,8 @@
 #elif defined __OBJC__
 // TODO: Include the right things for OS X.
 #include "native/main.h"
-#else
+#elif !defined __OpenBSD__
+// Doesn't work on OpenBSD.
 #include <resolv.h>
 #endif
 
@@ -313,8 +314,7 @@ static void dns_thread(void *data) {
 
         record = record->pNext;
     }
-#else
-#ifdef __ANDROID__
+#elif defined __ANDROID__
     /* get the dns IP and make a dns request manually */
     char value[PROP_VALUE_MAX];
     __system_property_get("net.dns1", value);
@@ -380,7 +380,7 @@ static void dns_thread(void *data) {
         success     = parserecord(data, p, pin, dns3);
     }
 
-#else
+#elif !defined __OpenBSD__
     uint8_t      answer[PACKETSZ + 1], *answend, *pt;
     char         host[128];
     int          len, type;
@@ -457,7 +457,6 @@ static void dns_thread(void *data) {
     } else {
         LOG_TRACE("DNS", "timeout" );
     }
-#endif
 #endif
 FAIL:
 

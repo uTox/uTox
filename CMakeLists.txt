@@ -128,6 +128,13 @@ add_cflag("-Wno-misleading-indentation")
 add_cflag("-fno-strict-aliasing")
 add_cflag("-fPIC")
 
+
+## Fix OpenBSD
+if(CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I/usr/local/include -I/usr/X11R6/include -L/usr/local/lib -L/usr/X11R6/lib -std=c99")
+endif()
+
+
 ## Optimization Flags
 
 # Fix GNU stack
@@ -185,11 +192,11 @@ if(ENABLE_FILTERAUDIO)
 endif()
 
 if(UTOX_STATIC)
-	if(UNIX)
-		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
-	else()
-		add_cflag("-static")
-	endif()
+    if(UNIX)
+        add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
+    else()
+        add_cflag("-static")
+    endif()
 endif()
 
 if(ENABLE_AUTOUPDATE)
@@ -252,14 +259,23 @@ elseif(APPLE)
     set(LIBRARIES "opus")
 elseif(UNIX)
     add_subdirectory(src/xlib)
-    set(LIBRARIES
-		dl
-		rt
-		opus
-		openal
-		v4lconvert
-		filteraudio
-		)
+    if(CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*")
+        set(LIBRARIES
+            rt
+            opus
+            openal
+            v4lconvert
+            )
+    else()
+        set(LIBRARIES
+            dl
+            rt
+            opus
+            openal
+            v4lconvert
+            filteraudio
+            )
+    endif()
 endif()
 
 # include utoxLAYOUT
