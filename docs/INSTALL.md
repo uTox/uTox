@@ -63,6 +63,10 @@ sudo pacman -S utox
 
 If you use Slackware you can download the slack build from here: https://slackbuilds.org/repository/14.2/network/uTox/
 
+## OpenBSD
+
+Right now no one is providing binaries. You will have to compile uTox. See [instructions](BUILD.md#OpenBSD).
+
 <a name="osx" />
 ## OS X
 

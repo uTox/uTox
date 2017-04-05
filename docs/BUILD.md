@@ -84,6 +84,22 @@ sudo checkinstall
 Have fun!
 
 If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In fact, you can just create a new project from the existing sources and everything should work fine.
+
+<a name="OpenBSD" />
+## OpenBSD
+
+uTox will compile on OpenBSD although not everything works. To compile run:
+
+```bash
+git clone https://github.com/uTox/uTox.git
+cd uTox/
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-openbsd.cmake" ..
+make
+sudo make install
+```
+
 <a name="win" />
 ## Windows
 
