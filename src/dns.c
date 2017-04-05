@@ -20,8 +20,9 @@
 #elif defined __OBJC__
 // TODO: Include the right things for OS X.
 #include "native/main.h"
-#elif !defined __OpenBSD__
-// Doesn't work on OpenBSD.
+#elif defined __OpenBSD__
+#include <arpa/nameser.h>
+#else
 #include <resolv.h>
 #endif
 
@@ -380,7 +381,7 @@ static void dns_thread(void *data) {
         success     = parserecord(data, p, pin, dns3);
     }
 
-#elif !defined __OpenBSD__
+#else
     uint8_t      answer[PACKETSZ + 1], *answend, *pt;
     char         host[128];
     int          len, type;
