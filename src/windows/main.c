@@ -613,7 +613,7 @@ void config_osdefaults(UTOX_SAVE *r) {
  * Limitation: nested quotation marks are not handled
  * Credit: http://alter.org.ua/docs/win/args
  */
-PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
+static PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
     ULONG len = strlen(CmdLine);
     ULONG i = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
     PCHAR *argv = (PCHAR *)GlobalAlloc(GMEM_FIXED, i + (len + 2) * sizeof(CHAR));
@@ -711,28 +711,23 @@ static void cursors_init(void) {
     cursors[CURSOR_ZOOM_OUT] = LoadCursor(NULL, IDC_SIZEALL);
 }
 
-#define UTOX_EXE "\\uTox.exe"
-#define UTOX_UPDATER_EXE "\\utox_runner.exe"
-#define UTOX_VERSION_FILE "\\version"
-
 static bool fresh_update(void) {
     char path[UTOX_FILE_NAME_LENGTH];
     GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
     LOG_WARN("Win Updater", "Starting");
+    LOG_NOTE("Win Updater", "Root %s", path);
 
     // lol, windows is backwards... AGAIN
-    char *name_start = strstr(path, "fresh_update_uTox.exe");
+    char *name_start = strstr(path, "next_uTox.exe");
     if (!name_start) {
         LOG_NOTE("Win Updater", "Not the updater -- %s ", path);
         return false;
     }
+
     // This is the freshly downloaded exe.
-
-    LOG_WARN("Win Updater", "Root %s", path);
-
     // make a backup of the old file
     char *backup[UTOX_FILE_NAME_LENGTH];
-    strcpy(name_start, "backup_uTox.exe");
+    strcpy(name_start, "uTox_backup.exe");
     memcpy(backup, path, UTOX_FILE_NAME_LENGTH);
     LOG_NOTE("Win Updater", "Backup %s", backup);
 
@@ -747,7 +742,7 @@ static bool fresh_update(void) {
     }
 
     char *new[UTOX_FILE_NAME_LENGTH];
-    strcpy(name_start, "fresh_update_uTox.exe");
+    strcpy(name_start, "next_uTox.exe");
     memcpy(new, path, UTOX_FILE_NAME_LENGTH);
     LOG_NOTE("Win Updater", "%s", new);
     if (CopyFile((const char*)new, (const char*)real, 0) == 0) {
@@ -758,13 +753,54 @@ static bool fresh_update(void) {
 
     LOG_ERR("Win Updater", "Launching new path %s", real);
     ShellExecute(NULL, "open", (const char*)real, (const char*)real, NULL, SW_SHOW);
+    DeleteFile((const char*)new);
     return true;
 }
 
-static bool win_init_mutex(HANDLE *mutex) {
-    *mutex = CreateMutex(NULL, 0, TITLE);
+static bool pending_update(void) {
+    // Check if we're the fresh version.
+    char path[UTOX_FILE_NAME_LENGTH];
+    GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
+
+    // lol, windows is backwards... AGAIN
+    char *name_start = strstr(path, "uTox.exe");
+    if (name_start) {
+        char *next[UTOX_FILE_NAME_LENGTH];
+        strcpy(name_start, "next_uTox.exe");
+        memcpy(next, path, UTOX_FILE_NAME_LENGTH);
+        FILE *f = fopen((const char*)next, "wb");
+        if (f) {
+            // There's a pending update
+            fclose(f);
+            ShellExecute(NULL, "open", (const char*)next, (const char*)next, NULL, SW_SHOW);
+            return true;
+        }
+    }
 
     return false;
+}
+
+static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd) {
+    *mutex = CreateMutex(NULL, 0, TITLE);
+
+    if (!mutex) {
+        LOG_FATAL_ERR(-4, "Win Mutex", "Unable to create windows mutex.");
+    }
+
+    if (GetLastError() == ERROR_ALREADY_EXISTS) {
+        HWND window = FindWindow(TITLE, NULL);
+        if (window) {
+            COPYDATASTRUCT data = {
+                .cbData = strlen(cmd),
+                .lpData = cmd
+            };
+            SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+            LOG_FATAL_ERR(-3, "Win Mutex", "Message sent.");
+        }
+        LOG_FATAL_ERR(-3, "Win Mutex", "Error getting mutex or window.");
+    }
+
+    return true;
 }
 
 /** client main()
@@ -799,30 +835,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
 
+    utox_init();
+
+    #ifdef __WIN_LEGACY
+        LOG_WARN("WinMain", "Legacy windows build");
+    #else
+        LOG_WARN("WinMain", "Normal windows build");
+    #endif
+
+    #ifdef GIT_VERSION
+        LOG_NOTE("WinMain", "uTox version %s \n", GIT_VERSION);
+    #endif
+
 
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     HANDLE utox_mutex;
-    win_init_mutex(&utox_mutex);
+    win_init_mutex(&utox_mutex, hInstance, cmd);
 
-    if (!utox_mutex) {
-        LOG_FATAL_ERR(-4, "WinMain", "Unable to create windows mutex");
-    }
-
-    if (GetLastError() == ERROR_ALREADY_EXISTS) {
-        HWND window = FindWindow(TITLE, NULL);
-
-        if (window) {
-            COPYDATASTRUCT data = {
-                .cbData = strlen(cmd),
-                .lpData = cmd
-            };
-            SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+    if (!skip_updater) {
+        LOG_ERR("WinMain", "Not skipping updater");
+        if (fresh_update()) {
+            CloseHandle(utox_mutex);
+            return 0;
         }
 
-        return 0;
+        if (pending_update()) {
+            CloseHandle(utox_mutex);
+            return 0;
+        }
     }
-
-    utox_init();
 
     if (settings.portable_mode == true) {
         /* force the working directory if opened with portable command */
@@ -843,24 +884,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     } else if (should_launch_at_startup == -1) {
         launch_at_startup(0);
     }
-
-    if (!skip_updater) {
-        LOG_ERR("WinMain", "Not skipping updater");
-        if (fresh_update()) {
-            CloseHandle(utox_mutex);
-            return 0;
-        }
-    }
-
-    #ifdef __WIN_LEGACY
-        LOG_WARN("WinMain", "Legacy windows build");
-    #else
-        LOG_WARN("WinMain", "Normal windows build");
-    #endif
-
-    #ifdef GIT_VERSION
-        LOG_NOTE("WinMain", "uTox version %s \n", GIT_VERSION);
-    #endif
 
     cursors_init();
 
@@ -901,7 +924,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     // start tox thread (main_window.window needs to be set first)
     thread(toxcore_thread, NULL);
-    thread(updater_thread, NULL);
 
     // wait for tox_thread init
     while (!tox_thread_init && !settings.save_encryption) {

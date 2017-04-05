@@ -317,7 +317,7 @@ void updater_thread(void *from_startup) {
             snprintf(str, 100, "%.3s_%u-%u.%u.%u", UPDATER_HOST, UPDATER_ARCH, (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
 
             char name[UTOX_FILE_NAME_LENGTH];
-            snprintf(name, UTOX_FILE_NAME_LENGTH, "%s/fresh_update_%s", pwd, UPDATER_OUT);
+            snprintf(name, UTOX_FILE_NAME_LENGTH, "%s/next_%s", pwd, UPDATER_OUT);
             FILE *file = fopen(name, "wb");
             if (!file) {
                 LOG_ERR("Updater", "Can't write to working dir");

@@ -4,9 +4,9 @@
 #include "window.h"
 
 #include "../commands.h"
+#include "../debug.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../debug.h"
 #include "../macros.h"
 #include "../self.h"
 #include "../settings.h"

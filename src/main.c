@@ -11,6 +11,7 @@
 
 #include "native/filesys.h"
 #include "native/main.h"
+#include "native/thread.h"
 
 #include <getopt.h>
 
@@ -268,18 +269,13 @@ void utox_init(void) {
         settings.show_splash = true;
     }
 
-    // TODO(grayhatter)
-    //#ifdef ENABLE_UPDATER
-    // if (settings.auto_update) {
-    //     updater_check();
-    // }
-    //#endif
+    thread(updater_thread, (void*)1);
 
     atexit(utox_raze);
 }
 
 void utox_raze(void) {
-    LOG_INFO("uTox", "Clean exit.");
+    LOG_WARN("uTox", "Clean exit.");
     if (settings.debug_file != stdout) {
         fclose(settings.debug_file);
     }
