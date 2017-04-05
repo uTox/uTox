@@ -252,7 +252,6 @@ void parse_args(int argc, char *argv[],
     }
 }
 
-
 /** Does all of the init work for uTox across all platforms
  *
  * it's expect this will be called AFTER you parse argc/v and will act accordingly. */
