@@ -131,7 +131,6 @@ uint8_t *utox_data_load_tox(size_t *size);
  */
 void parse_args(int argc, char *argv[],
                 bool *skip_updater,
-                bool *from_updater,
                 int8_t *should_launch_at_startup,
                 int8_t *set_show_window);
 

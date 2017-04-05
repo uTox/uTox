@@ -318,17 +318,27 @@ void updater_thread(void *from_startup) {
         }
 
         static uint32_t version;
+        yieldcpu(1000); // We want to delay a second before pulling the download
+                        // to make sure we're not currently mid update
         if ((version = updater_check())) {
+
             char str[100];
             snprintf(str, 100, "%.3s_%u-%u.%u.%u", UPDATER_HOST, UPDATER_ARCH, (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
 
             char name[UTOX_FILE_NAME_LENGTH];
             snprintf(name, UTOX_FILE_NAME_LENGTH, "%s/next_%s", pwd, UPDATER_OUT);
-            FILE *file = fopen(name, "wb");
+            FILE *file = fopen(name, "rb");
+            if (file) {
+                LOG_WARN("Updater", "File already exists -- %s ", name);
+                fclose(file);
+                return;
+            }
+
+            file = fopen(name, "wb");
             if (!file) {
                 LOG_ERR("Updater", "Can't write to working dir");
                 LOG_ERR("Updater", "      %s", name);
-                break;
+                return;
             }
 
             size_t raw_size = 0;
@@ -341,6 +351,8 @@ void updater_thread(void *from_startup) {
 
             if (!data) {
                 LOG_ERR("Updater", "Signature failed. This is bad; consider reporting this.");
+                fclose(file);
+                return;
             }
 
             // The default updater also adds a timestamp to the signature (the +4)
@@ -350,6 +362,7 @@ void updater_thread(void *from_startup) {
             fclose(file);
             free(data);
             LOG_NOTE("Updater", "Wrote binary to %s", name);
+            return;
         }
 
         yieldcpu(1000 * 60 * 5);

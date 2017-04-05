@@ -660,29 +660,29 @@ int main(int argc, char *argv[]) {
     }
     initfonts();
 
-    // Load settings before calling utox_init()
-    utox_init();
-
     #ifdef HAVE_DBUS
     LOG_INFO("XLIB MAIN", "Compiled with dbus support!");
     #endif
 
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   skip_updater, from_updater;
+    bool   skip_updater;
     parse_args(argc, argv,
                &skip_updater,
-               &from_updater,
                &should_launch_at_startup,
                &set_show_window);
+
+    // We need to parse_args before calling utox_init()
+    utox_init();
+
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         LOG_NOTE("XLIB", "Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
 
     if (skip_updater == true) {
-        LOG_NOTE("XLIB", "Disabling the updater is not supported on this OS. Updates are managed by your distro's package "
-                     "manager.\n");
+        LOG_ERR("XLIB", "Disabling the updater is not supported on this OS. "
+                        "Updates are managed by your distro's package manager.\n");
     }
 
     LOG_INFO("XLIB MAIN", "Setting theme to:\t%d", settings.theme);

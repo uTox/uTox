@@ -99,7 +99,6 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
 /* Shared function between all four platforms */
 void parse_args(int argc, char *argv[],
                 bool *skip_updater,
-                bool *from_updater,
                 int8_t *should_launch_at_startup,
                 int8_t *set_show_window
                 ) {
@@ -107,9 +106,7 @@ void parse_args(int argc, char *argv[],
     if (skip_updater) {
         *skip_updater = false;
     }
-    if (from_updater) {
-        *from_updater = false;
-    }
+
     if (should_launch_at_startup) {
         *should_launch_at_startup = 0;
     }
@@ -118,13 +115,12 @@ void parse_args(int argc, char *argv[],
     }
 
     static struct option long_options[] = {
-        { "theme", required_argument, NULL, 't' },        { "portable", no_argument, NULL, 'p' },
-        { "set", required_argument, NULL, 's' },          { "unset", required_argument, NULL, 'u' },
-        { "skip-updater", no_argument, NULL, 'N' },       { "signal-updater", no_argument, NULL, 'S' },
-        { "delete-updater", required_argument, NULL, 3 }, { "version", no_argument, NULL, 0 },
-        { "silent", no_argument, NULL, 1 },               { "verbose", no_argument, NULL, 'v' },
-        { "help", no_argument, NULL, 'h' },               { "debug", required_argument, NULL, 2 },
-        { 0, 0, 0, 0 }
+        { "theme", required_argument, NULL, 't' },      { "portable", no_argument, NULL, 'p' },
+        { "set", required_argument, NULL, 's' },        { "unset", required_argument, NULL, 'u' },
+        { "skip-updater", no_argument, NULL, 'N' },     { "delete-updater", required_argument, NULL, 'D'},
+        { "version", no_argument, NULL, 0 },            { "silent", no_argument, NULL, 'S' },
+        { "verbose", no_argument, NULL, 'v' },          { "help", no_argument, NULL, 'h' },
+        { "debug", required_argument, NULL, 1 },        { 0, 0, 0, 0 }
     };
 
     int opt, long_index = 0;
@@ -198,14 +194,8 @@ void parse_args(int argc, char *argv[],
                 }
                 break;
             }
-            case 'S': {
-                if (from_updater) {
-                    *from_updater = true;
-                }
-                break;
-            }
-            case 3: {
-                // Delete updater skel
+            case 'D': {
+                remove(optarg);
                 break;
             }
 
@@ -218,7 +208,7 @@ void parse_args(int argc, char *argv[],
                 break;
             }
 
-            case 1: {
+            case 'S': {
                 settings.verbose = LOG_LVL_FATAL;
                 break;
             }
@@ -228,7 +218,7 @@ void parse_args(int argc, char *argv[],
                 break;
             }
 
-            case 2: {
+            case 1: {
                 settings.debug_file = fopen(optarg, "a+");
                 if (!settings.debug_file) {
                     settings.debug_file = stdout;
@@ -262,20 +252,28 @@ void parse_args(int argc, char *argv[],
     }
 }
 
+
+/** Does all of the init work for uTox across all platforms
+ *
+ * it's expect this will be called AFTER you parse argc/v and will act accordingly. */
 void utox_init(void) {
-    settings.debug_file = stdout;
+    atexit(utox_raze);
+
+    if (settings.debug_file == NULL) {
+        settings.debug_file = stdout;
+    }
 
     UTOX_SAVE *save = config_load();
     free(save);
 
-    /* Called by the native main for every platform after loading utox setting, before showing/drawing any windows. */
+    /* Called by the native main for every platform after loading utox setting,
+     * before showing/drawing any windows. */
     if (settings.curr_version != settings.last_version) {
         settings.show_splash = true;
     }
 
+    // We likely want to start this on every system.
     thread(updater_thread, (void*)1);
-
-    atexit(utox_raze);
 }
 
 void utox_raze(void) {

@@ -752,7 +752,10 @@ static bool fresh_update(void) {
     }
 
     LOG_ERR("Win Updater", "Launching new path %s", real);
-    ShellExecute(NULL, "open", real, real, NULL, SW_SHOW);
+
+    char cmd[UTOX_FILE_NAME_LENGTH];
+    snprintf(cmd, UTOX_FILE_NAME_LENGTH, "--debug=updater.txt --skip-updater --delete-updater %s", new);
+    ShellExecute(NULL, "open", real, cmd, NULL, SW_SHOW);
     DeleteFile(new);
     return true;
 }
@@ -778,15 +781,12 @@ static bool pending_update(void) {
         if (f) {
             LOG_ERR("Win Pending", "Updater waiting :D");
             fclose(f);
-            char cmd[UTOX_FILE_NAME_LENGTH];
-            strcpy(name_start, "uTox.exe");
-            snprintf(cmd, UTOX_FILE_NAME_LENGTH, "%s --delete-updater %s", path, next);
-            ShellExecute(NULL, "open", next, cmd, NULL, SW_SHOW);
+            ShellExecute(NULL, "open", next, NULL, NULL, SW_SHOW);
             return true;
         }
         LOG_WARN("Win Pending", "No updater waiting for us");
     }
-    LOG_ERR("Win Pending", "Bad file name -- %s ", path);
+    LOG_WARN("Win Pending", "Bad file name -- %s ", path);
 
     return false;
 }
@@ -825,27 +825,19 @@ static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd) {
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cmd, int nCmdShow) {
     pthread_mutex_init(&messages_lock, NULL);
 
-    /* Process argc/v the backwards (read: the windows way). */
     int argc;
     PCHAR *argv = CommandLineToArgvA(GetCommandLineA(), &argc);
     if (!argv) {
-        LOG_TRACE("Windows", "CommandLineToArgvA failed.");
-        return 0;
+        printf("Init error -- CommandLineToArgvA failed.");
+        return -5;
     }
 
-    int8_t should_launch_at_startup;
-    int8_t set_show_window;
-    bool   skip_updater, from_updater;
-
-    parse_args(argc, argv,
-               &skip_updater,
-               &from_updater,
-               &should_launch_at_startup,
-               &set_show_window);
-
-    // Free memory allocated by CommandLineToArgvA
+    int8_t should_launch_at_startup, set_show_window;
+    bool   skip_updater;
+    parse_args(argc, argv, &skip_updater, &should_launch_at_startup, &set_show_window);
     GlobalFree(argv);
 
+    // We call utox_init after parse_args()
     utox_init();
 
     #ifdef __WIN_LEGACY
@@ -858,7 +850,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         LOG_NOTE("WinMain", "uTox version %s \n", GIT_VERSION);
     #endif
 
-
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     HANDLE utox_mutex;
     win_init_mutex(&utox_mutex, hInstance, cmd);
@@ -867,12 +858,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         LOG_ERR("WinMain", "Not skipping updater");
         if (fresh_update()) {
             CloseHandle(utox_mutex);
-            return 0;
+            exit(0);
         }
 
         if (pending_update()) {
             CloseHandle(utox_mutex);
-            return 0;
+            exit(0);
         }
     }
 

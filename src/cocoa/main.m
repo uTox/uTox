@@ -517,7 +517,7 @@ void launch_at_startup(int should) {
 int main(int argc, char const *argv[]) {
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   skip_updater, from_updater;
+    bool   skip_updater;
 
     utox_init();
 
@@ -526,7 +526,6 @@ int main(int argc, char const *argv[]) {
 
     parse_args(argc, argv,
                &skip_updater,
-               &from_updater,
                &should_launch_at_startup,
                &set_show_window);
 
