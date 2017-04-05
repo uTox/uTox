@@ -303,11 +303,15 @@ target_link_libraries(utox
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
 
-target_include_directories(
-    utox
-    SYSTEM PRIVATE
+target_include_directories(utox SYSTEM
+    PRIVATE
     ${TOXCORE_INCLUDE_DIR}
-)
+    )
+
+target_include_directories(utoxAV SYSTEM
+    PRIVATE
+    ${TOXCORE_INCLUDE_DIR}
+    )
 
 if(APPLE)
     install(TARGETS utox
