@@ -28,9 +28,9 @@ find_library(TOXCORE_LIBRARY
     $ENV{TOXCOREDIR}
     PATH_SUFFIXES bin lib lib/${CMAKE_LIBRARY_ARCHITECTURE} lib64 libs64 libs libs/Win32 libs/Win64
     PATHS
+    /usr/local
     /usr
     /opt
-    /usr/local
 )
 
 set(TOXCORE_FOUND "NO")
