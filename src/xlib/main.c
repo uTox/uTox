@@ -796,7 +796,6 @@ int main(int argc, char *argv[]) {
 
     // start toxcore thread
     thread(toxcore_thread, NULL);
-    thread(updater_thread, NULL);
 
     /* event loop */
     while (true) {
