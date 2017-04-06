@@ -199,6 +199,7 @@ void parse_args(int argc, char *argv[],
                     // We're using the windows version of strstr() here
                     // because it's currently the only platform supported
                     // by the updater.
+                    // TODO expose this as a function in updater.c
                     remove(optarg);
                 }
                 break;

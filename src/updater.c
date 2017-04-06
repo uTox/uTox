@@ -279,7 +279,6 @@ static uint32_t download_version(void) {
     return version;
 }
 
-// Returns true if there's a new version.
 uint32_t updater_check(void) {
     uint32_t version = download_version();
     LOG_INFO("Updater", "Current version %u, newest version version %u." , UTOX_VERSION_NUMBER, version);

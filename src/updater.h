@@ -4,7 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// Returns true if there's a new version.
+/** Returns the new version if there's an update ready.
+ *     or zero otherwise
+ */
 uint32_t updater_check();
 
 void updater_thread(void *ptr);
