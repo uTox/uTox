@@ -32,8 +32,8 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
         -DCOMPILE_AS_CXX=OFF \
         -DBOOTSTRAP_DAEMON=OFF \
         -B_build -H.
-  make -C_build -j`nproc`
-  make -C_build install || make -C_build VERBOSE=1
+  make -C_build -j`nproc` || make -C_build VERBOSE=1
+  make -C_build install
   mv toxcore.sha "$CACHE_DIR/toxcore.sha"
 fi
 cd ..
