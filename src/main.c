@@ -195,7 +195,12 @@ void parse_args(int argc, char *argv[],
                 break;
             }
             case 'D': {
-                remove(optarg);
+                if (strstr(optarg, "uTox_updater")) {
+                    // We're using the windows version of strstr() here
+                    // because it's currently the only platform supported
+                    // by the updater.
+                    remove(optarg);
+                }
                 break;
             }
 
