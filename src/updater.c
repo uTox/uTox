@@ -50,9 +50,16 @@
 #define UPDATER_ARCH 32u
 #endif
 
+// Stable versions we plan to ship to users.
+#define UPDATER_VERSION_STABLE_URI "utox_stable_" UPDATER_HOST
+#define UPDATER_VERSION_DEVEL_URI "utox_develop_" UPDATER_HOST
 
-#define UPDATER_VERSION_URI "utox_stable_" UPDATER_HOST
+// Small rollout versions we can use to find issues before
+// shipping to ~all users
+#define UPDATER_VERSION_CANARY_URI "utox_canary_" UPDATER_HOST
 
+// Direct rollouts
+#define UPDATER_VERSION_TESTING_URI "utox_testing_" UPDATER_HOST
 
 
 static const uint8_t pk[crypto_sign_ed25519_PUBLICKEYBYTES] = {
@@ -244,7 +251,7 @@ static uint8_t *verify_sig(uint8_t *raw, uint32_t len, size_t *out_len) {
 
 static uint32_t download_version(void) {
     size_t len = 0;
-    uint8_t *raw = download("downloads.utox.io", UPDATER_VERSION_URI, &len);
+    uint8_t *raw = download("downloads.utox.io", UPDATER_VERSION_STABLE_URI, &len);
     if (!raw) {
         LOG_ERR("Updater", "Download failed.");
         return 0;

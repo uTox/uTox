@@ -754,7 +754,10 @@ static bool fresh_update(void) {
     LOG_ERR("Win Updater", "Launching new path %s", real);
 
     char cmd[UTOX_FILE_NAME_LENGTH];
-    snprintf(cmd, UTOX_FILE_NAME_LENGTH, "--debug=updater.txt --skip-updater --delete-updater %s", new);
+    size_t next = snprintf(cmd, UTOX_FILE_NAME_LENGTH, " --skip-updater --delete-updater %s", new);
+    if (settings.portable_mode) {
+        snprintf(cmd + next, UTOX_FILE_NAME_LENGTH - next, " -p");
+    }
     ShellExecute(NULL, "open", real, cmd, NULL, SW_SHOW);
     DeleteFile(new);
     return true;
@@ -781,7 +784,11 @@ static bool pending_update(void) {
         if (f) {
             LOG_ERR("Win Pending", "Updater waiting :D");
             fclose(f);
-            ShellExecute(NULL, "open", next, NULL, NULL, SW_SHOW);
+            char cmd[UTOX_FILE_NAME_LENGTH] = {0};
+            if (settings.portable_mode) {
+                snprintf(cmd, UTOX_FILE_NAME_LENGTH, " -p");
+            }
+            ShellExecute(NULL, "open", next, cmd, NULL, SW_SHOW);
             return true;
         }
         LOG_WARN("Win Pending", "No updater waiting for us");
