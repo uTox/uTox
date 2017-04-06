@@ -33,10 +33,10 @@ GROUPCHAT *get_group(uint32_t group_number) {
 
 GROUPCHAT *group_make(uint32_t group_number) {
     if (group_number >= self.groups_list_size) {
-        LOG_INFO("Group", "Reallocating groupchat array to %u. Current size: %u", (group_number + 1), self.groups_list_size);
+        LOG_INFO("Groupchats", "Reallocating groupchat array to %u. Current size: %u", (group_number + 1), self.groups_list_size);
         GROUPCHAT *tmp = realloc(group, sizeof(GROUPCHAT) * (group_number + 1));
         if (!tmp) {
-            LOG_ERR("Group", "Could not reallocate groupchat array to %u.", group_number + 1);
+            LOG_ERR("Groupchats", "Could not reallocate groupchat array to %u.", group_number + 1);
             return NULL;
         }
 
@@ -280,7 +280,7 @@ void free_groups(void) {
     for (size_t i = 0; i < self.groups_list_count; i++) {
         GROUPCHAT *g = get_group(i);
         if (!g) {
-            LOG_ERR("Group", "Could not get group %u. Skipping...", i);
+            LOG_ERR("Groupchats", "Could not get group %u. Skipping...", i);
             continue;
         }
         group_free(g);
@@ -288,6 +288,16 @@ void free_groups(void) {
 
     if (group) {
         free(group);
+    }
+}
+
+void init_groups(void) {
+    self.groups_list_size = 0; //this is pretty stupid but right now groupchats aren't saved
+                               //there is a pr open for saving them
+
+    group = calloc(self.groups_list_size, sizeof(GROUPCHAT));
+    if (!group) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not allocate memory for groupchat array with size of: %u", self.groups_list_size);
     }
 }
 
