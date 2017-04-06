@@ -8,10 +8,11 @@ If you're looking for it to "just work" you're going to want [these instructions
 <a name="unix" />
 ## Unix Like
 
-### Xlib
+### Linux
 
 The easy way out is:
 ```sh
+git clone git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
@@ -25,13 +26,16 @@ make install
 > In that case you want to set the env variable  `ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer`  for the address sanitizer (ASAN) to show nicer stack traces.
 > See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.
 
-
-But if the hard way is more your thing, this might work:
-```clang -o utox *.c png/png.c -g -Wall -Wshadow -pthread `pkg-config --libs --cflags fontconfig freetype2 libtoxav libtoxcore openal vpx x11 xext xrender dbus-1 libv4lconvert filteraudio` -pthread -lm  -lresolv -ldl```
-
-or if you built toxcore statically, less likely to work:
-
-`cc -o uTox.o *.c ./png/png.c -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus -lvpx -lm -pthread -lresolv -ldl -lfilteraudio -lfontconfig -lfreetype -lv4lconvert -I/usr/include/freetype2 -ldbus-1`
+or if you built toxcore statically:
+```sh
+git clone git://github.com/uTox/uTox.git
+cd uTox/
+mkdir build
+cd build
+cmake -DTOXCORE_STATIC=ON ..
+make
+make install
+```
 
 For the build to pass you need to install the following from sources: [filteraudio](https://github.com/irungentoo/filter_audio) [libtoxcore](https://github.com/TokTok/c-toxcore)
 
@@ -66,6 +70,8 @@ make
 sudo checkinstall
 cd ..
 
+sudo ldconfig
+
 git clone git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
@@ -73,34 +79,66 @@ cd build
 cmake ..
 make
 sudo checkinstall
-
-sudo ldconfig
 ```
 
 Have fun!
 
 If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In fact, you can just create a new project from the existing sources and everything should work fine.
+
+<a name="OpenBSD" />
+## OpenBSD
+
+uTox will compile on OpenBSD although not everything works. To compile run:
+
+```bash
+git clone https://github.com/uTox/uTox.git
+cd uTox/
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-openbsd.cmake" ..
+make
+sudo make install
+```
+
 <a name="win" />
 ## Windows
 
 ### Compiling for Windows
 
-If you have mingw-w64 and a working cygwin enviroment, the build script provided in
-tools/ should just work. You must specify if you want 32 or 64 bit and the enviroment
- you want to use.
+Dependencies:
 
-64bit should be `tools/cross-compile-windows.sh`
+|   Name       | Required |
+|--------------|----------|
+| cmake >= 3.2 |   yes    |
+| filter_audio |   no     |
+| libvpx       |   yes    |
+| openal       |   yes    |
+| opus         |   yes    |
+| toxcore      |   yes    |
 
-32bit should be `tools/cross-compile-windows.sh -32`
+The dependencies can be downloaded from here: https://build.tox.chat/ (Make sure you grab the right bit version.) All the libraries should be place in $UTOX_ROOT/libs/windows-x64/.
 
-Make sure you grab a copy of toxcore, openal, and filter_audio from
-https://jenkins.libtoxcore.so/ (Make sure you grab the right bit version.)
+You will need a working Cygwin environment or Unix desktop to compile windows.
 
-You can also cross compile from unix if that's more your thing; again you'll need mingw-w64 and then just:
+For 32 bit:
+```bash
+git clone https://github.com/uTox/uTox.git
+cd uTox/
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake" -DTOXCORE_STATIC=ON ..
+make
+```
 
-`tools/cross-compile-windows.sh -unix`
-
-Don't forget to add -32 if you'd rather build the 32bit version.
+For 64 bit:
+```bash
+git clone https://github.com/uTox/uTox.git
+cd uTox/
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DTOXCORE_STATIC=ON ..
+make
+```
 
 <a name="osx" />
 ## OSX
