@@ -4,6 +4,8 @@
 #include "../main.h"
 #include "../settings.h"
 
+#include <io.h>
+#include <stdio.h>
 #include <string.h>
 
 static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) {

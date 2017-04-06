@@ -1,7 +1,12 @@
-#ifndef FILESYS_NATIVE_H
-#define FILESYS_NATIVE_H
+#ifndef NATIVE_FILESYS_H
+#define NATIVE_FILESYS_H
+
+// For UTOX_FILE_OPTS
+#include "../filesys.h"
 
 #include <stdio.h>
+
+typedef struct file_transfer FILE_TRANSFER;
 
 FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bool portable_mode);
 
@@ -22,4 +27,12 @@ typedef struct file_transfer FILE_TRANSFER;
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file);
 
-#endif // FILESYS_NATIVE_H
+
+
+// OS interface replacements
+void flush_file(FILE *file);
+int ch_mod(uint8_t *file);
+int file_lock(FILE *file, uint64_t start, size_t length);
+int file_unlock(FILE *file, uint64_t start, size_t length);
+
+#endif

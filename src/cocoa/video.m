@@ -3,7 +3,6 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../main.h"
-#include "../main_native.h"
 #include "../settings.h"
 #include "../tox.h"
 
@@ -11,6 +10,10 @@
 
 #include "../av/utox_av.h"
 #include "../av/video.h"
+
+#include "../native/audio.h"
+#include "../native/ui.h"
+#include "../native/video.h"
 
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>

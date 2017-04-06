@@ -8,13 +8,14 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../text.h"
 #include "../tox.h"
 #include "../ui.h"
 #include "../utox.h"
 
 #include "../main.h"
+
+#include "../native/thread.h"
 
 #include <dlfcn.h>
 #include <errno.h>
@@ -348,7 +349,7 @@ void ugtk_openfilesend(void) {
         return;
     }
     utoxGTK_open = true;
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = flist_get_friend();
     uint32_t number = f->number;
     thread(ugtk_opensendthread, (void*)(size_t)number);
 }

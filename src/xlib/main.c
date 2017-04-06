@@ -11,7 +11,6 @@
 #include "../friend.h"
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
@@ -20,6 +19,10 @@
 #include "../filesys.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/image.h"
+#include "../native/ui.h"
+
 #include "../ui/draw.h"
 #include "../ui/edit.h"
 
@@ -216,11 +219,8 @@ void setselection(char *data, uint16_t length) {
 /** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(void) {
     if (hidden) {
-        int      x, y;
-        uint32_t w, h, border;
-        XGetGeometry(display, main_window.window, &root_window, &x, &y, &w, &h, &border, (uint *)&default_depth);
+        XMoveWindow(display, main_window.window, main_window._.x, main_window._.y);
         XMapWindow(display, main_window.window);
-        XMoveWindow(display, main_window.window, x, y);
         redraw();
         hidden = 0;
     } else {
@@ -240,10 +240,13 @@ void copy(int value) {
     int len;
     if (edit_active()) {
         len = edit_copy((char *)clipboard.data, sizeof(clipboard.data));
-    } else if (flist_get_selected()->item == ITEM_FRIEND) {
+    } else if (flist_get_friend()) {
         len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
-    } else {
+    } else if (flist_get_groupchat()) {
         len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), value);
+    } else {
+        LOG_ERR("XLIB", "Copy from Unsupported flist type.");
+        return;
     }
 
     if (len) {
@@ -346,11 +349,14 @@ void formaturilist(char *out, const char *in, size_t len) {
 
 // TODO(robinli): Go over this function and see if either len or size are removeable.
 void pastedata(void *data, Atom type, size_t len, bool select) {
-    // TODO we shouldn't blindly trust this function to return a friend.
-    // We need to write another funtion that promises a friend (idealy the last active or null.)
-    FRIEND *f = (FRIEND *)flist_get_selected()->data;
+
     size_t size = (size_t)len;
     if (type == XA_PNG_IMG) {
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR("XLIB", "Can't paste data to missing friend.");
+            return;
+        }
         uint16_t width, height;
 
         NATIVE_IMAGE *native_image = utox_image_to_native(data, size, &width, &height, 0);
@@ -362,6 +368,11 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
             friend_sendimage(f, native_image, width, height, png_image, size);
         }
     } else if (type == XA_URI_LIST) {
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR("XLIB", "Can't paste data to missing friend.");
+            return;
+        }
         char *path = malloc(len + 1);
         formaturilist(path, (char *)data, len);
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0xFFFF, path);
@@ -418,62 +429,52 @@ static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, 
     return picture;
 }
 
+/* Swaps out the PNG color order for the native color order */
+static void native_color_mask(uint8_t *data, uint32_t size, uint32_t mask_red, uint32_t mask_blue, uint32_t mask_green) {
+    uint8_t   red, blue, green;
+    uint32_t *dest;
+    for (uint32_t i = 0; i < size; i += 4) {
+        red   = (data + i)[0] & 0xFF;
+        green = (data + i)[1] & 0xFF;
+        blue  = (data + i)[2] & 0xFF;
+        dest = (uint32_t*)(data + i);
+        *dest  = (red | (red << 8) | (red << 16) | (red << 24)) & mask_red;
+        *dest |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & mask_blue;
+        *dest |= (green | (green << 8) | (green << 16) | (green << 24)) & mask_green;
+    }
+}
+
 NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     int      width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
+    // we don't need to free this, that's done by XDestroyImage()
 
     if (rgba_data == NULL || width == 0 || height == 0) {
         return None; // invalid png data
     }
 
     uint32_t rgba_size = width * height * 4;
-
-    // we don't need to free this, that's done by XDestroyImage()
-    uint8_t *out = malloc(rgba_size);
-    if (out == NULL) {
-        LOG_TRACE("utox_image_to_native", " Could mot allocate memory." );
-        free(rgba_data);
-        return NULL;
-    }
-
-    // colors are read into red, blue and green and written into the target pointer
-    uint8_t   red, blue, green;
-    uint32_t *target;
-
-    uint32_t i;
-    for (i = 0; i < rgba_size; i += 4) {
-        red   = (rgba_data + i)[0] & 0xFF;
-        green = (rgba_data + i)[1] & 0xFF;
-        blue  = (rgba_data + i)[2] & 0xFF;
-
-        target  = (uint32_t *)(out + i);
-        *target = (red | (red << 8) | (red << 16) | (red << 24)) & default_visual->red_mask;
-        *target |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & default_visual->blue_mask;
-        *target |= (green | (green << 8) | (green << 16) | (green << 24)) & default_visual->green_mask;
-    }
-
-    XImage *img = XCreateImage(display, default_visual, default_depth, ZPixmap, 0, (char *)out, width, height, 32, width * 4);
-
-    Picture rgb = ximage_to_picture(img, NULL);
-    // 4 bpp -> RGBA
     Picture alpha = (bpp == 4 && keep_alpha) ? generate_alpha_bitmask(rgba_data, width, height, rgba_size) : None;
+    native_color_mask(rgba_data, rgba_size, default_visual->red_mask, default_visual->blue_mask, default_visual->green_mask);
 
-    free(rgba_data);
+    XImage *img = XCreateImage(display, default_visual, default_depth, ZPixmap, 0, (char *)rgba_data, width, height, 32, width * 4);
+    Picture rgb = ximage_to_picture(img, NULL);
+    XDestroyImage(img);
 
     *w = width;
     *h = height;
 
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        LOG_TRACE("utox_image_to_native", " Could mot allocate memory for image." );
+        LOG_ERR("utox_image_to_native", "Could mot allocate memory for image." );
         return NULL;
     }
     image->rgb   = rgb;
     image->alpha = alpha;
 
-    XDestroyImage(img);
     return image;
 }
+
 
 void image_free(NATIVE_IMAGE *image) {
     if (!image) {
@@ -887,5 +888,4 @@ int main(int argc, char *argv[]) {
 }
 
 /* Dummy functions used in other systems... */
-/* Used in windows only... */
 void launch_at_startup(int UNUSED(is_launch_at_startup)) {}

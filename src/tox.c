@@ -8,7 +8,6 @@
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -27,6 +26,9 @@
 
 #include "layout/background.h"
 #include "layout/settings.h"
+
+#include "native/thread.h"
+#include "native/time.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -725,18 +727,17 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         }
 
         case TOX_FRIEND_ACCEPT: {
-            /* data: FRIENDREQ
+            /* data: FREQUEST
              */
-            FRIENDREQ *        req = data;
+            FREQUEST *req = data;
             TOX_ERR_FRIEND_ADD f_err;
-            uint32_t           fid = tox_friend_add_norequest(tox, req->id, &f_err);
+            uint32_t fid = tox_friend_add_norequest(tox, req->bin_id, &f_err);
             if (!f_err) {
                 utox_friend_init(tox, fid);
-                postmessage_utox(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
-                            (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
+                postmessage_utox(FRIEND_ACCEPT_REQUEST, fid, 0, req);
             } else {
                 char hex_id[TOX_ADDRESS_SIZE * 2];
-                id_to_string(hex_id, self.id_binary);
+                id_to_string(hex_id, req->bin_id);
                 LOG_TRACE("Toxcore", "Unable to accept friend %s, error num = %i" , hex_id, fid);
             }
             save_needed = 1;

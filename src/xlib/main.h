@@ -39,25 +39,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
-
-
-#define KEY_BACK XK_BackSpace
-#define KEY_RETURN XK_Return
-#define KEY_LEFT XK_Left
-#define KEY_RIGHT XK_Right
-#define KEY_TAB XK_Tab
-#define KEY_LEFT_TAB XK_ISO_Left_Tab
-#define KEY_DEL XK_Delete
-#define KEY_END XK_End
-#define KEY_HOME XK_Home
-#define KEY_UP XK_Up
-#define KEY_DOWN XK_Down
-#define KEY_PAGEUP XK_Page_Up
-#define KEY_PAGEDOWN XK_Page_Down
-
 
 typedef struct native_image NATIVE_IMAGE;
 struct native_image {
@@ -66,9 +49,6 @@ struct native_image {
     XID rgb;
     XID alpha;
 };
-
-#define NATIVE_IMAGE_IS_VALID(x) (None != (x))
-#define NATIVE_IMAGE_HAS_ALPHA(x) (None != (x->alpha))
 
 Atom wm_protocols, wm_delete_window;
 
@@ -85,7 +65,6 @@ uint8_t pointergrab;
 
 bool     havefocus;
 bool     _redraw;
-uint16_t drawwidth, drawheight;
 
 Window  video_win[32]; // TODO we should allocate this dynamically but this'll work for now
 XImage *screen_image;
@@ -115,8 +94,6 @@ Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format);
 
 bool doevent(XEvent event);
 
-void tray_window_event(XEvent event);
-void draw_tray_icon(void);
 void togglehide(void);
 
 void pasteprimary(void);

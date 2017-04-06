@@ -9,7 +9,6 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../main.h"
-#include "../main_native.h"
 #include "../messages.h"
 #include "../self.h"
 #include "../settings.h"
@@ -19,6 +18,11 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+
+#include "../native/clipboard.h"
+#include "../native/keyboard.h"
+#include "../native/ui.h"
+
 #include "../ui/edit.h"
 #include "../ui/panel.h"
 
@@ -796,7 +800,7 @@ void paste(void) {
 
         if (owned_ptr) {
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
-            friend_sendimage(flist_get_selected()->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
+            friend_sendimage(flist_get_friend(), i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
                              size);
         } else {
             free(i);

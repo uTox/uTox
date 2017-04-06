@@ -88,3 +88,73 @@ install(FILES
     ../utox.1
     DESTINATION "${CMAKE_INSTALL_MANDIR}/man1"
     )
+
+install(FILES
+   ../../icons/utox-14x14.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/14x14/apps"
+    )
+
+install(FILES
+   ../../icons/utox-16x16.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps"
+    )
+
+install(FILES
+   ../../icons/utox-22x22.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/22x22/apps"
+    )
+
+install(FILES
+   ../../icons/utox-24x24.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/24x24/apps"
+    )
+
+install(FILES
+   ../../icons/utox-32x32.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps"
+    )
+
+install(FILES
+   ../../icons/utox-36x36.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/36x36/apps"
+    )
+
+install(FILES
+   ../../icons/utox-48x48.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps"
+    )
+
+install(FILES
+   ../../icons/utox-64x64.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/64x64/apps"
+    )
+
+install(FILES
+   ../../icons/utox-72x72.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/72x72/apps"
+    )
+
+install(FILES
+   ../../icons/utox-96x96.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/96x96/apps"
+    )
+
+install(FILES
+   ../../icons/utox-128x128.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/128x128/apps"
+    )
+
+install(FILES
+   ../../icons/utox-256x256.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps"
+    )
+
+install(FILES
+   ../../icons/utox-512x512.png
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/512x512/apps"
+    )
+
+install(FILES
+   ../../icons/utox.svg
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
+    )

@@ -6,7 +6,6 @@
 #include "dns.h"
 #include "flist.h"
 #include "macros.h"
-#include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -14,17 +13,21 @@
 #include "utox.h"
 
 #include "av/audio.h"
-#include "ui/edit.h"        // friend_set_name()
 
 #include "layout/friend.h"  // TODO, remove this and sent the name differently
 
+#include "native/image.h"
+#include "native/notify.h"
+
+#include "ui/edit.h"        // friend_set_name()
+
 #include "main.h" // addfriend_status
 
-FRIEND *friend = NULL;
+static FRIEND *friend = NULL;
 
 FRIEND *get_friend(uint32_t friend_number) {
     if (friend_number >= self.friend_list_size) { //friend doesnt exist if true
-        LOG_ERR("Friend", "Friend number out of bounds.");
+        LOG_WARN("Friend", "Friend number (%u) out of bounds.", friend_number);
         return NULL;
     }
 
@@ -33,7 +36,7 @@ FRIEND *get_friend(uint32_t friend_number) {
 
 static FRIEND *friend_make(uint32_t friend_number) {
     if (friend_number >= self.friend_list_size) {
-        LOG_TRACE("Friend", "Reallocating friend array to %u. Current size: %u", (friend_number + 1), self.friend_list_size);
+        LOG_INFO("Friend", "Reallocating friend array to %u. Current size: %u", (friend_number + 1), self.friend_list_size);
         FRIEND *tmp = realloc(friend, sizeof(FRIEND) * (friend_number + 1));
         if (!tmp) {
             LOG_ERR("Friend", "Could not reallocate friends array.");
@@ -46,8 +49,81 @@ static FRIEND *friend_make(uint32_t friend_number) {
 
     }
 
+    // TODO should we memset(0); before return?
     return &friend[friend_number];
 }
+
+static FREQUEST *frequests = NULL;
+static uint16_t frequest_list_size = 0;
+
+FREQUEST *get_frequest(uint16_t frequest_number) {
+    if (frequest_number >= frequest_list_size) { //frequest doesnt exist if true
+        LOG_ERR("Friend", "Request number out of bounds.");
+        return NULL;
+    }
+
+    return &frequests[frequest_number];
+}
+
+static FREQUEST *frequest_make(uint16_t frequest_number) {
+    if (frequest_number >= frequest_list_size) {
+        LOG_INFO("Friend", "Reallocating frequest array to %u. Current size: %u", (frequest_number + 1), frequest_list_size);
+        FREQUEST *tmp = realloc(frequests, sizeof(FREQUEST) * (frequest_number + 1));
+        if (!tmp) {
+            LOG_ERR("Friend", "Could not reallocate frequests array.");
+            return NULL;
+        }
+
+        frequests = tmp;
+        frequest_list_size = frequest_number + 1;
+    }
+
+    // TODO should we memset(0); before return?
+    return &frequests[frequest_number];
+}
+
+uint16_t friend_request_new(const uint8_t *id, const uint8_t *msg, size_t length) {
+    uint16_t curr_num = frequest_list_size;
+    FREQUEST *r = frequest_make(frequest_list_size); // TODO search for empty request slots
+    if (!r) {
+        LOG_ERR("Friend", "Unable to get space for Friend Request.");
+        return UINT16_MAX;
+    }
+
+    r->number = curr_num;
+    memcpy(r->bin_id, id, TOX_ADDRESS_SIZE);
+    r->msg = malloc(length + 1);
+    if (!r->msg) {
+        LOG_ERR("Friend", "Unable to get space for friend request message.");
+        return UINT16_MAX;
+    }
+    memcpy(r->msg, msg, length);
+    r->msg[length] = 0; // Toxcore doesn't promise null term on strings
+    r->length = length;
+
+    return curr_num;
+}
+
+void friend_request_free(uint16_t number) {
+    FREQUEST *r = get_frequest(number);
+    if (!r) {
+        LOG_ERR("Friend", "Unable to free a missing request.");
+        return;
+    }
+
+    free(r->msg);
+
+    // TODO this needs a test
+    if (r->number >= frequest_list_size -1) {
+        FREQUEST *tmp = realloc(frequests, sizeof(FREQUEST) * (frequest_list_size - 1));
+        if (tmp) {
+            frequests = tmp;
+            --frequest_list_size;
+        }
+    }
+}
+
+/* TODO incoming friends "leaks" */
 
 void free_friends(void) {
     for (uint32_t i = 0; i < self.friend_list_count; i++){
@@ -373,6 +449,10 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
 }
 
 void friend_history_clear(FRIEND *f) {
+    if (!f) {
+        LOG_ERR("FList", "Unable to clear history for missing friend.");
+        return;
+    }
     messages_clear_all(&f->msg);
     utox_remove_friend_chatlog(f->id_str);
 }

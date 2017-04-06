@@ -11,6 +11,8 @@
 #include "../settings.h"
 #include "../theme.h"
 
+#include "../native/dialog.h"
+
 #include "../ui/draw.h"
 #include "../ui/edit.h"
 #include "../ui/scrollable.h"
@@ -62,15 +64,21 @@ static void draw_friend(int x, int y, int w, int height) {
 
 /* Draw an invite to be a friend window */
 static void draw_friend_request(int x, int y, int w, int h) {
-    FRIENDREQ *req = (flist_get_selected()->data);
+    FREQUEST *req = flist_get_frequest();
+    if (!req) {
+        LOG_ERR("Layout Friend", "Unable to draw a friend request without a friend request.");
+        return;
+    }
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FRIENDREQUEST);
 
-    setfont(FONT_TEXT);
-    utox_draw_text_multiline_within_box(x + SCALE(10), y + SCALE(70), w + x, y, y + h, font_small_lineheight,
-                                        req->msg, req->length, ~0, ~0, 0, 0, true);
+    if (req->msg && req->length) {
+        setfont(FONT_TEXT);
+        utox_draw_text_multiline_within_box(x + SCALE(10), y + SCALE(70), w + x, y, y + h, font_small_lineheight,
+                                            req->msg, req->length, ~0, ~0, 0, 0, true);
+    }
 }
 
 static void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
@@ -162,6 +170,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
                 break;
             case ADDF_UNKNOWN: // for unknown error.
             case ADDF_NONE:    // this case must never be rendered, but if it does, assume it's an error
+            default:
                 str = SPTR(REQ_UNKNOWN);
                 break;
         }
@@ -332,11 +341,9 @@ static void button_call_audio_on_mup(void) {
     } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
         LOG_TRACE("Layout Friend", "Accept Call: %u", f->number);
         postmessage_toxcore(TOX_CALL_ANSWER, f->number, 0, NULL);
-    } else {
-        if (f->online) {
-            postmessage_toxcore(TOX_CALL_SEND, f->number, 0, NULL);
-            LOG_TRACE("Layout Friend", "Calling friend: %u", f->number);
-        }
+    } else if (f->online) {
+        postmessage_toxcore(TOX_CALL_SEND, f->number, 0, NULL);
+        LOG_TRACE("Layout Friend", "Calling friend: %u", f->number);
     }
 }
 
@@ -386,11 +393,9 @@ static void button_call_video_on_mup(void) {
     } else if (f->call_state_friend) {
         LOG_TRACE("Layout Friend", "Accept Call (video): %u %u", f->number, f->call_state_friend);
         postmessage_toxcore(TOX_CALL_ANSWER, f->number, 1, NULL);
-    } else {
-        if (f->online) {
-            postmessage_toxcore(TOX_CALL_SEND, f->number, 1, NULL);
-            LOG_TRACE("Layout Friend", "Calling friend (video): %u", f->number);
-        }
+    } else if (f->online) {
+        postmessage_toxcore(TOX_CALL_SEND, f->number, 1, NULL);
+        LOG_TRACE("Layout Friend", "Calling friend (video): %u", f->number);
     }
 }
 
@@ -419,7 +424,7 @@ static void button_call_video_update(BUTTON *b) {
 }
 
 static void button_accept_friend_on_mup(void) {
-    FRIENDREQ *req = flist_get_selected()->data;
+    FREQUEST *req = flist_get_frequest();
     postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
     panel_friend_request.disabled = true;
 }
@@ -489,7 +494,6 @@ BUTTON button_call_video = {
     .tooltip_text = {.i18nal = STR_CALL_START_VIDEO },
 };
 
-#include "../main_native.h"
 static void button_send_file_on_mup(void) {
     FRIEND *f = flist_get_friend();
     if (!f) {
@@ -759,13 +763,11 @@ EDIT edit_chat_msg_friend = {
 /* Button to send chat message */
 static void button_chat_send_friend_on_mup(void) {
     FRIEND *f = flist_get_friend();
-    if (f) {
-        if (f->online) {
-            // TODO clear the chat bar with a /slash command
-            e_chat_msg_onenter(&edit_chat_msg_friend);
-            // reset focus to the chat window on send to prevent segfault. May break on android.
-            edit_setfocus(&edit_chat_msg_friend);
-        }
+    if (f && f->online) {
+        // TODO clear the chat bar with a /slash command
+        e_chat_msg_onenter(&edit_chat_msg_friend);
+        // reset focus to the chat window on send to prevent segfault. May break on android.
+        edit_setfocus(&edit_chat_msg_friend);
     }
 }
 

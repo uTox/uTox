@@ -3,14 +3,11 @@
 #include "chatlog.h"
 #include "file_transfers.h"
 #include "filesys.h"
-// TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
-#include "filesys_native.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -26,6 +23,15 @@
 
 #include "layout/friend.h"
 #include "layout/group.h"
+
+#include "native/clipboard.h"
+// TODO including native .h files should never be needed, refactor filesys.h to provide necessary API
+#include "native/filesys.h"
+#include "native/image.h"
+#include "native/keyboard.h"
+#include "native/os.h"
+
+#include <string.h>
 
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 
@@ -178,7 +184,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
 
     message_updateheight(m, msg);
 
-    if (m->is_groupchat && flist_get_selected()->data == &group[m->id]) {
+    if (flist_get_groupchat() && m->is_groupchat && flist_get_groupchat() == get_group(m->id)) {
         m->panel.content_scroll->content_height = m->height;
     } else if (flist_get_friend() && flist_get_friend()->number == get_friend(m->id)->number) {
         m->panel.content_scroll->content_height = m->height;
@@ -1700,11 +1706,12 @@ void messages_updateheight(MESSAGES *m, int width) {
 bool messages_char(uint32_t ch) {
     MESSAGES *m;
 
-    if (flist_get_selected()->item == ITEM_FRIEND) {
+    if (flist_get_friend()) {
         m = messages_friend.object;
-    } else if (flist_get_selected()->item == ITEM_GROUP) {
+    } else if (flist_get_groupchat()) {
         m = messages_group.object;
     } else {
+        LOG_TRACE("Messages", "Can't type to nowhere");
         return false;
     }
 

@@ -5,10 +5,12 @@
 #include "main.h"
 
 #include "debug.h"
-#include "main_native.h"
 #include "settings.h"
 #include "theme.h"
 #include "updater.h"
+
+#include "native/filesys.h"
+#include "native/main.h"
 
 #include <getopt.h>
 

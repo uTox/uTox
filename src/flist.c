@@ -7,7 +7,6 @@
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -29,6 +28,9 @@
 #include "layout/group.h"
 #include "layout/settings.h"
 #include "layout/sidebar.h"
+
+#include "native/time.h"
+#include "native/ui.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -60,6 +62,9 @@ static ITEM *mouseover_item;
 static ITEM *nitem; // item that selected_item is being dragged over
 static ITEM *selected_item = &item_add;
 
+static ITEM *right_mouse_item;
+
+
 static bool mouse_in_list;
 static bool selected_item_mousedown;
 static bool selected_item_mousedown_move_pend;
@@ -83,7 +88,8 @@ static void flist_draw_itembox(ITEM *i, int y) {
 }
 
 static void flist_draw_name(ITEM *i, int y, char *name, char *msg, uint16_t name_length, uint16_t msg_length,
-                            bool color_overide, uint32_t color) {
+                            bool color_overide, uint32_t color)
+{
     if (!color_overide) {
         color = (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
     }
@@ -150,7 +156,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
     switch (i->item) {
         case ITEM_FRIEND: {
-            FRIEND *f = i->data;
+            FRIEND *f = get_friend(i->id_number);
             uint8_t status = f->online ? f->status : 3;
 
             // draw avatar or default image
@@ -170,13 +176,12 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         }
 
         case ITEM_GROUP: {
+            GROUPCHAT *g = get_group(i->id_number);
             drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
 
             bool color_overide = false;
             uint32_t color = 0;
-
-            GROUPCHAT *g = i->data;
             if (g->muted) {
                 color_overide = true;
                 color = COLOR_GROUP_MUTED;
@@ -197,15 +202,19 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
             break;
         }
 
-        case ITEM_FRIEND_ADD: {
-            FRIENDREQ *f = i->data;
+        case ITEM_FREQUEST: {
+            FREQUEST *r = get_frequest(i->id_number);
+            if (!r) {
+                LOG_WARN("FList", "Can't get the request at this number.");
+                break;
+            }
 
             char name[TOX_ADDRESS_SIZE * 2];
-            id_to_string(name, f->id);
+            id_to_string(name, r->bin_id);
 
             drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            flist_draw_name(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
+            flist_draw_name(i, y, name, r->msg, sizeof(name), r->length, 0, 0);
             break;
         }
 
@@ -246,8 +255,12 @@ void flist_update_shown_list(void) {
     uint32_t j; // index in shown_list array
     for (uint32_t i = j = 0; i < itemcount; i++) {
         ITEM  *it = &item[i];
-        FRIEND *f = it->data;
-        if (it->item != ITEM_FRIEND || ((!filter || f->online) && friend_matches_search_string(f, search_string))) {
+        if (it->item == ITEM_FRIEND) {
+            FRIEND *f = get_friend(it->id_number);
+            if ((!filter || f->online) && friend_matches_search_string(f, search_string)) {
+                shown_list[j++] = i;
+            }
+        } else {
             shown_list[j++] = i;
         }
     }
@@ -259,7 +272,7 @@ void flist_update_shown_list(void) {
 static ITEM *newitem(void) {
     ITEM *i = &item[itemcount - 1];
     item[itemcount].item = ITEM_GROUP_CREATE;
-    item[itemcount].data = NULL;
+    item[itemcount].id_number = UINT32_MAX;
     itemcount++;
     flist_update_shown_list();
     return i;
@@ -339,7 +352,7 @@ static int  current_width; // I know, but I'm in a hurry, so I'll fix this later
 static void page_close(ITEM *i) {
     switch (i->item) {
         case ITEM_FRIEND: {
-            FRIEND *f = i->data;
+            FRIEND *f = get_friend(i->id_number);
 
             current_width = f->msg.width;
 
@@ -366,17 +379,19 @@ static void page_close(ITEM *i) {
             panel_friend_settings.disabled         = true;
             panel_friend_confirm_deletion.disabled = true;
             settings.inline_video                  = true;
+
+            panel_friend_request.disabled          = true;
             break;
         }
 
-        case ITEM_FRIEND_ADD: {
+        case ITEM_FREQUEST: {
             panel_chat.disabled           = true;
             panel_friend_request.disabled = true;
             break;
         }
 
         case ITEM_GROUP: {
-            GROUPCHAT *g = selected_item->data;
+            GROUPCHAT *g = get_group(selected_item->id_number);
 
             current_width = g->msg.width;
 
@@ -435,14 +450,14 @@ static void page_close(ITEM *i) {
 
 static void page_open(ITEM *i) {
     switch (i->item) {
-        case ITEM_FRIEND_ADD: {
-            panel_chat.disabled = false;
+        case ITEM_FREQUEST: {
+            panel_chat.disabled           = false;
             panel_friend_request.disabled = false;
             break;
         }
 
         case ITEM_FRIEND: {
-            FRIEND *f = i->data;
+            FRIEND *f = get_friend(i->id_number);
             if (!f) {
                 LOG_ERR("Flist", "Could not get friend data from item");
                 return;
@@ -487,13 +502,13 @@ static void page_open(ITEM *i) {
         }
 
         case ITEM_GROUP: {
-            GROUPCHAT *g = i->data;
+            GROUPCHAT *g = get_group(i->id_number);
 
             memcpy(edit_chat_msg_group.data, g->typed, g->typed_length);
             edit_chat_msg_group.length = g->typed_length;
 
             g->msg.width  = current_width;
-            g->msg.id     = g - group;
+            g->msg.id     = g->number;
             g->unread_msg = 0;
             /* We use the MESSAGES struct from the group, but we need the info from the panel. */
             messages_group.object = &g->msg;
@@ -575,9 +590,9 @@ void flist_start(void) {
 
     ITEM *i = item;
     for (uint32_t num = 0; num < self.friend_list_count; ++num) {
-        FRIEND *f = get_friend(num);
-        i->item   = ITEM_FRIEND;
-        i->data   = f;
+        FRIEND *f    = get_friend(num);
+        i->item      = ITEM_FRIEND;
+        i->id_number = f->number;
         i++;
     }
 
@@ -589,15 +604,19 @@ void flist_start(void) {
     flist_update_shown_list();
 }
 
-void flist_addfriend(FRIEND *f) {
+void flist_add_friend(FRIEND *f) {
     ITEM *i = newitem();
     i->item = ITEM_FRIEND;
-    i->data = f;
+    i->id_number = f->number;
 }
 
-void flist_addfriend2(FRIEND *f, FRIENDREQ *req) {
+void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
     for (uint32_t i = 0; i < itemcount; ++i) {
-        if (item[i].data == req) {
+        if (item[i].item == ITEM_FREQUEST && item[i].id_number == req->number) {
+            LOG_INFO("FList", "Friend found and accepted.");
+            item[i].item = ITEM_FRIEND;
+            item[i].id_number = f->number;
+
             if (&item[i] == selected_item) {
                 // panel_item[selected_item->item - 1].disabled = 1;
                 // panel_item[ITEM_FRIEND - 1].disabled = 0;
@@ -610,23 +629,21 @@ void flist_addfriend2(FRIEND *f, FRIENDREQ *req) {
                 f->msg.id = f->number;
             }
 
-            item[i].item = ITEM_FRIEND;
-            item[i].data = f;
             return;
         }
     }
 }
 
-void flist_addgroup(GROUPCHAT *g) {
+void flist_add_group(GROUPCHAT *g) {
     ITEM *i = newitem();
     i->item = ITEM_GROUP;
-    i->data = g;
+    i->id_number = g->number;
 }
 
-void flist_addfriendreq(FRIENDREQ *f) {
+void flist_add_frequest(FREQUEST *r) {
     ITEM *i = newitem();
-    i->item = ITEM_FRIEND_ADD;
-    i->data = f;
+    i->item = ITEM_FREQUEST;
+    i->id_number = r->number;
 }
 
 void group_av_peer_remove(GROUPCHAT *g, int peernumber);
@@ -649,20 +666,20 @@ static void deleteitem(ITEM *i) {
 
     switch (i->item) {
         case ITEM_FRIEND: {
-            FRIEND *f = i->data;
+            FRIEND *f = get_friend(i->id_number);
             postmessage_toxcore(TOX_FRIEND_DELETE, f->number, 0, f);
             break;
         }
 
         case ITEM_GROUP: {
-            GROUPCHAT *g = i->data;
-            postmessage_toxcore(TOX_GROUP_PART, (g - group), 0, NULL);
+            GROUPCHAT *g = get_group(i->id_number);
+            postmessage_toxcore(TOX_GROUP_PART, g->number, 0, NULL);
             group_free(g);
             break;
         }
 
-        case ITEM_FRIEND_ADD: {
-            free(i->data);
+        case ITEM_FREQUEST: {
+            friend_request_free(i->id_number);
             break;
         }
 
@@ -684,7 +701,7 @@ static void deleteitem(ITEM *i) {
     redraw(); // flist_draw();
 }
 
-void flist_deletesitem(void) {
+void flist_delete_sitem(void) {
     if (selected_item >= item && selected_item < item + COUNTOF(item)) {
         deleteitem(selected_item);
     }
@@ -700,17 +717,17 @@ void flist_freeall(void) {
     for (ITEM *i = item; i != item + itemcount; i++) {
         switch (i->item) {
             case ITEM_FRIEND: {
-                friend_free(i->data);
+                friend_free(get_friend(i->id_number));
                 break;
             }
 
             case ITEM_GROUP: {
-                group_free(i->data);
+                group_free(get_group(i->id_number));
                 break;
             }
 
-            case ITEM_FRIEND_ADD: {
-                free(i->data);
+            case ITEM_FREQUEST: {
+                friend_request_free(i->id_number);
                 break;
             }
 
@@ -767,12 +784,17 @@ static void push_selected(void) {
 
         case ITEM_FRIEND: {
             push_pop.data = calloc(1, TOX_PUBLIC_KEY_SIZE);
-            FRIEND *f     = selected_item->data;
+            FRIEND *f     = get_friend(selected_item->id_number);
+            if (!f) {
+                LOG_ERR("Flist", "id_number is out of sync with friend_list"); // TODO should this be an exit code?
+                                                                               // It's a critical error that could do
+                                                                               // a lot of damage
+                return;
+            }
             memcpy(push_pop.data, &f->cid, TOX_PUBLIC_KEY_SIZE);
             break;
         }
-
-        case ITEM_FRIEND_ADD:
+        case ITEM_FREQUEST:
         case ITEM_GROUP:
         case ITEM_GROUP_CREATE: {
             return;
@@ -796,7 +818,7 @@ static void pop_selected(void) {
         case ITEM_FRIEND: {
             for (uint16_t i = 0; i < itemcount; ++i) {
                 if (item[i].item == ITEM_FRIEND) {
-                    FRIEND *f = item[i].data;
+                    FRIEND *f = get_friend(item[i].id_number);
                     if (memcmp(push_pop.data, &f->cid, TOX_PUBLIC_KEY_SIZE) == 0) {
                         show_page(&item[i]);
                         return;
@@ -807,7 +829,7 @@ static void pop_selected(void) {
             break;
         }
 
-        case ITEM_FRIEND_ADD:
+        case ITEM_FREQUEST:
         case ITEM_GROUP:
         case ITEM_GROUP_CREATE: {
             show_page(&item_settings);
@@ -831,13 +853,16 @@ void flist_reload_contacts(void) {
     pop_selected();
 }
 
-ITEM *flist_get_selected(void) {
-    return selected_item;
-}
-
 FRIEND *flist_get_friend(void) {
     if (flist_get_type() == ITEM_FRIEND) {
-        return selected_item->data;
+        return get_friend(selected_item->id_number);
+    }
+    return NULL;
+}
+
+FREQUEST *flist_get_frequest(void) {
+    if (flist_get_type() == ITEM_FREQUEST) {
+        return get_frequest(selected_item->id_number);
     }
 
     return NULL;
@@ -845,7 +870,7 @@ FRIEND *flist_get_friend(void) {
 
 GROUPCHAT *flist_get_groupchat(void) {
     if (flist_get_type() == ITEM_GROUP) {
-        return selected_item->data;
+        return get_group(selected_item->id_number);
     }
 
     return NULL;
@@ -955,7 +980,7 @@ bool flist_mdown(void *UNUSED(n)) {
 }
 
 static void flist_init_friend_settings_page(void) {
-    FRIEND *f = right_mouse_item->data;
+    FRIEND *f = get_friend(right_mouse_item->id_number);
 
     panel_friend_chat.disabled     = true;
     panel_friend_video.disabled    = true;
@@ -970,7 +995,7 @@ static void flist_init_friend_settings_page(void) {
 }
 
 static void flist_init_group_settings_page(void) {
-    GROUPCHAT *g = right_mouse_item->data;
+    GROUPCHAT *g = get_group(right_mouse_item->id_number);
 
     panel_group_chat.disabled     = true;
     panel_group_video.disabled    = true;
@@ -981,20 +1006,26 @@ static void flist_init_group_settings_page(void) {
     dropdown_notify_groupchats.over = dropdown_notify_groupchats.selected = g->notify;
 }
 
-static void contextmenu_friend(uint8_t rcase) {
-    FRIEND *f = right_mouse_item->data;
+typedef enum {
+    SHOW_SETTINGS,
+    SHOW_INLINE_VID,
+    CLEAR_HISTOR,
+    DELETE_FRIEND,
+} FLIST_CONTEXT_MENU;
+
+static void contextmenu_friend(FLIST_CONTEXT_MENU rcase) {
+    FRIEND *f = get_friend(right_mouse_item->id_number);
 
     panel_friend_chat.disabled     = false;
     panel_friend_video.disabled    = true;
     panel_friend_settings.disabled = true;
     switch (rcase) {
-        case 0: {
+        case SHOW_SETTINGS: {
             /* should be settings page */
             flist_init_friend_settings_page();
             break;
         }
-
-        case 1: {
+        case SHOW_INLINE_VID: {
             /* Should be show inline video */
             panel_friend_chat.disabled     = true;
             panel_friend_video.disabled    = false;
@@ -1004,14 +1035,12 @@ static void contextmenu_friend(uint8_t rcase) {
             postmessage_utox(AV_CLOSE_WINDOW, f->number + 1, 0, NULL);
             break;
         }
-
-        case 2: {
+        case CLEAR_HISTOR: {
             /* should be clean history */
-            friend_history_clear((FRIEND *)right_mouse_item->data);
+            friend_history_clear(get_friend(right_mouse_item->id_number));
             break;
         }
-
-        case 3: {
+        case DELETE_FRIEND: {
             /* Should be: delete friend */
             panel_friend_chat.disabled             = true;
             panel_friend_confirm_deletion.disabled = false;
@@ -1030,7 +1059,7 @@ static void contextmenu_list_onselect(uint8_t i) {
 
             case ITEM_GROUP: {
                 panel_group_chat.disabled = false;
-                GROUPCHAT *g              = right_mouse_item->data;
+                GROUPCHAT *g = get_group(right_mouse_item->id_number);
                 if (i == 0) {
                     flist_init_group_settings_page();
                 } else if (i == 1) {
@@ -1051,10 +1080,9 @@ static void contextmenu_list_onselect(uint8_t i) {
 
                 return;
             }
-
-            case ITEM_FRIEND_ADD: {
+            case ITEM_FREQUEST: {
                 if (i == 0) {
-                    FRIENDREQ *req = right_mouse_item->data;
+                    FREQUEST *req = get_frequest(right_mouse_item->id_number);
                     postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
                 }
                 return;
@@ -1084,8 +1112,12 @@ static void contextmenu_list_onselect(uint8_t i) {
 }
 
 bool flist_mright(void *UNUSED(n)) {
-    static UTOX_I18N_STR menu_friend[] = { STR_FRIEND_SETTINGS, STR_CALL_VIDEO_SHOW_INLINE, STR_CLEAR_HISTORY,
-                                           STR_REMOVE_FRIEND };
+    static UTOX_I18N_STR menu_friend[] = {
+                STR_FRIEND_SETTINGS,
+                STR_CALL_VIDEO_SHOW_INLINE,
+                STR_CLEAR_HISTORY,
+                STR_REMOVE_FRIEND
+            };
 
     static UTOX_I18N_STR menu_group_unmuted[] = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_MUTE,
                                                   STR_REMOVE_GROUP };
@@ -1106,7 +1138,7 @@ bool flist_mright(void *UNUSED(n)) {
             }
 
             case ITEM_GROUP: {
-                GROUPCHAT *g = mouseover_item->data;
+                GROUPCHAT *g = get_group(mouseover_item->id_number);
                 if (g->av_group) {
                     if (g->muted) {
                         contextmenu_new(COUNTOF(menu_group_muted), menu_group_muted, contextmenu_list_onselect);
@@ -1125,7 +1157,7 @@ bool flist_mright(void *UNUSED(n)) {
                 break;
             }
 
-            case ITEM_FRIEND_ADD: {
+            case ITEM_FREQUEST: {
                 contextmenu_new(COUNTOF(menu_request), menu_request, contextmenu_list_onselect);
                 break;
             }
@@ -1170,11 +1202,10 @@ bool flist_mup(void *UNUSED(n)) {
                 }
 
                 if (nitem->item == ITEM_GROUP) {
-                    FRIEND    *f = selected_item->data;
-                    GROUPCHAT *g = nitem->data;
-
+                    FRIEND *f = get_friend(selected_item->id_number);
+                    GROUPCHAT *g = get_group(nitem->id_number);
                     if (f->online) {
-                        postmessage_toxcore(TOX_GROUP_SEND_INVITE, (g - group), f->number, NULL);
+                        postmessage_toxcore(TOX_GROUP_SEND_INVITE, g->number, f->number, NULL);
                     }
                 }
             }
