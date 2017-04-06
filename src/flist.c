@@ -504,6 +504,10 @@ static void page_open(ITEM *i) {
 
         case ITEM_GROUP: {
             GROUPCHAT *g = get_group(i->id_number);
+            if (!g) {
+                LOG_ERR("F-List", "Could not get group %u", i->id_number);
+                return;
+            }
 
             memcpy(edit_chat_msg_group.data, g->typed, g->typed_length);
             edit_chat_msg_group.length = g->typed_length;

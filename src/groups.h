@@ -91,4 +91,7 @@ GROUPCHAT *group_make(uint32_t group_number);
 /* Free all groups */
 void free_groups(void);
 
+/* */
+void init_groups(void);
+
 #endif
