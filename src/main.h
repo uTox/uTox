@@ -39,7 +39,7 @@ typedef uint8_t *UTOX_IMAGE;
 //  fixes compile with apple headers
 /*** This breaks both android and Windows video... but it's needed to fix complation in clang (Cocoa & asan)
  ***  TODO fix them?
-#ifndef __OBJC__
+#if !defined (__OBJC__) && !defined (__NetBSD__)
 #define volatile(x) (*((volatile typeof(x)*)&x))
 #endif */
 

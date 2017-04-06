@@ -66,17 +66,7 @@ else()
     set(DBUS_LIBRARIES "")
 endif()
 
-if(CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*")
-    target_link_libraries(utoxNATIVE
-        icon
-        v4lconvert
-        ${X11_LIBRARIES}
-        ${X11_Xrender_LIB}
-        fontconfig
-        ${FREETYPE_LIBRARIES}
-        )
-else()
-    target_link_libraries(utoxNATIVE
+target_link_libraries(utoxNATIVE
         icon
         v4lconvert
         ${X11_LIBRARIES}
@@ -84,6 +74,10 @@ else()
         fontconfig
         ${FREETYPE_LIBRARIES}
         resolv
+        )
+
+if(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
+    target_link_libraries(utoxNATIVE
         dl
         ${DBUS_LIBRARIES}
         )

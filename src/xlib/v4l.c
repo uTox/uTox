@@ -14,10 +14,10 @@
 int utox_v4l_fd = -1;
 
 #include <sys/mman.h>
-#ifdef __OpenBSD__
-#include <sys/videoio.h>
-#else
+#ifdef __linux__
 #include <linux/videodev2.h>
+#else
+#include <sys/videoio.h>
 #endif
 
 #ifndef NO_V4LCONVERT

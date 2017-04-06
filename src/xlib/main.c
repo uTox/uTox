@@ -70,9 +70,6 @@ void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data
     XFlush(display);
 }
 
-#ifndef __OpenBSD__
-#include <linux/input.h>
-#endif
 FILE    *ptt_keyboard_handle;
 Display *ptt_display;
 void     init_ptt(void) {
@@ -89,13 +86,16 @@ void     init_ptt(void) {
     }
 }
 
+#ifdef __linux__
+#include <linux/input.h>
+#endif
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
         // LOG_TRACE("XLIB", "PTT is disabled" );
         return true; /* If push to talk is disabled, return true. */
     }
-// OpenBSD doesn't have KEY_LEFTCTRL or KEY_MAX.
-#ifndef __OpenBSD__
+    // Only Linux has KEY_LEFTCTRL and KEY_MAX.
+#ifdef __linux__
     /* First, we try for direct access to the keyboard. */
     int ptt_key = KEY_LEFTCTRL; // TODO allow user to change this...
     if (ptt_keyboard_handle) {
