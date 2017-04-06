@@ -6,7 +6,7 @@
 #ifndef NATIVE_MAIN_H
 #define NATIVE_MAIN_H
 
-#if defined __WIN32__
+#if defined __WIN32__ || defined _WIN32 || defined __CYGWIN__
 #include "../windows/main.h"
 #elif defined __ANDROID__
 #include "../android/main.h"
