@@ -4,9 +4,11 @@
 
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
 
 #include "../av/video.h"
+
+#include "../native/time.h"
+
 #include "../../langs/i18n_decls.h"
 
 #include <windows.h>

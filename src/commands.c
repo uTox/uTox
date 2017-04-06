@@ -4,7 +4,6 @@
 #include "debug.h"
 #include "flist.h"
 #include "main.h" // tox_thread_init
-#include "main_native.h"
 
 #include "layout/friend.h" // TODO, we should try to remove this dependency
 #include "ui/edit.h"

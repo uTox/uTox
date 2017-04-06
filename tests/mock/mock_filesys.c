@@ -1,5 +1,5 @@
 #include "../../src/filesys.h"
-#include "../../src/filesys_native.h"
+#include "../../src/native/filesys.h"
 
 #include "../../src/filesys.c"
 #include "../../src/posix/filesys.c"

@@ -6,6 +6,10 @@
 #include "../self.h"
 #include "../theme.h"
 
+#include "../native/clipboard.h"
+#include "../native/keyboard.h"
+#include "../native/notify.h"
+
 #include "../ui/button.h"
 #include "../ui/draw.h"
 #include "../ui/dropdown.h"
@@ -598,7 +602,6 @@ static void button_show_nospam_on_mup(void) {
     panel_nospam_settings.disabled = !panel_nospam_settings.disabled;
 }
 
-#include "../main_native.h"
 static void button_copyid_on_mup(void) {
     edit_setfocus(&edit_toxid);
     copy(0);

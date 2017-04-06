@@ -2,10 +2,13 @@
 
 #include "utox_av.h"
 
+#include "../native/audio.h"
+#include "../native/keyboard.h"
+#include "../native/thread.h"
+
 #include "../debug.h"
 #include "../friend.h"
 #include "../main.h" // utox_audio_thread_init, self, USER_STATUS_*, UTOX_MAX_CALLS
-#include "../main_native.h"
 #include "../self.h"
 #include "../settings.h"
 #include "../tox.h"

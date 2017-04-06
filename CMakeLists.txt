@@ -150,9 +150,9 @@ endif()
 option(UTOX_STATIC "Link uTox statically" OFF)
 if(UTOX_STATIC)
 	if(UNIX)
-		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl") 
+		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
 	else()
-		add_cflag("-static") 
+		add_cflag("-static")
 	endif()
 endif()
 
@@ -243,6 +243,8 @@ elseif(UNIX)
 		)
 endif()
 
+# include utoxLAYOUT
+add_subdirectory(src/layout)
 # include utoxUI
 add_subdirectory(src/ui)
 # include utoxAV

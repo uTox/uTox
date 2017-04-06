@@ -11,6 +11,8 @@
 #include "../settings.h"
 #include "../theme.h"
 
+#include "../native/dialog.h"
+
 #include "../ui/draw.h"
 #include "../ui/edit.h"
 #include "../ui/scrollable.h"
@@ -491,7 +493,6 @@ BUTTON button_call_video = {
     .tooltip_text = {.i18nal = STR_CALL_START_VIDEO },
 };
 
-#include "../main_native.h"
 static void button_send_file_on_mup(void) {
     FRIEND *f = flist_get_friend();
     if (!f) {
