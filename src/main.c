@@ -21,14 +21,15 @@
  */
 
 bool utox_data_save_tox(uint8_t *data, size_t length) {
-    FILE *fp= utox_get_file("tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
-    if (fp == NULL) {
+    FILE *fp = utox_get_file("tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
+    if (!fp) {
         LOG_ERR("uTox", "Can not open tox_save.tox to write to it.");
         return true;
     }
 
     if (fwrite(data, length, 1, fp) != 1) {
         LOG_ERR("uTox", "Unable to write Tox save to file.");
+        fclose(fp);
         return true;
     }
 

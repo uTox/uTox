@@ -194,8 +194,14 @@ static void friend_meta_data_read(FRIEND *f) {
         return;
     }
 
-    fread(metadata, size, 1, file);
+    bool read_meta = fread(metadata, size, 1, file);
     fclose(file);
+
+    if (!read_meta) {
+        LOG_ERR("Metadata", "Failed to read metadata from disk.");
+        free(metadata);
+        return;
+    }
 
     if (metadata->version != 0) {
         LOG_ERR("Metadata", "WARNING! This version of utox does not support this metadata file version." );
@@ -340,7 +346,12 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
 }
 
 void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
-    if (alias && length > 0) {
+    if (length > 0) {
+        if (!alias) {
+            LOG_ERR("Friend Alias", "Got alias length, but no alias.");
+            return;
+        }
+
         LOG_TRACE("Friend", "New Alias set for friend %s" , f->name);
     } else {
         LOG_TRACE("Friend", "Alias for friend %s unset" , f->name);
@@ -351,10 +362,9 @@ void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
         f->alias        = NULL;
         f->alias_length = 0;
     } else {
-        f->alias = malloc(length + 1);
+        f->alias = calloc(1, length + 1);
         memcpy(f->alias, alias, length);
-        f->alias_length           = length;
-        f->alias[f->alias_length] = 0;
+        f->alias_length = length;
     }
 }
 

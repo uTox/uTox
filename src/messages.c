@@ -63,9 +63,9 @@ static int msgheight(MSG_HEADER *msg, int width) {
             uint32_t maxwidth = width - MESSAGES_X - TIME_WIDTH;
             if (msg->via.img.zoom || msg->via.img.w <= maxwidth) {
                 return msg->via.img.h + MESSAGES_SPACING;
-            } else {
-                return msg->via.img.h * maxwidth / msg->via.img.w + MESSAGES_SPACING;
             }
+
+            return msg->via.img.h * maxwidth / msg->via.img.w + MESSAGES_SPACING;
         }
 
         case MSG_TYPE_FILE: {
@@ -126,14 +126,13 @@ static void message_updateheight(MESSAGES *m, MSG_HEADER *msg) {
 static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
     pthread_mutex_lock(&messages_lock);
 
-    /* TODO: test this? */
     if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {
         if (!m->data || m->extra <= 0) {
             if (m->data) {
                 m->data = realloc(m->data, (m->number + 10) * sizeof(void *));
                 m->extra += 10;
             } else {
-                m->data  = calloc(20, sizeof(void *));
+                m->data = calloc(20, sizeof(void *));
                 m->extra = 20;
             }
 
@@ -1746,6 +1745,8 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
         messages_clear_all(m);
     }
 
+    pthread_mutex_lock(&messages_lock);
+
     memset(m, 0, sizeof(*m) * COUNTOF(m));
 
     m->data = calloc(20, sizeof(void *));
@@ -1755,6 +1756,8 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 
     m->extra = 20;
     m->id    = friend_number;
+
+    pthread_mutex_unlock(&messages_lock);
 }
 
 void message_free(MSG_HEADER *msg) {
