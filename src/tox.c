@@ -150,6 +150,7 @@ static void set_callbacks(Tox *tox) {
 
 void tox_after_load(Tox *tox) {
     utox_friend_list_init(tox);
+    init_groups();
 
     #ifdef ENABLE_MULTIDEVICE
     // self.group_list_count = tox_self_get_(tox);
