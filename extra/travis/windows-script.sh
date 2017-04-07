@@ -10,5 +10,5 @@ cd build_win
 cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-win64.cmake \
          -DENABLE_FILTERAUDIO=OFF \
          -DENABLE_TESTS=OFF \
-         -DENABLE_WERROR=ON
+         -DENABLE_WERROR=OFF
 make VERBOSE=1
