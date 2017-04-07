@@ -110,6 +110,7 @@ void parse_args(int argc, char *argv[],
     if (should_launch_at_startup) {
         *should_launch_at_startup = 0;
     }
+
     if (set_show_window) {
         *set_show_window = 0;
     }

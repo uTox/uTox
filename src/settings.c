@@ -183,7 +183,12 @@ UTOX_SAVE *config_load(void) {
     settings.update_to_develop      = save->update_to_develop;
     settings.send_version           = save->send_version;
 
-    settings.theme                  = save->theme;
+    // Allow users to override theme on the cmdline.
+    // 0 is the default theme.
+    // (This means `utox -t default` is still broken, but oh well.)
+    if (settings.theme == 0) {
+        settings.theme              = save->theme;
+    }
 
     ui_set_scale(save->scale + 1);
 
