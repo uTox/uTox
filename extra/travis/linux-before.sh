@@ -7,6 +7,8 @@ set -eux
 . ./extra/common/build_nacl.sh
 . ./extra/common/build_opus.sh
 
+pkg-config --list-all | sort
+
 # install libvpx, needed for video encoding/decoding
 if ! [ -d libvpx ]; then
   git clone --depth=1 --branch=v1.6.0 https://chromium.googlesource.com/webm/libvpx
