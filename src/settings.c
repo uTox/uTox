@@ -183,9 +183,11 @@ UTOX_SAVE *config_load(void) {
     settings.update_to_develop      = save->update_to_develop;
     settings.send_version           = save->send_version;
 
+    // TODO: Don't clobber (and start saving) commandline flags.
+
     // Allow users to override theme on the cmdline.
     // 0 is the default theme.
-    // (This means `utox -t default` is still broken, but oh well.)
+    // TODO: `utox -t default` is still broken.
     if (settings.theme == 0) {
         settings.theme              = save->theme;
     }
