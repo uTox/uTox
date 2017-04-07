@@ -352,9 +352,9 @@ void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
             return;
         }
 
-        LOG_TRACE("Friend", "New Alias set for friend %s" , f->name);
+        LOG_TRACE("Friend", "New Alias set for friend %s." , f->name);
     } else {
-        LOG_TRACE("Friend", "Alias for friend %s unset" , f->name);
+        LOG_TRACE("Friend", "Alias for friend %s unset." , f->name);
     }
 
     free(f->alias);
@@ -363,6 +363,11 @@ void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
         f->alias_length = 0;
     } else {
         f->alias = calloc(1, length + 1);
+        if (!f->alias) {
+            LOG_ERR("Friend", "Unable to malloc for alias set for friend %s.");
+            return;
+        }
+
         memcpy(f->alias, alias, length);
         f->alias_length = length;
     }
@@ -371,6 +376,11 @@ void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
 void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
                       size_t png_size) {
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
+    if (!tsim) {
+        LOG_ERR("Friend", "Unable to malloc for inline image.");
+        return;
+    }
+
     tsim->image      = png_image;
     tsim->image_size = png_size;
     postmessage_toxcore(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
@@ -421,6 +431,11 @@ void friend_set_typing(FRIEND *f, int typing) {
 
 void friend_addid(uint8_t *id, char *msg, uint16_t msg_length) {
     char *data = malloc(TOX_ADDRESS_SIZE + msg_length);
+    if (!data) {
+        LOG_ERR("Friend", "Unable to malloc for friend request.");
+        return;
+    }
+
     memcpy(data, id, TOX_ADDRESS_SIZE);
     memcpy(data + TOX_ADDRESS_SIZE, msg, msg_length);
 

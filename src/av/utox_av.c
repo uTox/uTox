@@ -121,6 +121,7 @@ void utox_av_ctrl_thread(void *args) {
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                     break;
                 }
+
                 case UTOXAV_CALL_END: {
                     call_count--;
                     FRIEND *f = get_friend(msg->param1);
@@ -158,6 +159,7 @@ void utox_av_ctrl_thread(void *args) {
                     }
                     break;
                 }
+
                 case UTOXAV_STOP_AUDIO: {
                     if (!call_count) {
                         LOG_TRACE("uToxAV", "WARNING, trying to stop audio while already closed!\nThis is bad!" );
@@ -412,7 +414,7 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
     UTOX_FRAME_PKG *frame = calloc(1, sizeof(UTOX_FRAME_PKG));
 
     if (!frame) {
-        LOG_ERR("uToxAV", "can't malloc for incoming frame");
+        LOG_ERR("uToxAV", "Can't malloc for incoming frame.");
         return;
     }
 
@@ -421,7 +423,7 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
     frame->size = size;
     frame->img  = malloc(size);
     if (!frame->img) {
-        LOG_TRACE("uToxAV", " Could not allocate memory for image." );
+        LOG_TRACE("uToxAV", "Could not allocate memory for image.");
         free(frame);
         return;
     }
@@ -429,15 +431,15 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
     if (f->video_inline) {
         if (!inline_set_frame(width, height, size, frame->img)) {
-            LOG_ERR("uToxAV", " error setting frame for inline video");
+            LOG_ERR("uToxAV", "Error setting frame for inline video.");
         }
 
         postmessage_utox(AV_INLINE_FRAME, friend_number, 0, NULL);
+        free(frame->img);
+        free(frame);
     } else {
         postmessage_utox(AV_VIDEO_FRAME, friend_number + 1, 0, (void *)frame);
     }
-
-    free(frame);
 }
 
 static void utox_audio_friend_accepted(ToxAV *av, uint32_t friend_number, uint32_t state) {
