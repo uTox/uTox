@@ -269,7 +269,7 @@ void initfonts(void) {
 
     FT_Init_FreeType(&ftlib);
 
-    FcResult   result;
+    FcResult result;
     FcPattern *pat = FcPatternCreate();
     FcPatternAddString(pat, FC_FAMILY, (uint8_t *)UTOX_FONT_XLIB);
     FcConfigSubstitute(0, pat, FcMatchPattern);

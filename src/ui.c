@@ -216,6 +216,10 @@ void ui_set_scale(uint8_t scale) {
     } else if (scale != 0) {
         return ui_set_scale(10);
     }
+}
+
+void ui_rescale(uint8_t scale) {
+    ui_set_scale(scale);
 
     flist_re_scale();
     setscale_fonts();

@@ -6,11 +6,11 @@
 
 #include "../avatar.h"
 #include "../commands.h"
+#include "../debug.h"
 #include "../file_transfers.h"
 #include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../debug.h"
 #include "../macros.h"
 #include "../main.h"
 #include "../self.h"
@@ -19,11 +19,13 @@
 #include "../theme.h"
 #include "../tox.h"
 #include "../ui.h"
+#include "../updater.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"
 
 #include "../native/os.h"
+#include "../native/filesys.h"
 
 #include "../ui/draw.h"
 #include "../ui/dropdown.h"
@@ -611,7 +613,7 @@ void config_osdefaults(UTOX_SAVE *r) {
  * Limitation: nested quotation marks are not handled
  * Credit: http://alter.org.ua/docs/win/args
  */
-PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
+static PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
     ULONG len = strlen(CmdLine);
     ULONG i = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
     PCHAR *argv = (PCHAR *)GlobalAlloc(GMEM_FIXED, i + (len + 2) * sizeof(CHAR));
@@ -709,29 +711,114 @@ static void cursors_init(void) {
     cursors[CURSOR_ZOOM_OUT] = LoadCursor(NULL, IDC_SIZEALL);
 }
 
-#define UTOX_EXE "\\uTox.exe"
-#define UTOX_UPDATER_EXE "\\utox_runner.exe"
-#define UTOX_VERSION_FILE "\\version"
+static bool fresh_update(void) {
+    char path[UTOX_FILE_NAME_LENGTH];
+    GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
+    LOG_WARN("Win Updater", "Starting");
+    LOG_NOTE("Win Updater", "Root %s", path);
 
-static bool auto_update(PSTR cmd) {
-    char path[MAX_PATH + 20];
-    unsigned len = GetModuleFileName(NULL, path, MAX_PATH);
+    // lol, windows is backwards... AGAIN
+    char *name_start = strstr(path, "next_uTox.exe");
+    if (!name_start) {
+        LOG_NOTE("Win Updater", "Not the updater -- %s ", path);
+        return false;
+    }
 
-    /* Is the uTox exe named like the updater one. */
-    char *file = path + len - (sizeof("uTox.exe") - 1);
-    if (len > sizeof("uTox.exe")) {
-        memcpy(file, "uTox_updater.exe", sizeof("uTox_updater.exe"));
-        FILE *fp = fopen(path, "rb");
-        if (fp) {
-            char real_cmd[strlen(cmd) * 2];
-            snprintf(real_cmd, strlen(cmd) * 2, "%s %S %2x%2x%2x", cmd, "--version ", VER_MAJOR, VER_MINOR, VER_PATCH);
-            fclose(fp);
-            /* This is an updater build not being run by the updater. Run the updater and exit. */
-            ShellExecute(NULL, "open", path, real_cmd, NULL, SW_SHOW);
+    // This is the freshly downloaded exe.
+    // make a backup of the old file
+    char backup[UTOX_FILE_NAME_LENGTH];
+    strcpy(name_start, "uTox_backup.exe");
+    memcpy(backup, path, UTOX_FILE_NAME_LENGTH);
+    LOG_NOTE("Win Updater", "Backup %s", backup);
+
+    char real[UTOX_FILE_NAME_LENGTH];
+    strcpy(name_start, "uTox.exe");
+    memcpy(real, path, UTOX_FILE_NAME_LENGTH);
+    LOG_NOTE("Win Updater", "%s", real);
+    if (MoveFileEx(real, backup, MOVEFILE_REPLACE_EXISTING) == 0) {
+        // Failed
+        LOG_ERR("Win Updater", "move failed");
+        return false;
+    }
+
+    char new[UTOX_FILE_NAME_LENGTH];
+    strcpy(name_start, "next_uTox.exe");
+    memcpy(new, path, UTOX_FILE_NAME_LENGTH);
+    LOG_NOTE("Win Updater", "%s", new);
+    if (CopyFile(new, real, 0) == 0) {
+        // Failed
+        LOG_ERR("Win Updater", "copy failed");
+        return false;
+    }
+
+    LOG_ERR("Win Updater", "Launching new path %s", real);
+
+    char cmd[UTOX_FILE_NAME_LENGTH];
+    size_t next = snprintf(cmd, UTOX_FILE_NAME_LENGTH, " --skip-updater --delete-updater %s", new);
+    if (settings.portable_mode) {
+        snprintf(cmd + next, UTOX_FILE_NAME_LENGTH - next, " -p");
+    }
+    ShellExecute(NULL, "open", real, cmd, NULL, SW_SHOW);
+    DeleteFile(new);
+    return true;
+}
+
+static bool pending_update(void) {
+    LOG_WARN("Win Pending", "Starting");
+    // Check if we're the fresh version.
+    char path[UTOX_FILE_NAME_LENGTH];
+    GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
+
+    // lol, windows is backwards... AGAIN
+    char *name_start = strstr(path, "uTox.exe");
+    if (!name_start) {
+        // Try lowercase too
+        name_start = strstr(path, "utox.exe");
+    }
+
+    if (name_start) {
+        char next[UTOX_FILE_NAME_LENGTH];
+        strcpy(name_start, "next_uTox.exe");
+        memcpy(next, path, UTOX_FILE_NAME_LENGTH);
+        FILE *f = fopen(next, "rb");
+        if (f) {
+            LOG_ERR("Win Pending", "Updater waiting :D");
+            fclose(f);
+            char cmd[UTOX_FILE_NAME_LENGTH] = {0};
+            if (settings.portable_mode) {
+                snprintf(cmd, UTOX_FILE_NAME_LENGTH, " -p");
+            }
+            ShellExecute(NULL, "open", next, cmd, NULL, SW_SHOW);
             return true;
         }
+        LOG_WARN("Win Pending", "No updater waiting for us");
     }
+    LOG_WARN("Win Pending", "Bad file name -- %s ", path);
+
     return false;
+}
+
+static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd) {
+    *mutex = CreateMutex(NULL, 0, TITLE);
+
+    if (!mutex) {
+        LOG_FATAL_ERR(-4, "Win Mutex", "Unable to create windows mutex.");
+    }
+
+    if (GetLastError() == ERROR_ALREADY_EXISTS) {
+        HWND window = FindWindow(TITLE, NULL);
+        if (window) {
+            COPYDATASTRUCT data = {
+                .cbData = strlen(cmd),
+                .lpData = cmd
+            };
+            SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+            LOG_FATAL_ERR(-3, "Win Mutex", "Message sent.");
+        }
+        LOG_FATAL_ERR(-3, "Win Mutex", "Error getting mutex or window.");
+    }
+
+    return true;
 }
 
 /** client main()
@@ -745,47 +832,47 @@ static bool auto_update(PSTR cmd) {
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cmd, int nCmdShow) {
     pthread_mutex_init(&messages_lock, NULL);
 
-    /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
-    HANDLE utox_mutex = CreateMutex(NULL, 0, TITLE);
-
-    if (!utox_mutex) {
-        return 0;
-    }
-
-    if (GetLastError() == ERROR_ALREADY_EXISTS) {
-        HWND window = FindWindow(TITLE, NULL);
-
-        if (window) {
-            COPYDATASTRUCT data = {
-                .cbData = strlen(cmd),
-                .lpData = cmd
-            };
-
-            SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
-        }
-
-        return 0;
-    }
-
-    /* Process argc/v the backwards (read: windows) way. */
     int argc;
     PCHAR *argv = CommandLineToArgvA(GetCommandLineA(), &argc);
-
     if (!argv) {
-        LOG_TRACE("Windows", "CommandLineToArgvA failed.");
-        return 0;
+        printf("Init error -- CommandLineToArgvA failed.");
+        return -5;
     }
 
-    bool   theme_was_set_on_argv;
-    int8_t should_launch_at_startup;
-    int8_t set_show_window;
-    bool   skip_updater, from_updater;
-
-    parse_args(argc, argv, &skip_updater, &from_updater, &theme_was_set_on_argv,
-               &should_launch_at_startup, &set_show_window );
-
-    // Free memory allocated by CommandLineToArgvA
+    int8_t should_launch_at_startup, set_show_window;
+    bool   skip_updater;
+    parse_args(argc, argv, &skip_updater, &should_launch_at_startup, &set_show_window);
     GlobalFree(argv);
+
+    // We call utox_init after parse_args()
+    utox_init();
+
+    #ifdef __WIN_LEGACY
+        LOG_WARN("WinMain", "Legacy windows build");
+    #else
+        LOG_WARN("WinMain", "Normal windows build");
+    #endif
+
+    #ifdef GIT_VERSION
+        LOG_NOTE("WinMain", "uTox version %s \n", GIT_VERSION);
+    #endif
+
+    /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
+    HANDLE utox_mutex;
+    win_init_mutex(&utox_mutex, hInstance, cmd);
+
+    if (!skip_updater) {
+        LOG_ERR("WinMain", "Not skipping updater");
+        if (fresh_update()) {
+            CloseHandle(utox_mutex);
+            exit(0);
+        }
+
+        if (pending_update()) {
+            CloseHandle(utox_mutex);
+            exit(0);
+        }
+    }
 
     if (settings.portable_mode == true) {
         /* force the working directory if opened with portable command */
@@ -807,24 +894,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         launch_at_startup(0);
     }
 
-    if (!skip_updater) {
-        LOG_ERR("NATIVE", "don't skip updater");
-        if (auto_update(cmd)) {
-            CloseHandle(utox_mutex);
-            return 0;
-        }
-    }
-
-    #ifdef __WIN_LEGACY
-        LOG_TRACE("NATIVE", "Legacy windows build" );
-    #else
-        LOG_TRACE("NATIVE", "Normal windows build" );
-    #endif
-
-    #ifdef GIT_VERSION
-        LOG_NOTE("NATIVE", "uTox version %s \n", GIT_VERSION);
-    #endif
-
     cursors_init();
 
     native_window_init(hInstance); // Needed to generate the Windows window class we use.
@@ -839,18 +908,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     dropdown_language.selected = dropdown_language.over = LANG;
 
-    UTOX_SAVE *save = config_load();
-
-    if (!theme_was_set_on_argv) {
-        dropdown_theme.selected = save->theme;
-        settings.theme          = save->theme;
-    }
     theme_load(settings.theme);
 
-    utox_init();
-
-    save->window_width  = save->window_width < SCALE(MAIN_WIDTH) ? SCALE(MAIN_WIDTH) : save->window_width;
-    save->window_height = save->window_height < SCALE(MAIN_HEIGHT) ? SCALE(MAIN_HEIGHT) : save->window_height;
+    settings.window_width  = MAX((uint32_t)SCALE(MAIN_WIDTH), settings.window_width);
+    settings.window_height = MAX((uint32_t)SCALE(MAIN_HEIGHT), settings.window_height);
 
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
@@ -858,7 +919,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     wchar_t title[title_size];
     mbstowcs(title, pretitle, title_size);
 
-    native_window_create_main(save->window_x, save->window_y, save->window_width, save->window_height);
+    native_window_create_main(settings.window_x, settings.window_y, settings.window_width, settings.window_height);
 
     native_notify_init(hInstance);
 

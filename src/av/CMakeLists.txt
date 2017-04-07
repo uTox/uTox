@@ -15,6 +15,6 @@ else()
     target_link_libraries(utoxAV opus)
 endif()
 
-if(FILTER_AUDIO)
+if(ENABLE_FILTERAUDIO)
     target_link_libraries(utoxAV filteraudio)
 endif()

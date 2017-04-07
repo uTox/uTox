@@ -5,13 +5,14 @@ project(uTox LANGUAGES C)
 # Options #
 ###########
 
-option(ENABLE_ASAN      "Enable Address Sanitizer on debug builds"                      ON)
-option(ENABLE_TESTS     "Whether to build test binaries (currently linux only)"         ON)
-option(ENABLE_WERROR    "Error on Warning, whether to put -Werror flag to the compiler" OFF)
-option(FILTER_AUDIO     "Enable Filter Audio"                                           ON)
-option(UTOX_STATIC      "Link uTox statically"                                          OFF)
-option(ENABLE_UPDATER   "Enable updater"                                                ON)
-option(TOXCORE_STATIC   "Build uTox with the static version of Toxcore"                 OFF)
+option(ENABLE_ASAN          "Enable Address Sanitizer on debug builds"                      ON )
+option(ENABLE_TESTS         "Whether to build test binaries (currently linux only)"         ON )
+option(ENABLE_WERROR        "Error on Warning, whether to put -Werror flag to the compiler" OFF)
+option(ENABLE_FILTERAUDIO   "Enable Filter Audio"                                           ON )
+option(ENABLE_AUTOUPDATE    "Enable Auto-updater"                                           OFF)
+
+option(UTOX_STATIC          "Link uTox statically"                                          OFF)
+option(TOXCORE_STATIC       "Build uTox with the static version of Toxcore"                 OFF)
 
 
 ########################
@@ -140,6 +141,7 @@ add_cflag("-Wno-misleading-indentation")
 ## Everything Else
 #
 add_cflag("-fno-strict-aliasing")
+add_cflag("-fPIC")
 
 #
 ## Optimization Flags
@@ -197,20 +199,20 @@ if(ENABLE_WERROR)
     add_cflag("-Werror")
 endif()
 
-if(FILTER_AUDIO)
+if(ENABLE_FILTERAUDIO)
     add_cflag("-DAUDIO_FILTERING")
 endif()
 
 if(UTOX_STATIC)
-    if(UNIX)
-        add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
-    else()
-        add_cflag("-static")
-    endif()
+	if(UNIX)
+		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
+	else()
+		add_cflag("-static")
+	endif()
 endif()
 
-if(NOT UNIX AND ENABLE_UPDATER)
-    add_cflag("-DENABLE_UPDATER")
+if(ENABLE_AUTOUPDATE)
+    add_cflag("-DENABLE_AUTOUPDATE=1")
 endif()
 
 if(TOXCORE_STATIC)
@@ -365,12 +367,15 @@ message("- CMake Module Path:        ${CMAKE_MODULE_PATH}")
 message("----------------------------------")
 message("- Add ASAN:                ${ENABLE_ASAN}")
 message("- Error on Warning:        ${ENABLE_WERROR}")
-message("- Filter Audio:            ${FILTER_AUDIO}")
+message("- Filter Audio:            ${ENABLE_FILTERAUDIO}")
+message("- Auto Updater:            ${ENABLE_AUTOUPDATE}")
 message("- uTox Static:             ${UTOX_STATIC}")
 message("- Toxcore Static:          ${TOXCORE_STATIC}")
+message("-- Platform Options --------------")
 message("- Windows Legacy:          ${WIN_XP_LEGACY}")
 message("- Enable DBus:             ${ENABLE_DBUS}")
 
+message("* CMAKE SYSTEM is '${CMAKE_SYSTEM_NAME}'")
 message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
 message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
 message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
@@ -382,4 +387,3 @@ if (ENABLE_ASAN)
     message("       See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.")
     message("")
 endif()
-
