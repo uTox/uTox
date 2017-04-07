@@ -3,6 +3,7 @@
 #include "window.h"
 
 #include "../debug.h"
+#include "../macros.h"
 
 #include "../native/image.h"
 #include "../native/ui.h"
