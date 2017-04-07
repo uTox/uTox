@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.2)
 project(uTox LANGUAGES C)
 
+#######################################################################
+## Project Version
+#######################################################################
+set(PROJECT_VERSION_MAJOR "0")
+set(PROJECT_VERSION_MINOR "14")
+set(PROJECT_VERSION_PATCH "0")
+set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
+
 ###########
 # Options #
 ###########
@@ -57,24 +66,10 @@ if(WINDOWS AND NOT CROSS_COMPILING)
 endif()
 
 #######################################################################
-#
 # CMake Settings
-#
 #######################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-#######################################################################
-#
-# project version
-#
-#######################################################################
-# This version is for the entire project. All libraries (core, av, ...) move in
-# versions in a synchronised way.
-set(PROJECT_VERSION_MAJOR "0")
-set(PROJECT_VERSION_MINOR "13")
-set(PROJECT_VERSION_PATCH "0")
-set(PROJECT_VERSION
-  "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 # make version available in C files
 configure_file(${uTox_SOURCE_DIR}/src/branding.h.in
                ${uTox_SOURCE_DIR}/src/branding.h)
@@ -91,9 +86,7 @@ endif()
 
 
 #######################################################################
-#
 # C compiler flags
-#
 #######################################################################
 
 set(CMAKE_C_STANDARD 11) # this requires at least cmake 3.1
@@ -119,33 +112,23 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
 
 # Warn on non-ISO C.
 #add_cflag("-pedantic") # throws a lot of warning, quite sure we do not want this at current state.
-#
 ## Add all warning flags we can.
-#
 add_cflag("-Wall")
 add_cflag("-Wextra")
 add_cflag("-Wpointer-arith")
 
-#
 ## Warnings we don't tolerate
-#
 add_cflag("-Werror=implicit-function-declaration")
 
-#
 ## Warnings we don't care about
-#
 add_cflag("-Wformat=0")
 add_cflag("-Wno-misleading-indentation")
 
-#
 ## Everything Else
-#
 add_cflag("-fno-strict-aliasing")
 add_cflag("-fPIC")
 
-#
 ## Optimization Flags
-#
 
 # Fix GNU stack
 if(CMAKE_C_COMPILER_ID MATCHES "GNU")
@@ -184,9 +167,7 @@ if(GIT_VERSION)
 endif()
 
 #######################################################################
-#
 # Build options
-#
 #######################################################################
 # sanitize memory issues in Debug builds
 # https://gcc.gnu.org/gcc-4.8/changes.html
@@ -289,9 +270,7 @@ add_subdirectory(src/ui)
 add_subdirectory(src/av)
 
 #######################################################################
-#
 # :: uTox main
-#
 #######################################################################
 add_executable(utox ${GUI_TYPE}
     src/avatar.c
