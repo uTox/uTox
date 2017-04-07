@@ -1,6 +1,61 @@
 cmake_minimum_required(VERSION 3.2)
 project(uTox LANGUAGES C)
 
+###########
+# Options #
+###########
+
+option(ENABLE_ASAN          "Enable Address Sanitizer on debug builds"                      ON )
+option(ENABLE_TESTS         "Whether to build test binaries (currently linux only)"         ON )
+option(ENABLE_WERROR        "Error on Warning, whether to put -Werror flag to the compiler" OFF)
+option(ENABLE_FILTERAUDIO   "Enable Filter Audio"                                           ON )
+option(ENABLE_AUTOUPDATE    "Enable Auto-updater"                                           OFF)
+
+option(UTOX_STATIC          "Link uTox statically"                                          OFF)
+option(TOXCORE_STATIC       "Build uTox with the static version of Toxcore"                 OFF)
+
+
+########################
+# Set helper-variables #
+########################
+
+# OS
+if(CYGWIN)
+    # Cygwin thinks it's actually Linux.
+    set(WIN32 TRUE)
+    set(UNIX FALSE)
+endif()
+
+if(WIN32)
+    set(WINDOWS TRUE)
+elseif(UNIX AND NOT APPLE)
+    if(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
+        set(LINUX TRUE)
+    elseif(CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*")
+        set(OPENBSD TRUE)
+    endif()
+elseif(APPLE)
+    if(CMAKE_SYSTEM_NAME MATCHES ".*MacOS.*")
+        set(MACOSX TRUE)
+    endif()
+endif()
+
+# 32 or 64 bit
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(ARCH_64 TRUE)
+else()
+  set(ARCH_64 FALSE)
+endif()
+
+if(WINDOWS AND NOT CROSS_COMPILING)
+    include(cmake/win.cmake)
+
+    if(ARCH_64)
+        # Helping Cygwin out again..
+        set(WIN64 TRUE)
+    endif()
+endif()
+
 #######################################################################
 #
 # project version
@@ -27,11 +82,13 @@ if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     string(REPLACE "\n" " " GIT_VERSION ${GIT_VERSION})
 endif()
 
+
 #######################################################################
 #
 # C compiler flags
 #
 #######################################################################
+
 set(CMAKE_C_STANDARD 11) # this requires at least cmake 3.1
 
 include(CheckCCompilerFlag)
@@ -90,7 +147,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
     set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os")
 
-    if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    if(LINUX)
         # enable Link Time Optimization on gcc (linux only currently)
         # TODO someone should figure out how this works on windows, or we need to have gitlab-ci for GCC
         add_cflag("-flto")
@@ -127,7 +184,6 @@ endif()
 # sanitize memory issues in Debug builds
 # https://gcc.gnu.org/gcc-4.8/changes.html
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
-option(ENABLE_ASAN "Enable Address Sanitizer on debug builds" ON)
 if (ENABLE_ASAN)
     message("")
     message("  TIP: You may want to set the env variable  ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer  for ASAN to show nicer stack traces.")
@@ -136,19 +192,14 @@ if (ENABLE_ASAN)
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
-option(ENABLE_TESTS "Whether to build test binaries (currently linux only)" ON)
-
-option(ENABLE_WERROR "Error on Warning, whether to put -Werror flag to the compiler" OFF)
 if(ENABLE_WERROR)
     add_cflag("-Werror")
 endif()
 
-option(ENABLE_FILTERAUDIO "Enable Filter Audio" ON)
 if(ENABLE_FILTERAUDIO)
     add_cflag("-DAUDIO_FILTERING")
 endif()
 
-option(UTOX_STATIC "Link uTox statically" OFF)
 if(UTOX_STATIC)
 	if(UNIX)
 		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
@@ -157,12 +208,10 @@ if(UTOX_STATIC)
 	endif()
 endif()
 
-option(ENABLE_AUTOUPDATE "Enable Auto-updater" OFF)
 if(ENABLE_AUTOUPDATE)
     add_cflag("-DENABLE_AUTOUPDATE=1")
 endif()
 
-option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
 if(TOXCORE_STATIC)
     # The static windows libs need all of these... because REASONS!
     set(TOX_LIBS
@@ -186,23 +235,6 @@ else()
         toxcore
         )
 endif()
-
-# print a summary of build options
-message("Build options:")
-message("- Add ASAN:            ${ENABLE_ASAN}")
-message("- Error on Warning:    ${ENABLE_WERROR}")
-message("- Filter Audio:        ${ENABLE_FILTERAUDIO}")
-message("- Auto Updater:        ${ENABLE_AUTOUPDATE}")
-message("- Toxcore Static:      ${TOXCORE_STATIC}")
-message("- uTox Static:         ${UTOX_STATIC}")
-message("- Windows Legacy:      ${WIN_XP_LEGACY}")
-
-message("* CMAKE SYSTEM is '${CMAKE_SYSTEM_NAME}'")
-message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
-message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
-message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
-message("* C flags for all types:   ${CMAKE_C_FLAGS}")
-
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -246,6 +278,8 @@ elseif(UNIX)
 		)
 endif()
 
+# include utoxLAYOUT
+add_subdirectory(src/layout)
 # include utoxUI
 add_subdirectory(src/ui)
 # include utoxAV
@@ -311,14 +345,26 @@ elseif(UNIX)
         )
 endif()
 
-#
-# testing
-#
-
-if (ENABLE_TESTS)
+if(ENABLE_TESTS)
   if(UNIX)
     # tests currently only run on linux
     enable_testing()
     add_subdirectory(tests)
   endif()
 endif()
+
+# print a summary of build options
+message("Build options:")
+message("- Add ASAN:            ${ENABLE_ASAN}")
+message("- Error on Warning:    ${ENABLE_WERROR}")
+message("- Filter Audio:        ${ENABLE_FILTERAUDIO}")
+message("- Auto Updater:        ${ENABLE_AUTOUPDATE}")
+message("- Toxcore Static:      ${TOXCORE_STATIC}")
+message("- uTox Static:         ${UTOX_STATIC}")
+message("- Windows Legacy:      ${WIN_XP_LEGACY}")
+
+message("* CMAKE SYSTEM is '${CMAKE_SYSTEM_NAME}'")
+message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
+message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
+message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
+message("* C flags for all types:   ${CMAKE_C_FLAGS}")

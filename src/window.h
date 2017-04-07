@@ -10,7 +10,8 @@ typedef struct native_window UTOX_WINDOW;
 struct utox_window {
     UTOX_WINDOW *next;
 
-    int x, y, w, h;
+    int x, y;
+    unsigned w, h;
 
     /* TODO do we want to include ui.c here to use PANEL here? */
     void *panel;

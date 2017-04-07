@@ -44,7 +44,6 @@ struct native_window {
 };
 
 struct native_window main_window;
-struct native_window tray_window;
 
 struct native_window popup_window;
 struct native_window scr_grab_window;

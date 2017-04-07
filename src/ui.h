@@ -22,7 +22,7 @@ typedef struct native_image NATIVE_IMAGE;
 // TODO: Create ui_native headers or something.
 // This is hard to read. I know. I'm sorry.
 // This is to stop a circular dependency between svg.c and xlib/main.h.
-#if defined __WIN32__
+#if defined __WIN32__ || defined _WIN32 || defined __CYGWIN__
 // Windows supplies its own RGB function.
 #include <windows.h>  // TODO, don't do this
 #elif defined __ANDROID__
