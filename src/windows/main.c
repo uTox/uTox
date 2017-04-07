@@ -125,34 +125,42 @@ void openfileavatar(void) {
     };
 
     while (1) { // loop until we have a good file or the user closed the dialog
-        if (GetOpenFileName(&ofn)) {
-            uint32_t size;
-
-            void *file_data = file_raw(filepath, &size);
-            if (!file_data) {
-                MessageBox(NULL, (const char *)S(CANT_FIND_FILE_OR_EMPTY), NULL, MB_ICONWARNING);
-            } else if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
-                free(file_data);
-                char message[1024];
-                if (sizeof(message) < (unsigned)SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
-                    debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%"PRIu64" bytes)\n",
-                          sizeof(message));
-                    break;
-                }
-                // create message containing text that selected avatar is too large and what the max size is
-                int len = sprintf((char *)message, "%.*s", SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS),
-                                  S(AVATAR_TOO_LARGE_MAX_SIZE_IS));
-                len += sprint_humanread_bytes(message + len, sizeof(message) - len, UTOX_AVATAR_MAX_DATA_LENGTH);
-                message[len++] = '\0';
-                MessageBox(NULL, (char *)message, NULL, MB_ICONWARNING);
-            } else {
-                postmessage_utox(SELF_AVATAR_SET, size, 0, file_data);
-                break;
-            }
-        } else {
-            LOG_TRACE("NATIVE", "GetOpenFileName() failed when trying to grab an avatar." );
+        if (!GetOpenFileName(&ofn)) {
+            LOG_TRACE("NATIVE", "GetOpenFileName() failed when trying to grab an avatar.");
             break;
         }
+
+        int width, height, bpp, size;
+        uint8_t *file_data = stbi_load(filepath, &width, &height, &bpp, 0);
+        uint8_t *img = stbi_write_png_to_mem(file_data, 0, width, height, bpp, &size);
+        free(file_data);
+
+        if (!img) {
+            MessageBox(NULL, (const char *)S(CANT_FIND_FILE_OR_EMPTY), NULL, MB_ICONWARNING);
+            continue;
+        }
+
+        if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
+            free(img);
+            char message[1024];
+            if (sizeof(message) < (unsigned)SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
+                LOG_ERR("NATIVE", "AVATAR_TOO_LARGE message is larger than allocated buffer(%"PRIu64" bytes)\n",
+                      sizeof(message));
+                break;
+            }
+
+            // create message containing text that selected avatar is too large and what the max size is
+            int len = sprintf(message, "%.*s", SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS),
+                              S(AVATAR_TOO_LARGE_MAX_SIZE_IS));
+            len += sprint_humanread_bytes(message + len, sizeof(message) - len, UTOX_AVATAR_MAX_DATA_LENGTH);
+            message[len++] = '\0';
+
+            MessageBox(NULL, message, NULL, MB_ICONWARNING);
+            continue;
+        }
+
+        postmessage_utox(SELF_AVATAR_SET, size, 0, img);
+        break;
     }
 
     free(filepath);
