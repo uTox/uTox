@@ -23,9 +23,9 @@ bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_
     snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
              TOX_PUBLIC_KEY_SIZE * 2, hexid);
 
-    fp = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+    fp = utox_get_file(name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
 
-    if (fp == NULL) {
+    if (!fp) {
         LOG_WARN("Avatar", "Could not save avatar for: %.*s", TOX_PUBLIC_KEY_SIZE * 2, hexid);
         return false;
     }
@@ -42,7 +42,7 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
              TOX_PUBLIC_KEY_SIZE * 2, hexid);
 
     size_t size = 0;
-    FILE *fp = utox_get_file((uint8_t *)name, &size, UTOX_FILE_OPTS_READ);
+    FILE *fp = utox_get_file(name, &size, UTOX_FILE_OPTS_READ);
     if (fp == NULL) {
         LOG_TRACE("Avatar", "Could not read: %s", name);
         return NULL;

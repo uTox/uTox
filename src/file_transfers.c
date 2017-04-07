@@ -208,7 +208,7 @@ static bool ft_init_resumable(FILE_TRANSFER *ft) {
         return false;
     }
 
-    ft->resume_file = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+    ft->resume_file = utox_get_file(name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
     if (!ft->resume_file) {
         return false;
     }
@@ -225,13 +225,13 @@ static void ft_decon_resumable(FILE_TRANSFER *ft) {
     }
 
     LOG_INFO("FileTransfer", "Going to decon file %s." , name);
-    FILE *file = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE);
+    FILE *file = utox_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE);
     if (!file) {
         return;
     }
 
     fclose(file);
-    utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_DELETE);
+    utox_get_file(name, NULL, UTOX_FILE_OPTS_DELETE);
 }
 
 static bool ft_find_resumeable(FILE_TRANSFER *ft) {
@@ -241,7 +241,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     }
 
     size_t size = 0;
-    FILE *resume_disk = utox_get_file((uint8_t *)resume_name, &size, UTOX_FILE_OPTS_READ);
+    FILE *resume_disk = utox_get_file(resume_name, &size, UTOX_FILE_OPTS_READ);
 
     if (!resume_disk) {
         if (ft->incoming) {

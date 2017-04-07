@@ -142,10 +142,10 @@ void free_friends(void) {
 
 void utox_write_metadata(FRIEND *f) {
     /* Create path */
-    uint8_t dest[UTOX_FILE_NAME_LENGTH];
-    snprintf((char *)dest, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+    char dest[UTOX_FILE_NAME_LENGTH];
+    snprintf(dest, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
 
-    FILE *file = utox_get_file((uint8_t *)dest, NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *file = utox_get_file(dest, NULL, UTOX_FILE_OPTS_WRITE);
     if (file) {
 
         FRIEND_META_DATA metadata;
@@ -175,9 +175,9 @@ void utox_write_metadata(FRIEND *f) {
 
 static void friend_meta_data_read(FRIEND *f) {
     /* Will need to be rewritten if anything is added to friend's meta data */
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    char path[UTOX_FILE_NAME_LENGTH];
 
-    snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2,  f->id_str);
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2,  f->id_str);
 
     size_t size = 0;
     FILE *file = utox_get_file(path, &size, UTOX_FILE_OPTS_READ);
@@ -188,7 +188,7 @@ static void friend_meta_data_read(FRIEND *f) {
     }
 
     FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);
-    if (metadata == NULL) {
+    if (!metadata) {
         LOG_ERR("Metadata", "Could not allocate memory for metadata." );
         fclose(file);
         return;

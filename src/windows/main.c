@@ -844,6 +844,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     parse_args(argc, argv, &skip_updater, &should_launch_at_startup, &set_show_window);
     GlobalFree(argv);
 
+    if (settings.portable_mode == true) {
+        /* force the working directory if opened with portable command */
+        const HMODULE hModule = GetModuleHandle(NULL);
+        char          path[MAX_PATH];
+        const int     len = GetModuleFileName(hModule, path, MAX_PATH);
+        unsigned int i;
+        for (i = len - 1; path[i] != '\\'; --i) {
+            // Do nothing until we reach the folder separator.
+        }
+        path[i] = 0;
+        SetCurrentDirectory(path);
+        strcpy(portable_mode_save_path, path);
+    }
+
     // We call utox_init after parse_args()
     utox_init();
 
@@ -872,20 +886,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
             CloseHandle(utox_mutex);
             exit(0);
         }
-    }
-
-    if (settings.portable_mode == true) {
-        /* force the working directory if opened with portable command */
-        HMODULE      hModule = GetModuleHandle(NULL);
-        char         path[MAX_PATH];
-        int          len = GetModuleFileName(hModule, path, MAX_PATH);
-        unsigned int i;
-        for (i = len - 1; path[i] != '\\'; --i) {
-            // Do nothing until we reach the folder separator.
-        }
-        path[i] = 0;
-        SetCurrentDirectory(path);
-        strcpy(portable_mode_save_path, path);
     }
 
     if (should_launch_at_startup == 1) {

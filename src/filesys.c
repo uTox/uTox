@@ -6,8 +6,8 @@
 
 #include <stdlib.h>
 
-FILE *utox_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
-    return native_get_file(name, size, opts, settings.portable_mode);
+FILE *utox_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
+    return native_get_file((uint8_t *)name, size, opts, settings.portable_mode);
 }
 
 bool utox_remove_file(const uint8_t *full_name, size_t length) {

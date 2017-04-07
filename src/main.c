@@ -21,7 +21,7 @@
  */
 
 bool utox_data_save_tox(uint8_t *data, size_t length) {
-    FILE *fp= utox_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *fp= utox_get_file("tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
     if (fp == NULL) {
         LOG_ERR("uTox", "Can not open tox_save.tox to write to it.");
         return true;
@@ -39,19 +39,19 @@ bool utox_data_save_tox(uint8_t *data, size_t length) {
 }
 
 uint8_t *utox_data_load_tox(size_t *size) {
-    const uint8_t name[][20] = { "tox_save.tox", "tox_save.tox.atomic", "tox_save.tmp", "tox_save" };
+    const char name[][20] = { "tox_save.tox", "tox_save.tox.atomic", "tox_save.tmp", "tox_save" };
 
     for (uint8_t i = 0; i < 4; i++) {
         size_t length = 0;
 
         FILE *fp = utox_get_file(name[i], &length, UTOX_FILE_OPTS_READ);
-        if (fp == NULL) {
+        if (!fp) {
             continue;
         }
 
         uint8_t *data = calloc(1, length + 1);
 
-        if (data == NULL) {
+        if (!data) {
             LOG_ERR("uTox", "Could not allocate memory for tox save.");
             fclose(fp);
             // Quit. We're out of memory, calloc will fail again.
@@ -76,10 +76,10 @@ uint8_t *utox_data_load_tox(size_t *size) {
 }
 
 bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
-    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
-    snprintf((char *)name, sizeof(name), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, hex);
+    char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
+    snprintf(name, sizeof(name), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
-    FILE *fp = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *fp = utox_get_file(name, NULL, UTOX_FILE_OPTS_WRITE);
 
     if (fp == NULL) {
         return false;
