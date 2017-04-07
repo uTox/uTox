@@ -32,17 +32,19 @@ bool inline_set_frame(uint16_t w, uint16_t h, size_t size, void *img) {
     current_frame.h    = h;
     current_frame.size = size;
 
-    current_frame.img = realloc(current_frame.img, size);
-    if (size && current_frame.img) {
-        memcpy(current_frame.img, img, size);
-        return true;
+    uint8_t *tmp = realloc(current_frame.img, size);
+    if (!size || !tmp) {
+        current_frame.w    = 0;
+        current_frame.h    = 0;
+        current_frame.size = 0;
+        tmp ? free(tmp) : free(current_frame.img);
+
+        return false;
     }
 
-    current_frame.w    = 0;
-    current_frame.h    = 0;
-    current_frame.size = 0;
-    free(current_frame.img);
-    return false;
+    current_frame.img = tmp;
+    memcpy(current_frame.img, img, size);
+    return true;
 }
 
 void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int width, int height) {

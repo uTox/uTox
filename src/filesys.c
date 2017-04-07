@@ -28,6 +28,11 @@ void *file_raw(char *path, uint32_t *size) {
     fseek(file, 0, SEEK_END);
     int len = ftell(file);
 
+    if (len <= 0) {
+        fclose(file);
+        return NULL;
+    }
+
     char *data = calloc(1, len);
     if (!data) {
         fclose(file);
