@@ -148,12 +148,14 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
                 fclose(file);
                 return start;
             }
+
             MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
             if (!msg) {
                 LOG_ERR("Chatlog", "Unable to malloc... sorry!");
                 fclose(file);
                 return NULL;
             }
+
             msg->our_msg       = header.author;
             msg->receipt_time  = header.receipt;
             msg->time          = header.time;
@@ -164,6 +166,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             msg->via.txt.msg = calloc(1, msg->via.txt.length);
             if (!msg->via.txt.msg) {
                 LOG_ERR("Chatlog", "Unable to malloc for via.txt.msg... sorry!");
+                free(start);
                 free(msg);
                 fclose(file);
                 return NULL;
@@ -188,6 +191,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
                 free(msg);
                 break;
             }
+
             msg->via.txt.length = utf8_validate((uint8_t *)msg->via.txt.msg, msg->via.txt.length);
             *data++ = msg;
             --count;
@@ -202,6 +206,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
     if (size) {
         *size = actual_count;
     }
+
     return start;
 }
 
@@ -215,6 +220,7 @@ bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8
 
     if (fseeko(file, offset, SEEK_SET)) {
         LOG_ERR("Chatlog", "History:\tUnable to seek to position %lu in file provided.", offset);
+        fclose(file);
         return false;
     }
 

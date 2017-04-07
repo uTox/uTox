@@ -260,6 +260,7 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
 
     if (fwrite(data, size, 1, fp) != 1) {
         LOG_ERR("Settings", "Unable to write uTox settings to file.");
+        fclose(fp);
         return false;
     }
 
