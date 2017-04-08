@@ -4,8 +4,15 @@
 #include "../main.h"
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
-    if (!video_hwnd[id]) {
-        LOG_TRACE("Windows Video", "frame for null window");
+    HWND *hwin;
+    if (id >= UINT16_MAX) {
+        hwin = &preview_hwnd;
+    } else {
+        hwin = &video_hwnd[id];
+    }
+
+    if (!hwin || !*hwin) {
+        LOG_ERR("Windows Video", "frame for null window [%u]", id);
         return;
     }
 
@@ -24,7 +31,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
             h = GetSystemMetrics(SM_CYSCREEN);
         }
 
-        SetWindowPos(video_hwnd[id], 0, 0, 0, w, h, SWP_NOZORDER | SWP_NOMOVE);
+        SetWindowPos(*hwin, 0, 0, 0, w, h, SWP_NOZORDER | SWP_NOMOVE);
     }
 
     BITMAPINFO bmi = {.bmiHeader = {
@@ -38,9 +45,9 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 
 
     RECT r = { 0, 0, 0, 0 };
-    GetClientRect(video_hwnd[id], &r);
+    GetClientRect(*hwin, &r);
 
-    HDC dc = GetDC(video_hwnd[id]);
+    HDC dc = GetDC(*hwin);
 
     if (width == r.right && height == r.bottom) {
         SetDIBitsToDevice(dc, 0, 0, width, height, 0, 0, 0, height, img_data, &bmi, DIB_RGB_COLORS);
