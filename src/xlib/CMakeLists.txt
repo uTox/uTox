@@ -73,13 +73,18 @@ target_link_libraries(utoxNATIVE
         ${X11_Xrender_LIB}
         fontconfig
         ${FREETYPE_LIBRARIES}
-        resolv
         )
 
 if(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
     target_link_libraries(utoxNATIVE
         dl
         ${DBUS_LIBRARIES}
+        )
+endif()
+
+if(CMAKE_SYSTEM_NAME MATCHES ".*Linux" OR CMAKE_SYSTEM_NAME MATCHES "kNetBSD.*|NetBSD.*")
+    target_link_libraries(utoxNATIVE
+        resolv
         )
 endif()
 
