@@ -29,64 +29,86 @@ SCROLLABLE scrollbar_flist = {
     .small = 1,
 };
 
+static void draw_background_sidebar(int x, int y, int width, int height) {
+    /* Friend list (roster) background   */
+    drawrect(x, y, width, height, COLOR_BKGRND_LIST);
+    /* Current user badge background     */
+    drawrect(x, y, width, SCALE(70), COLOR_BKGRND_MENU); // TODO magic numbers are bad
+}
+
 /* Top left self interface Avatar, name, statusmsg, status icon */
-static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
+static void draw_user_badge(int x, int y, int width, int UNUSED(height)) {
     if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         /* Only draw the user badge if toxcore is running */
         /*draw avatar or default image */
+        x += SCALE(SIDEBAR_PADDING);
+        y += SCALE(SIDEBAR_PADDING);
         if (self_has_avatar()) {
-            draw_avatar_image(self.avatar->img, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, self.avatar->width,
+            draw_avatar_image(self.avatar->img, x, y, self.avatar->width,
                               self.avatar->height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
         } else {
-            drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
+            drawalpha(BM_CONTACT, x, y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
                       COLOR_MENU_TEXT);
         }
+
+        /* Draw online/all friends filter text. */
+        setcolor(!button_filter_friends.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
+        setfont(FONT_STATUS);
+        drawtextrange(x, width - SCALE(SIDEBAR_PADDING),
+                      y + SCALE(SIDEBAR_PADDING) + BM_CONTACT_WIDTH,
+                      flist_get_filter() ? S(FILTER_ONLINE) : S(FILTER_ALL),
+                      flist_get_filter() ? SLEN(FILTER_ONLINE) : SLEN(FILTER_ALL));
+
+        x += SCALE(SIDEBAR_PADDING) + BM_CONTACT_WIDTH;
+
         /* Draw name */
         setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
         setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH * 1.5, SIDEBAR_NAME_TOP, self.name, self.name_length);
+        drawtextrange(x, width - SCALE(SIDEBAR_PADDING), y + SCALE(SIDEBAR_PADDING), self.name, self.name_length);
 
         /*&Draw current status message
         @TODO: separate these colors if needed (COLOR_MAIN_TEXT_HINT) */
         setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
         setfont(FONT_STATUS);
-        drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH * 1.5, SIDEBAR_STATUSMSG_TOP, self.statusmsg,
+        drawtextrange(x, width - SCALE(SIDEBAR_PADDING), y + SCALE(SIDEBAR_PADDING * 4), self.statusmsg,
                       self.statusmsg_length);
 
         /* Draw status button icon */
-        drawalpha(BM_STATUSAREA, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
+        drawalpha(BM_STATUSAREA,
+                  width - BM_STATUSAREA_WIDTH - SCALE(SIDEBAR_PADDING),
+                  y + SCALE(SIDEBAR_PADDING),
+                  BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
                   button_usr_state.mouseover ? COLOR_BKGRND_LIST_HOVER : COLOR_BKGRND_LIST);
         uint8_t status = tox_connected ? self.status : 3;
-        drawalpha(BM_ONLINE + status, SELF_STATUS_ICON_LEFT + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
-                  SELF_STATUS_ICON_TOP + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH,
-                  BM_STATUS_WIDTH, status_color[status]);
+        drawalpha(BM_ONLINE + status,
+                  width - BM_STATUS_WIDTH - BM_STATUSAREA_WIDTH / 2,
+                  y + SCALE(SIDEBAR_PADDING) + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2,
+                  BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 
-        /* Draw online/all friends filter text. */
-        setcolor(!button_filter_friends.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
-        setfont(FONT_STATUS);
-        drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
-                      flist_get_filter() ? S(FILTER_ONLINE) : S(FILTER_ALL),
-                      flist_get_filter() ? SLEN(FILTER_ONLINE) : SLEN(FILTER_ALL));
     } else {
-        drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
+        drawalpha(BM_CONTACT, SCALE(SIDEBAR_PADDING), SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
                   COLOR_MENU_TEXT);
 
         setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
         setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_WIDTH - SIDEBAR_AVATAR_LEFT, SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED));
+        drawtextrange(SCALE(SIDEBAR_NAME_LEFT), SCALE(230) - SCALE(SIDEBAR_PADDING), SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED)); // TODO rm magic number
 
         if (tox_thread_init == UTOX_TOX_THREAD_INIT_ERROR) {
             setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
             setfont(FONT_STATUS);
-            drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_WIDTH, SIDEBAR_STATUSMSG_TOP, S(NOT_CONNECTED_SETTINGS), SLEN(NOT_CONNECTED_SETTINGS));
+            drawtextrange(SIDEBAR_STATUSMSG_LEFT, SCALE(230), SIDEBAR_STATUSMSG_TOP, S(NOT_CONNECTED_SETTINGS), SLEN(NOT_CONNECTED_SETTINGS)); // TODO rm magic number
         }
     }
 }
 
 /* Left side bar, holds the user, the roster, and the setting buttons */
-PANEL panel_side_bar = {
+PANEL
+
+panel_side_bar = {
     .type = PANEL_NONE,
     .disabled = 0,
+    .drawfunc = draw_background_sidebar,
+    .width = 230,
     .child = (PANEL*[]) {
         &panel_self,
         &panel_quick_buttons,
@@ -94,44 +116,44 @@ PANEL panel_side_bar = {
         NULL
     }
 },
-    /* The user badge and buttons */
-    panel_self = {
-        .type     = PANEL_NONE,
-        .disabled = 0,
-        .drawfunc = draw_user_badge,
-        .child    = (PANEL*[]) {
-            (PANEL*)&button_avatar, (PANEL*)&button_name,       (PANEL*)&button_usr_state,
-                                    (PANEL*)&button_status_msg,
-            NULL
-        }
-    },
-    /* Left sided toggles */
-    panel_quick_buttons = {
-        .type     = PANEL_NONE,
-        .disabled = 0,
-        .child    = (PANEL*[]) {
-            (PANEL*)&button_filter_friends, /* Top of roster */
-            (PANEL*)&edit_search,           /* Bottom of roster*/
-            (PANEL*)&button_settings,
-            (PANEL*)&button_add_new_contact,
-            NULL
-        }
-    },
-    /* The friends and group was called list */
-    panel_flist = {
-        .type     = PANEL_NONE,
-        .disabled = 0,
-        .child    = (PANEL*[]) {
-            // TODO rename these
-            &panel_flist_list,
-            (PANEL*)&scrollbar_flist,
-            NULL
-        }
-    },
-        panel_flist_list = {
-            .type           = PANEL_LIST,
-            .content_scroll = &scrollbar_flist,
-        };
+/* The user badge and buttons */
+panel_self = {
+    .type     = PANEL_NONE,
+    .disabled = 0,
+    .drawfunc = draw_user_badge,
+    .child    = (PANEL*[]) {
+        (PANEL*)&button_avatar, (PANEL*)&button_name,       (PANEL*)&button_usr_state,
+                                (PANEL*)&button_status_msg,
+        NULL
+    }
+},
+/* Left sided toggles */
+panel_quick_buttons = {
+    .type     = PANEL_NONE,
+    .disabled = 0,
+    .child    = (PANEL*[]) {
+        (PANEL*)&button_filter_friends, /* Top of roster */
+        (PANEL*)&edit_search,           /* Bottom of roster*/
+        (PANEL*)&button_settings,
+        (PANEL*)&button_add_new_contact,
+        NULL
+    }
+},
+/* The friends and group was called list */
+panel_flist = {
+    .type     = PANEL_NONE,
+    .disabled = 0,
+    .child    = (PANEL*[]) {
+        // TODO rename these
+        &panel_flist_list,
+        (PANEL*)&scrollbar_flist,
+        NULL
+    }
+},
+    panel_flist_list = {
+        .type           = PANEL_LIST,
+        .content_scroll = &scrollbar_flist,
+    };
 
 
 #include "../friend.h"

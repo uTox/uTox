@@ -141,7 +141,7 @@ void devices_update_ui(void) {
         edit->data = devices[i].pubkey_hex, edit->readonly = 1, edit->noborder = 0, edit->select_completely = 1,
 
         dele->panel  = b_delete;
-        dele->bm     = BM_SBUTTON;
+        dele->bm_fill     = BM_SBUTTON;
         dele->update = button_setcolors_success, dele->on_mup = delete_this_device,
         dele->button_text.i18nal = STR_DELETE;
 

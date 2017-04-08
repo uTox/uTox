@@ -281,6 +281,7 @@ void utox_init(void) {
 
     // We likely want to start this on every system.
     thread(updater_thread, (void*)1);
+
 }
 
 void utox_raze(void) {

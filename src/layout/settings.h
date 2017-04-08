@@ -46,6 +46,7 @@ extern UISWITCH /* User Interface Tab */
                 switch_start_in_tray,
                 switch_auto_startup,
                 switch_mini_contacts,
+                switch_magic_sidebar,
                 /* AV Tab */
                 switch_push_to_talk,
                 switch_audio_filtering,

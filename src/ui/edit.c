@@ -41,7 +41,7 @@ static void setactive(EDIT *edit) {
 }
 
 void edit_draw(EDIT *edit, int x, int y, int width, int height) {
-    if (width - SCALE(8) - SCROLL_WIDTH < 0) { // why?
+    if (width - SCALE(8) - SCALE(SCROLL_WIDTH) < 0) { // why?
         return;
     }
 
@@ -49,7 +49,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
         y = settings.window_baseline - font_small_lineheight - SCALE(8);
     }
 
-    edit->width  = width - SCALE(8) - (edit->multiline ? SCROLL_WIDTH : 0);
+    edit->width  = width - SCALE(8) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0);
     edit->height = height - SCALE(8);
 
     // load colors for this style
@@ -87,8 +87,8 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
         pushclip(x + 1, y + 1, width - 2, height - 2);
 
         SCROLLABLE *scroll = edit->scroll;
-        scroll->content_height =
-            text_height(width - SCALE(8) - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + SCALE(8);
+        scroll->content_height = text_height(width - SCALE(8) - SCALE(SCROLL_WIDTH),
+                                             font_small_lineheight, edit->data, edit->length) + SCALE(8);
         scroll_draw(scroll, x, y, width, height);
         yy -= scroll_gety(scroll, height);
     }
@@ -112,7 +112,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
         char star[edit->length];
         memset(star, '*', edit->length);
         utox_draw_text_multiline_within_box(x + SCALE(4), yy + SCALE(top_offset * 2),
-                                                x + width - SCALE(4) - (edit->multiline ? SCROLL_WIDTH : 0),
+                                                x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0),
                                                 y, y + height, font_small_lineheight, star,
                                                 edit->length, is_active ? edit_sel.start : UINT16_MAX,
                                                 is_active ? edit_sel.length : UINT16_MAX,
@@ -120,7 +120,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
                                                 is_active ? edit_sel.mark_length : 0, edit->multiline);
     } else {
         utox_draw_text_multiline_within_box(x + SCALE(4), yy + SCALE(top_offset * 2),
-                                    x + width - SCALE(4) - (edit->multiline ? SCROLL_WIDTH : 0),
+                                    x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0),
                                     y, y + height, font_small_lineheight, edit->data,
                                     edit->length, is_active ? edit_sel.start : UINT16_MAX,
                                     is_active ? edit_sel.length : UINT16_MAX, is_active ? edit_sel.mark_start : 0,
@@ -140,7 +140,7 @@ bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y,
 
     bool need_redraw = 0;
 
-    bool mouseover = inrect(x, y, 0, 0, width - (edit->multiline ? SCROLL_WIDTH : 0), height);
+    bool mouseover = inrect(x, y, 0, 0, width - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0), height);
     if (mouseover) {
         cursor = CURSOR_TEXT;
     }
@@ -165,7 +165,7 @@ bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y,
 
         setfont(FONT_TEXT);
         edit_sel.p2 =
-            hittextmultiline(x - SCALE(4), width - SCALE(8) - (edit->multiline ? SCROLL_WIDTH : 0), y - SCALE(4),
+            hittextmultiline(x - SCALE(4), width - SCALE(8) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0), y - SCALE(4),
                              INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 
         uint16_t start, length;
@@ -185,7 +185,7 @@ bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y,
     } else if (mouseover) {
         setfont(FONT_TEXT);
         edit->mouseover_char =
-            hittextmultiline(x - SCALE(4), width - SCALE(8) - (edit->multiline ? SCROLL_WIDTH : 0), y - SCALE(4),
+            hittextmultiline(x - SCALE(4), width - SCALE(8) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0), y - SCALE(4),
                              INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
     }
 

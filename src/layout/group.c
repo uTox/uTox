@@ -28,25 +28,25 @@ SCROLLABLE scrollbar_group = {
     .color = C_SCROLL,
 };
 
-static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
         LOG_ERR("Group", "Could not get selected groupchat.");
         return;
     }
 
-    drawalpha(BM_GROUP, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+    drawalpha(BM_GROUP, x + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(64), SCALE(2), g->name, g->name_length);
+    drawtextrange(x + SCALE(60), settings.window_width - SCALE(64), SCALE(2), g->name, g->name_length);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(64), SCALE(16), g->topic, g->topic_length);
+    drawtextrange(x + SCALE(60), settings.window_width - SCALE(64), SCALE(16), g->topic, g->topic_length);
 
     uint32_t i = 0;
-    unsigned k = MAIN_LEFT + SCALE(60);
+    unsigned k = x + SCALE(60);
 
     unsigned int pos_y = 15;
     while (i < g->peer_count) {
@@ -66,7 +66,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
             if (k + w >= (settings.window_width - SCALE(64))) {
                 if (pos_y == 15) {
                     pos_y += 6;
-                    k = MAIN_LEFT + SCALE(60);
+                    k = x + SCALE(60);
                 } else {
                     drawtext(k, SCALE(pos_y * 2), "...", 3);
                     break;
@@ -81,12 +81,12 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     }
 }
 
-static void draw_group_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
+static void draw_group_settings(int x, int y, int UNUSED(width), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(10), GROUP_TOPIC);
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(70), GROUP_NOTIFICATIONS);
+    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(10), GROUP_TOPIC);
+    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(70), GROUP_NOTIFICATIONS);
 }
 
 PANEL
@@ -171,10 +171,10 @@ static void button_group_audio_update(BUTTON *b) {
 }
 
 BUTTON button_group_audio = {
-    .bm           = BM_LBUTTON,
-    .bm2          = BM_CALL,
-    .bw           = _BM_LBICON_WIDTH,
-    .bh           = _BM_LBICON_HEIGHT,
+    .bm_fill          = BM_LBUTTON,
+    .bm_icon          = BM_CALL,
+    .icon_w       = _BM_LBICON_WIDTH,
+    .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_group_audio_on_mup,
     .update       = button_group_audio_update,
     .tooltip_text = {.i18nal = STR_GROUPCHAT_JOIN_AUDIO },
@@ -576,10 +576,10 @@ static void button_chat_send_group_update(BUTTON *b) {
 }
 
 BUTTON button_chat_send_group = {
-    .bm             = BM_CHAT_SEND,
-    .bm2            = BM_CHAT_SEND_OVERLAY,
-    .bw             = _BM_CHAT_SEND_OVERLAY_WIDTH,
-    .bh             = _BM_CHAT_SEND_OVERLAY_HEIGHT,
+    .bm_fill        = BM_CHAT_SEND,
+    .bm_icon        = BM_CHAT_SEND_OVERLAY,
+    .icon_w         = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .icon_h         = _BM_CHAT_SEND_OVERLAY_HEIGHT,
     .on_mup         = button_chat_send_on_mup,
     .update         = button_chat_send_group_update,
     .tooltip_text   = {.i18nal = STR_SENDMESSAGE },

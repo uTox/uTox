@@ -606,7 +606,7 @@ static void android_main(struct android_app *state) {
 
     initfonts();
 
-    ui_rescale(0);
+    ui_rescale(12);
 
     /* wait for tox thread to start */
     while (!tox_thread_init) {
