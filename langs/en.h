@@ -15,14 +15,39 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.13.0! Release name: uTox ist Ihr Privatsphärezeug!")
+msgstr("You have just upgraded to version 0.14.0! Release name: uToxBae!")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.13.0 (besides our new website, utox.io)")
+msgstr("Changes in v0.14.0 (besides our new website, utox.io)")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
 "\n  Features:\n"
+"    Real Updater.\n"
+"       -- uTox now has an updater built in. Currently Windows only.\n"
+"       -- But can be adapted to any platform if there's any interest.\n"
+"    Added musl libc support.\n"
+"    uTox is now compiled with stronger exploit protection.\n"
+"    Significant reduction in memory usage for friend list.\n"
+"  Fixes:\n"
+"    New Nospams no longer start with 0000 on window.\n"
+"    Fixed button alignment with Language selection.\n"
+"    The tox save is no longer truncated at exit.\n"
+"    The tray icon now always displays a square\n"
+"       -- Even on broken display managers (uTox looks at gnome...)\n"
+"    Bootstrap nodes list updated.\n"
+"    Avatars can now be deleted.\n"
+"    Notifications are no longer ignored when uTox is minimized.\n"
+"    A few more file transfer fixes.\n"
+"       -- Especially the last remaining one that would occasionally miss updates.\n"
+"  Development\n"
+"    All remaining warnings we fixed, -Werror was added\n"
+"    Tests added:\n"
+"                uTox Updater\n"
+"                Chatlog reading and writing\n"
+"    Refactored the UI a bit more. Which cleared out a few more of the UI glitches.\n"
+"\nv0.13.0\n"
+"  Features:\n"
 "    You can now paste UTF8 characters in uTox.\n"
 "    You can now manually set your nospam!\n"
 "\n  Fixes:\n"

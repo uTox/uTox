@@ -219,9 +219,13 @@ void popclip(void) {
     glScissor(r->x, r->y, r->width, r->height);
 }
 
-void enddraw(int x, int y, int width, int height) { eglSwapBuffers(display, surface); }
+void enddraw(int x, int y, int width, int height) {
+    LOG_TRACE("AndroidGL", "Going to swap buffers");
+    if (!eglSwapBuffers(display, surface)) {
+        LOG_ERR("AndroidGL", "OpenGL Swap errored! %d", eglGetError());
+    }
+}
 
-#define DEBUG 1
 bool gl_init(void) {
     LOG_INFO("AndroidGL", "gl init\n");
     GLuint        vertshader, fragshader;
@@ -231,7 +235,7 @@ bool gl_init(void) {
     vertshader = glCreateShader(GL_VERTEX_SHADER);
     if (!vertshader) {
         LOG_TRACE("gl", "glCreateShader() failed (vert)" );
-        return 0;
+        return false;
     }
 
     data = vertex_shader;
@@ -239,7 +243,6 @@ bool gl_init(void) {
     glCompileShader(vertshader);
     glGetShaderiv(vertshader, GL_COMPILE_STATUS, &status);
     if (!status) {
-#ifdef DEBUG
         LOG_TRACE("gl", "glCompileShader() failed (vert):\n%s" , data);
         GLint infologsize = 0;
         glGetShaderiv(vertshader, GL_INFO_LOG_LENGTH, &infologsize);
@@ -249,13 +252,12 @@ bool gl_init(void) {
             LOG_TRACE("gl", "Infolog: %s" , infolog);
             free(infolog);
         }
-#endif
-        return 0;
+        return false;
     }
 
     fragshader = glCreateShader(GL_FRAGMENT_SHADER);
     if (!fragshader) {
-        return 0;
+        return false;
     }
 
     data = &fragment_shader[0];
@@ -263,7 +265,6 @@ bool gl_init(void) {
     glCompileShader(fragshader);
     glGetShaderiv(fragshader, GL_COMPILE_STATUS, &status);
     if (!status) {
-#ifdef DEBUG
         LOG_TRACE("gl", "glCompileShader failed (frag):\n%s" , data);
         GLint infologsize = 0;
         glGetShaderiv(fragshader, GL_INFO_LOG_LENGTH, &infologsize);
@@ -273,8 +274,7 @@ bool gl_init(void) {
             LOG_TRACE("gl", "Infolog: %s" , infolog);
             free(infolog);
         }
-#endif
-        return 0;
+        return false;
     }
 
     prog = glCreateProgram();
@@ -286,7 +286,6 @@ bool gl_init(void) {
     glLinkProgram(prog);
     glGetProgramiv(prog, GL_LINK_STATUS, &status);
     if (!status) {
-#ifdef DEBUG
         LOG_TRACE("gl", "glLinkProgram failed" );
         GLint infologsize = 0;
         glGetShaderiv(prog, GL_INFO_LOG_LENGTH, &infologsize);
@@ -296,8 +295,7 @@ bool gl_init(void) {
             LOG_TRACE("gl", "Infolog: %s" , infolog);
             free(infolog);
         }
-#endif
-        return 0;
+        return false;
     }
 
     glUseProgram(prog);
@@ -334,7 +332,7 @@ bool gl_init(void) {
     //
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-#ifndef NO_OPENGL_ES
+    #ifndef NO_OPENGL_ES
     uint8_t  i  = 0;
     uint16_t ii = 0;
     do {
@@ -347,7 +345,7 @@ bool gl_init(void) {
         i += 4;
         ii += 6;
     } while (i);
-#endif
+    #endif
 
     glGenTextures(COUNTOF(bitmap), bitmap);
 
@@ -361,13 +359,14 @@ bool gl_init(void) {
     vec[3] = -2.0 / (float)settings.window_height;
     glUniform4fv(matrix, 1, vec);
 
+    LOG_INFO("AndroidGL", "GL init ready w %u h %u", settings.window_width, settings.window_height);
     ui_size(settings.window_width, settings.window_height);
 
     glViewport(0, 0, settings.window_width, settings.window_height);
 
     redraw();
 
-    return 1;
+    return true;
 }
 
 /* gl initialization with EGL */
@@ -405,7 +404,8 @@ bool init_display(ANativeWindow *window) {
     context = eglCreateContext(display, config, NULL, attrib_list);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-        return 0;
+        LOG_ERR("AndroidGL", "eglMakeCurrent failed!");
+        return false;
     }
 
     int32_t w, h;
@@ -415,11 +415,16 @@ bool init_display(ANativeWindow *window) {
     settings.window_width  = w;
     settings.window_height = h;
 
-    return gl_init();
+    bool init = gl_init();
+    if (init ==  false) {
+        LOG_ERR("AndroidGL", "gl_init failed :<");
+    }
+
+    return init;
 }
 
 void GL_draw_image(const NATIVE_IMAGE *data, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
-    GLuint texture = data;
+    GLuint texture = data->img;
 
     makequad(&quads[0], x - imgx, y - imgy, x + width, y + height);
 
@@ -458,11 +463,13 @@ NATIVE_IMAGE *GL_utox_image_to_native(const uint8_t *data, size_t size, uint16_t
 
 // Returns 1 if redraw is needed
 int GL_utox_android_redraw_window() {
+    LOG_DEBUG("AndroidGL", "Redraw window");
     int32_t new_width, new_height;
     eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
     eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
 
     if (new_width != (int32_t)settings.window_width || new_height != (int32_t)settings.window_height) {
+        LOG_DEBUG("AndroidGL", "Redraw window new size");
         settings.window_width  = new_width;
         settings.window_height = new_height;
 

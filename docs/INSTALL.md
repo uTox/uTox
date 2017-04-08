@@ -14,7 +14,19 @@ For any and all of the following, you'll need to have [toxcore](https://github.c
 
 Dependencies:
 
-```dbus filter_audio freetype libvpx openal v4l xext xrender cmake```
+|   Name       | Required |
+|--------------|----------|
+| cmake >= 3.2 |   yes    |
+| dbus         |   no     |
+| filter_audio |   no     |
+| freetype     |   yes    |
+| GTK          |   no (runtime only) |
+| libvpx       |   yes    |
+| openal       |   yes    |
+| toxcore      |   yes    |
+| v4l          |   yes    |
+| xext         |   yes    |
+| xrender      |   yes    |
 
 1. First compile:
 
@@ -22,7 +34,7 @@ Dependencies:
     mkdir build
     cd build
     cmake ..
-    make all
+    make
     ```
 
 2. Then install:
@@ -35,33 +47,25 @@ If make/install really isn't your thing, you can try some precomplied binaries.
 - [amd64](https://build.tox.chat/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
 - [i686](https://build.tox.chat/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
 
-### Adding a desktop launcher
-
-Assuming that repository working copy is your current directory.
-
-1. Copy `.desktop` entry
-
-    ```bash
-    sudo cp ./utox.desktop /usr/share/applications/utox.desktop
-    ```
-
-2. Make it executable
-
-    ```bash
-    sudo chmod +x /usr/share/applications/utox.desktop
-    ```
-
-3. Add an icon
-
-    ```bash
-    sudo cp ./icons/utox-128x128.png /usr/share/pixmaps/utox.png
-    ```
-
 ### Archlinux
 
-If you're lucky enough to use Archlinux, someone has an AUR package just for you!
+If you're lucky enough to use Archlinux, uTox is in the community repo.
+ - [x86_64](https://www.archlinux.org/packages/community/x86_64/utox/)
+ - [i686](https://www.archlinux.org/packages/community/i686/utox/)
 
-https://aur.archlinux.org/packages/utox-git/
+Install by running:
+
+```bash
+sudo pacman -S utox
+```
+
+### Slackware
+
+If you use Slackware you can download the slack build from here: https://slackbuilds.org/repository/14.2/network/uTox/
+
+## OpenBSD
+
+Right now no one is providing binaries. You will have to compile uTox. See [instructions](BUILD.md#OpenBSD).
 
 <a name="osx" />
 ## OS X
@@ -82,7 +86,7 @@ Installing on windows isn't really a thing yet... you can download the nighties.
 <a name="android" />
 ## Android
 
-[uTox.apk](https://build.tox.chat/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk)
+Install uTox from the Google Play Store or download the APK: [uTox.apk](https://build.tox.chat/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk)
 
 # Meta
 [Jenkins](https://build.tox.chat) offers automatically compiled binaries. All files below link to the last successful build.

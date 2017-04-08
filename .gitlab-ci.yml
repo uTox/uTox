@@ -1,12 +1,12 @@
 stages:
   - build
+  - dev_tool
   - test
   - deploy
 
 #
 # build
 #
-
 android:
   stage: build
   tags:
@@ -21,7 +21,7 @@ android:
     paths:
       - ./uTox.ready.apk
 
-linux:
+build:linux:64:
   stage: build
   tags:
     - linux
@@ -36,14 +36,44 @@ linux:
   before_script:
     - ./extra/gitlab/linux-before.sh
   script:
+    - pkg-config --list-all | sort
     - ./extra/gitlab/linux-script.sh
+    - cp build/utox uTox-linux-x64
   artifacts:
     # keep compiled files as artifacts to pass to the test stage
     # remove them after one hour
     expire_in: 1h
     untracked: true
 
-windows:
+build:linux:muslc:
+  stage: build
+  image: alpine-tox-xvfb
+  tags:
+    - alpine-tox-xvfb
+  cache:
+    # keep cache across stages
+    key: "$CI_BUILD_REF_NAME/linux"
+    paths:
+      - cache/
+  variables:
+    TOXCORE_REPO: "TokTok/c-toxcore"
+    TOXCORE_REPO_BRANCH: "v0.1.4"
+    GL_BUILD: "linMUSL"
+  before_script:
+    - apk add freetype-dev
+    - apk add openal-soft-dev
+    - ./extra/common/filter_audio.sh
+    - ./extra/gitlab/linux-muslc-before.sh
+  script:
+    - ./extra/gitlab/linux-muslc-script.sh
+    - cp build/utox uTox-muslc-64
+    # TODO static build here
+  artifacts:
+    paths:
+      - uTox-muslc-64
+    expire_in: 1h
+
+build:windows:64:
   stage: build
   tags:
     - mingw64
@@ -57,57 +87,141 @@ windows:
     - ./extra/gitlab/windows-before.sh
   script:
     - ./extra/gitlab/windows-script.sh
+    - cp build_win/utox.exe uTox-Win64.exe
+  artifacts:
+    paths:
+      - uTox-Win64.exe
+    expire_in: 6h
 
-windows_legacy:
+build:windows:legacy:
   stage: build
+  tags:
+    - mingw64
   cache:
     paths:
       - cache/
   variables:
     TOXCORE_REPO: "TokTok/c-toxcore"
-    GL_BUILD: "winXP"
+    GL_BUILD: "winLEGACY"
   before_script:
     - ./extra/gitlab/windows_legacy-before.sh
   script:
     - ./extra/gitlab/windows_legacy-script.sh
+    - cp build_win/utox.exe uTox-Win32-LEGACY.exe
+  artifacts:
+    paths:
+      - uTox-Win32-LEGACY.exe
+    expire_in: 6h
 
-OSX:
+build:macos:
   stage: build
+  tags:
+    - osx
   cache:
     paths:
       - cache/
   script:
     - pwd
     - docker run --rm -u $(id -u):$(id -g) -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin arch-build ./extra/gitlab/osx-docker.sh
+    - ls -la ./*
+  artifacts:
+    paths:
+      - utox.app/
+    expire_in: 6h
+
+#
+## Create development zip
+#
+dev_tool:windows:
+  stage: dev_tool
+  tags:
+    - mingw64
+  script:
+    - echo "Creating development files for windows"
+    - echo "Pulling headers"
+    - echo "Pulling libs from build:windows"
+    - echo "zipping folder"
+    - echo "archving stuff :D"
+  only:
+    - master
+    - tags
+    - triggers
 
 #
 # test
 #
-
-linux-test:
+.test: &test
   stage: test
   cache:
     # keep cache across stages
     key: "$CI_BUILD_REF_NAME/linux"
     paths:
       - cache/
-  script:
-    - ./run_tests.sh
   dependencies:
-    - linux
+    - build:linux:64
 
-#
-## Deployment SKEL
-#
+test:chatlog:
+  <<: *test
+  script:
+    - cd build/tests/
+    - ctest -VV -R test_chatlog
 
-deploy:
+test:updater:
+  <<: *test
+  script:
+    - cd build/tests/
+    - ctest -VV -R test_updater
+
+test:XVFB:
+  stage: test
+  image: alpine-tox-xvfb
+  tags:
+    - alpine-tox-xvfb
+  cache:
+    key: "$CI_BUILD_REF_NAME/linux"
+    paths:
+      - cache/
+  dependencies:
+    - build:linux:muslc
+  script:
+    - Xvfb :99 &
+    - export DISPLAY=:99
+    - apk add openal-soft-dev
+    - ls -la
+    - (sleep 2m && killall uTox-muslc-64) &
+    - ./uTox-muslc-64 -vvvvv || true
+#
+## Deploy
+#
+deploy:main:
   stage: deploy
   tags:
-    - dist
-  only:
-    - tags
-    - triggers
-  environment:
-    name: dist
+    - utox.io
   script:
-    - ./tools/script.sh
+    - echo "Deploying to live server"
+  environment:
+    name: utox.io
+    url: https://utox.io/
+  when: manual
+  only:
+    - master
+
+deploy:nightly:
+  stage: deploy
+  tags:
+    - utox.io
+  script:
+    - echo "Deploying to live server"
+    - pwd
+    - ls -la
+    - ls -la ../
+    - whoami
+    - ls -la /srv/http/utox.io/*
+  environment:
+    name: utox.io
+    url: https://utox.io/nightly
+  when: manual
+  only:
+    - master
+    - develop
+    - deploy

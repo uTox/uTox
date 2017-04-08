@@ -4,6 +4,8 @@
 #include "../main.h"
 #include "../settings.h"
 
+#include <io.h>
+#include <stdio.h>
 #include <string.h>
 
 static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) {
@@ -149,9 +151,9 @@ bool native_create_dir(const uint8_t *filepath) {
     const int error = SHCreateDirectoryEx(NULL, (char *)path, NULL);
     switch(error) {
         case ERROR_SUCCESS:
+            LOG_NOTE("WinFilesys", "Created path: `%s` - %d" , filepath, error);
         case ERROR_FILE_EXISTS:
         case ERROR_ALREADY_EXISTS:
-            LOG_NOTE("WinFilesys", "Created path: `%s` - %d" , filepath, error);
             return true;
             break;
 

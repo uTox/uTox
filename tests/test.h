@@ -1,11 +1,19 @@
-#include "debug.h"
-#include "settings.h"
+#include "../src/debug.h"
+#include "../src/settings.h"
 
 #include <assert.h>
 #include <malloc.h>
 #include <memory.h>
 #include <stdarg.h>
 #include <stdlib.h>
+
+#include <assert.h>
+#include <check.h>
+
+#define MK_TEST_CASE(TRGT)                   \
+    TCase *case_##TRGT = tcase_create(#TRGT); \
+    tcase_add_test(case_##TRGT, test_##TRGT); \
+    suite_add_tcase(s, case_##TRGT);
 
 //
 // define some testing helpers

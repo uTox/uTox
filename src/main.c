@@ -5,10 +5,13 @@
 #include "main.h"
 
 #include "debug.h"
-#include "main_native.h"
 #include "settings.h"
 #include "theme.h"
 #include "updater.h"
+
+#include "native/filesys.h"
+#include "native/main.h"
+#include "native/thread.h"
 
 #include <getopt.h>
 
@@ -18,14 +21,15 @@
  */
 
 bool utox_data_save_tox(uint8_t *data, size_t length) {
-    FILE *fp= utox_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
-    if (fp == NULL) {
+    FILE *fp = utox_get_file("tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
+    if (!fp) {
         LOG_ERR("uTox", "Can not open tox_save.tox to write to it.");
         return true;
     }
 
     if (fwrite(data, length, 1, fp) != 1) {
         LOG_ERR("uTox", "Unable to write Tox save to file.");
+        fclose(fp);
         return true;
     }
 
@@ -36,19 +40,19 @@ bool utox_data_save_tox(uint8_t *data, size_t length) {
 }
 
 uint8_t *utox_data_load_tox(size_t *size) {
-    const uint8_t name[][20] = { "tox_save.tox", "tox_save.tox.atomic", "tox_save.tmp", "tox_save" };
+    const char name[][20] = { "tox_save.tox", "tox_save.tox.atomic", "tox_save.tmp", "tox_save" };
 
     for (uint8_t i = 0; i < 4; i++) {
         size_t length = 0;
 
         FILE *fp = utox_get_file(name[i], &length, UTOX_FILE_OPTS_READ);
-        if (fp == NULL) {
+        if (!fp) {
             continue;
         }
 
         uint8_t *data = calloc(1, length + 1);
 
-        if (data == NULL) {
+        if (!data) {
             LOG_ERR("uTox", "Could not allocate memory for tox save.");
             fclose(fp);
             // Quit. We're out of memory, calloc will fail again.
@@ -73,10 +77,10 @@ uint8_t *utox_data_load_tox(size_t *size) {
 }
 
 bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
-    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
-    snprintf((char *)name, sizeof(name), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, hex);
+    char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
+    snprintf(name, sizeof(name), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
-    FILE *fp = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *fp = utox_get_file(name, NULL, UTOX_FILE_OPTS_WRITE);
 
     if (fp == NULL) {
         return false;
@@ -96,38 +100,29 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
 /* Shared function between all four platforms */
 void parse_args(int argc, char *argv[],
                 bool *skip_updater,
-                bool *from_updater,
-                bool *theme_was_set_on_argv,
                 int8_t *should_launch_at_startup,
                 int8_t *set_show_window
                 ) {
     // set default options
-    settings.theme = THEME_DEFAULT;
-    settings.portable_mode = false;
     if (skip_updater) {
         *skip_updater = false;
     }
-    if (from_updater) {
-        *from_updater = false;
-    }
-    if (theme_was_set_on_argv) {
-        *theme_was_set_on_argv = false;
-    }
+
     if (should_launch_at_startup) {
         *should_launch_at_startup = 0;
     }
+
     if (set_show_window) {
         *set_show_window = 0;
     }
 
     static struct option long_options[] = {
-        { "theme", required_argument, NULL, 't' },  { "portable", no_argument, NULL, 'p' },
-        { "set", required_argument, NULL, 's' },    { "unset", required_argument, NULL, 'u' },
-        { "skip-updater", no_argument, NULL, 'N' }, { "signal-updater", no_argument, NULL, 'S' },
-        { "version", no_argument, NULL, 0 },
-        { "silent", no_argument, NULL, 1 },        { "verbose", no_argument, NULL, 'v' },
-        { "help", no_argument, NULL, 'h' },        { "debug", required_argument, NULL, 2 },
-        { 0, 0, 0, 0 }
+        { "theme", required_argument, NULL, 't' },      { "portable", no_argument, NULL, 'p' },
+        { "set", required_argument, NULL, 's' },        { "unset", required_argument, NULL, 'u' },
+        { "skip-updater", no_argument, NULL, 'N' },     { "delete-updater", required_argument, NULL, 'D'},
+        { "version", no_argument, NULL, 0 },            { "silent", no_argument, NULL, 'S' },
+        { "verbose", no_argument, NULL, 'v' },          { "help", no_argument, NULL, 'h' },
+        { "debug", required_argument, NULL, 1 },        { 0, 0, 0, 0 }
     };
 
     int opt, long_index = 0;
@@ -153,7 +148,6 @@ void parse_args(int argc, char *argv[],
                     LOG_NORM("Please specify correct theme (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
                 }
-                *theme_was_set_on_argv = 1;
                 break;
             }
 
@@ -166,11 +160,17 @@ void parse_args(int argc, char *argv[],
 
             case 's': {
                 if (!strcmp(optarg, "start-on-boot")) {
-                    *should_launch_at_startup = 1;
+                    if (should_launch_at_startup) {
+                        *should_launch_at_startup = 1;
+                    }
                 } else if (!strcmp(optarg, "show-window")) {
-                    *set_show_window = 1;
+                    if (set_show_window) {
+                        *set_show_window = 1;
+                    }
                 } else if (!strcmp(optarg, "hide-window")) {
-                    *set_show_window = -1;
+                    if (set_show_window) {
+                        *set_show_window = -1;
+                    }
                 } else {
                     LOG_NORM("Please specify a correct set option (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
@@ -180,7 +180,9 @@ void parse_args(int argc, char *argv[],
 
             case 'u': {
                 if (!strcmp(optarg, "start-on-boot")) {
-                    *should_launch_at_startup = -1;
+                    if (should_launch_at_startup) {
+                        *should_launch_at_startup = -1;
+                    }
                 } else {
                     LOG_NORM("Please specify a correct unset option (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
@@ -194,9 +196,13 @@ void parse_args(int argc, char *argv[],
                 }
                 break;
             }
-            case 'S': {
-                if (from_updater) {
-                    *from_updater = true;
+            case 'D': {
+                if (strstr(optarg, "uTox_updater")) {
+                    // We're using the windows version of strstr() here
+                    // because it's currently the only platform supported
+                    // by the updater.
+                    // TODO expose this as a function in updater.c
+                    remove(optarg);
                 }
                 break;
             }
@@ -210,7 +216,7 @@ void parse_args(int argc, char *argv[],
                 break;
             }
 
-            case 1: {
+            case 'S': {
                 settings.verbose = LOG_LVL_FATAL;
                 break;
             }
@@ -220,7 +226,7 @@ void parse_args(int argc, char *argv[],
                 break;
             }
 
-            case 2: {
+            case 1: {
                 settings.debug_file = fopen(optarg, "a+");
                 if (!settings.debug_file) {
                     settings.debug_file = stdout;
@@ -254,25 +260,31 @@ void parse_args(int argc, char *argv[],
     }
 }
 
+/** Does all of the init work for uTox across all platforms
+ *
+ * it's expect this will be called AFTER you parse argc/v and will act accordingly. */
 void utox_init(void) {
-    /* Called by the native main for every platform after loading utox setting, before showing/drawing any windows. */
+    atexit(utox_raze);
+
+    if (settings.debug_file == NULL) {
+        settings.debug_file = stdout;
+    }
+
+    UTOX_SAVE *save = config_load();
+    free(save);
+
+    /* Called by the native main for every platform after loading utox setting,
+     * before showing/drawing any windows. */
     if (settings.curr_version != settings.last_version) {
         settings.show_splash = true;
     }
 
-    // TODO(grayhatter)
-    //#ifdef ENABLE_UPDATER
-    // if (settings.auto_update) {
-    //     updater_check();
-    // }
-    //#endif
-
-    settings.debug_file = stdout;
-    atexit(utox_raze);
+    // We likely want to start this on every system.
+    thread(updater_thread, (void*)1);
 }
 
 void utox_raze(void) {
-    LOG_INFO("uTox", "Clean exit.");
+    LOG_WARN("uTox", "Clean exit.");
     if (settings.debug_file != stdout) {
         fclose(settings.debug_file);
     }

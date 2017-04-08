@@ -3,12 +3,14 @@
 #include "flist.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
 
 #include "av/audio.h"
+
+#include "native/notify.h"
+
 #include "ui/edit.h"
 
 #include "layout/group.h"
@@ -17,6 +19,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <tox/tox.h>
+
+static GROUPCHAT group[UTOX_MAX_NUM_GROUPS];
 
 GROUPCHAT *get_group(uint32_t group_number) {
     if (group_number >= UTOX_MAX_NUM_GROUPS) {
@@ -59,7 +63,7 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     g->av_group = av_group;
     pthread_mutex_unlock(&messages_lock);
 
-    flist_addgroup(g);
+    flist_add_group(g);
     flist_select_last();
 }
 
@@ -107,6 +111,7 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
         LOG_ERR("Groupchat", "Unable to allocate space for message.");
         free(msg->via.grp.author);
         free(msg);
+        pthread_mutex_unlock(&messages_lock);
         return UINT32_MAX;
     }
     memcpy(msg->via.grp.msg, message, length);
@@ -147,7 +152,9 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
 
     if (!g->peer) {
-        LOG_TRACE("Groupchat", "Unable to del peer from NULL group" );
+        LOG_TRACE("Groupchat", "Unable to del peer from NULL group");
+        pthread_mutex_unlock(&messages_lock);
+        return;
     }
 
     GROUP_PEER *peer = g->peer[peer_id];
@@ -156,7 +163,8 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
         LOG_TRACE("Groupchat", "Freeing peer %u, name %.*s" , peer_id, (int)peer->name_length, peer->name);
         free(peer);
     } else {
-        LOG_TRACE("Groupchat", "Unable to find peer for deletion" );
+        LOG_TRACE("Groupchat", "Unable to find peer for deletion");
+        pthread_mutex_unlock(&messages_lock);
         return;
     }
     g->peer_count--;
@@ -167,13 +175,17 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
 void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name, size_t length) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
-        LOG_TRACE("Groupchat", "Unable to add peer to NULL group" );
+        LOG_TRACE("Groupchat", "Unable to add peer to NULL group");
+        pthread_mutex_unlock(&messages_lock);
         return;
     }
 
     GROUP_PEER *peer = g->peer[peer_id];
+    if (!peer) {
+        LOG_FATAL_ERR(EXIT_FAILURE, "Groupchat", "We can't set a name for a null peer! %u" , peer_id);
+    }
 
-    if (peer && peer->name_length) {
+    if (peer->name_length) {
         uint8_t old[TOX_MAX_NAME_LENGTH];
         uint8_t msg[TOX_MAX_NAME_LENGTH];
         size_t size = 0;
@@ -197,25 +209,22 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         pthread_mutex_unlock(&messages_lock);
         group_add_message(g, peer_id, msg, size, MSG_TYPE_NOTICE);
         return;
-    } else if (peer) {
-        /* Hopefully, they just joined, because that's the UX message we're going with! */
-        GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
-
-        if (new_peer) {
-            peer = new_peer;
-        } else {
-            LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "Unable to realloc for group peer who just joined.");
-        }
-
-        peer->name_length = utf8_validate(name, length);
-        memcpy(peer->name, name, length);
-        g->peer[peer_id] = peer;
-        pthread_mutex_unlock(&messages_lock);
-        group_add_message(g, peer_id, (const uint8_t *)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
-        return;
-    } else {
-        LOG_FATAL_ERR(EXIT_FAILURE, "Groupchat", "We can't set a name for a null peer! %u" , peer_id);
     }
+
+    /* Hopefully, they just joined, because that's the UX message we're going with! */
+    GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
+
+    if (new_peer) {
+        peer = new_peer;
+    } else {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "Unable to realloc for group peer who just joined.");
+    }
+
+    peer->name_length = utf8_validate(name, length);
+    memcpy(peer->name, name, length);
+    g->peer[peer_id] = peer;
+    pthread_mutex_unlock(&messages_lock);
+    group_add_message(g, peer_id, (const uint8_t *)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
 }
 
 void group_reset_peerlist(GROUPCHAT *g) {
@@ -264,7 +273,7 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
 
     notify(title, title_length, msg, msg_length, g, 1);
 
-    if (flist_get_selected()->data != g) {
+    if (flist_get_groupchat() != g) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }
 }

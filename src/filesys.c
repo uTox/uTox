@@ -1,13 +1,13 @@
 #include "filesys.h"
-#include "filesys_native.h"
+#include "native/filesys.h"
 
 #include "debug.h"
 #include "settings.h"
 
 #include <stdlib.h>
 
-FILE *utox_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
-    return native_get_file(name, size, opts, settings.portable_mode);
+FILE *utox_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
+    return native_get_file((uint8_t *)name, size, opts, settings.portable_mode);
 }
 
 bool utox_remove_file(const uint8_t *full_name, size_t length) {
@@ -27,6 +27,11 @@ void *file_raw(char *path, uint32_t *size) {
 
     fseek(file, 0, SEEK_END);
     int len = ftell(file);
+
+    if (len <= 0) {
+        fclose(file);
+        return NULL;
+    }
 
     char *data = calloc(1, len);
     if (!data) {

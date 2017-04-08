@@ -6,7 +6,6 @@
 #include "dns.h"
 #include "flist.h"
 #include "macros.h"
-#include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -14,17 +13,21 @@
 #include "utox.h"
 
 #include "av/audio.h"
-#include "ui/edit.h"        // friend_set_name()
 
 #include "layout/friend.h"  // TODO, remove this and sent the name differently
 
+#include "native/image.h"
+#include "native/notify.h"
+
+#include "ui/edit.h"        // friend_set_name()
+
 #include "main.h" // addfriend_status
 
-FRIEND *friend = NULL;
+static FRIEND *friend = NULL;
 
 FRIEND *get_friend(uint32_t friend_number) {
     if (friend_number >= self.friend_list_size) { //friend doesnt exist if true
-        LOG_ERR("Friend", "Friend number out of bounds.");
+        LOG_WARN("Friend", "Friend number (%u) out of bounds.", friend_number);
         return NULL;
     }
 
@@ -33,7 +36,7 @@ FRIEND *get_friend(uint32_t friend_number) {
 
 static FRIEND *friend_make(uint32_t friend_number) {
     if (friend_number >= self.friend_list_size) {
-        LOG_TRACE("Friend", "Reallocating friend array to %u. Current size: %u", (friend_number + 1), self.friend_list_size);
+        LOG_INFO("Friend", "Reallocating friend array to %u. Current size: %u", (friend_number + 1), self.friend_list_size);
         FRIEND *tmp = realloc(friend, sizeof(FRIEND) * (friend_number + 1));
         if (!tmp) {
             LOG_ERR("Friend", "Could not reallocate friends array.");
@@ -46,8 +49,81 @@ static FRIEND *friend_make(uint32_t friend_number) {
 
     }
 
+    // TODO should we memset(0); before return?
     return &friend[friend_number];
 }
+
+static FREQUEST *frequests = NULL;
+static uint16_t frequest_list_size = 0;
+
+FREQUEST *get_frequest(uint16_t frequest_number) {
+    if (frequest_number >= frequest_list_size) { //frequest doesnt exist if true
+        LOG_ERR("Friend", "Request number out of bounds.");
+        return NULL;
+    }
+
+    return &frequests[frequest_number];
+}
+
+static FREQUEST *frequest_make(uint16_t frequest_number) {
+    if (frequest_number >= frequest_list_size) {
+        LOG_INFO("Friend", "Reallocating frequest array to %u. Current size: %u", (frequest_number + 1), frequest_list_size);
+        FREQUEST *tmp = realloc(frequests, sizeof(FREQUEST) * (frequest_number + 1));
+        if (!tmp) {
+            LOG_ERR("Friend", "Could not reallocate frequests array.");
+            return NULL;
+        }
+
+        frequests = tmp;
+        frequest_list_size = frequest_number + 1;
+    }
+
+    // TODO should we memset(0); before return?
+    return &frequests[frequest_number];
+}
+
+uint16_t friend_request_new(const uint8_t *id, const uint8_t *msg, size_t length) {
+    uint16_t curr_num = frequest_list_size;
+    FREQUEST *r = frequest_make(frequest_list_size); // TODO search for empty request slots
+    if (!r) {
+        LOG_ERR("Friend", "Unable to get space for Friend Request.");
+        return UINT16_MAX;
+    }
+
+    r->number = curr_num;
+    memcpy(r->bin_id, id, TOX_ADDRESS_SIZE);
+    r->msg = malloc(length + 1);
+    if (!r->msg) {
+        LOG_ERR("Friend", "Unable to get space for friend request message.");
+        return UINT16_MAX;
+    }
+    memcpy(r->msg, msg, length);
+    r->msg[length] = 0; // Toxcore doesn't promise null term on strings
+    r->length = length;
+
+    return curr_num;
+}
+
+void friend_request_free(uint16_t number) {
+    FREQUEST *r = get_frequest(number);
+    if (!r) {
+        LOG_ERR("Friend", "Unable to free a missing request.");
+        return;
+    }
+
+    free(r->msg);
+
+    // TODO this needs a test
+    if (r->number >= frequest_list_size -1) {
+        FREQUEST *tmp = realloc(frequests, sizeof(FREQUEST) * (frequest_list_size - 1));
+        if (tmp) {
+            frequests = tmp;
+            --frequest_list_size;
+        }
+    }
+}
+
+/* TODO incoming friends "leaks" */
 
 void free_friends(void) {
     for (uint32_t i = 0; i < self.friend_list_count; i++){
@@ -66,10 +142,10 @@ void free_friends(void) {
 
 void utox_write_metadata(FRIEND *f) {
     /* Create path */
-    uint8_t dest[UTOX_FILE_NAME_LENGTH];
-    snprintf((char *)dest, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+    char dest[UTOX_FILE_NAME_LENGTH];
+    snprintf(dest, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
 
-    FILE *file = utox_get_file((uint8_t *)dest, NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *file = utox_get_file(dest, NULL, UTOX_FILE_OPTS_WRITE);
     if (file) {
 
         FRIEND_META_DATA metadata;
@@ -99,9 +175,9 @@ void utox_write_metadata(FRIEND *f) {
 
 static void friend_meta_data_read(FRIEND *f) {
     /* Will need to be rewritten if anything is added to friend's meta data */
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    char path[UTOX_FILE_NAME_LENGTH];
 
-    snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2,  f->id_str);
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2,  f->id_str);
 
     size_t size = 0;
     FILE *file = utox_get_file(path, &size, UTOX_FILE_OPTS_READ);
@@ -112,14 +188,20 @@ static void friend_meta_data_read(FRIEND *f) {
     }
 
     FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);
-    if (metadata == NULL) {
+    if (!metadata) {
         LOG_ERR("Metadata", "Could not allocate memory for metadata." );
         fclose(file);
         return;
     }
 
-    fread(metadata, size, 1, file);
+    bool read_meta = fread(metadata, size, 1, file);
     fclose(file);
+
+    if (!read_meta) {
+        LOG_ERR("Metadata", "Failed to read metadata from disk.");
+        free(metadata);
+        return;
+    }
 
     if (metadata->version != 0) {
         LOG_ERR("Metadata", "WARNING! This version of utox does not support this metadata file version." );
@@ -264,10 +346,15 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
 }
 
 void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
-    if (alias && length > 0) {
-        LOG_TRACE("Friend", "New Alias set for friend %s" , f->name);
+    if (length > 0) {
+        if (!alias) {
+            LOG_ERR("Friend Alias", "Got alias length, but no alias.");
+            return;
+        }
+
+        LOG_TRACE("Friend", "New Alias set for friend %s." , f->name);
     } else {
-        LOG_TRACE("Friend", "Alias for friend %s unset" , f->name);
+        LOG_TRACE("Friend", "Alias for friend %s unset." , f->name);
     }
 
     free(f->alias);
@@ -275,16 +362,25 @@ void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
         f->alias        = NULL;
         f->alias_length = 0;
     } else {
-        f->alias = malloc(length + 1);
+        f->alias = calloc(1, length + 1);
+        if (!f->alias) {
+            LOG_ERR("Friend", "Unable to malloc for alias set for friend %s.");
+            return;
+        }
+
         memcpy(f->alias, alias, length);
-        f->alias_length           = length;
-        f->alias[f->alias_length] = 0;
+        f->alias_length = length;
     }
 }
 
 void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
                       size_t png_size) {
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
+    if (!tsim) {
+        LOG_ERR("Friend", "Unable to malloc for inline image.");
+        return;
+    }
+
     tsim->image      = png_image;
     tsim->image_size = png_size;
     postmessage_toxcore(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
@@ -335,6 +431,11 @@ void friend_set_typing(FRIEND *f, int typing) {
 
 void friend_addid(uint8_t *id, char *msg, uint16_t msg_length) {
     char *data = malloc(TOX_ADDRESS_SIZE + msg_length);
+    if (!data) {
+        LOG_ERR("Friend", "Unable to malloc for friend request.");
+        return;
+    }
+
     memcpy(data, id, TOX_ADDRESS_SIZE);
     memcpy(data + TOX_ADDRESS_SIZE, msg, msg_length);
 
@@ -373,6 +474,10 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
 }
 
 void friend_history_clear(FRIEND *f) {
+    if (!f) {
+        LOG_ERR("FList", "Unable to clear history for missing friend.");
+        return;
+    }
     messages_clear_all(&f->msg);
     utox_remove_friend_chatlog(f->id_str);
 }

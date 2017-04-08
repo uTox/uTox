@@ -4,7 +4,8 @@
 
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
+
+#include "../native/image.h"
 
 #include "../ui/svg.h"
 

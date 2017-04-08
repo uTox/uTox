@@ -2,10 +2,13 @@
 
 #include "utox_av.h"
 
+#include "../native/audio.h"
+#include "../native/keyboard.h"
+#include "../native/thread.h"
+
 #include "../debug.h"
 #include "../friend.h"
 #include "../main.h" // utox_audio_thread_init, self, USER_STATUS_*, UTOX_MAX_CALLS
-#include "../main_native.h"
 #include "../self.h"
 #include "../settings.h"
 #include "../tox.h"
@@ -38,6 +41,8 @@
 static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {
 #ifdef AUDIO_FILTERING
     kill_filter_audio(filter_audio_handle);
+#else
+    (void)filter_audio_handle;
 #endif
 }
 

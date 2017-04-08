@@ -19,6 +19,8 @@
 
 #include "../layout/background.h"
 
+#include "../native/keyboard.h"
+
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -130,23 +132,6 @@ void image_free(NATIVE_IMAGE *image) {
     }
     GLuint texture = image;
     glDeleteTextures(1, &texture);
-}
-
-void *loadsavedata(uint32_t *len) {
-    return file_raw("/data/data/tox.utox/files/tox_save", len);
-}
-
-void writesavedata(void *data, uint32_t len) {
-    LOG_TRACE("Android", "Trying to save data (android)" );
-    FILE *file;
-    file = fopen("/data/data/tox.utox/files/tox_save", "wb");
-    if (file) {
-        fwrite(data, len, 1, file);
-        fclose(file);
-        LOG_TRACE("Android", "Saved data" );
-    } else {
-        LOG_TRACE("Android", "fopen failed" );
-    }
 }
 
 // TODO: DRY. This function exists in both posix/filesys.c and in android/main.c
@@ -476,11 +461,8 @@ void utox_android_redraw_window(void) {
     if (!_redraw) {
         return;
     }
-
+    _redraw = GL_utox_android_redraw_window();
     panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
-    GL_utox_android_redraw_window();
-
-    _redraw = 0;
 }
 
 int         lx = 0, ly = 0;
@@ -604,34 +586,11 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
 }
 
 static void android_main(struct android_app *state) {
-    bool   theme_was_set_on_argv;
-    int8_t should_launch_at_startup;
-    int8_t set_show_window;
-    bool   skip_updater, from_updater;
-
     utox_init();
 
-    parse_args(NULL, NULL,
-               &skip_updater,
-               &from_updater,
-               &theme_was_set_on_argv,
-               &should_launch_at_startup,
-               &set_show_window
-               );
+    theme_load(THEME_DEFAULT);
 
     settings.verbose = ~0;
-
-    if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        LOG_TRACE("Android", "Start on boot not supported on this OS!" );
-    }
-
-    if (set_show_window == 1 || set_show_window == -1) {
-        LOG_TRACE("Android", "Showing/hiding windows not supported on this OS!" );
-    }
-
-    if (skip_updater == true) {
-        LOG_TRACE("Android", "Disabling the updater is not supported on this OS." );
-    }
 
     // Make sure glue isn't stripped
     // ANativeActivity* nativeActivity = state->activity;
@@ -640,25 +599,23 @@ static void android_main(struct android_app *state) {
     pipe(pipefd);
     fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
 
-    UTOX_SAVE *save = config_load();
-    theme_load(THEME_DEFAULT);
-
     // Override to max spam for android
     settings.verbose = LOG_LVL_TRACE;
 
     thread(toxcore_thread, NULL);
 
     initfonts();
-    ui_set_scale(21);
+
+    ui_rescale(0);
 
     /* wait for tox thread to start */
     while (!tox_thread_init) {
         yieldcpu(1);
     }
 
-
     /* Code has been changed, this probably should be moved! */
     flist_start();
+    ui_rescale(15);
 
     while (!destroy) {
         if (p_down && (p_last_down + 500 * 1000 * 1000) < get_time()) {
@@ -679,7 +636,7 @@ static void android_main(struct android_app *state) {
         int    rlen, len;
         PIPING piping;
         while ((len = read(pipefd[0], (void *)&piping, sizeof(PIPING))) > 0) {
-            LOG_TRACE("Android", "%u %u" , len, sizeof(PIPING));
+            LOG_TRACE("Android", "Piping %u %u" , len, sizeof(PIPING));
             while (len != sizeof(PIPING)) {
                 if ((rlen = read(pipefd[0], (void *)&piping + len, sizeof(PIPING) - len)) > 0) {
                     len += rlen;
@@ -692,14 +649,15 @@ static void android_main(struct android_app *state) {
         ANativeWindow *win = (ANativeWindow *)windowN;
         if (win != window) { // new window
             if (window != NULL) {
+                LOG_INFO("AndroidNative", "Replace old Window");
                 freefonts();
                 GL_raze_surface();
             }
-
             window = win;
 
             if (window != NULL) {
-                if (!init_display(window)) {
+                if (init_display(window) == false) {
+                    LOG_INFO("AndroidNative", "init_err");
                     ANativeActivity_finish(activity);
                     break;
                 }
@@ -769,10 +727,12 @@ static void onDestroy(ANativeActivity *act) {
 }
 
 static void onNativeWindowCreated(ANativeActivity *act, ANativeWindow *win) {
+    LOG_NOTE("AndroidNative", "Native Window Made");
     windowN = win;
 }
 
 static void onNativeWindowDestroyed(ANativeActivity *act, ANativeWindow *win) {
+    LOG_NOTE("AndroidNative", "Native Window Killed");
     windowN = NULL;
 }
 
@@ -790,7 +750,7 @@ static void onInputQueueDestroyed(ANativeActivity *act, AInputQueue *queue) {
 
 static void onContentRectChanged(ANativeActivity *activity, const ARect *r) {
     rect = *r;
-    LOG_TRACE("Android", "rect: %u %u %u %u" , rect.left, rect.right, rect.top, rect.bottom);
+    LOG_TRACE("AndroidNative", "window changed rect: %u %u %u %u" , rect.left, rect.right, rect.top, rect.bottom);
 
     settings.window_baseline = rect.bottom;
     _redraw                  = 1;

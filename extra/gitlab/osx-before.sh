@@ -25,18 +25,13 @@ rm -rf libvpx
 
 # install toxcore
 if ! [ -d toxcore ]; then
-  git clone --depth=1 --branch=master https://github.com/$TOXCORE_REPO.git toxcore
+  git clone --depth=1 --branch=$TOXCORE_REPO_BRANCH $TOXCORE_REPO_URI toxcore
 fi
 cd toxcore
 git rev-parse HEAD > toxcore.sha
 if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.sha); then
-  if [ -f CMakeFiles.txt ]; then
-    cmake -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr
-  else
-    mkdir _build
-    autoreconf -fi
-    (cd _build && ../configure --prefix=$CACHE_DIR/usr)
-  fi
+  mkdir _build
+  cmake -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr
   make -C_build -j`sysctl -n hw.ncpu`
   make -C_build install
   mv toxcore.sha "$CACHE_DIR/toxcore.sha"
