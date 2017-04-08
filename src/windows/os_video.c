@@ -84,7 +84,7 @@ void video_begin(uint32_t id, char *UNUSED(name), uint16_t UNUSED(name_length), 
 }
 
 void video_end(uint32_t id) {
-    if (id == UINT16_MAX) {
+    if (id >= UINT16_MAX) {
         DestroyWindow(preview_hwnd);
         preview_hwnd = NULL;
     } else {
