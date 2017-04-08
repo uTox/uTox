@@ -402,11 +402,16 @@ static void utox_av_incoming_frame_a(ToxAV *UNUSED(av), uint32_t friend_number, 
 
 static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_number, uint16_t width, uint16_t height,
                                      const uint8_t *y, const uint8_t *u, const uint8_t *v, int32_t ystride,
-                                     int32_t ustride, int32_t vstride, void *UNUSED(user_data)) {
+                                     int32_t ustride, int32_t vstride, void *UNUSED(user_data))
+{
     /* copy the vpx_image */
     /* 4 bits for the H*W, then a pixel for each color * size */
     LOG_TRACE("uToxAV", "new video frame from friend %u" , friend_number);
-    FRIEND *f       = get_friend(friend_number);
+    FRIEND *f = get_friend(friend_number);
+    if (f == NULL) {
+        LOG_ERR("uToxAV", "Incoming frame for a friend we don't know about! (%u)", friend_number);
+        return;
+    }
     f->video_width  = width;
     f->video_height = height;
     size_t size     = width * height * 4;
