@@ -157,7 +157,7 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
 
         if (!i->face) {
             // something went wrong
-            LOG_TRACE(__FILE__, "???" );
+            LOG_TRACE("Freetype", "???" );
             return NULL;
         }
     }
@@ -255,7 +255,7 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
         no_subpixel = 0;
     }
 
-    // LOG_TRACE(__FILE__, "%u %u %u %u %C" , PIXELS(i->face->size->metrics.height), g->width, g->height, p->bitmap.pitch, ch);
+    // LOG_TRACE("Freetype", "%u %u %u %u %C" , PIXELS(i->face->size->metrics.height), g->width, g->height, p->bitmap.pitch, ch);
     g->pic = loadglyphpic(p->bitmap.buffer, g->width, g->height, p->bitmap.pitch, no_subpixel, vert, ft_swap_blue_red);
 
     return g;
@@ -269,7 +269,7 @@ void initfonts(void) {
 
     FT_Init_FreeType(&ftlib);
 
-    FcResult   result;
+    FcResult result;
     FcPattern *pat = FcPatternCreate();
     FcPatternAddString(pat, FC_FAMILY, (uint8_t *)UTOX_FONT_XLIB);
     FcConfigSubstitute(0, pat, FcMatchPattern);
@@ -336,7 +336,7 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern) {
     FcPatternGetInteger(pattern, FC_INDEX, 0, &id);
     FcPatternGetCharSet(pattern, FC_CHARSET, 0, &i->cs);
     if (FcPatternGetMatrix(pattern, FC_MATRIX, 0, &font_matrix) == FcResultMatch) {
-        LOG_TRACE(__FILE__, "has a matrix" );
+        LOG_TRACE("Freetype", "has a matrix" );
     }
 
     FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &size);
@@ -344,17 +344,17 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern) {
     int ft_error = FT_New_Face(ftlib, (char *)filename, id, &i->face);
 
     if (ft_error != 0) {
-        LOG_TRACE(__FILE__, "Freetype error %u %s %i" , ft_error, filename, id);
+        LOG_TRACE("Freetype", "Freetype error %u %s %i" , ft_error, filename, id);
         return;
     }
 
     ft_error = FT_Set_Char_Size(i->face, (size * 64.0 + 0.5), (size * 64.0 + 0.5), 0, 0);
     if (ft_error != 0) {
-        LOG_TRACE(__FILE__, "Freetype error %u %lf" , ft_error, size);
+        LOG_TRACE("Freetype", "Freetype error %u %lf" , ft_error, size);
         return;
     }
 
-    // LOG_TRACE(__FILE__, "Loaded font %s %u %i %i" , filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
+    // LOG_TRACE("Freetype", "Loaded font %s %u %i %i" , filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
 }
 
 static bool font_open(FONT *a_font, ...) {
@@ -388,12 +388,12 @@ void loadfonts(void) {
     int render_order = XRenderQuerySubpixelOrder(display, def_screen_num);
     if (render_order == SubPixelHorizontalBGR || render_order == SubPixelVerticalBGR) {
         ft_swap_blue_red = 1;
-        LOG_TRACE(__FILE__, "ft_swap_blue_red" );
+        LOG_TRACE("Freetype", "ft_swap_blue_red" );
     }
 
     if (render_order == SubPixelVerticalBGR || render_order == SubPixelVerticalRGB) {
         ft_vert = 1;
-        LOG_TRACE(__FILE__, "ft_vert" );
+        LOG_TRACE("Freetype", "ft_vert" );
     }
 
     font_open(&font[FONT_TEXT], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),

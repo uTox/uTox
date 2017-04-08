@@ -4,7 +4,6 @@
 #include <tox/tox.h>
 
 typedef struct native_image NATIVE_IMAGE;
-typedef struct avatar AVATAR;
 
 // TODO: remove?
 #define UTOX_AVATAR_MAX_DATA_LENGTH (64 * 1024) // NOTE: increasing this above 64k might cause
@@ -13,19 +12,19 @@ typedef struct avatar AVATAR;
 #define UTOX_AVATAR_FORMAT_PNG 1
 
 /* data needed for each avatar in memory */
-struct avatar {
+typedef struct avatar {
     NATIVE_IMAGE *img; /* converted avatar image to draw */
 
     size_t   size;
     uint16_t width, height;         /* width and height of image (in pixels) */
     uint8_t  format;                /* one of TOX_AVATAR_FORMAT */
     uint8_t  hash[TOX_HASH_LENGTH]; /* tox_hash for the png data of this avatar */
-};
+} AVATAR;
 
 /* Whether user's avatar is set. */
 #define self_has_avatar() (self.avatar && self.avatar->format != UTOX_AVATAR_FORMAT_NONE)
 /* Whether friend f's avatar is set, where f is a pointer to a friend struct */
-#define friend_has_avatar(f) (f) && (f->avatar.format != UTOX_AVATAR_FORMAT_NONE)
+#define friend_has_avatar(f) (f) && (f->avatar->format != UTOX_AVATAR_FORMAT_NONE)
 
 /** tries to load avatar from disk for given client id string and set avatar based on saved png data
  * avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large,
@@ -56,6 +55,9 @@ bool avatar_set_self(const uint8_t *data, size_t size);
 
 /* Helper function to unset the user's avatar. */
 void avatar_unset_self(void);
+
+/* Helper function to delete users avatar file. */
+void avatar_delete_self(void);
 
 /* Unsets an avatar by setting its format to UTOX_AVATAR_FORMAT_NONE and freeing its image. */
 void avatar_unset(AVATAR *avatar);

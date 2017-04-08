@@ -1,5 +1,6 @@
 #include "tox_callbacks.h"
 
+#include "avatar.h"
 #include "file_transfers.h"
 #include "friend.h"
 #include "groups.h"
@@ -28,28 +29,30 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
 
     length = utf8_validate(msg, length);
 
-    FRIENDREQ *req = malloc(sizeof(FRIENDREQ) + length);
+    uint16_t r_number = friend_request_new(id, msg, length);
 
-    req->length = length;
-    memcpy(req->id, id, sizeof(req->id));
-    memcpy(req->msg, msg, length);
-
-    postmessage_utox(FRIEND_INCOMING_REQUEST, 0, 0, req);
+    postmessage_utox(FRIEND_INCOMING_REQUEST, r_number, 0, NULL);
     postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_REQUEST, 0, NULL);
 }
 
 static void callback_friend_message(Tox *UNUSED(tox), uint32_t friend_number, TOX_MESSAGE_TYPE type,
                                     const uint8_t *message, size_t length, void *UNUSED(userdata)) {
     /* send message to UI */
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("Tox Callbacks", "Could not get friend with number: %u", friend_number);
+        return;
+    }
+
     switch (type) {
         case TOX_MESSAGE_TYPE_NORMAL: {
-            message_add_type_text(&friend[friend_number].msg, 0, (char *)message, length, 1, 0);
+            message_add_type_text(&f->msg, 0, (char *)message, length, 1, 0);
             LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tStandard Message: %.*s" , friend_number, (int)length, message);
             break;
         }
 
         case TOX_MESSAGE_TYPE_ACTION: {
-            message_add_type_action(&friend[friend_number].msg, 0, (char *)message, length, 1, 0);
+            message_add_type_action(&f->msg, 0, (char *)message, length, 1, 0);
             LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tAction Message: %.*s" , friend_number, (int)length, message);
             break;
         }
@@ -59,7 +62,7 @@ static void callback_friend_message(Tox *UNUSED(tox), uint32_t friend_number, TO
             break;
         }
     }
-    friend_notify_msg(&friend[friend_number], (char *)message, length);
+    friend_notify_msg(f, (char *)message, length);
 }
 
 static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length,
@@ -91,22 +94,34 @@ static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, bool is_typin
 }
 
 static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t receipt, void *UNUSED(userdata)) {
-    messages_clear_receipt(&friend[fid].msg, receipt);
+    FRIEND *f = get_friend(fid);
+    if (!f) {
+        LOG_ERR("Tox Callbacks", "Could not get friend with number: %u", fid);
+        return;
+    }
+
+    messages_clear_receipt(&f->msg, receipt);
     LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tReceipt:\t%u", fid, receipt);
 }
 
 static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION status, void *UNUSED(userdata)) {
-    if (friend[fid].online && !status) {
+    FRIEND *f = get_friend(fid);
+    if (!f) {
+        LOG_ERR("Tox Callbacks", "Could not get friend with number: %u", fid);
+        return;
+    }
+
+    if (f->online && !status) {
         ft_friend_offline(tox, fid);
-        if (friend[fid].call_state_self || friend[fid].call_state_friend) {
+        if (f->call_state_self || f->call_state_friend) {
             utox_av_local_disconnect(NULL, fid); /* TODO HACK, toxav doesn't supply a toxav_get_toxav_from_tox() yet. */
         }
-    } else if (!friend[fid].online && !!status) {
+    } else if (!f->online && !!status) {
         ft_friend_online(tox, fid);
         /* resend avatar info (in case it changed) */
         /* Avatars must be sent LAST or they will clobber existing file transfers! */
         avatar_on_friend_online(tox, fid);
-        friend_notify_status(&friend[fid], (uint8_t *)friend[fid].status_message, friend[fid].status_length, "online");
+        friend_notify_status(f, (uint8_t *)f->status_message, f->status_length, "online");
     }
     postmessage_utox(FRIEND_ONLINE, fid, !!status, NULL);
 
@@ -116,7 +131,7 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
         LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tOnline (TCP)", fid);
     } else {
         LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tOffline", fid);
-        friend_notify_status(&friend[fid], NULL, 0, "offline");
+        friend_notify_status(f, NULL, 0, "offline");
     }
 }
 
@@ -139,7 +154,7 @@ static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE ty
     int gid = -1;
     if (type == TOX_CONFERENCE_TYPE_TEXT) {
         gid = tox_conference_join(tox, fid, data, length, NULL);
-        group_init(&group[gid], gid, 0);
+        group_init(get_group(gid), gid, 0);
     } else if (type == TOX_CONFERENCE_TYPE_AV) {
         // TODO FIX THIS AFTER NEW GROUP API IS RELEASED
         // gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
@@ -154,7 +169,7 @@ static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE ty
 
 static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, TOX_MESSAGE_TYPE type,
                                    const uint8_t *message, size_t length, void *UNUSED(userdata)) {
-    GROUPCHAT *g = &group[gid];
+    GROUPCHAT *g = get_group(gid);
 
     switch (type) {
         case TOX_MESSAGE_TYPE_ACTION: {
@@ -174,7 +189,7 @@ static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid,
 
 static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid, TOX_CONFERENCE_STATE_CHANGE change,
                                            void *UNUSED(userdata)) {
-    GROUPCHAT *g = &group[gid];
+    GROUPCHAT *g = get_group(gid);
 
     switch (change) {
         case TOX_CONFERENCE_STATE_CHANGE_PEER_JOIN: {
@@ -306,7 +321,7 @@ void utox_set_callbacks_groups(Tox *tox) {
 
 #ifdef ENABLE_MULTIDEVICE
 static void callback_friend_list_change(Tox *tox, void *user_data) {
-    LOG_ERR(__FILE__, "friend list change, updating roster");
+    LOG_ERR("Tox Callbacks", "friend list change, updating roster");
 
     flist_dump_contacts();
     utox_friend_list_init(tox);
@@ -363,7 +378,7 @@ static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint
         }
 
         default: {
-            LOG_ERR(__FILE__, "Message from Friend\t%u\t--\tof unsupported type: %.*s", target_friend, (uint32_t)msg_length, msg);
+            LOG_ERR("Tox Callbacks", "Message from Friend\t%u\t--\tof unsupported type: %.*s", target_friend, (uint32_t)msg_length, msg);
         }
     }
     friend_notify_msg(&friend[target_friend], msg, msg_length);

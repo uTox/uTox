@@ -2,9 +2,10 @@
 
 #include "debug.h"
 #include "file_transfers.h"
-#include "main_native.h"
 #include "self.h"
 #include "tox.h"
+
+#include "native/image.h"
 
 /* frees the image of an avatar, does nothing if image is NULL */
 static void avatar_free_image(AVATAR *avatar) {
@@ -22,9 +23,9 @@ bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_
     snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
              TOX_PUBLIC_KEY_SIZE * 2, hexid);
 
-    fp = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+    fp = utox_get_file(name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
 
-    if (fp == NULL) {
+    if (!fp) {
         LOG_WARN("Avatar", "Could not save avatar for: %.*s", TOX_PUBLIC_KEY_SIZE * 2, hexid);
         return false;
     }
@@ -41,7 +42,7 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
              TOX_PUBLIC_KEY_SIZE * 2, hexid);
 
     size_t size = 0;
-    FILE *fp = utox_get_file((uint8_t *)name, &size, UTOX_FILE_OPTS_READ);
+    FILE *fp = utox_get_file(name, &size, UTOX_FILE_OPTS_READ);
     if (fp == NULL) {
         LOG_TRACE("Avatar", "Could not read: %s", name);
         return NULL;
@@ -185,6 +186,7 @@ bool self_set_and_save_avatar(const uint8_t *data, uint32_t size) {
 
 void avatar_delete_self(void) {
     avatar_unset(self.avatar);
+    avatar_delete(self.id_str);
     postmessage_toxcore(TOX_AVATAR_UNSET, 0, 0, NULL);
 }
 

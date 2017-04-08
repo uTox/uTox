@@ -2,17 +2,18 @@
 
 #include "filesys.h"
 // TODO including native.h files should never be needed, refactor filesys.h to provide necessary API
-#include "filesys_native.h"
 #include "debug.h"
 #include "messages.h"
 #include "text.h"
+
+#include "native/filesys.h"
 
 #include <stdint.h>
 #include <stdlib.h>
 
 static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
-    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
-    snprintf((char *)name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
+    char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
+    snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
     FILE *file;
     if (append) {
@@ -23,7 +24,7 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
 
         fseek(file, 0, SEEK_END);
     } else {
-        file = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ);
+        file = utox_get_file(name, NULL, UTOX_FILE_OPTS_READ);
     }
 
     return file;
@@ -31,7 +32,7 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
 
 size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
     FILE *fp = chatlog_get_file(hex, true);
-    if (fp == NULL) {
+    if (!fp) {
         LOG_ERR("uTox", "Error getting a file handle for this chatlog!");
         return 0;
     }
@@ -99,7 +100,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
 
     FILE *file = chatlog_get_file(hex, false);
     if (!file) {
-        LOG_TRACE(__FILE__, "Log read:\tUnable to access file provided." );
+        LOG_TRACE("Chatlog", "Log read:\tUnable to access file provided." );
         return NULL;
     }
 

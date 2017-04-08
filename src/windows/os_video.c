@@ -4,9 +4,11 @@
 
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
 
 #include "../av/video.h"
+
+#include "../native/time.h"
+
 #include "../../langs/i18n_decls.h"
 
 #include <windows.h>
@@ -110,7 +112,7 @@ HRESULT STDMETHODCALLTYPE test_SampleCB(ISampleGrabberCB *UNUSED(lpMyObj), doubl
         newframe = 1;
     }
 
-    // LOG_TRACE(__FILE__, "frame %u" , length);
+    // LOG_TRACE("Video", "frame %u" , length);
     return S_OK;
 }
 
@@ -292,7 +294,7 @@ uint16_t native_video_detect(void) {
     hr = CoCreateInstance(&CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, &IID_ICreateDevEnum,
                           (void **)&pSysDevEnum);
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "CoCreateInstance failed()" );
+        LOG_TRACE("Video", "CoCreateInstance failed()" );
         return 0;
     }
     // Obtain a class enumerator for the video compressor category.
@@ -301,7 +303,7 @@ uint16_t native_video_detect(void) {
     if (hr != S_OK) {
 
         pSysDevEnum->lpVtbl->Release(pSysDevEnum);
-        LOG_TRACE(__FILE__, "CreateClassEnumerator failed()" );
+        LOG_TRACE("Video", "CreateClassEnumerator failed()" );
         return 0;
     }
 
@@ -310,7 +312,7 @@ uint16_t native_video_detect(void) {
 
 
     uint16_t device_count = 1; /* start at 1 because we support desktop grabbing */
-    LOG_TRACE(__FILE__, "Windows Video Devices:" );
+    LOG_TRACE("Video", "Windows Video Devices:" );
     ULONG cFetched;
     while (pEnumCat->lpVtbl->Next(pEnumCat, 1, &pMoniker, &cFetched) == S_OK) {
         IPropertyBag *pPropBag;
@@ -322,9 +324,9 @@ uint16_t native_video_detect(void) {
             hr = pPropBag->lpVtbl->Read(pPropBag, L"FriendlyName", &varName, 0);
             if (SUCCEEDED(hr)) {
                 if (varName.vt == VT_BSTR) {
-                    LOG_TRACE(__FILE__, "\tFriendly name: %ls" , varName.bstrVal);
+                    LOG_TRACE("Video", "\tFriendly name: %ls" , varName.bstrVal);
                 } else {
-                    LOG_TRACE(__FILE__, "\tEw, got an unfriendly name" );
+                    LOG_TRACE("Video", "\tEw, got an unfriendly name" );
                 }
                 // To create an instance of the filter, do the following:
                 hr = pMoniker->lpVtbl->BindToObject(pMoniker, NULL, NULL, &IID_IBaseFilter, (void **)&pFilter);
@@ -337,7 +339,7 @@ uint16_t native_video_detect(void) {
                     device_count++;
                 }
             } else {
-                LOG_TRACE(__FILE__, "Windows Video Code:\tcouldn't get a name for this device, this is a bug, please report!" );
+                LOG_TRACE("Video", "Windows Video Code:\tcouldn't get a name for this device, this is a bug, please report!" );
             }
 
             VariantClear(&varName);
@@ -352,19 +354,19 @@ uint16_t native_video_detect(void) {
 
     hr = CoCreateInstance(&CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, &IID_IBaseFilter, (void **)&pNullF);
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "CoCreateInstance failed" );
+        LOG_TRACE("Video", "CoCreateInstance failed" );
         return 0;
     }
 
     hr = pGraph->lpVtbl->AddFilter(pGraph, pNullF, L"Null Filter");
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "AddFilter failed" );
+        LOG_TRACE("Video", "AddFilter failed" );
         return 0;
     }
 
     hr = ConnectFilters(pGraph, pGrabberF, pNullF);
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "ConnectFilters (2) failed" );
+        LOG_TRACE("Video", "ConnectFilters (2) failed" );
         return 0;
     }
 
@@ -414,26 +416,26 @@ bool native_video_init(void *handle) {
             video_height++;
         }
 
-        LOG_TRACE(__FILE__, "size: %u %u" , video_width, video_height);
+        LOG_TRACE("Video", "size: %u %u" , video_width, video_height);
 
         desktopwnd = GetDesktopWindow();
         if (!desktopwnd) {
-            LOG_TRACE(__FILE__, "GetDesktopWindow() failed" );
+            LOG_TRACE("Video", "GetDesktopWindow() failed" );
             return 0;
         }
 
         if (!(desktopdc = GetDC(desktopwnd))) {
-            LOG_TRACE(__FILE__, "GetDC(desktopwnd) failed" );
+            LOG_TRACE("Video", "GetDC(desktopwnd) failed" );
             return 0;
         }
 
         if (!(capturedc = CreateCompatibleDC(desktopdc))) {
-            LOG_TRACE(__FILE__, "CreateCompatibleDC(desktopdc) failed" );
+            LOG_TRACE("Video", "CreateCompatibleDC(desktopdc) failed" );
             return 0;
         }
 
         if (!(capturebitmap = CreateCompatibleBitmap(desktopdc, video_width, video_height))) {
-            LOG_TRACE(__FILE__, "CreateCompatibleBitmap(desktopdc) failed" );
+            LOG_TRACE("Video", "CreateCompatibleBitmap(desktopdc) failed" );
             return 0;
         }
 
@@ -450,7 +452,7 @@ bool native_video_init(void *handle) {
 
     hr = pGraph->lpVtbl->AddFilter(pGraph, pFilter, L"Video Capture");
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "AddFilter failed" );
+        LOG_TRACE("Video", "AddFilter failed" );
         return 0;
     }
 
@@ -459,7 +461,7 @@ bool native_video_init(void *handle) {
     /* build filter graph */
     hr = pFilter->lpVtbl->EnumPins(pFilter, &pEnum);
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "EnumPins failed" );
+        LOG_TRACE("Video", "EnumPins failed" );
         return 0;
     }
 
@@ -472,7 +474,7 @@ bool native_video_init(void *handle) {
     }
 
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "failed to connect a filter" );
+        LOG_TRACE("Video", "failed to connect a filter" );
         return 0;
     }
 
@@ -481,13 +483,13 @@ bool native_video_init(void *handle) {
 
     hr = pPin->lpVtbl->QueryInterface(pPin, &IID_IAMStreamConfig, (void **)&pConfig);
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "Windows Video device: QueryInterface failed" );
+        LOG_TRACE("Video", "Windows Video device: QueryInterface failed" );
         return 0;
     }
 
     hr = pConfig->lpVtbl->GetFormat(pConfig, &pmt);
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "Windows Video device: GetFormat failed" );
+        LOG_TRACE("Video", "Windows Video device: GetFormat failed" );
         return 0;
     }
 
@@ -498,14 +500,14 @@ bool native_video_init(void *handle) {
         video_width          = bmiHeader->biWidth;
         video_height         = bmiHeader->biHeight;
     } else {
-        LOG_TRACE(__FILE__, "got bad format" );
+        LOG_TRACE("Video", "got bad format" );
         video_width  = 0;
         video_height = 0;
     }
 
     frame_data = malloc((size_t)video_width * video_height * 3);
 
-    LOG_TRACE(__FILE__, "Windows video init:\n\twidth height %u %u" , video_width, video_height);
+    LOG_TRACE("Video", "Windows video init:\n\twidth height %u %u" , video_width, video_height);
 
     return 1;
 }
@@ -540,12 +542,12 @@ void native_video_close(void *handle) {
         return;
     }
 
-    LOG_TRACE(__FILE__, "closed webcam" );
+    LOG_TRACE("Video", "closed webcam" );
 }
 
 int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
     if (width != video_width || height != video_height) {
-        LOG_TRACE(__FILE__, "width/height mismatch %u %u != %u %u" , width, height, video_width, video_height);
+        LOG_TRACE("Video", "width/height mismatch %u %u != %u %u" , width, height, video_width, video_height);
         return 0;
     }
 
@@ -583,11 +585,11 @@ bool native_video_startread(void) {
     if (capturedesktop) {
         return 1;
     }
-    LOG_TRACE(__FILE__, "start webcam" );
+    LOG_TRACE("Video", "start webcam" );
     HRESULT hr;
     hr = pControl->lpVtbl->Run(pControl);
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "Run failed" );
+        LOG_TRACE("Video", "Run failed" );
         return 0;
     }
     return 1;
@@ -597,11 +599,11 @@ bool native_video_endread(void) {
     if (capturedesktop) {
         return 1;
     }
-    LOG_TRACE(__FILE__, "stop webcam" );
+    LOG_TRACE("Video", "stop webcam" );
     HRESULT hr;
     hr = pControl->lpVtbl->StopWhenReady(pControl);
     if (FAILED(hr)) {
-        LOG_TRACE(__FILE__, "Stop failed" );
+        LOG_TRACE("Video", "Stop failed" );
         return 0;
     }
     return 1;

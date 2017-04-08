@@ -13,7 +13,7 @@ bool slash_send_file(void *object, char *filepath, int UNUSED(arg_length)) {
     if (filepath) {
         FRIEND *f = object;
         LOG_TRACE("slash_send_file", "File path is: %s" , filepath);
-        postmessage_toxcore(TOX_FILE_SEND_NEW_SLASH, f - friend, 0xFFFF, (void *)filepath);
+        postmessage_toxcore(TOX_FILE_SEND_NEW_SLASH, f->number, 0xFFFF, (void *)filepath);
         return true;
     }
 
@@ -64,7 +64,7 @@ bool slash_topic(void *object, char *arg, int arg_length) {
     void *d = malloc(arg_length);
     if (d) {
         memcpy(d, arg, arg_length);
-        postmessage_toxcore(TOX_GROUP_SET_TOPIC, (g - group), arg_length, d);
+        postmessage_toxcore(TOX_GROUP_SET_TOPIC, g->number, arg_length, d);
         return true;
     }
     LOG_ERR("slash_topic", " Could not allocate memory.");

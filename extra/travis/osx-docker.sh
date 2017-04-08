@@ -57,7 +57,7 @@ cd ..
 
 # install toxcore
 if ! [ -d toxcore ]; then
-  git clone --depth=1 --branch=master https://github.com/TokTok/c-toxcore.git toxcore
+  git clone --depth=1 --branch=$TOXCORE_REPO_BRANCH $TOXCORE_REPO_URI toxcore
 fi
 cd toxcore
 git rev-parse HEAD > toxcore.sha
@@ -78,5 +78,12 @@ cd ..
 
 ls -la $CACHE_DIR
 
-cmake . -DCMAKE_SYSTEM_NAME=Darwin -DENABLE_ASAN=OFF -DFILTER_AUDIO=OFF -DUTOX_STATIC=OFF -DTOXCORE_STATIC=ON -DENABLE_TESTS=OFF -DENABLE_WERROR=OFF
+cmake . -DCMAKE_SYSTEM_NAME=Darwin \
+        -DENABLE_ASAN=OFF \
+        -DENABLE_FILTERAUDIO=OFF \
+        -DUTOX_STATIC=OFF \
+        -DTOXCORE_STATIC=ON \
+        -DENABLE_TESTS=OFF \
+        -DENABLE_WERROR=OFF
+
 make || make VERBOSE=1

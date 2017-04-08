@@ -3,7 +3,6 @@
 #include "debug.h"
 #include "flist.h"
 #include "groups.h"
-#include "main_native.h"
 
 // TODO do we want to include the UI headers here?
 // Or would it be better to supply a callback after settings are loaded?
@@ -13,11 +12,16 @@
 
 #include "layout/settings.h"
 
+#include "native/filesys.h"
+#include "native/keyboard.h"
+
 #include "main.h" // UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
 
 SETTINGS settings = {
-    .curr_version = UTOX_VERSION_NUMBER,
     // .last_version                // included here to match the full struct
+    .curr_version = UTOX_VERSION_NUMBER,
+    .next_version = UTOX_VERSION_NUMBER,
+
     .show_splash = false,
 
     // Low level settings (network, profile, portable-mode)
@@ -65,6 +69,8 @@ SETTINGS settings = {
 
     // .theme                       // included here to match the full struct
     // OS interface settings
+    .window_x             = 0,
+    .window_y             = 0,
     .window_height        = MAIN_HEIGHT,
     .window_width         = MAIN_WIDTH,
     .window_baseline      = 0,
@@ -80,7 +86,7 @@ UTOX_SAVE *config_load(void) {
     if (!save) {
         LOG_ERR("Settings", "unable to load utox_save data");
         /* Create and set defaults */
-        save              = calloc(1, sizeof(UTOX_SAVE));
+        save = calloc(1, sizeof(UTOX_SAVE));
         save->enableipv6  = 1;
         save->disableudp  = 0;
         save->proxyenable = 0;
@@ -152,31 +158,41 @@ UTOX_SAVE *config_load(void) {
         }
     }
 
-    settings.logging_enabled     = save->logging_enabled;
-    settings.close_to_tray       = save->close_to_tray;
-    settings.start_in_tray       = save->start_in_tray;
-    settings.start_with_system   = save->auto_startup;
-    settings.ringtone_enabled    = save->audible_notifications_enabled;
-    settings.audiofilter_enabled = save->audio_filtering_enabled;
-    settings.use_mini_flist      = save->use_mini_flist;
+    settings.logging_enabled        = save->logging_enabled;
+    settings.close_to_tray          = save->close_to_tray;
+    settings.start_in_tray          = save->start_in_tray;
+    settings.start_with_system      = save->auto_startup;
+    settings.ringtone_enabled       = save->audible_notifications_enabled;
+    settings.audiofilter_enabled    = save->audio_filtering_enabled;
+    settings.use_mini_flist         = save->use_mini_flist;
 
-    settings.send_typing_status   = !save->no_typing_notifications;
-    settings.group_notifications  = save->group_notifications;
-    settings.status_notifications = save->status_notifications;
+    settings.send_typing_status     = !save->no_typing_notifications;
+    settings.group_notifications    = save->group_notifications;
+    settings.status_notifications   = save->status_notifications;
 
-    settings.window_width  = save->window_width;
-    settings.window_height = save->window_height;
+    settings.window_width           = save->window_width;
+    settings.window_height          = save->window_height;
 
-    settings.last_version = save->utox_last_version;
+    settings.last_version           = save->utox_last_version;
 
-    loaded_audio_out_device = save->audio_device_out;
-    loaded_audio_in_device  = save->audio_device_in;
+    loaded_audio_out_device         = save->audio_device_out;
+    loaded_audio_in_device          = save->audio_device_in;
 
     settings.auto_update            = save->auto_update;
     switch_auto_update.switch_on    = save->auto_update;
     settings.update_to_develop      = save->update_to_develop;
     settings.send_version           = save->send_version;
 
+    // TODO: Don't clobber (and start saving) commandline flags.
+
+    // Allow users to override theme on the cmdline.
+    // 0 is the default theme.
+    // TODO: `utox -t default` is still broken.
+    if (settings.theme == 0) {
+        settings.theme              = save->theme;
+    }
+
+    ui_set_scale(save->scale + 1);
 
     if (save->push_to_talk) {
         init_ptt();
@@ -190,10 +206,10 @@ void config_save(UTOX_SAVE *save_in) {
     UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + 256);
 
     /* Copy the data from the in data to protect the calloc */
-    save->window_x      = save_in->window_x;
-    save->window_y      = save_in->window_y;
-    save->window_width  = save_in->window_width;
-    save->window_height = save_in->window_height;
+    save->window_x                      = save_in->window_x;
+    save->window_y                      = save_in->window_y;
+    save->window_width                  = save_in->window_width;
+    save->window_height                 = save_in->window_height;
 
     save->save_version                  = UTOX_SAVE_VERSION;
     save->scale                         = ui_scale - 1;
@@ -229,20 +245,21 @@ void config_save(UTOX_SAVE *save_in) {
     memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */
 
     LOG_NOTE("uTox", "Writing uTox Save" );
-    utox_data_save_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
+    utox_data_save_utox(save, sizeof(UTOX_SAVE) + 256); /* Magic number inside toxcore */
     free(save);
 }
 
 
 bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
-    FILE *fp = utox_get_file((uint8_t *)"utox_save", NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *fp = utox_get_file("utox_save", NULL, UTOX_FILE_OPTS_WRITE);
 
-    if (fp == NULL) {
+    if (!fp) {
+        LOG_ERR("Settings", "Unable to open file for uTox settings.");
         return false;
     }
 
     if (fwrite(data, size, 1, fp) != 1) {
-        LOG_ERR(__FILE__, "Unable to write uTox settings to file.");
+        LOG_ERR("Settings", "Unable to write uTox settings to file.");
         return false;
     }
 
@@ -254,21 +271,22 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
 
 UTOX_SAVE *utox_data_load_utox(void) {
     size_t size = 0;
-    FILE *fp = utox_get_file((uint8_t *)"utox_save", &size, UTOX_FILE_OPTS_READ);
+    FILE *fp = utox_get_file("utox_save", &size, UTOX_FILE_OPTS_READ);
 
-    if (fp == NULL) {
+    if (!fp) {
+        LOG_ERR("Settings", "Unable to open utox_save.");
         return NULL;
     }
 
     UTOX_SAVE *save = calloc(1, size + 1);
-    if (save == NULL) {
+    if (!save) {
+        LOG_ERR("Settings", "Unable to malloc for utox_save.");
         fclose(fp);
         return NULL;
     }
 
     if (fread(save, size, 1, fp) != 1) {
-        LOG_ERR(__FILE__, "Could not read save file");
-
+        LOG_ERR("Settings", "Could not read save file");
         fclose(fp);
         free(save);
         return NULL;

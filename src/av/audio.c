@@ -2,10 +2,13 @@
 
 #include "utox_av.h"
 
+#include "../native/audio.h"
+#include "../native/keyboard.h"
+#include "../native/thread.h"
+
 #include "../debug.h"
 #include "../friend.h"
 #include "../main.h" // utox_audio_thread_init, self, USER_STATUS_*, UTOX_MAX_CALLS
-#include "../main_native.h"
 #include "../self.h"
 #include "../settings.h"
 #include "../tox.h"
@@ -38,6 +41,8 @@
 static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {
 #ifdef AUDIO_FILTERING
     kill_filter_audio(filter_audio_handle);
+#else
+    (void)filter_audio_handle;
 #endif
 }
 
@@ -244,7 +249,7 @@ void sourceplaybuffer(unsigned int f, const int16_t *data, int samples, uint8_t 
     if (f >= self.friend_list_size) {
         source = preview;
     } else {
-        source = friend[f].audio_dest;
+        source = get_friend(f)->audio_dest;
     }
 
     ALuint bufid;
@@ -581,7 +586,7 @@ void utox_audio_thread(void *args) {
 
             switch (m->msg) {
                 case UTOXAUDIO_START_FRIEND: {
-                    FRIEND *f = &friend[m->param1];
+                    FRIEND *f = get_friend(m->param1);
                     if (!f->audio_dest) {
                         utox_audio_out_device_open();
                         audio_source_init(&f->audio_dest);
@@ -589,7 +594,7 @@ void utox_audio_thread(void *args) {
                     break;
                 }
                 case UTOXAUDIO_STOP_FRIEND: {
-                    FRIEND *f = &friend[m->param1];
+                    FRIEND *f = get_friend(m->param1);
                     if (f->audio_dest) {
                         audio_source_term(&f->audio_dest);
                         f->audio_dest = 0;
@@ -783,7 +788,7 @@ void utox_audio_thread(void *args) {
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // LOG_TRACE("uTox Audio", "Sending audio frame!" );
-                            toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe,
+                            toxav_audio_send_frame(av, get_friend(i)->number, (const int16_t *)buf, perframe,
                                                    UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, &error);
                             if (error) {
                                 LOG_TRACE("uTox Audio", "toxav_send_audio error friend == %lu, error ==  %i" , i, error);

@@ -1,5 +1,6 @@
 #include "tox.h"
 
+#include "avatar.h"
 #include "dns.h"
 #include "file_transfers.h"
 #include "flist.h"
@@ -7,7 +8,6 @@
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
-#include "main_native.h"
 #include "self.h"
 #include "settings.h"
 #include "text.h"
@@ -26,6 +26,9 @@
 
 #include "layout/background.h"
 #include "layout/settings.h"
+
+#include "native/thread.h"
+#include "native/time.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -84,7 +87,7 @@ static int utox_encrypt_data(void *clear_text, size_t clear_length, uint8_t *cyp
     tox_pass_encrypt((uint8_t *)clear_text, clear_length, (uint8_t *)passphrase, passphrase_length, cypher_data, &err);
 
     if (err) {
-        LOG_FATAL_ERR(EXIT_FAILURE, __FILE__, "Fatal Error; unable to encrypt data!\n");
+        LOG_FATAL_ERR(EXIT_FAILURE, "Toxcore", "Fatal Error; unable to encrypt data!\n");
     }
 
     return err;
@@ -575,6 +578,7 @@ void toxcore_thread(void *UNUSED(args)) {
     }
 
     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
+    free_friends();
     LOG_TRACE("Toxcore", "Tox thread:\tClean exit!");
 }
 
@@ -723,18 +727,17 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         }
 
         case TOX_FRIEND_ACCEPT: {
-            /* data: FRIENDREQ
+            /* data: FREQUEST
              */
-            FRIENDREQ *        req = data;
+            FREQUEST *req = data;
             TOX_ERR_FRIEND_ADD f_err;
-            uint32_t           fid = tox_friend_add_norequest(tox, req->id, &f_err);
+            uint32_t fid = tox_friend_add_norequest(tox, req->bin_id, &f_err);
             if (!f_err) {
                 utox_friend_init(tox, fid);
-                postmessage_utox(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
-                            (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
+                postmessage_utox(FRIEND_ACCEPT_REQUEST, fid, 0, req);
             } else {
                 char hex_id[TOX_ADDRESS_SIZE * 2];
-                id_to_string(hex_id, self.id_binary);
+                id_to_string(hex_id, req->bin_id);
                 LOG_TRACE("Toxcore", "Unable to accept friend %s, error num = %i" , hex_id, fid);
             }
             save_needed = 1;
@@ -836,6 +839,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             break;
         }
+
         case TOX_FILE_SEND_NEW_INLINE: {
             /* param1: friend id
                data: pointer to a TOX_SEND_INLINE_MSG struct
@@ -848,11 +852,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             free(data);
             break;
         }
+
         case TOX_FILE_ACCEPT: {
             /* param1: friend #
              * param2: file #
              * data: path to write file */
-            if (utox_file_start_write(param1, param2, data, 0) == 0) {
+            if (utox_file_start_write(param1, param2, data, 0)) {
                 /*  tox, friend#, file#,        START_FILE      */
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
@@ -861,11 +866,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             free(data);
             break;
         }
+
         case TOX_FILE_ACCEPT_AUTO: {
             /* param1: friend #
              * param2: file #
              * data: open handle to file */
-            if (utox_file_start_write(param1, param2, data, 1) == 0) {
+            if (utox_file_start_write(param1, param2, data, 1)) {
                 /*  tox, friend#, file#,        START_FILE      */
                 ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
@@ -873,6 +879,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
             break;
         }
+
         case TOX_FILE_RESUME: {
             if (data) {
                 param2 = ((FILE_TRANSFER*)data)->file_number;
@@ -880,6 +887,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             break;
         }
+
         case TOX_FILE_PAUSE: {
             if (data) {
                 param2 = ((FILE_TRANSFER*)data)->file_number;
@@ -887,6 +895,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
             break;
         }
+
         case TOX_FILE_CANCEL: {
             if (data) {
                 param2 = ((FILE_TRANSFER*)data)->file_number;
@@ -894,6 +903,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             ft_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             break;
         }
+
 
         /* Audio & Video */
         case TOX_CALL_SEND: {
@@ -998,7 +1008,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend # */
             LOG_TRACE("Toxcore", "Starting video for active call!" );
             utox_av_local_call_control(av, param1, TOXAV_CALL_CONTROL_SHOW_VIDEO);
-            friend[param1].call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;
+            get_friend(param1)->call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;
             break;
         }
         case TOX_CALL_DISCONNECT: {

@@ -1,14 +1,6 @@
 project(utoxUI LANGUAGES C)
 
 add_library(utoxUI STATIC
-    ../layout/friend.c
-    ../layout/group.c
-    ../layout/notify.c
-    ../layout/settings.c
-    ../layout/sidebar.c
-    ../layout/userbadge.c
-    ../layout/background.c
-
     button.c
     contextmenu.c
     contextmenu.h
@@ -28,3 +20,5 @@ add_library(utoxUI STATIC
     tooltip.c
     tooltip.h
     )
+
+target_link_libraries(utoxUI utoxLAYOUT)

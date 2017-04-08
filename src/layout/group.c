@@ -31,7 +31,7 @@ SCROLLABLE scrollbar_group = {
 static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        LOG_ERR("Group", "Could not get selected groupchat.");
         return;
     }
 
@@ -138,14 +138,14 @@ panel_group = {
 static void button_group_audio_on_mup(void) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        LOG_ERR("Group", "Could not get selected groupchat.");
         return;
     }
 
     if (g->audio_calling) {
-        postmessage_toxcore(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
+        postmessage_toxcore(TOX_GROUP_AUDIO_END, g->number, 0, NULL);
     } else {
-        postmessage_toxcore(TOX_GROUP_AUDIO_START, (g - group), 0, NULL);
+        postmessage_toxcore(TOX_GROUP_AUDIO_START, g->number, 0, NULL);
     }
 }
 
@@ -153,7 +153,7 @@ static void button_group_audio_on_mup(void) {
 static void button_group_audio_update(BUTTON *b) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        LOG_ERR("Group", "Could not get selected groupchat.");
         return;
     }
 
@@ -233,7 +233,7 @@ static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int directio
     static size_t dedup_size[65536]; /* TODO magic numbers */
     GROUPCHAT *   g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        LOG_ERR("Group", "Could not get selected groupchat.");
         return 0;
     }
 
@@ -344,7 +344,7 @@ static void e_chat_msg_ontab(EDIT *edit) {
             if ((length == 6 && !memcmp(text, "/topic", 6)) || (length == 7 && !memcmp(text, "/topic ", 7))) {
                 GROUPCHAT *g = flist_get_groupchat();
                 if (!g) {
-                    LOG_ERR(__FILE__, "Could not get selected groupchat.");
+                    LOG_ERR("Group", "Could not get selected groupchat.");
                     return;
                 }
 
@@ -404,7 +404,7 @@ void e_chat_msg_onenter(EDIT *edit) {
         return;
     }
 
-    // LOG_NOTE(__FILE__, "cmd %u\n", command_length);
+    // LOG_NOTE("Group", "cmd %u\n", command_length);
 
     bool action = false;
     if (command_length) {
@@ -431,7 +431,7 @@ void e_chat_msg_onenter(EDIT *edit) {
             return;
         }
         memcpy(d, text, length);
-        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
+        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), g->number, length, d);
     }
 
     completion.active = 0;
@@ -489,10 +489,19 @@ EDIT edit_chat_msg_group = {
 };
 
 static void e_group_topic_onenter(EDIT *edit) {
-    GROUPCHAT *g = right_mouse_item->data;
-    void *     d = malloc(edit->length);
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR("Layout Groups", "Can't set a topic when a group isn't selected!");
+        return;
+    }
+
+    void *d = malloc(edit->length);
+    if (!d){
+        LOG_ERR("Layout Groups", "Unable to change group topic.");
+        return;
+    }
     memcpy(d, edit->data, edit->length);
-    postmessage_toxcore(TOX_GROUP_SET_TOPIC, (g - group), edit->length, d);
+    postmessage_toxcore(TOX_GROUP_SET_TOPIC, g->number, edit->length, d);
 }
 
 static char e_group_topic_data[1024];
@@ -546,7 +555,7 @@ void e_msg_onenter_group(EDIT *edit) {
             return;
         }
         memcpy(d, text, length);
-        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
+        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), g->number, length, d);
     }
 
     completion.active = 0;

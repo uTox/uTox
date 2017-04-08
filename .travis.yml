@@ -95,7 +95,7 @@ git:
 before_script:
   - ./extra/travis/env.sh
   - ./extra/travis/${BUILD}-before.sh
-  - ./extra/travis/filter_audio.sh
+  - ./extra/common/filter_audio.sh
 
 script:
   - ./extra/travis/${BUILD}-script.sh

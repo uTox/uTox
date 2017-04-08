@@ -65,7 +65,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
     *pdwEffect = DROPEFFECT_COPY;
     LOG_NOTE("DnD", "Droppped!" );
 
-    if (flist_get_selected()->item != ITEM_FRIEND) {
+    if (!flist_get_friend()) {
         return S_OK;
     }
 
@@ -81,7 +81,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
     if (r == S_OK) {
         HDROP h = medium.hGlobal;
         int count = DragQueryFile(h, ~0, NULL, 0);
-        LOG_INFO(__FILE__, "%u files dropped\n", count);
+        LOG_INFO("WINDND", "%u files dropped\n", count);
 
         for (int i = 0; i < count; i++) {
             LOG_NOTE("WINDND", "Sending file number %i", i);
@@ -109,13 +109,13 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
             }
 
             msg->name = (uint8_t *)path;
-            postmessage_toxcore(TOX_FILE_SEND_NEW, ((FRIEND*)flist_get_selected()->data)->number, 0, msg);
+            postmessage_toxcore(TOX_FILE_SEND_NEW, flist_get_friend()->number, 0, msg);
             LOG_INFO("WINDND", "File number %i sent!" , i);
         }
 
         ReleaseStgMedium(&medium);
     } else {
-        LOG_ERR(__FILE__, "itz failed! %lX", r);
+        LOG_ERR("WINDND", "itz failed! %lX", r);
     }
 
     return S_OK;

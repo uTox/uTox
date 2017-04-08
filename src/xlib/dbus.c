@@ -1,16 +1,21 @@
-// dbus.c
 #ifdef HAVE_DBUS
+#include "dbus.h"
+
+#include "../debug.h"
+#include "../macros.h"
+
+#include "../text.h"
+
 #include <dbus/dbus.h>
 #include <signal.h>
-
-#include "dbus.h"
+#include <stdlib.h>
 
 #define NOTIFY_OBJECT "/org/freedesktop/Notifications"
 #define NOTIFY_INTERFACE "org.freedesktop.Notifications"
 
 static sig_atomic_t done;
 
-static int notify_build_message(DBusMessage *notify_msg, char *title, char *content, uint8_t *cid) {
+static int notify_build_message(DBusMessage *notify_msg, char *title, char *content, uint8_t *UNUSED(cid)) {
     DBusMessageIter args[4];
     char *          app_name    = "uTox";
     uint32_t        replaces_id = -1;
@@ -49,7 +54,7 @@ static int notify_build_message(DBusMessage *notify_msg, char *title, char *cont
     return m;
 }
 
-static void notify_callback(DBusPendingCall *pending, void *user_data) { done = 1; }
+static void notify_callback(DBusPendingCall *UNUSED(pending), void *UNUSED(user_data)) { done = 1; }
 
 void dbus_notify(char *title, char *content, uint8_t *cid) {
     DBusMessage *    msg;
@@ -61,7 +66,7 @@ void dbus_notify(char *title, char *content, uint8_t *cid) {
     conn = dbus_bus_get(DBUS_BUS_SESSION, &err);
 
     if (dbus_error_is_set(&err)) {
-        LOG_ERR(__FILE__, "Connection Error (%s)\n", err.message);
+        LOG_ERR("Dbus", "Connection Error (%s)\n", err.message);
         dbus_error_free(&err);
     }
 
@@ -92,7 +97,7 @@ void dbus_notify(char *title, char *content, uint8_t *cid) {
     dbus_error_init(&err);
 
     if (!dbus_connection_send_with_reply(conn, msg, &pending, -1)) {
-        LOG_FATAL_ERR(EXIT_FAILURE, __FILE__, "Sending failed!");
+        LOG_FATAL_ERR(EXIT_FAILURE, "Dbus", "Sending failed!");
     }
 
     if (!dbus_pending_call_set_notify(pending, &notify_callback, NULL, NULL)) {

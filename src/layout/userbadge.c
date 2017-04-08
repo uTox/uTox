@@ -5,9 +5,10 @@
 #include "../avatar.h"
 #include "../flist.h"
 #include "../macros.h"
-#include "../main_native.h"
 #include "../self.h"
 #include "../tox.h"
+
+#include "../native/dialog.h"
 
 #include "../ui/button.h"
 #include "../ui/contextmenu.h"
@@ -89,7 +90,7 @@ static void button_status_on_mup(void) {
 
 static void contextmenu_avatar_onselect(uint8_t i) {
     if (i == 0) {
-        avatar_unset_self();
+        avatar_delete_self();
     }
 }
 

@@ -5,6 +5,11 @@
 #include "../macros.h"
 #include "../self.h"
 #include "../theme.h"
+#include "../updater.h"
+
+#include "../native/clipboard.h"
+#include "../native/keyboard.h"
+#include "../native/notify.h"
 
 #include "../ui/button.h"
 #include "../ui/draw.h"
@@ -572,7 +577,7 @@ static void button_show_password_settings_on_mup(void) {
 static void button_export_chatlog_on_mup(void) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR(__FILE__, "Could not get selected friend.");
+        LOG_ERR("Settings", "Could not get selected friend.");
         return;
     }
     utox_export_chatlog_init(f->number);
@@ -598,7 +603,6 @@ static void button_show_nospam_on_mup(void) {
     panel_nospam_settings.disabled = !panel_nospam_settings.disabled;
 }
 
-#include "../main_native.h"
 static void button_copyid_on_mup(void) {
     edit_setfocus(&edit_toxid);
     copy(0);
@@ -785,7 +789,10 @@ static void switchfxn_audio_filtering(void) { settings.audiofilter_enabled = !se
 
 static void switchfxn_status_notifications(void) { settings.status_notifications = !settings.status_notifications; }
 
-static void switchfxn_auto_update(void) { settings.auto_update = !settings.auto_update; }
+static void switchfxn_auto_update(void) {
+    settings.auto_update = !settings.auto_update;
+    updater_start(0);
+}
 
 static void switchfxn_block_friend_requests(void) { settings.block_friend_requests = !settings.block_friend_requests; }
 
@@ -1009,7 +1016,7 @@ static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     LANG = (UTOX_LANG)i;
     /* The draw functions need the fonts' and scale to be reset when changing languages. */
-    ui_set_scale(ui_scale);
+    ui_rescale(ui_scale);
 }
 static STRING *dropdown_language_ondisplay(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     UTOX_LANG l = (UTOX_LANG)i;
@@ -1025,12 +1032,12 @@ static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR(__FILE__, "Could not get selected groupchat.");
+        LOG_ERR("Settings", "Could not get selected groupchat.");
         return;
     }
 
     g->notify    = i;
-    LOG_INFO(__FILE__, "g->notify = %u\n", i);
+    LOG_INFO("Settings", "g->notify = %u\n", i);
 }
 
 static void dropdown_global_group_notifications_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {

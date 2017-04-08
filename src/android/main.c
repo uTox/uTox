@@ -3,6 +3,8 @@
 #include "../filesys.h"
 #include "../settings.h"
 
+#include "../native/keyboard.h"
+
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -187,15 +189,15 @@ void *loadsavedata(uint32_t *len) {
 }
 
 void writesavedata(void *data, uint32_t len) {
-    LOG_TRACE(__FILE__, "Trying to save data (android)" );
+    LOG_TRACE("Android", "Trying to save data (android)" );
     FILE *file;
     file = fopen("/data/data/tox.utox/files/tox_save", "wb");
     if (file) {
         fwrite(data, len, 1, file);
         fclose(file);
-        LOG_TRACE(__FILE__, "Saved data" );
+        LOG_TRACE("Android", "Saved data" );
     } else {
-        LOG_TRACE(__FILE__, "fopen failed" );
+        LOG_TRACE("Android", "fopen failed" );
     }
 }
 
@@ -609,7 +611,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
                     // pointerinput2(pointer_index);
 
                     already_up = 0;
-                    LOG_TRACE(__FILE__, "down %f %f, %u" , x, y, pointer_index);
+                    LOG_TRACE("Android", "down %f %f, %u" , x, y, pointer_index);
                     p_down      = 1;
                     p_last_down = get_time();
                     break;
@@ -628,7 +630,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
 
                     // pointerinput(pointer_index);
 
-                    LOG_TRACE(__FILE__, "up %f %f, %u" , x, y, pointer_index);
+                    LOG_TRACE("Android", "up %f %f, %u" , x, y, pointer_index);
                     p_down = 0;
                     break;
                 }
@@ -639,7 +641,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
                         p_down = 0;
                         lx     = x;
                         ly     = y;
-                        LOG_TRACE(__FILE__, "move %f %f, %u" , x, y, pointer_index);
+                        LOG_TRACE("Android", "move %f %f, %u" , x, y, pointer_index);
                     }
                     // pointer[pointer_index].x = x;
                     // pointer[pointer_index].y = y;
@@ -680,7 +682,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
                         uint32_t c = getkeychar(key);
                         if (c != 0) {
                             if (edit_active()) {
-                                // LOG_TRACE(__FILE__, "%u" , c);
+                                // LOG_TRACE("Android", "%u" , c);
                                 edit_char(c, 0, 0);
                             }
                             // inputchar(c);
@@ -715,15 +717,15 @@ static void android_main(struct android_app *state) {
                );
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        LOG_TRACE(__FILE__, "Start on boot not supported on this OS!" );
+        LOG_TRACE("Android", "Start on boot not supported on this OS!" );
     }
 
     if (set_show_window == 1 || set_show_window == -1) {
-        LOG_TRACE(__FILE__, "Showing/hiding windows not supported on this OS!" );
+        LOG_TRACE("Android", "Showing/hiding windows not supported on this OS!" );
     }
 
     if (skip_updater == true) {
-        LOG_TRACE(__FILE__, "Disabling the updater is not supported on this OS." );
+        LOG_TRACE("Android", "Disabling the updater is not supported on this OS." );
     }
 
     // Make sure glue isn't stripped
@@ -744,7 +746,7 @@ static void android_main(struct android_app *state) {
     initfonts();
 
     dropdown_dpi.selected = dropdown_dpi.over = 15;
-    ui_set_scale(21);
+    ui_rescale(12);
 
     /* wait for tox thread to start */
     while (!tox_thread_init) {
@@ -774,7 +776,7 @@ static void android_main(struct android_app *state) {
         int    rlen, len;
         PIPING piping;
         while ((len = read(pipefd[0], (void *)&piping, sizeof(PIPING))) > 0) {
-            LOG_TRACE(__FILE__, "%u %u" , len, sizeof(PIPING));
+            LOG_TRACE("Android", "%u %u" , len, sizeof(PIPING));
             while (len != sizeof(PIPING)) {
                 if ((rlen = read(pipefd[0], (void *)&piping + len, sizeof(PIPING) - len)) > 0) {
                     len += rlen;
@@ -811,7 +813,7 @@ static void android_main(struct android_app *state) {
         usleep(1000);
     }
 
-    LOG_TRACE(__FILE__, "ANDROID DESTROYED" );
+    LOG_TRACE("Android", "ANDROID DESTROYED" );
 }
 
 void showkeyboard(bool show) {
@@ -888,7 +890,7 @@ static void onInputQueueDestroyed(ANativeActivity *act, AInputQueue *queue) {
 
 static void onContentRectChanged(ANativeActivity *activity, const ARect *r) {
     rect = *r;
-    LOG_TRACE(__FILE__, "rect: %u %u %u %u" , rect.left, rect.right, rect.top, rect.bottom);
+    LOG_TRACE("Android", "rect: %u %u %u %u" , rect.left, rect.right, rect.top, rect.bottom);
 
     settings.window_baseline = rect.bottom;
     _redraw                  = 1;

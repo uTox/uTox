@@ -1,15 +1,15 @@
 #include "main.h"
 
-#include "window.h"
 #include "screen_grab.h"
+#include "window.h"
 
 #include "../debug.h"
 #include "../macros.h"
-#include "../main_native.h"
-
 #include "../ui.h"
 
 #include "../av/video.h"
+
+#include "../native/time.h"
 
 #include <stdio.h>
 
@@ -17,7 +17,7 @@
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     if (!video_win[id]) {
-        LOG_TRACE(__FILE__, "frame for null window %u" , id);
+        LOG_TRACE("Video", "frame for null window %u" , id);
         return;
     }
 
@@ -79,7 +79,7 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, 
     XSetClassHint(display, *win, &hint);
 
     XMapWindow(display, *win);
-    LOG_TRACE(__FILE__, "new window %u" , id);
+    LOG_TRACE("Video", "new window %u" , id);
 }
 
 void video_end(uint32_t id) {
@@ -89,7 +89,7 @@ void video_end(uint32_t id) {
 
     XDestroyWindow(display, video_win[id]);
     video_win[id] = None;
-    LOG_TRACE(__FILE__, "killed window %u" , id);
+    LOG_TRACE("Video", "killed window %u" , id);
 }
 
 static Display *deskdisplay;
@@ -100,7 +100,7 @@ XShmSegmentInfo shminfo;
 void initshm(void) {
     deskdisplay = XOpenDisplay(NULL);
     deskscreen  = DefaultScreen(deskdisplay);
-    LOG_TRACE(__FILE__, "desktop: %u %u" , default_screen->width, default_screen->height);
+    LOG_TRACE("Video", "desktop: %u %u" , default_screen->width, default_screen->height);
     max_video_width  = default_screen->width;
     max_video_height = default_screen->height;
 }
@@ -118,13 +118,13 @@ uint16_t native_video_detect(void) {
         struct stat st;
         if (-1 == stat(dev_name, &st)) {
             continue;
-            // LOG_TRACE(__FILE__, "Cannot identify '%s': %d, %s" , dev_name, errno, strerror(errno));
+            // LOG_TRACE("Video", "Cannot identify '%s': %d, %s" , dev_name, errno, strerror(errno));
             // return 0;
         }
 
         if (!S_ISCHR(st.st_mode)) {
             continue;
-            // LOG_TRACE(__FILE__, "%s is no device" , dev_name);
+            // LOG_TRACE("Video", "%s is no device" , dev_name);
             // return 0;
         }
 
