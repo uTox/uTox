@@ -28,7 +28,7 @@ typedef enum UTOX_FILE_OPTS {
  * @param opts options to apply when opening the file, see UTOX_FILE_OPTS for available options.
  * @return open file pointer, or NULL on failure.
  */
-FILE *utox_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts);
+FILE *utox_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts);
 
 /**
  * TODO DOCUMENTATION

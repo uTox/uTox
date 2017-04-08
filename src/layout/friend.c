@@ -170,6 +170,7 @@ static void draw_add_friend(int x, int UNUSED(y), int UNUSED(w), int height) {
                 break;
             case ADDF_UNKNOWN: // for unknown error.
             case ADDF_NONE:    // this case must never be rendered, but if it does, assume it's an error
+            default:
                 str = SPTR(REQ_UNKNOWN);
                 break;
         }

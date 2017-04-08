@@ -261,8 +261,12 @@ void flist_update_shown_list(void) {
     uint32_t j; // index in shown_list array
     for (uint32_t i = j = 0; i < itemcount; i++) {
         ITEM  *it = &item[i];
-        FRIEND *f = get_friend(it->id_number);
-        if (it->item != ITEM_FRIEND || ((!filter || f->online) && friend_matches_search_string(f, search_string))) {
+        if (it->item == ITEM_FRIEND) {
+            FRIEND *f = get_friend(it->id_number);
+            if ((!filter || f->online) && friend_matches_search_string(f, search_string)) {
+                shown_list[j++] = i;
+            }
+        } else {
             shown_list[j++] = i;
         }
     }

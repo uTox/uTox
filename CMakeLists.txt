@@ -2,17 +2,74 @@ cmake_minimum_required(VERSION 3.2)
 project(uTox LANGUAGES C)
 
 #######################################################################
-#
-# project version
-#
+## Project Version
 #######################################################################
-# This version is for the entire project. All libraries (core, av, ...) move in
-# versions in a synchronised way.
 set(PROJECT_VERSION_MAJOR "0")
-set(PROJECT_VERSION_MINOR "13")
+set(PROJECT_VERSION_MINOR "14")
 set(PROJECT_VERSION_PATCH "0")
-set(PROJECT_VERSION
-  "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
+
+###########
+# Options #
+###########
+
+option(ENABLE_ASAN          "Enable Address Sanitizer on debug builds"                      ON )
+option(ENABLE_TESTS         "Whether to build test binaries (currently linux only)"         ON )
+option(ENABLE_WERROR        "Error on Warning, whether to put -Werror flag to the compiler" OFF)
+option(ENABLE_FILTERAUDIO   "Enable Filter Audio"                                           ON )
+option(ENABLE_AUTOUPDATE    "Enable Auto-updater"                                           OFF)
+
+option(UTOX_STATIC          "Link uTox statically"                                          OFF)
+option(TOXCORE_STATIC       "Build uTox with the static version of Toxcore"                 OFF)
+
+
+########################
+# Set helper-variables #
+########################
+
+# OS
+if(CYGWIN)
+    # Cygwin thinks it's actually Linux.
+    set(WIN32 TRUE)
+    set(UNIX FALSE)
+endif()
+
+if(WIN32)
+    set(WINDOWS TRUE)
+elseif(UNIX AND NOT APPLE)
+    if(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
+        set(LINUX TRUE)
+    elseif(CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*")
+        set(OPENBSD TRUE)
+    endif()
+elseif(APPLE)
+    if(CMAKE_SYSTEM_NAME MATCHES ".*MacOS.*")
+        set(MACOSX TRUE)
+    endif()
+endif()
+
+# 32 or 64 bit
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(ARCH_64 TRUE)
+else()
+  set(ARCH_64 FALSE)
+endif()
+
+if(WINDOWS AND NOT CROSS_COMPILING)
+    include(cmake/win.cmake)
+
+    if(ARCH_64)
+        # Helping Cygwin out again..
+        set(WIN64 TRUE)
+    endif()
+endif()
+
+#######################################################################
+# CMake Settings
+#######################################################################
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
 # make version available in C files
 configure_file(${uTox_SOURCE_DIR}/src/branding.h.in
                ${uTox_SOURCE_DIR}/src/branding.h)
@@ -27,11 +84,11 @@ if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     string(REPLACE "\n" " " GIT_VERSION ${GIT_VERSION})
 endif()
 
+
 #######################################################################
-#
 # C compiler flags
-#
 #######################################################################
+
 set(CMAKE_C_STANDARD 11) # this requires at least cmake 3.1
 
 include(CheckCCompilerFlag)
@@ -55,32 +112,23 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
 
 # Warn on non-ISO C.
 #add_cflag("-pedantic") # throws a lot of warning, quite sure we do not want this at current state.
-#
 ## Add all warning flags we can.
-#
 add_cflag("-Wall")
 add_cflag("-Wextra")
 add_cflag("-Wpointer-arith")
 
-#
 ## Warnings we don't tolerate
-#
 add_cflag("-Werror=implicit-function-declaration")
 
-#
 ## Warnings we don't care about
-#
 add_cflag("-Wformat=0")
 add_cflag("-Wno-misleading-indentation")
 
-#
 ## Everything Else
-#
 add_cflag("-fno-strict-aliasing")
+add_cflag("-fPIC")
 
-#
 ## Optimization Flags
-#
 
 # Fix GNU stack
 if(CMAKE_C_COMPILER_ID MATCHES "GNU")
@@ -89,7 +137,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
     set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os")
 
-    if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    if(LINUX)
         # enable Link Time Optimization on gcc (linux only currently)
         # TODO someone should figure out how this works on windows, or we need to have gitlab-ci for GCC
         add_cflag("-flto")
@@ -119,49 +167,35 @@ if(GIT_VERSION)
 endif()
 
 #######################################################################
-#
 # Build options
-#
 #######################################################################
 # sanitize memory issues in Debug builds
 # https://gcc.gnu.org/gcc-4.8/changes.html
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
-option(ENABLE_ASAN "Enable Address Sanitizer on debug builds" ON)
 if (ENABLE_ASAN)
-    message("")
-    message("  TIP: You may want to set the env variable  ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer  for ASAN to show nicer stack traces.")
-    message("       See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.")
-    message("")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
-option(ENABLE_TESTS "Whether to build test binaries (currently linux only)" ON)
-
-option(ENABLE_WERROR "Error on Warning, whether to put -Werror flag to the compiler" OFF)
 if(ENABLE_WERROR)
     add_cflag("-Werror")
 endif()
 
-option(FILTER_AUDIO "Enable Filter Audio" ON)
-if(FILTER_AUDIO)
+if(ENABLE_FILTERAUDIO)
     add_cflag("-DAUDIO_FILTERING")
 endif()
 
-option(UTOX_STATIC "Link uTox statically" OFF)
 if(UTOX_STATIC)
 	if(UNIX)
-		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl") 
+		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
 	else()
-		add_cflag("-static") 
+		add_cflag("-static")
 	endif()
 endif()
 
-option(ENABLE_UPDATER "Enable updater" ON)
-if(NOT UNIX AND ENABLE_UPDATER)
-    add_cflag("-DENABLE_UPDATER")
+if(ENABLE_AUTOUPDATE)
+    add_cflag("-DENABLE_AUTOUPDATE=1")
 endif()
 
-option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
 if(TOXCORE_STATIC)
     # The static windows libs need all of these... because REASONS!
     set(TOX_LIBS
@@ -185,21 +219,6 @@ else()
         toxcore
         )
 endif()
-
-# print a summary of build options
-message("Build options:")
-message("- Add ASAN:         ${ENABLE_ASAN}")
-message("- Error on Warning: ${ENABLE_WERROR}")
-message("- Filter Audio:     ${FILTER_AUDIO}")
-message("- uTox Static:      ${UTOX_STATIC}")
-message("- Toxcore Static:   ${TOXCORE_STATIC}")
-message("- Windows Legacy:   ${WIN_XP_LEGACY}")
-
-message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
-message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
-message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
-message("* C flags for all types:   ${CMAKE_C_FLAGS}")
-
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -243,15 +262,15 @@ elseif(UNIX)
 		)
 endif()
 
+# include utoxLAYOUT
+add_subdirectory(src/layout)
 # include utoxUI
 add_subdirectory(src/ui)
 # include utoxAV
 add_subdirectory(src/av)
 
 #######################################################################
-#
 # :: uTox main
-#
 #######################################################################
 add_executable(utox ${GUI_TYPE}
     src/avatar.c
@@ -308,14 +327,42 @@ elseif(UNIX)
         )
 endif()
 
+#######################################################################
 #
-# testing
+# Testing
 #
-
-if (ENABLE_TESTS)
+#######################################################################
+if(ENABLE_TESTS)
   if(UNIX)
     # tests currently only run on linux
     enable_testing()
     add_subdirectory(tests)
   endif()
+endif()
+
+# print a summary of build options
+message("Build options:")
+message("- CMake Module Path:        ${CMAKE_MODULE_PATH}")
+message("----------------------------------")
+message("- Add ASAN:                ${ENABLE_ASAN}")
+message("- Error on Warning:        ${ENABLE_WERROR}")
+message("- Filter Audio:            ${ENABLE_FILTERAUDIO}")
+message("- Auto Updater:            ${ENABLE_AUTOUPDATE}")
+message("- uTox Static:             ${UTOX_STATIC}")
+message("- Toxcore Static:          ${TOXCORE_STATIC}")
+message("-- Platform Options --------------")
+message("- Windows Legacy:          ${WIN_XP_LEGACY}")
+message("- Enable DBus:             ${ENABLE_DBUS}")
+
+message("* CMAKE SYSTEM is '${CMAKE_SYSTEM_NAME}'")
+message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
+message("* C flags for Debug:       ${CMAKE_C_FLAGS_DEBUG}")
+message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
+message("* C flags for all types:   ${CMAKE_C_FLAGS}")
+
+if (ENABLE_ASAN)
+    message("")
+    message("  TIP: You may want to set the env variable  ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer  for ASAN to show nicer stack traces.")
+    message("       See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.")
+    message("")
 endif()

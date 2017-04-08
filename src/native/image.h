@@ -40,7 +40,7 @@ void image_free(NATIVE_IMAGE *image);
 
 // OS-dependent macros
 
-#if defined __WIN32__
+#if defined __WIN32__ || defined _WIN32 || defined __CYGWIN__
 #include "win/image.h"
 #elif defined __ANDROID__
 #include "android/image.h"

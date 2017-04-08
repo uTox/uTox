@@ -1,8 +1,13 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#ifdef __WIN32__ // Windows likes to be broken
+#ifndef MIN // Windows or muslc likes to be broken
 #define MIN(a,b) (((a)<(b))?(a):(b))
+#else
+#include <sys/param.h> // Provides MAX/MIN
+#endif
+
+#ifndef MAX // Windows or muslc likes to be broken
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #else
 #include <sys/param.h> // Provides MAX/MIN

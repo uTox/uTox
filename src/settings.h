@@ -11,8 +11,10 @@ typedef struct utox_save UTOX_SAVE;
 
 typedef struct utox_settings {
     // uTox versions settings
-    uint32_t curr_version;
     uint32_t last_version;
+    uint32_t curr_version;
+    uint32_t next_version;
+
     bool     show_splash;
 
     // Low level settings (network, profile, portable-mode)
@@ -62,6 +64,8 @@ typedef struct utox_settings {
     uint32_t theme;
 
     // OS interface settings
+    uint32_t window_x;
+    uint32_t window_y;
     uint32_t window_height;
     uint32_t window_width;
     uint32_t window_baseline;

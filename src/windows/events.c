@@ -4,9 +4,9 @@
 #include "window.h"
 
 #include "../commands.h"
+#include "../debug.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../debug.h"
 #include "../macros.h"
 #include "../self.h"
 #include "../settings.h"
@@ -188,7 +188,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 settings.window_width  = w;
                 settings.window_height = h;
 
-                ui_set_scale(dropdown_dpi.selected + 6);
+                ui_rescale(dropdown_dpi.selected + 6);
                 ui_size(w, h);
 
                 if (main_window.draw_BM) {

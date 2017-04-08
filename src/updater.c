@@ -1,15 +1,20 @@
 #include "updater.h"
 
-#include "debug.h"
-#include "settings.h"
 #include "branding.h"
+#include "debug.h"
+#include "macros.h"
+#include "settings.h"
+
+#include "main.h" // File name length
+
+#include "native/thread.h"
 
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <sodium.h>
 
@@ -21,6 +26,40 @@
 #include <sys/types.h>
 #include <netdb.h>
 #endif
+
+#include "native/main.h" // Include after winsock2
+
+#if defined __WIN32__
+#define UPDATER_HOST "win"
+#define UPDATER_OUT "uTox.exe"
+#elif defined __ANDROID__
+#define UPDATER_HOST "and"
+#define UPDATER_OUT "uTox.apk"
+#elif defined __OBJC__
+#define UPDATER_HOST "osx"
+#define UPDATER_OUT "uTox.dmg"
+#else
+#define UPDATER_HOST "unx"
+#define UPDATER_OUT "utox"
+#endif
+
+
+#if (defined __WIN64__ || defined _WIN64 || defined __x86_64__ || defined __ppc64__ )
+#define UPDATER_ARCH 64u
+#else
+#define UPDATER_ARCH 32u
+#endif
+
+// Stable versions we plan to ship to users.
+#define UPDATER_VERSION_STABLE_URI "utox_stable_" UPDATER_HOST
+#define UPDATER_VERSION_DEVEL_URI "utox_develop_" UPDATER_HOST
+
+// Small rollout versions we can use to find issues before
+// shipping to ~all users
+#define UPDATER_VERSION_CANARY_URI "utox_canary_" UPDATER_HOST
+
+// Direct rollouts
+#define UPDATER_VERSION_TESTING_URI "utox_testing_" UPDATER_HOST
 
 
 static const uint8_t pk[crypto_sign_ed25519_PUBLICKEYBYTES] = {
@@ -34,16 +73,29 @@ static size_t mk_request(char *host, char *file, char *data) {
     return snprintf(data, 1024, "GET /%s HTTP/1.0\r\n""Host: %s\r\n\r\n", file, host);
 }
 
-static uint8_t *download(char *host, char *file, uint32_t *out_len) {
+// I don't like it either, but windows is a dirty dirty liar!
+#if defined(_WIN32) || defined(__WIN32__)
+#define SOCKET_SUCKS(s) ((uint64_t)s == INVALID_SOCKET)
+#define INIT_SOCKETS() do { \
+        WSADATA wsaData; \
+        WSAStartup(MAKEWORD(2, 2), &wsaData); \
+    } while(0)
+#else
+#define SOCKET_SUCKS(s) (s < 0)
+#define INIT_SOCKETS() // lol windows :D
+#endif
+
+
+static uint8_t *download(char *host, char *file, size_t *out_len) {
     if (settings.force_proxy) {
-        LOG_ERR("Updater", "Updater:\tUnable to download with a proxy set and forced!");
+        LOG_ERR("Updater", "Unable to download with a proxy set and forced!");
         return NULL;
     }
 
     struct addrinfo *root;
 
     if (getaddrinfo(host, "80", NULL, &root)) {
-        LOG_ERR("Updater", "Updater:\tNo host found at [%s]", host);
+        LOG_ERR("Updater", "No host found at [%s]", host);
         return NULL;
     }
 
@@ -52,8 +104,8 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
             continue;
         }
 
-        int32_t sock = socket(info->ai_family, SOCK_STREAM, IPPROTO_TCP);
-        if (sock < 0) {
+        int64_t sock = socket(info->ai_family, SOCK_STREAM, IPPROTO_TCP);
+        if (SOCKET_SUCKS(sock)) {
             LOG_ERR("Updater", "Can't get socket!");
             continue;
         }
@@ -103,7 +155,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                 // Get the real file length
                 char *str = strstr((char*)buffer, "Content-Length: ");
                 if (!str) {
-                    LOG_NOTE("Updater", "invalid HTTP response (1)\n");
+                    LOG_NOTE("Updater", "invalid HTTP response (1)");
                     break;
                 }
 
@@ -132,7 +184,7 @@ static uint8_t *download(char *host, char *file, uint32_t *out_len) {
                     break;
                 }
 
-                LOG_INFO("Updater", "Download size: %u\n", header_len);
+                LOG_INFO("Updater", "Download size: %u", header_len);
 
                 /* read the first piece */
                 real_len = len - (str - (char*)buffer);
@@ -198,8 +250,8 @@ static uint8_t *verify_sig(uint8_t *raw, uint32_t len, size_t *out_len) {
 }
 
 static uint32_t download_version(void) {
-    uint32_t len = 0;
-    uint8_t *raw = download("downloads.utox.io", "utox_version_stable", &len);
+    size_t len = 0;
+    uint8_t *raw = download("downloads.utox.io", UPDATER_VERSION_STABLE_URI, &len);
     if (!raw) {
         LOG_ERR("Updater", "Download failed.");
         return 0;
@@ -227,20 +279,108 @@ static uint32_t download_version(void) {
     return version;
 }
 
-// Returns true if there's a new version.
-bool updater_check(void) {
+uint32_t updater_check(void) {
     uint32_t version = download_version();
     LOG_INFO("Updater", "Current version %u, newest version version %u." , UTOX_VERSION_NUMBER, version);
 
     if (version > UTOX_VERSION_NUMBER) {
         LOG_WARN("Updater", "New version of uTox available [%u.%u.%u]",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
-        return true;
+        return version;
     } else if (version == UTOX_VERSION_NUMBER) {
         LOG_WARN("Updater", "Running the latest version of uTox [%u.%u.%u]",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
-
+    } else {
+        LOG_WARN("Updater", "Running an unpublished version of uTox published is [%u.%u.%u]",
+                      (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
     }
 
-    return false;
+    return 0;
+}
+
+#ifdef ENABLE_AUTOUPDATE
+void updater_thread(void *from_startup) {
+    static bool updater_running = false;
+
+    if (from_startup) {
+        // always start the updater thread if started during init
+        updater_running = true;
+        INIT_SOCKETS();
+    } else if (updater_running) {
+        // not called by startup, so we're already running
+        return;
+    } else {
+        // cool, thanks for re enabling updates :D
+        updater_running = true;
+    }
+
+    char pwd[UTOX_FILE_NAME_LENGTH];
+    getcwd(pwd, sizeof pwd);
+
+    while (updater_running) {
+        if (!settings.auto_update) {
+            updater_running = false;
+            return;
+        }
+
+        static uint32_t version;
+        yieldcpu(1000); // We want to delay a second before pulling the download
+                        // to make sure we're not currently mid update
+        if ((version = updater_check())) {
+
+            char str[100];
+            snprintf(str, 100, "%.3s_%u-%u.%u.%u", UPDATER_HOST, UPDATER_ARCH, (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
+
+            char name[UTOX_FILE_NAME_LENGTH];
+            snprintf(name, UTOX_FILE_NAME_LENGTH, "%s/next_%s", pwd, UPDATER_OUT);
+            FILE *file = fopen(name, "rb");
+            if (file) {
+                LOG_WARN("Updater", "File already exists -- %s ", name);
+                fclose(file);
+                return;
+            }
+
+            file = fopen(name, "wb");
+            if (!file) {
+                LOG_ERR("Updater", "Can't write to working dir");
+                LOG_ERR("Updater", "      %s", name);
+                return;
+            }
+
+            size_t raw_size = 0;
+            uint8_t *raw = download("downloads.utox.io", str, &raw_size);
+            LOG_NOTE("Updater", "Got size bin %u", raw_size);
+
+            size_t data_size = 0;
+            uint8_t *data = verify_sig(raw, raw_size, &data_size);
+            free(raw);
+
+            if (!data) {
+                LOG_ERR("Updater", "Signature failed. This is bad; consider reporting this.");
+                fclose(file);
+                return;
+            }
+
+            // The default updater also adds a timestamp to the signature (the +4)
+            // I'm not sure I want to change how signatures are done yet, so I'm just
+            // gonna leave this hack here for now... -- grayhatter
+            fwrite(data + 4, data_size - 4, 1, file);
+            fclose(file);
+            free(data);
+            LOG_NOTE("Updater", "Wrote binary to %s", name);
+            return;
+        }
+
+        yieldcpu(1000 * 60 * 5);
+    }
+}
+#else
+void updater_thread(void *from_startup)
+{
+    (void)from_startup;
+}
+#endif
+
+void updater_start(bool from_startup) {
+    thread(updater_thread, (void*)from_startup);
 }

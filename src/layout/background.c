@@ -36,6 +36,8 @@ static void draw_background(int x, int y, int width, int height) {
 static void draw_splash_page(int x, int y, int w, int h) {
     setcolor(COLOR_MAIN_TEXT);
 
+    y += SCALE(10);
+
     x += SCALE(10);
 
     /* Generic Splash */

@@ -208,7 +208,7 @@ static bool ft_init_resumable(FILE_TRANSFER *ft) {
         return false;
     }
 
-    ft->resume_file = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+    ft->resume_file = utox_get_file(name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
     if (!ft->resume_file) {
         return false;
     }
@@ -225,13 +225,13 @@ static void ft_decon_resumable(FILE_TRANSFER *ft) {
     }
 
     LOG_INFO("FileTransfer", "Going to decon file %s." , name);
-    FILE *file = utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE);
+    FILE *file = utox_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE);
     if (!file) {
         return;
     }
 
     fclose(file);
-    utox_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_DELETE);
+    utox_get_file(name, NULL, UTOX_FILE_OPTS_DELETE);
 }
 
 static bool ft_find_resumeable(FILE_TRANSFER *ft) {
@@ -241,7 +241,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     }
 
     size_t size = 0;
-    FILE *resume_disk = utox_get_file((uint8_t *)resume_name, &size, UTOX_FILE_OPTS_READ);
+    FILE *resume_disk = utox_get_file(resume_name, &size, UTOX_FILE_OPTS_READ);
 
     if (!resume_disk) {
         if (ft->incoming) {
@@ -259,8 +259,13 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     }
 
     FILE_TRANSFER resume_file;
-    fread(&resume_file, size, 1, resume_disk);
+    bool read_resumeable = fread(&resume_file, size, 1, resume_disk);
     fclose(resume_disk);
+
+    if (!read_resumeable) {
+        LOG_ERR("FileTransfer", "Failed to read resumeable file.");
+        return false;
+    }
 
     if (!resume_file.resumeable
         || !resume_file.in_use
@@ -516,6 +521,7 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) 
         uint8_t *msg = malloc(sizeof(uint16_t) * 2 + sizeof(NATIVE_IMAGE *));
         if (!msg) {
             LOG_ERR("decode_inline_png", "Unable to malloc for inline data.");
+            free(native_image);
             return;
         }
 
@@ -1175,6 +1181,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
         LOG_ERR("FileTransfer", "Can't send data to friend without data");
         return UINT32_MAX;
     }
+
     LOG_INFO("FileTransfer", "Starting raw data transfer to friend %u." , friend_number);
 
     // TODO send the unset avatar command.
@@ -1210,6 +1217,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return UINT32_MAX;
     }
+
     ++f->ft_outgoing_active_count;
 
     memset(ft, 0, sizeof(FILE_TRANSFER));
@@ -1225,6 +1233,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
         --f->ft_outgoing_active_count;
         return UINT32_MAX;
     }
+
     ft->name_length = name_length;
     snprintf((char *)ft->name, name_length + 1, "%.*s", (int)name_length, name);
 
@@ -1330,13 +1339,13 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
 bool utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file) {
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
-    if (!ft) {
+    if (!ft || !file) {
         LOG_ERR("FileTransfer", "FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
                     friend_number, file_number);
         return false;
     }
 
-    if (is_file && file) {
+    if (is_file) {
         ft->via.file = (FILE *)file;
         return true;
     }

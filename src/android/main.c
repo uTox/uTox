@@ -745,8 +745,7 @@ static void android_main(struct android_app *state) {
 
     initfonts();
 
-    dropdown_dpi.selected = dropdown_dpi.over = 15;
-    ui_set_scale(20);
+    ui_rescale(12);
 
     /* wait for tox thread to start */
     while (!tox_thread_init) {

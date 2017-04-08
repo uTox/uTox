@@ -5,6 +5,7 @@
 #include "../macros.h"
 #include "../self.h"
 #include "../theme.h"
+#include "../updater.h"
 
 #include "../native/clipboard.h"
 #include "../native/keyboard.h"
@@ -798,7 +799,10 @@ static void switchfxn_audio_filtering(void) { settings.audiofilter_enabled = !se
 
 static void switchfxn_status_notifications(void) { settings.status_notifications = !settings.status_notifications; }
 
-static void switchfxn_auto_update(void) { settings.auto_update = !settings.auto_update; }
+static void switchfxn_auto_update(void) {
+    settings.auto_update = !settings.auto_update;
+    updater_start(0);
+}
 
 static void switchfxn_block_friend_requests(void) { settings.block_friend_requests = !settings.block_friend_requests; }
 
@@ -1044,7 +1048,7 @@ static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     LANG = (UTOX_LANG)i;
     /* The draw functions need the fonts' and scale to be reset when changing languages. */
-    ui_set_scale(ui_scale);
+    ui_rescale(ui_scale);
 }
 static STRING *dropdown_language_ondisplay(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     UTOX_LANG l = (UTOX_LANG)i;
