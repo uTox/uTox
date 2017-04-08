@@ -42,6 +42,8 @@ elseif(UNIX AND NOT APPLE)
         set(LINUX TRUE)
     elseif(CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*")
         set(OPENBSD TRUE)
+    elseif(CMAKE_SYSTEM_NAME MATCHES "kNetBSD.*|NetBSD.*")
+        set(NETBSD TRUE)
     endif()
 elseif(APPLE)
     if(CMAKE_SYSTEM_NAME MATCHES ".*MacOS.*")
@@ -127,12 +129,6 @@ add_cflag("-Wno-misleading-indentation")
 ## Everything Else
 add_cflag("-fno-strict-aliasing")
 add_cflag("-fPIC")
-
-## Fix OpenBSD
-if(CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I/usr/local/include -I/usr/X11R6/include -L/usr/local/lib -L/usr/X11R6/lib -std=c99")
-endif()
-
 
 ## Optimization Flags
 
@@ -258,14 +254,6 @@ elseif(APPLE)
     set(LIBRARIES "opus")
 elseif(UNIX)
     add_subdirectory(src/xlib)
-    set(LIBRARIES
-        dl
-        rt
-        opus
-        openal
-        v4lconvert
-        filteraudio
-        )
 endif()
 
 # include utoxLAYOUT
@@ -359,6 +347,7 @@ message("- Toxcore Static:          ${TOXCORE_STATIC}")
 message("-- Platform Options --------------")
 message("- Windows Legacy:          ${WIN_XP_LEGACY}")
 message("- Enable DBus:             ${ENABLE_DBUS}")
+message("- Enable Tests             ${ENABLE_TESTS}")
 
 message("* CMAKE SYSTEM is '${CMAKE_SYSTEM_NAME}'")
 message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
