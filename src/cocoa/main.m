@@ -315,7 +315,7 @@ void redraw(void) {
     [ad soilWindowContents];
 }
 
-void launch_at_startup(int should) {
+void launch_at_startup(bool should) {
     LSSharedFileListRef items = LSSharedFileListCreate(kCFAllocatorDefault, kLSSharedFileListSessionLoginItems, NULL);
     if (should) {
         CFRelease(LSSharedFileListInsertItemURL(items, kLSSharedFileListItemLast, NULL, NULL,
