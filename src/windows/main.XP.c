@@ -74,18 +74,15 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
 }
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
-    wchar_t *autoaccept_folder = NULL;
+    wchar_t *autoaccept_folder = calloc(1, MAX_PATH);
 
     if (settings.portable_mode) {
-        autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH);
-
         // Convert the portable_mode_save_path into a wide string.
         wchar_t tmp[UTOX_FILE_NAME_LENGTH];
         mbstowcs(tmp, portable_mode_save_path, strlen(portable_mode_save_path));
 
         swprintf(autoaccept_folder, UTOX_FILE_NAME_LENGTH, L"%ls", tmp);
-    } else if (SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads,
-                                    KF_FLAG_CREATE, NULL, &autoaccept_folder) != S_OK) {
+    } else if (SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, autoaccept_folder) != S_OK) {
         LOG_ERR("Windows7", "Unable to get auto accept file folder!");
         return;
     }
@@ -93,11 +90,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     wchar_t subpath[UTOX_FILE_NAME_LENGTH] = { 0 };
     swprintf(subpath, UTOX_FILE_NAME_LENGTH, L"%ls%ls", autoaccept_folder, L"\\Tox_Auto_Accept");
 
-    if (settings.portable_mode) {
-        free(autoaccept_folder);
-    } else {
-        CoTaskMemFree(autoaccept_folder);
-    }
+    free(autoaccept_folder);
 
     CreateDirectoryW(subpath, NULL);
 
