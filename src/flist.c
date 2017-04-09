@@ -392,6 +392,10 @@ static void page_close(ITEM *i) {
 
         case ITEM_GROUP: {
             GROUPCHAT *g = get_group(selected_item->id_number);
+            if (!g) {
+                LOG_ERR("F-List", "Could not get group %u", selected_item->id_number);
+                return;
+            }
 
             current_width = g->msg.width;
 
@@ -399,7 +403,7 @@ static void page_close(ITEM *i) {
             g->typed_length = edit_chat_msg_group.length;
             g->typed = calloc(1, g->typed_length);
             if (!g->typed) {
-                LOG_ERR("flist", "Unable to calloc for g->typed.");
+                LOG_ERR("F-List", "Unable to calloc for g->typed.");
                 return;
             }
 
