@@ -577,7 +577,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                          * start <= 1 to offset for the day change notification                                    */
                         LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , msg->disk_offset);
                         utox_update_chatlog(hex, msg->disk_offset, data, length);
-                    } else {
+                    } else if (settings.logging_enabled) {
                         LOG_ERR("Messages", "Messages:\tUnable to update this message...\n"
                                     "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
                                     msg->disk_offset, m->number, receipt_number);
