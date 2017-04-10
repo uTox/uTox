@@ -1045,12 +1045,11 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
 
             if (g_num != -1) {
-                GROUPCHAT *g = group_make(g_num);
-                if (!g) {
-                    return;
+                if (group_create(g_num, param2)) {
+                    postmessage_utox(GROUP_ADD, g_num, param2, NULL);
+                } else {
+                    LOG_ERR("Tox", "Failed creating group %u", g_num);
                 }
-                group_init(g, g_num, param2);
-                postmessage_utox(GROUP_ADD, g_num, param2, NULL);
             }
             save_needed = true;
             break;
