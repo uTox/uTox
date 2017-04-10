@@ -31,7 +31,11 @@ GROUPCHAT *get_group(uint32_t group_number) {
     return &group[group_number];
 }
 
-GROUPCHAT *group_make(uint32_t group_number) {
+/*
+ * Create a new slot for the group if group_number is greater than self.groups_list_size and return a pointer to it
+ * If group_number is less than self.groups_list_size return a pointer to that slot
+ */
+static GROUPCHAT *group_make(uint32_t group_number) {
     if (group_number >= self.groups_list_size) {
         LOG_INFO("Groupchats", "Reallocating groupchat array to %u. Current size: %u", (group_number + 1), self.groups_list_size);
         GROUPCHAT *tmp = realloc(group, sizeof(GROUPCHAT) * (group_number + 1));
@@ -42,9 +46,21 @@ GROUPCHAT *group_make(uint32_t group_number) {
 
         group = tmp;
         self.groups_list_size++;
+        self.groups_list_count++;
     }
 
     return &group[group_number];
+}
+
+bool group_create(uint32_t group_number, bool av_group) {
+    GROUPCHAT *g = group_make(group_number);
+    if (!g) {
+        LOG_ERR("Groupchats", "Could not get/create group %u", group_number);
+        return false;
+    }
+
+    group_init(g, group_number, av_group);
+    return true;
 }
 
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
@@ -81,8 +97,6 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
 
     flist_add_group(g);
     flist_select_last();
-
-    self.groups_list_count++;
 }
 
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
@@ -306,12 +320,7 @@ void init_groups(void) {
     }
 
     for(size_t i = 0; i < self.groups_list_size; i++){
-        GROUPCHAT *g = get_group(i);
-        if (!g) {
-            LOG_ERR("Groupchats", "Could not get group %u. Skipping...", i);
-            continue;
-        }
-        group_init(g, i, false); //TODO figure out what kind of group it is
+        group_create(i, false); //TODO: figure out if groupchats are text or audio
     }
     LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
 }
