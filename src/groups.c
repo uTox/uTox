@@ -256,7 +256,7 @@ void group_reset_peerlist(GROUPCHAT *g) {
 }
 
 void group_free(GROUPCHAT *g) {
-    LOG_WARN("Groupchats", "Freeing group %u", g->number);
+    LOG_INFO("Groupchats", "Freeing group %u", g->number);
     for (size_t i = 0; i < g->edit_history_length; ++i) {
         free(g->edit_history[i]);
     }
@@ -277,8 +277,8 @@ void group_free(GROUPCHAT *g) {
     self.groups_list_count--;
 }
 
-void free_groups(void) {
-    LOG_WARN("Groupchats", "Freeing groupchat array");
+void raze_groups(void) {
+    LOG_INFO("Groupchats", "Freeing groupchat array");
     for (size_t i = 0; i < self.groups_list_count; i++) {
         GROUPCHAT *g = get_group(i);
         if (!g) {
@@ -293,8 +293,11 @@ void free_groups(void) {
 }
 
 void init_groups(void) {
-    self.groups_list_size = 1; //this is pretty stupid but right now groupchats aren't saved
-                               //there is a pr open for saving them
+    self.groups_list_size = 0;
+
+    if (self.groups_list_size == 0) {
+        return;
+    }
 
     LOG_INFO("Groupchats", "Group list size: %u", self.groups_list_size);
     group = calloc(self.groups_list_size, sizeof(GROUPCHAT));
@@ -302,9 +305,8 @@ void init_groups(void) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not allocate memory for groupchat array with size of: %u", self.groups_list_size);
     }
 
-    /* Uncomment when groups are saved
     for(size_t i = 0; i < self.groups_list_size; i++){
-        GROUPCHAT *g = group_make(i);
+        GROUPCHAT *g = get_group(i);
         if (!g) {
             LOG_ERR("Groupchats", "Could not get group %u. Skipping...", i);
             continue;
@@ -312,7 +314,6 @@ void init_groups(void) {
         group_init(g, i, false); //TODO figure out what kind of group it is
     }
     LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
-    */
 }
 
 
