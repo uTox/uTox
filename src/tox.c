@@ -580,7 +580,7 @@ void toxcore_thread(void *UNUSED(args)) {
 
     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
     free_friends();
-    free_groups();
+    raze_groups();
     LOG_TRACE("Toxcore", "Tox thread:\tClean exit!");
 }
 
