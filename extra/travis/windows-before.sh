@@ -5,6 +5,9 @@ set -eux
 
 export TARGET_HOST="--host=x86_64-w64-mingw32"
 
+# Travis is very odd...
+export NACL_FLAGS="${NACL_FLAGS} --disable-ssp"
+
 . ./extra/common/build_nacl.sh
 . ./extra/common/build_opus.sh
 . ./extra/common/build_vpx.sh

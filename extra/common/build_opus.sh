@@ -6,6 +6,7 @@ if ! [ -f "$CACHE_DIR/usr/lib/pkgconfig/opus.pc" ]; then
   tar xzf opus.tar.gz
   cd opus-1.1.4
   ./configure "$TARGET_HOST" \
+              "$OPUS_FLAGS" \
               --prefix="$CACHE_DIR/usr" \
               --disable-extra-programs \
               --disable-doc

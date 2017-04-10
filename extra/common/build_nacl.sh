@@ -9,6 +9,7 @@ git rev-parse HEAD > libsodium.sha
 if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libsodium.sha); then
   ./autogen.sh
   ./configure "$TARGET_HOST" \
+              "$NACL_FLAGS" \
               --prefix="$CACHE_DIR/usr"
   make -j`nproc`
   make install
