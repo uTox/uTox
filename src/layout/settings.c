@@ -1010,7 +1010,7 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
 }
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    ui_set_scale(i + 6);
+    ui_rescale(i + 6);
 }
 
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
