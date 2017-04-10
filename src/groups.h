@@ -84,14 +84,17 @@ GROUPCHAT *get_group(uint32_t group_number);
 
 /*
  * Create a new slot for the group if group_number is greater than self.groups_list_size and return a pointer to it
- * If gorup_number is less than self.groups_list_size return a pointer to that slot
+ * If group_number is less than self.groups_list_size return a pointer to that slot
  */
 GROUPCHAT *group_make(uint32_t group_number);
 
 /* Free all groups */
-void free_groups(void);
+void raze_groups(void);
 
-/* Initalize the groupchats array */
+/*
+ * Initalize the groupchats array
+ * This function should only be called once at startup after tox and the self struct have been setup
+ */
 void init_groups(void);
 
 #endif
