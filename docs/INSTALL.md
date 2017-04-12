@@ -4,12 +4,11 @@ The following steps install μTox on your computron/toaster/carrier pigeon. This
 
 For any and all of the following, you'll need to have [toxcore](https://github.com/TokTok/c-toxcore) installed first.
 
-- [Unix-like](#unix)
-- [OS X](#osx)
+- [Unix-like](#unix-like)
+- [OS X](#os-x)
 - [Windows](#windows)
 - [Android](#android)
 
-<a name="unix" />
 ## Unix-like
 
 Dependencies:
@@ -65,16 +64,14 @@ If you use Slackware you can download the slack build from here: https://slackbu
 
 ## OpenBSD
 
-Right now no one is providing binaries. You will have to compile uTox. See [instructions](BUILD.md#OpenBSD).
+Right now no one is providing binaries. You will have to compile uTox. See [instructions](BUILD.md#openbsd).
 
-<a name="osx" />
 ## OS X
 
 No one is currently providing binaries for OSX yet... Sorry Apple people... you should ask @stal888 to do something about that!
 
-[I guess I'll try to build it](BUILD.md#OSX).
+[I guess I'll try to build it](BUILD.md#osx).
 
-<a name="windows" />
 ## Windows
 
 Installing on windows isn't really a thing yet... you can download the nighties. They should just work.
@@ -83,7 +80,6 @@ Installing on windows isn't really a thing yet... you can download the nighties.
   - [64-bit](https://build.tox.chat/job/uTox_build_windows_x86-64_release/lastSuccessfulBuild/artifact/utox_windows_x86-64.zip)
   - Updater (delayed, ask grayhatter for it, and it'll happen)
 
-<a name="android" />
 ## Android
 
 Install uTox from the Google Play Store or download the APK: [uTox.apk](https://build.tox.chat/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk)
