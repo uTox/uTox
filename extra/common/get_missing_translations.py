@@ -18,11 +18,11 @@ def getStringConsts(lang):
     consts = constsFinder.findall(langFile)
     return consts
 
-def getMissingConsts(etalonConsts, translateArr):
+def getMissingConsts(referenceConsts, translateArr):
     missingConsts = []
-    for etalon in etalonConsts:
-        if etalon not in translateArr:
-            missingConsts.append(etalon)
+    for reference in referenceConsts:
+        if reference not in translateArr:
+            missingConsts.append(reference)
     return missingConsts
 
 def writeReportForLangToFile(file, lang, consts):
@@ -42,13 +42,13 @@ referenceLang = 'en'
 langsStr = readFileFromUrl('https://raw.githubusercontent.com/uTox/uTox/develop/langs/i18n_decls.h')
 finder = re.compile('\s+LANG_(\w{2}),')
 
-etalonConsts = getStringConsts(referenceLang)
+referenceConsts = getStringConsts(referenceLang)
 
 for match in finder.findall(langsStr):
     lang = match.lower()
     if lang != referenceLang:
         langConsts = getStringConsts(lang)
-        missingConsts = getMissingConsts(etalonConsts, langConsts)
+        missingConsts = getMissingConsts(referenceConsts, langConsts)
         writeReportForLangToFile(reportFile, lang, missingConsts)
 
 print('Report generated')
