@@ -37,16 +37,16 @@ os.chdir(os.path.dirname(__file__))
 reportFile = os.path.join(os.getcwd(), 'utox_missing_translations_report.txt')
 
 langs = []
-etalonLang = 'en'
+referenceLang = 'en'
 
 langsStr = readFileFromUrl('https://raw.githubusercontent.com/uTox/uTox/develop/langs/i18n_decls.h')
 finder = re.compile('\s+LANG_(\w{2}),')
 
-etalonConsts = getStringConsts(etalonLang)
+etalonConsts = getStringConsts(referenceLang)
 
 for match in finder.findall(langsStr):
     lang = match.lower()
-    if lang != etalonLang:
+    if lang != referenceLang:
         langConsts = getStringConsts(lang)
         missingConsts = getMissingConsts(etalonConsts, langConsts)
         writeReportForLangToFile(reportFile, lang, missingConsts)
