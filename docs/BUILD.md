@@ -5,7 +5,6 @@ probably help you out.
 
 If you're looking for it to "just work" you're going to want [these instructions](INSTALL.md).
 
-<a name="unix" />
 ## Unix Like
 
 ### Linux
@@ -41,7 +40,6 @@ For the build to pass you need to install the following from sources: [filteraud
 
 For base emoji ids support you need: [base_emoji](https://github.com/irungentoo/base_emoji)
 
-<a name="ubuntu15_10">
 ## Ubuntu
 ### Tested on Ubuntu 15.10
 ```bash
@@ -85,7 +83,6 @@ Have fun!
 
 If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In fact, you can just create a new project from the existing sources and everything should work fine.
 
-<a name="OpenBSD" />
 ## OpenBSD
 
 uTox will compile on OpenBSD although not everything works. To compile run:
@@ -100,7 +97,6 @@ make
 sudo make install
 ```
 
-<a name="win" />
 ## Windows
 
 ### Compiling for Windows
@@ -140,12 +136,10 @@ cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DTOXCORE_STATIC=O
 make
 ```
 
-<a name="osx" />
 ## OSX
 
 See [COCOA.md](COCOA.md).
 
-<a name="and" />
 ## Android
 
 Requires Android SDK+NDK
