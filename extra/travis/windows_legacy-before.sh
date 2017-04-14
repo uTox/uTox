@@ -5,45 +5,23 @@ set -eux
 
 export TARGET_HOST="--host=i686-w64-mingw32"
 
+# Travis is very odd...
+export NACL_FLAGS="${NACL_FLAGS} --disable-ssp"
+
+
 . ./extra/common/build_nacl.sh
-
-
-# install libopus, needed for audio encoding/decoding
-if ! [ -f $CACHE_DIR/usr/lib/pkgconfig/opus.pc ]; then
-  curl http://downloads.xiph.org/releases/opus/opus-1.1.4.tar.gz -o opus.tar.gz
-  tar xzf opus.tar.gz
-  cd opus-1.1.4
-  ./configure --host=i686-w64-mingw32 --prefix=$HOME/cache/usr
-  make -j`nproc`
-  make install
-  cd ..
-  rm -rf opus**
-fi
-
-# install libvpx, needed for video encoding/decoding
-if ! [ -d libvpx ]; then
-  git clone --depth=1 --branch=v1.6.0 https://chromium.googlesource.com/webm/libvpx
-fi
-cd libvpx
-git rev-parse HEAD > libvpx.sha
-if ! ([ -f "$CACHE_DIR/libvpx.sha" ] && diff "$CACHE_DIR/libvpx.sha" libvpx.sha); then
-  CROSS=i686-w64-mingw32- ./configure --target=x86-win32-gcc --prefix=$HOME/cache/usr --disable-examples --disable-unit-tests --disable-shared --enable-static
-  make -j`nproc`
-  make install
-  mv libvpx.sha "$CACHE_DIR/libvpx.sha"
-fi
-cd ..
-rm -rf libvpx
+. ./extra/common/build_opus.sh
+. ./extra/common/build_vpx.sh
 
 # install toxcore
 if ! [ -d toxcore ]; then
-  git clone --depth=1 --branch=$TOXCORE_REPO_BRANCH $TOXCORE_REPO_URI toxcore
+  git clone --depth=1 --branch="$TOXCORE_REPO_BRANCH" "$TOXCORE_REPO_URI" toxcore
 fi
 cd toxcore
 git rev-parse HEAD > toxcore.sha
 if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.sha); then
   mkdir _build
-  cmake -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH=$HOME/cache/usr -DENABLE_SHARED=0
+  cmake -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH="$HOME/cache/usr" -DENABLE_SHARED=0
   make -C_build -j`nproc`
   make -C_build install
   mv toxcore.sha "$CACHE_DIR/toxcore.sha"
@@ -83,5 +61,5 @@ fi
 cd ..
 rm -rf openal
 
-cp $CACHE_DIR/usr/lib/libOpenAL32.a $CACHE_DIR/usr/lib/libopenal.a || true
+cp "$CACHE_DIR/usr/lib/libOpenAL32.a" "$CACHE_DIR/usr/lib/libopenal.a" || true
 # sudo curl https://cmdline.org/travis/32/shell32.a > $CACHE_DIR/usr/lib/libshell32.a

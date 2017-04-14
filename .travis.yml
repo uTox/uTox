@@ -34,7 +34,7 @@ matrix:
   fast_finish: true
   include:
     - os: linux
-      env: BUILD=linux TOXCORE_REPO=TokTok/c-toxcore
+      env: BUILD=linux
       compiler: clang
 
     - os: linux
@@ -79,7 +79,7 @@ matrix:
 
     - os: osx
       compiler: clang
-      env: BUILD=osx TOXCORE_REPO=TokTok/c-toxcore
+      env: BUILD=osx TOXCORE_REPO_BRANCH="v0.1.4"
 
     # We don't support old toxcore yet/anymore
     # - os: linux

@@ -21,4 +21,9 @@ export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig" # Then appe
 export TARGET_HOST=${TARGET_HOST:-""}
 export TARGET_TRGT=${TARGET_TRGT:-""}
 
+export NACL_FLAGS=${NACL_FLAGS:-""}
+export VPX_FLAGS=${VPX_FLAGS:-""}
+export OPUS_FLAGS=${OPUS_FLAGS:-""}
+
+
 export MAKEFLAGS="-j8"
