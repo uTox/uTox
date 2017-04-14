@@ -24,7 +24,8 @@
 #include <arpa/nameser.h>
 #include <netinet/in.h>
 #include <sys/types.h>
-#else
+#else //Linux and FreeBSD
+#include <netinet/in.h>
 #include <resolv.h>
 #endif
 
