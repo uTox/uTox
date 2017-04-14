@@ -22,6 +22,8 @@
 #include "native/main.h"
 #elif defined __OpenBSD__
 #include <arpa/nameser.h>
+#include <netinet/in.h>
+#include <sys/types.h>
 #else
 #include <resolv.h>
 #endif
