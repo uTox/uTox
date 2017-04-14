@@ -81,16 +81,11 @@ void     init_ptt(void) {
     }
 }
 
+
+
 #ifdef __linux__
 #include <linux/input.h>
-#endif
-bool check_ptt_key(void) {
-    if (!settings.push_to_talk) {
-        // LOG_TRACE("XLIB", "PTT is disabled" );
-        return true; /* If push to talk is disabled, return true. */
-    }
-    // Only Linux has KEY_LEFTCTRL and KEY_MAX.
-#ifdef __linux__
+static bool linux_check_ptt(void) {
     /* First, we try for direct access to the keyboard. */
     int ptt_key = KEY_LEFTCTRL; // TODO allow user to change this...
     if (ptt_keyboard_handle) {
@@ -128,8 +123,25 @@ bool check_ptt_key(void) {
     /* Couldn't access the keyboard directly, and XQuery failed, this is really bad! */
     LOG_ERR("XLIB", "Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
                 "keyboard.\nDisable push to talk to suppress this message.\n");
+    return false;
+}
+#else
+static bool bsd_check_ptt(void) {
+    return false;
+}
 #endif
-    return 0;
+
+bool check_ptt_key(void) {
+    if (!settings.push_to_talk) {
+        // LOG_TRACE("XLIB", "PTT is disabled" );
+        return true; /* If push to talk is disabled, return true. */
+    }
+
+#ifdef __linux__
+    return linux_check_ptt();
+#else
+    return bsd_check_ptt();
+#endif
 }
 
 void exit_ptt(void) {

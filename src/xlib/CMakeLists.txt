@@ -75,16 +75,16 @@ target_link_libraries(utoxNATIVE
         ${FREETYPE_LIBRARIES}
         )
 
-if(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
+if(LINUX OR NETBSD)
     target_link_libraries(utoxNATIVE
-        dl
-        ${DBUS_LIBRARIES}
+        resolv
         )
 endif()
 
-if(CMAKE_SYSTEM_NAME MATCHES ".*Linux" OR CMAKE_SYSTEM_NAME MATCHES "kNetBSD.*|NetBSD.*")
+if(LINUX)
     target_link_libraries(utoxNATIVE
-        resolv
+        dl
+        ${DBUS_LIBRARIES}
         )
 endif()
 

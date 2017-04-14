@@ -1,6 +1,7 @@
 UNSET(CMAKE_C_FLAGS CACHE)
-UNSET(CMAKE_EXE_LINKER_FLAGS UNSET)
+UNSET(CMAKE_EXE_LINKER_FLAGS CACHE)
 
+# I think this is correct and will work on all systems but I could be wrong
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I/usr/local/include" CACHE STRING "" FORCE)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/lib" CACHE STRING "" FORCE)
 
