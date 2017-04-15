@@ -60,6 +60,11 @@ else()
   set(ARCH_64 FALSE)
 endif()
 
+
+#################################
+# Include toolchain if required #
+#################################
+
 if(WINDOWS AND NOT CROSS_COMPILING)
     include(cmake/win.cmake)
 
@@ -67,7 +72,12 @@ if(WINDOWS AND NOT CROSS_COMPILING)
         # Helping Cygwin out again..
         set(WIN64 TRUE)
     endif()
+elseif(FREEBSD)
+    include(cmake/toolchain-freebsd.cmake)
+elseif(OPENBSD OR NETBSD)
+    include(cmake/toolchain-openbsd.cmake)
 endif()
+
 
 #######################################################################
 # CMake Settings
