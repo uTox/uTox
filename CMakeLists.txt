@@ -173,7 +173,12 @@ endif()
 # https://gcc.gnu.org/gcc-4.8/changes.html
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
 if (ENABLE_ASAN)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
+    if (UTOX_STATIC)
+        message(SEND_ERROR "ASAN is incompatible with static compilation.")
+    endif()
+
+    add_cflag("-fsanitize=address")
+    add_cflag("-fno-omit-frame-pointer")
 endif()
 
 if(ENABLE_WERROR)
