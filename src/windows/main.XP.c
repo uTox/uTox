@@ -75,6 +75,10 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     wchar_t *autoaccept_folder = calloc(1, MAX_PATH);
+    if (!autoaccept_folder) {
+        LOG_ERR("WinXP", "Unable to malloc for autoaccept path.");
+        return;
+    }
 
     if (settings.portable_mode) {
         // Convert the portable_mode_save_path into a wide string.
@@ -83,7 +87,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
         swprintf(autoaccept_folder, UTOX_FILE_NAME_LENGTH, L"%ls", tmp);
     } else if (SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, autoaccept_folder) != S_OK) {
-        LOG_ERR("Windows7", "Unable to get auto accept file folder!");
+        LOG_ERR("WinXP", "Unable to get auto accept file folder!");
         return;
     }
 
@@ -109,7 +113,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     if (f) {
         postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
     } else {
-        LOG_ERR("Windows7", "Unable to save autoaccepted ft to %ls", fullpath);
+        LOG_ERR("WinXP", "Unable to save autoaccepted ft to %ls", fullpath);
     }
 }
 

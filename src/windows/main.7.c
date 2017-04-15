@@ -81,7 +81,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     wchar_t *autoaccept_folder = NULL;
 
     if (settings.portable_mode) {
-        autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH);
+        autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH * sizeof(wchar_t));
 
         // Convert the portable_mode_save_path into a wide string.
         wchar_t tmp[UTOX_FILE_NAME_LENGTH];
