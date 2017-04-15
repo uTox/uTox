@@ -2,7 +2,7 @@
 
 set -eux
 
-. ./extra/travis/env.sh
+. ./extra/common/env.sh
 
 if ! [ -d filter_audio ]; then
     git clone --depth=1 https://github.com/irungentoo/filter_audio
