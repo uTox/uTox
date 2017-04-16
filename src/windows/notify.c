@@ -6,6 +6,8 @@
 #include "../debug.h"
 #include "../ui.h"
 
+#include "../native/window.h"
+
 #include <windowsx.h>
 
 static void redraw_notify(UTOX_WINDOW *win) {

@@ -160,15 +160,14 @@ UTOX_WINDOW *native_window_find_notify(void *window) {
     return NULL;
 }
 
-UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void* panel) {
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL* panel) {
     UTOX_WINDOW *next = NULL;
 
     if (!popup_window.window) {
         next = &popup_window;
     }
 
-    UTOX_WINDOW *win;
-    win = native_window_create(next, "uTox Alert",
+    UTOX_WINDOW *win = native_window_create(next, "uTox Alert",
                         CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
                         x, y, w, h, w, h, &panel_notify_generic, true);
 
