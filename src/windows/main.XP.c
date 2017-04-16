@@ -25,8 +25,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
         return;
     }
 
-    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length,
-             f->name);
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length, f->name);
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
@@ -88,6 +87,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
         swprintf(autoaccept_folder, UTOX_FILE_NAME_LENGTH, L"%ls", tmp);
     } else if (SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, autoaccept_folder) != S_OK) {
         LOG_ERR("WinXP", "Unable to get auto accept file folder!");
+        free(autoaccept_folder);
         return;
     }
 
