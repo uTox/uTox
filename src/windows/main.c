@@ -24,8 +24,9 @@
 
 #include "../av/utox_av.h"
 
-#include "../native/os.h"
 #include "../native/filesys.h"
+#include "../native/os.h"
+#include "../native/window.h"
 
 #include "../ui/draw.h"
 #include "../ui/dropdown.h"

@@ -7,6 +7,8 @@
 #include <stdint.h>
 
 typedef struct native_image NATIVE_IMAGE;
+typedef struct panel PANEL;
+typedef struct scrollable SCROLLABLE;
 
 #define DEFAULT_LANG LANG_EN // TODO does this belong here?
 #define S(x) (ui_gettext(LANG, (STR_##x))->str)
@@ -17,7 +19,6 @@ typedef struct native_image NATIVE_IMAGE;
  * the size of. Either store the size before changing, or swap it -> run UTOX_STR_WIDTH() -> swap back. */
 #define UTOX_STR_WIDTH(x) (textwidth((ui_gettext(LANG, (STR_##x))->str), (ui_gettext(LANG, (STR_##x))->length)))
 #define SPTRFORLANG(l, x) (ui_gettext((l), (x)))
-
 
 // TODO: Create ui_native headers or something.
 // This is hard to read. I know. I'm sorry.
@@ -67,9 +68,6 @@ typedef enum {
     MAIN_STYLE,      // white style, used in right side
     AUXILIARY_STYLE, // gray style, used on friends side
 } UI_ELEMENT_STYLE;
-
-typedef struct panel PANEL;
-typedef struct scrollable SCROLLABLE;
 
 typedef struct maybe_i18nal_string {
     STRING        plain;
