@@ -12,6 +12,7 @@
 #endif
 
 #include <assert.h>
+#include <sys/stat.h>
 
 bool native_create_dir(const uint8_t *filepath) {
     const int status = mkdir((char *)filepath, S_IRWXU);

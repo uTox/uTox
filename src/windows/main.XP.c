@@ -11,6 +11,8 @@
 #include "../tox.h"
 #include "../settings.h"
 
+#include <io.h>
+
 void native_export_chatlog_init(uint32_t friend_number) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
 
