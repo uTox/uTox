@@ -20,6 +20,8 @@
 
 #include "../main.h" // tox_thread global
 
+#include <string.h>
+
 // Scrollbar or friend list
 SCROLLABLE scrollbar_flist = {
     .panel = { .type = PANEL_SCROLLABLE, },
@@ -188,6 +190,3 @@ EDIT edit_search = {
     .vcentered = true,
     .empty_str = { .i18nal = STR_CONTACT_SEARCH_ADD_HINT },
 };
-
-
-

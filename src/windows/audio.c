@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <inttypes.h>
+#include <math.h>
 
 #include <audioclient.h>
 #include <mmdeviceapi.h>

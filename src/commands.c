@@ -8,6 +8,8 @@
 #include "layout/friend.h" // TODO, we should try to remove this dependency
 #include "ui/edit.h"
 
+#include <string.h>
+
 struct Command commands[MAX_NUM_CMDS] = {
     { "alias",    5, slash_alias     },
     { "invite",   6, slash_invite    },

@@ -23,6 +23,8 @@
 
 #include "main.h" // addfriend_status
 
+#include <string.h>
+
 static FRIEND *friend = NULL;
 
 FRIEND *get_friend(uint32_t friend_number) {

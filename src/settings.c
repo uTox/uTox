@@ -17,6 +17,8 @@
 
 #include "main.h" // UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
 
+#include <string.h>
+
 SETTINGS settings = {
     // .last_version                // included here to match the full struct
     .curr_version = UTOX_VERSION_NUMBER,

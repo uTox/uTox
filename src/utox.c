@@ -27,6 +27,8 @@
 #include "native/ui.h"
 #include "native/video.h"
 
+#include <string.h>
+
 /** Translates status code to text then sends back to the user */
 static void file_notify(FRIEND *f, MSG_HEADER *msg) {
     STRING *str;

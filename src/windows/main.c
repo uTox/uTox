@@ -38,6 +38,7 @@
 #include "../layout/settings.h" // TODO remove, in for dropdown.lang
 
 #include <windowsx.h>
+#include <io.h>
 
 bool flashing = false;
 bool havefocus = true;

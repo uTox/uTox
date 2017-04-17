@@ -23,6 +23,8 @@
 
 #include "../main.h" // tox_thread
 
+#include <string.h>
+
 /* Top bar for user settings */
 static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height)) {
     (void) w;
