@@ -1,6 +1,7 @@
 #include "settings.h"
 
 #include "../debug.h"
+#include "../devices.h"
 #include "../flist.h"
 #include "../macros.h"
 #include "../self.h"
@@ -1124,7 +1125,7 @@ static char edit_name_data[128],
             edit_profile_password_data[65535],
             edit_nospam_data[sizeof(uint32_t) * 2];
 #ifdef ENABLE_MULTIDEVICE
-static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4];
+// static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4];
 #endif
 
 

@@ -1,6 +1,18 @@
 #include "devices.h"
 
 #include "debug.h"
+#include "friend.h" // string_to_id needs to be moved -_-
+#include "main.h"   // addfriend_status
+#include "self.h"
+#include "tox.h"
+
+#include "ui/button.h"
+#include "ui/edit.h"
+#include "ui/panel.h"
+#include "ui/svg.h"
+#include "layout/settings.h"
+
+#include <string.h>
 
 #ifdef ENABLE_MULTIDEVICE
 
@@ -70,10 +82,10 @@ void utox_device_init(Tox *tox, uint16_t dev_num) {
         LOG_ERR("Devices", "Error getting device info dev_num %u error %u" , dev_num, error);
     }
 
-    cid_to_string(devices[dev_num].pubkey_hex, devices[dev_num].pubkey);
+    id_to_string(devices[dev_num].pubkey_hex, devices[dev_num].pubkey);
 }
 
-static void devices_self_add_submit(uint8_t *name, size_t length, uint8_t id[TOX_ADDRESS_SIZE]) {
+static void devices_self_add_submit(char *name, size_t length, uint8_t id[TOX_ADDRESS_SIZE]) {
     if (length >= UINT16_MAX) { /* Max size of postmsg */
         LOG_ERR("Devices", "Name length > UINT16_MAX");
         /* TODO send error to GUI */
@@ -112,8 +124,8 @@ void devices_update_ui(void) {
 
     uint16_t i;
     for (i = 0; i < self.device_list_count; ++i) {
-        EDIT *  edit = calloc(1, sizeof(EDIT));
-        BUTTON *dele = calloc(1, sizeof(BUTTON));
+        EDIT   *edit = calloc(1, sizeof(EDIT));
+        BUTTON *del  = calloc(1, sizeof(BUTTON));
 
         if (!edit) {
             LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Can't malloc for an extra device");
@@ -140,18 +152,18 @@ void devices_update_ui(void) {
         edit->length = TOX_PUBLIC_KEY_SIZE * 2, edit->maxlength = TOX_PUBLIC_KEY_SIZE * 2,
         edit->data = devices[i].pubkey_hex, edit->readonly = 1, edit->noborder = 0, edit->select_completely = 1,
 
-        dele->panel  = b_delete;
-        dele->bm     = BM_SBUTTON;
-        dele->update = button_setcolors_success, dele->on_mup = delete_this_device,
-        dele->button_text.i18nal = STR_DELETE;
+        del->panel  = b_delete;
+        del->bm     = BM_SBUTTON;
+        del->update = button_setcolors_success, del->on_mup = delete_this_device,
+        del->button_text.i18nal = STR_DELETE;
 
         panel_settings_devices.child[(i * 2) + 2] = (void *)edit;
-        panel_settings_devices.child[(i * 2) + 3] = (void *)dele;
+        panel_settings_devices.child[(i * 2) + 3] = (void *)del;
     }
     panel_settings_devices.child[(i * 2) + 2] = NULL;
 }
 
-void devices_self_add(uint8_t *device, size_t length) {
+void devices_self_add(char *device, size_t length) {
     uint8_t  name_cleaned[length];
     uint16_t length_cleaned = 0;
 
@@ -164,15 +176,15 @@ void devices_self_add(uint8_t *device, size_t length) {
     }
 
     if (!length_cleaned) {
-        addfriend_status = ADDF_NONAME;
+        addfriend_status = 4; // ADDF_NONAME == 4 in dns.h which I'm not willing to include;
         return;
     }
 
     uint8_t id[TOX_ADDRESS_SIZE];
 
-    if (length_cleaned == TOX_ADDRESS_SIZE * 2 && string_to_id(id, name_cleaned)) {
+    if (length_cleaned == TOX_ADDRESS_SIZE * 2 && string_to_id(id, (char*)name_cleaned)) {
         /* TODO, names! */
-        devices_self_add_submit((uint8_t *)"Default device name", 19, id);
+        devices_self_add_submit("Default device name", 19, id);
     } else {
         LOG_ERR("Devices", "error trying to add this device");
     }
