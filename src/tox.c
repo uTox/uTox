@@ -2,6 +2,7 @@
 
 #include "avatar.h"
 #include "dns.h"
+#include "devices.h"
 #include "file_transfers.h"
 #include "flist.h"
 #include "friend.h"
@@ -340,7 +341,7 @@ static int init_toxcore(Tox **tox) {
     tox_options_set_proxy_port(&topt, settings.proxy_port);
 
     #ifdef ENABLE_MULTIDEVICE
-    tox_options_set_mdev_mirror_sent(&topt, 1);
+    tox_options_set_mdev_mirror_messages(&topt, 1);
     #endif
 
     save_status = load_toxcore_save(&topt);
@@ -652,7 +653,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         #ifdef ENABLE_MULTIDEVICE
 
             TOX_ERR_DEVICE_ADD error = 0;
-            tox_self_add_device(tox, data + TOX_ADDRESS_SIZE, param1, data, &error);
+            uint8_t *address = data;
+            uint8_t *name = address + TOX_ADDRESS_SIZE;
+            tox_self_add_device(tox, name, param1, address, &error);
 
             if (error) {
                 LOG_ERR("Toxcore", "problem with adding device to self %u" , error);
