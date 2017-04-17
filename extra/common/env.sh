@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export CTEST_OUTPUT_ON_FAILURE=1
+
 export CACHE_DIR=${CACHE_DIR=""}
 
 export TOXCORE_REPO=${TOXCORE_REPO:-"TokTok/c-toxcore"}

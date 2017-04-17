@@ -279,23 +279,29 @@ static uint32_t download_version(void) {
     return version;
 }
 
-uint32_t updater_check(void) {
+uint32_t updater_check(uint64_t v) {
     uint32_t version = download_version();
-    LOG_INFO("Updater", "Current version %u, newest version version %u." , UTOX_VERSION_NUMBER, version);
+    LOG_INFO("Updater", "Current version %u, newest version version %u." , v, version);
 
-    if (version > UTOX_VERSION_NUMBER) {
-        LOG_WARN("Updater", "New version of uTox available [%u.%u.%u]",
-                      (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
-        return version;
-    } else if (version == UTOX_VERSION_NUMBER) {
+    if (version == 0) {
+        LOG_ERR("Updater", "Error getting version from uTox.io");
+        return 0;
+    }
+
+    if (version > v) {
+        LOG_WARN("Updater", "Yay! There's a new version of uTox [%u.%u.%u] our version <%u.%u.%u>",
+                      (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF),
+                      (v & 0xFF0000) >> 16, (v & 0xFF00) >> 8, (v & 0xFF));
+    } else if (version == v) {
         LOG_WARN("Updater", "Running the latest version of uTox [%u.%u.%u]",
                       (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
     } else {
-        LOG_WARN("Updater", "Running an unpublished version of uTox published is [%u.%u.%u]",
-                      (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
+        LOG_WARN("Updater", "Running an unpublished version of uTox published is [%u.%u.%u] our version <%u.%u.%u>",
+                      (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF),
+                      (v & 0xFF0000) >> 16, (v & 0xFF00) >> 8, (v & 0xFF));
     }
 
-    return 0;
+    return version;
 }
 
 #ifdef ENABLE_AUTOUPDATE
@@ -326,7 +332,8 @@ void updater_thread(void *from_startup) {
         static uint32_t version;
         yieldcpu(1000); // We want to delay a second before pulling the download
                         // to make sure we're not currently mid update
-        if ((version = updater_check())) {
+        version = updater_check(UTOX_VERSION_NUMBER);
+        if (version > UTOX_VERSION_NUMBER) {
 
             char str[100];
             snprintf(str, 100, "%.3s_%u-%u.%u.%u", UPDATER_HOST, UPDATER_ARCH, (version & 0xFF0000) >> 16, (version & 0xFF00) >> 8, (version & 0xFF));
