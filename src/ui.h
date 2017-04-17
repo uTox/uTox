@@ -194,6 +194,10 @@ double ui_scale;
 /* Main panel defines */
 #define MAIN_LEFT SCALE(230)
 #define MAIN_TOP SCALE(60)
+#define PANEL_SETTINGS_OFFSET_Y SCALE(32)
+
+#define UI_OFFSET_X SCALE(10)
+#define UI_OFFSET_Y SCALE(30)
 
 /* Legacy defines, instead of using these, you should replace them with something more descriptive */
 #define LIST_Y2 SCALE(86)

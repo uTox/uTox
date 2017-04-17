@@ -138,10 +138,14 @@ static void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(hei
 static void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), STATUSMESSAGE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(110), TOXID);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), LANGUAGE);
+
+    int step = SCALE(55);
+    int offset = SCALE(10);
+
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset + step*0, NAME);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset + step*1, STATUSMESSAGE);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset + step*2, TOXID);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset + step*3, LANGUAGE);
 }
 
 // Devices settings page
@@ -161,36 +165,40 @@ static void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int 
 static void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(235), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + SCALE(245), PROFILE_PASSWORD);
 
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(285), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(299), PROFILE_PW_NO_RECOVER);
+    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(295), PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(309), PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_nospam_settings(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(240), NOSPAM_WARNING);
+    drawstr(MAIN_LEFT + UI_OFFSET_X + SCALE(75), y + SCALE(248), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(235), NOSPAM);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(245), NOSPAM);
 }
 
 // UI settings page
 static void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(150), y + SCALE(10),  DPI);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(10),  THEME);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(65),  SAVE_CHAT_HISTORY);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(95),  CLOSE_TO_TRAY);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(125), START_IN_TRAY);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(155), AUTO_STARTUP);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
+
+    int top_offset = SCALE(10);
+    int switch_label_offset = SCALE(5);
+
+    drawstr(MAIN_LEFT + UI_OFFSET_X,              y + top_offset, THEME);
+    drawstr(MAIN_LEFT + UI_OFFSET_X + SCALE(140), y + top_offset, DPI);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + UI_OFFSET_Y*2 + switch_label_offset, SAVE_CHAT_HISTORY);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + UI_OFFSET_Y*3 + switch_label_offset, CLOSE_TO_TRAY);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + UI_OFFSET_Y*4 + switch_label_offset, START_IN_TRAY);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + UI_OFFSET_Y*5 + switch_label_offset, AUTO_STARTUP);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + UI_OFFSET_Y*6 + switch_label_offset, SETTINGS_UI_MINI_ROSTER);
 }
 
 // Audio/Video settings page
@@ -199,26 +207,27 @@ static void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSE
     setfont(FONT_SELF_NAME);
 
     // The element is draw_pos_y_inc units apart and they start draw_pos_y down.
-    uint16_t draw_pos_y = 10;
+    uint16_t draw_pos_y = 15;
     uint16_t draw_pos_y_inc = 30;
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PUSH_TO_TALK);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + SCALE(draw_pos_y), PUSH_TO_TALK);
+
     draw_pos_y += draw_pos_y_inc;
 #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + SCALE(draw_pos_y), AUDIOFILTERING);
     draw_pos_y += draw_pos_y_inc;
 #endif
 
     // These are 60 apart as there needs to be room for a dropdown between them.
     draw_pos_y_inc = 60;
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOOUTPUTDEVICE);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + SCALE(draw_pos_y), AUDIOOUTPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), VIDEOINPUTDEVICE);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + SCALE(draw_pos_y), VIDEOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + SCALE(draw_pos_y), PREVIEW);
 }
 
 // Notification settings page
@@ -226,28 +235,34 @@ static void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w)
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), RINGTONE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(40), STATUS_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(70), SEND_TYPING_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), GROUP_NOTIFICATIONS);
+    int left_offset = MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH;
+    int top_offset = SCALE(10);
+    int switch_label_offset = SCALE(5);
+
+    drawstr(left_offset, y + top_offset + UI_OFFSET_Y*0 + switch_label_offset, RINGTONE);
+    drawstr(left_offset, y + top_offset + UI_OFFSET_Y*1 + switch_label_offset, STATUS_NOTIFICATIONS);
+    drawstr(left_offset, y + top_offset + UI_OFFSET_Y*2 + switch_label_offset, SEND_TYPING_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + top_offset + UI_OFFSET_Y*3 + switch_label_offset, GROUP_NOTIFICATIONS);
 }
 
 static void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), WARNING);
+
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + SCALE(10), WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(30),  IPV6);
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(60),  UDP);
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(90),  PROXY);
-    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(94), ":", 1); // Little addr port separator
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
+    int top_offset = SCALE(5);
 
-    drawstr(MAIN_LEFT + SCALE(10),   y + SCALE(150), AUTO_UPDATE);
-    drawstr(MAIN_LEFT + SCALE(10),   y + SCALE(180), BLOCK_FRIEND_REQUESTS);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*1,  IPV6);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*2,  UDP);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*3,  PROXY);
+    drawtext(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH + SCALE(274), y + top_offset + UI_OFFSET_Y*3, ":", 1); // Little addr port separator
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*4, PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*5, AUTO_UPDATE);
+    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*6, BLOCK_FRIEND_REQUESTS);
 }
 
 
