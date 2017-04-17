@@ -305,7 +305,7 @@ void utox_video_thread(void *args) {
             }
 
             pthread_mutex_unlock(&video_thread_lock);
-            yieldcpu(40); /* 60fps = 16.666ms || 25 fps = 40ms || the data quality is SO much better at 25... */
+            yieldcpu(200); /* 60fps = 16.666ms || 25 fps = 40ms || the data quality is SO much better at 25... */
             continue;     /* We're running video, so don't sleep for an extra 100 ms */
         }
 

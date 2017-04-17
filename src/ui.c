@@ -1,5 +1,6 @@
 #include "ui.h"
 
+#include "devices.h"
 #include "flist.h"
 #include "inline_video.h"
 #include "macros.h"

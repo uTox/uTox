@@ -151,6 +151,7 @@ void utox_write_metadata(FRIEND *f);
  *  on failure: returns 0
  *  notes: dest must be TOX_FRIEND_ADDRESS_SIZE bytes large, some data may be written to dest even on failure
  */
+// TODO move to tox.h
 bool string_to_id(uint8_t *dest, char *src);
 
 /* same as id_to_string(), but for TOX_PUBLIC_KEY_SIZE

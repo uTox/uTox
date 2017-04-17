@@ -64,11 +64,6 @@ typedef uint8_t *UTOX_IMAGE;
 #define _LARGEFILE_SOURCE
 #define _FILE_OFFSET_BITS 64
 
-#if TOX_VERSION_MAJOR > 0
-#define ENABLE_MULTIDEVICE 1
-#endif
-
-
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 
 bool tox_connected;
