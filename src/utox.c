@@ -9,7 +9,7 @@
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
-#include "main.h" // addfriend_status
+#include "main.h" // loaded audio device vars
 #include "tox.h"
 
 #include "av/utox_av.h"
@@ -26,6 +26,8 @@
 #include "native/notify.h"
 #include "native/ui.h"
 #include "native/video.h"
+
+#include <string.h>
 
 /** Translates status code to text then sends back to the user */
 static void file_notify(FRIEND *f, MSG_HEADER *msg) {
@@ -551,12 +553,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                data: packaged frame data */
 
             UTOX_FRAME_PKG *frame = data;
-            if (ACCEPT_VIDEO_FRAME(param1 - 1) || param2) {
-                STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
-                video_begin(param1, s->str, s->length, frame->w, frame->h);
-                video_frame(param1, frame->img, frame->w, frame->h, 0);
-                // TODO re-enable the resize option, disabled for reasons
-            }
+            STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
+            video_begin(param1, s->str, s->length, frame->w, frame->h);
+            video_frame(param1, frame->img, frame->w, frame->h, 0);
             free(frame->img);
             free(data);
             // Intentional fall through

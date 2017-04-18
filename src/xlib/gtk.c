@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define LIBGTK_FILENAME "libgtk-3.so.0"
 

@@ -7,8 +7,8 @@ fi
 cd libvpx
 git rev-parse HEAD > libvpx.sha
 if ! ([ -f "${CACHE_DIR}/libvpx.sha" ] && diff "${CACHE_DIR}/libvpx.sha" libvpx.sha); then
-  ./configure $TARGET_TRGT \
-              --prefix=${CACHE_DIR}/usr \
+  ./configure "$TARGET_TRGT" \
+              --prefix="${CACHE_DIR}/usr" \
               --enable-static \
               --disable-examples \
               --disable-unit-tests \

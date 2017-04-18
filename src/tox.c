@@ -33,6 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tox/tox.h>
 #include <tox/toxencryptsave.h>
 
 #include "main.h"

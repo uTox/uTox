@@ -46,12 +46,17 @@ void *  dibits;
 static uint16_t video_x, video_y;
 
 void video_begin(uint32_t id, char *UNUSED(name), uint16_t UNUSED(name_length), uint16_t width, uint16_t height) {
-    if (video_hwnd[id]) {
-        return;
+    HWND *h;
+    if (id >= UINT16_MAX) {
+        h = &preview_hwnd;
+    } else {
+        h = &video_hwnd[id];
     }
 
-    HWND *h = &video_hwnd[id];
-
+    if (*h) {
+        LOG_ERR("debug", "vid exists");
+        return;
+    }
 
     RECT r = {
         .left = 0,
@@ -59,9 +64,7 @@ void video_begin(uint32_t id, char *UNUSED(name), uint16_t UNUSED(name_length), 
         .top = 0,
         .bottom = height
     };
-
     AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
-
     width  = r.right - r.left;
     height = r.bottom - r.top;
 
@@ -74,21 +77,26 @@ void video_begin(uint32_t id, char *UNUSED(name), uint16_t UNUSED(name_length), 
     }
 
     *h = native_window_create_video(0, 0, width, height);
-
+    if (!*h) {
+        LOG_ERR("Win OSVideo", "Unable to create this window w%uh%u", width, height);
+    }
     ShowWindow(*h, SW_SHOW);
 }
 
 void video_end(uint32_t id) {
-    if (!video_hwnd[id]) {
-        return;
+    if (id >= UINT16_MAX) {
+        DestroyWindow(preview_hwnd);
+        preview_hwnd = NULL;
+    } else {
+        if (video_hwnd[id]) {
+            DestroyWindow(video_hwnd[id]);
+        }
+        video_hwnd[id] = NULL;
     }
-
-    DestroyWindow(video_hwnd[id]);
-    video_hwnd[id] = NULL;
 }
 
 volatile bool newframe = 0;
-uint8_t *     frame_data;
+uint8_t *frame_data;
 
 HRESULT STDMETHODCALLTYPE test_SampleCB(ISampleGrabberCB *UNUSED(lpMyObj), double UNUSED(SampleTime), IMediaSample *pSample) {
     // you can call functions like:

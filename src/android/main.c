@@ -919,4 +919,4 @@ __attribute__((externally_visible)) void ANativeActivity_onCreate(ANativeActivit
     pthread_create(&thread, &myattr, (void *(*)(void *))android_main, NULL);
 }
 
-void launch_at_startup(int is_launch_at_startup) {}
+void launch_at_startup(bool should) {}

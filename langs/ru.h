@@ -83,7 +83,7 @@ msgid(REQ_BAD_CHECKSUM)
 msgstr("Ошибка: неправильный Tox ID (контрольная сумма не совпадает)")
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Ошибка: неправильный Tox ID (неверное значение nospam)")
+msgstr("Ошибка: неправильный Tox ID (неверное значение антиспама)")
 
 msgid(REQ_NO_MEMORY)
 msgstr("Ошибка: не хватает памяти")
@@ -105,6 +105,7 @@ msgstr("Выберите один или несколько файлов для 
 
 msgid(SCREEN_CAPTURE_PROMPT)
 msgstr("Выделите область экрана, которую вы хотите отправить.")
+
 
 /******************************************************************************
  *** File Transfer Strings                                                  ***
@@ -231,16 +232,15 @@ msgstr("Выкл")
 msgid(GROUP_TOPIC)
 msgstr("Тема группы")
 
+
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
-
 msgid(PROFILE_BUTTON)
 msgstr("Профиль")
 
 msgid(DEVICES_BUTTON)
 msgstr("Устройства")
-
 
 msgid(USER_INTERFACE_BUTTON)
 msgstr("Интерфейс")
@@ -248,8 +248,14 @@ msgstr("Интерфейс")
 msgid(AUDIO_VIDEO_BUTTON)
 msgstr("Аудио и видео")
 
+msgid(ADVANCED_BUTTON)
+msgstr("Дополнительно")
 
+msgid(NOTIFICATIONS_BUTTON)
+msgstr("Уведомления")
 
+msgid(AUTO_UPDATE)
+msgstr("Автоматически обновлять uTox")
 
 msgid(PROFILE_SETTINGS)
 msgstr("Настройки профиля")
@@ -355,6 +361,9 @@ msgstr("Компактный список контактов")
 msgid(NOT_CONNECTED)
 msgstr("Не соединён")
 
+msgid(NOT_CONNECTED_SETTINGS)
+msgstr("Изменить настройки сети")
+
 msgid(OTHERSETTINGS)
 msgstr("Прочие настройки")
 
@@ -377,6 +386,9 @@ msgid(LOCK_UTOX)
 msgstr("Отсоединение от сети и блокировка этого профиля.")
 
 msgid(SHOW_UI_PASSWORD)
+msgstr("Показать поле пароля")
+
+msgid(SHOW_UI_PASSWORD_TOOLTIP)
 msgstr("Нажмите для отображения поля пароля профиля. Изменения, сделанные здесь, применяются сразу!")
 
 msgid(LOCK)
@@ -405,6 +417,9 @@ msgstr("UDP:")
 
 msgid(PROXY)
 msgstr("Прокси (SOCKS 5)")
+
+msgid(PROXY_FORCE)
+msgstr("Всегда использовать проки")
 
 msgid(WARNING)
 msgstr("Изменение сетевых настроек приведёт к временному отключению от сети Tox")
@@ -674,13 +689,40 @@ msgid(THEME_ZENBURN)
 msgstr("Zenburn")
 
 msgid(THEME_SOLARIZED_LIGHT)
-msgstr("Solarized-light")
+msgstr("Solarized светлая")
 
 msgid(THEME_SOLARIZED_DARK)
-msgstr("Solarized-dark")
+msgstr("Solarized тёмная")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Отправлять уведомления о наборе текста")
 
 msgid(STATUS_NOTIFICATIONS)
 msgstr("Уведомления о статусе")
+
+msgid(RANDOMIZE_NOSPAM)
+msgstr("Сгенерировать новый антиспам")
+
+msgid(NOSPAM)
+msgstr("Антиспам")
+
+msgid(REVERT_NOSPAM)
+msgstr("Отменить изменение антиспама")
+
+msgid(NOSPAM_WARNING)
+msgstr("Изменение антиспама приведёт к тому, что ваш старый Tox ID больше не будет работать. uTox не обновляет ваш Tox ID на серверах имён.")
+
+msgid(BLOCK_FRIEND_REQUESTS)
+msgstr("Блокировать запросы на добавление в контакты")
+
+msgid(SHOW_NOSPAM)
+msgstr("Показать настройки антиспама")
+
+msgid(DELETE_FRIEND)
+msgstr("Удалить из контактов")
+
+msgid(DELETE_MESSAGE)
+msgstr("Вы уверены, что хотите удалить ")
+
+msgid(KEEP)
+msgstr("Оставить")

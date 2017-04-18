@@ -8,6 +8,7 @@
 #include "../macros.h"
 #include "../self.h"
 #include "../theme.h"
+#include "../tox.h"
 
 #include "../native/ui.h"
 
@@ -19,6 +20,8 @@
 #include "../ui/svg.h"
 
 #include "../main.h" // tox_thread global
+
+#include <string.h>
 
 // Scrollbar or friend list
 SCROLLABLE scrollbar_flist = {
@@ -210,6 +213,3 @@ EDIT edit_search = {
     .vcentered = true,
     .empty_str = { .i18nal = STR_CONTACT_SEARCH_ADD_HINT },
 };
-
-
-

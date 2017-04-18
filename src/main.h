@@ -4,20 +4,7 @@
 /**********************************************************
  * Includes
  *********************************************************/
-#include <ctype.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <math.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <time.h>
 #include <tox/tox.h>
-
-#include "filesys.h"
 
 
 /**********************************************************
@@ -71,33 +58,13 @@ typedef uint8_t *UTOX_IMAGE;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 
-bool tox_connected;
-
 /* Super global vars */
 volatile bool utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
-typedef enum {
-    // tox_thread is not initialized yet
-    UTOX_TOX_THREAD_INIT_NONE = 0,
-    // tox_thread is initialized successfully
-    // this means a tox instance has been created
-    UTOX_TOX_THREAD_INIT_SUCCESS = 1,
-    // tox_thread is initialized but not successfully
-    // this means a tox instance may have not been created
-    UTOX_TOX_THREAD_INIT_ERROR = 2,
-} UTOX_TOX_THREAD_INIT;
-
-UTOX_TOX_THREAD_INIT tox_thread_init;
 
 bool move_window_down; // When the mouse is currently down over the move_window_button().
                        // non-ideal but I wasn't ready to write a better state system for
                        // moving windows from inside uTox.
-
-
-// add friend page
-uint8_t addfriend_status;
-
-uint16_t video_width, video_height, max_video_width, max_video_height;
-char     proxy_address[256]; /* Magic Number inside toxcore */
+                       // seems to be unused?
 
 #include "stb_image.h"
 #include "stb_image_write.h"

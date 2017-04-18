@@ -1,7 +1,7 @@
 #include "main.h"
 
 #include "../debug.h"
-#include "../main.h"
+#include "../filesys.h"
 #include "../settings.h"
 
 #include <io.h>
@@ -89,11 +89,11 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
 
     if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
         if (!native_create_dir((uint8_t *)path)) {
-            LOG_ERR("WinFilesys", ": Failed to create path %s." , path);
+            LOG_ERR("WinFilesys", "Failed to create path %s.", path);
         }
     }
 
-    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "/%s", tmp_path);
+    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", tmp_path);
 
     free(path_pointer);
 
@@ -110,19 +110,22 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
         if (!DeleteFile(path)) {
             LOG_ERR("WinFilesys", "Could not delete file: %s - Error: %d" , path, GetLastError());
         }
+
         return NULL;
     }
+
 
     FILE *fp = get_file(wide, opts);
 
-    if (fp == NULL) {
+    if (!fp) {
         if (opts > UTOX_FILE_OPTS_READ) {
-            LOG_NOTE("WinFilesys", "Could not open %S for writing." , wide);
+            LOG_NOTE("WinFilesys", "Could not open %S for writing.", wide);
         }
+
         return NULL;
     }
 
-    if (size != NULL && opts & UTOX_FILE_OPTS_READ) {
+    if (size && opts & UTOX_FILE_OPTS_READ) {
         fseek(fp, 0, SEEK_END);
         *size = ftell(fp);
         fseek(fp, 0, SEEK_SET);

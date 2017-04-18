@@ -5,7 +5,10 @@
 #include "../macros.h"
 #include "../self.h"
 #include "../theme.h"
+#include "../tox.h"
 #include "../updater.h"
+
+#include "../av/video.h"
 
 #include "../native/clipboard.h"
 #include "../native/keyboard.h"
@@ -20,8 +23,7 @@
 #include "../ui/switch.h"
 
 #include <stdio.h>
-
-#include "../main.h" // tox_thread
+#include <string.h>
 
 /* Top bar for user settings */
 static void draw_settings_header(int x, int y, int w, int UNUSED(height)) {
@@ -1042,7 +1044,7 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
 }
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    ui_set_scale(i + 5);
+    ui_rescale(i + 5);
 }
 
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {

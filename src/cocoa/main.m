@@ -11,6 +11,7 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+#include "../av/video.h"
 
 #include "../native/notify.h"
 
@@ -315,7 +316,7 @@ void redraw(void) {
     [ad soilWindowContents];
 }
 
-void launch_at_startup(int should) {
+void launch_at_startup(bool should) {
     LSSharedFileListRef items = LSSharedFileListCreate(kCFAllocatorDefault, kLSSharedFileListSessionLoginItems, NULL);
     if (should) {
         CFRelease(LSSharedFileListInsertItemURL(items, kLSSharedFileListItemLast, NULL, NULL,

@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "flist.h"
 #include "groups.h"
+#include "tox.h"
 
 // TODO do we want to include the UI headers here?
 // Or would it be better to supply a callback after settings are loaded?
@@ -16,6 +17,8 @@
 #include "native/keyboard.h"
 
 #include "main.h" // UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
+
+#include <string.h>
 
 SETTINGS settings = {
     // .last_version                // included here to match the full struct

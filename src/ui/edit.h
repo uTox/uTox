@@ -19,7 +19,6 @@ typedef struct edit_change {
 } EDIT_CHANGE;
 
 typedef struct edit EDIT;
-
 struct edit {
     PANEL panel;
 

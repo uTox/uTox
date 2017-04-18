@@ -547,13 +547,11 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
             MSG_HEADER *msg = m->data[start];
             if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 if (msg->receipt == receipt_number) {
-
                     msg->receipt = -1;
                     time(&msg->receipt_time);
 
                     LOG_FILE_MSG_HEADER header;
                     memset(&header, 0, sizeof(header));
-                    uint8_t *data = NULL;
 
                     header.log_version   = LOGFILE_SAVE_VERSION;
                     header.time          = msg->time;
@@ -564,7 +562,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     header.msg_type      = msg->msg_type;
 
                     size_t length = sizeof(header);
-                    data          = calloc(1, length);
+                    uint8_t *data = calloc(1, length);
                     memcpy(data, &header, sizeof(header));
 
                     char *hex = get_friend(m->id)->id_str;
@@ -616,7 +614,7 @@ static void messages_draw_timestamp(int x, int y, const time_t *time) {
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_MISC);
-    drawtext(x, y, (char *)timestr, len);
+    drawtext(x, y, timestr, len);
 }
 
 static void messages_draw_author(int x, int y, int w, char *name, uint32_t length, uint32_t color) {

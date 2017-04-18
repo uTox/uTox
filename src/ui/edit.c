@@ -5,6 +5,7 @@
 #include "scrollable.h"
 #include "text.h"
 
+#include "../debug.h"
 #include "../macros.h"
 #include "../main.h"
 #include "../settings.h"
@@ -16,6 +17,9 @@
 #include "../native/keyboard.h"
 #include "../native/os.h"
 #include "../native/ui.h"
+
+#include <string.h>
+#include <limits.h>
 
 static EDIT *active_edit;
 
@@ -347,9 +351,14 @@ static uint16_t edit_change_do(EDIT *edit, EDIT_CHANGE *c) {
 void edit_do(EDIT *edit, uint16_t start, uint16_t length, bool remove) {
     EDIT_CHANGE *new, **history;
 
-    new = malloc(sizeof(EDIT_CHANGE) + length);
+    history = realloc(edit->history, (edit->history_cur + 1) * sizeof(void *));
+    if (!history) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "UI Edit", "Unable to realloc for edit history, this should never happen!");
+    }
+
+    new = calloc(1, sizeof(EDIT_CHANGE) + length);
     if (!new) {
-        return;
+        LOG_FATAL_ERR(EXIT_MALLOC, "UI Edit", "Unable to calloc for new EDIT_CHANGE, this should never happen!");
     }
 
     new->remove = remove;
@@ -360,14 +369,8 @@ void edit_do(EDIT *edit, uint16_t start, uint16_t length, bool remove) {
     if (edit->history_cur != edit->history_length) {
         uint16_t i = edit->history_cur;
         while (i != edit->history_length) {
-            free(edit->history[i]);
-            i++;
+            free(edit->history[i++]);
         }
-    }
-
-    history = realloc(edit->history, (edit->history_cur + 1) * sizeof(void *));
-    if (!history) {
-        // Do something?
     }
 
     history[edit->history_cur] = new;

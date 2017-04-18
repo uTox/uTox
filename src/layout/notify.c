@@ -2,18 +2,17 @@
 
 #include "userbadge.h"
 
-#include "../ui.h"
-#include "../self.h"
 #include "../avatar.h"
 #include "../debug.h"
-#include "../theme.h"
 #include "../notify.h"
+#include "../self.h"
+#include "../theme.h"
+#include "../tox.h"
+#include "../ui.h"
 
 #include "../ui/svg.h"
 #include "../ui/draw.h"
 #include "../ui/button.h"
-
-#include "../main.h" // tox_thread_init
 
 bool btn_move_window_down;
 

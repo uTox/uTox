@@ -7,7 +7,7 @@
 /** Returns the new version if there's an update ready.
  *     or zero otherwise
  */
-uint32_t updater_check();
+uint32_t updater_check(uint64_t version);
 
 void updater_thread(void *ptr);
 

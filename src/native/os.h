@@ -18,7 +18,7 @@ void setselection(char *data, uint16_t length);
 
 // inserts/deletes a value into the registry to launch uTox after boot
 // OS X and Windows
-void launch_at_startup(int is_launch_at_startup);
+void launch_at_startup(bool should);
 
 // Linux, OS X, and Windows.
 void config_osdefaults(UTOX_SAVE *r);

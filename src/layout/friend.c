@@ -10,6 +10,7 @@
 #include "../macros.h"
 #include "../settings.h"
 #include "../theme.h"
+#include "../tox.h"
 
 #include "../native/dialog.h"
 
@@ -21,6 +22,8 @@
 
 #include "../main.h" // add friend status // TODO this is stupid wrong
 #include "../dns.h"
+
+#include <string.h>
 
 /* Header for friend chat window */
 static void draw_friend(int x, int y, int w, int height) {
