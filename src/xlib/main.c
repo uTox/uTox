@@ -8,6 +8,7 @@
 
 #include "../avatar.h"
 #include "../debug.h"
+#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
