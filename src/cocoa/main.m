@@ -11,6 +11,7 @@
 #include "../utox.h"
 
 #include "../av/utox_av.h"
+#include "../av/video.h"
 
 #include "../native/notify.h"
 
