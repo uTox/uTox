@@ -8,7 +8,6 @@
 
 #include "../avatar.h"
 #include "../debug.h"
-#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
@@ -33,6 +32,11 @@
 #include "../layout/settings.h"
 
 #include "../main.h" // STBI
+
+#include <ctype.h>
+#include <locale.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 bool hidden = false;
 
@@ -351,7 +355,7 @@ void formaturilist(char *out, const char *in, size_t len) {
 // TODO(robinli): Go over this function and see if either len or size are removeable.
 void pastedata(void *data, Atom type, size_t len, bool select) {
 
-    size_t size = (size_t)len;
+    size_t size = len;
     if (type == XA_PNG_IMG) {
         FRIEND *f = flist_get_friend();
         if (!f) {
@@ -365,6 +369,11 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
             LOG_INFO("XLIB MAIN", "Pasted image: %dx%d", width, height);
 
             UTOX_IMAGE png_image = malloc(size);
+            if (!png_image){
+                LOG_ERR("XLIB", "Could not allocate memory for an image");
+                return;
+            }
+
             memcpy(png_image, data, size);
             friend_sendimage(f, native_image, width, height, png_image, size);
         }
@@ -375,6 +384,10 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
             return;
         }
         char *path = malloc(len + 1);
+        if (!path) {
+            LOG_ERR("XLIB", "Could not allocate memory for path.");
+            return;
+        }
         formaturilist(path, (char *)data, len);
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0xFFFF, path);
     } else if (type == XA_UTF8_STRING && edit_active()) {
@@ -401,7 +414,13 @@ Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format) {
 }
 
 void loadalpha(int bm, void *data, int width, int height) {
+    if (bm < 0){
+        LOG_ERR("XLIB", "Can not get object from array. Index %d", bm);
+        return;
+    }
+
     XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, data, width, height, 8, 0);
+
 
     // create picture that only holds alpha values
     // NOTE: the XImage made earlier should really be freed, but calling XDestroyImage on it will also

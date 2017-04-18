@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "flist.h"
 #include "groups.h"
+#include "tox.h"
 
 // TODO do we want to include the UI headers here?
 // Or would it be better to supply a callback after settings are loaded?

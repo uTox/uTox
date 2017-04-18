@@ -8,6 +8,7 @@
 #include "../macros.h"
 #include "../self.h"
 #include "../theme.h"
+#include "../tox.h"
 
 #include "../native/ui.h"
 

@@ -1,7 +1,7 @@
 #include "main.h"
 
 #include "../debug.h"
-#include "../main.h"
+#include "../filesys.h"
 #include "../settings.h"
 
 #include <io.h>

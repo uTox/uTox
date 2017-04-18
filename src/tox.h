@@ -105,9 +105,25 @@ enum {
     UTOX_AV_STARTED,
 };
 
+typedef enum {
+    // tox_thread is not initialized yet
+    UTOX_TOX_THREAD_INIT_NONE = 0,
+    // tox_thread is initialized successfully
+    // this means a tox instance has been created
+    UTOX_TOX_THREAD_INIT_SUCCESS = 1,
+    // tox_thread is initialized but not successfully
+    // this means a tox instance may have not been created
+    UTOX_TOX_THREAD_INIT_ERROR = 2,
+} UTOX_TOX_THREAD_INIT;
+
+UTOX_TOX_THREAD_INIT tox_thread_init;
+
 /* Inter-thread communication vars. */
 TOX_MSG       tox_msg, audio_msg, video_msg, toxav_msg;
 volatile bool tox_thread_msg, audio_thread_msg, video_thread_msg;
+
+bool tox_connected;
+char proxy_address[256]; /* Magic Number inside toxcore */
 
 void tox_after_load(Tox *tox);
 

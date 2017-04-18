@@ -10,6 +10,7 @@
 #include "../macros.h"
 #include "../settings.h"
 #include "../theme.h"
+#include "../tox.h"
 
 #include "../native/dialog.h"
 

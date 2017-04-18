@@ -2,6 +2,8 @@
 
 #include "test.h"
 
+#include <time.h>
+
 START_TEST (test_updater_current)
 {
     uint32_t v = updater_check(UTOX_VERSION_NUMBER);

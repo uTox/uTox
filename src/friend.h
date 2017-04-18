@@ -93,6 +93,8 @@ typedef struct utox_friend_request {
     size_t length;
 } FREQUEST;
 
+// add friend page
+uint8_t addfriend_status;
 
 #define UTOX_FRIEND_NAME(f) ((f->alias) ? f->alias : f->name)
 #define UTOX_FRIEND_NAME_LENGTH(f) ((f->alias) ? f->alias_length : f->name_length)
