@@ -4,6 +4,13 @@
 #include "../macros.h"
 #include "../av/video.h" // video super globals
 
+#include <errno.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 int utox_v4l_fd = -1;
 
 #include <sys/mman.h>
