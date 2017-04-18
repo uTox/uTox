@@ -4,14 +4,10 @@
 
 #include "../native/filesys.h"
 
-#ifdef __OBJC__
-#include "../main.h"
-#include "../cocoa/main.h"
-#else
-#include "../xlib/main.h"
-#endif
-
 #include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
 #include <sys/stat.h>
 
 bool native_create_dir(const uint8_t *filepath) {

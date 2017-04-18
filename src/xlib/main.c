@@ -8,7 +8,6 @@
 
 #include "../avatar.h"
 #include "../debug.h"
-#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
@@ -33,6 +32,11 @@
 #include "../layout/settings.h"
 
 #include "../main.h" // STBI
+
+#include <ctype.h>
+#include <locale.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 bool hidden = false;
 
