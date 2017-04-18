@@ -28,11 +28,11 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED
     (void) w;
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, SCALE(10), UTOX_SETTINGS);
 #ifdef GIT_VERSION
-    int x = MAIN_LEFT + SCALE(10) + UTOX_STR_WIDTH(UTOX_SETTINGS) + SCALE(10);
+    int x = MAIN_LEFT + UI_OFFSET_X + UTOX_STR_WIDTH(UTOX_SETTINGS) + SCALE(10);
     setfont(FONT_TEXT);
-    drawtext(x, SCALE(10), GIT_VERSION, strlen(GIT_VERSION));
+    drawtext(x, UI_OFFSET_X, GIT_VERSION, strlen(GIT_VERSION));
     char ver_string[64];
     int  count;
     count = snprintf(ver_string, 64, "Toxcore v%u.%u.%u", tox_version_major(), tox_version_minor(), tox_version_patch());
@@ -139,27 +139,27 @@ static void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    int step = SCALE(55);
-    int offset = SCALE(10);
+    int step_y = SCALE(55);
+    int offset_y = SCALE(10);
 
-    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset + step*0, NAME);
-    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset + step*1, STATUSMESSAGE);
-    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset + step*2, TOXID);
-    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset + step*3, LANGUAGE);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset_y + step_y*0, NAME);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset_y + step_y*1, STATUSMESSAGE);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset_y + step_y*2, TOXID);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset_y + step_y*3, LANGUAGE);
 }
 
 // Devices settings page
 static void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), DEVICES_ADD_NEW);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + SCALE(10), DEVICES_ADD_NEW);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + SCALE(60), DEVICES_NUMBER);
 
     char   str[10];
     size_t strlen = snprintf(str, 10, "%zu", self.device_list_count);
 
-    drawtext(MAIN_LEFT + SCALE(10), y + SCALE(75), str, strlen);
+    drawtext(MAIN_LEFT + UI_OFFSET_X, y + SCALE(75), str, strlen);
 }
 
 static void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
@@ -176,12 +176,14 @@ static void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int
 static void draw_nospam_settings(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + UI_OFFSET_X + SCALE(75), y + SCALE(248), NOSPAM_WARNING);
+
+    int offset_y = SCALE(245);
+    drawstr(MAIN_LEFT + UI_OFFSET_X + SCALE(75), y + offset_y + SCALE(3), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(245), NOSPAM);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset_y, NOSPAM);
 }
 
 // UI settings page
@@ -189,16 +191,18 @@ static void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSE
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    int top_offset = SCALE(10);
-    int switch_label_offset = SCALE(5);
+    int offset_y = SCALE(10);
+    drawstr(MAIN_LEFT + UI_OFFSET_X,              y + offset_y, THEME);
+    drawstr(MAIN_LEFT + UI_OFFSET_X + SCALE(140), y + offset_y, DPI);
 
-    drawstr(MAIN_LEFT + UI_OFFSET_X,              y + top_offset, THEME);
-    drawstr(MAIN_LEFT + UI_OFFSET_X + SCALE(140), y + top_offset, DPI);
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + UI_OFFSET_Y*2 + switch_label_offset, SAVE_CHAT_HISTORY);
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + UI_OFFSET_Y*3 + switch_label_offset, CLOSE_TO_TRAY);
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + UI_OFFSET_Y*4 + switch_label_offset, START_IN_TRAY);
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + UI_OFFSET_Y*5 + switch_label_offset, AUTO_STARTUP);
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + UI_OFFSET_Y*6 + switch_label_offset, SETTINGS_UI_MINI_ROSTER);
+    int label_offset_y = SCALE(5);
+    int offset_x = MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH;
+
+    drawstr(offset_x, y + UI_OFFSET_Y*2 + label_offset_y, SAVE_CHAT_HISTORY);
+    drawstr(offset_x, y + UI_OFFSET_Y*3 + label_offset_y, CLOSE_TO_TRAY);
+    drawstr(offset_x, y + UI_OFFSET_Y*4 + label_offset_y, START_IN_TRAY);
+    drawstr(offset_x, y + UI_OFFSET_Y*5 + label_offset_y, AUTO_STARTUP);
+    drawstr(offset_x, y + UI_OFFSET_Y*6 + label_offset_y, SETTINGS_UI_MINI_ROSTER);
 }
 
 // Audio/Video settings page
@@ -235,14 +239,14 @@ static void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w)
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    int left_offset = MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH;
-    int top_offset = SCALE(10);
-    int switch_label_offset = SCALE(5);
+    int offset_x = MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH;
+    int offset_y = SCALE(10);
+    int label_offset_y = SCALE(5);
 
-    drawstr(left_offset, y + top_offset + UI_OFFSET_Y*0 + switch_label_offset, RINGTONE);
-    drawstr(left_offset, y + top_offset + UI_OFFSET_Y*1 + switch_label_offset, STATUS_NOTIFICATIONS);
-    drawstr(left_offset, y + top_offset + UI_OFFSET_Y*2 + switch_label_offset, SEND_TYPING_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + UI_OFFSET_X, y + top_offset + UI_OFFSET_Y*3 + switch_label_offset, GROUP_NOTIFICATIONS);
+    drawstr(offset_x, y + offset_y + UI_OFFSET_Y*0 + label_offset_y, RINGTONE);
+    drawstr(offset_x, y + offset_y + UI_OFFSET_Y*1 + label_offset_y, STATUS_NOTIFICATIONS);
+    drawstr(offset_x, y + offset_y + UI_OFFSET_Y*2 + label_offset_y, SEND_TYPING_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, y + offset_y + UI_OFFSET_Y*3 + label_offset_y, GROUP_NOTIFICATIONS);
 }
 
 static void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
@@ -254,15 +258,16 @@ static void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUS
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    int top_offset = SCALE(5);
+    int offset_y = SCALE(5);
+    int offset_x = MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH;
 
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*1,  IPV6);
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*2,  UDP);
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*3,  PROXY);
-    drawtext(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH + SCALE(274), y + top_offset + UI_OFFSET_Y*3, ":", 1); // Little addr port separator
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*4, PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*5, AUTO_UPDATE);
-    drawstr(MAIN_LEFT + UI_OFFSET_X*2 + BM_SWITCH_WIDTH, y + top_offset + UI_OFFSET_Y*6, BLOCK_FRIEND_REQUESTS);
+    drawstr(offset_x, y + offset_y + UI_OFFSET_Y*1,  IPV6);
+    drawstr(offset_x, y + offset_y + UI_OFFSET_Y*2,  UDP);
+    drawstr(offset_x, y + offset_y + UI_OFFSET_Y*3,  PROXY);
+    drawtext(offset_x + SCALE(274), y + offset_y + UI_OFFSET_Y*3, ":", 1); // Little address port separator
+    drawstr(offset_x, y + offset_y + UI_OFFSET_Y*4, PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
+    drawstr(offset_x, y + offset_y + UI_OFFSET_Y*5, AUTO_UPDATE);
+    drawstr(offset_x, y + offset_y + UI_OFFSET_Y*6, BLOCK_FRIEND_REQUESTS);
 }
 
 
@@ -275,11 +280,11 @@ SCROLLABLE scrollbar_settings = {
 static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, SCALE(20), PROFILE_PASSWORD);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + UI_OFFSET_X, MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
 }
 
 PANEL
@@ -400,7 +405,6 @@ panel_settings_master = {
             NULL
         }
     },
-
     panel_settings_notifications = {
         .type = PANEL_NONE,
         .disabled = true,
@@ -414,7 +418,6 @@ panel_settings_master = {
             NULL
         }
     },
-
     panel_settings_adv = {
         .type = PANEL_NONE,
         .disabled = true,
@@ -436,7 +439,6 @@ panel_settings_master = {
             NULL,
         }
     };
-
 
 extern SCROLLABLE scrollbar_settings;
 
