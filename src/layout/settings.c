@@ -5,7 +5,10 @@
 #include "../macros.h"
 #include "../self.h"
 #include "../theme.h"
+#include "../tox.h"
 #include "../updater.h"
+
+#include "../av/video.h"
 
 #include "../native/clipboard.h"
 #include "../native/keyboard.h"
@@ -20,9 +23,6 @@
 #include "../ui/switch.h"
 
 #include <stdio.h>
-
-#include "../main.h" // tox_thread
-
 #include <string.h>
 
 /* Top bar for user settings */

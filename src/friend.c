@@ -4,6 +4,7 @@
 #include "chatlog.h"
 #include "debug.h"
 #include "dns.h"
+#include "filesys.h"
 #include "flist.h"
 #include "macros.h"
 #include "self.h"
@@ -20,8 +21,6 @@
 #include "native/notify.h"
 
 #include "ui/edit.h"        // friend_set_name()
-
-#include "main.h" // addfriend_status
 
 #include <string.h>
 

@@ -1,10 +1,8 @@
 #include "main.h"
 
 #include "../debug.h"
-
 #include "../macros.h"
-
-#include "../main.h" // video super globals
+#include "../av/video.h" // video super globals
 
 int utox_v4l_fd = -1;
 

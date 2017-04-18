@@ -9,7 +9,7 @@
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
-#include "main.h" // addfriend_status
+#include "main.h" // loaded audio device vars
 #include "tox.h"
 
 #include "av/utox_av.h"
