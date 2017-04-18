@@ -410,12 +410,13 @@ Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format) {
 }
 
 void loadalpha(int bm, void *data, int width, int height) {
-    XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, data, width, height, 8, 0);
-
     if (bm < 0){
         LOG_ERR("XLIB", "Can not get object from array. Index %d", bm);
         return;
     }
+
+    XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, data, width, height, 8, 0);
+
 
     // create picture that only holds alpha values
     // NOTE: the XImage made earlier should really be freed, but calling XDestroyImage on it will also
