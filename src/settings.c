@@ -205,7 +205,7 @@ UTOX_SAVE *config_load(void) {
         settings.theme              = save->theme;
     }
 
-    ui_set_scale(save->scale + 1);
+    ui_set_scale(save->scale);
 
     if (save->push_to_talk) {
         init_ptt();
