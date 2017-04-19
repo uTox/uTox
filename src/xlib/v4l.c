@@ -14,10 +14,10 @@
 int utox_v4l_fd = -1;
 
 #include <sys/mman.h>
-#ifdef __OpenBSD__
-#include <sys/videoio.h>
-#else
+#if defined(__linux__) || defined(__FreeBSD__) //FreeBSD will have the proper includes after installing v4l
 #include <linux/videodev2.h>
+#else //OpenBSD
+#include <sys/videoio.h>
 #endif
 
 #ifndef NO_V4LCONVERT

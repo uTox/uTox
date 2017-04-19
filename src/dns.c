@@ -20,7 +20,12 @@
 #elif defined __OBJC__
 // TODO: Include the right things for OS X.
 #include "native/main.h"
-#else
+#elif defined __OpenBSD__
+#include <arpa/nameser.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#else //Linux and FreeBSD
+#include <netinet/in.h>
 #include <resolv.h>
 #endif
 
@@ -313,8 +318,7 @@ static void dns_thread(void *data) {
 
         record = record->pNext;
     }
-#else
-#ifdef __ANDROID__
+#elif defined __ANDROID__
     /* get the dns IP and make a dns request manually */
     char value[PROP_VALUE_MAX];
     __system_property_get("net.dns1", value);
@@ -457,7 +461,6 @@ static void dns_thread(void *data) {
     } else {
         LOG_TRACE("DNS", "timeout" );
     }
-#endif
 #endif
 FAIL:
 
