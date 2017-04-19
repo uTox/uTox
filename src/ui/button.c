@@ -62,7 +62,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height) {
     if (b->bm_icon) {
         const int icon_x = real_w / 2 - SCALE(b->icon_w) / 2;
         const int icon_y = height / 2 - SCALE(b->icon_h) / 2;
-        drawalpha(b->bm_icon, x + icon_x, y + icon_y, SCALE(b->icon_w), SCALE(b->icon_w), color_text);
+        drawalpha(b->bm_icon, x + icon_x, y + icon_y, SCALE(b->icon_w), SCALE(b->icon_h), color_text);
     }
 
     if (maybe_i18nal_string_is_valid(&b->button_text)) {
