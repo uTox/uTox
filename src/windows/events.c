@@ -130,7 +130,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        LOG_TRACE("WinEvent", "Uncaught event %u & %u", wParam, lParam);
+        LOG_TRACE("Uncaught event %u & %u", wParam, lParam);
         return DefWindowProcW(window, msg, wParam, lParam);
     }
 
@@ -139,7 +139,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_CLOSE:
         case WM_DESTROY: {
             if (settings.close_to_tray) {
-                LOG_INFO("Events", "Closing to tray." );
+                LOG_INFO("Closing to tray." );
                 togglehide(0);
                 return true;
             } else {
@@ -156,7 +156,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         case WM_CREATE: {
-            LOG_INFO("Windows", "WM_CREATE");
+            LOG_INFO("WM_CREATE");
             return false;
         }
 

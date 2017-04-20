@@ -21,7 +21,7 @@
 
 bool native_window_init(void) {
     if ((display = XOpenDisplay(NULL)) == NULL) {
-        LOG_ERR("XLIB Wind", "Cannot open display, must exit");
+        LOG_ERR("Cannot open display, must exit");
         return false;
     }
 
@@ -64,7 +64,7 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
     XTextProperty native_window_name;
     // Why?
     if (XStringListToTextProperty(&title_name, 1, &native_window_name) == 0 ) {
-        LOG_ERR("XLIB Wind", "FATAL ERROR: Unable to alloc for a sting during window creation");
+        LOG_ERR("FATAL ERROR: Unable to alloc for a sting during window creation");
         return NULL;
     }
     // "Because FUCK your use of sane coding strategies" -Xlib... probably...
@@ -78,7 +78,7 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
     XWMHints   *wm_hints    = XAllocWMHints();
     XClassHint *class_hints = XAllocClassHint();
     if (!size_hints || !wm_hints || !class_hints) {
-        LOG_ERR("XLIB Wind", "XLIB_Windows: couldn't allocate memory.");
+        LOG_ERR("XLIB_Windows: couldn't allocate memory.");
         return NULL;
     }
 
@@ -173,7 +173,7 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void* panel
                         x, y, w, h, w, h, &panel_notify_generic, true);
 
     if (!win) {
-        LOG_ERR("XLIB Wind", "XLIB_WIN:\tUnable to Alloc for a notification window");
+        LOG_ERR("XLIB_WIN:\tUnable to Alloc for a notification window");
         return NULL;
     }
 

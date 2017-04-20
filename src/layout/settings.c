@@ -579,7 +579,7 @@ static void button_show_password_settings_on_mup(void) {
 static void button_export_chatlog_on_mup(void) {
     FRIEND *f = flist_get_friend();
     if (!f) {
-        LOG_ERR("Settings", "Could not get selected friend.");
+        LOG_ERR("Could not get selected friend.");
         return;
     }
     utox_export_chatlog_init(f->number);
@@ -593,7 +593,7 @@ static void button_change_nospam_on_mup(void) {
 
 static void button_revert_nospam_on_mup(void) {
     if (self.old_nospam == 0 || self.nospam == self.old_nospam) { //nospam can not be 0
-        LOG_ERR("Settings", "Invalid or current nospam: %u.", self.old_nospam);
+        LOG_ERR("Invalid or current nospam: %u.", self.old_nospam);
         return;
     }
     postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, self.old_nospam, 0, NULL);
@@ -635,7 +635,7 @@ static void button_videopreview_on_mup(void) {
     } else if (video_width && video_height) {
         postmessage_utoxav(UTOXAV_START_VIDEO, 0, 1, NULL);
     } else {
-        LOG_ERR("Button", "Video_width = 0, can't preview\n");
+        LOG_ERR("Video_width = 0, can't preview\n");
     }
     settings.video_preview = !settings.video_preview;
 }
@@ -1034,12 +1034,12 @@ static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR("Settings", "Could not get selected groupchat.");
+        LOG_ERR("Could not get selected groupchat.");
         return;
     }
 
     g->notify    = i;
-    LOG_INFO("Settings", "g->notify = %u\n", i);
+    LOG_INFO("g->notify = %u\n", i);
 }
 
 static void dropdown_global_group_notifications_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
@@ -1230,7 +1230,7 @@ EDIT edit_toxid = {
 static void edit_change_nospam_onenter(EDIT *UNUSED(edit)) {
     long int nospam = strtol(edit_nospam_data, NULL, 16);
     if (nospam == 0 || nospam < 0) {
-        LOG_ERR("Nospam", "Invalid nospam value: %lu", nospam);
+        LOG_ERR("Invalid nospam value: %lu", nospam);
         return;
     }
     postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, nospam, 0, NULL);

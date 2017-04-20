@@ -63,7 +63,7 @@ static int utf8_to_nativestr(const char *str, wchar_t *out, int length) {
 void openfilesend(void) {
     char *filepath = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (filepath == NULL) {
-        LOG_ERR("Windows", " Could not allocate memory for path.");
+        LOG_ERR(" Could not allocate memory for path.");
         return;
     }
 
@@ -81,13 +81,13 @@ void openfilesend(void) {
     if (GetOpenFileName(&ofn)) {
         FRIEND *f = flist_get_friend();
         if (!f) {
-            LOG_ERR("Windows", "Unable to get friend for file send msg.");
+            LOG_ERR("Unable to get friend for file send msg.");
             return;
         }
 
         UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
         if (!msg) {
-            LOG_ERR("Windows", "Unable to calloc for file send msg.");
+            LOG_ERR("Unable to calloc for file send msg.");
             return;
         }
 
@@ -96,7 +96,7 @@ void openfilesend(void) {
 
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
     } else {
-        LOG_ERR("Windows", "GetOpenFileName() failed.");
+        LOG_ERR("GetOpenFileName() failed.");
     }
     SetCurrentDirectoryW(dir);
 }
@@ -104,7 +104,7 @@ void openfilesend(void) {
 void openfileavatar(void) {
     char *filepath = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!filepath) {
-        LOG_ERR("openfileavatar", "Could not allocate memory for path.");
+        LOG_ERR("Could not allocate memory for path.");
         return;
     }
 
@@ -127,7 +127,7 @@ void openfileavatar(void) {
 
     while (1) { // loop until we have a good file or the user closed the dialog
         if (!GetOpenFileName(&ofn)) {
-            LOG_TRACE("NATIVE", "GetOpenFileName() failed when trying to grab an avatar.");
+            LOG_TRACE("GetOpenFileName() failed when trying to grab an avatar.");
             break;
         }
 
@@ -145,7 +145,7 @@ void openfileavatar(void) {
             free(img);
             char message[1024];
             if (sizeof(message) < (unsigned)SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
-                LOG_ERR("NATIVE", "AVATAR_TOO_LARGE message is larger than allocated buffer(%"PRIu64" bytes)\n",
+                LOG_ERR("AVATAR_TOO_LARGE message is larger than allocated buffer(%"PRIu64" bytes)\n",
                       sizeof(message));
                 break;
             }
@@ -195,10 +195,10 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
             snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", path);
             msg->via.ft.inline_png = false;
         } else {
-            LOG_ERR("NATIVE", "file_save_inline_image_png:\tCouldn't open path: `%s` to save inline file.", path);
+            LOG_ERR("file_save_inline_image_png:\tCouldn't open path: `%s` to save inline file.", path);
         }
     } else {
-        LOG_ERR("NATIVE", "GetSaveFileName() failed");
+        LOG_ERR("GetSaveFileName() failed");
     }
 
     free(path);
@@ -283,7 +283,7 @@ void copy(int value) {
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image = calloc(1, sizeof(NATIVE_IMAGE));
     if (!image) {
-        LOG_ERR("create_utox_image", " Could not allocate memory for image." );
+        LOG_ERR(" Could not allocate memory for image." );
         return NULL;
     }
 
@@ -533,7 +533,7 @@ void update_tray(void) {
     // FIXME: this is likely to over/under-run
     char *tip = calloc(1, 128); // 128 is the max length of nid.szTip
     if (tip == NULL) {
-        LOG_TRACE("update_trip", " Could not allocate memory." );
+        LOG_TRACE(" Could not allocate memory." );
         return;
     }
 
@@ -723,12 +723,12 @@ static void cursors_init(void) {
 static bool fresh_update(void) {
     char path[UTOX_FILE_NAME_LENGTH];
     GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
-    LOG_WARN("Win Updater", "Starting");
-    LOG_NOTE("Win Updater", "Root %s", path);
+    LOG_WARN("Starting");
+    LOG_NOTE("Root %s", path);
 
     char *name_start = strstr(path, "next_uTox.exe");
     if (!name_start) {
-        LOG_NOTE("Win Updater", "Not the updater -- %s ", path);
+        LOG_NOTE("Not the updater -- %s ", path);
         return false;
     }
 
@@ -737,29 +737,29 @@ static bool fresh_update(void) {
     char backup[UTOX_FILE_NAME_LENGTH];
     strcpy(name_start, "uTox_backup.exe");
     memcpy(backup, path, UTOX_FILE_NAME_LENGTH);
-    LOG_NOTE("Win Updater", "Backup %s", backup);
+    LOG_NOTE("Backup %s", backup);
 
     char real[UTOX_FILE_NAME_LENGTH];
     strcpy(name_start, "uTox.exe");
     memcpy(real, path, UTOX_FILE_NAME_LENGTH);
-    LOG_NOTE("Win Updater", "%s", real);
+    LOG_NOTE("%s", real);
     if (MoveFileEx(real, backup, MOVEFILE_REPLACE_EXISTING) == 0) {
         // Failed
-        LOG_ERR("Win Updater", "move failed");
+        LOG_ERR("move failed");
         return false;
     }
 
     char new[UTOX_FILE_NAME_LENGTH];
     strcpy(name_start, "next_uTox.exe");
     memcpy(new, path, UTOX_FILE_NAME_LENGTH);
-    LOG_NOTE("Win Updater", "%s", new);
+    LOG_NOTE("%s", new);
     if (CopyFile(new, real, 0) == 0) {
         // Failed
-        LOG_ERR("Win Updater", "copy failed");
+        LOG_ERR("copy failed");
         return false;
     }
 
-    LOG_ERR("Win Updater", "Launching new path %s", real);
+    LOG_ERR("Launching new path %s", real);
 
     char cmd[UTOX_FILE_NAME_LENGTH];
     size_t next = snprintf(cmd, UTOX_FILE_NAME_LENGTH, " --skip-updater --delete-updater %s", new);
@@ -772,7 +772,7 @@ static bool fresh_update(void) {
 }
 
 static bool pending_update(void) {
-    LOG_WARN("Win Pending", "Starting");
+    LOG_WARN("Starting");
     // Check if we're the fresh version.
     char path[UTOX_FILE_NAME_LENGTH];
     GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
@@ -791,7 +791,7 @@ static bool pending_update(void) {
         memcpy(next, path, UTOX_FILE_NAME_LENGTH);
         FILE *f = fopen(next, "rb");
         if (f) {
-            LOG_ERR("Win Pending", "Updater waiting :D");
+            LOG_ERR("Updater waiting :D");
             fclose(f);
             char cmd[UTOX_FILE_NAME_LENGTH] = { 0 };
             if (settings.portable_mode) {
@@ -800,9 +800,9 @@ static bool pending_update(void) {
             ShellExecute(NULL, "open", next, cmd, NULL, SW_SHOW);
             return true;
         }
-        LOG_WARN("Win Pending", "No updater waiting for us");
+        LOG_WARN("No updater waiting for us");
     }
-    LOG_WARN("Win Pending", "Bad file name -- %s ", path);
+    LOG_WARN("Bad file name -- %s ", path);
 
     return false;
 }
@@ -871,13 +871,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     utox_init();
 
     #ifdef __WIN_LEGACY
-        LOG_WARN("WinMain", "Legacy windows build");
+        LOG_WARN("Legacy windows build");
     #else
-        LOG_WARN("WinMain", "Normal windows build");
+        LOG_WARN("Normal windows build");
     #endif
 
     #ifdef GIT_VERSION
-        LOG_NOTE("WinMain", "uTox version %s \n", GIT_VERSION);
+        LOG_NOTE("uTox version %s \n", GIT_VERSION);
     #endif
 
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
@@ -885,7 +885,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     win_init_mutex(&utox_mutex, hInstance, cmd);
 
     if (!skip_updater) {
-        LOG_NOTE("WinMain", "Not skipping updater");
+        LOG_NOTE("Not skipping updater");
         if (fresh_update()) {
             CloseHandle(utox_mutex);
             exit(0);

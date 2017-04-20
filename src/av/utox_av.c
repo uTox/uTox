@@ -52,7 +52,7 @@ void utox_av_ctrl_thread(void *args) {
     ToxAV *av = args;
 
     utox_av_ctrl_init = 1;
-    LOG_TRACE("uToxAv", "Toxav thread init" );
+    LOG_TRACE("Toxav thread init" );
 
     volatile uint32_t call_count = 0;
     volatile bool     audio_in   = 0;
@@ -113,7 +113,7 @@ void utox_av_ctrl_thread(void *args) {
 
                 case UTOXAV_OUTGOING_CALL_ACCEPTED: {
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
-                    LOG_NOTE("uToxAV", "Call accepted by friend" );
+                    LOG_NOTE("Call accepted by friend" );
                     // intentional fall thorough
                 }
 
@@ -141,7 +141,7 @@ void utox_av_ctrl_thread(void *args) {
                         // device_in = alcopencapture(audio_device);
                         // alccapturestart(device_in);
                         // record_on = 1;
-                        LOG_TRACE("uToxAv", "Starting Audio GroupCall" );
+                        LOG_TRACE("Starting Audio GroupCall" );
                         // }
                     }
 
@@ -154,7 +154,7 @@ void utox_av_ctrl_thread(void *args) {
                     if (msg->param1) { /* Start audio preview */
                         call_count++;
                         VERIFY_AUDIO_IN();
-                        LOG_TRACE("uToxAV", "Starting Audio Preview" );
+                        LOG_TRACE("Starting Audio Preview" );
                         postmessage_audio(UTOXAUDIO_START_PREVIEW, 0, 0, NULL);
                     }
                     break;
@@ -162,13 +162,13 @@ void utox_av_ctrl_thread(void *args) {
 
                 case UTOXAV_STOP_AUDIO: {
                     if (!call_count) {
-                        LOG_TRACE("uToxAV", "WARNING, trying to stop audio while already closed!\nThis is bad!" );
+                        LOG_TRACE("WARNING, trying to stop audio while already closed!\nThis is bad!" );
                         break;
                     }
 
                     if (msg->param1) {
                         call_count--;
-                        LOG_TRACE("uToxAV", "Stopping Audio Preview" );
+                        LOG_TRACE("Stopping Audio Preview" );
                         postmessage_audio(UTOXAUDIO_STOP_PREVIEW, 0, 0, NULL);
                     }
                     break;
@@ -198,7 +198,7 @@ void utox_av_ctrl_thread(void *args) {
                 }
 
                 case UTOXAV_SET_AUDIO_IN: {
-                    LOG_TRACE("uToxAV", "Set audio in" );
+                    LOG_TRACE("Set audio in" );
                     if (audio_in) {
                         utox_audio_in_ignore();
                         utox_audio_in_device_close();
@@ -207,7 +207,7 @@ void utox_av_ctrl_thread(void *args) {
                     utox_audio_in_device_set(msg->data);
 
                     if (msg->data != utox_audio_in_device_get()) {
-                        LOG_TRACE("uToxAV", "Error changing audio in" );
+                        LOG_TRACE("Error changing audio in" );
                         audio_in   = 0;
                         call_count = 0;
                         break;
@@ -221,7 +221,7 @@ void utox_av_ctrl_thread(void *args) {
                 }
 
                 case UTOXAV_SET_AUDIO_OUT: {
-                    LOG_TRACE("uToxAV", "Set audio out" );
+                    LOG_TRACE("Set audio out" );
                     utox_audio_out_device_close();
                     utox_audio_out_device_set(msg->data);
                     utox_audio_out_device_open();
@@ -230,7 +230,7 @@ void utox_av_ctrl_thread(void *args) {
 
                 case UTOXAV_SET_VIDEO_IN: {
                     utox_video_change_device(msg->param1);
-                    LOG_TRACE("uToxAV", "Changed video input device" );
+                    LOG_TRACE("Changed video input device" );
                     break;
                 }
 
@@ -259,32 +259,32 @@ void utox_av_ctrl_thread(void *args) {
     toxav_thread_msg  = false;
     utox_av_ctrl_init = false;
 
-    LOG_NOTE("UTOXAV", "Clean thread exit!");
+    LOG_NOTE("Clean thread exit!");
     return;
 }
 
 static void utox_av_incoming_call(ToxAV *UNUSED(av), uint32_t friend_number,
                                   bool audio, bool video, void *UNUSED(userdata))
 {
-    LOG_TRACE("uToxAV", "A/V Invite (%u)" , friend_number);
+    LOG_TRACE("A/V Invite (%u)" , friend_number);
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("uToxAV", "Unable to get friend %u for A/V invite.", friend_number);
+        LOG_ERR("Unable to get friend %u for A/V invite.", friend_number);
         return;
     }
 
     f->call_state_self   = 0;
     f->call_state_friend = (audio << 2 | video << 3 | audio << 4 | video << 5);
-    LOG_TRACE("uToxAV", "uTox AV:\tcall friend (%u) state for incoming call: %i" , friend_number, f->call_state_friend);
+    LOG_TRACE("uTox AV:\tcall friend (%u) state for incoming call: %i" , friend_number, f->call_state_friend);
     postmessage_utoxav(UTOXAV_INCOMING_CALL_PENDING, friend_number, 0, NULL);
     postmessage_utox(AV_CALL_INCOMING, friend_number, video, NULL);
 }
 
 static void utox_av_remote_disconnect(ToxAV *UNUSED(av), int32_t friend_number) {
-    LOG_TRACE("uToxAV", "Remote disconnect from friend %u" , friend_number);
+    LOG_TRACE("Remote disconnect from friend %u" , friend_number);
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("uToxAV", "Unable to get friend %u for remote disconnect.", friend_number);
+        LOG_ERR("Unable to get friend %u for remote disconnect.", friend_number);
         return;
     }
 
@@ -304,33 +304,33 @@ void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
 
     switch (error) {
         case TOXAV_ERR_CALL_CONTROL_OK: {
-            LOG_NOTE("uToxAV", "ToxAV has disconnected!" );
+            LOG_NOTE("ToxAV has disconnected!" );
             break;
         }
 
         case TOXAV_ERR_CALL_CONTROL_SYNC: {
-            LOG_ERR("uToxAV", "ToxAV sync error!");
+            LOG_ERR("ToxAV sync error!");
             break;
         }
 
         case TOXAV_ERR_CALL_CONTROL_FRIEND_NOT_FOUND: {
-            LOG_ERR("uToxAV", "ToxAV friend #%i not found." , friend_number);
+            LOG_ERR("ToxAV friend #%i not found." , friend_number);
             break;
         }
 
         case TOXAV_ERR_CALL_CONTROL_FRIEND_NOT_IN_CALL: {
-            LOG_ERR("uToxAV", "ToxAV no existing call for friend #%i." , friend_number);
+            LOG_ERR("ToxAV no existing call for friend #%i." , friend_number);
             break;
         }
 
         case TOXAV_ERR_CALL_CONTROL_INVALID_TRANSITION: {
-            LOG_NOTE("uToxAV", "Call already paused, or already running." );
+            LOG_NOTE("Call already paused, or already running." );
             break;
         }
     }
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("uToxAV", "Unable to get friend %u for A/V disconnect.", friend_number);
+        LOG_ERR("Unable to get friend %u for A/V disconnect.", friend_number);
         return;
     }
 
@@ -346,14 +346,14 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
     TOXAV_ERR_CALL_CONTROL err = 0;
     toxav_call_control(av, friend_number, control, &err);
     if (err) {
-        LOG_TRACE("uToxAV", "Local call control error!" );
+        LOG_TRACE("Local call control error!" );
         return;
     }
 
     TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("uToxAV", "Unable to get friend %u for local call control.", friend_number);
+        LOG_ERR("Unable to get friend %u for local call control.", friend_number);
         return;
     }
 
@@ -373,7 +373,7 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
         }
 
         default: {
-            LOG_ERR("uToxAV", "Unhandled local call control");
+            LOG_ERR("Unhandled local call control");
         }
             // TODO
             // TOXAV_CALL_CONTROL_RESUME,
@@ -384,7 +384,7 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
     }
 
     if (bitrate_err) {
-        LOG_ERR("uToxAV", "Error setting/changing video bitrate");
+        LOG_ERR("Error setting/changing video bitrate");
     }
 }
 
@@ -392,7 +392,7 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
 static void utox_av_incoming_frame_a(ToxAV *UNUSED(av), uint32_t friend_number, const int16_t *pcm, size_t sample_count,
                                      uint8_t channels, uint32_t sample_rate, void *UNUSED(userdata))
 {
-    // LOG_TRACE("uToxAv", "Incoming audio frame for friend %u " , friend_number);
+    // LOG_TRACE("Incoming audio frame for friend %u " , friend_number);
 #ifdef NATIVE_ANDROID_AUDIO
     audio_play(friend_number, pcm, sample_count, channels);
 #else
@@ -406,10 +406,10 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
 {
     /* copy the vpx_image */
     /* 4 bits for the H*W, then a pixel for each color * size */
-    LOG_TRACE("uToxAV", "new video frame from friend %u" , friend_number);
+    LOG_TRACE("new video frame from friend %u" , friend_number);
     FRIEND *f = get_friend(friend_number);
     if (f == NULL) {
-        LOG_ERR("uToxAV", "Incoming frame for a friend we don't know about! (%u)", friend_number);
+        LOG_ERR("Incoming frame for a friend we don't know about! (%u)", friend_number);
         return;
     }
     f->video_width  = width;
@@ -419,7 +419,7 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
     UTOX_FRAME_PKG *frame = calloc(1, sizeof(UTOX_FRAME_PKG));
 
     if (!frame) {
-        LOG_ERR("uToxAV", "Can't malloc for incoming frame.");
+        LOG_ERR("Can't malloc for incoming frame.");
         return;
     }
 
@@ -428,7 +428,7 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
     frame->size = size;
     frame->img  = malloc(size);
     if (!frame->img) {
-        LOG_TRACE("uToxAV", "Could not allocate memory for image.");
+        LOG_TRACE("Could not allocate memory for image.");
         free(frame);
         return;
     }
@@ -436,7 +436,7 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
     if (f->video_inline) {
         if (!inline_set_frame(width, height, size, frame->img)) {
-            LOG_ERR("uToxAV", "Error setting frame for inline video.");
+            LOG_ERR("Error setting frame for inline video.");
         }
 
         postmessage_utox(AV_INLINE_FRAME, friend_number, 0, NULL);
@@ -449,7 +449,7 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
 
 static void utox_audio_friend_accepted(ToxAV *av, uint32_t friend_number, uint32_t state) {
     /* First accepted call back */
-    LOG_NOTE("uToxAV", "Friend accepted call" );
+    LOG_NOTE("Friend accepted call" );
     get_friend(friend_number)->call_state_friend = state;
     if (SELF_SEND_VIDEO(friend_number) && !FRIEND_ACCEPTING_VIDEO(friend_number)) {
         utox_av_local_call_control(av, friend_number, TOXAV_CALL_CONTROL_HIDE_VIDEO);
@@ -463,11 +463,11 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     FRIEND *f = get_friend(friend_number);
     if (state == 1) {
         // handle error
-        LOG_ERR("uToxAV", "Change state with an error, this should never happen. Please send bug report!");
+        LOG_ERR("Change state with an error, this should never happen. Please send bug report!");
         utox_av_remote_disconnect(av, friend_number);
         return;
     } else if (state == 2) {
-        LOG_NOTE("uToxAV", "Call ended with friend_number %u." , friend_number);
+        LOG_NOTE("Call ended with friend_number %u." , friend_number);
         utox_av_remote_disconnect(av, friend_number);
         message_add_type_notice(&f->msg, "Friend Has Ended the call!", 26, 0); /* TODO localization with S() SLEN() */
         return;
@@ -477,31 +477,31 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
 
     if (get_friend(friend_number)->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_SENDING_A)) {
         if (state & TOXAV_FRIEND_CALL_STATE_SENDING_A) {
-            LOG_INFO("uToxAV", "Friend %u is now sending audio." , friend_number);
+            LOG_INFO("Friend %u is now sending audio." , friend_number);
         } else {
-            LOG_INFO("uToxAV", "Friend %u is no longer sending audio." , friend_number);
+            LOG_INFO("Friend %u is no longer sending audio." , friend_number);
         }
     }
     if (get_friend(friend_number)->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_SENDING_V)) {
         if (state & TOXAV_FRIEND_CALL_STATE_SENDING_V) {
-            LOG_INFO("uToxAV", "Friend %u is now sending video." , friend_number);
+            LOG_INFO("Friend %u is now sending video." , friend_number);
         } else {
-            LOG_INFO("uToxAV", "Friend %u is no longer sending video." , friend_number);
+            LOG_INFO("Friend %u is no longer sending video." , friend_number);
             flist_reselect_current();
         }
     }
     if (get_friend(friend_number)->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A)) {
         if (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) {
-            LOG_INFO("uToxAV", "Friend %u is now accepting audio." , friend_number);
+            LOG_INFO("Friend %u is now accepting audio." , friend_number);
         } else {
-            LOG_INFO("uToxAV", "Friend %u is no longer accepting audio." , friend_number);
+            LOG_INFO("Friend %u is no longer accepting audio." , friend_number);
         }
     }
     if (get_friend(friend_number)->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
         if (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V) {
-            LOG_INFO("uToxAV", "Friend %u is now accepting video." , friend_number);
+            LOG_INFO("Friend %u is now accepting video." , friend_number);
         } else {
-            LOG_INFO("uToxAV", "Friend %u is no longer accepting video." , friend_number);
+            LOG_INFO("Friend %u is no longer accepting video." , friend_number);
         }
     }
 
@@ -514,12 +514,12 @@ static void utox_incoming_rate_change(ToxAV *AV, uint32_t f_num, uint32_t UNUSED
         TOXAV_ERR_BIT_RATE_SET error = 0;
         toxav_bit_rate_set(AV, f_num, -1, v_bitrate, &error);
         if (error) {
-            LOG_ERR("ToxAV", "Setting new Video bitrate has failed with error #%u" , error);
+            LOG_ERR("Setting new Video bitrate has failed with error #%u" , error);
         } else {
-            LOG_NOTE("uToxAV", "\tVideo bitrate changed to %u" , v_bitrate);
+            LOG_NOTE("\tVideo bitrate changed to %u" , v_bitrate);
         }
     } else {
-        LOG_NOTE("uToxAV", "\tVideo bitrate unchanged %u is less than %u" , v_bitrate, UTOX_MIN_BITRATE_VIDEO);
+        LOG_NOTE("\tVideo bitrate unchanged %u is less than %u" , v_bitrate, UTOX_MIN_BITRATE_VIDEO);
     }
     return;
 }

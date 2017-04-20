@@ -31,7 +31,7 @@ SCROLLABLE scrollbar_group = {
 static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR("Group", "Could not get selected groupchat.");
+        LOG_ERR("Could not get selected groupchat.");
         return;
     }
 
@@ -138,7 +138,7 @@ panel_group = {
 static void button_group_audio_on_mup(void) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR("Group", "Could not get selected groupchat.");
+        LOG_ERR("Could not get selected groupchat.");
         return;
     }
 
@@ -153,7 +153,7 @@ static void button_group_audio_on_mup(void) {
 static void button_group_audio_update(BUTTON *b) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR("Group", "Could not get selected groupchat.");
+        LOG_ERR("Could not get selected groupchat.");
         return;
     }
 
@@ -233,7 +233,7 @@ static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int directio
     static size_t dedup_size[65536]; /* TODO magic numbers */
     GROUPCHAT *   g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR("Group", "Could not get selected groupchat.");
+        LOG_ERR("Could not get selected groupchat.");
         return 0;
     }
 
@@ -344,7 +344,7 @@ static void e_chat_msg_ontab(EDIT *edit) {
             if ((length == 6 && !memcmp(text, "/topic", 6)) || (length == 7 && !memcmp(text, "/topic ", 7))) {
                 GROUPCHAT *g = flist_get_groupchat();
                 if (!g) {
-                    LOG_ERR("Group", "Could not get selected groupchat.");
+                    LOG_ERR("Could not get selected groupchat.");
                     return;
                 }
 
@@ -404,7 +404,7 @@ void e_chat_msg_onenter(EDIT *edit) {
         return;
     }
 
-    // LOG_NOTE("Group", "cmd %u\n", command_length);
+    // LOG_NOTE("cmd %u\n", command_length);
 
     bool action = false;
     if (command_length) {
@@ -427,7 +427,7 @@ void e_chat_msg_onenter(EDIT *edit) {
     if (g) {
         void *d = malloc(length);
         if (!d) {
-            LOG_ERR("Layout Group", "edit_msg_onenter:\t Ran out of memory.");
+            LOG_ERR("edit_msg_onenter:\t Ran out of memory.");
             return;
         }
         memcpy(d, text, length);
@@ -491,13 +491,13 @@ EDIT edit_chat_msg_group = {
 static void e_group_topic_onenter(EDIT *edit) {
     GROUPCHAT *g = flist_get_groupchat();
     if (!g) {
-        LOG_ERR("Layout Groups", "Can't set a topic when a group isn't selected!");
+        LOG_ERR("Can't set a topic when a group isn't selected!");
         return;
     }
 
     void *d = malloc(edit->length);
     if (!d){
-        LOG_ERR("Layout Groups", "Unable to change group topic.");
+        LOG_ERR("Unable to change group topic.");
         return;
     }
     memcpy(d, edit->data, edit->length);

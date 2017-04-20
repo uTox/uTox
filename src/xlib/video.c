@@ -21,7 +21,7 @@
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     if (!video_win[id]) {
-        LOG_TRACE("Video", "frame for null window %u" , id);
+        LOG_TRACE("frame for null window %u" , id);
         return;
     }
 
@@ -83,7 +83,7 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, 
     XSetClassHint(display, *win, &hint);
 
     XMapWindow(display, *win);
-    LOG_TRACE("Video", "new window %u" , id);
+    LOG_TRACE("new window %u" , id);
 }
 
 void video_end(uint32_t id) {
@@ -93,7 +93,7 @@ void video_end(uint32_t id) {
 
     XDestroyWindow(display, video_win[id]);
     video_win[id] = None;
-    LOG_TRACE("Video", "killed window %u" , id);
+    LOG_TRACE("killed window %u" , id);
 }
 
 static Display *deskdisplay;
@@ -104,7 +104,7 @@ XShmSegmentInfo shminfo;
 void initshm(void) {
     deskdisplay = XOpenDisplay(NULL);
     deskscreen  = DefaultScreen(deskdisplay);
-    LOG_TRACE("Video", "desktop: %u %u" , default_screen->width, default_screen->height);
+    LOG_TRACE("desktop: %u %u" , default_screen->width, default_screen->height);
     max_video_width  = default_screen->width;
     max_video_height = default_screen->height;
 }
@@ -122,13 +122,13 @@ uint16_t native_video_detect(void) {
         struct stat st;
         if (-1 == stat(dev_name, &st)) {
             continue;
-            // LOG_TRACE("Video", "Cannot identify '%s': %d, %s" , dev_name, errno, strerror(errno));
+            // LOG_TRACE("Cannot identify '%s': %d, %s" , dev_name, errno, strerror(errno));
             // return 0;
         }
 
         if (!S_ISCHR(st.st_mode)) {
             continue;
-            // LOG_TRACE("Video", "%s is no device" , dev_name);
+            // LOG_TRACE("%s is no device" , dev_name);
             // return 0;
         }
 

@@ -56,17 +56,17 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
     }
 
     if (opts > UTOX_FILE_OPTS_DELETE) {
-        LOG_ERR("WinFilesys", "Don't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.");
+        LOG_ERR("Don't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.");
         return NULL;
     } else if (opts & UTOX_FILE_OPTS_WRITE && opts & UTOX_FILE_OPTS_APPEND) {
-        LOG_ERR("WinFilesys", "Don't call native_get_file with UTOX_FILE_OPTS_WRITE in combination with UTOX_FILE_OPTS_APPEND.");
+        LOG_ERR("Don't call native_get_file with UTOX_FILE_OPTS_WRITE in combination with UTOX_FILE_OPTS_APPEND.");
         return NULL;
     }
 
     snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "/Tox/");
 
     if (strlen(path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
-        LOG_ERR("WinFilesys", "Load directory name too long");
+        LOG_ERR("Load directory name too long");
         return NULL;
     }
 
@@ -89,7 +89,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
 
     if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
         if (!native_create_dir((uint8_t *)path)) {
-            LOG_ERR("WinFilesys", "Failed to create path %s.", path);
+            LOG_ERR("Failed to create path %s.", path);
         }
     }
 
@@ -108,7 +108,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
 
     if (opts == UTOX_FILE_OPTS_DELETE) {
         if (!DeleteFile(path)) {
-            LOG_ERR("WinFilesys", "Could not delete file: %s - Error: %d" , path, GetLastError());
+            LOG_ERR("Could not delete file: %s - Error: %d" , path, GetLastError());
         }
 
         return NULL;
@@ -119,7 +119,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
 
     if (!fp) {
         if (opts > UTOX_FILE_OPTS_READ) {
-            LOG_NOTE("WinFilesys", "Could not open %S for writing.", wide);
+            LOG_NOTE("Could not open %S for writing.", wide);
         }
 
         return NULL;
@@ -154,14 +154,14 @@ bool native_create_dir(const uint8_t *filepath) {
     const int error = SHCreateDirectoryEx(NULL, (char *)path, NULL);
     switch(error) {
         case ERROR_SUCCESS:
-            LOG_NOTE("WinFilesys", "Created path: `%s` - %d" , filepath, error);
+            LOG_NOTE("Created path: `%s` - %d" , filepath, error);
         case ERROR_FILE_EXISTS:
         case ERROR_ALREADY_EXISTS:
             return true;
             break;
 
         case ERROR_BAD_PATHNAME:
-            LOG_WARN("WinFilesys", "Unable to create path: `%s` - bad path name." , filepath);
+            LOG_WARN("Unable to create path: `%s` - bad path name." , filepath);
             return false;
             break;
 
@@ -169,7 +169,7 @@ bool native_create_dir(const uint8_t *filepath) {
         case ERROR_PATH_NOT_FOUND:
         case ERROR_CANCELLED:
         default:
-            LOG_ERR("WinFilesys", "Unable to create path: `%s` - error %d" , filepath, error);
+            LOG_ERR("Unable to create path: `%s` - error %d" , filepath, error);
             return false;
             break;
     }
@@ -196,7 +196,7 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
 
 
     if (strlen(path) + length >= UTOX_FILE_NAME_LENGTH) {
-        LOG_TRACE("WinFilesys", "File/directory name too long, unable to remove" );
+        LOG_TRACE("File/directory name too long, unable to remove" );
         return false;
     } else {
         snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path),
@@ -204,11 +204,11 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
     }
 
     if (remove(path)) {
-        LOG_ERR("WinFilesys", "Unable to delete file!\n\t\t%s" , path);
+        LOG_ERR("Unable to delete file!\n\t\t%s" , path);
         return false;
     } else {
-        LOG_INFO("WinFilesys", "File deleted!" );
-        LOG_TRACE("WinFilesys", "\t%s" , path);
+        LOG_INFO("File deleted!" );
+        LOG_TRACE("\t%s" , path);
     }
 
     return true;

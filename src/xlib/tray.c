@@ -55,15 +55,15 @@ struct native_window tray_window = {
 };
 
 static void tray_reposition(void) {
-    LOG_NOTE("XLib Tray", "Reposition Tray");
+    LOG_NOTE("Reposition Tray");
 
     uint32_t null;
     XGetGeometry(display, tray_window.window, &root_window, &tray_window._.x, &tray_window._.y,
                 &tray_window._.w, &tray_window._.h,
                 &null, &null);
-    LOG_NOTE("XLib Tray", "New geometry x %u y %u w %u h %u", tray_window._.x, tray_window._.y, tray_window._.w, tray_window._.h);
+    LOG_NOTE("New geometry x %u y %u w %u h %u", tray_window._.x, tray_window._.y, tray_window._.w, tray_window._.h);
 
-    LOG_INFO("XLib Tray", "Setting to square");
+    LOG_INFO("Setting to square");
     tray_window._.w = tray_window._.h = MIN(tray_window._.w, tray_window._.h);
     XResizeWindow(display, tray_window.window, tray_window._.w, tray_window._.h);
 
@@ -87,7 +87,7 @@ static void tray_reposition(void) {
 }
 
 static void draw_tray_icon(void) {
-    LOG_NOTE("XLib Tray", "Draw Tray");
+    LOG_NOTE("Draw Tray");
 
     uint16_t width, height;
     uint8_t *icon_data = (uint8_t *)&_binary_icons_utox_128x128_png_start;
@@ -117,22 +117,22 @@ static void draw_tray_icon(void) {
 
         free(icon);
     } else {
-        LOG_ERR("XLIB TRAY", "Tray no workie, that not gud!");
+        LOG_ERR("Tray no workie, that not gud!");
     }
 }
 
 static void tray_xembed(XClientMessageEvent *ev) {
-    LOG_NOTE("XEMBED Tray", "ClientMessage on display %u", ev->display);
-    LOG_NOTE("XEMBED Tray", "Format (%i) as long %lu %lu parent window %lu proto version %lu %lu",
+    LOG_NOTE("ClientMessage on display %u", ev->display);
+    LOG_NOTE("Format (%i) as long %lu %lu parent window %lu proto version %lu %lu",
         ev->format, ev->data.l[0], ev->data.l[1], ev->data.l[2], ev->data.l[3], ev->data.l[4]);
     tray_reposition();
     draw_tray_icon();
 }
 
 void create_tray_icon(void) {
-    LOG_NOTE("XLib Tray", "Create Tray Icon");
+    LOG_NOTE("Create Tray Icon");
 
-    LOG_NOTE("XLib Tray", "Resolution %u %u", tray_window._.w, tray_window._.h);
+    LOG_NOTE("Resolution %u %u", tray_window._.w, tray_window._.h);
     tray_window.window = XCreateSimpleWindow(display, RootWindow(display, def_screen_num), 0, 0,
                                              tray_window._.w, tray_window._.h, 0,
                                              BlackPixel(display, def_screen_num),
@@ -179,18 +179,18 @@ void destroy_tray_icon(void) {
 
 bool tray_window_event(XEvent event) {
     if (event.xany.window != tray_window.window) {
-        LOG_ERR("TRAY", "in %u oun %u", event.xany.window, tray_window.window);
+        LOG_ERR("in %u oun %u", event.xany.window, tray_window.window);
         return false;
     }
 
     switch (event.type) {
         case Expose: {
-            LOG_NOTE("XLib Tray", "Expose");
+            LOG_NOTE("Expose");
             draw_tray_icon();
             return true;
         }
         case NoExpose: {
-            LOG_INFO("XLib Tray", "NoExpose");
+            LOG_INFO("NoExpose");
             return true;
         }
         case ClientMessage: {
@@ -201,20 +201,20 @@ bool tray_window_event(XEvent event) {
             }
 
             char *name = XGetAtomName(msg.display, msg.message_type);
-            LOG_ERR("XLib Tray", "ClientMessage send_event %u display %u atom %u -- %s",
+            LOG_ERR("ClientMessage send_event %u display %u atom %u -- %s",
                 msg.send_event, msg.display, msg.message_type, name);
-            LOG_WARN("XLib Tray", "Format (%i) as long %lu %lu %lu %lu %lu",
+            LOG_WARN("Format (%i) as long %lu %lu %lu %lu %lu",
                 msg.format, msg.data.l[0], msg.data.l[1], msg.data.l[2], msg.data.l[3], msg.data.l[4]);
             return true;
         }
 
         case ConfigureNotify: {
-            LOG_NOTE("XLib Tray", "Tray configure event");
+            LOG_NOTE("Tray configure event");
             XConfigureEvent *ev = &event.xconfigure;
             tray_window._.x = ev->x;
             tray_window._.y = ev->y;
             if (tray_window._.w != (unsigned)ev->width || tray_window._.h != (unsigned)ev->height) {
-                LOG_NOTE("Tray", "Tray resized w:%i h:%i\n", ev->width, ev->height);
+                LOG_NOTE("Tray resized w:%i h:%i\n", ev->width, ev->height);
 
                 if ((unsigned)ev->width > tray_window._.w || (unsigned)ev->height > tray_window._.h) {
                     tray_window._.w = ev->width;
@@ -238,12 +238,12 @@ bool tray_window_event(XEvent event) {
             return true;
         }
         case ButtonPress: {
-            LOG_INFO("XLib Tray", "ButtonPress");
+            LOG_INFO("ButtonPress");
             // Can't ignore this if you want mup -_- SRSLY Xlib?
             return true;
         }
         case ButtonRelease: {
-            LOG_INFO("XLib Tray", "ButtonRelease");
+            LOG_INFO("ButtonRelease");
             XButtonEvent *ev = &event.xbutton;
 
             if (ev->button == Button1) {
@@ -253,38 +253,38 @@ bool tray_window_event(XEvent event) {
         }
 
         case MapNotify: {
-            LOG_INFO("XLib Tray", "MapNotify");
+            LOG_INFO("MapNotify");
             return true;
         }
 
         case FocusIn: {
-            LOG_INFO("XLib Tray", "FocusIn");
+            LOG_INFO("FocusIn");
             return true;
         }
         case FocusOut: {
-            LOG_INFO("XLib Tray", "FocusOut");
+            LOG_INFO("FocusOut");
             return true;
         }
 
         case EnterNotify: {
-            LOG_INFO("XLib Tray", "EnterNotify");
+            LOG_INFO("EnterNotify");
             return true;
         }
         case LeaveNotify: {
-            LOG_INFO("XLib Tray", "LeaveNotify");
+            LOG_INFO("LeaveNotify");
             return true;
         }
 
         case ReparentNotify: {
-            LOG_WARN("XLib Tray", "ReparentNotify");
+            LOG_WARN("ReparentNotify");
             return true;
         }
 
         default: {
-            LOG_ERR("XLib Tray", "Incoming tray window event (%u)", event.type);
+            LOG_ERR("Incoming tray window event (%u)", event.type);
             break;
         }
     }
-    LOG_ERR("XLib tray", "Reached end of function, this is bad juju!");
+    LOG_ERR("Reached end of function, this is bad juju!");
     return false;
 }

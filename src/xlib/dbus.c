@@ -66,7 +66,7 @@ void dbus_notify(char *title, char *content, uint8_t *cid) {
     conn = dbus_bus_get(DBUS_BUS_SESSION, &err);
 
     if (dbus_error_is_set(&err)) {
-        LOG_ERR("Dbus", "Connection Error (%s)\n", err.message);
+        LOG_ERR("Connection Error (%s)\n", err.message);
         dbus_error_free(&err);
     }
 

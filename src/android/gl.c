@@ -222,7 +222,7 @@ bool gl_init(void) {
 
     vertshader = glCreateShader(GL_VERTEX_SHADER);
     if (!vertshader) {
-        LOG_TRACE("gl", "glCreateShader() failed (vert)" );
+        LOG_TRACE("glCreateShader() failed (vert)" );
         return 0;
     }
 
@@ -232,13 +232,13 @@ bool gl_init(void) {
     glGetShaderiv(vertshader, GL_COMPILE_STATUS, &status);
     if (!status) {
 #ifdef DEBUG
-        LOG_TRACE("gl", "glCompileShader() failed (vert):\n%s" , data);
+        LOG_TRACE("glCompileShader() failed (vert):\n%s" , data);
         GLint infologsize = 0;
         glGetShaderiv(vertshader, GL_INFO_LOG_LENGTH, &infologsize);
         if (infologsize) {
             char *infolog = malloc(infologsize);
             glGetShaderInfoLog(vertshader, infologsize, NULL, (GLbyte *)infolog);
-            LOG_TRACE("gl", "Infolog: %s" , infolog);
+            LOG_TRACE("Infolog: %s" , infolog);
             free(infolog);
         }
 #endif
@@ -256,13 +256,13 @@ bool gl_init(void) {
     glGetShaderiv(fragshader, GL_COMPILE_STATUS, &status);
     if (!status) {
 #ifdef DEBUG
-        LOG_TRACE("gl", "glCompileShader failed (frag):\n%s" , data);
+        LOG_TRACE("glCompileShader failed (frag):\n%s" , data);
         GLint infologsize = 0;
         glGetShaderiv(fragshader, GL_INFO_LOG_LENGTH, &infologsize);
         if (infologsize) {
             char *infolog = malloc(infologsize);
             glGetShaderInfoLog(fragshader, infologsize, NULL, (GLbyte *)infolog);
-            LOG_TRACE("gl", "Infolog: %s" , infolog);
+            LOG_TRACE("Infolog: %s" , infolog);
             free(infolog);
         }
 #endif
@@ -279,13 +279,13 @@ bool gl_init(void) {
     glGetProgramiv(prog, GL_LINK_STATUS, &status);
     if (!status) {
 #ifdef DEBUG
-        LOG_TRACE("gl", "glLinkProgram failed" );
+        LOG_TRACE("glLinkProgram failed" );
         GLint infologsize = 0;
         glGetShaderiv(prog, GL_INFO_LOG_LENGTH, &infologsize);
         if (infologsize) {
             char *infolog = malloc(infologsize);
             glGetShaderInfoLog(prog, infologsize, NULL, (GLbyte *)infolog);
-            LOG_TRACE("gl", "Infolog: %s" , infolog);
+            LOG_TRACE("Infolog: %s" , infolog);
             free(infolog);
         }
 #endif
@@ -299,7 +299,7 @@ bool gl_init(void) {
     k2     = glGetUniformLocation(prog, "k2");
     samp   = glGetUniformLocation(prog, "samp");
 
-    LOG_TRACE("gl", "uniforms: %i %i %i" , matrix, k, samp);
+    LOG_TRACE("uniforms: %i %i %i" , matrix, k, samp);
 
     GLint zero  = 0;
     float one[] = { 1.0, 1.0, 1.0 };

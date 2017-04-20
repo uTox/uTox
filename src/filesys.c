@@ -21,7 +21,7 @@ bool utox_move_file(const uint8_t *current_name, const uint8_t *new_name) {
 void *file_raw(char *path, uint32_t *size) {
     FILE *file = fopen(path, "rb");
     if (!file) {
-        // LOG_TRACE("Filesys", "File not found (%s)" , path);
+        // LOG_TRACE("File not found (%s)" , path);
         return NULL;
     }
 
@@ -42,7 +42,7 @@ void *file_raw(char *path, uint32_t *size) {
     fseek(file, 0, SEEK_SET);
 
     if (fread(data, len, 1, file) != 1) {
-        LOG_TRACE("Filesys", "Read error (%s)" , path);
+        LOG_TRACE("Read error (%s)" , path);
         fclose(file);
         free(data);
         return NULL;

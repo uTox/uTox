@@ -67,7 +67,7 @@ void audio_detect(void) {
     hr = pDeviceCollection->lpVtbl->GetCount(pDeviceCollection, &count);
     EXIT_ON_ERROR(hr)
 
-    LOG_TRACE("Windows", "Audio out devices %u" , count);
+    LOG_TRACE("Audio out devices %u" , count);
 
     hr = pEnumerator->lpVtbl->GetDefaultAudioEndpoint(pEnumerator, eRender, eConsole, &pDevice);
     EXIT_ON_ERROR(hr)
@@ -82,7 +82,7 @@ void audio_detect(void) {
           pwfx->nChannels, pwfx->nSamplesPerSec, pwfx->nAvgBytesPerSec, pwfx->wBitsPerSample, pwfx->nBlockAlign);
 
     if (pwfx->nSamplesPerSec != 48000 || pwfx->nChannels != 2 || pwfx->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
-        LOG_TRACE("Windows", "Audio - unsupported format for loopback" );
+        LOG_TRACE("Audio - unsupported format for loopback" );
         goto Exit;
     }
 
@@ -119,7 +119,7 @@ void audio_detect(void) {
     hr = pAudioClient->lpVtbl->GetService(pAudioClient, &IID_IAudioCaptureClient_utox, (void **)&pCaptureClient);
     EXIT_ON_ERROR(hr)
 
-    LOG_TRACE("Windows", "Audio frame count %u && Samples/s %lu" , bufferFrameCount, pwfx->nSamplesPerSec);
+    LOG_TRACE("Audio frame count %u && Samples/s %lu" , bufferFrameCount, pwfx->nSamplesPerSec);
 
     // postmessage_utox(AUDIO_IN_DEVICE, STR_AUDIO_IN_DEFAULT_LOOPBACK, 0, (void*)(size_t)1);
     // this has no effect on my system, so I'm commenting it out, if you can't get audio, try enabling this again!
@@ -132,7 +132,7 @@ Exit:
     SAFE_RELEASE(pAudioClient)
     SAFE_RELEASE(pCaptureClient)
 
-    LOG_ERR("Windows", "Audio_init fail: %lu" , hr);
+    LOG_ERR("Audio_init fail: %lu" , hr);
 }
 
 bool audio_init(void *UNUSED(handle)) {

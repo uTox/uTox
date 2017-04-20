@@ -132,7 +132,7 @@ static void toxcore_bootstrap(Tox *tox, bool ipv6_enabled) {
         if (!ipv6_enabled && d->ipv6) {
             continue;
         }
-        LOG_TRACE("Toxcore", "Bootstrapping with node %s udp: %d, tcp: %d", d->address, d->port_udp, d->port_tcp);
+        LOG_TRACE("Bootstrapping with node %s udp: %d, tcp: %d", d->address, d->port_udp, d->port_tcp);
         tox_bootstrap(tox, d->address, d->port_udp, d->key, 0);
         tox_add_tcp_relay(tox, d->address, d->port_tcp, d->key, 0);
         i++;
@@ -193,16 +193,16 @@ static void write_save(Tox *tox) {
     if (edit_profile_password.length == 0) {
         // user doesn't use encryption
         save_needed = utox_data_save_tox(clear_data, clear_length);
-        LOG_TRACE("Toxcore", "Unencrypted save data written" );
+        LOG_TRACE("Unencrypted save data written" );
     } else {
         UTOX_ENC_ERR enc_err = utox_encrypt_data(clear_data, clear_length, encrypted_data);
         if (enc_err) {
             /* encryption failed, write clear text data */
             save_needed = utox_data_save_tox(clear_data, clear_length);
-            LOG_TRACE("Toxcore", "\n\n\t\tWARNING UTOX WAS UNABLE TO ENCRYPT DATA!\n\t\tDATA WRITTEN IN CLEAR TEXT!\n" );
+            LOG_TRACE("\n\n\t\tWARNING UTOX WAS UNABLE TO ENCRYPT DATA!\n\t\tDATA WRITTEN IN CLEAR TEXT!\n" );
         } else {
             save_needed = utox_data_save_tox(encrypted_data, encrypted_length);
-            LOG_TRACE("Toxcore", "Encrypted save data written" );
+            LOG_TRACE("Encrypted save data written" );
         }
     }
 }
@@ -226,7 +226,7 @@ void tox_settingschanged(void) {
     // send the reconfig message!
     postmessage_toxcore(0, 1, 0, NULL);
 
-    LOG_NOTE("Toxcore", "Restarting Toxcore");
+    LOG_NOTE("Restarting Toxcore");
     while (!tox_thread_init) {
         yieldcpu(1);
     }
@@ -256,7 +256,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
         if (tox_self_set_typing(tox, typing_state.friendnumber, is_typing, 0)) {
             // Successfully sent. Mark new state.
             typing_state.sent_value = is_typing;
-            LOG_TRACE("Toxcore", "Sent typing state to friend (%d): %d" , typing_state.friendnumber, typing_state.sent_value);
+            LOG_TRACE("Sent typing state to friend (%d): %d" , typing_state.friendnumber, typing_state.sent_value);
         }
     }
 }
@@ -272,16 +272,16 @@ static int load_toxcore_save(struct Tox_Options *options) {
             size_t   cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
             uint8_t *clear_data       = calloc(1, cleartext_length);
             settings.save_encryption   = 1;
-            LOG_INFO("Toxcore", "Using encrypted data, trying password: ");
+            LOG_INFO("Using encrypted data, trying password: ");
 
             UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
             if (decrypt_err) {
                 if (decrypt_err == UTOX_ENC_ERR_LENGTH) {
-                    LOG_WARN("Toxcore", "Password too short!\r");
+                    LOG_WARN("Password too short!\r");
                 } else if (decrypt_err == UTOX_ENC_ERR_LENGTH) {
-                    LOG_ERR("Toxcore", "Couldn't decrypt, wrong password?\r");
+                    LOG_ERR("Couldn't decrypt, wrong password?\r");
                 } else {
-                    LOG_ERR("Toxcore", "Unknown error, please file a bug report!" );
+                    LOG_ERR("Unknown error, please file a bug report!" );
                 }
                 return -1;
             }
@@ -294,7 +294,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
                 return 0;
             }
         } else {
-            LOG_INFO("Toxcore", "Using unencrypted save file; this could be insecure!");
+            LOG_INFO("Using unencrypted save file; this could be insecure!");
             options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
             options->savedata_data   = raw_data;
             options->savedata_length = raw_length;
@@ -308,12 +308,12 @@ static int load_toxcore_save(struct Tox_Options *options) {
 static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file, uint32_t line,
                          const char *func, const char *message, void *UNUSED(user_data)) {
     if (message && file && line) {
-        LOG_NET_TRACE("Toxcore", "TOXCORE LOGGING ERROR (%u): %s" , level, message);
-        LOG_NET_TRACE("Toxcore", "     in: %s:%u" , file, line);
+        LOG_NET_TRACE("TOXCORE LOGGING ERROR (%u): %s" , level, message);
+        LOG_NET_TRACE("     in: %s:%u" , file, line);
     } else if (func) {
-        LOG_NET_TRACE("Toxcore", "TOXCORE LOGGING ERROR: %s" , func);
+        LOG_NET_TRACE("TOXCORE LOGGING ERROR: %s" , func);
     } else {
-        LOG_ERR("Toxcore logging", "TOXCORE LOGGING is broken!!:\tOpen an bug upstream");
+        LOG_ERR("TOXCORE LOGGING is broken!!:\tOpen an bug upstream");
     }
 }
 
@@ -374,7 +374,7 @@ static int init_toxcore(Tox **tox) {
     }
 
     // Create main connection
-    LOG_INFO("Toxcore", "Creating New Toxcore instance.\n"
+    LOG_INFO("Creating New Toxcore instance.\n"
              "\t\tIPv6 : %u\n"
              "\t\tUDP  : %u\n"
              "\t\tProxy: %u %s %u",
@@ -387,10 +387,10 @@ static int init_toxcore(Tox **tox) {
 
     if (*tox == NULL) {
         if (settings.force_proxy) {
-            LOG_ERR("Toxcore", "\t\tError #%u, Not going to try without proxy because of user settings.", tox_new_err);
+            LOG_ERR("\t\tError #%u, Not going to try without proxy because of user settings.", tox_new_err);
             return -2;
         }
-        LOG_ERR("Toxcore", "\t\tError #%u, Going to try without proxy.", tox_new_err);
+        LOG_ERR("\t\tError #%u, Going to try without proxy.", tox_new_err);
 
         // reset proxy options as well as GUI and settings
         topt.proxy_type = TOX_PROXY_TYPE_NONE;
@@ -400,7 +400,7 @@ static int init_toxcore(Tox **tox) {
         *tox = tox_new(&topt, &tox_new_err);
 
         if (*tox == NULL) {
-            LOG_ERR("Toxcore", "\t\tError #%u, Going to try without IPv6.", tox_new_err);
+            LOG_ERR("\t\tError #%u, Going to try without IPv6.", tox_new_err);
 
             // reset IPv6 options as well as GUI and settings
             topt.ipv6_enabled = 0;
@@ -409,7 +409,7 @@ static int init_toxcore(Tox **tox) {
             *tox = tox_new(&topt, &tox_new_err);
 
             if (*tox == NULL) {
-                LOG_ERR("Toxcore", "\t\tFatal Error creating a Tox instance... Error #%u", tox_new_err);
+                LOG_ERR("\t\tFatal Error creating a Tox instance... Error #%u", tox_new_err);
                 return -2;
             }
         }
@@ -424,7 +424,7 @@ static int init_toxcore(Tox **tox) {
     toxcore_bootstrap(*tox, settings.enable_ipv6);
 
     if (save_status == -2) {
-        LOG_NOTE("Toxcore", "No save file, using defaults" );
+        LOG_NOTE("No save file, using defaults" );
         load_defaults(*tox);
     }
     tox_after_load(*tox);
@@ -452,7 +452,7 @@ void toxcore_thread(void *UNUSED(args)) {
         toxcore_init_err = init_toxcore(&tox);
         if (toxcore_init_err == -2) {
             // fatal failure, unable to create tox instance
-            LOG_ERR("Toxcore", "Unable to create Tox Instance (%d)" , toxcore_init_err);
+            LOG_ERR("Unable to create Tox Instance (%d)" , toxcore_init_err);
             // set init to true because other code is waiting for it.
             // but indicate error state
             tox_thread_init = UTOX_TOX_THREAD_INIT_ERROR;
@@ -489,7 +489,7 @@ void toxcore_thread(void *UNUSED(args)) {
             av = toxav_new(tox, &toxav_error);
 
             if (!av) {
-                LOG_ERR("Toxcore", "Unable to get ToxAV (%u)" , toxav_error);
+                LOG_ERR("Unable to get ToxAV (%u)" , toxav_error);
             }
 
             // Give toxcore the av functions to call
@@ -573,14 +573,14 @@ void toxcore_thread(void *UNUSED(args)) {
         }
 
         // Stop av threads, and toxcore.
-        LOG_TRACE("Toxcore", "av_thread exit, tox thread ending");
+        LOG_TRACE("av_thread exit, tox thread ending");
         toxav_kill(av);
         tox_kill(tox);
     }
 
     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
     free_friends();
-    LOG_TRACE("Toxcore", "Tox thread:\tClean exit!");
+    LOG_TRACE("Tox thread:\tClean exit!");
 }
 
 /** General recommendations for working with threads in uTox
@@ -638,7 +638,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* update tox id */
             tox_self_get_address(tox, self.id_binary);
             id_to_string(self.id_str, self.id_binary);
-            LOG_TRACE("Toxcore", "Tox ID: %.*s" , (int)self.id_str_length, self.id_str);
+            LOG_TRACE("Tox ID: %.*s" , (int)self.id_str_length, self.id_str);
 
             /* Update avatar */
             avatar_move((uint8_t *)old_id, (uint8_t *)self.id_str);
@@ -655,7 +655,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             tox_self_add_device(tox, data + TOX_ADDRESS_SIZE, param1, data, &error);
 
             if (error) {
-                LOG_ERR("Toxcore", "problem with adding device to self %u" , error);
+                LOG_ERR("problem with adding device to self %u" , error);
             } else {
                 self.device_list_count++;
             }
@@ -719,7 +719,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
         case TOX_FRIEND_NEW_DEVICE: {
         #ifdef ENABLE_MULTIDEVICE
-            LOG_INFO("Toxcore", "Adding new device to peer %u" , param1);
+            LOG_INFO("Adding new device to peer %u" , param1);
             tox_friend_add_device(tox, data, param1, 0);
             free(data);
             save_needed = 1;
@@ -739,7 +739,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             } else {
                 char hex_id[TOX_ADDRESS_SIZE * 2];
                 id_to_string(hex_id, req->bin_id);
-                LOG_TRACE("Toxcore", "Unable to accept friend %s, error num = %i" , hex_id, fid);
+                LOG_TRACE("Unable to accept friend %s, error num = %i" , hex_id, fid);
             }
             save_needed = 1;
             break;
@@ -787,9 +787,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             mmsg->receipt      = tox_friend_send_message(tox, param1, type, next, param2, &error);
             mmsg->receipt_time = 0;
 
-            LOG_INFO("Toxcore", "Sending message, receipt %u" , mmsg->receipt);
+            LOG_INFO("Sending message, receipt %u" , mmsg->receipt);
             if (error) {
-                LOG_ERR("Toxcore", "Error sending message... %u" , error);
+                LOG_ERR("Error sending message... %u" , error);
             }
 
             break;
@@ -817,7 +817,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             typing_state.friendnumber = param1;
             typing_state.time         = time;
 
-            // LOG_TRACE("Toxcore", "Set typing state for friend (%d): %d" , typing_state.friendnumber, typing_state.sent_value);
+            // LOG_TRACE("Set typing state for friend (%d): %d" , typing_state.friendnumber, typing_state.sent_value);
             break;
         }
 
@@ -845,7 +845,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend id
                data: pointer to a TOX_SEND_INLINE_MSG struct
              */
-            LOG_INFO("Toxcore", "Sending picture inline." );
+            LOG_INFO("Sending picture inline." );
 
             struct TOX_SEND_INLINE_MSG *img = data;
             uint8_t name[] = "utox-inline.png";
@@ -914,10 +914,10 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             int v_bitrate = 0;
             if (param2) {
                 v_bitrate = UTOX_DEFAULT_BITRATE_V;
-                LOG_TRACE("Toxcore", "Sending video call to friend %u" , param1);
+                LOG_TRACE("Sending video call to friend %u" , param1);
             } else {
                 v_bitrate = 0;
-                LOG_TRACE("Toxcore", "Sending call to friend %u" , param1);
+                LOG_TRACE("Sending call to friend %u" , param1);
             }
             postmessage_utoxav(UTOXAV_OUTGOING_CALL_PENDING, param1, param2, NULL);
 
@@ -926,19 +926,19 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             if (error) {
                 switch (error) {
                     case TOXAV_ERR_CALL_MALLOC: {
-                        LOG_TRACE("Toxcore", "Error making call to friend %u; Unable to malloc for this call." , param1);
+                        LOG_TRACE("Error making call to friend %u; Unable to malloc for this call." , param1);
                         break;
                     }
                     case TOXAV_ERR_CALL_FRIEND_ALREADY_IN_CALL: {
                         /* This shouldn't happen, but just in case toxav gets a call before uTox gets this message we
                          * can just pretend like we're answering a call... */
-                        LOG_TRACE("Toxcore", "Error making call to friend %u; Already in call." , param1);
-                        LOG_TRACE("Toxcore", "Forwarding and accepting call!" );
+                        LOG_TRACE("Error making call to friend %u; Already in call." , param1);
+                        LOG_TRACE("Forwarding and accepting call!" );
 
                         TOXAV_ERR_ANSWER ans_error = 0;
                         toxav_answer(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &ans_error);
                         if (ans_error) {
-                            LOG_TRACE("Toxcore", "Error trying to toxav_answer error (%i)" , ans_error);
+                            LOG_TRACE("Error trying to toxav_answer error (%i)" , ans_error);
                         } else {
                             postmessage_utoxav(UTOXAV_OUTGOING_CALL_ACCEPTED, param1, param2, NULL);
                         }
@@ -953,7 +953,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                         TOXAV_ERR_CALL_FRIEND_NOT_CONNECTED,
                         TOXAV_ERR_CALL_FRIEND_ALREADY_IN_CALL,
                         TOXAV_ERR_CALL_INVALID_BIT_RATE,*/
-                        LOG_TRACE("Toxcore", "Error making call to %u, error num is %i." , param1, error);
+                        LOG_TRACE("Error making call to %u, error num is %i." , param1, error);
                         break;
                     }
                 }
@@ -973,16 +973,16 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             if (param2) {
                 v_bitrate = UTOX_DEFAULT_BITRATE_V;
-                LOG_TRACE("Toxcore", "Answering video call." );
+                LOG_TRACE("Answering video call." );
             } else {
                 v_bitrate = 0;
-                LOG_TRACE("Toxcore", "Answering audio call." );
+                LOG_TRACE("Answering audio call." );
             }
 
             toxav_answer(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &error);
 
             if (error) {
-                LOG_TRACE("Toxcore", "Error trying to toxav_answer error (%i)" , error);
+                LOG_TRACE("Error trying to toxav_answer error (%i)" , error);
             } else {
                 postmessage_utoxav(UTOXAV_INCOMING_CALL_ANSWER, param1, param2, NULL);
             }
@@ -991,23 +991,23 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         }
         case TOX_CALL_PAUSE_AUDIO: {
             /* param1: friend # */
-            LOG_TRACE("TToxcore", "ODO bug, please report 001!!" );
+            LOG_TRACE("ODO bug, please report 001!!" );
             break;
         }
         case TOX_CALL_PAUSE_VIDEO: {
             /* param1: friend # */
-            LOG_TRACE("Toxcore", "Ending video for active call!" );
+            LOG_TRACE("Ending video for active call!" );
             utox_av_local_call_control(av, param1, TOXAV_CALL_CONTROL_HIDE_VIDEO);
             break;
         }
         case TOX_CALL_RESUME_AUDIO: {
             /* param1: friend # */
-            LOG_TRACE("Toxcore", "TODO bug, please report 002!!" );
+            LOG_TRACE("TODO bug, please report 002!!" );
             break;
         }
         case TOX_CALL_RESUME_VIDEO: {
             /* param1: friend # */
-            LOG_TRACE("Toxcore", "Starting video for active call!" );
+            LOG_TRACE("Starting video for active call!" );
             utox_av_local_call_control(av, param1, TOXAV_CALL_CONTROL_SHOW_VIDEO);
             get_friend(param1)->call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;
             break;

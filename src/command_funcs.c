@@ -12,12 +12,12 @@
 bool slash_send_file(void *object, char *filepath, int UNUSED(arg_length)) {
     if (filepath) {
         FRIEND *f = object;
-        LOG_TRACE("slash_send_file", "File path is: %s" , filepath);
+        LOG_TRACE("File path is: %s" , filepath);
         postmessage_toxcore(TOX_FILE_SEND_NEW_SLASH, f->number, 0xFFFF, (void *)filepath);
         return true;
     }
 
-    LOG_ERR("slash_send_file", " filepath was NULL.");
+    LOG_ERR(" filepath was NULL.");
     return false;
 }
 
@@ -32,7 +32,7 @@ bool slash_device(void *object, char *arg, int UNUSED(arg_length)) {
         postmessage_toxcore(TOX_FRIEND_NEW_DEVICE, f->number, 0, data);
         return true;
     }
-    LOG_ERR("slash_device", " Could not allocate memory.");
+    LOG_ERR(" Could not allocate memory.");
     return false;
 }
 
@@ -67,6 +67,6 @@ bool slash_topic(void *object, char *arg, int arg_length) {
         postmessage_toxcore(TOX_GROUP_SET_TOPIC, g->number, arg_length, d);
         return true;
     }
-    LOG_ERR("slash_topic", " Could not allocate memory.");
+    LOG_ERR(" Could not allocate memory.");
     return false;
 }

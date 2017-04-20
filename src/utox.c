@@ -103,9 +103,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             /* param1: connection status (1 = connected, 0 = disconnected) */
             tox_connected = param1;
             if (tox_connected) {
-                LOG_NOTE("uTox", "Connected to DHT!" );
+                LOG_NOTE("Connected to DHT!" );
             } else {
-                LOG_NOTE("uTox", "Disconnected from DHT!" );
+                LOG_NOTE("Disconnected from DHT!" );
             }
             redraw();
             break;
@@ -209,7 +209,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             FRIEND *f = get_friend(param1);
             if (!f) {
-                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                LOG_ERR("Could not get friend with number: %u", param1);
                 return;
             }
 
@@ -233,14 +233,14 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             FRIEND *f = get_friend(param1);
             if (!f) {
-                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                LOG_ERR("Could not get friend with number: %u", param1);
                 return;
             }
 
             FILE_TRANSFER *file = data;
 
             if (f->ft_autoaccept) {
-                LOG_TRACE("Toxcore", "Auto Accept enabled for this friend: sending accept to system" );
+                LOG_TRACE("Auto Accept enabled for this friend: sending accept to system" );
                 native_autoselect_dir_ft(param1, file);
             }
 
@@ -262,7 +262,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             FRIEND *f = get_friend(param1);
             if (!f) {
-                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                LOG_ERR("Could not get friend with number: %u", param1);
                 return;
             }
 
@@ -288,7 +288,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             FRIEND *f = get_friend(param1);
             if (!f) {
-                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                LOG_ERR("Could not get friend with number: %u", param1);
                 return;
             }
 
@@ -347,7 +347,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             }
 
             file->decon_wait = false;
-            LOG_NOTE("uTox", "FT data was saved" );
+            LOG_NOTE("FT data was saved" );
             redraw();
             break;
         }
@@ -356,9 +356,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         // param1: UTOX_FILE_TRANSFER_STATUS file_status
         // File is done, failed or broken.
         case FILE_STATUS_DONE: {
-            LOG_INFO("uTox", "FT done. Updating UI.");
+            LOG_INFO("FT done. Updating UI.");
             if (!data) {
-                LOG_INFO("uTox", "FT done but no data about it.");
+                LOG_INFO("FT done but no data about it.");
                 break;
             }
 
@@ -457,7 +457,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             FRIEND *f = get_friend(param1);
             if (!f) {
-                LOG_ERR("uTox", "Could not get friend with number: %u", param2);
+                LOG_ERR("Could not get friend with number: %u", param2);
                 return;
             }
 
@@ -478,7 +478,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
                 FRIEND *f = get_friend(param2);
                 if (!f) {
-                    LOG_ERR("uTox", "Could not get friend with number: %u", param2);
+                    LOG_ERR("Could not get friend with number: %u", param2);
                     return;
                 }
 
@@ -506,7 +506,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case AV_CALL_INCOMING: {
             FRIEND *f = get_friend(param1);
             if (!f) {
-                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                LOG_ERR("Could not get friend with number: %u", param1);
                 return;
             }
 
@@ -517,7 +517,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case AV_CALL_RINGING: {
             FRIEND *f = get_friend(param1);
             if (!f) {
-                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                LOG_ERR("Could not get friend with number: %u", param1);
                 return;
             }
 
@@ -528,7 +528,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case AV_CALL_ACCEPTED: {
             FRIEND *f = get_friend(param1);
             if (!f) {
-                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                LOG_ERR("Could not get friend with number: %u", param1);
                 return;
             }
 
@@ -539,7 +539,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case AV_CALL_DISCONNECTED: {
             FRIEND *f = get_friend(param1);
             if (!f) {
-                LOG_ERR("uTox", "Could not get friend with number: %u", param1);
+                LOG_ERR("Could not get friend with number: %u", param1);
                 return;
             }
 
@@ -565,7 +565,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case AV_CLOSE_WINDOW: {
-            LOG_INFO("uTox", "Closing video feed" );
+            LOG_INFO("Closing video feed" );
             video_end(param1);
             redraw();
             break;

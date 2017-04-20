@@ -886,7 +886,7 @@ void native_export_chatlog_init(uint32_t fid) {
 
     FRIEND *f = get_friend(fid);
     if (!f) {
-        LOG_ERR("Cocoa", "Could not get friend with number: %u", fid);
+        LOG_ERR("Could not get friend with number: %u", fid);
         return;
     }
 

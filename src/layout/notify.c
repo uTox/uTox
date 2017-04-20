@@ -53,7 +53,7 @@ panel_notify_generic = {
 
 
 static void btn_notify_one_mup(void) {
-    LOG_ERR("Layout Notify", "Button 1 pressed");
+    LOG_ERR("Button 1 pressed");
 }
 
 BUTTON button_notify_one = {
@@ -64,7 +64,7 @@ BUTTON button_notify_one = {
 };
 
 static void btn_notify_two_mup(void) {
-    LOG_ERR("Layout Notify", "Button 2 pressed");
+    LOG_ERR("Button 2 pressed");
 }
 
 BUTTON button_notify_two = {
@@ -75,7 +75,7 @@ BUTTON button_notify_two = {
 };
 
 static void btn_notify_three_mup(void) {
-    LOG_ERR("Layout Notify", "Button 3 pressed");
+    LOG_ERR("Button 3 pressed");
 }
 
 BUTTON button_notify_three = {
@@ -87,18 +87,18 @@ BUTTON button_notify_three = {
 
 #if 0
 static void btn_move_window_mdn(void) {
-    LOG_NOTE("Layout Notify", "button move down\n");
+    LOG_NOTE("button move down\n");
     btn_move_window_down = true;
 }
 
 static void btn_move_window_mup(void) {
-    LOG_NOTE("Layout Notify", "button move up\n");
+    LOG_NOTE("button move up\n");
     btn_move_window_down = false;
 }
 #endif
 
 static void btn_move_notify_mup(void) {
-    LOG_NOTE("Layout Notify", "button tween\n");
+    LOG_NOTE("button tween\n");
     // window_tween();
 }
 

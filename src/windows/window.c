@@ -76,13 +76,13 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h) {
 }
 
 HWND native_window_create_video(int x, int y, int w, int h) {
-    LOG_DEBUG("Windows WM", "Creating video window");
+    LOG_DEBUG("Creating video window");
     HWND win = CreateWindowExW(0, L"uTox", L"TEMP TITLE CHANGE ME", WS_OVERLAPPEDWINDOW,
                                x, y, w, h, NULL, NULL, curr_instance, NULL);
 
     if (!win) {
-        LOG_ERR("Windows WM", "ERROR trying to create video window");
-        LOG_ERR("debug", "%u", GetLastError());
+        LOG_ERR("ERROR trying to create video window");
+        LOG_ERR("%u", GetLastError());
     }
 
     return win;
@@ -118,7 +118,7 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel
     if (!popup) {
         popup = calloc(1, sizeof(UTOX_WINDOW)); // FIXME leaks
         if (!popup) {
-            LOG_ERR("Windows Wind", "NativeWindow:\tUnable to alloc to create window container");
+            LOG_ERR("NativeWindow:\tUnable to alloc to create window container");
             return NULL;
         }
     }

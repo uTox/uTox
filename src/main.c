@@ -23,12 +23,12 @@
 bool utox_data_save_tox(uint8_t *data, size_t length) {
     FILE *fp = utox_get_file("tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
     if (!fp) {
-        LOG_ERR("uTox", "Can not open tox_save.tox to write to it.");
+        LOG_ERR("Can not open tox_save.tox to write to it.");
         return true;
     }
 
     if (fwrite(data, length, 1, fp) != 1) {
-        LOG_ERR("uTox", "Unable to write Tox save to file.");
+        LOG_ERR("Unable to write Tox save to file.");
         fclose(fp);
         return true;
     }
@@ -53,14 +53,14 @@ uint8_t *utox_data_load_tox(size_t *size) {
         uint8_t *data = calloc(1, length + 1);
 
         if (!data) {
-            LOG_ERR("uTox", "Could not allocate memory for tox save.");
+            LOG_ERR("Could not allocate memory for tox save.");
             fclose(fp);
             // Quit. We're out of memory, calloc will fail again.
             return NULL;
         }
 
         if (fread(data, length, 1, fp) != 1) {
-            LOG_ERR("uTox", "Could not read: %s.", name[i]);
+            LOG_ERR("Could not read: %s.", name[i]);
             fclose(fp);
             free(data);
             // Return NULL, because if a Tox save exits we don't want to fall
@@ -87,7 +87,7 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
     }
 
     if (fwrite(data, length, 1, fp) != 1) {
-        LOG_ERR("uTox", "Unable to write ftinfo to file.");
+        LOG_ERR("Unable to write ftinfo to file.");
         fclose(fp);
         return false;
     }
@@ -152,7 +152,7 @@ void parse_args(int argc, char *argv[],
             }
 
             case 'p': {
-                LOG_INFO("uTox", "Launching uTox in portable mode: All data will be saved to the tox folder in the current "
+                LOG_INFO("Launching uTox in portable mode: All data will be saved to the tox folder in the current "
                          "working directory\n");
                 settings.portable_mode = 1;
                 break;
@@ -255,7 +255,7 @@ void parse_args(int argc, char *argv[],
                 break;
             }
 
-            case '?': LOG_TRACE("uTox", "%c", (char)optopt ); break;
+            case '?': LOG_TRACE("%c", (char)optopt ); break;
         }
     }
 }
@@ -284,7 +284,7 @@ void utox_init(void) {
 }
 
 void utox_raze(void) {
-    LOG_WARN("uTox", "Clean exit.");
+    LOG_WARN("Clean exit.");
     if (settings.debug_file != stdout) {
         fclose(settings.debug_file);
     }

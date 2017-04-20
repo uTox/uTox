@@ -17,13 +17,13 @@ void native_export_chatlog_init(uint32_t friend_number) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
 
     if (path == NULL){
-        LOG_ERR("NATIVE", "Could not allocate memory.");
+        LOG_ERR("Could not allocate memory.");
         return;
     }
 
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("WindowsXP", "Could not get friend with number: %u", friend_number);
+        LOG_ERR("Could not get friend with number: %u", friend_number);
         return;
     }
 
@@ -44,17 +44,17 @@ void native_export_chatlog_init(uint32_t friend_number) {
         if (file) {
             utox_export_chatlog(f->id_str, file);
         } else {
-            LOG_ERR("WinXP", "Opening file %s failed", path);
+            LOG_ERR("Opening file %s failed", path);
         }
     } else {
-        LOG_TRACE("WinXP", "GetSaveFileName() failed" );
+        LOG_TRACE("GetSaveFileName() failed" );
     }
 }
 
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!path) {
-        LOG_ERR("WinXP", "Unable to calloc when selecting file directory");
+        LOG_ERR("Unable to calloc when selecting file directory");
         return;
     }
     memcpy(path, file->name, file->name_length);
@@ -70,14 +70,14 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     if (GetSaveFileName(&ofn)) {
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, num, path);
     } else {
-        LOG_ERR("WinXP", "GetSaveFileName() failed");
+        LOG_ERR("GetSaveFileName() failed");
     }
 }
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     wchar_t *autoaccept_folder = calloc(1, MAX_PATH);
     if (!autoaccept_folder) {
-        LOG_ERR("WinXP", "Unable to malloc for autoaccept path.");
+        LOG_ERR("Unable to malloc for autoaccept path.");
         return;
     }
 
@@ -88,7 +88,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
         swprintf(autoaccept_folder, UTOX_FILE_NAME_LENGTH, L"%ls", tmp);
     } else if (SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, autoaccept_folder) != S_OK) {
-        LOG_ERR("WinXP", "Unable to get auto accept file folder!");
+        LOG_ERR("Unable to get auto accept file folder!");
         free(autoaccept_folder);
         return;
     }
@@ -115,7 +115,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     if (f) {
         postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
     } else {
-        LOG_ERR("WinXP", "Unable to save autoaccepted ft to %ls", fullpath);
+        LOG_ERR("Unable to save autoaccepted ft to %ls", fullpath);
     }
 }
 
@@ -133,19 +133,19 @@ void launch_at_startup(bool should) {
             path_length += 2;
             uint16_t ret = RegSetValueExW(hKey, L"uTox", NULL, REG_SZ, (uint8_t *)path, path_length * 2); /*2 bytes per wchar_t */
             if (ret == ERROR_SUCCESS) {
-                LOG_TRACE("WinXP", "Successful auto start addition." );
+                LOG_TRACE("Successful auto start addition." );
             }
             RegCloseKey(hKey);
         }
     } else {
-        LOG_TRACE("WinXP", "Going to delete auto start key." );
+        LOG_TRACE("Going to delete auto start key." );
         if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
-            LOG_TRACE("WinXP", "Successful key opened." );
+            LOG_TRACE("Successful key opened." );
             uint16_t ret = RegDeleteValueW(hKey, L"uTox");
             if (ret == ERROR_SUCCESS) {
-                LOG_TRACE("WinXP", "Successful auto start deletion." );
+                LOG_TRACE("Successful auto start deletion." );
             } else {
-                LOG_TRACE("WinXP", "UN-Successful auto start deletion." );
+                LOG_TRACE("UN-Successful auto start deletion." );
             }
             RegCloseKey(hKey);
         }

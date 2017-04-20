@@ -577,7 +577,7 @@ uint32_t *find_colour_pointer(char *color) {
         color += 6;
     }
 
-    LOG_INFO("Theme", "Color: %s" , color);
+    LOG_INFO("Color: %s" , color);
 
     for (int i = 0;; ++i) {
         const char *s = COLOUR_NAME_TABLE[i];
@@ -652,7 +652,7 @@ static void read_custom_theme(const uint8_t *data, size_t length) {
         const uint32_t col = try_parse_hex_colour(color, &err);
 
         if (err) {
-            LOG_ERR("Theme", "Error: Parsing hex color failed.");
+            LOG_ERR("Error: Parsing hex color failed.");
             continue;
         } else {
             *colorp = COLOR_PROC(col);
@@ -664,19 +664,19 @@ static uint8_t *utox_data_load_custom_theme(size_t *out) {
     FILE *fp = utox_get_file("utox_theme.ini", out, UTOX_FILE_OPTS_READ);
 
     if (fp == NULL) {
-        LOG_ERR("Theme", "Failed to open custom theme file.");
+        LOG_ERR("Failed to open custom theme file.");
         return NULL;
     }
 
     uint8_t *data = calloc(1, *out + 1);
     if (data == NULL) {
-        LOG_ERR("Theme", "Failed to allocate memory for custom theme.");
+        LOG_ERR("Failed to allocate memory for custom theme.");
         fclose(fp);
         return NULL;
     }
 
     if (fread(data, *out, 1, fp) != 1) {
-        LOG_ERR("Theme", "Could not read custom theme from file.");
+        LOG_ERR("Could not read custom theme from file.");
         fclose(fp);
         free(data);
         return NULL;

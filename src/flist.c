@@ -203,7 +203,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         case ITEM_FREQUEST: {
             FREQUEST *r = get_frequest(i->id_number);
             if (!r) {
-                LOG_WARN("FList", "Can't get the request at this number.");
+                LOG_WARN("Can't get the request at this number.");
                 break;
             }
 
@@ -358,7 +358,7 @@ static void page_close(ITEM *i) {
             f->typed_length = edit_chat_msg_friend.length;
             f->typed = calloc(1, f->typed_length);
             if (!f->typed) {
-                LOG_ERR("flist", "Unable to calloc for f->typed.");
+                LOG_ERR("Unable to calloc for f->typed.");
                 return;
             }
 
@@ -397,7 +397,7 @@ static void page_close(ITEM *i) {
             g->typed_length = edit_chat_msg_group.length;
             g->typed = calloc(1, g->typed_length);
             if (!g->typed) {
-                LOG_ERR("flist", "Unable to calloc for g->typed.");
+                LOG_ERR("Unable to calloc for g->typed.");
                 return;
             }
 
@@ -457,7 +457,7 @@ static void page_open(ITEM *i) {
         case ITEM_FRIEND: {
             FRIEND *f = get_friend(i->id_number);
             if (!f) {
-                LOG_ERR("Flist", "Could not get friend data from item");
+                LOG_ERR("Could not get friend data from item");
                 return;
             }
 
@@ -611,7 +611,7 @@ void flist_add_friend(FRIEND *f) {
 void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
     for (uint32_t i = 0; i < itemcount; ++i) {
         if (item[i].item == ITEM_FREQUEST && item[i].id_number == req->number) {
-            LOG_INFO("FList", "Friend found and accepted.");
+            LOG_INFO("Friend found and accepted.");
             item[i].item = ITEM_FRIEND;
             item[i].id_number = f->number;
 
@@ -784,7 +784,7 @@ static void push_selected(void) {
             push_pop.data = calloc(1, TOX_PUBLIC_KEY_SIZE);
             FRIEND *f     = get_friend(selected_item->id_number);
             if (!f) {
-                LOG_ERR("Flist", "id_number is out of sync with friend_list"); // TODO should this be an exit code?
+                LOG_ERR("id_number is out of sync with friend_list"); // TODO should this be an exit code?
                                                                                // It's a critical error that could do
                                                                                // a lot of damage
                 return;

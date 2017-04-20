@@ -107,7 +107,7 @@ static void player_queue(AUDIO_PLAYER *p, const int16_t *data, uint8_t channels)
             p->value = 0;
         }
     } else {
-        LOG_TRACE("Audio", "dropped" );
+        LOG_TRACE("dropped" );
     }
 }
 
@@ -144,12 +144,12 @@ void encoder_thread(void *arg) {
 
 
                     /*if((r = toxav_prepare_audio_frame(arg, i, dest, sizeof(dest), frame, 960)) < 0) {
-                        LOG_TRACE("Audio", "toxav_prepare_audio_frame error %i" , r);
+                        LOG_TRACE("toxav_prepare_audio_frame error %i" , r);
                         continue;
                     }
 
                     if((r = toxav_send_audio(arg, i, dest, r)) < 0) {
-                        LOG_TRACE("Audio", "toxav_send_audio error %i %s" , r, strerror(errno));
+                        LOG_TRACE("toxav_send_audio error %i %s" , r, strerror(errno));
                     }*/
 
                     // toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe,
@@ -175,7 +175,7 @@ void bqRecorderCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
     pthread_mutex_lock(&callback_lock);
 
     if (frame_count == 128) {
-        LOG_TRACE("Audio", "problem~!~" );
+        LOG_TRACE("problem~!~" );
     } else {
         void *frame = malloc(960 * 2);
         memcpy(frame, buf, 960 * 2);

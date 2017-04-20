@@ -95,7 +95,7 @@ bool test_write_chatlog() {
 }
 
 bool test_read_chatlog() {
-    LOG_INFO("test", "testing...");
+    LOG_INFO("testing...");
 //    FAIL("not good!");
 
     // TODO implement
