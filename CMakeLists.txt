@@ -23,6 +23,8 @@ option(ENABLE_AUTOUPDATE    "Enable Auto-updater"                               
 option(UTOX_STATIC          "Link uTox statically"                                          OFF)
 option(TOXCORE_STATIC       "Build uTox with the static version of Toxcore"                 OFF)
 
+option(ENABLE_LTO           "Enable link time optimizations"                                ON )
+
 
 ########################
 # Set helper-variables #
@@ -146,7 +148,6 @@ add_cflag("-fPIC")
 
 # Fix GNU stack
 if(CMAKE_C_COMPILER_ID MATCHES "GNU")
-
     # Have ld strip the symbols from Release and MinSizeRel build types.
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
     set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os")
@@ -154,7 +155,10 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU")
     if(LINUX)
         # enable Link Time Optimization on gcc (linux only currently)
         # TODO someone should figure out how this works on windows, or we need to have gitlab-ci for GCC
-        add_cflag("-flto")
+        if(ENABLE_LTO)
+            add_cflag("-flto")
+        endif()
+
         set(CMAKE_AR "gcc-ar")
         set(CMAKE_RANLIB "gcc-ranlib")
 
@@ -162,7 +166,9 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU")
     endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
     # enable Link Time Optimization on clang
-    add_cflag("-flto")
+    if(ENABLE_LTO)
+        add_cflag("-flto")
+    endif()
 
     # Have ld strip the symbols from Release and MinSizeRel build types. (-Oz is clang specific)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
@@ -173,6 +179,8 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
             add_cflag("-fsanitize=safe-stack")
         endif()
     endif()
+else()
+    message(SEND_ERROR "Unknown compiler name")
 endif()
 
 # set define for GIT_VERSION
