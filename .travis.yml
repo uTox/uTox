@@ -10,11 +10,9 @@ addons:
     packages:
       - cmake
       - cmake-data
-      - dbus
-      - dbus-x11
-      - libdbus-1-3
       - yasm
       - check
+      - libdbus-1-dev
       - libopenal-dev
       - libopenal-data
       - libopenal1

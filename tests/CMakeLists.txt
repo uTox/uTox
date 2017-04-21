@@ -36,7 +36,7 @@ target_link_libraries(utox-test-mock pthread)
 # TODO add a cmake macro for adding tests, this will be too verbose if we add more.
 make_test(chatlog)
 
-if(${ENABLE_AUTOUPDATE})
+if(ENABLE_AUTOUPDATE)
   make_test(updater)
       target_link_libraries(test_updater sodium)
 endif()
