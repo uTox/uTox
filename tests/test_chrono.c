@@ -6,7 +6,8 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-START_TEST (test_chrono)
+/*
+START_TEST (test_chrono_finished)
 {
     CHRONO_INFO *info = malloc(sizeof(CHRONO_INFO*));
     if (!info) {
@@ -29,12 +30,52 @@ START_TEST (test_chrono)
     free(info);
 }
 END_TEST
+*/
+
+START_TEST(test_chrono_target)
+{
+    CHRONO_INFO *info = malloc(sizeof(CHRONO_INFO*));
+    if (!info) {
+        return;
+    }
+
+    info->ptr = 0;
+    info->step = 5;
+    info->interval = 5;
+    info->finished = false;
+    info->target = (uint8_t *)30;
+
+    chrono_start(info);
+
+    yieldcpu(31); // allow thread to run and exit
+                  // 30 to get to the target and 1 to exit
+
+    ck_assert_msg((intptr_t)info->ptr == 30, "Expected 30 got: %u", info->ptr);
+
+    free(info);
+
+}
+END_TEST
+
+void callback(void *arg) {
+    *(int *)arg = 10;
+}
+
+START_TEST(test_sleep_callback)
+{
+    int arg = 0;
+    sleep_callback(1, callback, &arg);
+    ck_assert_msg((intptr_t)arg == 10, "Expected callback_arg to be 10 got: %d", arg);
+}
+END_TEST
 
 static Suite *suite(void)
 {
     Suite *s = suite_create("Chrono");
 
-    MK_TEST_CASE(chrono);
+    //MK_TEST_CASE(chrono_finished); // reenable when the finished field of the chrono info struct is used
+    MK_TEST_CASE(chrono_target);
+    MK_TEST_CASE(sleep_callback)
 
     return s;
 }

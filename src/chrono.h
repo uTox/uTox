@@ -5,10 +5,9 @@
 #include <stdbool.h>
 
 struct chrono_info {
-    uint8_t *ptr;
+    uint8_t *ptr, *target;
     int step;
-    uint32_t interval;
-    int ms;
+    uint32_t interval; // in milliseconds
     bool finished;
 };
 
@@ -24,10 +23,15 @@ bool chrono_thread_init = false;
 bool chrono_start(CHRONO_INFO *info);
 
 /*
- * Ehds the chrono thread
+ * Ends the chrono thread
  * Returns true on success
  * Returns false on failure
  */
 bool chrono_end(CHRONO_INFO *info);
+
+/*
+ * Sleep and then
+ */
+void sleep_callback(uint32_t ms, void func(void *), void *funcargs);
 
 #endif
