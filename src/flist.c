@@ -103,7 +103,7 @@ static void flist_draw_name(ITEM *i, int x, int y, int width, char *name, char *
         }
         setcolor(color);
         setfont(FONT_STATUS);
-        drawtextwidth(x, width, y + SCALE(16), msg, msg_length);
+        drawtextwidth(x, width - SCALE(SIDEBAR_PADDING * 12), y + SCALE(16), msg, msg_length);
     }
 }
 

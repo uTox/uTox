@@ -67,13 +67,13 @@ static void draw_user_badge(int x, int y, int width, int UNUSED(height)) {
         /* Draw name */
         setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
         setfont(FONT_SELF_NAME);
-        drawtextrange(x, width - SCALE(SIDEBAR_PADDING), y + SCALE(SIDEBAR_PADDING), self.name, self.name_length);
+        drawtextrange(x, width - SCALE(SIDEBAR_PADDING * 2), y + SCALE(SIDEBAR_PADDING), self.name, self.name_length);
 
         /*&Draw current status message
         @TODO: separate these colors if needed (COLOR_MAIN_TEXT_HINT) */
         setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
         setfont(FONT_STATUS);
-        drawtextrange(x, width - SCALE(SIDEBAR_PADDING), y + SCALE(SIDEBAR_PADDING * 4), self.statusmsg,
+        drawtextrange(x, width - SCALE(SIDEBAR_PADDING * 4), y + SCALE(SIDEBAR_PADDING * 4), self.statusmsg,
                       self.statusmsg_length);
 
         /* Draw status button icon */
