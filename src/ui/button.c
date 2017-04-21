@@ -71,7 +71,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height) {
                 // The text didn't fit into the original width.
                 // Fill the rest of the new width with the image
                 // and hope for the best.
-                drawalpha(b->bm_fill, x + width - real_w, y, width, height, color_bg);
+                drawalpha(b->bm_fill, x + width - real_w, y, real_w, height, color_bg);
                 width -= real_w / 2 + 1;
             }
         }

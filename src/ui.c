@@ -131,7 +131,7 @@ static void settings_PROFILE(void) {
     CREATE_EDIT(status_msg, 10, 76, -10, 24);
 
     CREATE_EDIT(toxid, 10, 126, -10, 24);
-    CREATE_BUTTON(copyid, 66, 106, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(copyid, 66, 106, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     CREATE_DROPDOWN(language, 10, 177, 24, -10);
 }
