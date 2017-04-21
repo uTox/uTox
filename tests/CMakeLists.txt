@@ -38,3 +38,5 @@ make_test(chatlog)
 
 make_test(updater)
     target_link_libraries(test_updater sodium)
+
+make_test(chrono)
