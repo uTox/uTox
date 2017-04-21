@@ -5,7 +5,7 @@ option(ENABLE_DBUS "Compile with dbus notification support" ON)
 
 if(ENABLE_DBUS)
     find_package(DBus REQUIRED)
-    include_directories(${DBUS_INCLUDE_DIR} "/usr/lib/dbus-1.0/include")
+    include_directories(${DBUS_INCLUDE_DIRS})
     add_cflag("-DHAVE_DBUS=1")
 endif()
 
@@ -60,7 +60,7 @@ message("Xrender include:   ${X11_Xrender_INCLUDE_PATH}")
 message("Xrender library:   ${X11_Xrender_LIB}")
 
 if(ENABLE_DBUS AND DBUS_LIBRARIES)
-    message("DBus include:  ${DBUS_INCLUDE_DIR}")
+    message("DBus include:  ${DBUS_INCLUDE_DIRS}")
     message("DBus library:  ${DBUS_LIBRARIES}")
 else()
     set(DBUS_LIBRARIES "")
