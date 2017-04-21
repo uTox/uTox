@@ -15,6 +15,8 @@ addons:
       - libdbus-1-3
       - yasm
       - check
+      - pkg-config
+      - libdbus-1-dev
       - libopenal-dev
       - libopenal-data
       - libopenal1
