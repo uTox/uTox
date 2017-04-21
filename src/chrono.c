@@ -12,7 +12,7 @@ static void chrono_thread(void *args) {
     LOG_INFO("Chono", "Thread starting");
     chrono_thread_init = true;
     CHRONO_INFO *info = args;
-    while(!info->finished) {
+    while(info->ptr != info->target) {
         (*info).ptr += info->step;
         yieldcpu(info->interval);
     }
@@ -43,4 +43,9 @@ bool chrono_end(CHRONO_INFO *info) {
     }
 
     return true;
+}
+
+void sleep_callback(uint32_t ms, void func(void *), void *funcargs) {
+    yieldcpu(ms);
+    func(funcargs);
 }
