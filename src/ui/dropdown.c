@@ -107,7 +107,7 @@ void dropdown_draw(DROPDOWN *d, int x, int y, int width, int height) {
         }
 
         draw_rect_frame(x, y, width, height, (d->mouseover ? color_border_h : color_border));
-        draw_rect_fill(x + 1, y + 1, width - SCALE(2), height - SCALE(2), color_bg);
+        draw_rect_fill(x + 1, y + 1, width - 2, height - 2, color_bg);
 
         if (d->dropcount) {
             setfont(FONT_TEXT);

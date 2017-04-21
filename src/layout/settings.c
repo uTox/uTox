@@ -27,34 +27,39 @@
 #include <string.h>
 
 /* Top bar for user settings */
-static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height)) {
-    (void) w;
+static void draw_settings_header(int x, int y, int w, int UNUSED(height)) {
+    (void)w; // Silence an irreverent warning when GIT_VERSION is undefined
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);
+    drawstr(x + SCALE(10), y + SCALE(10), UTOX_SETTINGS);
 #ifdef GIT_VERSION
-    int x = MAIN_LEFT + SCALE(10) + UTOX_STR_WIDTH(UTOX_SETTINGS) + SCALE(10);
+    setfont(FONT_TEXT);
+    char ver_string[64];
+    int  count = snprintf(ver_string, 64, "Toxcore v%u.%u.%u",
+                            tox_version_major(), tox_version_minor(), tox_version_patch());
+    drawtextwidth_right(x + w - textwidth(ver_string, count) , textwidth(ver_string, count), SCALE(10),
+                        ver_string, count);
+
+    setfont(FONT_SELF_NAME); // x adjustment depends on the font type being set first
+    x += SCALE(25) + UTOX_STR_WIDTH(UTOX_SETTINGS);
     setfont(FONT_TEXT);
     drawtext(x, SCALE(10), GIT_VERSION, strlen(GIT_VERSION));
-    char ver_string[64];
-    int  count;
-    count = snprintf(ver_string, 64, "Toxcore v%u.%u.%u", tox_version_major(), tox_version_minor(), tox_version_patch());
-    drawtextwidth_right(w + SIDEBAR_WIDTH - textwidth(ver_string, count), textwidth(ver_string, count), SCALE(10),
-                        ver_string, count);
 #endif
 }
 
-#define DRAW_UNDERLINE() drawhline(x, y + SCALE(30), x_right_edge, COLOR_EDGE_NORMAL)
-#define DRAW_OVERLINE()                                   \
-    drawhline(x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE); \
-    drawhline(x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE)
+#define DRAW_UNDERLINE() drawhline(x, y + SCALE(28), next_x, COLOR_EDGE_NORMAL)
+#define DRAW_OVERLINE()  drawhline(x, y + SCALE(0), next_x, COLOR_EDGE_ACTIVE); \
+                         drawhline(x, y + SCALE(1), next_x, COLOR_EDGE_ACTIVE)
 
-static void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_sub_header(int x, int y, int width, int UNUSED(height)) {
+    drawhline(x, y, x + width, COLOR_EDGE_NORMAL);
+
     setfont(FONT_SELF_NAME);
+    int last_x = x + width;
 
     /* Draw the text and bars for general settings */
     setcolor(!button_settings_sub_profile.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    int x_right_edge = x + SCALE(10) + UTOX_STR_WIDTH(PROFILE_BUTTON) + SCALE(10);
+    int next_x = x + SCALE(20) + UTOX_STR_WIDTH(PROFILE_BUTTON);
     drawstr(x + SCALE(10), y + SCALE(10), PROFILE_BUTTON);
 
     if (panel_settings_profile.disabled) {
@@ -62,142 +67,140 @@ static void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(hei
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
+    x = next_x;
 
     /* Draw the text and bars for device settings */
     #ifdef ENABLE_MULTIDEVICE
     setcolor(!button_settings_sub_devices.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(DEVICES_BUTTON) + SCALE(10);
-    drawstr(x + SCALE(10), y + SCALE(10), DEVICES_BUTTON);
-
+    next_x += SCALE(20) + UTOX_STR_WIDTH(DEVICES_BUTTON);
+    drawstr(x + SCALE(10), y, + SCALE(10), DEVICES_BUTTON);
     if (panel_settings_devices.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y, + SCALE(28), COLOR_EDGE_NORMAL);
+    x = next_x;
     #endif
 
     /* Draw the text and bars for User interface settings */
     setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON) + SCALE(10);
+    next_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
     drawstr(x + SCALE(10), y + SCALE(10), USER_INTERFACE_BUTTON);
-
     if (panel_settings_ui.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y, y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
+    x = next_x;
 
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON) + SCALE(10);
+    next_x += SCALE(20) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON);
     drawstr(x + SCALE(10), y + SCALE(10), AUDIO_VIDEO_BUTTON);
-
     if (panel_settings_av.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
+    x = next_x;
 
     /* Draw the text and bars for notification settings */
     setcolor(!button_settings_sub_notifications.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON) + SCALE(10);
+    next_x += SCALE(20) + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON);
     drawstr(x + SCALE(10), y + SCALE(10), NOTIFICATIONS_BUTTON);
-
     if (panel_settings_notifications.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
+    x = next_x;
 
     /* Draw the text and bars for advanced settings */
     setcolor(!button_settings_sub_adv.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(ADVANCED_BUTTON) + SCALE(10);
+    next_x += SCALE(20) + UTOX_STR_WIDTH(ADVANCED_BUTTON);
     drawstr(x + SCALE(10), y + SCALE(10), ADVANCED_BUTTON);
-
     if (panel_settings_adv.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
+    x = next_x;
 
-    x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(1000);
+    next_x = last_x;
     DRAW_UNDERLINE();
 }
 
 /* draw switch profile top bar */
 /* Text content for settings page */
-static void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
+static void draw_settings_text_profile(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), STATUSMESSAGE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(110), TOXID);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), LANGUAGE);
+    drawstr(x + SCALE(10), y + SCALE(10), NAME);
+    drawstr(x + SCALE(10), y + SCALE(60), STATUSMESSAGE);
+    drawstr(x + SCALE(10), y + SCALE(110), TOXID);
+    drawstr(x + SCALE(10), y + SCALE(160), LANGUAGE);
 }
 
 // Devices settings page
-static void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
+static void draw_settings_text_devices(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), DEVICES_ADD_NEW);
+    drawstr(x + SCALE(10), y + SCALE(10), DEVICES_ADD_NEW);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
+    drawstr(x + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
 
     char   str[10];
     size_t strlen = snprintf(str, 10, "%zu", self.device_list_count);
 
-    drawtext(MAIN_LEFT + SCALE(10), y + SCALE(75), str, strlen);
+    drawtext(x + SCALE(10), y + SCALE(75), str, strlen);
 }
 
-static void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
+static void draw_settings_text_password(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(235), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), y + SCALE(235), PROFILE_PASSWORD);
 
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(285), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(299), PROFILE_PW_NO_RECOVER);
+    drawstr(x + SCALE(75), y + SCALE(285), PROFILE_PW_WARNING);
+    drawstr(x + SCALE(75), y + SCALE(299), PROFILE_PW_NO_RECOVER);
 }
 
-static void draw_nospam_settings(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)){
+static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(75), y + SCALE(240), NOSPAM_WARNING);
+    drawstr(x + SCALE(75), y + SCALE(240), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(235), NOSPAM);
+    drawstr(x + SCALE(10), y + SCALE(235), NOSPAM);
 }
 
 // UI settings page
-static void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(150), y + SCALE(10),  DPI);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(10),  THEME);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(65),  SAVE_CHAT_HISTORY);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(95),  CLOSE_TO_TRAY);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(125), START_IN_TRAY);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(155), AUTO_STARTUP);
-    drawstr(MAIN_LEFT + SCALE(10),  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
+    drawstr(x + SCALE(150), y + SCALE(10),  DPI);
+    drawstr(x + SCALE(10),  y + SCALE(10),  THEME);
+    drawstr(x + SCALE(10),  y + SCALE(65),  SAVE_CHAT_HISTORY);
+    drawstr(x + SCALE(10),  y + SCALE(95),  CLOSE_TO_TRAY);
+    drawstr(x + SCALE(10),  y + SCALE(125), START_IN_TRAY);
+    drawstr(x + SCALE(10),  y + SCALE(155), AUTO_STARTUP);
+    drawstr(x + SCALE(10),  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
+    #if PLATFORM_ANDROID
+        drawstr(x + SCALE(10),  y + SCALE(215), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
+    #endif
 }
 
 // Audio/Video settings page
-static void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_av(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
@@ -205,52 +208,52 @@ static void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSE
     uint16_t draw_pos_y = 10;
     uint16_t draw_pos_y_inc = 30;
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PUSH_TO_TALK);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), PUSH_TO_TALK);
     draw_pos_y += draw_pos_y_inc;
 #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
     draw_pos_y += draw_pos_y_inc;
 #endif
 
     // These are 60 apart as there needs to be room for a dropdown between them.
     draw_pos_y_inc = 60;
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOOUTPUTDEVICE);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOOUTPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), VIDEOINPUTDEVICE);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), VIDEOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
 }
 
 // Notification settings page
-static void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_notifications(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), RINGTONE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(40), STATUS_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(70), SEND_TYPING_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), GROUP_NOTIFICATIONS);
+    drawstr(x + SCALE(10), y + SCALE(10), RINGTONE);
+    drawstr(x + SCALE(10), y + SCALE(40), STATUS_NOTIFICATIONS);
+    drawstr(x + SCALE(10), y + SCALE(70), SEND_TYPING_NOTIFICATIONS);
+    drawstr(x + SCALE(10), y + SCALE(100), GROUP_NOTIFICATIONS);
 }
 
-static void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+static void draw_settings_text_adv(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), WARNING);
+    drawstr(x + SCALE(10), y + SCALE(10), WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(30),  IPV6);
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(60),  UDP);
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(90),  PROXY);
-    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(94), ":", 1); // Little addr port separator
-    drawstr(MAIN_LEFT  + SCALE(10),  y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
+    drawstr(x + SCALE(10), y + SCALE(30),  IPV6);
+    drawstr(x + SCALE(10), y + SCALE(60),  UDP);
+    drawstr(x + SCALE(10), y + SCALE(90),  PROXY);
+    drawstr(x + SCALE(10), y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
+    drawtext(x + SCALE(264), y + SCALE(94), ":", 1); // Little addr port separator
 
-    drawstr(MAIN_LEFT + SCALE(10),   y + SCALE(150), AUTO_UPDATE);
-    drawstr(MAIN_LEFT + SCALE(10),   y + SCALE(180), BLOCK_FRIEND_REQUESTS);
+    drawstr(x + SCALE(10), y + SCALE(150), AUTO_UPDATE);
+    drawstr(x + SCALE(10), y + SCALE(180), BLOCK_FRIEND_REQUESTS);
 }
 
 
@@ -260,14 +263,14 @@ SCROLLABLE scrollbar_settings = {
 };
 
 /* Draw the text for profile password window */
-static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+static void draw_profile_password(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), 20, PROFILE_PASSWORD);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), MAIN_TOP + 10, PROFILE_PASSWORD);
 }
 
 PANEL
@@ -312,6 +315,7 @@ panel_settings_master = {
     }
 },
     panel_settings_subheader = {
+        .y = MAIN_TOP_FRAME_THIN,
         .type = PANEL_NONE,
         .disabled = 0,
         .drawfunc = draw_settings_sub_header,
@@ -369,6 +373,9 @@ panel_settings_master = {
             (PANEL*)&switch_start_in_tray,
             (PANEL*)&switch_auto_startup,
             (PANEL*)&switch_mini_contacts,
+            #if PLATFORM_ANDROID
+                (PANEL*)&switch_magic_sidebar,
+            #endif
             NULL
         }
     },
@@ -448,9 +455,9 @@ static void button_settings_on_mup(void) {
 }
 
 BUTTON button_settings = {
-    .bm2          = BM_SETTINGS,
-    .bw           = _BM_ADD_WIDTH,
-    .bh           = _BM_ADD_WIDTH,
+    .bm_icon          = BM_SETTINGS,
+    .icon_w       = _BM_ADD_WIDTH,
+    .icon_h       = _BM_ADD_WIDTH,
     .update       = button_bottommenu_update,
     .on_mup       = button_settings_on_mup,
     .disabled     = false,
@@ -516,41 +523,47 @@ BUTTON
 button_settings_sub_profile = {
     .nodraw = true,
     .on_mup = button_settings_sub_profile_on_mup,
-    .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
+    .tooltip_text = {.i18nal = STR_PROFILE_BUTTON },
+    .button_text  = {.i18nal = STR_PROFILE_BUTTON },
 },
 
 button_settings_sub_devices = {
     .nodraw = true,
     .on_mup = button_settings_sub_devices_on_mup,
-    .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
+    .tooltip_text = {.i18nal = STR_DEVICES_BUTTON },
+    .button_text  = {.i18nal = STR_DEVICES_BUTTON },
 },
 
 button_settings_sub_ui = {
     .nodraw = true,
     .on_mup = button_settings_sub_ui_on_mup,
-    .tooltip_text = {.i18nal = STR_USERSETTINGS },
+    .tooltip_text = {.i18nal = STR_USER_INTERFACE_BUTTON },
+    .button_text  = {.i18nal = STR_USER_INTERFACE_BUTTON },
 },
 
 button_settings_sub_av = {
     .nodraw = true,
     .on_mup = button_settings_sub_av_on_mup,
-    .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
-},
-
-button_settings_sub_adv = {
-    .nodraw = true,
-    .on_mup = button_settings_sub_adv_on_mup,
-    .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
+    .tooltip_text = {.i18nal = STR_AUDIO_VIDEO_BUTTON },
+    .button_text  = {.i18nal = STR_AUDIO_VIDEO_BUTTON },
 },
 
 button_settings_sub_notifications = {
     .nodraw = true,
     .on_mup = button_settings_sub_notifications_on_mup,
     .tooltip_text = {.i18nal = STR_NOTIFICATIONS_BUTTON },
+    .button_text  = {.i18nal = STR_NOTIFICATIONS_BUTTON },
+},
+
+button_settings_sub_adv = {
+    .nodraw = true,
+    .on_mup = button_settings_sub_adv_on_mup,
+    .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
+    .button_text  = {.i18nal = STR_ADVANCED_BUTTON },
 },
 
 button_add_new_device_to_self = {
-    .bm          = BM_SBUTTON,
+    .bm_fill         = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     // .update   = button_setcolors_success,
     .on_mup      = button_add_device_to_self_mdown,
@@ -649,7 +662,7 @@ static void button_videopreview_update(BUTTON *b) {
     }
 }
 BUTTON button_copyid = {
-    .bm       = BM_SBUTTON,
+    .bm_fill  = BM_SBUTTON,
     .update   = button_setcolors_success,
     .on_mup   = button_copyid_on_mup,
     .disabled = false,
@@ -657,68 +670,69 @@ BUTTON button_copyid = {
 };
 
 BUTTON button_callpreview = {
-    .bm       = BM_LBUTTON,
-    .bm2      = BM_CALL,
-    .bw       = _BM_LBICON_WIDTH,
-    .bh       = _BM_LBICON_HEIGHT,
+    .bm_fill  = BM_LBUTTON,
+    .bm_icon  = BM_CALL,
+    .icon_w   = _BM_LBICON_WIDTH,
+    .icon_h   = _BM_LBICON_HEIGHT,
     .on_mup   = button_audiopreview_on_mup,
     .update   = button_audiopreview_update,
     .disabled = false,
 };
 
 BUTTON button_videopreview = {
-    .bm       = BM_LBUTTON,
-    .bm2      = BM_VIDEO,
-    .bw       = _BM_LBICON_WIDTH,
-    .bh       = _BM_LBICON_HEIGHT,
+    .bm_fill  = BM_LBUTTON,
+    .bm_icon  = BM_VIDEO,
+    .icon_w   = _BM_LBICON_WIDTH,
+    .icon_h   = _BM_LBICON_HEIGHT,
     .on_mup   = button_videopreview_on_mup,
     .update   = button_videopreview_update,
     .disabled = false,
 };
 
 BUTTON button_lock_uTox = {
-    .bm     = BM_SBUTTON,
-    .update = button_setcolors_success,
-    .on_mup = button_lock_uTox_on_mup,
-    .button_text = {.i18nal = STR_LOCK },
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_lock_uTox_on_mup,
+    .button_text  = {.i18nal = STR_LOCK },
     .tooltip_text = {.i18nal = STR_LOCK_UTOX },
 };
 
 BUTTON button_show_password_settings = {
-    .bm     = BM_SBUTTON,
-    .update = button_setcolors_success,
-    .on_mup = button_show_password_settings_on_mup,
-    .button_text = {.i18nal = STR_SHOW_UI_PASSWORD },
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_show_password_settings_on_mup,
+    .button_text  = {.i18nal = STR_SHOW_UI_PASSWORD },
     .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD_TOOLTIP },
 };
 
 BUTTON button_export_chatlog = {
-    .bm     = BM_SBUTTON,
-    .update = button_setcolors_success,
-    .on_mup = button_export_chatlog_on_mup,
-    .disabled = false,
-    .button_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_export_chatlog_on_mup,
+    .disabled     = false,
+    .button_text  = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
+    .tooltip_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
 };
 
 BUTTON button_change_nospam = {
-    .bm     = BM_SBUTTON,
-    .update = button_setcolors_success,
-    .on_mup = button_change_nospam_on_mup,
-    .tooltip_text = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_change_nospam_on_mup,
     .button_text  = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .tooltip_text = {.i18nal = STR_RANDOMIZE_NOSPAM},
 };
 
 BUTTON button_revert_nospam = {
-    .bm       = BM_SBUTTON,
-    .update   = button_setcolors_success,
-    .on_mup   = button_revert_nospam_on_mup,
-    .disabled = true,
-    .tooltip_text = {.i18nal = STR_REVERT_NOSPAM},
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_revert_nospam_on_mup,
+    .disabled     = true,
     .button_text  = {.i18nal = STR_REVERT_NOSPAM},
+    .tooltip_text = {.i18nal = STR_REVERT_NOSPAM},
 };
 
 BUTTON button_show_nospam = {
-    .bm           = BM_SBUTTON,
+    .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .tooltip_text = {.i18nal = STR_SHOW_NOSPAM},
     .button_text  = {.i18nal = STR_SHOW_NOSPAM},
@@ -817,6 +831,28 @@ UISWITCH switch_mini_contacts = {
     .update         = switch_update,
     .on_mup         = switchfxn_mini_contacts,
     .tooltip_text   = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER },
+};
+
+
+static void switchfxn_magic_sidebar(void) {
+    settings.magic_flist_enabled = !settings.magic_flist_enabled;
+}
+
+UISWITCH switch_magic_sidebar = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = -10 - _BM_SWITCH_WIDTH,
+        .y      = 210,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT
+    },
+    .style_outer    = BM_SWITCH,
+    .style_toggle   = BM_SWITCH_TOGGLE,
+    .style_icon_off = BM_NO,
+    .style_icon_on  = BM_YES,
+    .update         = switch_update,
+    .on_mup         = switchfxn_magic_sidebar,
+    .tooltip_text   = {.i18nal = STR_SETTINGS_UI_AUTO_HIDE_SIDEBAR },
 };
 
 UISWITCH switch_ipv6 = {
@@ -1013,7 +1049,7 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
 }
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    ui_rescale(i + 6);
+    ui_rescale(i + 5);
 }
 
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
@@ -1238,11 +1274,11 @@ static void edit_change_nospam_onenter(EDIT *UNUSED(edit)) {
 }
 
 EDIT edit_nospam = {
-    .maxlength         = sizeof(edit_nospam_data),
-    .data              = edit_nospam_data,
-    .noborder          = false,
-    .onenter           = edit_change_nospam_onenter,
-    .onlosefocus       = edit_change_nospam_onenter,
+    .maxlength    = sizeof(edit_nospam_data),
+    .data         = edit_nospam_data,
+    .noborder     = false,
+    .onenter      = edit_change_nospam_onenter,
+    .onlosefocus  = edit_change_nospam_onenter,
 };
 
 

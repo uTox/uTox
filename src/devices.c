@@ -152,9 +152,10 @@ void devices_update_ui(void) {
         edit->length = TOX_PUBLIC_KEY_SIZE * 2, edit->maxlength = TOX_PUBLIC_KEY_SIZE * 2,
         edit->data = devices[i].pubkey_hex, edit->readonly = 1, edit->noborder = 0, edit->select_completely = 1,
 
-        del->panel  = b_delete;
-        del->bm     = BM_SBUTTON;
-        del->update = button_setcolors_success, del->on_mup = delete_this_device,
+        del->panel   = b_delete;
+        del->bm_fill = BM_SBUTTON;
+        del->update  = button_setcolors_success;
+        del->on_mup  = delete_this_device;
         del->button_text.i18nal = STR_DELETE;
 
         panel_settings_devices.child[(i * 2) + 2] = (void *)edit;

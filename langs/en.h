@@ -431,6 +431,9 @@ msgstr("Busy")
 msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Use mini contact list")
 
+msgid(SETTINGS_UI_AUTO_HIDE_SIDEBAR)
+msgstr("Auto hide sidebar")
+
 msgid(NOT_CONNECTED)
 msgstr("Not Connected")
 

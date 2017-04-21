@@ -185,7 +185,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 settings.window_width  = w;
                 settings.window_height = h;
 
-                ui_rescale(dropdown_dpi.selected + 6);
+                ui_rescale(dropdown_dpi.selected + 5);
                 ui_size(w, h);
 
                 if (main_window.draw_BM) {

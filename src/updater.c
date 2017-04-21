@@ -8,6 +8,7 @@
 #include "main.h" // File name length
 
 #include "native/thread.h"
+#include "native/filesys.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -19,12 +20,13 @@
 #include <sodium.h>
 
 #ifdef __WIN32__
-#include <ws2tcpip.h>
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #else
+#include <netdb.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <netdb.h>
 #endif
 
 #include "native/main.h" // Include after winsock2

@@ -57,7 +57,7 @@ static void btn_notify_one_mup(void) {
 }
 
 BUTTON button_notify_one = {
-    // .bm  = BM_SBUTTON,
+    // .bm_fill = BM_SBUTTON,
     .update = button_setcolors_success,
     .on_mup = btn_notify_one_mup,
     .nodraw = false,
@@ -68,7 +68,7 @@ static void btn_notify_two_mup(void) {
 }
 
 BUTTON button_notify_two = {
-    // .bm  = BM_SBUTTON,
+    // .bm_fill = BM_SBUTTON,
     .update = button_setcolors_success,
     .on_mup = btn_notify_two_mup,
     .nodraw = false,
@@ -79,7 +79,7 @@ static void btn_notify_three_mup(void) {
 }
 
 BUTTON button_notify_three = {
-    // .bm  = BM_SBUTTON,
+    // .bm_fill = BM_SBUTTON,
     .update = button_setcolors_success,
     .on_mup = btn_notify_three_mup,
     .nodraw = false,
@@ -114,7 +114,7 @@ static void btn_notify_create_mup(void) {
 }
 
 BUTTON button_notify_create = {
-    .bm           = BM_SBUTTON,
+    .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = btn_notify_create_mup,
     .button_text  = {.i18nal = STR_SHOW },

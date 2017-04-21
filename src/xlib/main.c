@@ -8,6 +8,7 @@
 
 #include "../avatar.h"
 #include "../debug.h"
+#include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
@@ -69,7 +70,6 @@ void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data
     XFlush(display);
 }
 
-#include <linux/input.h>
 FILE    *ptt_keyboard_handle;
 Display *ptt_display;
 void     init_ptt(void) {
@@ -86,15 +86,13 @@ void     init_ptt(void) {
     }
 }
 
-bool check_ptt_key(void) {
-    if (!settings.push_to_talk) {
-        // LOG_TRACE("XLIB", "PTT is disabled" );
-        return 1; /* If push to talk is disabled, return true. */
-    }
-    int ptt_key;
 
+
+#ifdef __linux__
+#include <linux/input.h>
+static bool linux_check_ptt(void) {
     /* First, we try for direct access to the keyboard. */
-    ptt_key = KEY_LEFTCTRL; // TODO allow user to change this...
+    int ptt_key = KEY_LEFTCTRL; // TODO allow user to change this...
     if (ptt_keyboard_handle) {
         /* Nice! we have direct access to the keyboard! */
         char key_map[KEY_MAX / 8 + 1]; // Create a byte array the size of the number of keys
@@ -106,10 +104,10 @@ bool check_ptt_key(void) {
 
         if (keyb & mask) {
             LOG_TRACE("XLIB", "PTT key is down" );
-            return 1;
+            return true;
         } else {
             LOG_TRACE("XLIB", "PTT key is up" );
-            return 0;
+            return false;
         }
     }
     /* Okay nope, lets' fallback to xinput... *pouts*
@@ -121,16 +119,34 @@ bool check_ptt_key(void) {
         XQueryKeymap(ptt_display, keys);
         if (keys[ptt_key / 8] & (0x1 << (ptt_key % 8))) {
             LOG_TRACE("XLIB", "PTT key is down (according to XQueryKeymap" );
-            return 1;
+            return true;
         } else {
             LOG_TRACE("XLIB", "PTT key is up (according to XQueryKeymap" );
-            return 0;
+            return false;
         }
     }
     /* Couldn't access the keyboard directly, and XQuery failed, this is really bad! */
     LOG_ERR("XLIB", "Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
                 "keyboard.\nDisable push to talk to suppress this message.\n");
-    return 0;
+    return false;
+}
+#else
+static bool bsd_check_ptt(void) {
+    return false;
+}
+#endif
+
+bool check_ptt_key(void) {
+    if (!settings.push_to_talk) {
+        // LOG_TRACE("XLIB", "PTT is disabled" );
+        return true; /* If push to talk is disabled, return true. */
+    }
+
+#ifdef __linux__
+    return linux_check_ptt();
+#else
+    return bsd_check_ptt();
+#endif
 }
 
 void exit_ptt(void) {

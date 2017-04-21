@@ -15,27 +15,21 @@
 #include "../ui/panel.h"
 #include "../ui/text.h"
 
-static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height) {
+static void draw_background(int x, int y, int width, int height) {
     /* Default background                */
-    drawrect(0, 0, width, height, COLOR_BKGRND_MAIN);
-    /* Friend list (roster) background   */
-    drawrect(0, 0, SIDEBAR_WIDTH, height, COLOR_BKGRND_LIST);
-    /* Current user badge background     */
-    drawrect(0, 0, SIDEBAR_WIDTH, ROSTER_TOP, COLOR_BKGRND_MENU);
+    drawrect(x, y, width, height, COLOR_BKGRND_MAIN);
 
     if (!panel_chat.disabled) {
         /* Top frame for main chat panel */
-        drawrect(MAIN_LEFT, 0, width, MAIN_TOP_FRAME_THICK, COLOR_BKGRND_ALT);
-        drawhline(MAIN_LEFT, MAIN_TOP_FRAME_THICK - 1, width, COLOR_EDGE_NORMAL);
+        drawrect(x, 0, width, SCALE(MAIN_TOP_FRAME_THICK), COLOR_BKGRND_ALT);
+        drawhline(x, SCALE(MAIN_TOP_FRAME_THICK), width, COLOR_EDGE_NORMAL);
         /* Frame for the bottom chat text entry box */
-        drawrect(MAIN_LEFT, height + CHAT_BOX_TOP, width, height, COLOR_BKGRND_ALT);
-        drawhline(MAIN_LEFT, height + CHAT_BOX_TOP, width, COLOR_EDGE_NORMAL);
+        drawrect(x, height + SCALE(CHAT_BOX_TOP), width, height, COLOR_BKGRND_ALT);
+        drawhline(x, height + SCALE(CHAT_BOX_TOP), width, COLOR_EDGE_NORMAL);
     }
     // Chat and chat header separation
     if (panel_settings_master.disabled) {
-        drawhline(MAIN_LEFT, MAIN_TOP_FRAME_THICK - 1, width, COLOR_EDGE_NORMAL);
-    } else {
-        drawhline(MAIN_LEFT, MAIN_TOP_FRAME_THIN - 1, width, COLOR_EDGE_NORMAL);
+        drawhline(x, SCALE(MAIN_TOP_FRAME_THICK), width, COLOR_EDGE_NORMAL);
     }
 }
 

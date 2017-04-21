@@ -23,6 +23,8 @@ option(ENABLE_AUTOUPDATE    "Enable Auto-updater"                               
 option(UTOX_STATIC          "Link uTox statically"                                          OFF)
 option(TOXCORE_STATIC       "Build uTox with the static version of Toxcore"                 OFF)
 
+option(ENABLE_LTO           "Enable link time optimizations"                                ON )
+
 
 ########################
 # Set helper-variables #
@@ -37,15 +39,19 @@ endif()
 
 if(WIN32)
     set(WINDOWS TRUE)
-elseif(UNIX AND NOT APPLE)
+elseif(APPLE)
+    if(CMAKE_SYSTEM_NAME MATCHES ".*MacOS.*")
+        set(MACOSX TRUE)
+    endif()
+elseif(UNIX)
     if(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
         set(LINUX TRUE)
     elseif(CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*")
         set(OPENBSD TRUE)
-    endif()
-elseif(APPLE)
-    if(CMAKE_SYSTEM_NAME MATCHES ".*MacOS.*")
-        set(MACOSX TRUE)
+    elseif(CMAKE_SYSTEM_NAME MATCHES "kNetBSD.*|NetBSD.*")
+        set(NETBSD TRUE)
+    elseif(CMAKE_SYSTEM_NAME MATCHES "kFreeBSD.*|FreeBSD")
+        set(FREEBSD TRUE)
     endif()
 endif()
 
@@ -56,6 +62,11 @@ else()
   set(ARCH_64 FALSE)
 endif()
 
+
+#################################
+# Include toolchain if required #
+#################################
+
 if(WINDOWS AND NOT CROSS_COMPILING)
     include(cmake/win.cmake)
 
@@ -63,7 +74,12 @@ if(WINDOWS AND NOT CROSS_COMPILING)
         # Helping Cygwin out again..
         set(WIN64 TRUE)
     endif()
+elseif(FREEBSD)
+    include(cmake/toolchain-freebsd.cmake)
+elseif(OPENBSD OR NETBSD)
+    include(cmake/toolchain-openbsd.cmake)
 endif()
+
 
 #######################################################################
 # CMake Settings
@@ -132,7 +148,6 @@ add_cflag("-fPIC")
 
 # Fix GNU stack
 if(CMAKE_C_COMPILER_ID MATCHES "GNU")
-
     # Have ld strip the symbols from Release and MinSizeRel build types.
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
     set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os")
@@ -140,7 +155,10 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU")
     if(LINUX)
         # enable Link Time Optimization on gcc (linux only currently)
         # TODO someone should figure out how this works on windows, or we need to have gitlab-ci for GCC
-        add_cflag("-flto")
+        if(ENABLE_LTO)
+            add_cflag("-flto")
+        endif()
+
         set(CMAKE_AR "gcc-ar")
         set(CMAKE_RANLIB "gcc-ranlib")
 
@@ -148,7 +166,9 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU")
     endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
     # enable Link Time Optimization on clang
-    add_cflag("-flto")
+    if(ENABLE_LTO)
+        add_cflag("-flto")
+    endif()
 
     # Have ld strip the symbols from Release and MinSizeRel build types. (-Oz is clang specific)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
@@ -159,6 +179,8 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
             add_cflag("-fsanitize=safe-stack")
         endif()
     endif()
+else()
+    message(SEND_ERROR "Unknown compiler name")
 endif()
 
 # set define for GIT_VERSION
@@ -185,11 +207,11 @@ if(ENABLE_FILTERAUDIO)
 endif()
 
 if(UTOX_STATIC)
-	if(UNIX)
-		add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
-	else()
-		add_cflag("-static")
-	endif()
+    if(UNIX)
+        add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
+    else()
+        add_cflag("-static")
+    endif()
 endif()
 
 if(ENABLE_AUTOUPDATE)
@@ -252,14 +274,6 @@ elseif(APPLE)
     set(LIBRARIES "opus")
 elseif(UNIX)
     add_subdirectory(src/xlib)
-    set(LIBRARIES
-		dl
-		rt
-		opus
-		openal
-		v4lconvert
-		filteraudio
-		)
 endif()
 
 # include utoxLAYOUT
@@ -353,6 +367,7 @@ message("- Toxcore Static:          ${TOXCORE_STATIC}")
 message("-- Platform Options --------------")
 message("- Windows Legacy:          ${WIN_XP_LEGACY}")
 message("- Enable DBus:             ${ENABLE_DBUS}")
+message("- Enable Tests             ${ENABLE_TESTS}")
 
 message("* CMAKE SYSTEM is '${CMAKE_SYSTEM_NAME}'")
 message("* C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
