@@ -66,6 +66,16 @@ If you use Slackware you can download the slack build from here: https://slackbu
 
 Right now no one is providing binaries. You will have to compile uTox. See [instructions](BUILD.md#openbsd).
 
+## FreeBSD
+
+You can install uTox using `pkg`.
+
+Install using:
+
+```bash
+sudo pkg install utox
+```
+
 ## OS X
 
 No one is currently providing binaries for OSX yet... Sorry Apple people... you should ask @stal888 to do something about that!
