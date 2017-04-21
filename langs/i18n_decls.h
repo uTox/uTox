@@ -161,6 +161,7 @@ typedef enum {
 
     // Settings Strings
     STR_SETTINGS_UI_MINI_ROSTER,
+    STR_SETTINGS_UI_AUTO_HIDE_SIDEBAR,
 
     // Status strings
     STR_NOT_CONNECTED,

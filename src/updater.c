@@ -8,6 +8,7 @@
 #include "main.h" // File name length
 
 #include "native/thread.h"
+#include "native/filesys.h"
 
 #include <stddef.h>
 #include <stdint.h>

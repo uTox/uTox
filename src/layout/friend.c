@@ -35,24 +35,24 @@ static void draw_friend(int x, int y, int w, int height) {
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        draw_avatar_image(f->avatar->img, MAIN_LEFT + SCALE(10), SCALE(10), f->avatar->width, f->avatar->height,
+        draw_avatar_image(f->avatar->img, x + SCALE(10), SCALE(10), f->avatar->width, f->avatar->height,
                           BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+        drawalpha(BM_CONTACT, x + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
     }
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
 
     if (f->alias) {
-        drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->alias, f->alias_length);
+        drawtextrange(x + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->alias, f->alias_length);
     } else {
-        drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->name, f->name_length);
+        drawtextrange(x + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->name, f->name_length);
     }
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(32), f->status_message,
+    drawtextrange(x + SCALE(60), settings.window_width - SCALE(128), SCALE(32), f->status_message,
                   f->status_length);
 
     if (f->typing) {
@@ -75,7 +75,7 @@ static void draw_friend_request(int x, int y, int w, int h) {
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FRIENDREQUEST);
+    drawstr(x + SCALE(10), SCALE(20), FRIENDREQUEST);
 
     if (req->msg && req->length) {
         setfont(FONT_TEXT);
@@ -84,16 +84,16 @@ static void draw_friend_request(int x, int y, int w, int h) {
     }
 }
 
-static void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
+static void draw_friend_settings(int x, int y, int UNUSED(width), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(10), FRIEND_PUBLIC_KEY);
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(60), FRIEND_ALIAS);
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
+    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(10), FRIEND_PUBLIC_KEY);
+    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(60), FRIEND_ALIAS);
+    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
 }
 
-static void draw_friend_deletion(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+static void draw_friend_deletion(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     FRIEND *f = flist_get_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
@@ -108,27 +108,27 @@ static void draw_friend_deletion(int UNUSED(x), int UNUSED(y), int UNUSED(w), in
     snprintf(str, length, "%.*s?", (int)f->name_length, f->name);
 
     const int push = UTOX_STR_WIDTH(DELETE_MESSAGE);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(70), DELETE_MESSAGE);
-    drawtextrange(push + MAIN_LEFT + SCALE(10), settings.window_width, SCALE(70), str, length - 1);
+    drawstr(x + SCALE(10), SCALE(70), DELETE_MESSAGE);
+    drawtextrange(push + x + SCALE(10), settings.window_width, SCALE(70), str, length - 1);
 }
 
 /* Draw add a friend window */
-static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
+static void draw_add_friend(int x, int UNUSED(y), int UNUSED(w), int height) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), ADDFRIENDS);
+    drawstr(x + SCALE(10), SCALE(20), ADDFRIENDS);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), TOXID);
+    drawstr(x + SCALE(10), MAIN_TOP + SCALE(10), TOXID);
 
-    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(58), MESSAGE);
+    drawstr(x + SCALE(10), MAIN_TOP + SCALE(58), MESSAGE);
 
     if (settings.force_proxy) {
         int push = UTOX_STR_WIDTH(TOXID);
         setfont(FONT_MISC);
         setcolor(C_RED);
-        drawstr(MAIN_LEFT + SCALE(20) + push, MAIN_TOP + SCALE(12), DNS_DISABLED);
+        drawstr(x + SCALE(20) + push, MAIN_TOP + SCALE(12), DNS_DISABLED);
     }
 
     if (addfriend_status) {
@@ -178,7 +178,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
                 break;
         }
 
-        utox_draw_text_multiline_within_box(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(166),
+        utox_draw_text_multiline_within_box(x + SCALE(10), MAIN_TOP + SCALE(166),
                                             settings.window_width - BM_SBUTTON_WIDTH - SCALE(10), 0, height,
                                             font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
     }
@@ -196,63 +196,63 @@ PANEL messages_friend = {
 
 PANEL
 panel_friend = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .child = (PANEL*[]) {
-            &panel_friend_chat,
-            &panel_friend_video,
-            &panel_friend_settings,
-            &panel_friend_confirm_deletion,
-            NULL
-        }
-    },
-    panel_friend_chat = {
-        .type = PANEL_NONE,
-        .disabled = 0,
-        .drawfunc = draw_friend,
-        .child = (PANEL*[]) {
-            (PANEL*)&scrollbar_friend,
-            (PANEL*)&edit_chat_msg_friend, // this needs to be one of the first, to get events before the others
-            (PANEL*)&messages_friend,
-            (PANEL*)&button_call_decline,
-            (PANEL*)&button_call_audio,
-            (PANEL*)&button_call_video,
-            (PANEL*)&button_send_file,
-            (PANEL*)&button_send_screenshot,
-            (PANEL*)&button_chat_send_friend,
-            NULL
-        }
-    },
-    panel_friend_video = {
-        .type = PANEL_INLINE_VIDEO,
-        .disabled = 1,
-        .child = (PANEL*[]) {
-            NULL
-        }
-    },
-    panel_friend_settings = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = draw_friend_settings,
-        .child = (PANEL*[]) {
-            (PANEL*)&edit_friend_pubkey,
-            (PANEL*)&edit_friend_alias,
-            (PANEL*)&switch_friend_autoaccept_ft,
-            (PANEL*)&button_export_chatlog,
-            NULL
-        }
-    },
-    panel_friend_confirm_deletion = {
-        .type = PANEL_NONE,
-        .disabled = true,
-        .drawfunc = draw_friend_deletion,
-        .child = (PANEL*[]) {
-            (PANEL *)&button_confirm_deletion,
-            (PANEL *)&button_deny_deletion,
-            NULL
-        }
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .child = (PANEL*[]) {
+        &panel_friend_chat,
+        &panel_friend_video,
+        &panel_friend_settings,
+        &panel_friend_confirm_deletion,
+        NULL
+    }
+},
+panel_friend_chat = {
+    .type = PANEL_NONE,
+    .disabled = 0,
+    .drawfunc = draw_friend,
+    .child = (PANEL*[]) {
+        (PANEL*)&scrollbar_friend,
+        (PANEL*)&edit_chat_msg_friend, // this needs to be one of the first, to get events before the others
+        (PANEL*)&messages_friend,
+        (PANEL*)&button_call_decline,
+        (PANEL*)&button_call_audio,
+        (PANEL*)&button_call_video,
+        (PANEL*)&button_send_file,
+        (PANEL*)&button_send_screenshot,
+        (PANEL*)&button_chat_send_friend,
+        NULL
+    }
+},
+panel_friend_video = {
+    .type = PANEL_INLINE_VIDEO,
+    .disabled = 1,
+    .child = (PANEL*[]) {
+        NULL
+    }
+},
+panel_friend_settings = {
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .drawfunc = draw_friend_settings,
+    .child = (PANEL*[]) {
+        (PANEL*)&edit_friend_pubkey,
+        (PANEL*)&edit_friend_alias,
+        (PANEL*)&switch_friend_autoaccept_ft,
+        (PANEL*)&button_export_chatlog,
+        NULL
+    }
+},
+panel_friend_confirm_deletion = {
+    .type = PANEL_NONE,
+    .disabled = true,
+    .drawfunc = draw_friend_deletion,
+    .child = (PANEL*[]) {
+        (PANEL *)&button_confirm_deletion,
+        (PANEL *)&button_deny_deletion,
+        NULL
+    }
 
-    },
+},
 panel_friend_request = {
     .type = PANEL_NONE,
     .disabled = 1,
@@ -446,9 +446,9 @@ static void button_menu_update(BUTTON *b) {
 }
 
 BUTTON button_add_new_contact = {
-    .bm2          = BM_ADD,
-    .bw           = _BM_ADD_WIDTH,
-    .bh           = _BM_ADD_WIDTH,
+    .bm_icon      = BM_ADD,
+    .icon_w       = _BM_ADD_WIDTH,
+    .icon_h       = _BM_ADD_WIDTH,
     .update       = button_menu_update,
     .on_mup       = button_add_new_contact_on_mup,
     .disabled     = true,
@@ -457,19 +457,18 @@ BUTTON button_add_new_contact = {
 };
 
 BUTTON button_send_friend_request = {
-    .bm          = BM_SBUTTON,
+    .bm_fill         = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update      = button_setcolors_success,
     .on_mup      = button_send_friend_request_on_mup,
     .disabled    = false,
 };
 
-
 BUTTON button_call_decline = {
-    .bm           = BM_LBUTTON,
-    .bm2          = BM_DECLINE,
-    .bw           = _BM_LBICON_WIDTH,
-    .bh           = _BM_LBICON_HEIGHT,
+    .bm_fill          = BM_LBUTTON,
+    .bm_icon          = BM_DECLINE,
+    .icon_w       = _BM_LBICON_WIDTH,
+    .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_decline_on_mup,
     .update       = button_call_decline_update,
     .tooltip_text = {.i18nal = STR_CALL_DECLINE },
@@ -478,20 +477,20 @@ BUTTON button_call_decline = {
 };
 
 BUTTON button_call_audio = {
-    .bm           = BM_LBUTTON,
-    .bm2          = BM_CALL,
-    .bw           = _BM_LBICON_WIDTH,
-    .bh           = _BM_LBICON_HEIGHT,
+    .bm_fill      = BM_LBUTTON,
+    .bm_icon      = BM_CALL,
+    .icon_w       = _BM_LBICON_WIDTH,
+    .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_audio_on_mup,
     .update       = button_call_audio_update,
     .tooltip_text = {.i18nal = STR_CALL_START_AUDIO },
 };
 
 BUTTON button_call_video = {
-    .bm           = BM_LBUTTON,
-    .bm2          = BM_VIDEO,
-    .bw           = _BM_LBICON_WIDTH,
-    .bh           = _BM_LBICON_HEIGHT,
+    .bm_fill      = BM_LBUTTON,
+    .bm_icon      = BM_VIDEO,
+    .icon_w       = _BM_LBICON_WIDTH,
+    .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_video_on_mup,
     .update       = button_call_video_update,
     .tooltip_text = {.i18nal = STR_CALL_START_VIDEO },
@@ -526,10 +525,10 @@ static void button_send_file_update(BUTTON *b) {
 }
 
 BUTTON button_send_file = {
-    .bm           = BM_CHAT_BUTTON_LEFT,
-    .bm2          = BM_FILE,
-    .bw           = _BM_FILE_WIDTH,
-    .bh           = _BM_FILE_HEIGHT,
+    .bm_fill      = BM_CHAT_BUTTON_LEFT,
+    .bm_icon      = BM_FILE,
+    .icon_w       = _BM_FILE_WIDTH,
+    .icon_h       = _BM_FILE_HEIGHT,
     .on_mup       = button_send_file_on_mup,
     .update       = button_send_file_update,
     .disabled     = true,
@@ -561,17 +560,17 @@ static void button_send_screenshot_update(BUTTON *b) {
 }
 
 BUTTON button_send_screenshot = {
-    .bm           = BM_CHAT_BUTTON_RIGHT,
-    .bm2          = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
-    .bw           = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
-    .bh           = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+    .bm_fill      = BM_CHAT_BUTTON_RIGHT,
+    .bm_icon      = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
+    .icon_w       = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
+    .icon_h       = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
     .update       = button_send_screenshot_update,
     .on_mup       = button_send_screenshot_on_mup,
     .tooltip_text = {.i18nal = STR_SENDSCREENSHOT },
 };
 
 BUTTON button_accept_friend = {
-    .bm          = BM_SBUTTON,
+    .bm_fill         = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update      = button_setcolors_success,
     .on_mup      = button_accept_friend_on_mup,
@@ -788,10 +787,10 @@ static void button_chat_send_friend_update(BUTTON *b) {
 }
 
 BUTTON button_chat_send_friend = {
-    .bm           = BM_CHAT_SEND,
-    .bm2          = BM_CHAT_SEND_OVERLAY,
-    .bw           = _BM_CHAT_SEND_OVERLAY_WIDTH,
-    .bh           = _BM_CHAT_SEND_OVERLAY_HEIGHT,
+    .bm_fill      = BM_CHAT_SEND,
+    .bm_icon      = BM_CHAT_SEND_OVERLAY,
+    .icon_w       = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .icon_h       = _BM_CHAT_SEND_OVERLAY_HEIGHT,
     .on_mup       = button_chat_send_friend_on_mup,
     .update       = button_chat_send_friend_update,
     .tooltip_text = {.i18nal = STR_SENDMESSAGE },
@@ -807,7 +806,7 @@ static void button_deny_deletion_on_mup(void) {
 }
 
 BUTTON button_confirm_deletion = {
-    .bm           = BM_SBUTTON,
+    .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_danger,
     .tooltip_text = {.i18nal = STR_DELETE},
     .button_text  = {.i18nal = STR_DELETE},
@@ -815,7 +814,7 @@ BUTTON button_confirm_deletion = {
 };
 
 BUTTON button_deny_deletion = {
-    .bm           = BM_SBUTTON,
+    .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .tooltip_text = {.i18nal = STR_KEEP},
     .button_text  = {.i18nal = STR_KEEP},
