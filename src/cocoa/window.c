@@ -28,7 +28,7 @@ UTOX_WINDOW *native_window_find_notify(void *window) {
     return NULL;
 }
 
-UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL* panel) {
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *panel) {
     return NULL;
 }
 
