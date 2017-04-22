@@ -1,19 +1,19 @@
 #ifndef CHRONO_H
 #define CHRONO_H
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 struct chrono_info {
     uint8_t *ptr, *target;
     int step;
-    uint32_t interval; // in milliseconds
+    uint32_t interval_ms;
     bool finished;
 };
 
 typedef struct chrono_info CHRONO_INFO;
 
-bool chrono_thread_init = false;
+extern bool chrono_thread_init;
 
 /*
  * Starts the chrono thread using the information from info
@@ -32,6 +32,6 @@ bool chrono_end(CHRONO_INFO *info);
 /*
  * Sleep and then
  */
-void sleep_callback(uint32_t ms, void func(void *), void *funcargs);
+void chrono_callback(uint32_t ms, void func(void *), void *funcargs);
 
 #endif
