@@ -15,7 +15,7 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.15.0! Release name: TODO: add meme")
+msgstr("You have just upgraded to version 0.15.0! Release name: >Tox on Android")
 
 msgid(CHANGE_LOG_TITLE)
 msgstr("Changes in v0.15.0 (please check out our new website, utox.io)")
@@ -37,6 +37,8 @@ msgstr(
 "  Development\n"
 "    Added support for NetBSD, OpenBSD, and FreeBSD.\n"
 "    Refactored the UI.\n"
+"\n  Do you know another language? Rather read the changelog in your language?\n"
+"    Help us translate uTox!\n"
 "\nv0.14.0\n"
 "  Features:\n"
 "    Real Updater.\n"
