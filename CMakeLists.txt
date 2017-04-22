@@ -5,7 +5,7 @@ project(uTox LANGUAGES C)
 ## Project Version
 #######################################################################
 set(PROJECT_VERSION_MAJOR "0")
-set(PROJECT_VERSION_MINOR "14")
+set(PROJECT_VERSION_MINOR "15")
 set(PROJECT_VERSION_PATCH "0")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
