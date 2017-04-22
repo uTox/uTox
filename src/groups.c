@@ -49,6 +49,8 @@ static GROUPCHAT *group_make(uint32_t group_number) {
         self.groups_list_count++;
     }
 
+    memset(&group[group_number], 0, sizeof(GROUPCHAT));
+
     return &group[group_number];
 }
 
