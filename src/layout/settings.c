@@ -141,9 +141,9 @@ static void draw_settings_text_profile(int x, int y, int UNUSED(w), int UNUSED(h
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(x + SCALE(10), y + SCALE(10), NAME);
-    drawstr(x + SCALE(10), y + SCALE(60), STATUSMESSAGE);
-    drawstr(x + SCALE(10), y + SCALE(110), TOXID);
-    drawstr(x + SCALE(10), y + SCALE(160), LANGUAGE);
+    drawstr(x + SCALE(10), y + SCALE(65), STATUSMESSAGE);
+    drawstr(x + SCALE(10), y + SCALE(120), TOXID);
+    drawstr(x + SCALE(10), y + SCALE(175), LANGUAGE);
 }
 
 // Devices settings page
@@ -163,23 +163,23 @@ static void draw_settings_text_devices(int x, int y, int UNUSED(w), int UNUSED(h
 static void draw_settings_text_password(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), y + SCALE(235), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), y + SCALE(245), PROFILE_PASSWORD);
 
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(75), y + SCALE(285), PROFILE_PW_WARNING);
-    drawstr(x + SCALE(75), y + SCALE(299), PROFILE_PW_NO_RECOVER);
+    drawstr(x + SCALE(10), y + SCALE(319), PROFILE_PW_WARNING);
+    drawstr(x + SCALE(10), y + SCALE(331), PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(75), y + SCALE(240), NOSPAM_WARNING);
+    drawstr(x + SCALE(95), y + SCALE(248), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + SCALE(235), NOSPAM);
+    drawstr(x + SCALE(10), y + SCALE(245), NOSPAM);
 }
 
 // UI settings page
@@ -188,11 +188,11 @@ static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height
     setfont(FONT_SELF_NAME);
     drawstr(x + SCALE(150), y + SCALE(10),  DPI);
     drawstr(x + SCALE(10),  y + SCALE(10),  THEME);
-    drawstr(x + SCALE(10),  y + SCALE(65),  SAVE_CHAT_HISTORY);
-    drawstr(x + SCALE(10),  y + SCALE(95),  CLOSE_TO_TRAY);
-    drawstr(x + SCALE(10),  y + SCALE(125), START_IN_TRAY);
-    drawstr(x + SCALE(10),  y + SCALE(155), AUTO_STARTUP);
-    drawstr(x + SCALE(10),  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(65),  SAVE_CHAT_HISTORY);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(95),  CLOSE_TO_TRAY);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(125), START_IN_TRAY);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(155), AUTO_STARTUP);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
     #if PLATFORM_ANDROID
         drawstr(x + SCALE(10),  y + SCALE(215), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
     #endif
@@ -204,13 +204,13 @@ static void draw_settings_text_av(int x, int y, int UNUSED(w), int UNUSED(height
     setfont(FONT_SELF_NAME);
 
     // The element is draw_pos_y_inc units apart and they start draw_pos_y down.
-    uint16_t draw_pos_y = 10;
+    uint16_t draw_pos_y = 15;
     uint16_t draw_pos_y_inc = 30;
 
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), PUSH_TO_TALK);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(draw_pos_y), PUSH_TO_TALK);
     draw_pos_y += draw_pos_y_inc;
 #ifdef AUDIO_FILTERING
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(draw_pos_y), AUDIOFILTERING);
     draw_pos_y += draw_pos_y_inc;
 #endif
 
@@ -219,11 +219,11 @@ static void draw_settings_text_av(int x, int y, int UNUSED(w), int UNUSED(height
 
     drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), AUDIOOUTPUTDEVICE);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y - 7), AUDIOOUTPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), VIDEOINPUTDEVICE);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y - 15), VIDEOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y - 23), PREVIEW);
 }
 
 // Notification settings page
@@ -231,28 +231,28 @@ static void draw_settings_text_notifications(int x, int y, int UNUSED(w), int UN
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + SCALE(10), RINGTONE);
-    drawstr(x + SCALE(10), y + SCALE(40), STATUS_NOTIFICATIONS);
-    drawstr(x + SCALE(10), y + SCALE(70), SEND_TYPING_NOTIFICATIONS);
-    drawstr(x + SCALE(10), y + SCALE(100), GROUP_NOTIFICATIONS);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(15), RINGTONE);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(45), STATUS_NOTIFICATIONS);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(75), SEND_TYPING_NOTIFICATIONS);
+    drawstr(x + SCALE(10), y + SCALE(105), GROUP_NOTIFICATIONS);
 }
 
 static void draw_settings_text_adv(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(10), y + SCALE(10), WARNING);
+    drawstr(x + SCALE(10), y + SCALE(5), WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + SCALE(30),  IPV6);
-    drawstr(x + SCALE(10), y + SCALE(60),  UDP);
-    drawstr(x + SCALE(10), y + SCALE(90),  PROXY);
-    drawstr(x + SCALE(10), y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
-    drawtext(x + SCALE(264), y + SCALE(94), ":", 1); // Little addr port separator
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(30),  IPV6);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(60),  UDP);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(90),  PROXY);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
+    drawtext(x + SCALE(353), y + SCALE(89), ":", 1); // Little addr port separator
 
-    drawstr(x + SCALE(10), y + SCALE(150), AUTO_UPDATE);
-    drawstr(x + SCALE(10), y + SCALE(180), BLOCK_FRIEND_REQUESTS);
+    drawstr(x + SCALE(20)+ BM_SWITCH_WIDTH, y + SCALE(150), AUTO_UPDATE);
+    drawstr(x + SCALE(20)+ BM_SWITCH_WIDTH, y + SCALE(180), BLOCK_FRIEND_REQUESTS);
 }
 
 
@@ -273,12 +273,28 @@ static void draw_profile_password(int x, int UNUSED(y), int UNUSED(w), int UNUSE
 }
 
 PANEL
+boxfor_password_entry_login = {
+    .type = PANEL_NONE,
+    .x = 0, .y = 0,
+    .child = (PANEL*[]) {
+        (PANEL*)&edit_profile_password,
+        NULL
+    }
+},
+boxfor_password_entry_change = {
+    .type = PANEL_NONE,
+    .x = 0, .y = 180,
+    .child = (PANEL*[]) {
+        (PANEL*)&edit_profile_password,
+        NULL
+    }
+},
 panel_profile_password = {
     .type = PANEL_NONE,
     .disabled = 0,
     .drawfunc = draw_profile_password,
     .child = (PANEL*[]) {
-        (PANEL*)&edit_profile_password,
+        (PANEL*)&boxfor_password_entry_login,
         NULL
     }
 },
@@ -299,7 +315,7 @@ panel_profile_password_settings = {
     .disabled = 1,
     .drawfunc = draw_settings_text_password,
     .child = (PANEL*[]) {
-        (PANEL*)&edit_profile_password,
+        (PANEL*)&boxfor_password_entry_change,
         (PANEL*)&button_lock_uTox,
         NULL
     }
