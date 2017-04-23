@@ -294,6 +294,7 @@ add_subdirectory(src/av)
 add_executable(utox ${GUI_TYPE}
     src/avatar.c
     src/chatlog.c
+    src/chrono.c
     src/command_funcs.c
     src/commands.c
     src/devices.c
