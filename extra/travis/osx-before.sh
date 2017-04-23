@@ -5,6 +5,7 @@ set -eux
 . ./extra/travis/env.sh
 
 brew install yasm
+brew install check
 
 . ./extra/common/build_nacl.sh
 . ./extra/common/build_opus.sh
