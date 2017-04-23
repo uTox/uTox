@@ -6,8 +6,7 @@
 
 struct chrono_info {
     int *ptr;
-    int  target;
-
+    int *target;
     int step;
     uint32_t interval_ms;
     bool finished;
