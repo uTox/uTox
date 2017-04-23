@@ -274,6 +274,15 @@ if(WIN32)
 elseif(APPLE)
     set(GUI_TYPE MACOSX_BUNDLE)
 
+    # Make apple icon
+    set(APPLE_ICON utox.icns)
+    add_custom_command(OUTPUT utox.icns
+        COMMAND iconutil --convert icns ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset -o utox.icns
+        DEPENDS ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset
+    )
+    set_source_files_properties(${APPLE_ICON} PROPERTIES
+       MACOSX_PACKAGE_LOCATION "Resources")
+
     include_directories( /usr/local/include /usr/include/malloc )
     link_directories ( /usr/local/lib )
 
