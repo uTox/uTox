@@ -273,8 +273,16 @@ if(WIN32)
     add_subdirectory(src/windows)
 elseif(APPLE)
     set(GUI_TYPE MACOSX_BUNDLE)
-    include_directories( /usr/local/include /usr/include/malloc /usr/local/opt/libtoxcore/include )
-    link_directories ( /usr/local/lib /usr/local/opt/libtoxcore/lib )
+
+    include_directories( /usr/local/include /usr/include/malloc )
+    link_directories ( /usr/local/lib )
+
+    # Homebrew installed libtoxcore
+    if(EXISTS /usr/local/opt/libtoxcore/)
+        include_directories( /usr/local/opt/libtoxcore/include )
+        link_directories ( /usr/local/opt/libtoxcore/lib )
+    endif()
+
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
     set(LIBRARIES "opus")
