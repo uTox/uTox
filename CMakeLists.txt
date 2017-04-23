@@ -202,8 +202,8 @@ endif()
 # https://gcc.gnu.org/gcc-4.8/changes.html
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
 if (ENABLE_ASAN)
-    if (UTOX_STATIC AND WINDOWS)
-        message(SEND_ERROR "ASAN is incompatible with static compilation on Windows.")
+    if (UTOX_STATIC)
+        message("ASAN is incompatible with static compilation, on some systems.")
     endif()
 
     add_cflag("-fsanitize=address")

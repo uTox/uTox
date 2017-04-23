@@ -680,9 +680,26 @@ static void button_show_nospam_on_mup(void) {
     update_show_password_button_text();
 }
 
+#include "../chrono.h"
+#include "sidebar.h"
 static void button_copyid_on_mup(void) {
-    edit_setfocus(&edit_toxid);
-    copy(0);
+    panel_side_bar.width = 0;
+
+    CHRONO_INFO *info = calloc(1, sizeof(CHRONO_INFO));
+    int *trg = malloc(sizeof(int));
+    *trg = 300;
+
+    info->ptr = &panel_side_bar.width;
+    info->target = trg;
+    info->step = 2;
+    info->interval_ms = 10;
+    info->finished = false;
+
+
+    chrono_start(info);
+
+    // edit_setfocus(&edit_toxid);
+    // copy(0);
 }
 
 #include "../settings.h"
