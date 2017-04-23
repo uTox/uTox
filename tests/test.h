@@ -2,7 +2,6 @@
 #include "../src/settings.h"
 
 #include <assert.h>
-#include <malloc.h>
 #include <memory.h>
 #include <stdarg.h>
 #include <stdlib.h>
