@@ -345,7 +345,13 @@ target_link_libraries(utox
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
 if(APPLE)
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${uTox_SOURCE_DIR}/src/cocoa/Info.plist")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION})
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER "org.utox.future")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "uTox")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_COPYRIGHT "Copyright © 2015-2017 Tox project. All rights reserved.")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_ICON_FILE "${APPLE_ICON}")
 
     install(TARGETS utox
         RUNTIME DESTINATION "bin"
