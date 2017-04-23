@@ -244,8 +244,10 @@ endif()
 
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
 if (ENABLE_ASAN)
-    set(SAVE_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
-    set(CMAKE_REQUIRED_LIBRARIES "-fsanitize=address")
+    if (UTOX_STATIC)
+        message("ASAN is incompatible with static compilation, on some systems.")
+    endif()
+
     add_cflag("-fsanitize=address")
     add_cflag("-fno-omit-frame-pointer")
     set(CMAKE_REQUIRED_LIBRARIES "${SAVE_CMAKE_REQUIRED_LIBRARIES}")
