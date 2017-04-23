@@ -9,7 +9,8 @@
 #include "../settings.h"
 #include "../macros.h"
 #include "../utox.h"
-#include "../main_native.h"
+#include "../native/audio.h"
+#include "../native/thread.h"
 #include "../../langs/i18n_decls.h"
 
 #include <pthread.h>

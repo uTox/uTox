@@ -1,13 +1,14 @@
 #include "gl.h"
 
-#include "main.h"
 #include "freetype.h"
+#include "main.h"
+
+#include "../native/ui.h"
 
 #include "../debug.h"
-#include "../text.h"
-#include "../main_native.h"
-#include "../settings.h"
 #include "../macros.h"
+#include "../settings.h"
+#include "../text.h"
 
 #include "../ui.h"
 #include "../ui/svg.h"
