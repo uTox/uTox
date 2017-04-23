@@ -31,6 +31,7 @@
 #include "../ui/edit.h"
 
 #include "../layout/background.h"
+#include "../layout/sidebar.h"
 #include "../layout/friend.h"
 #include "../layout/group.h"
 #include "../layout/settings.h"
@@ -845,6 +846,7 @@ int main(int argc, char *argv[]) {
         if (_redraw) {
             native_window_set_target(&main_window);
             panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
+            panel_draw(&panel_side_bar, 0, 0, settings.window_width, settings.window_height);
             _redraw = 0;
         }
     }
@@ -896,11 +898,11 @@ int main(int argc, char *argv[]) {
     XCloseDisplay(display);
 
 /* Unregisters the app from the Unity MM */
-#ifdef UNITY
+    #ifdef UNITY
     if (unity_running) {
         mm_unregister();
     }
-#endif
+    #endif
 
     // wait for tox_thread to exit
     while (tox_thread_init) {
