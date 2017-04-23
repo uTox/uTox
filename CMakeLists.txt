@@ -273,7 +273,6 @@ if(WIN32)
     add_subdirectory(src/windows)
 elseif(APPLE)
     set(GUI_TYPE MACOSX_BUNDLE)
-    set(MACOSX_BUNDLE_INFO_PLIST src/cocoa/Info.plist)
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
     set(LIBRARIES "opus")
@@ -336,6 +335,8 @@ target_link_libraries(utox
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
 if(APPLE)
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${uTox_SOURCE_DIR}/src/cocoa/Info.plist")
+
     install(TARGETS utox
         RUNTIME DESTINATION "bin"
         BUNDLE  DESTINATION "resources"
