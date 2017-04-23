@@ -16,6 +16,8 @@
 
 #include "../main.h" // MAIN_WIDTH, MAIN_HEIGHT
 
+#include <string.h>
+#include <unistd.h>
 
 bool native_window_init(void) {
     if ((display = XOpenDisplay(NULL)) == NULL) {

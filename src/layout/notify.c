@@ -2,18 +2,17 @@
 
 #include "userbadge.h"
 
-#include "../ui.h"
-#include "../self.h"
 #include "../avatar.h"
 #include "../debug.h"
-#include "../theme.h"
 #include "../notify.h"
+#include "../self.h"
+#include "../theme.h"
+#include "../tox.h"
+#include "../ui.h"
 
 #include "../ui/svg.h"
 #include "../ui/draw.h"
 #include "../ui/button.h"
-
-#include "../main.h" // tox_thread_init
 
 bool btn_move_window_down;
 
@@ -58,7 +57,7 @@ static void btn_notify_one_mup(void) {
 }
 
 BUTTON button_notify_one = {
-    // .bm  = BM_SBUTTON,
+    // .bm_fill = BM_SBUTTON,
     .update = button_setcolors_success,
     .on_mup = btn_notify_one_mup,
     .nodraw = false,
@@ -69,7 +68,7 @@ static void btn_notify_two_mup(void) {
 }
 
 BUTTON button_notify_two = {
-    // .bm  = BM_SBUTTON,
+    // .bm_fill = BM_SBUTTON,
     .update = button_setcolors_success,
     .on_mup = btn_notify_two_mup,
     .nodraw = false,
@@ -80,7 +79,7 @@ static void btn_notify_three_mup(void) {
 }
 
 BUTTON button_notify_three = {
-    // .bm  = BM_SBUTTON,
+    // .bm_fill = BM_SBUTTON,
     .update = button_setcolors_success,
     .on_mup = btn_notify_three_mup,
     .nodraw = false,
@@ -115,7 +114,7 @@ static void btn_notify_create_mup(void) {
 }
 
 BUTTON button_notify_create = {
-    .bm           = BM_SBUTTON,
+    .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = btn_notify_create_mup,
     .button_text  = {.i18nal = STR_SHOW },

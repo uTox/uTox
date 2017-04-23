@@ -17,10 +17,11 @@
 #include "../tox.h"
 
 #include <shlobj.h>
+#include <io.h>
 
 void native_export_chatlog_init(uint32_t friend_number) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
-    if (path == NULL){
+    if (!path){
         LOG_ERR("SelectDir", " Could not allocate memory." );
         return;
     }
@@ -31,8 +32,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
         return;
     }
 
-    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length,
-             f->name);
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length, f->name);
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
@@ -51,19 +51,18 @@ void native_export_chatlog_init(uint32_t friend_number) {
             LOG_ERR("Windows7", "Opening file %s failed", path);
         }
     } else {
-        LOG_ERR("Windows7", "Unable to open file and export chatlog");
+        LOG_ERR("Windows7", "Unable to open file and export chatlog.");
     }
 }
 
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
-    if (path == NULL){
-        LOG_ERR("SelectDir", " Could not allocate memory for path." );
+    if (!path) {
+        LOG_ERR("SelectDir", "Could not allocate memory for path.");
         return;
     }
 
     memcpy(path, file->name, file->name_length);
-    path[file->name_length] = 0;
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
@@ -75,50 +74,63 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     if (GetSaveFileName(&ofn)) {
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, num, path);
     } else {
-        LOG_ERR("Windows7", "Unable to Get save file for incoming FT");
+        LOG_ERR("Windows7", "Unable to Get save file for incoming FT.");
     }
 }
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
-    char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char *));
-    if (send == NULL){
-        LOG_ERR("AutoSelectDir", " Could not allocate memory." );
+    wchar_t *autoaccept_folder = NULL;
+
+    if (settings.portable_mode) {
+        autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH * sizeof(wchar_t));
+
+        // Convert the portable_mode_save_path into a wide string.
+        wchar_t tmp[UTOX_FILE_NAME_LENGTH];
+        mbstowcs(tmp, portable_mode_save_path, strlen(portable_mode_save_path));
+
+        swprintf(autoaccept_folder, UTOX_FILE_NAME_LENGTH, L"%ls", tmp);
+    } else if (SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads,
+                                    KF_FLAG_CREATE, NULL, &autoaccept_folder) != S_OK) {
+        LOG_ERR("Windows7", "Unable to get auto accept file folder!");
         return;
     }
 
-    wchar_t *path[UTOX_FILE_NAME_LENGTH];
-    wchar_t  sub_path[UTOX_FILE_NAME_LENGTH] = { 0 }; /* I don't trust swprintf on windows anymore, so let's help it */
-    wchar_t  fullpath[UTOX_FILE_NAME_LENGTH] = { 0 }; /* out a bit by initialing everything to 0                     */
-    wchar_t  longname[UTOX_FILE_NAME_LENGTH] = { 0 };
+    wchar_t subpath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    swprintf(subpath, UTOX_FILE_NAME_LENGTH, L"%ls%ls", autoaccept_folder, L"\\Tox_Auto_Accept");
 
     if (settings.portable_mode) {
-        snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
-        LOG_NOTE("Windows7", "Auto Accept Directory: \"%s\"" , send);
-    } else if (!SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads, KF_FLAG_CREATE, 0, path)) {
-        swprintf(sub_path, UTOX_FILE_NAME_LENGTH, L"%ls%ls", *path, L"\\Tox_Auto_Accept");
-        CreateDirectoryW(sub_path, NULL);
+        free(autoaccept_folder);
     } else {
-        LOG_ERR("Windows7", "Unable to auto save file!" );
+        CoTaskMemFree(autoaccept_folder);
     }
-    LOG_NOTE("Windows7", "Auto Accept Directory: \"%s\"" , send);
 
-    /* UTF8 name to windows version*/
-    MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, longname, UTOX_FILE_NAME_LENGTH);
-    swprintf(fullpath, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", sub_path, longname);
-    /* Windows doesn't like UTF-8 strings, so we have to hold it's hand. */
+    CreateDirectoryW(subpath, NULL);
+
+    wchar_t filename[UTOX_FILE_NAME_LENGTH] = { 0 };
+    MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, filename, UTOX_FILE_NAME_LENGTH);
+
+    wchar_t fullpath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    swprintf(fullpath, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", subpath, filename);
+
+
     FILE *f = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
                                                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
                                       0),
                       "wb");
-    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
+
+    if (f) {
+        postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
+    } else {
+        LOG_ERR("Windows7", "Unable to save autoaccepted ft to %ls", fullpath);
+    }
 }
 
-void launch_at_startup(int is_launch_at_startup) {
+void launch_at_startup(bool should) {
     const wchar_t *run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
-    if (is_launch_at_startup == 1) {
+    if (should) {
         HKEY hKey;
-        if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
+        if (RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey) == ERROR_SUCCESS) {
             wchar_t path[UTOX_FILE_NAME_LENGTH * 2];
             uint16_t path_length  = GetModuleFileNameW(NULL, path + 1, UTOX_FILE_NAME_LENGTH * 2);
             path[0]               = '\"';
@@ -126,15 +138,15 @@ void launch_at_startup(int is_launch_at_startup) {
             path[path_length + 2] = '\0';
             path_length += 2;
 
-            uint16_t ret = RegSetKeyValueW(hKey, NULL, (LPCSTR)(L"uTox"), REG_SZ, path, path_length * 2); /*2 bytes per wchar_t */
-            if (ret == ERROR_SUCCESS) {
+            // 2 bytes per wchar_t
+            uint16_t ret = RegSetKeyValueW(hKey, NULL, L"uTox", REG_SZ, path, path_length * 2);
+            if (ret != ERROR_SUCCESS) {
                 LOG_ERR("Windows7", "Unable to set Registry key for startup.");
             }
+
             RegCloseKey(hKey);
         }
-    }
-
-    if (is_launch_at_startup == 0) {
+    } else {
         HKEY hKey;
         if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
             uint16_t ret = RegDeleteKeyValueW(hKey, NULL, L"uTox");

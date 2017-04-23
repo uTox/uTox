@@ -170,7 +170,7 @@ LANG_WINDOWS_ID(0x0404)
 LANG_POSIX_LOCALE("da_DK")
 LANG_WINDOWS_ID(0x0406)
 #include "../langs/en.h" //fallback to English for untranslated things
-#include "../langs/da.h"
+#include "../langs/dk.h"
 #undef _LANG_ID
 
 //"SWEDISH" "Svenska"

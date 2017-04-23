@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "flist.h"
 #include "groups.h"
+#include "tox.h"
 
 // TODO do we want to include the UI headers here?
 // Or would it be better to supply a callback after settings are loaded?
@@ -16,6 +17,8 @@
 #include "native/keyboard.h"
 
 #include "main.h" // UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
+
+#include <string.h>
 
 SETTINGS settings = {
     // .last_version                // included here to match the full struct
@@ -45,19 +48,23 @@ SETTINGS settings = {
 
 
     // User interface settings
-    .close_to_tray          = false,
-    .logging_enabled        = true,
     .audiofilter_enabled    = true,
-    .start_in_tray          = false,
-    .start_with_system      = false,
     .push_to_talk           = false,
     .audio_preview          = false,
     .video_preview          = false,
     .send_typing_status     = false,
-    .use_mini_flist         = false,
     // .inline_video                // included here to match the full struct
     .use_long_time_msg      = true,
     .accept_inline_images   = true,
+
+    // UX Settings
+    .logging_enabled        = true,
+    .close_to_tray          = false,
+    .start_in_tray          = false,
+    .start_with_system      = false,
+    .use_mini_flist         = false,
+    .magic_flist_enabled    = false,
+
 
     // Notifications / Alerts
     .ringtone_enabled       = true,
@@ -108,7 +115,14 @@ UTOX_SAVE *config_load(void) {
         save->window_height = MAIN_HEIGHT;
     }
 
+    /* UX Settings */
     dropdown_dpi.selected = dropdown_dpi.over = save->scale - 5;
+
+    switch_save_chat_history.switch_on  = save->logging_enabled;
+    switch_close_to_tray.switch_on      = save->close_to_tray;
+    switch_start_in_tray.switch_on      = save->start_in_tray;
+    switch_mini_contacts.switch_on      = save->use_mini_flist;
+    switch_magic_sidebar.switch_on      = save->magic_flist_enabled;
 
     switch_ipv6.switch_on        = save->enableipv6;
     switch_udp.switch_on         = !save->disableudp;
@@ -117,13 +131,9 @@ UTOX_SAVE *config_load(void) {
                                           // to touch this until we decide how we want to save uTox data in the future.
                                           // -- Grayhatter, probably...
 
-    switch_save_chat_history.switch_on  = save->logging_enabled;
-    switch_mini_contacts.switch_on      = save->use_mini_flist;
     switch_auto_startup.switch_on       = save->auto_startup;
     switch_auto_update.switch_on        = save->auto_update;
 
-    switch_close_to_tray.switch_on = save->close_to_tray;
-    switch_start_in_tray.switch_on = save->start_in_tray;
 
     switch_audible_notifications.switch_on = save->audible_notifications_enabled;
     switch_audio_filtering.switch_on       = save->audio_filtering_enabled;
@@ -158,13 +168,16 @@ UTOX_SAVE *config_load(void) {
         }
     }
 
+    /* UX settings */
     settings.logging_enabled        = save->logging_enabled;
     settings.close_to_tray          = save->close_to_tray;
     settings.start_in_tray          = save->start_in_tray;
     settings.start_with_system      = save->auto_startup;
+    settings.use_mini_flist         = save->use_mini_flist;
+    settings.magic_flist_enabled    = save->magic_flist_enabled;
+
     settings.ringtone_enabled       = save->audible_notifications_enabled;
     settings.audiofilter_enabled    = save->audio_filtering_enabled;
-    settings.use_mini_flist         = save->use_mini_flist;
 
     settings.send_typing_status     = !save->no_typing_notifications;
     settings.group_notifications    = save->group_notifications;
@@ -192,7 +205,7 @@ UTOX_SAVE *config_load(void) {
         settings.theme              = save->theme;
     }
 
-    ui_set_scale(save->scale + 1);
+    ui_set_scale(save->scale);
 
     if (save->push_to_talk) {
         init_ptt();
@@ -212,16 +225,20 @@ void config_save(UTOX_SAVE *save_in) {
     save->window_height                 = save_in->window_height;
 
     save->save_version                  = UTOX_SAVE_VERSION;
-    save->scale                         = ui_scale - 1;
+    save->scale                         = ui_scale;
     save->proxyenable                   = switch_proxy.switch_on;
+    save->audible_notifications_enabled = settings.ringtone_enabled;
+    save->audio_filtering_enabled       = settings.audiofilter_enabled;
+    save->push_to_talk                  = settings.push_to_talk;
+
+    /* UX Settings */
     save->logging_enabled               = settings.logging_enabled;
     save->close_to_tray                 = settings.close_to_tray;
     save->start_in_tray                 = settings.start_in_tray;
     save->auto_startup                  = settings.start_with_system;
-    save->audible_notifications_enabled = settings.ringtone_enabled;
-    save->audio_filtering_enabled       = settings.audiofilter_enabled;
-    save->push_to_talk                  = settings.push_to_talk;
     save->use_mini_flist                = settings.use_mini_flist;
+    save->magic_flist_enabled           = settings.magic_flist_enabled;
+
 
     save->disableudp              = !settings.enable_udp;
     save->enableipv6              = settings.enable_ipv6;

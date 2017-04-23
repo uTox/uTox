@@ -4,6 +4,7 @@
 #include "chatlog.h"
 #include "debug.h"
 #include "dns.h"
+#include "filesys.h"
 #include "flist.h"
 #include "macros.h"
 #include "self.h"
@@ -21,7 +22,7 @@
 
 #include "ui/edit.h"        // friend_set_name()
 
-#include "main.h" // addfriend_status
+#include <string.h>
 
 static FRIEND *friend = NULL;
 
@@ -486,6 +487,7 @@ void friend_free(FRIEND *f) {
     LOG_INFO("Friend", "Freeing friend: %u", f->number);
     for (uint16_t i = 0; i < f->edit_history_length; ++i) {
         free(f->edit_history[i]);
+        f->edit_history[i] = NULL;
     }
     free(f->edit_history);
 
@@ -508,9 +510,8 @@ void friend_free(FRIEND *f) {
         }*/
     }
 
-    self.friend_list_count--;
-
     memset(f, 0, sizeof(FRIEND));
+    self.friend_list_count--;
 }
 
 FRIEND *find_friend_by_name(uint8_t *name) {

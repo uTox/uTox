@@ -12,24 +12,7 @@
 
 #include "../ui/svg.h"
 
-#include <arpa/nameser.h>
-#include <ctype.h>
-#include <dlfcn.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <locale.h>
-#include <netinet/in.h>
-#include <pthread.h>
-#include <resolv.h>
-#include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <sys/shm.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 #include <X11/cursorfont.h>
 #include <X11/extensions/Xrender.h>

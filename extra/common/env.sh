@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export CTEST_OUTPUT_ON_FAILURE=1
+
 export CACHE_DIR=${CACHE_DIR=""}
 
 export TOXCORE_REPO=${TOXCORE_REPO:-"TokTok/c-toxcore"}
@@ -14,8 +16,7 @@ export LDFLAGS="-L${CACHE_DIR}/usr/lib"
 
 export LD_LIBRARY_PATH="${CACHE_DIR}/usr/lib:/usr/lib"
 
-export PKG_CONFIG_LIBDIR="${CACHE_DIR}/usr/lib/pkgconfig"            # Replace the default
-export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig" # Then append
+export PKG_CONFIG_PATH="${CACHE_DIR}/usr/lib/pkgconfig"
 
 # Cross compilation default targets.
 export TARGET_HOST=${TARGET_HOST:-""}

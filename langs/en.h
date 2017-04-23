@@ -15,14 +15,32 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.14.0! Release name: uToxBae!")
+msgstr("You have just upgraded to version 0.15.0! Release name: slowpoke")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.14.0 (besides our new website, utox.io)")
+msgstr("Changes in v0.15.0 (please check out our new website, utox.io)")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
+"\n  IMPORTANT NOTE FOR WINDOWS USERS\n"
+"    There is currently an issue with the updater where it won't work with some .exe names.\n"
+"    To be sure that it works and autoupdates, you have to rename the .exe to \"uTox.exe\"\n"
+"    and enable it in the settings.\n"
 "\n  Features:\n"
+"    Redesigned UI. (Thanks redmanmale!)\n"
+"    Collapsible sidebar on Android.\n"
+"  Fixes:\n"
+"    Video now works on Windows again.\n"
+"    Autoaccepting files in portable mode now saves to the portable folder.\n"
+"    Updated Ukrainian translation. (Thanks v2e!)\n"
+"    Dbus notifications should now work on more different setups.\n"
+"  Development\n"
+"    Added support for NetBSD, OpenBSD, and FreeBSD.\n"
+"    Refactored the UI.\n"
+"\n  Do you know another language? Rather read the changelog in your language?\n"
+"    Help us translate uTox!\n"
+"\nv0.14.0\n"
+"  Features:\n"
 "    Real Updater.\n"
 "       -- uTox now has an updater built in. Currently Windows only.\n"
 "       -- But can be adapted to any platform if there's any interest.\n"
@@ -430,6 +448,9 @@ msgstr("Busy")
 
 msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Use mini contact list")
+
+msgid(SETTINGS_UI_AUTO_HIDE_SIDEBAR)
+msgstr("Auto hide sidebar")
 
 msgid(NOT_CONNECTED)
 msgstr("Not Connected")

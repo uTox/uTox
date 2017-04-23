@@ -38,6 +38,7 @@
 #include "../layout/settings.h" // TODO remove, in for dropdown.lang
 
 #include <windowsx.h>
+#include <io.h>
 
 bool flashing = false;
 bool havefocus = true;
@@ -725,7 +726,6 @@ static bool fresh_update(void) {
     LOG_WARN("Win Updater", "Starting");
     LOG_NOTE("Win Updater", "Root %s", path);
 
-    // lol, windows is backwards... AGAIN
     char *name_start = strstr(path, "next_uTox.exe");
     if (!name_start) {
         LOG_NOTE("Win Updater", "Not the updater -- %s ", path);
@@ -777,7 +777,8 @@ static bool pending_update(void) {
     char path[UTOX_FILE_NAME_LENGTH];
     GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
 
-    // lol, windows is backwards... AGAIN
+    // TODO: The updater should work with the binaries we're distributing.
+    // uTox_win64.exe, uTox_win32.exe, uTox_winXP.exe on utox.io, maybe (probably) others on jenkins.
     char *name_start = strstr(path, "uTox.exe");
     if (!name_start) {
         // Try lowercase too
@@ -792,7 +793,7 @@ static bool pending_update(void) {
         if (f) {
             LOG_ERR("Win Pending", "Updater waiting :D");
             fclose(f);
-            char cmd[UTOX_FILE_NAME_LENGTH] = {0};
+            char cmd[UTOX_FILE_NAME_LENGTH] = { 0 };
             if (settings.portable_mode) {
                 snprintf(cmd, UTOX_FILE_NAME_LENGTH, " -p");
             }
@@ -884,7 +885,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     win_init_mutex(&utox_mutex, hInstance, cmd);
 
     if (!skip_updater) {
-        LOG_ERR("WinMain", "Not skipping updater");
+        LOG_NOTE("WinMain", "Not skipping updater");
         if (fresh_update()) {
             CloseHandle(utox_mutex);
             exit(0);

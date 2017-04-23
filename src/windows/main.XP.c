@@ -11,6 +11,8 @@
 #include "../tox.h"
 #include "../settings.h"
 
+#include <io.h>
+
 void native_export_chatlog_init(uint32_t friend_number) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
 
@@ -25,8 +27,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
         return;
     }
 
-    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length,
-             f->name);
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length, f->name);
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
@@ -74,61 +75,73 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
 }
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
-    char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char *));
-    char *path[UTOX_FILE_NAME_LENGTH];
-
-    wchar_t first[UTOX_FILE_NAME_LENGTH];
-    wchar_t second[UTOX_FILE_NAME_LENGTH];
-    wchar_t longname[UTOX_FILE_NAME_LENGTH];
-
-    if (settings.portable_mode) {
-        snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
-        LOG_NOTE("Native", "Auto Accept Directory: \"%s\"" , send);
-    } else if (!SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, (char *)path)) {
-        swprintf(first, UTOX_FILE_NAME_LENGTH, L"%ls%ls", *path, L"\\Tox_Auto_Accept");
-        CreateDirectoryW(first, NULL);
-    } else {
-        LOG_TRACE("NATIVE", "Unable to auto save file!" );
+    wchar_t *autoaccept_folder = calloc(1, MAX_PATH);
+    if (!autoaccept_folder) {
+        LOG_ERR("WinXP", "Unable to malloc for autoaccept path.");
+        return;
     }
 
+    if (settings.portable_mode) {
+        // Convert the portable_mode_save_path into a wide string.
+        wchar_t tmp[UTOX_FILE_NAME_LENGTH];
+        mbstowcs(tmp, portable_mode_save_path, strlen(portable_mode_save_path));
 
-    MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, longname, file->name_length);
-    swprintf(second, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", first, longname);
+        swprintf(autoaccept_folder, UTOX_FILE_NAME_LENGTH, L"%ls", tmp);
+    } else if (SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, autoaccept_folder) != S_OK) {
+        LOG_ERR("WinXP", "Unable to get auto accept file folder!");
+        free(autoaccept_folder);
+        return;
+    }
 
-    FILE *f = _fdopen(_open_osfhandle((intptr_t)CreateFileW(second, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+    wchar_t subpath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    swprintf(subpath, UTOX_FILE_NAME_LENGTH, L"%ls%ls", autoaccept_folder, L"\\Tox_Auto_Accept");
+
+    free(autoaccept_folder);
+
+    CreateDirectoryW(subpath, NULL);
+
+    wchar_t filename[UTOX_FILE_NAME_LENGTH] = { 0 };
+    MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, filename, UTOX_FILE_NAME_LENGTH);
+
+    wchar_t fullpath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    swprintf(fullpath, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", subpath, filename);
+
+
+    FILE *f = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
                                                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
                                       0),
                       "wb");
 
-    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
-    LOG_NOTE("Native", "Auto Accept Directory: \"%s\"", second);
+    if (f) {
+        postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
+    } else {
+        LOG_ERR("WinXP", "Unable to save autoaccepted ft to %ls", fullpath);
+    }
 }
 
-void launch_at_startup(int is_launch_at_startup) {
+void launch_at_startup(bool should) {
     HKEY hKey;
     const wchar_t *run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
     wchar_t path[UTOX_FILE_NAME_LENGTH * 2];
-    uint16_t path_length = 0, ret = 0;
-    if (is_launch_at_startup == 1) {
+    if (should) {
         if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
-            path_length           = GetModuleFileNameW(NULL, path + 1, UTOX_FILE_NAME_LENGTH * 2);
+            uint16_t path_length  = GetModuleFileNameW(NULL, path + 1, UTOX_FILE_NAME_LENGTH * 2);
             path[0]               = '\"';
             path[path_length + 1] = '\"';
             path[path_length + 2] = '\0';
             path_length += 2;
-            ret = RegSetValueExW(hKey, L"uTox", NULL, REG_SZ, (uint8_t *)path, path_length * 2); /*2 bytes per wchar_t */
+            uint16_t ret = RegSetValueExW(hKey, L"uTox", NULL, REG_SZ, (uint8_t *)path, path_length * 2); /*2 bytes per wchar_t */
             if (ret == ERROR_SUCCESS) {
                 LOG_TRACE("WinXP", "Successful auto start addition." );
             }
             RegCloseKey(hKey);
         }
-    }
-    if (is_launch_at_startup == 0) {
+    } else {
         LOG_TRACE("WinXP", "Going to delete auto start key." );
         if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
             LOG_TRACE("WinXP", "Successful key opened." );
-            ret = RegDeleteValueW(hKey, L"uTox");
+            uint16_t ret = RegDeleteValueW(hKey, L"uTox");
             if (ret == ERROR_SUCCESS) {
                 LOG_TRACE("WinXP", "Successful auto start deletion." );
             } else {

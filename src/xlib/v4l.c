@@ -1,18 +1,23 @@
 #include "main.h"
 
 #include "../debug.h"
-
 #include "../macros.h"
+#include "../av/video.h" // video super globals
 
-#include "../main.h" // video super globals
+#include <errno.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 int utox_v4l_fd = -1;
 
 #include <sys/mman.h>
-#ifdef __OpenBSD__
-#include <sys/videoio.h>
-#else
+#if defined(__linux__) || defined(__FreeBSD__) //FreeBSD will have the proper includes after installing v4l
 #include <linux/videodev2.h>
+#else //OpenBSD
+#include <sys/videoio.h>
 #endif
 
 #ifndef NO_V4LCONVERT

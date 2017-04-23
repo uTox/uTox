@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+uint16_t video_width, video_height, max_video_width, max_video_height;
+
 #define UTOX_DEFAULT_BITRATE_V 5000
 #define UTOX_MIN_BITRATE_VIDEO 512
 // UTOX_DEFAULT_VID_WIDTH, HEIGHT are unused.
@@ -12,21 +14,14 @@
 #define UTOX_DEFAULT_VID_HEIGHT 720
 
 /* Check self */
-#define SELF_SEND_VIDEO(f_number) (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_V))
-#define SELF_ACCEPT_VIDEO(f_number) (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V))
+#define SELF_SEND_VIDEO(f_number) (get_friend(f_number) && (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_V)))
+#define SELF_ACCEPT_VIDEO(f_number) (get_friend(f_number) && (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)))
 /* Check friend */
-#define FRIEND_SENDING_VIDEO(f_number) (!!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V))
-#define FRIEND_ACCEPTING_VIDEO(f_number) (!!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V))
+#define FRIEND_SENDING_VIDEO(f_number) (get_friend(f_number) && (!!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V)))
+#define FRIEND_ACCEPTING_VIDEO(f_number) (get_friend(f_number) && (!!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)))
 
 /* Check both */
-#define SEND_VIDEO_FRAME(f_number)                                            \
-    (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_V) \
-     && !!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V))
-
-#define ACCEPT_VIDEO_FRAME(f_number)                                            \
-    (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V) \
-     && !!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V))
-
+#define SEND_VIDEO_FRAME(f_number) (SELF_SEND_VIDEO(f_number) && FRIEND_ACCEPTING_VIDEO(f_number))
 
 typedef struct UTOX_AV_VIDEO_FRAME {
     uint16_t w, h;
@@ -35,8 +30,9 @@ typedef struct UTOX_AV_VIDEO_FRAME {
 
 typedef struct utox_frame_pkg {
     uint16_t w, h;
-    size_t   size;
-    void *   img;
+    size_t size;
+
+    void *img;
 } UTOX_FRAME_PKG;
 
 void utox_video_append_device(void *device, bool localized, void *name, bool default_);

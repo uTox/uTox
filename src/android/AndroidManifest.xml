@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="tox.client.utox"
-        android:versionName="0.14.0"
-        android:versionCode="6"> <!-- versionCode must int. inc for patches -->
+        android:versionName="0.15.0"
+        android:versionCode="10"> <!-- versionCode must int. inc for patches -->
 
     <!-- This is the platform API where NativeActivity was introduced. -->
     <uses-sdk android:minSdkVersion="12" />

@@ -15,6 +15,10 @@
 
 #include "../main.h"
 
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/shm.h>
+
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     if (!video_win[id]) {
         LOG_TRACE("Video", "frame for null window %u" , id);

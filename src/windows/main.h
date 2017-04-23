@@ -55,6 +55,7 @@ HICON   black_icon, unread_messages_icon;
 HBRUSH  hdc_brush;
 
 HWND    video_hwnd[128]; // todo fixme
+HWND    preview_hwnd;    // todo fixme
 
 extern bool flashing;
 extern bool havefocus;

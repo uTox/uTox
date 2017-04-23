@@ -10,11 +10,9 @@ addons:
     packages:
       - cmake
       - cmake-data
-      - dbus
-      - dbus-x11
-      - libdbus-1-3
       - yasm
       - check
+      - libdbus-1-dev
       - libopenal-dev
       - libopenal-data
       - libopenal1
@@ -34,7 +32,7 @@ matrix:
   fast_finish: true
   include:
     - os: linux
-      env: BUILD=linux TOXCORE_REPO=TokTok/c-toxcore
+      env: BUILD=linux
       compiler: clang
 
     - os: linux
@@ -54,7 +52,7 @@ matrix:
             - libopenal-dev
             - libopenal-data
             - libopenal1
-      env: BUILD=windows
+      env: BUILD=windows TOXCORE_REPO_BRANCH="master"
       compiler: x86_64-w64-mingw32-gcc
 
     - os: linux
@@ -79,7 +77,7 @@ matrix:
 
     - os: osx
       compiler: clang
-      env: BUILD=osx TOXCORE_REPO=TokTok/c-toxcore
+      env: BUILD=osx TOXCORE_REPO_BRANCH="v0.1.4"
 
     # We don't support old toxcore yet/anymore
     # - os: linux
@@ -95,7 +93,7 @@ git:
 before_script:
   - ./extra/travis/env.sh
   - ./extra/travis/${BUILD}-before.sh
-  - ./extra/common/filter_audio.sh
+  - ./extra/travis/filter_audio.sh
 
 script:
   - ./extra/travis/${BUILD}-script.sh

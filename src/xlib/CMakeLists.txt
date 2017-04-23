@@ -5,7 +5,7 @@ option(ENABLE_DBUS "Compile with dbus notification support" ON)
 
 if(ENABLE_DBUS)
     find_package(DBus REQUIRED)
-    include_directories(${DBUS_INCLUDE_DIR} "/usr/lib/dbus-1.0/include")
+    include_directories(${DBUS_INCLUDE_DIRS})
     add_cflag("-DHAVE_DBUS=1")
 endif()
 
@@ -53,29 +53,40 @@ message("Freetype include: ${FREETYPE_INCLUDE_DIRS}")
 message("Freetype library: ${FREETYPE_LIBRARIES}")
 
 find_package(X11 REQUIRED)
+
 message("X include:         ${X11_INCLUDE_DIR}")
 message("X library:         ${X11_LIBRARIES}")
 message("Xrender include:   ${X11_Xrender_INCLUDE_PATH}")
 message("Xrender library:   ${X11_Xrender_LIB}")
 
 if(ENABLE_DBUS AND DBUS_LIBRARIES)
-    message("DBus include:      ${DBUS_INCLUDE_DIR}")
-    message("DBus library:      ${DBUS_LIBRARIES}")
+    message("DBus include:  ${DBUS_INCLUDE_DIRS}")
+    message("DBus library:  ${DBUS_LIBRARIES}")
 else()
     set(DBUS_LIBRARIES "")
 endif()
 
 target_link_libraries(utoxNATIVE
-                      icon
-                      v4lconvert
-                      ${X11_LIBRARIES}
-                      ${X11_Xrender_LIB}
-                      fontconfig
-                      ${FREETYPE_LIBRARIES}
-                      resolv
-                      dl
-                      ${DBUS_LIBRARIES}
-                      )
+        icon
+        v4lconvert
+        ${X11_LIBRARIES}
+        ${X11_Xrender_LIB}
+        fontconfig
+        ${FREETYPE_LIBRARIES}
+        )
+
+if(LINUX OR NETBSD)
+    target_link_libraries(utoxNATIVE
+        resolv
+        )
+endif()
+
+if(LINUX)
+    target_link_libraries(utoxNATIVE
+        dl
+        ${DBUS_LIBRARIES}
+        )
+endif()
 
 include(GNUInstallDirs)
 
