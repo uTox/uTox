@@ -265,11 +265,11 @@ SCROLLABLE scrollbar_settings = {
 static void draw_profile_password(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), 20, PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), SCALE(10), PROFILE_PASSWORD);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(x + SCALE(10), MAIN_TOP + 10, PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), SCALE(MAIN_TOP + 5), PROFILE_PASSWORD);
 }
 
 PANEL
@@ -469,6 +469,26 @@ static void button_settings_on_mup(void) {
     }
 }
 
+static void update_show_nospam_button_text(void) {
+    if(panel_nospam_settings.disabled) {
+        maybe_i18nal_string_set_i18nal(&button_show_nospam.button_text, STR_SHOW_NOSPAM);
+    }
+    else {
+        maybe_i18nal_string_set_i18nal(&button_show_nospam.button_text, STR_HIDE_NOSPAM);
+    }
+}
+
+static void update_show_password_button_text(void) {
+    if(panel_profile_password_settings.disabled) {
+        maybe_i18nal_string_set_i18nal(&button_show_password_settings.button_text, STR_SHOW_UI_PASSWORD);
+        maybe_i18nal_string_set_i18nal(&button_show_password_settings.tooltip_text, STR_SHOW_UI_PASSWORD_TOOLTIP);
+    }
+    else {
+        maybe_i18nal_string_set_i18nal(&button_show_password_settings.button_text, STR_HIDE_UI_PASSWORD);
+        maybe_i18nal_string_set_i18nal(&button_show_password_settings.tooltip_text, STR_HIDE_UI_PASSWORD_TOOLTIP);
+    }
+}
+
 BUTTON button_settings = {
     .bm_icon          = BM_SETTINGS,
     .icon_w       = _BM_ADD_WIDTH,
@@ -488,6 +508,8 @@ static void disable_all_setting_sub(void) {
     panel_settings_av.disabled              = true;
     panel_settings_notifications.disabled   = true;
     panel_settings_adv.disabled             = true;
+    update_show_nospam_button_text();
+    update_show_password_button_text();
 }
 
 static void button_settings_sub_profile_on_mup(void) {
@@ -594,11 +616,15 @@ static void button_lock_uTox_on_mup(void) {
     }
     button_show_password_settings.disabled = false;
     button_show_password_settings.nodraw = false;
+    update_show_nospam_button_text();
+    update_show_password_button_text();
 }
 
 static void button_show_password_settings_on_mup(void) {
     panel_nospam_settings.disabled = true;
     panel_profile_password_settings.disabled = !panel_profile_password_settings.disabled;
+    update_show_nospam_button_text();
+    update_show_password_button_text();
 }
 
 
@@ -632,6 +658,8 @@ static void button_revert_nospam_on_mup(void) {
 static void button_show_nospam_on_mup(void) {
     panel_profile_password_settings.disabled = true;
     panel_nospam_settings.disabled = !panel_nospam_settings.disabled;
+    update_show_nospam_button_text();
+    update_show_password_button_text();
 }
 
 static void button_copyid_on_mup(void) {
