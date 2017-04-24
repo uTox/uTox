@@ -37,7 +37,7 @@ const char vertex_shader[] = "uniform vec4 matrix;"
 
 static GLuint prog, white;
 static GLint  matrix, k, k2, samp;
-static GLuint bitmap[32];
+static GLuint bitmap[BM_ENDMARKER];
 
 static QUAD2D quads[64];
 
