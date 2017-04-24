@@ -273,7 +273,25 @@ if(WIN32)
     add_subdirectory(src/windows)
 elseif(APPLE)
     set(GUI_TYPE MACOSX_BUNDLE)
-    set(MACOSX_BUNDLE_INFO_PLIST src/cocoa/Info.plist)
+
+    # Make apple icon
+    set(APPLE_ICON utox.icns)
+    add_custom_command(OUTPUT utox.icns
+        COMMAND iconutil --convert icns ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset -o utox.icns
+        DEPENDS ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset
+    )
+    set_source_files_properties(${APPLE_ICON} PROPERTIES
+       MACOSX_PACKAGE_LOCATION "Resources")
+
+    include_directories( /usr/local/include /usr/include/malloc )
+    link_directories ( /usr/local/lib )
+
+    # Homebrew installed libtoxcore
+    if(EXISTS /usr/local/opt/libtoxcore/)
+        include_directories( /usr/local/opt/libtoxcore/include )
+        link_directories ( /usr/local/opt/libtoxcore/lib )
+    endif()
+
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
     set(LIBRARIES "opus")
@@ -337,6 +355,14 @@ target_link_libraries(utox
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
 if(APPLE)
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION})
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER "io.utox.future")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "uTox")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_COPYRIGHT "Copyright 2017 uTox Contributors. Some Rights Reserved.")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_ICON_FILE "${APPLE_ICON}")
+
     install(TARGETS utox
         RUNTIME DESTINATION "bin"
         BUNDLE  DESTINATION "resources"
