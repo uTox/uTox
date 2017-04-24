@@ -33,9 +33,3 @@ target_link_libraries(utoxNATIVE
     "-framework QuartzCore"
     -lresolv
     )
-
-set(APPLE_ICON utox.icns)
-add_custom_command(OUTPUT utox.icns
-    COMMAND iconutil --convert icns utox.iconset -o utox.icns
-    DEPENDS utox.iconset
-    )
