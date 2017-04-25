@@ -194,7 +194,7 @@ static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(155), AUTO_STARTUP);
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
     #if PLATFORM_ANDROID
-        drawstr(x + SCALE(10),  y + SCALE(215), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
+        drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(215), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
     #endif
 }
 
