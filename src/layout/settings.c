@@ -470,7 +470,7 @@ static void button_settings_on_mup(void) {
 }
 
 static void update_show_nospam_button_text(void) {
-    if(panel_nospam_settings.disabled) {
+    if (panel_nospam_settings.disabled) {
         maybe_i18nal_string_set_i18nal(&button_show_nospam.button_text, STR_SHOW_NOSPAM);
     } else {
         maybe_i18nal_string_set_i18nal(&button_show_nospam.button_text, STR_HIDE_NOSPAM);
@@ -478,11 +478,10 @@ static void update_show_nospam_button_text(void) {
 }
 
 static void update_show_password_button_text(void) {
-    if(panel_profile_password_settings.disabled) {
+    if (panel_profile_password_settings.disabled) {
         maybe_i18nal_string_set_i18nal(&button_show_password_settings.button_text, STR_SHOW_UI_PASSWORD);
         maybe_i18nal_string_set_i18nal(&button_show_password_settings.tooltip_text, STR_SHOW_UI_PASSWORD_TOOLTIP);
-    }
-    else {
+    } else {
         maybe_i18nal_string_set_i18nal(&button_show_password_settings.button_text, STR_HIDE_UI_PASSWORD);
         maybe_i18nal_string_set_i18nal(&button_show_password_settings.tooltip_text, STR_HIDE_UI_PASSWORD_TOOLTIP);
     }
