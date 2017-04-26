@@ -9,6 +9,8 @@ struct chrono_info {
     int step;
     uint32_t interval_ms;
     bool finished;
+    void (*callback)(void *);
+    void *args;
 };
 
 typedef struct chrono_info CHRONO_INFO;

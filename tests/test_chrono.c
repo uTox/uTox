@@ -5,6 +5,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <stdbool.h>
 
 /*
 START_TEST (test_chrono_finished)
@@ -27,21 +28,28 @@ START_TEST (test_chrono_finished)
 END_TEST
 */
 
+void thread_callback(void *args) {
+    *(bool *)args = true;
+}
+
 START_TEST(test_chrono_target)
 {
     CHRONO_INFO info;
+    bool finished = false;
 
     info.ptr = 0;
     info.step = 5;
     info.interval_ms = 5;
     info.finished = false;
     info.target = (uint8_t *)30;
+    info.callback = thread_callback;
+    info.args = &finished;
 
     chrono_start(&info);
 
-    yieldcpu(30); // allow thread to run and exit
+    yieldcpu(31); // allow thread to run and exit
 
-    while (chrono_thread_init) {
+    while (!finished) {
         yieldcpu(1);
     }
 
