@@ -393,31 +393,29 @@ static void page_close(ITEM *i) {
 
         case ITEM_GROUP: {
             GROUPCHAT *g = get_group(selected_item->id_number);
-            if (!g) {
-                LOG_ERR("F-List", "Could not get group %u", selected_item->id_number);
-                return;
+            if (g) {
+                current_width = g->msg.width;
+
+                free(g->typed);
+                g->typed_length = edit_chat_msg_group.length;
+                g->typed = calloc(1, g->typed_length);
+                if (!g->typed) {
+                    LOG_ERR("F-List", "Unable to calloc for g->typed.");
+                    return;
+                }
+
+                memcpy(g->typed, edit_chat_msg_group.data, g->typed_length);
+
+                g->msg.scroll = messages_group.content_scroll->d;
+
+                g->edit_history        = edit_chat_msg_group.history;
+                g->edit_history_cur    = edit_chat_msg_group.history_cur;
+                g->edit_history_length = edit_chat_msg_group.history_length;
             }
-
-            current_width = g->msg.width;
-
-            free(g->typed);
-            g->typed_length = edit_chat_msg_group.length;
-            g->typed = calloc(1, g->typed_length);
-            if (!g->typed) {
-                LOG_ERR("F-List", "Unable to calloc for g->typed.");
-                return;
-            }
-
-            memcpy(g->typed, edit_chat_msg_group.data, g->typed_length);
-
-            g->msg.scroll = messages_group.content_scroll->d;
-
-            g->edit_history        = edit_chat_msg_group.history;
-            g->edit_history_cur    = edit_chat_msg_group.history_cur;
-            g->edit_history_length = edit_chat_msg_group.history_length;
 
             panel_chat.disabled  = true;
             panel_group.disabled = true;
+
             break;
         }
 
@@ -509,8 +507,7 @@ static void page_open(ITEM *i) {
         case ITEM_GROUP: {
             GROUPCHAT *g = get_group(i->id_number);
             if (!g) {
-                LOG_ERR("F-List", "Could not get group %u", i->id_number);
-                return;
+                LOG_FATAL_ERR(EXIT_FAILURE, "F-List", "Selected group no longer exists. Group number: %u", i->id_number);
             }
 
             memcpy(edit_chat_msg_group.data, g->typed, g->typed_length);

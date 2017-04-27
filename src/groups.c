@@ -40,8 +40,7 @@ static GROUPCHAT *group_make(uint32_t group_number) {
         LOG_INFO("Groupchats", "Reallocating groupchat array to %u. Current size: %u", (group_number + 1), self.groups_list_size);
         GROUPCHAT *tmp = realloc(group, sizeof(GROUPCHAT) * (group_number + 1));
         if (!tmp) {
-            LOG_ERR("Groupchats", "Could not reallocate groupchat array to %u.", group_number + 1);
-            return NULL;
+            LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not reallocate groupchat array to %u.", group_number + 1);
         }
 
         group = tmp;
@@ -321,7 +320,7 @@ void init_groups(void) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not allocate memory for groupchat array with size of: %u", self.groups_list_size);
     }
 
-    for(size_t i = 0; i < self.groups_list_size; i++){
+    for (size_t i = 0; i < self.groups_list_size; i++) {
         group_create(i, false); //TODO: figure out if groupchats are text or audio
     }
     LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
