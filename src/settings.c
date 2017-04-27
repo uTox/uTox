@@ -91,7 +91,7 @@ UTOX_SAVE *config_load(void) {
     save = utox_data_load_utox();
 
     if (!save) {
-        LOG_ERR("Settings", "unable to load utox_save data");
+        LOG_ERR("unable to load utox_save data");
         /* Create and set defaults */
         save = calloc(1, sizeof(UTOX_SAVE));
         save->enableipv6  = 1;
@@ -261,7 +261,7 @@ void config_save(UTOX_SAVE *save_in) {
 
     memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */
 
-    LOG_NOTE("uTox", "Writing uTox Save" );
+    LOG_NOTE("Writing uTox Save" );
     utox_data_save_utox(save, sizeof(UTOX_SAVE) + 256); /* Magic number inside toxcore */
     free(save);
 }
@@ -271,12 +271,12 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
     FILE *fp = utox_get_file("utox_save", NULL, UTOX_FILE_OPTS_WRITE);
 
     if (!fp) {
-        LOG_ERR("Settings", "Unable to open file for uTox settings.");
+        LOG_ERR("Unable to open file for uTox settings.");
         return false;
     }
 
     if (fwrite(data, size, 1, fp) != 1) {
-        LOG_ERR("Settings", "Unable to write uTox settings to file.");
+        LOG_ERR("Unable to write uTox settings to file.");
         fclose(fp);
         return false;
     }
@@ -292,19 +292,19 @@ UTOX_SAVE *utox_data_load_utox(void) {
     FILE *fp = utox_get_file("utox_save", &size, UTOX_FILE_OPTS_READ);
 
     if (!fp) {
-        LOG_ERR("Settings", "Unable to open utox_save.");
+        LOG_ERR("Unable to open utox_save.");
         return NULL;
     }
 
     UTOX_SAVE *save = calloc(1, size + 1);
     if (!save) {
-        LOG_ERR("Settings", "Unable to malloc for utox_save.");
+        LOG_ERR("Unable to malloc for utox_save.");
         fclose(fp);
         return NULL;
     }
 
     if (fread(save, size, 1, fp) != 1) {
-        LOG_ERR("Settings", "Could not read save file");
+        LOG_ERR("Could not read save file");
         fclose(fp);
         free(save);
         return NULL;

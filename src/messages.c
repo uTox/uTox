@@ -46,7 +46,7 @@
 static int msgheight(MSG_HEADER *msg, int width) {
     switch (msg->msg_type) {
         case MSG_TYPE_NULL: {
-            LOG_ERR("Messages", "Invalid message type in msgheight.");
+            LOG_ERR("Invalid message type in msgheight.");
             return 0;
         }
 
@@ -88,7 +88,7 @@ static int msgheight_group(MSG_HEADER *msg, int width) {
         }
 
         default: {
-            LOG_TRACE("Messages", "Error, can't set this group message height" );
+            LOG_TRACE("Error, can't set this group message height" );
         }
     }
 
@@ -210,7 +210,7 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
     {
         MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
         if (!msg) {
-            LOG_ERR("Messages", "Couldn't allocate memory for day notice.");
+            LOG_ERR("Couldn't allocate memory for day notice.");
             return false;
         }
 
@@ -310,7 +310,7 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
 uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log) {
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
-        LOG_ERR("Messages", "Couldn't allocate memory for notice.");
+        LOG_ERR("Couldn't allocate memory for notice.");
         return UINT32_MAX;
     }
 
@@ -398,7 +398,7 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
     FRIEND *f = get_friend(m->id);
 
     if (!f) {
-        LOG_ERR("Messages", "Could not get friend with number: %u", m->id);
+        LOG_ERR("Could not get friend with number: %u", m->id);
         return false;
     }
 
@@ -448,7 +448,7 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
             return true;
         }
         default: {
-            LOG_NOTE("Messages", "uTox Logging:\tUnsupported message type %i", msg->msg_type);
+            LOG_NOTE("uTox Logging:\tUnsupported message type %i", msg->msg_type);
         }
     }
     return false;
@@ -459,7 +459,7 @@ bool messages_read_from_log(uint32_t friend_number) {
 
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("Messages", "Could not get friend with number: %u", friend_number);
+        LOG_ERR("Could not get friend with number: %u", friend_number);
         return false;
     }
 
@@ -483,7 +483,7 @@ bool messages_read_from_log(uint32_t friend_number) {
         free(data);
         return true;
     } else if (actual_count > 0) {
-        LOG_ERR("Messages", "uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
+        LOG_ERR("uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
     }
 
     return false;
@@ -567,16 +567,16 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
 
                     char *hex = get_friend(m->id)->id_str;
                     if (msg->disk_offset) {
-                        LOG_TRACE("Messages", "Updating message -> disk_offset is %lu" , msg->disk_offset);
+                        LOG_TRACE("Updating message -> disk_offset is %lu" , msg->disk_offset);
                         utox_update_chatlog(hex, msg->disk_offset, data, length);
                     } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
                         /* This could get messy if receipt is 1 msg position is 0 and the offset is actually wrong,
                          * But I couldn't come up with any other way to verify the rare case of a bad offset
                          * start <= 1 to offset for the day change notification                                    */
-                        LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , msg->disk_offset);
+                        LOG_TRACE("Updating first message -> disk_offset is %lu" , msg->disk_offset);
                         utox_update_chatlog(hex, msg->disk_offset, data, length);
                     } else {
-                        LOG_ERR("Messages", "Messages:\tUnable to update this message...\n"
+                        LOG_ERR("Messages:\tUnable to update this message...\n"
                                     "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
                                     msg->disk_offset, m->number, receipt_number);
                     }
@@ -589,7 +589,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
             }
         }
     }
-    LOG_ERR("Messages", "Received a receipt for a message we don't have a record of. %u" , receipt_number);
+    LOG_ERR("Received a receipt for a message we don't have a record of. %u" , receipt_number);
     pthread_mutex_unlock(&messages_lock);
 }
 
@@ -654,7 +654,7 @@ static int messages_draw_text(const char *msg, size_t length, uint32_t msg_heigh
                                                  length, highlight_start, highlight_end, 0, 0, 1);
 
     if (ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg_height) {
-        LOG_TRACE("Messages", "Text Draw Error:\ty %i | ny %i | mheight %u | width %i " , y, ny, msg_height, w);
+        LOG_TRACE("Text Draw Error:\ty %i | ny %i | mheight %u | width %i " , y, ny, msg_height, w);
     }
 
     return ny;
@@ -996,7 +996,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             switch (msg->msg_type) {
                 case MSG_TYPE_NULL: {
                     // This shouldn't happen.
-                    LOG_ERR("Messages", "Invalid message type in messages_draw.");
+                    LOG_ERR("Invalid message type in messages_draw.");
                     break;
                 }
 
@@ -1041,7 +1041,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
         // Draw message contents
         switch (msg->msg_type) {
             case MSG_TYPE_NULL: {
-                LOG_ERR("Messages", "Error msg type is null");
+                LOG_ERR("Error msg type is null");
                 break;
             }
 
@@ -1163,7 +1163,7 @@ static bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, 
     if (m->cursor_over_uri != UINT32_MAX) {
         m->urllen          = (str - message) - m->cursor_over_uri;
         m->cursor_down_uri = prev_cursor_down_uri;
-        LOG_TRACE("Messages", "urllen %u" , m->urllen);
+        LOG_TRACE("urllen %u" , m->urllen);
     }
 
     return 0;
@@ -1251,7 +1251,7 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
 
             switch (msg->msg_type) {
                 case MSG_TYPE_NULL: {
-                    LOG_ERR("Messages", "Invalid message type in messages_mmove.");
+                    LOG_ERR("Invalid message type in messages_mmove.");
                     return false;
                 }
 
@@ -1335,7 +1335,7 @@ bool messages_mdown(PANEL *panel) {
         MSG_HEADER *msg = m->data[m->cursor_over_msg];
         switch (msg->msg_type) {
             case MSG_TYPE_NULL: {
-                LOG_ERR("Messages", "Invalid message type in messages_mdown.");
+                LOG_ERR("Invalid message type in messages_mdown.");
                 return false;
             }
 
@@ -1345,7 +1345,7 @@ bool messages_mdown(PANEL *panel) {
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 if (m->cursor_over_uri != UINT32_MAX) {
                     m->cursor_down_uri = m->cursor_over_uri;
-                    LOG_TRACE("Messages", "mdn dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
+                    LOG_TRACE("mdn dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
                 }
 
                 m->sel_start_msg = m->sel_end_msg = m->cursor_down_msg = m->cursor_over_msg;
@@ -1436,7 +1436,7 @@ bool messages_dclick(PANEL *panel, bool triclick) {
 
         switch (msg->msg_type) {
             case MSG_TYPE_NULL: {
-                LOG_ERR("Messages", "Invalid message type in messages_dclick.");
+                LOG_ERR("Invalid message type in messages_dclick.");
                 return false;
             }
 
@@ -1496,7 +1496,7 @@ bool messages_mright(PANEL *panel) {
 
     switch (msg->msg_type) {
         case MSG_TYPE_NULL: {
-            LOG_ERR("Messages", "Invalid message type in messages_mdown.");
+            LOG_ERR("Invalid message type in messages_mdown.");
             return false;
         }
 
@@ -1536,7 +1536,7 @@ bool messages_mup(PANEL *panel) {
                 && m->cursor_over_position >= m->cursor_over_uri
                 && m->cursor_over_position <= m->cursor_over_uri + m->urllen - 1 /* - 1 Don't open on white space */
                 && !m->selecting_text) {
-                LOG_TRACE("Messages", "mup dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
+                LOG_TRACE("mup dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
                 char url[m->urllen + 1];
                 memcpy(url, msg->via.txt.msg + m->cursor_over_uri, m->urllen * sizeof(char));
                 url[m->urllen] = 0;
@@ -1617,7 +1617,7 @@ int messages_selection(PANEL *panel, char *buffer, uint32_t len, bool names) {
 
         switch (msg->msg_type) {
             case MSG_TYPE_NULL: {
-                LOG_ERR("Messages", "Invalid message type in messages_selection.");
+                LOG_ERR("Invalid message type in messages_selection.");
                 return 0;
             }
 
@@ -1708,7 +1708,7 @@ bool messages_char(uint32_t ch) {
     } else if (flist_get_groupchat()) {
         m = messages_group.object;
     } else {
-        LOG_TRACE("Messages", "Can't type to nowhere");
+        LOG_TRACE("Can't type to nowhere");
         return false;
     }
 
@@ -1762,7 +1762,7 @@ void message_free(MSG_HEADER *msg) {
     // The group messages are free()d in groups.c (group_free(GROUPCHAT *g))
     switch (msg->msg_type) {
         case MSG_TYPE_NULL: {
-            LOG_ERR("Messages", "Invalid message type in message_free.");
+            LOG_ERR("Invalid message type in message_free.");
             break;
         }
 

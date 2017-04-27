@@ -15,7 +15,7 @@
 #else
 #define DRAW_TARGET_CHK()                                                          \
     if (!currently_drawing_into_view) {                                            \
-        LOG_ERR("OSX", "bug: currently_drawing_into_view is nil in %s", __func__); \
+        LOG_ERR("bug: currently_drawing_into_view is nil in %s", __func__); \
         abort();                                                                   \
     }
 #endif
@@ -192,7 +192,7 @@ void drawtextwidth(int x, int width, int y, const char *str, uint16_t length) {
     CTLineRef line         = CTLineCreateWithAttributedString(attrString);
     CTLineRef cut_line     = CTLineCreateTruncatedLine(line, width, kCTLineTruncationEnd, ellipse_line);
     if (!cut_line) {
-        LOG_WARN("OSX", "warning: space given not enough for drawtextwidth, bailing");
+        LOG_WARN("warning: space given not enough for drawtextwidth, bailing");
         goto free_everything;
     }
 
@@ -237,7 +237,7 @@ void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t leng
     CTLineRef line         = CTLineCreateWithAttributedString(attrString);
     CTLineRef cut_line     = CTLineCreateTruncatedLine(line, width, kCTLineTruncationEnd, ellipse_line);
     if (!cut_line) {
-        LOG_WARN("OSX", "warning: space given not enough for drawtextwidth, bailing");
+        LOG_WARN("warning: space given not enough for drawtextwidth, bailing");
         goto free_everything;
     }
 
@@ -392,7 +392,7 @@ void setscale_fonts(void) {
 }
 
 void setscale(void) {
-    LOG_WARN("OSX", "%d", ui_scale);
+    LOG_WARN("%d", ui_scale);
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApplication sharedApplication].delegate;
     float old_scale     = ui_scale;
     // handle OS X retina capability gracefully
@@ -554,7 +554,7 @@ void enddraw(int x, int y, int width, int height) {}
 void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
     DRAW_TARGET_CHK()
 
-    // LOG_WARN("OSX", "%lu %lu %lf", imgx, imgy, image->scale);
+    // LOG_WARN("%lu %lu %lf", imgx, imgy, image->scale);
 
     CGFloat sz   = currently_drawing_into_view.frame.size.height;
     CGRect  rect = {.origin =

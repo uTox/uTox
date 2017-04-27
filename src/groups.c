@@ -24,7 +24,7 @@ static GROUPCHAT group[UTOX_MAX_NUM_GROUPS];
 
 GROUPCHAT *get_group(uint32_t group_number) {
     if (group_number >= UTOX_MAX_NUM_GROUPS) {
-        LOG_ERR("get_group", " index: %u is out of bounds." , group_number);
+        LOG_ERR(" index: %u is out of bounds." , group_number);
         return NULL;
     }
 
@@ -71,20 +71,20 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
 
     if (peer_id >= UTOX_MAX_GROUP_PEERS) {
-        LOG_ERR("Groupchats", "Unable to add message from peer %u - peer id too large.", peer_id);
+        LOG_ERR("Unable to add message from peer %u - peer id too large.", peer_id);
         return UINT32_MAX;
     }
 
     const GROUP_PEER *peer = g->peer[peer_id];
     if (!peer) {
-        LOG_ERR("Groupchats", "Unable to get peer %u for adding message.", peer_id);
+        LOG_ERR("Unable to get peer %u for adding message.", peer_id);
         pthread_mutex_unlock(&messages_lock);
         return UINT32_MAX;
     }
 
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
-        LOG_ERR("Groupchats", "Unable to allocate memory for message header.");
+        LOG_ERR("Unable to allocate memory for message header.");
         return UINT32_MAX;
     }
 
@@ -100,7 +100,7 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
 
     msg->via.grp.author = calloc(1, peer->name_length);
     if (!msg->via.grp.author) {
-        LOG_ERR("Groupchat", "Unable to allocate space for author nickname.");
+        LOG_ERR("Unable to allocate space for author nickname.");
         free(msg);
         return UINT32_MAX;
     }
@@ -108,7 +108,7 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
 
     msg->via.grp.msg = calloc(1, length);
     if (!msg->via.grp.msg) {
-        LOG_ERR("Groupchat", "Unable to allocate space for message.");
+        LOG_ERR("Unable to allocate space for message.");
         free(msg->via.grp.author);
         free(msg);
         pthread_mutex_unlock(&messages_lock);
@@ -126,7 +126,7 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
-        LOG_NOTE("Groupchat", "Needed to calloc peers for this group chat. (%u)" , peer_id);
+        LOG_NOTE("Needed to calloc peers for this group chat. (%u)" , peer_id);
     }
 
     const char *default_peer_name = "<unknown>";
@@ -152,7 +152,7 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
 
     if (!g->peer) {
-        LOG_TRACE("Groupchat", "Unable to del peer from NULL group");
+        LOG_TRACE("Unable to del peer from NULL group");
         pthread_mutex_unlock(&messages_lock);
         return;
     }
@@ -160,10 +160,10 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
     GROUP_PEER *peer = g->peer[peer_id];
 
     if (peer) {
-        LOG_TRACE("Groupchat", "Freeing peer %u, name %.*s" , peer_id, (int)peer->name_length, peer->name);
+        LOG_TRACE("Freeing peer %u, name %.*s" , peer_id, (int)peer->name_length, peer->name);
         free(peer);
     } else {
-        LOG_TRACE("Groupchat", "Unable to find peer for deletion");
+        LOG_TRACE("Unable to find peer for deletion");
         pthread_mutex_unlock(&messages_lock);
         return;
     }
@@ -175,7 +175,7 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
 void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name, size_t length) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
-        LOG_TRACE("Groupchat", "Unable to add peer to NULL group");
+        LOG_TRACE("Unable to add peer to NULL group");
         pthread_mutex_unlock(&messages_lock);
         return;
     }

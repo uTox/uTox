@@ -63,11 +63,11 @@ static FILE_TRANSFER *make_file_transfer(uint32_t friend_number, uint32_t file_n
     if (is_incoming_ft(file_number)) {
         file_number = detox_incoming_file_number(file_number);
         if (f->ft_incoming_size <= file_number) {
-            LOG_TRACE("FileTransfer", "Realloc incoming %u|%u" , friend_number, file_number + 1);
+            LOG_TRACE("Realloc incoming %u|%u" , friend_number, file_number + 1);
 
             FILE_TRANSFER *new_ftlist = realloc(f->ft_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
             if (!new_ftlist) {
-                LOG_ERR("FileTransfer", "Unable to allocate memory for new incoming file transfer.");
+                LOG_ERR("Unable to allocate memory for new incoming file transfer.");
                 return NULL;
             }
 
@@ -79,11 +79,11 @@ static FILE_TRANSFER *make_file_transfer(uint32_t friend_number, uint32_t file_n
     }
 
     if (f->ft_outgoing_size <= file_number) {
-        LOG_TRACE("FileTransfer", "Realloc outgoing %u|%u" , friend_number, file_number + 1);
+        LOG_TRACE("Realloc outgoing %u|%u" , friend_number, file_number + 1);
 
         FILE_TRANSFER *new_ftlist = realloc(f->ft_outgoing, sizeof(FILE_TRANSFER) * (file_number + 1));
         if (!new_ftlist) {
-            LOG_ERR("FileTransfer", "Unable to allocate memory for new outgoing file transfer.");
+            LOG_ERR("Unable to allocate memory for new outgoing file transfer.");
             return NULL;
         }
 
@@ -120,7 +120,7 @@ static void calculate_speed(FILE_TRANSFER *file) {
 
     FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
     if (!msg) {
-        LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+        LOG_ERR("Unable to malloc for internal message. (This is bad!)");
         return;
     }
 
@@ -129,10 +129,10 @@ static void calculate_speed(FILE_TRANSFER *file) {
 }
 
 static void ft_decon(uint32_t friend_number, uint32_t file_number) {
-    LOG_INFO("FileTransfer", "Cleaning up file transfers! (%u & %u)" , friend_number, file_number);
+    LOG_INFO("Cleaning up file transfers! (%u & %u)" , friend_number, file_number);
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft) {
-        LOG_ERR("FileTransfer", "Can't decon a FT that doesn't exist!");
+        LOG_ERR("Can't decon a FT that doesn't exist!");
         return;
     }
 
@@ -171,7 +171,7 @@ static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
 
         uint8_t blank_id[TOX_HASH_LENGTH] = { 0 };
         if (memcmp(ft->data_hash, blank_id, TOX_HASH_LENGTH) == 0) {
-            LOG_ERR("FileTransfer", "Unable to use current data hash for incoming file.\n"
+            LOG_ERR("Unable to use current data hash for incoming file.\n"
                         "\t\tuTox can't resume file %.*s\n"
                         "\t\tHash is %.*s\n",
                         (uint32_t)ft->name_length, ft->name,
@@ -196,7 +196,7 @@ static bool ft_update_resumable(FILE_TRANSFER *ft) {
         }
     }
 
-    LOG_ERR("FileTransfer", "Unable to save file info... uTox can't resume file %.*s",
+    LOG_ERR("Unable to save file info... uTox can't resume file %.*s",
                 (int)ft->name_length, ft->name);
     return false;
 }
@@ -213,7 +213,7 @@ static bool ft_init_resumable(FILE_TRANSFER *ft) {
         return false;
     }
 
-    LOG_INFO("FileTransfer", ".ftinfo for file %.*s set; ready to resume!" , (uint32_t)ft->name_length, ft->name);
+    LOG_INFO(".ftinfo for file %.*s set; ready to resume!" , (uint32_t)ft->name_length, ft->name);
     return ft_update_resumable(ft);
 }
 
@@ -224,7 +224,7 @@ static void ft_decon_resumable(FILE_TRANSFER *ft) {
         return;
     }
 
-    LOG_INFO("FileTransfer", "Going to decon file %s." , name);
+    LOG_INFO("Going to decon file %s." , name);
     FILE *file = utox_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE);
     if (!file) {
         return;
@@ -245,7 +245,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
 
     if (!resume_disk) {
         if (ft->incoming) {
-            LOG_INFO("FileTransfer", "Unable to load saved info... uTox can't resume file %.*s",
+            LOG_INFO("Unable to load saved info... uTox can't resume file %.*s",
                      (uint32_t)ft->name_length, ft->name);
         }
         ft->status = 0;
@@ -253,7 +253,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     }
 
     if (size != sizeof(FILE_TRANSFER)) {
-        LOG_ERR("FileTransfer", "Unable to resume this file, size mismatch");
+        LOG_ERR("Unable to resume this file, size mismatch");
         fclose(resume_disk);
         return false;
     }
@@ -263,7 +263,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     fclose(resume_disk);
 
     if (!read_resumeable) {
-        LOG_ERR("FileTransfer", "Failed to read resumeable file.");
+        LOG_ERR("Failed to read resumeable file.");
         return false;
     }
 
@@ -299,12 +299,12 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
 static void kill_file(FILE_TRANSFER *file) {
     switch (file->status) {
         case FILE_TRANSFER_STATUS_KILLED: {
-            LOG_WARN("FileTransfer", "File already killed.");
+            LOG_WARN("File already killed.");
             return;
         }
 
         case FILE_TRANSFER_STATUS_COMPLETED: {
-            LOG_WARN("FileTransfer", "File already completed.");
+            LOG_WARN("File already completed.");
             return;
         }
 
@@ -363,17 +363,17 @@ static void utox_pause_file(FILE_TRANSFER *file, bool us) {
                 // New transfers start as paused them
                 file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
             } else {
-                LOG_TRACE("FileTransfer", "We can't pause an unaccepted file!");
+                LOG_TRACE("We can't pause an unaccepted file!");
             }
             break;
         }
 
         case FILE_TRANSFER_STATUS_ACTIVE: {
             if (us) {
-                LOG_TRACE("FileTransfer", "File now paused by us.");
+                LOG_TRACE("File now paused by us.");
                 file->status = FILE_TRANSFER_STATUS_PAUSED_US;
             } else {
-                LOG_TRACE("FileTransfer", "File now paused by them.");
+                LOG_TRACE("File now paused by them.");
                 file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
             }
             break;
@@ -384,23 +384,23 @@ static void utox_pause_file(FILE_TRANSFER *file, bool us) {
         case FILE_TRANSFER_STATUS_PAUSED_THEM: {
             if (us) {
                 if (file->status == FILE_TRANSFER_STATUS_PAUSED_US) {
-                    LOG_TRACE("FileTransfer", "File already paused by us!");
+                    LOG_TRACE("File already paused by us!");
                 } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
                     file->status = FILE_TRANSFER_STATUS_PAUSED_BOTH;
-                    LOG_TRACE("FileTransfer", "File now paused by both!");
+                    LOG_TRACE("File now paused by both!");
                 } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH) {
-                    LOG_TRACE("FileTransfer", "File already paused by both!");
+                    LOG_TRACE("File already paused by both!");
                 } else {
                     file->status = FILE_TRANSFER_STATUS_PAUSED_US;
                 }
             } else {
                 if (file->status == FILE_TRANSFER_STATUS_PAUSED_US) {
                     file->status = FILE_TRANSFER_STATUS_PAUSED_BOTH;
-                    LOG_TRACE("FileTransfer", "File now paused by both!");
+                    LOG_TRACE("File now paused by both!");
                 } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
-                    LOG_TRACE("FileTransfer", "File was already paused by them!");
+                    LOG_TRACE("File was already paused by them!");
                 } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH) {
-                    LOG_TRACE("FileTransfer", "File already paused by both!");
+                    LOG_TRACE("File already paused by both!");
                 } else {
                     file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
                 }
@@ -409,24 +409,24 @@ static void utox_pause_file(FILE_TRANSFER *file, bool us) {
         }
 
         case FILE_TRANSFER_STATUS_BROKEN: {
-            LOG_TRACE("FileTransfer", "Can't pause a broken file;");
+            LOG_TRACE("Can't pause a broken file;");
             break;
         }
 
         case FILE_TRANSFER_STATUS_COMPLETED: {
-            LOG_TRACE("FileTransfer", "Can't pause a completed file;");
+            LOG_TRACE("Can't pause a completed file;");
             break;
         }
 
         case FILE_TRANSFER_STATUS_KILLED: {
-            LOG_TRACE("FileTransfer", "Can't pause a killed file;");
+            LOG_TRACE("Can't pause a killed file;");
             break;
         }
     }
 
     FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
     if (!msg) {
-        LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+        LOG_ERR("Unable to malloc for internal message. (This is bad!)");
         return;
     }
 
@@ -464,14 +464,14 @@ static void run_file_local(FILE_TRANSFER *file) {
         case FILE_TRANSFER_STATUS_BROKEN:
         case FILE_TRANSFER_STATUS_COMPLETED:
         case FILE_TRANSFER_STATUS_KILLED: {
-            LOG_ERR("FileTransfer", "We tried to run file from an unknown state! (%u)" , file->status);
+            LOG_ERR("We tried to run file from an unknown state! (%u)" , file->status);
             return;
         }
     }
 
     FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
     if (!msg) {
-        LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+        LOG_ERR("Unable to malloc for internal message. (This is bad!)");
         return;
     }
 
@@ -497,14 +497,14 @@ static void run_file_remote(FILE_TRANSFER *file) {
         }
 
         default: {
-            LOG_ERR("FileTransfer", "They tried to run file from an unknown state! (%u)" , file->status);
+            LOG_ERR("They tried to run file from an unknown state! (%u)" , file->status);
             break;
         }
     }
 
     FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
     if (!msg) {
-        LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+        LOG_ERR("Unable to malloc for internal message. (This is bad!)");
         return;
     }
 
@@ -520,7 +520,7 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) 
     if (NATIVE_IMAGE_IS_VALID(native_image)) {
         uint8_t *msg = malloc(sizeof(uint16_t) * 2 + sizeof(NATIVE_IMAGE *));
         if (!msg) {
-            LOG_ERR("decode_inline_png", "Unable to malloc for inline data.");
+            LOG_ERR("Unable to malloc for inline data.");
             free(native_image);
             return;
         }
@@ -537,7 +537,7 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) 
 static void utox_complete_file(FILE_TRANSFER *file) {
     FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
     if (!msg) {
-        LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+        LOG_ERR("Unable to malloc for internal message. (This is bad!)");
         return;
     }
 
@@ -557,9 +557,9 @@ static void utox_complete_file(FILE_TRANSFER *file) {
         file->decon_wait = true;
         postmessage_utox(FILE_STATUS_UPDATE_DATA, file->status, 0, file);
     } else {
-        LOG_ERR("FileTransfer", "Unable to complete file in non-active state (file:%u)" , file->file_number);
+        LOG_ERR("Unable to complete file in non-active state (file:%u)" , file->file_number);
     }
-    LOG_NOTE("FileTransfer", "File transfer is done (%u & %u)" , file->friend_number, file->file_number);
+    LOG_NOTE("File transfer is done (%u & %u)" , file->friend_number, file->file_number);
     postmessage_utox(FILE_STATUS_DONE, file->status, 0, file->ui_data);
 
     if (file->resumeable) {
@@ -588,7 +588,7 @@ void ft_friend_online(Tox *tox, uint32_t friend_number) {
 
 /* Friend has gone offline, break our outgoing transfers to this friend. */
 void ft_friend_offline(Tox *UNUSED(tox), uint32_t friend_number) {
-    LOG_NOTE("FileTransfer", "Friend %u has gone offline, breaking transfers" , friend_number);
+    LOG_NOTE("Friend %u has gone offline, breaking transfers" , friend_number);
 
     FRIEND *f = get_friend(friend_number);
     if (!f) {
@@ -608,7 +608,7 @@ void ft_friend_offline(Tox *UNUSED(tox), uint32_t friend_number) {
 void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control) {
     FILE_TRANSFER *info  = get_file_transfer(friend_number, file_number);
     if (!info) {
-        LOG_ERR("FileTransfer", "We know nothing of this file. This is probably an error.");
+        LOG_ERR("We know nothing of this file. This is probably an error.");
         return;
     }
 
@@ -618,16 +618,16 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
             if (info->status != FILE_TRANSFER_STATUS_ACTIVE) {
                 if (get_friend(friend_number)->ft_outgoing_size < MAX_FILE_TRANSFERS) {
                     if (tox_file_control(tox, friend_number, file_number, control, &error)) {
-                        LOG_INFO("FileTransfer", "We just resumed file (%u & %u)" , friend_number, file_number);
+                        LOG_INFO("We just resumed file (%u & %u)" , friend_number, file_number);
                     } else {
-                        LOG_INFO("FileTransfer", "Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
+                        LOG_INFO("Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
                     }
                 } else {
-                    LOG_INFO("FileTransfer", "Can't start file, max file transfer limit reached! (%u & %u)",
+                    LOG_INFO("Can't start file, max file transfer limit reached! (%u & %u)",
                           friend_number, file_number);
                 }
             } else {
-                LOG_INFO("FileTransfer", "File already active (%u & %u)" , friend_number, file_number);
+                LOG_INFO("File already active (%u & %u)" , friend_number, file_number);
             }
             run_file_local(info);
             break;
@@ -636,12 +636,12 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
         case TOX_FILE_CONTROL_PAUSE: {
             if (info->status != FILE_TRANSFER_STATUS_PAUSED_US && info->status != FILE_TRANSFER_STATUS_PAUSED_BOTH) {
                 if (tox_file_control(tox, friend_number, file_number, control, &error)) {
-                    LOG_INFO("FileTransfer", "We just paused file (%u & %u)" , friend_number, file_number);
+                    LOG_INFO("We just paused file (%u & %u)" , friend_number, file_number);
                 } else {
-                    LOG_INFO("FileTransfer", "Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
+                    LOG_INFO("Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
                 }
             } else {
-                LOG_INFO("FileTransfer", "File already paused (%u & %u)" , friend_number, file_number);
+                LOG_INFO("File already paused (%u & %u)" , friend_number, file_number);
             }
             utox_pause_file(info, true);
             break;
@@ -650,12 +650,12 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
         case TOX_FILE_CONTROL_CANCEL: {
             if (info->status != FILE_TRANSFER_STATUS_KILLED) {
                 if (tox_file_control(tox, friend_number, file_number, control, &error)) {
-                    LOG_INFO("FileTransfer", "We just killed file (%u & %u)" , friend_number, file_number);
+                    LOG_INFO("We just killed file (%u & %u)" , friend_number, file_number);
                 } else {
-                    LOG_INFO("FileTransfer", "Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
+                    LOG_INFO("Toxcore doesn't like us! (%u & %u)" , friend_number, file_number);
                 }
             } else {
-                LOG_INFO("FileTransfer", "File already killed (%u & %u)" , friend_number, file_number);
+                LOG_INFO("File already killed (%u & %u)" , friend_number, file_number);
             }
             kill_file(info);
             break;
@@ -669,27 +669,27 @@ void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TO
         }
 
         case TOX_ERR_FILE_CONTROL_FRIEND_NOT_FOUND: {
-            LOG_ERR("FileTransfer", "Unable to send command, Friend (%u) doesn't exist!" , info->friend_number);
+            LOG_ERR("Unable to send command, Friend (%u) doesn't exist!" , info->friend_number);
             break;
         }
 
         case TOX_ERR_FILE_CONTROL_FRIEND_NOT_CONNECTED: {
-            LOG_ERR("FileTransfer", "Unable to send command, Friend (%u) offline!" , info->friend_number);
+            LOG_ERR("Unable to send command, Friend (%u) offline!" , info->friend_number);
             break;
         }
 
         case TOX_ERR_FILE_CONTROL_NOT_FOUND: {
-            LOG_ERR("FileTransfer", "Unable to send command, ft (%u) doesn't exist!" , info->friend_number);
+            LOG_ERR("Unable to send command, ft (%u) doesn't exist!" , info->friend_number);
             break;
         }
 
         case TOX_ERR_FILE_CONTROL_DENIED: {
-            LOG_ERR("FileTransfer", "Unable to send command, ft (%u) paused by other party." , info->friend_number);
+            LOG_ERR("Unable to send command, ft (%u) paused by other party." , info->friend_number);
             break;
         }
 
         default: {
-            LOG_ERR("FileTransfer", "FileTransfer:\tThere was an error(%u) sending the command."
+            LOG_ERR("FileTransfer:\tThere was an error(%u) sending the command."
                         "You probably want to see to that!\n", error);
             break;
         }
@@ -707,22 +707,22 @@ static void file_transfer_callback_control(Tox *UNUSED(tox), uint32_t friend_num
 
     switch (control) {
         case TOX_FILE_CONTROL_RESUME: {
-            LOG_TRACE("FileTransfer", "Friend (%i) has resumed file (%i)" , friend_number, file_number);
+            LOG_TRACE("Friend (%i) has resumed file (%i)" , friend_number, file_number);
             run_file_remote(ft);
             break;
         }
 
         case TOX_FILE_CONTROL_PAUSE: {
-            LOG_TRACE("FileTransfer", "Friend (%i) has paused file (%i)" , friend_number, file_number);
+            LOG_TRACE("Friend (%i) has paused file (%i)" , friend_number, file_number);
             utox_pause_file(ft, false);
             break;
         }
 
         case TOX_FILE_CONTROL_CANCEL: {
             if (ft->avatar) {
-                LOG_TRACE("FileTransfer", "Friend (%i) rejected avatar" , friend_number);
+                LOG_TRACE("Friend (%i) rejected avatar" , friend_number);
             } else {
-                LOG_TRACE("FileTransfer", "Friend (%i) has canceled file (%i)" , friend_number, file_number);
+                LOG_TRACE("Friend (%i) has canceled file (%i)" , friend_number, file_number);
             }
             kill_file(ft);
             break;
@@ -731,21 +731,21 @@ static void file_transfer_callback_control(Tox *UNUSED(tox), uint32_t friend_num
 }
 
 static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t size) {
-    LOG_TRACE("FileTransfer", "Incoming avatar from friend %u." , friend_number);
+    LOG_TRACE("Incoming avatar from friend %u." , friend_number);
 
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("FileTransfer", "This friend doesn't exist... This is bad!");
+        LOG_ERR("This friend doesn't exist... This is bad!");
         return;
     }
 
     if (size == 0) {
-        LOG_TRACE("FileTransfer", "Avatar from friend %u deleted." , friend_number);
+        LOG_TRACE("Avatar from friend %u deleted." , friend_number);
         postmessage_utox(FRIEND_AVATAR_UNSET, friend_number, 0, NULL);
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
     } else if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
-        LOG_TRACE("FileTransfer", "Avatar from friend(%u) rejected. (Too Large %lu)" , friend_number, size);
+        LOG_TRACE("Avatar from friend(%u) rejected. (Too Large %lu)" , friend_number, size);
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
     }
@@ -755,14 +755,14 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
 
     /* Verify this is a new avatar */
     if (f->avatar->format && memcmp(f->avatar->hash, file_id, TOX_HASH_LENGTH) == 0) {
-        LOG_TRACE("FileTransfer", "Avatar from friend (%u) rejected: Same as Current" , friend_number);
+        LOG_TRACE("Avatar from friend (%u) rejected: Same as Current" , friend_number);
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
     }
 
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
-        LOG_ERR("FileTransfer", "Unable to malloc ft to accept incoming avatar!");
+        LOG_ERR("Unable to malloc ft to accept incoming avatar!");
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return;
     }
@@ -783,7 +783,7 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
 
     ft->via.avatar = calloc(1, size);
     if (!ft->via.avatar) {
-        LOG_ERR("FileTransfer", "Unable to malloc for incoming avatar");
+        LOG_ERR("Unable to malloc for incoming avatar");
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
     }
@@ -793,17 +793,17 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
 }
 
 static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t file_number, size_t size) {
-    LOG_INFO("FileTransfer", "Getting an incoming inline image");
+    LOG_INFO("Getting an incoming inline image");
 
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("FileTransfer", "This friend doesn't exist... This is bad!");
+        LOG_ERR("This friend doesn't exist... This is bad!");
         return;
     }
 
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
-        LOG_ERR("FileTransfer", "Unable to malloc ft to accept incoming inline image!");
+        LOG_ERR("Unable to malloc ft to accept incoming inline image!");
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return;
     }
@@ -824,18 +824,18 @@ static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t fil
 
     ft->via.memory = calloc(1, size);
     if (!ft->via.memory) {
-        LOG_ERR("FileTransfer", "Unable to malloc enough memory for incoming inline image of size %lu" , size);
+        LOG_ERR("Unable to malloc enough memory for incoming inline image of size %lu" , size);
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
     }
 
-    LOG_NOTE("FileTransfer", "Starting incoming inline image of size %lu" , size);
+    LOG_NOTE("Starting incoming inline image of size %lu" , size);
     ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
 
     ft->name = (uint8_t *)strdup("utox-inline.png");
     ft->name_length = strlen("utox-inline.png");
     if (!ft->name) {
-        LOG_ERR("FileTransfer", "Error, couldn't allocate memory for ft->name.");
+        LOG_ERR("Error, couldn't allocate memory for ft->name.");
         ft->name_length = 0;
     }
 }
@@ -845,11 +845,11 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                                            uint64_t size, const uint8_t *name, size_t name_length,
                                            void *UNUSED(user_data))
 {
-    LOG_NOTE("FileTransfer", "New incoming file transfer request from friend %u" , friend_number);
+    LOG_NOTE("New incoming file transfer request from friend %u" , friend_number);
 
     FRIEND *f = get_friend(friend_number);
     if (f->ft_incoming_active_count >= MAX_INCOMING_COUNT) {
-        LOG_ERR("FileTransfer", "Too many incoming file transfers from friend %u", friend_number);
+        LOG_ERR("Too many incoming file transfers from friend %u", friend_number);
         /* ft_local_control is preferred, but in this case it can't access the ft struct. */
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CANCEL, NULL);
         return;
@@ -869,7 +869,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
-        LOG_ERR("FileTransfer", "Unable to get memory handle for transfer, canceling friend/file number (%u/%u)",
+        LOG_ERR("Unable to get memory handle for transfer, canceling friend/file number (%u/%u)",
               friend_number, file_number);
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
         return;
@@ -891,10 +891,10 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     /* access the correct memory location for this file */
     /* Load saved information about this file */
     if (ft_find_resumeable(ft)) {
-        LOG_NOTE("FileTransfer", "Incoming Existing file from friend (%u) " , friend_number);
+        LOG_NOTE("Incoming Existing file from friend (%u) " , friend_number);
         FILE *file = fopen((const char *)ft->path, "rb+");
         if (file) {
-            LOG_INFO("FileTransfer", "Cool file exists, let try to restart it.");
+            LOG_INFO("Cool file exists, let try to restart it.");
             ft->in_use        = true;
             ft->in_memory     = false;
             ft->avatar        = false;
@@ -905,7 +905,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
             FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
             if (!msg) {
-                LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+                LOG_ERR("Unable to malloc for internal message. (This is bad!)");
                 return;
             }
             *msg = *ft;
@@ -913,18 +913,18 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             TOX_ERR_FILE_SEEK error = 0;
             tox_file_seek(tox, friend_number, file_number, ft->current_size, &error);
             if (error) {
-                LOG_ERR("FileTransfer", "seek error %i" , error);
+                LOG_ERR("seek error %i" , error);
                 // TODO UI error here as well;
                 ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
                 return;
             }
-            LOG_INFO("FileTransfer", "seek & resume");
+            LOG_INFO("seek & resume");
             ft->status = FILE_TRANSFER_STATUS_NONE;
             ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
             ft->resumeable = ft_init_resumable(ft);
             return;
         }
-        LOG_ERR("FileTransfer", "Unable to open file suggested by resume!");
+        LOG_ERR("Unable to open file suggested by resume!");
         // This is fine-ish, we'll just fallback to new incoming file.
     }
 
@@ -937,14 +937,14 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
     FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
     if (!msg) {
-        LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+        LOG_ERR("Unable to malloc for internal message. (This is bad!)");
         return;
     }
 
     *msg = *ft;
     postmessage_utox(FILE_INCOMING_NEW, friend_number, detox_incoming_file_number(file_number), msg);
     /* The file doesn't exist on disk where we expected, let's prompt the user to accept it as a new file */
-    LOG_NOTE("FileTransfer", "New incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s",
+    LOG_NOTE("New incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s",
           friend_number, file_number, name);
     /* Auto accept if it's a utox-inline image, with the correct size */
 }
@@ -953,12 +953,12 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number,
                                          uint64_t position, const uint8_t *data, size_t length, void *UNUSED(user_data))
 {
-    LOG_INFO("FileTransfer", "Incoming chunk friend(%u), file(%u), start(%lu), end(%lu), \n",
+    LOG_INFO("Incoming chunk friend(%u), file(%u), start(%lu), end(%lu), \n",
             friend_number, file_number, position, length);
 
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft || !ft->in_use) {
-        LOG_ERR("FileTransfer", "ERROR incoming chunk for an out of use file transfer!");
+        LOG_ERR("ERROR incoming chunk for an out of use file transfer!");
         return;
     }
 
@@ -972,7 +972,7 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
             uint8_t png_header[] = {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a };
             if (memcmp(data, png_header, 8) != 0) {
                 // this isn't a png header, just die
-                LOG_ERR("FileTransfer", "Friend %u sent an inline image thats' not a PNG" , friend_number);
+                LOG_ERR("Friend %u sent an inline image thats' not a PNG" , friend_number);
                 ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
                 return;
             }
@@ -983,7 +983,7 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     } else if (ft->via.file) {
         uint8_t count = 10;
         while (!file_lock(ft->via.file, position, length)) {
-            LOG_ERR("FileTransfer", "Can't get lock, sleeping...");
+            LOG_ERR("Can't get lock, sleeping...");
             yieldcpu(10);
             if (count == 0) {
                 break;
@@ -996,13 +996,13 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         fflush(ft->via.file);
         file_unlock(ft->via.file, position, length);
         if (write_size != length) {
-            LOG_ERR("FileTransfer", "\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
+            LOG_ERR("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
             ft_local_control(tox, friend_number, file_number, TOX_FILE_CANCEL);
             return;
         }
         calculate_speed(ft);
     } else {
-        LOG_TRACE("FileTransfer", "File Handle failed!");
+        LOG_TRACE("File Handle failed!");
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CANCEL);
         return;
     }
@@ -1020,21 +1020,21 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
 uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
     if (!tox || !self.png_data) {
-        LOG_ERR("FileTransfer", "Can't send an avatar without data");
+        LOG_ERR("Can't send an avatar without data");
         return UINT32_MAX;
     }
-    LOG_NOTE("FileTransfer", "Starting avatar to friend %u." , friend_number);
+    LOG_NOTE("Starting avatar to friend %u." , friend_number);
 
     // TODO send the unset avatar command.
 
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("FileTransfer", "Unable to get friend %u to send avatar.", friend_number);
+        LOG_ERR("Unable to get friend %u to send avatar.", friend_number);
         return UINT32_MAX;
     }
 
     if (f->ft_outgoing_active_count > MAX_FILE_TRANSFERS) {
-        LOG_ERR("FileTransfer", "Can't send this avatar too many in progress...");
+        LOG_ERR("Can't send this avatar too many in progress...");
         return UINT32_MAX;
     }
 
@@ -1048,14 +1048,14 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR,
                                          self.png_size, hash, NULL, 0, &error);
     if (error || file_number == UINT32_MAX) {
-        LOG_ERR("FileTransfer", "tox_file_send() failed error code %u", error);
+        LOG_ERR("tox_file_send() failed error code %u", error);
         return UINT32_MAX;
     };
 
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
         // This is the noisy case noted above.
-        LOG_ERR("FileTransfer", "Unable to malloc to actually send avatar!");
+        LOG_ERR("Unable to malloc to actually send avatar!");
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return UINT32_MAX;
     }
@@ -1073,25 +1073,25 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
     ft->target_size = self.png_size;
     ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
 
-    LOG_INFO("FileTransfer", "File transfer #%u sent to friend %u", ft->file_number, ft->friend_number);
+    LOG_INFO("File transfer #%u sent to friend %u", ft->file_number, ft->friend_number);
     return file_number;
 }
 
 uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *path, size_t path_length, uint8_t *hash) {
     if (!tox || !file) {
-        LOG_ERR("FileTransfer", "Can't send a file without data");
+        LOG_ERR("Can't send a file without data");
         return UINT32_MAX;
     }
-    LOG_TRACE("FileTransfer", "Starting FILE to friend %u." , friend_number);
+    LOG_TRACE("Starting FILE to friend %u." , friend_number);
 
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("FileTransfer", "Unable to get friend %u to send file.", friend_number);
+        LOG_ERR("Unable to get friend %u to send file.", friend_number);
         return UINT32_MAX;
     }
 
     if (f->ft_outgoing_active_count > MAX_FILE_TRANSFERS) {
-        LOG_ERR("FileTransfer", "Can't send this file too many in progress...");
+        LOG_ERR("Can't send this file too many in progress...");
         return UINT32_MAX;
     }
 
@@ -1110,30 +1110,30 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
     if (error || file_number == UINT32_MAX) {
         switch (error) {
             case TOX_ERR_FILE_SEND_NULL: {
-                LOG_ERR("FileTransfer", "Error, Toxcore reports NULL"); break;
+                LOG_ERR("Error, Toxcore reports NULL"); break;
             }
             case TOX_ERR_FILE_SEND_FRIEND_NOT_FOUND: {
-                LOG_ERR("FileTransfer", "Error, friend Not found."); break;
+                LOG_ERR("Error, friend Not found."); break;
             }
             case TOX_ERR_FILE_SEND_FRIEND_NOT_CONNECTED: {
-                LOG_ERR("FileTransfer", "Error, friend not connected."); break;
+                LOG_ERR("Error, friend not connected."); break;
             }
             case TOX_ERR_FILE_SEND_NAME_TOO_LONG: {
-                LOG_ERR("FileTransfer", "Error, name too long '%s'" , name); break;
+                LOG_ERR("Error, name too long '%s'" , name); break;
             }
             case TOX_ERR_FILE_SEND_TOO_MANY: {
-                LOG_ERR("FileTransfer", "Error, too many files in progress"); break;
+                LOG_ERR("Error, too many files in progress"); break;
             }
             case TOX_ERR_FILE_SEND_OK: { break; }
         }
-        LOG_ERR("FileTransfer", "tox_file_send() failed error code %u", error);
+        LOG_ERR("tox_file_send() failed error code %u", error);
         return UINT32_MAX;
     }
 
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
         // This is the noisy case noted above.
-        LOG_ERR("FileTransfer", "Unable to malloc to actually send file!");
+        LOG_ERR("Unable to malloc to actually send file!");
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return UINT32_MAX;
     }
@@ -1150,7 +1150,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
 
     ft->name = calloc(1, name_length + 1);
     if (!ft->name) {
-        LOG_ERR("FileTransfer", "Error, couldn't allocate memory for ft->name.");
+        LOG_ERR("Error, couldn't allocate memory for ft->name.");
         --f->ft_outgoing_active_count;
         return UINT32_MAX;
     }
@@ -1167,7 +1167,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
 
     FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
     if (!msg) {
-        LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+        LOG_ERR("Unable to malloc for internal message. (This is bad!)");
         return UINT32_MAX;
     }
     *msg = *ft;
@@ -1178,22 +1178,22 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
 /* Returns file number on success, UINT32_MAX on failure. */
 uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t size, uint8_t *name, size_t name_length) {
     if (!tox || !data || !name) {
-        LOG_ERR("FileTransfer", "Can't send data to friend without data");
+        LOG_ERR("Can't send data to friend without data");
         return UINT32_MAX;
     }
 
-    LOG_INFO("FileTransfer", "Starting raw data transfer to friend %u." , friend_number);
+    LOG_INFO("Starting raw data transfer to friend %u." , friend_number);
 
     // TODO send the unset avatar command.
 
     FRIEND *f = get_friend(friend_number);
     if (!f) {
-        LOG_ERR("FileTransfer", "Unable to get friend %u to send raw data.", friend_number);
+        LOG_ERR("Unable to get friend %u to send raw data.", friend_number);
         return UINT32_MAX;
     }
 
     if (f->ft_outgoing_active_count >= MAX_FILE_TRANSFERS) {
-        LOG_ERR("FileTransfer", "Can't send raw data too many in progress...");
+        LOG_ERR("Can't send raw data too many in progress...");
         return UINT32_MAX;
     }
 
@@ -1206,14 +1206,14 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, hash, name, name_length, &error);
     if (error || file_number == UINT32_MAX) {
-        LOG_ERR("FileTransfer", "tox_file_send() failed error code %u", error);
+        LOG_ERR("tox_file_send() failed error code %u", error);
         return UINT32_MAX;
     };
 
     FILE_TRANSFER *ft = make_file_transfer(friend_number, file_number);
     if (!ft) {
         // This is the noisy case noted above.
-        LOG_ERR("FileTransfer", "Unable to malloc to actually send data!");
+        LOG_ERR("Unable to malloc to actually send data!");
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return UINT32_MAX;
     }
@@ -1229,7 +1229,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
 
     ft->name = calloc(1, name_length + 1);
     if (!ft->name) {
-        LOG_ERR("FileTransfer", "Error, couldn't allocate memory for ft->name.");
+        LOG_ERR("Error, couldn't allocate memory for ft->name.");
         --f->ft_outgoing_active_count;
         return UINT32_MAX;
     }
@@ -1249,13 +1249,13 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
 
     FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
     if (!msg) {
-        LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+        LOG_ERR("Unable to malloc for internal message. (This is bad!)");
         return UINT32_MAX;
     }
 
     *msg = *ft;
     postmessage_utox(FILE_SEND_NEW, friend_number, file_number, msg);
-    LOG_INFO("FileTransfer", "Inline image sent to friend. FT %u, Friend %u", ft->file_number, ft->friend_number);
+    LOG_INFO("Inline image sent to friend. FT %u, Friend %u", ft->file_number, ft->friend_number);
 
     return file_number;
 }
@@ -1263,7 +1263,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
 bool ft_set_ui_data(uint32_t friend_number, uint32_t file_number, MSG_HEADER *ui_data) {
     FILE_TRANSFER *file = get_file_transfer(friend_number, file_number);
     if (!file) {
-        LOG_WARN("FileTransfer", "Unable to set ui_data for unknown file number %u with friend %u",
+        LOG_WARN("Unable to set ui_data for unknown file number %u with friend %u",
                  file_number, friend_number);
         return false;
     }
@@ -1275,52 +1275,52 @@ bool ft_set_ui_data(uint32_t friend_number, uint32_t file_number, MSG_HEADER *ui
 static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
                                          size_t length, void *UNUSED(user_data))
 {
-    LOG_INFO("FileTransfer", "Chunk requested for friend_id (%u), and file_id (%u). Start (%lu), End (%zu).\r",
+    LOG_INFO("Chunk requested for friend_id (%u), and file_id (%u). Start (%lu), End (%zu).\r",
             friend_number, file_number, position, length);
 
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
 
     if (length == 0) {
-        LOG_NOTE("FileTransfer", "Outgoing transfer is done (%u & %u)", friend_number, file_number);
+        LOG_NOTE("Outgoing transfer is done (%u & %u)", friend_number, file_number);
         utox_complete_file(ft);
         return;
     }
 
     if (position + length > ft->target_size) {
-        LOG_ERR("FileTransfer", "Outing transfer size mismatch!");
+        LOG_ERR("Outing transfer size mismatch!");
         return;
     }
 
     TOX_ERR_FILE_SEND_CHUNK error = 0;
     if (ft->in_memory) {
         if (!ft->via.memory) {
-            LOG_ERR("FileTransfer", "ERROR READING FROM MEMORY! (%u & %u)", friend_number, file_number);
+            LOG_ERR("ERROR READING FROM MEMORY! (%u & %u)", friend_number, file_number);
             return;
         }
 
         tox_file_send_chunk(tox, friend_number, file_number, position, ft->via.memory + position, length, &error);
         if (error) {
-            LOG_ERR("FileTransfer", "Outgoing chunk error on memory (%u)", error);
+            LOG_ERR("Outgoing chunk error on memory (%u)", error);
         }
 
         calculate_speed(ft);
     } else if (ft->avatar) {
         if (!self.png_data) {
-            LOG_ERR("FileTransfer", "ERROR READING FROM AVATAR! (%u & %u)", friend_number, file_number);
+            LOG_ERR("ERROR READING FROM AVATAR! (%u & %u)", friend_number, file_number);
             return;
         }
 
         tox_file_send_chunk(tox, friend_number, file_number, position, self.png_data + position, length, &error);
         if (error) {
-            LOG_ERR("FileTransfer", "Outgoing chunk error on avatar (%u)", error);
+            LOG_ERR("Outgoing chunk error on avatar (%u)", error);
         }
     } else { // File
         if (ft->via.file) {
             uint8_t buffer[length];
             fseeko(ft->via.file, position, SEEK_SET);
             if (fread(buffer, length, 1, ft->via.file) != 1) {
-                LOG_ERR("FileTransfer", "ERROR READING FILE! (%u & %u)", friend_number, file_number);
-                LOG_INFO("FileTransfer", "Size (%lu), Position (%lu), Length(%lu), size_transferred (%lu).",
+                LOG_ERR("ERROR READING FILE! (%u & %u)", friend_number, file_number);
+                LOG_INFO("Size (%lu), Position (%lu), Length(%lu), size_transferred (%lu).",
                          ft->target_size, position, length, ft->current_size);
                 ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
                 return;
@@ -1328,7 +1328,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
             tox_file_send_chunk(tox, friend_number, file_number, position, buffer, length, &error);
             if (error) {
-                LOG_ERR("FileTransfer", "Outgoing chunk error on file (%u)", error);
+                LOG_ERR("Outgoing chunk error on file (%u)", error);
             }
         }
         calculate_speed(ft);
@@ -1340,7 +1340,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 bool utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file) {
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft || !file) {
-        LOG_ERR("FileTransfer", "FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
+        LOG_ERR("FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
                     friend_number, file_number);
         return false;
     }
@@ -1355,7 +1355,7 @@ bool utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *f
     // TODO use native functions to open this file
     ft->via.file = fopen(file, "wb");
     if (!ft->via.file) {
-        LOG_ERR("FileTransfer", "The file we're supposed to write to couldn't be opened\n\t\t\"%s\"", ft->path);
+        LOG_ERR("The file we're supposed to write to couldn't be opened\n\t\t\"%s\"", ft->path);
         break_file(ft);
         return false;
     }

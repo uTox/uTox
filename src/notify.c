@@ -10,7 +10,7 @@
 static uint16_t notification_number = 0;
 
 UTOX_WINDOW *notify_new(NOTIFY_TYPE type) {
-    LOG_NOTE("Notifier", "Notify:\tCreating Notification #%u", notification_number);
+    LOG_NOTE("Notify:\tCreating Notification #%u", notification_number);
 
     const int notify_w = 400;
     const int notify_h = 150;

@@ -33,7 +33,7 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
 size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
     FILE *fp = chatlog_get_file(hex, true);
     if (!fp) {
-        LOG_ERR("uTox", "Error getting a file handle for this chatlog!");
+        LOG_ERR("Error getting a file handle for this chatlog!");
         return 0;
     }
     // Seek to the beginning of the file first because grayhatter has had issues with this on Windows.
@@ -68,7 +68,7 @@ static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
          * If !feof() this means that the file has an incomplete record,
          * which would prevent it from loading forever, even though
          * new records will keep being appended as usual. */
-        LOG_ERR("Chatlog", "Log read err; trying to count history for friend %.*s", TOX_PUBLIC_KEY_SIZE * 2, hex);
+        LOG_ERR("Log read err; trying to count history for friend %.*s", TOX_PUBLIC_KEY_SIZE * 2, hex);
         fclose(file);
         return 0;
     }
@@ -91,16 +91,16 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
     size_t records_count = utox_count_chatlog(hex);
     if (skip >= records_count) {
         if (skip > 0) {
-            LOG_ERR("Chatlog", "Error, skipped all records");
+            LOG_ERR("Error, skipped all records");
         } else {
-            LOG_INFO("Chatlog", "No log exists.");
+            LOG_INFO("No log exists.");
         }
         return NULL;
     }
 
     FILE *file = chatlog_get_file(hex, false);
     if (!file) {
-        LOG_TRACE("Chatlog", "Log read:\tUnable to access file provided." );
+        LOG_TRACE("Log read:\tUnable to access file provided." );
         return NULL;
     }
 
@@ -112,7 +112,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
     MSG_HEADER **start = data;
 
     if (!data) {
-        LOG_ERR("Chatlog", "Log read:\tCouldn't allocate memory for log entries.");
+        LOG_ERR("Log read:\tCouldn't allocate memory for log entries.");
         fclose(file);
         return NULL;
     }
@@ -137,7 +137,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             /* we have to skip the author name for now, it's left here for group chats support in the future */
             fseeko(file, header.author_length, SEEK_CUR);
             if (header.msg_length > 1 << 16) {
-                LOG_ERR("Chatlog", "Can't malloc that much, you'll probably have to move or delete your"
+                LOG_ERR("Can't malloc that much, you'll probably have to move or delete your"
                             " history for this peer.\n\t\tFriend number %.*s, count %u,"
                             " actual_count %lu, start at %lu, error size %lu.\n",
                             TOX_PUBLIC_KEY_SIZE * 2, hex, count, actual_count, start_at, header.msg_length);
@@ -151,7 +151,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
 
             MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
             if (!msg) {
-                LOG_ERR("Chatlog", "Unable to malloc... sorry!");
+                LOG_ERR("Unable to malloc... sorry!");
                 fclose(file);
                 return NULL;
             }
@@ -165,7 +165,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             msg->via.txt.length        = header.msg_length;
             msg->via.txt.msg = calloc(1, msg->via.txt.length);
             if (!msg->via.txt.msg) {
-                LOG_ERR("Chatlog", "Unable to malloc for via.txt.msg... sorry!");
+                LOG_ERR("Unable to malloc for via.txt.msg... sorry!");
                 free(start);
                 free(msg);
                 free(data);
@@ -177,7 +177,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             // TODO: msg->via.txt.author used to be allocated but left empty. Commented out for now.
             // msg->via.txt.author = calloc(1, msg->via.txt.author_length);
             // if (!msg->via.txt.author) {
-            //     LOG_ERR("Chatlog", "Unable to malloc for via.txt.author... sorry!");
+            //     LOG_ERR("Unable to malloc for via.txt.author... sorry!");
             //     free(msg->via.txt.msg);
             //     free(msg);
             //     fclose(file);
@@ -185,7 +185,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             // }
 
             if (fread(msg->via.txt.msg, msg->via.txt.length, 1, file) != 1) {
-                LOG_ERR("Chatlog", "Log read:\tError reading record %u of length %u at offset %lu: stopping.",
+                LOG_ERR("Log read:\tError reading record %u of length %u at offset %lu: stopping.",
                             count, msg->via.txt.length, msg->disk_offset);
                 // free(msg->via.txt.author);
                 free(msg->via.txt.msg);
@@ -215,12 +215,12 @@ bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8
     FILE *file = chatlog_get_file(hex, true);
 
     if (!file) {
-        LOG_ERR("History", "Unable to access file provided.");
+        LOG_ERR("Unable to access file provided.");
         return false;
     }
 
     if (fseeko(file, offset, SEEK_SET)) {
-        LOG_ERR("Chatlog", "History:\tUnable to seek to position %lu in file provided.", offset);
+        LOG_ERR("History:\tUnable to seek to position %lu in file provided.", offset);
         fclose(file);
         return false;
     }

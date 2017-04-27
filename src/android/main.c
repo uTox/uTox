@@ -189,15 +189,15 @@ void *loadsavedata(uint32_t *len) {
 }
 
 void writesavedata(void *data, uint32_t len) {
-    LOG_TRACE("Android", "Trying to save data (android)" );
+    LOG_TRACE("Trying to save data (android)" );
     FILE *file;
     file = fopen("/data/data/tox.utox/files/tox_save", "wb");
     if (file) {
         fwrite(data, len, 1, file);
         fclose(file);
-        LOG_TRACE("Android", "Saved data" );
+        LOG_TRACE("Saved data" );
     } else {
-        LOG_TRACE("Android", "fopen failed" );
+        LOG_TRACE("fopen failed" );
     }
 }
 
@@ -243,7 +243,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
     }
 
     if (strlen((char *)path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
-        LOG_TRACE("Android Native", "Load directory name too long" );
+        LOG_TRACE("Load directory name too long" );
         return NULL;
     } else {
         snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "%s", name);
@@ -267,7 +267,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
     }
 
     if (fp == NULL) {
-        LOG_NOTE("Android Native", "Could not open %s" , path);
+        LOG_NOTE("Could not open %s" , path);
         return NULL;
     }
 
@@ -313,7 +313,7 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
     snprintf((char *)path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
-        LOG_TRACE("Android Native", "File/directory name too long, unable to remove" );
+        LOG_TRACE("File/directory name too long, unable to remove" );
         return 0;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
@@ -321,11 +321,11 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
     }
 
     if (remove((const char *)path)) {
-        LOG_ERR("Android Native", "Unable to delete file!\n\t\t%s" , path);
+        LOG_ERR("Unable to delete file!\n\t\t%s" , path);
         return 0;
     } else {
-        LOG_INFO("Android Native", "File deleted!" );
-        LOG_TRACE("Android Native", "\t%s" , path);
+        LOG_INFO("File deleted!" );
+        LOG_TRACE("\t%s" , path);
     }
     return 1;
 }
@@ -527,7 +527,7 @@ static uint32_t getkeychar(int32_t key) /* get a character from an android keyco
         MAPN(9, '(');
 
         default: {
-            LOG_TRACE("Android", "un-mapped %u", key);
+            LOG_TRACE("un-mapped %u", key);
             break;
         }
     }
@@ -611,7 +611,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
                     // pointerinput2(pointer_index);
 
                     already_up = 0;
-                    LOG_TRACE("Android", "down %f %f, %u" , x, y, pointer_index);
+                    LOG_TRACE("down %f %f, %u" , x, y, pointer_index);
                     p_down      = 1;
                     p_last_down = get_time();
                     break;
@@ -630,7 +630,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
 
                     // pointerinput(pointer_index);
 
-                    LOG_TRACE("Android", "up %f %f, %u" , x, y, pointer_index);
+                    LOG_TRACE("up %f %f, %u" , x, y, pointer_index);
                     p_down = 0;
                     break;
                 }
@@ -641,7 +641,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
                         p_down = 0;
                         lx     = x;
                         ly     = y;
-                        LOG_TRACE("Android", "move %f %f, %u" , x, y, pointer_index);
+                        LOG_TRACE("move %f %f, %u" , x, y, pointer_index);
                     }
                     // pointer[pointer_index].x = x;
                     // pointer[pointer_index].y = y;
@@ -682,7 +682,7 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
                         uint32_t c = getkeychar(key);
                         if (c != 0) {
                             if (edit_active()) {
-                                // LOG_TRACE("Android", "%u" , c);
+                                // LOG_TRACE("%u" , c);
                                 edit_char(c, 0, 0);
                             }
                             // inputchar(c);
@@ -717,15 +717,15 @@ static void android_main(struct android_app *state) {
                );
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        LOG_TRACE("Android", "Start on boot not supported on this OS!" );
+        LOG_TRACE("Start on boot not supported on this OS!" );
     }
 
     if (set_show_window == 1 || set_show_window == -1) {
-        LOG_TRACE("Android", "Showing/hiding windows not supported on this OS!" );
+        LOG_TRACE("Showing/hiding windows not supported on this OS!" );
     }
 
     if (skip_updater == true) {
-        LOG_TRACE("Android", "Disabling the updater is not supported on this OS." );
+        LOG_TRACE("Disabling the updater is not supported on this OS." );
     }
 
     // Make sure glue isn't stripped
@@ -775,7 +775,7 @@ static void android_main(struct android_app *state) {
         int    rlen, len;
         PIPING piping;
         while ((len = read(pipefd[0], (void *)&piping, sizeof(PIPING))) > 0) {
-            LOG_TRACE("Android", "%u %u" , len, sizeof(PIPING));
+            LOG_TRACE("%u %u" , len, sizeof(PIPING));
             while (len != sizeof(PIPING)) {
                 if ((rlen = read(pipefd[0], (void *)&piping + len, sizeof(PIPING) - len)) > 0) {
                     len += rlen;
@@ -812,7 +812,7 @@ static void android_main(struct android_app *state) {
         usleep(1000);
     }
 
-    LOG_TRACE("Android", "ANDROID DESTROYED" );
+    LOG_TRACE("ANDROID DESTROYED" );
 }
 
 void showkeyboard(bool show) {
@@ -889,7 +889,7 @@ static void onInputQueueDestroyed(ANativeActivity *act, AInputQueue *queue) {
 
 static void onContentRectChanged(ANativeActivity *activity, const ARect *r) {
     rect = *r;
-    LOG_TRACE("Android", "rect: %u %u %u %u" , rect.left, rect.right, rect.top, rect.bottom);
+    LOG_TRACE("rect: %u %u %u %u" , rect.left, rect.right, rect.top, rect.bottom);
 
     settings.window_baseline = rect.bottom;
     _redraw                  = 1;

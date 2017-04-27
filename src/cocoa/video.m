@@ -225,7 +225,7 @@ CGFloat           desktop_capture_scale = 1.0;
 #else
 #define AV_SESSION_CHK()                  \
     if (!active_video_session) {          \
-        LOG_WARN("uToxAV", "no active video session"); \
+        LOG_WARN("no active video session"); \
         abort();                          \
     }
 #endif
@@ -465,7 +465,7 @@ uint16_t native_video_detect(void) {
             default: {
                          FRIEND *f = get_friend(((uToxIroncladWindow *)notification.object).video_id - 1);
                          if (!f) {
-                             LOG_ERR("Cocoa", "Could not get friend with number: %u", ((uToxIroncladWindow *)notification.object).video_id - 1);
+                             LOG_ERR("Could not get friend with number: %u", ((uToxIroncladWindow *)notification.object).video_id - 1);
                              return;
                          }
                          postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);

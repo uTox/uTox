@@ -80,7 +80,7 @@ void     init_ptt(void) {
 
     ptt_keyboard_handle = fopen((const char *)path, "r");
     if (!ptt_keyboard_handle) {
-        LOG_TRACE("XLIB", "Could not access ptt-kbd in data directory" );
+        LOG_TRACE("Could not access ptt-kbd in data directory" );
         ptt_display = XOpenDisplay(0);
         XSynchronize(ptt_display, True);
     }
@@ -103,10 +103,10 @@ static bool linux_check_ptt(void) {
         int mask = 1 << (ptt_key % 8);   // Put 1 in the same column as our key state
 
         if (keyb & mask) {
-            LOG_TRACE("XLIB", "PTT key is down" );
+            LOG_TRACE("PTT key is down" );
             return true;
         } else {
-            LOG_TRACE("XLIB", "PTT key is up" );
+            LOG_TRACE("PTT key is up" );
             return false;
         }
     }
@@ -118,15 +118,15 @@ static bool linux_check_ptt(void) {
     if (ptt_display) {
         XQueryKeymap(ptt_display, keys);
         if (keys[ptt_key / 8] & (0x1 << (ptt_key % 8))) {
-            LOG_TRACE("XLIB", "PTT key is down (according to XQueryKeymap" );
+            LOG_TRACE("PTT key is down (according to XQueryKeymap" );
             return true;
         } else {
-            LOG_TRACE("XLIB", "PTT key is up (according to XQueryKeymap" );
+            LOG_TRACE("PTT key is up (according to XQueryKeymap" );
             return false;
         }
     }
     /* Couldn't access the keyboard directly, and XQuery failed, this is really bad! */
-    LOG_ERR("XLIB", "Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
+    LOG_ERR("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
                 "keyboard.\nDisable push to talk to suppress this message.\n");
     return false;
 }
@@ -138,7 +138,7 @@ static bool bsd_check_ptt(void) {
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
-        // LOG_TRACE("XLIB", "PTT is disabled" );
+        // LOG_TRACE("PTT is disabled" );
         return true; /* If push to talk is disabled, return true. */
     }
 
@@ -175,7 +175,7 @@ void image_set_filter(NATIVE_IMAGE *image, uint8_t filter) {
     switch (filter) {
         case FILTER_NEAREST: xfilter  = FilterNearest; break;
         case FILTER_BILINEAR: xfilter = FilterBilinear; break;
-        default: LOG_TRACE("XLIB", "Warning: Tried to set image to unrecognized filter(%u)." , filter); return;
+        default: LOG_TRACE("Warning: Tried to set image to unrecognized filter(%u)." , filter); return;
     }
     XRenderSetPictureFilter(display, image->rgb, xfilter, NULL, 0);
     if (image->alpha) {
@@ -266,7 +266,7 @@ void copy(int value) {
     } else if (flist_get_groupchat()) {
         len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), value);
     } else {
-        LOG_ERR("XLIB", "Copy from Unsupported flist type.");
+        LOG_ERR("Copy from Unsupported flist type.");
         return;
     }
 
@@ -277,11 +277,11 @@ void copy(int value) {
 }
 
 int hold_x11s_hand(Display *UNUSED(d), XErrorEvent *event) {
-    LOG_ERR("XLIB", "X11 err:\tX11 tried to kill itself, so I hit him with a shovel.");
-    LOG_ERR("XLIB", "    err:\tResource: %lu || Serial %lu", event->resourceid, event->serial);
-    LOG_ERR("XLIB", "    err:\tError code: %u || Request: %u || Minor: %u",
+    LOG_ERR("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.");
+    LOG_ERR("    err:\tResource: %lu || Serial %lu", event->resourceid, event->serial);
+    LOG_ERR("    err:\tError code: %u || Request: %u || Minor: %u",
         event->error_code, event->request_code, event->minor_code);
-    LOG_ERR("uTox", "This would be a great time to submit a bug!");
+    LOG_ERR("This would be a great time to submit a bug!");
 
     return 0;
 }
@@ -317,9 +317,9 @@ void pastebestformat(const Atom atoms[], size_t len, Atom selection) {
     for (i = 0; i < len; i++) {
         char *name = XGetAtomName(display, atoms[i]);
         if (name) {
-            LOG_TRACE("XLIB", "Supported type: %s" , name);
+            LOG_TRACE("Supported type: %s" , name);
         } else {
-            LOG_TRACE("XLIB", "Unsupported type!!: Likely a bug, please report!" );
+            LOG_TRACE("Unsupported type!!: Likely a bug, please report!" );
         }
     }
 
@@ -375,18 +375,18 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
     if (type == XA_PNG_IMG) {
         FRIEND *f = flist_get_friend();
         if (!f) {
-            LOG_ERR("XLIB", "Can't paste data to missing friend.");
+            LOG_ERR("Can't paste data to missing friend.");
             return;
         }
         uint16_t width, height;
 
         NATIVE_IMAGE *native_image = utox_image_to_native(data, size, &width, &height, 0);
         if (NATIVE_IMAGE_IS_VALID(native_image)) {
-            LOG_INFO("XLIB MAIN", "Pasted image: %dx%d", width, height);
+            LOG_INFO("Pasted image: %dx%d", width, height);
 
             UTOX_IMAGE png_image = malloc(size);
             if (!png_image){
-                LOG_ERR("XLIB", "Could not allocate memory for an image");
+                LOG_ERR("Could not allocate memory for an image");
                 return;
             }
 
@@ -396,12 +396,12 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
     } else if (type == XA_URI_LIST) {
         FRIEND *f = flist_get_friend();
         if (!f) {
-            LOG_ERR("XLIB", "Can't paste data to missing friend.");
+            LOG_ERR("Can't paste data to missing friend.");
             return;
         }
         char *path = malloc(len + 1);
         if (!path) {
-            LOG_ERR("XLIB", "Could not allocate memory for path.");
+            LOG_ERR("Could not allocate memory for path.");
             return;
         }
         formaturilist(path, (char *)data, len);
@@ -431,7 +431,7 @@ Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format) {
 
 void loadalpha(int bm, void *data, int width, int height) {
     if (bm < 0){
-        LOG_ERR("XLIB", "Can not get object from array. Index %d", bm);
+        LOG_ERR("Can not get object from array. Index %d", bm);
         return;
     }
 
@@ -502,7 +502,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
 
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        LOG_ERR("utox_image_to_native", "Could mot allocate memory for image." );
+        LOG_ERR("Could mot allocate memory for image." );
         return NULL;
     }
     image->rgb   = rgb;
@@ -689,7 +689,7 @@ int main(int argc, char *argv[]) {
     initfonts();
 
     #ifdef HAVE_DBUS
-    LOG_INFO("XLIB MAIN", "Compiled with dbus support!");
+    LOG_INFO("Compiled with dbus support!");
     #endif
 
     int8_t should_launch_at_startup;
@@ -705,15 +705,15 @@ int main(int argc, char *argv[]) {
 
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        LOG_NOTE("XLIB", "Start on boot not supported on this OS, please use your distro suggested method!\n");
+        LOG_NOTE("Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
 
     if (skip_updater == true) {
-        LOG_ERR("XLIB", "Disabling the updater is not supported on this OS. "
+        LOG_ERR("Disabling the updater is not supported on this OS. "
                         "Updates are managed by your distro's package manager.\n");
     }
 
-    LOG_INFO("XLIB MAIN", "Setting theme to:\t%d", settings.theme);
+    LOG_INFO("Setting theme to:\t%d", settings.theme);
     theme_load(settings.theme);
 
     XSetErrorHandler(hold_x11s_hand);
@@ -722,7 +722,7 @@ int main(int argc, char *argv[]) {
     setlocale(LC_ALL, "");
     XSetLocaleModifiers("");
     if ((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
-        LOG_ERR("XLIB", "Cannot open input method");
+        LOG_ERR("Cannot open input method");
     }
 
     atom_init();
@@ -800,7 +800,7 @@ int main(int argc, char *argv[]) {
                              XNFocusWindow, main_window.window, NULL))) {
             XSetICFocus(xic);
         } else {
-            LOG_ERR("XLIB", "Cannot open input method");
+            LOG_ERR("Cannot open input method");
             XCloseIM(xim);
             xim = 0;
         }

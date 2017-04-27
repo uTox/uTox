@@ -214,7 +214,7 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
     }
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
-        LOG_TRACE("NATIVE", "File/directory name too long, unable to remove" );
+        LOG_TRACE("File/directory name too long, unable to remove" );
         return 0;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
@@ -222,11 +222,11 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
     }
 
     if (remove((const char *)path)) {
-        LOG_ERR("NATIVE", "Unable to delete file!\n\t\t%s" , path);
+        LOG_ERR("Unable to delete file!\n\t\t%s" , path);
         return 0;
     } else {
-        LOG_INFO("NATIVE", "File deleted!" );
-        LOG_TRACE("NATIVE", "\t%s" , path);
+        LOG_INFO("File deleted!" );
+        LOG_TRACE("\t%s" , path);
     }
     return 1;
 }
@@ -533,15 +533,15 @@ int main(int argc, char const *argv[]) {
                &set_show_window);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        LOG_TRACE("NATIVE", "Start on boot not supported on this OS!" );
+        LOG_TRACE("Start on boot not supported on this OS!" );
     }
 
     if (set_show_window == 1 || set_show_window == -1) {
-        LOG_TRACE("NATIVE", "Showing/hiding windows not supported on this OS!" );
+        LOG_TRACE("Showing/hiding windows not supported on this OS!" );
     }
 
     if (skip_updater == true) {
-        LOG_TRACE("NATIVE", "Disabling the updater is not supported on this OS. Updates are managed by the app store." );
+        LOG_TRACE("Disabling the updater is not supported on this OS. Updates are managed by the app store." );
     }
 
     setlocale(LC_ALL, "");

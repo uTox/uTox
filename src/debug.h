@@ -1,6 +1,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #ifndef EXIT_SUCCESS // should be defined in stdlib.h
@@ -37,15 +38,23 @@ void debug(const char *fmt, ...);
 
 #define VERB(x) (utox_verbosity() >= LOG_LVL_##x)
 
-#define LOG_FATAL_ERR(ex, file, str, ...) debug("\n\n%-14s:" str "\n\n", file ": ", ## __VA_ARGS__ ); exit(ex)
+#define LOG_FATAL_ERR(ex, ...) \
+    printf("%s:%d\n\t", __FILE__, __LINE__); debug(__VA_ARGS__); exit(ex)
 
-#define LOG_ERR(file, str, ...)       (VERB(ERROR)     ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
-#define LOG_WARN(file, str, ...)      (VERB(WARNING)   ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
-#define LOG_NOTE(file, str, ...)      (VERB(NOTICE)    ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
-#define LOG_INFO(file, str, ...)      (VERB(INFO)      ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
-#define LOG_DEBUG(file, str, ...)     (VERB(DEBUG)     ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
-#define LOG_TRACE(file, str, ...)     (VERB(TRACE)     ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
-#define LOG_NET_TRACE(file, str, ...) (VERB(NET_TRACE) ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
+#define LOG_ERR(...)       (VERB(ERROR) ? \
+    printf("%s:%d\n\t", __FILE__, __LINE__), debug(__VA_ARGS__) : ((void)(0)))
+#define LOG_WARN(...)      (VERB(WARNING) ? \
+    printf("%s:%d\n\t", __FILE__, __LINE__), debug(__VA_ARGS__) : ((void)(0)))
+#define LOG_NOTE(...)      (VERB(NOTICE) ? \
+    printf("%s:%d\n\t", __FILE__, __LINE__), debug(__VA_ARGS__) : ((void)(0)))
+#define LOG_INFO(...)      (VERB(INFO) ? \
+    printf("%s:%d\n\t", __FILE__, __LINE__), debug(__VA_ARGS__) : ((void)(0)))
+#define LOG_DEBUG(...)     (VERB(DEBUG) ? \
+    printf("%s:%d\n\t", __FILE__, __LINE__), debug(__VA_ARGS__) : ((void)(0)))
+#define LOG_TRACE(...)     (VERB(TRACE) ? \
+    printf("%s:%d\n\t", __FILE__, __LINE__), debug(__VA_ARGS__) : ((void)(0)))
+#define LOG_NET_TRACE(...) (VERB(NET_TRACE) ? \
+    printf("%s:%d\n\t", __FILE__, __LINE__), debug(__VA_ARGS__) : ((void)(0)))
 
 // User requested
 #define LOG_NORM(...)       (VERB(OFF) ? debug(__VA_ARGS__ ) : ((void)(0)))

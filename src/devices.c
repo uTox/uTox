@@ -20,7 +20,7 @@ static bool realloc_devices_list(uint16_t new_size) {
     UTOX_DEVICE *tmp = realloc(devices, sizeof(UTOX_DEVICE) * new_size);
 
     if (!tmp) {
-        LOG_ERR("Devices", "couldn't realloc for new_size %u" , new_size);
+        LOG_ERR("couldn't realloc for new_size %u" , new_size);
         return 0;
     }
 
@@ -52,13 +52,13 @@ void utox_devices_decon(void) {
 void utox_device_init(Tox *tox, uint16_t dev_num) {
     if (dev_num >= self.device_list_size) {
         if (!realloc_devices_list(dev_num + 1)) {
-            LOG_ERR("Devices", "ERROR, unable to realloc for a new device");
+            LOG_ERR("ERROR, unable to realloc for a new device");
             return;
         }
     }
 
     if (!devices) {
-        LOG_ERR("Devices", "devices is null");
+        LOG_ERR("devices is null");
         return;
     }
 
@@ -67,7 +67,7 @@ void utox_device_init(Tox *tox, uint16_t dev_num) {
     tox_self_get_device(tox, dev_num, devices[dev_num].name, &devices[dev_num].status, devices[dev_num].pubkey, &error);
 
     if (error) {
-        LOG_ERR("Devices", "Error getting device info dev_num %u error %u" , dev_num, error);
+        LOG_ERR("Error getting device info dev_num %u error %u" , dev_num, error);
     }
 
     cid_to_string(devices[dev_num].pubkey_hex, devices[dev_num].pubkey);
@@ -75,7 +75,7 @@ void utox_device_init(Tox *tox, uint16_t dev_num) {
 
 static void devices_self_add_submit(uint8_t *name, size_t length, uint8_t id[TOX_ADDRESS_SIZE]) {
     if (length >= UINT16_MAX) { /* Max size of postmsg */
-        LOG_ERR("Devices", "Name length > UINT16_MAX");
+        LOG_ERR("Name length > UINT16_MAX");
         /* TODO send error to GUI */
         return;
     }
@@ -88,7 +88,7 @@ static void devices_self_add_submit(uint8_t *name, size_t length, uint8_t id[TOX
     postmessage_toxcore(TOX_SELF_NEW_DEVICE, length, 0, data);
 }
 
-static void delete_this_device(void) { LOG_ERR("Devices", "Delete button pressed"); }
+static void delete_this_device(void) { LOG_ERR("Delete button pressed"); }
 
 void devices_update_list(void) {}
 
@@ -174,7 +174,7 @@ void devices_self_add(uint8_t *device, size_t length) {
         /* TODO, names! */
         devices_self_add_submit((uint8_t *)"Default device name", 19, id);
     } else {
-        LOG_ERR("Devices", "error trying to add this device");
+        LOG_ERR("error trying to add this device");
     }
 }
 
