@@ -5,11 +5,11 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
+	<string>@EXECUTABLE_NAME@</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>@APPLE_ICON@</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.utox.future</string>
+	<string>io.utox.future</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -25,25 +25,25 @@
 	<key>CFBundleVersion</key>
 	<string>@PROJECT_VERSION@</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<string>@MACOSX_DEPLOYMENT_TARGET@</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2015-2017 Tox project. All rights reserved.</string>
+	<string>Copyright 2017 uTox Contributors. Some Rights Reserved.</string>
 	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
+	<string>@APPLE_MENU@</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleURLName</key>
-            <string>Tox</string>
-        	<key>CFBundleTypeRole</key>
-        	<string>Viewer</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>tox</string>
-            </array>
-        </dict>
-    </array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>Tox</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>tox</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

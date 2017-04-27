@@ -78,6 +78,8 @@ elseif(FREEBSD)
     include(cmake/toolchain-freebsd.cmake)
 elseif(OPENBSD OR NETBSD)
     include(cmake/toolchain-openbsd.cmake)
+elseif(APPLE)
+    include(cmake/macOS.cmake)
 endif()
 
 
@@ -207,10 +209,6 @@ if(ENABLE_WERROR)
     add_cflag("-Werror")
 endif()
 
-if(ENABLE_FILTERAUDIO)
-    add_cflag("-DAUDIO_FILTERING")
-endif()
-
 if(UTOX_STATIC)
     if(UNIX)
         add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
@@ -223,9 +221,9 @@ if(ENABLE_AUTOUPDATE)
     add_cflag("-DENABLE_AUTOUPDATE=1")
 endif()
 
-if(TOXCORE_STATIC)
+if(TOXCORE_STATIC AND WIN32)
     # The static windows libs need all of these... because REASONS!
-    set(TOX_LIBS
+    find_package(libtox REQUIRED COMPONENTS
         toxencryptsave
         toxav
         toxdns
@@ -237,15 +235,16 @@ if(TOXCORE_STATIC)
         toxnetcrypto
         toxcrypto
         toxnetwork
-        )
+    )
 else()
-    set(TOX_LIBS
-        toxencryptsave
-        toxdns
-        toxav
-        toxcore
-        )
+    find_package(libtox REQUIRED COMPONENTS toxencryptsave toxdns toxav toxcore)
 endif()
+include_directories(${LIBTOX_INCLUDE_DIRS})
+set(TOX_LIBS ${LIBTOX_LIBRARIES})
+
+find_package(libsodium REQUIRED)
+include_directories(${LIBSODIUM_INCLUDE_DIRS})
+set(LIBRARIES ${LIBRARIES} ${LIBSODIUM_LIBRARIES})
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -274,27 +273,8 @@ if(WIN32)
 elseif(APPLE)
     set(GUI_TYPE MACOSX_BUNDLE)
 
-    # Make apple icon
-    set(APPLE_ICON utox.icns)
-    add_custom_command(OUTPUT utox.icns
-        COMMAND iconutil --convert icns ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset -o utox.icns
-        DEPENDS ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset
-    )
-    set_source_files_properties(${APPLE_ICON} PROPERTIES
-       MACOSX_PACKAGE_LOCATION "Resources")
-
-    include_directories( /usr/local/include /usr/include/malloc )
-    link_directories ( /usr/local/lib )
-
-    # Homebrew installed libtoxcore
-    if(EXISTS /usr/local/opt/libtoxcore/)
-        include_directories( /usr/local/opt/libtoxcore/include )
-        link_directories ( /usr/local/opt/libtoxcore/lib )
-    endif()
-
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
-    set(LIBRARIES "opus")
 elseif(UNIX)
     add_subdirectory(src/xlib)
 endif()
@@ -344,34 +324,39 @@ add_executable(utox ${GUI_TYPE}
     src/window.c
 
     ${WINDOWS_ICON}
-    ${APPLE_ICON}
+    ${APPLE_FILES}
 
     )
 
 target_link_libraries(utox
         utoxAV        utoxNATIVE      utoxUI
-        ${TOX_LIBS}   ${LIBRARIES}    sodium
+        ${TOX_LIBS}   ${LIBRARIES}
         vpx           pthread         m )
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
-if(APPLE)
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION})
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER "io.utox.future")
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "uTox")
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_COPYRIGHT "Copyright 2017 uTox Contributors. Some Rights Reserved.")
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_ICON_FILE "${APPLE_ICON}")
 
-    install(TARGETS utox
-        RUNTIME DESTINATION "bin"
-        BUNDLE  DESTINATION "resources"
-        )
+if(APPLE)
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${uTox_SOURCE_DIR}/src/cocoa/Info.plist")
+    # check that the app is valid and when the app is static
+    # also check that it does not depend on external libs (system libs excepted)
+    install(CODE "include(BundleUtilities)
+        verify_app(${CMAKE_BINARY_DIR}/utox.app)
+        if(UTOX_STATIC OR TOXCORE_STATIC)
+            verify_bundle_prerequisites(${CMAKE_BINARY_DIR}/utox.app RETURN_VAR INFO_VAR)
+        endif()"
+    )
+    # needed for packaging, so that CPack can find the app
+    install(TARGETS utox DESTINATION .)
+    # install App
+    install(TARGETS utox DESTINATION /Applications)
 elseif(UNIX)
     install(TARGETS utox
         RUNTIME DESTINATION "bin"
         )
 endif()
+
+# packaging
+include(CPack)
 
 #######################################################################
 #
