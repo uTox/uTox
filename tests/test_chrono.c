@@ -3,9 +3,7 @@
 #include "test.h"
 
 #include <time.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include <stdbool.h>
+#include <stdint.h>
 
 /*
 START_TEST (test_chrono_finished)
