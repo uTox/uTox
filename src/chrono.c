@@ -16,14 +16,14 @@ static void chrono_thread(void *args) {
 
     CHRONO_INFO *info = args;
     chrono_thread_init = true;
-    while(info->ptr != info->target) {
-        (*info).ptr += info->step;
+    while (info->ptr != info->target) {
+        info->ptr += info->step;
         yieldcpu(info->interval_ms);
     }
     chrono_thread_init = false;
 
     if (info->callback) {
-        info->callback(info->args);
+        info->callback(info->cb_data);
     }
 
     LOG_INFO("Chrono", "Thread exited cleanly");

@@ -34,6 +34,11 @@ void thread_callback(void *args) {
 
 START_TEST(test_chrono_target)
 {
+    /*
+     * Chrono info should be mallocated in real code.
+     * This function can't exit until the thread exits so it is safe
+     * to use the stack.
+     */
     CHRONO_INFO info;
     bool finished = false;
 
@@ -43,11 +48,11 @@ START_TEST(test_chrono_target)
     info.finished = false;
     info.target = (uint8_t *)30;
     info.callback = thread_callback;
-    info.args = &finished;
+    info.cb_data = &finished;
 
     chrono_start(&info);
 
-    yieldcpu(31); // allow thread to run and exit
+    yieldcpu(30); // allow thread to run and exit
 
     while (!finished) {
         yieldcpu(1);
