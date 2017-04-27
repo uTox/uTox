@@ -86,10 +86,12 @@ endif()
 #######################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-# These variables are needed to generate the Info.plist
-set(EXECUTABLE_NAME utox)
-set(APPLE_ICON utox.icns)
-set(MACOSX_DEPLOYMENT_TARGET 10.7)
+if(APPLE)
+    # These variables are needed to generate the Info.plist
+    set(EXECUTABLE_NAME utox)
+    set(APPLE_ICON utox.icns)
+    set(MACOSX_DEPLOYMENT_TARGET 10.7)
+endif()
 
 # make version available in C files
 configure_file(${uTox_SOURCE_DIR}/src/branding.h.in
