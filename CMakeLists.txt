@@ -89,8 +89,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 # make version available in C files
 configure_file(${uTox_SOURCE_DIR}/src/branding.h.in
                ${uTox_SOURCE_DIR}/src/branding.h)
-configure_file(${uTox_SOURCE_DIR}/src/cocoa/Info.plist.in
-               ${uTox_SOURCE_DIR}/src/cocoa/Info.plist)
 configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
                ${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml)
 
@@ -274,6 +272,11 @@ if(WIN32)
 elseif(APPLE)
     set(GUI_TYPE MACOSX_BUNDLE)
 
+    find_package(libtoxcore REQUIRED)
+    find_package(libfilteraudio REQUIRED)
+    include_directories(LIBTOXCORE_INCLUDE_DIRS)
+    include_directories(LIBFILTERAUDIO_INCLUDE_DIRS)
+
     # Make apple icon
     set(APPLE_ICON utox.icns)
     add_custom_command(OUTPUT utox.icns
@@ -282,15 +285,6 @@ elseif(APPLE)
     )
     set_source_files_properties(${APPLE_ICON} PROPERTIES
        MACOSX_PACKAGE_LOCATION "Resources")
-
-    include_directories( /usr/local/include /usr/include/malloc )
-    link_directories ( /usr/local/lib )
-
-    # Homebrew installed libtoxcore
-    if(EXISTS /usr/local/opt/libtoxcore/)
-        include_directories( /usr/local/opt/libtoxcore/include )
-        link_directories ( /usr/local/opt/libtoxcore/lib )
-    endif()
 
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
@@ -363,10 +357,13 @@ if(APPLE)
     set_target_properties(utox PROPERTIES MACOSX_BUNDLE_COPYRIGHT "Copyright 2017 uTox Contributors. Some Rights Reserved.")
     set_target_properties(utox PROPERTIES MACOSX_BUNDLE_ICON_FILE "${APPLE_ICON}")
 
-    install(TARGETS utox
+    INSTALL(CODE "include(BundleUtilities)
+        copy_and_fixup_bundle(${CMAKE_BINARY_DIR}/utox.app /Applications/uTox.app \"\" \"\")"
         RUNTIME DESTINATION "bin"
-        BUNDLE  DESTINATION "resources"
-        )
+        BUNDLE DESTINATION "resources"
+        TARGETS utox
+    )
+
 elseif(UNIX)
     install(TARGETS utox
         RUNTIME DESTINATION "bin"

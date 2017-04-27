@@ -1,0 +1,34 @@
+# - Try to find ToxCore
+# Once done this will define
+#  LIBFILTERAUDIO_FOUND - System has ToxCore
+#  LIBFILTERAUDIO_INCLUDE_DIRS - The ToxCore include directories
+#  LIBFILTERAUDIO_LIBRARIES - The libraries needed to use ToxCore
+#  LIBFILTERAUDIO_DEFINITIONS - Compiler switches required for using ToxCore
+
+find_package(PkgConfig)
+
+pkg_check_modules(PKG_LIBFILTERAUDIO QUIET LIBFILTERAUDIO)
+set(LIBFILTERAUDIO_DEFINITIONS ${PKG_LIBFILTERAUDIO_CFLAGS_OTHER})
+
+find_path(LIBFILTERAUDIO_INCLUDE_DIR filter_audio.h
+    HINTS ${PKG_LIBFILTERAUDIO_INCLUDEDIR} ${PKG_LIBFILTERAUDIO_INCLUDE_DIRS}
+)
+
+find_library(LIBFILTERAUDIO_LIBRARY NAMES filteraudio
+    HINTS ${PKG_LIBFILTERAUDIO_LIBDIR} ${PKG_LIBFILTERAUDIO_LIBRARY_DIRS}
+)
+
+include(FindPackageHandleStandardArgs)
+# handle the QUIETLY and REQUIRED arguments and set LIBFILTERAUDIO_FOUND to TRUE
+# if all listed variables are TRUE
+find_package_handle_standard_args(
+    LibFilterAudio
+    DEFAULT_MSG
+    LIBFILTERAUDIO_LIBRARY
+    LIBFILTERAUDIO_INCLUDE_DIR
+)
+
+mark_as_advanced(LIBFILTERAUDIO_INCLUDE_DIR LIBFILTERAUDIO_LIBRARY )
+
+set(LIBFILTERAUDIO_LIBRARIES ${LIBFILTERAUDIO_LIBRARY} )
+set(LIBFILTERAUDIO_INCLUDE_DIRS ${LIBFILTERAUDIO_INCLUDE_DIR} )
