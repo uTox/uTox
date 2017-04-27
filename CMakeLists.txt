@@ -86,9 +86,16 @@ endif()
 #######################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
+# These variables are needed to generate the Info.plist
+set(EXECUTABLE_NAME utox)
+set(APPLE_ICON utox.icns)
+set(MACOSX_DEPLOYMENT_TARGET 10.7)
+
 # make version available in C files
 configure_file(${uTox_SOURCE_DIR}/src/branding.h.in
                ${uTox_SOURCE_DIR}/src/branding.h)
+configure_file(${uTox_SOURCE_DIR}/src/cocoa/Info.plist.in
+               ${uTox_SOURCE_DIR}/src/cocoa/Info.plist)
 configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
                ${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml)
 
@@ -273,12 +280,13 @@ elseif(APPLE)
     set(GUI_TYPE MACOSX_BUNDLE)
 
     find_package(libtoxcore REQUIRED)
-    find_package(libfilteraudio REQUIRED)
     include_directories(LIBTOXCORE_INCLUDE_DIRS)
-    include_directories(LIBFILTERAUDIO_INCLUDE_DIRS)
+    if (ENABLE_FILTERAUDIO)
+        find_package(libfilteraudio REQUIRED)
+        include_directories(LIBFILTERAUDIO_INCLUDE_DIRS)
+    endif()
 
     # Make apple icon
-    set(APPLE_ICON utox.icns)
     add_custom_command(OUTPUT utox.icns
         COMMAND iconutil --convert icns ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset -o utox.icns
         DEPENDS ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset
@@ -349,13 +357,7 @@ target_link_libraries(utox
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
 if(APPLE)
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION})
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER "io.utox.future")
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "uTox")
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_COPYRIGHT "Copyright 2017 uTox Contributors. Some Rights Reserved.")
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_ICON_FILE "${APPLE_ICON}")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${uTox_SOURCE_DIR}/src/cocoa/Info.plist")
 
     INSTALL(CODE "include(BundleUtilities)
         copy_and_fixup_bundle(${CMAKE_BINARY_DIR}/utox.app /Applications/uTox.app \"\" \"\")"
