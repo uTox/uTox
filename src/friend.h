@@ -158,6 +158,7 @@ bool string_to_id(uint8_t *dest, char *src);
 
 /* same as id_to_string(), but for TOX_PUBLIC_KEY_SIZE
  */
-void cid_to_string(char *dest, uint8_t *src);
+void binid_to_hex(char *dest, uint8_t *src);
+#define cid_to_string binid_to_hex
 
 #endif

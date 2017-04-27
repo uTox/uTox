@@ -74,13 +74,13 @@ static void draw_settings_sub_header(int x, int y, int width, int UNUSED(height)
     #ifdef ENABLE_MULTIDEVICE
     setcolor(!button_settings_sub_devices.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
     next_x += SCALE(20) + UTOX_STR_WIDTH(DEVICES_BUTTON);
-    drawstr(x + SCALE(10), y, + SCALE(10), DEVICES_BUTTON);
+    drawstr(x + SCALE(10), y + SCALE(10), DEVICES_BUTTON);
     if (panel_settings_devices.disabled) {
         DRAW_UNDERLINE();
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(next_x, y, y, + SCALE(28), COLOR_EDGE_NORMAL);
+    drawvline(next_x, y, y + SCALE(28), COLOR_EDGE_NORMAL);
     x = next_x;
     #endif
 

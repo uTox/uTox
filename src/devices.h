@@ -28,9 +28,17 @@ typedef struct UTOX_DEVICE {
 
 } UTOX_DEVICE;
 
-UTOX_DEVICE *devices;
 
 void utox_devices_init(void);
+
+/**
+ * Add a new device to uTox's own list
+ *
+ * @param name   [description]
+ * @param length [description]
+ * @param addr   [description]
+ */
+void devices_add_new(char *name, uint16_t length, uint8_t *addr);
 
 void utox_devices_decon(void);
 

@@ -652,6 +652,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         case TOX_SELF_NEW_DEVICE: {
         #ifdef ENABLE_MULTIDEVICE
 
+
             TOX_ERR_DEVICE_ADD error = 0;
             uint8_t *address = data;
             uint8_t *name = address + TOX_ADDRESS_SIZE;
@@ -660,8 +661,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             if (error) {
                 LOG_ERR("Toxcore", "problem with adding device to self %u" , error);
             } else {
-                self.device_list_count++;
+                devices_add_new((char *)name, param1, address);
             }
+
+            free(data);
+        #else
+            LOG_ERR("Toxcore", "Can't add a new device while mdevice is disabled.");
         #endif
             break;
         }

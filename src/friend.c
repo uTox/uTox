@@ -583,6 +583,6 @@ bool string_to_id(uint8_t *w, char *a) {
     return true;
 }
 
-void cid_to_string(char *dest, uint8_t *src) {
+void binid_to_hex(char *dest, uint8_t *src) {
     to_hex(dest, src, TOX_PUBLIC_KEY_SIZE);
 }

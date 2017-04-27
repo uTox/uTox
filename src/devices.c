@@ -16,29 +16,31 @@
 
 #ifdef ENABLE_MULTIDEVICE
 
+static UTOX_DEVICE *devices;
+
 static bool realloc_devices_list(uint16_t new_size) {
     if (new_size == 0) {
         if (devices) {
             free(devices);
             devices = NULL;
         }
-        return 0;
+        return false;
     }
 
     if (new_size == self.device_list_size) {
-        return 1;
+        return true;
     }
 
     UTOX_DEVICE *tmp = realloc(devices, sizeof(UTOX_DEVICE) * new_size);
 
     if (!tmp) {
         LOG_ERR("Devices", "couldn't realloc for new_size %u" , new_size);
-        return 0;
+        return false;
     }
 
     devices               = tmp;
     self.device_list_size = new_size;
-    return 1;
+    return true;
 }
 
 void utox_devices_init(void) {
@@ -53,6 +55,23 @@ void utox_devices_init(void) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Unable to init base devices, *devices is null");
     }
 };
+
+void devices_add_new(char *name, uint16_t length, uint8_t *addr) {
+    if (!realloc_devices_list(self.device_list_count + 1)) {
+        LOG_ERR("Devices", "Unable to malloc for new device");
+        return;
+    }
+
+    UTOX_DEVICE *dev = &devices[self.device_list_count++];
+
+    memcpy(dev->pubkey, addr, sizeof dev->pubkey);
+    binid_to_hex(dev->pubkey_hex, dev->pubkey);
+
+    memset(dev->name, 0, sizeof dev->name);
+    memcpy(dev->name, name, length);
+}
+
+
 
 void utox_devices_decon(void) {
     if (devices) {
@@ -100,7 +119,9 @@ static void devices_self_add_submit(char *name, size_t length, uint8_t id[TOX_AD
     postmessage_toxcore(TOX_SELF_NEW_DEVICE, length, 0, data);
 }
 
-static void delete_this_device(void) { LOG_ERR("Devices", "Delete button pressed"); }
+static void delete_this_device(void) {
+    LOG_ERR("Devices", "Delete button pressed");
+}
 
 void devices_update_list(void) {}
 
@@ -131,35 +152,38 @@ void devices_update_ui(void) {
             LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Can't malloc for an extra device");
         }
 
-        PANEL p_edit =
-                  {
-                    .type   = PANEL_EDIT,
-                    .x      = SCALE(10),
-                    .y      = SCALE(95) + (i * SCALE(27)),
-                    .width  = SCALE(-25) - BM_SBUTTON_WIDTH,
-                    .height = SCALE(24),
-                  },
+        PANEL p_edit = {
+            .type   = PANEL_EDIT,
+            .x      = SCALE(10),
+            .y      = SCALE(95) + (i * SCALE(27)),
+            .width  = SCALE(-25) - BM_SBUTTON_WIDTH,
+            .height = SCALE(24),
+        };
 
-              b_delete = {
-                  .type   = PANEL_BUTTON,
-                  .x      = SCALE(-10) - BM_SBUTTON_WIDTH,
-                  .y      = SCALE(95) + (i * SCALE(29)),
-                  .width  = BM_SBUTTON_WIDTH,
-                  .height = BM_SBUTTON_HEIGHT,
-              };
 
         edit->panel  = p_edit;
-        edit->length = TOX_PUBLIC_KEY_SIZE * 2, edit->maxlength = TOX_PUBLIC_KEY_SIZE * 2,
-        edit->data = devices[i].pubkey_hex, edit->readonly = 1, edit->noborder = 0, edit->select_completely = 1,
+        edit->length = TOX_PUBLIC_KEY_SIZE * 2;
+        edit->maxlength = TOX_PUBLIC_KEY_SIZE * 2;
+        edit->data = devices[i].pubkey_hex;
+        edit->readonly = 1;
+        edit->noborder = 0;
+        edit->select_completely = 1;
 
+        PANEL b_delete = {
+            .type   = PANEL_BUTTON,
+            .x      = SCALE(-10) - BM_SBUTTON_WIDTH,
+            .y      = SCALE(95) + (i * SCALE(29)),
+            .width  = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
+        };
         del->panel   = b_delete;
         del->bm_fill = BM_SBUTTON;
         del->update  = button_setcolors_success;
         del->on_mup  = delete_this_device;
         del->button_text.i18nal = STR_DELETE;
 
-        panel_settings_devices.child[(i * 2) + 2] = (void *)edit;
-        panel_settings_devices.child[(i * 2) + 3] = (void *)del;
+        panel_settings_devices.child[(i * 2) + 2] = (PANEL *)edit;
+        panel_settings_devices.child[(i * 2) + 3] = (PANEL *)del;
     }
     panel_settings_devices.child[(i * 2) + 2] = NULL;
 }
