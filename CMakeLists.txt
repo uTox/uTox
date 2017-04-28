@@ -216,6 +216,8 @@ endif()
 
 if(ENABLE_FILTERAUDIO)
     add_cflag("-DAUDIO_FILTERING")
+    find_package(libfilteraudio REQUIRED)
+    include_directories(LIBFILTERAUDIO_INCLUDE_DIRS)
 endif()
 
 if(UTOX_STATIC)
@@ -254,6 +256,9 @@ else()
         )
 endif()
 
+find_package(libtoxcore REQUIRED)
+include_directories(LIBTOXCORE_INCLUDE_DIRS)
+
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
@@ -281,16 +286,9 @@ if(WIN32)
 elseif(APPLE)
     set(GUI_TYPE MACOSX_BUNDLE)
 
-    find_package(libtoxcore REQUIRED)
-    include_directories(LIBTOXCORE_INCLUDE_DIRS)
-    if (ENABLE_FILTERAUDIO)
-        find_package(libfilteraudio REQUIRED)
-        include_directories(LIBFILTERAUDIO_INCLUDE_DIRS)
-    endif()
-
     # Make apple icon
-    add_custom_command(OUTPUT utox.icns
-        COMMAND iconutil --convert icns ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset -o utox.icns
+    add_custom_command(OUTPUT ${APPLE_ICON}
+        COMMAND iconutil --convert icns ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset -o ${APPLE_ICON}
         DEPENDS ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset
     )
     set_source_files_properties(${APPLE_ICON} PROPERTIES
