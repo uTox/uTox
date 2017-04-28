@@ -298,7 +298,8 @@ void ui_rescale(uint8_t scale) {
     /* Friend Add Page */
     CREATE_BUTTON(send_friend_request, -10 - _BM_SBUTTON_WIDTH, MAIN_TOP + 168, _BM_SBUTTON_WIDTH,
                   _BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(accept_friend, -60, -80, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(accept_friend, -140, -80, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(ignore_friend, -80, -80, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT)
 
     /* Friend Settings Page */
     CREATE_BUTTON(export_chatlog, 10, 208, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
