@@ -128,9 +128,9 @@ bool v4l_init(char *dev_name) {
         return 0;
     }
 
-    /*if(fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_YUYV) {
-        debug("Unsupported video format: %u %u %u %u\n", fmt.fmt.pix.width, fmt.fmt.pix.height, fmt.fmt.pix.pixelformat,
-    fmt.fmt.pix.field);
+    /*if (fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_YUYV) {
+        LOG_ERR("v4l", "Unsupported video format: %u %u %u %u\n", fmt.fmt.pix.width, fmt.fmt.pix.height,
+                fmt.fmt.pix.pixelformat, fmt.fmt.pix.field);
     }*/
 
     video_width             = fmt.fmt.pix.width;

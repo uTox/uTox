@@ -28,20 +28,21 @@
 #include <amvideo.h>
 #include <windows.h>
 
-IGraphBuilder * pGraph;
-IBaseFilter *   pGrabberF;
-IMediaControl * pControl;
-ISampleGrabber *pGrabber;
+static IGraphBuilder * pGraph;
+static IBaseFilter *   pGrabberF;
+static IMediaControl * pControl;
+static ISampleGrabber *pGrabber;
 
 // TODO: free resources correctly (on failure, etc)
-IBaseFilter *pNullF = NULL;
+static IBaseFilter *pNullF = NULL;
 
-IPin *  pPin = NULL, *pIPin;
-HWND    desktopwnd;
-HDC     desktopdc, capturedc;
-HBITMAP capturebitmap;
-bool    capturedesktop;
-void *  dibits;
+static IPin *  pPin = NULL;
+static IPin *  pIPin;
+static HWND    desktopwnd;
+static HDC     desktopdc, capturedc;
+static HBITMAP capturebitmap;
+static bool    capturedesktop;
+static void *  dibits;
 
 static uint16_t video_x, video_y;
 
@@ -530,27 +531,24 @@ void native_video_close(void *handle) {
         return;
     }
 
-    debug("closing webcam... ");
+    LOG_NOTE("Video", "Closing webcam");
 
-    HRESULT      hr;
     IBaseFilter *pFilter = handle;
 
-    hr = pGraph->lpVtbl->RemoveFilter(pGraph, pFilter);
-    if (FAILED(hr)) {
+    if (FAILED(pGraph->lpVtbl->RemoveFilter(pGraph, pFilter))) {
+        LOG_ERR("Video", "Failed to close webcam. (1)");
         return;
     }
 
-    hr = pGraph->lpVtbl->Disconnect(pGraph, pPin);
-    if (FAILED(hr)) {
+    if (FAILED(pGraph->lpVtbl->Disconnect(pGraph, pPin))) {
+        LOG_ERR("Video", "Failed to close webcam. (2)");
         return;
     }
 
-    hr = pGraph->lpVtbl->Disconnect(pGraph, pIPin);
-    if (FAILED(hr)) {
+    if (FAILED(pGraph->lpVtbl->Disconnect(pGraph, pIPin))) {
+        LOG_ERR("Video", "Failed to close webcam. (3)");
         return;
     }
-
-    LOG_TRACE("Video", "closed webcam" );
 }
 
 int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
