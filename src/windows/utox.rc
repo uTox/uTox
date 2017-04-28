@@ -5,8 +5,7 @@
 #include <windows.h>
 #endif
 
-// TODO FIXME: That's not OK, I know.
-#include <../../../src/branding.h>
+#include "../branding.h"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION     VER_MAJOR,VER_MINOR,VER_PATCH
