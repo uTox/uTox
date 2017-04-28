@@ -66,7 +66,7 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, 
     LOG_INFO("Video", "video window id: %u", id);
 
     if (id >= 32) {
-        LOG_ERR("Videp", "id is too large. Got %u exptected it to be less than 32", id);
+        LOG_ERR("Video", "id is too large. Got %u expected it to be less than 32", id);
         return;
     }
 
