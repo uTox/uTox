@@ -268,7 +268,7 @@ if(WIN32)
 
     ## Needed to build the widows icon
     enable_language(RC)
-    set(WINDOWS_ICON icons/icon.rc)
+    set(WINDOWS_ICON src/windows/utox.rc)
 
     add_subdirectory(src/windows)
 elseif(APPLE)
