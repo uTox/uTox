@@ -94,7 +94,7 @@ static void flist_draw_name(ITEM *i, int x, int y, int width, char *name, char *
     setcolor(color);
     setfont(FONT_LIST_NAME);
     /* Always draw name*/
-    drawtextwidth(x, width, y, name, name_length);
+    drawtextrange(x, width - SCALE(SIDEBAR_PADDING * 5), y, name, name_length);
 
     if (!settings.use_mini_flist) {
         /* Name + user status msg*/
@@ -103,7 +103,7 @@ static void flist_draw_name(ITEM *i, int x, int y, int width, char *name, char *
         }
         setcolor(color);
         setfont(FONT_STATUS);
-        drawtextwidth(x, width - SCALE(SIDEBAR_PADDING * 12), y + SCALE(16), msg, msg_length);
+        drawtextrange(x, width - SCALE(SIDEBAR_PADDING * 5), y + SCALE(16), msg, msg_length);
     }
 }
 
@@ -136,18 +136,18 @@ static void drawitem(ITEM *i, int x, int y, int width) {
 
     if (settings.use_mini_flist) {
         box_height      = SCALE(ROSTER_BOX_HEIGHT / 2);
-        avatar_x        = SCALE(x + SCROLL_WIDTH);
+        avatar_x        = x + SCALE(SCROLL_WIDTH);
         avatar_y        = y + SCALE(ROSTER_AVATAR_TOP / 2);
-        name_x          = SCALE(avatar_x + BM_CONTACT_WIDTH / 2);
+        name_x          = avatar_x + BM_CONTACT_WIDTH / 2 + SCALE(5);
         name_y          = y + SCALE(ROSTER_NAME_TOP / 2);
         default_w       = BM_CONTACT_WIDTH / 2;
         group_bitmap    = BM_GROUP_MINI;
         contact_bitmap  = BM_CONTACT_MINI;
     } else {
         box_height      = SCALE(ROSTER_BOX_HEIGHT);
-        avatar_x        = SCALE(x + SCROLL_WIDTH);
+        avatar_x        = x + SCALE(SCROLL_WIDTH);
         avatar_y        = y + SCALE(ROSTER_AVATAR_TOP);
-        name_x          = SCALE(avatar_x + BM_CONTACT_WIDTH);
+        name_x          = avatar_x + BM_CONTACT_WIDTH + SCALE(5);
         name_y          = y + SCALE(ROSTER_NAME_TOP);
         default_w       = BM_CONTACT_WIDTH;
         group_bitmap    = BM_GROUP;
