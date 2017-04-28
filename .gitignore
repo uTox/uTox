@@ -34,3 +34,8 @@ cmake_install.cmake
 CMakeCache.txt
 Makefile
 install_manifest.txt
+
+# Generated files.
+src/branding.h
+src/android/AndroidManifest.xml
+src/cocoa/Info.plist
