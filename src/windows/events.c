@@ -86,8 +86,8 @@ static void ShowContextMenu(void) {
 
 /* TODO should this be moved to window.c? */
 static void move_window(int x, int y){
-    debug("delta x == %i\n", x);
-    debug("delta y == %i\n", y);
+    LOG_TRACE("Win events", "delta x == %i\n", x);
+    LOG_TRACE("Win events", "delta y == %i\n", y);
     SetWindowPos(main_window.window, 0, main_window._.x + x, main_window._.y + y, 0, 0,
                           SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
     main_window._.x += x;
@@ -413,7 +413,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             ui_mouseleave();
             mouse_tracked = false;
             btn_move_window_down = false;
-            debug("mouse leave\n");
+            LOG_TRACE("Win events", "mouse leave\n");
             break;
         }
 
