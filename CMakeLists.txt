@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 3.2)
 project(uTox LANGUAGES C)
 
-#######################################################################
-## Project Version
-#######################################################################
+#####################
+## Project Metadata #
+#####################
+
 set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "15")
 set(PROJECT_VERSION_PATCH "0")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
+set(PROJECT_COPYRIGHT "Copyleft 2017 uTox contributors. Some rights reserved.")
 
 
 ###########
@@ -360,7 +363,7 @@ if(APPLE)
     set_target_properties(utox PROPERTIES MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION})
     set_target_properties(utox PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER "io.utox.future")
     set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "uTox")
-    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_COPYRIGHT "Copyright 2017 uTox Contributors. Some Rights Reserved.")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_COPYRIGHT ${PROJECT_COPYRIGHT})
     set_target_properties(utox PROPERTIES MACOSX_BUNDLE_ICON_FILE "${APPLE_ICON}")
 
     install(TARGETS utox
