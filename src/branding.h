@@ -17,7 +17,7 @@
 
 // Assembly info
 #define UTOX_FILE_DESCRIPTION "The lightweight Tox client"
-#define UTOX_COPYRIGHT "Copyleft 2017 uTox Contributors. Some Rights Reserved."
+#define UTOX_COPYRIGHT "Copyleft 2017 uTox contributors. Some rights reserved."
 #define UTOX_FILENAME_WINDOWS "uTox.exe"
 
 // Defaults
