@@ -79,12 +79,8 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h) {
 HWND native_window_create_video(int x, int y, int w, int h) {
     LOG_DEBUG("Windows WM", "Creating video window");
 
-    STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
-    char pretitle[128];
-    snprintf(pretitle, 128, "%s", s->str);
-    size_t  title_size = strlen(pretitle) + 1;
-    wchar_t title[title_size];
-    mbstowcs(title, pretitle, title_size);
+    wchar_t title[128];
+    swprintf(title, 128, L"%S", S(WINDOW_TITLE_VIDEO_PREVIEW));
 
     HWND win = CreateWindowExW(0, L"uTox", title, WS_OVERLAPPEDWINDOW,
                                x, y, w, h, NULL, NULL, curr_instance, NULL);
