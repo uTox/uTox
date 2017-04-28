@@ -5,6 +5,8 @@
 
 #include "layout/notify.h"
 
+#include "native/window.h"
+
 #include <stdint.h>
 
 static uint16_t notification_number = 0;
