@@ -28,7 +28,8 @@ extern BUTTON button_send_file,
 
 // Friend Requests
 extern BUTTON button_send_friend_request,
-              button_accept_friend;
+              button_accept_friend,
+              button_ignore_friend;
 
 // Friend Settings
 extern BUTTON button_export_chatlog;
