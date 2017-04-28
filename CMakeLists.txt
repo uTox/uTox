@@ -150,7 +150,7 @@ add_cflag("-fPIC")
 if(CMAKE_C_COMPILER_ID MATCHES "GNU")
     # Have ld strip the symbols from Release and MinSizeRel build types.
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os")
+    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -s")
 
     if(LINUX)
         # enable Link Time Optimization on gcc (linux only currently)
@@ -172,7 +172,7 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
 
     # Have ld strip the symbols from Release and MinSizeRel build types. (-Oz is clang specific)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Oz")
+    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Oz -s")
 
     if(NOT ENABLE_ASAN)
         if(NOT APPLE)
