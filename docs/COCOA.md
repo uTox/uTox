@@ -20,23 +20,72 @@
 * When filing issues directly related to uTox-cocoa, please @stal888 in
   your issue so I get notified.
 
-## How to compile
+## How to compile dependencies
+
+### with Homebrew
 
 ```bash
-brew install --HEAD libtoxcore
+brew tox/tox
+brew install --only-dependencies --HEAD utox
+```
+
+### with Autotools
+
+```bash
+git clone git://github.com/jedisct1/libsodium.git
+cd libsodium
+git checkout tags/1.0.3
+./autogen.sh
+./configure && make check
+make install
+cd ..
+
+git clone git://github.com/irungentoo/filter_audio.git
+cd filter_audio
+make
+make install
+cd ..
+
+git clone git://github.com/TokTok/c-toxcore.git
+cd c-toxcore
+cmake .
+make
+make install
+cd ..
+```
+
+## How to compile uTox
+
+```bash
+git clone git://github.com/uTox/uTox.git
+cd uTox
 mkdir build
 cd build
 cmake ..
 make
 ```
 
-## How to install
+### How to install uTox
 
 ```bash
 sudo make install
 ```
 
 Done!
+
+## How to create an Xcode project
+
+1. Install the [dependencies](#how-to-compile-dependencies)
+
+```bash
+git clone git://github.com/uTox/uTox.git
+cd uTox
+mkdir build
+cd build
+cmake -GXcode ..
+
+xcodebuild -configuration Release
+```
 
 ## Adding to uTox-cocoa
 
