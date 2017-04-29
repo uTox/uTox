@@ -331,8 +331,7 @@ add_executable(utox ${GUI_TYPE}
     src/self.c
     src/settings.c
     src/sized_string.h
-    src/stb_image.h
-    src/stb_image_write.h
+    src/stb.c
     src/text.c
     src/theme.c
     src/tox.c

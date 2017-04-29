@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
@@ -15,6 +16,7 @@ bool native_create_dir(const uint8_t *filepath) {
     if (status == 0 || errno == EEXIST) {
         return true;
     }
+
     return false;
 }
 
@@ -35,8 +37,6 @@ static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
     }
 
     mode[3] = 0;
-
-    return;
 }
 
 FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bool portable_mode) {
