@@ -297,6 +297,11 @@ elseif(APPLE)
     set(LIBRARIES "opus")
 elseif(UNIX)
     add_subdirectory(src/xlib)
+
+    if(LINUX)
+        # Required for v4l (at least in the Linux static builds on Jenkins)
+        set(LIBRARIES "rt")
+    endif()
 endif()
 
 # include utoxLAYOUT
@@ -345,7 +350,6 @@ add_executable(utox ${GUI_TYPE}
 
     ${WINDOWS_ICON}
     ${APPLE_ICON}
-
     )
 
 target_link_libraries(utox
