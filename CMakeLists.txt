@@ -217,7 +217,7 @@ endif()
 if(ENABLE_FILTERAUDIO)
     add_cflag("-DAUDIO_FILTERING")
     find_package(libfilteraudio REQUIRED)
-    include_directories(LIBFILTERAUDIO_INCLUDE_DIRS)
+    include_directories(${LIBFILTERAUDIO_INCLUDE_DIRS})
 endif()
 
 if(UTOX_STATIC)
@@ -257,7 +257,7 @@ else()
 endif()
 
 find_package(libtoxcore REQUIRED)
-include_directories(LIBTOXCORE_INCLUDE_DIRS)
+include_directories(${LIBTOXCORE_INCLUDE_DIRS})
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -285,6 +285,10 @@ if(WIN32)
     add_subdirectory(src/windows)
 elseif(APPLE)
     set(GUI_TYPE MACOSX_BUNDLE)
+
+    # Xcode needs these to find libs
+    include_directories(/usr/local/include)
+    link_directories(/usr/local/lib)
 
     # Make apple icon
     add_custom_command(OUTPUT ${APPLE_ICON}
