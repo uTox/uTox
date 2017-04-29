@@ -1,9 +1,9 @@
 #include "main.h"
 
+#include "../debug.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../debug.h"
-#include "../main.h" // stbi
+#include "../stb.h"
 #include "../tox.h"
 
 #include "../av/utox_av.h"

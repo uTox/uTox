@@ -8,6 +8,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
+#include "../stb.h"
 #include "../text.h"
 #include "../tox.h"
 #include "../ui.h"

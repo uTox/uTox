@@ -5,6 +5,8 @@
 
 #include "../debug.h"
 
+#include "../native/audio.h"
+
 static SLObjectItf engineObject = NULL;
 static SLEngineItf engineEngine;
 
