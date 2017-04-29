@@ -25,7 +25,7 @@
 ### with Homebrew
 
 ```bash
-brew tox/tox
+brew tap tox/tox
 brew install --only-dependencies --HEAD utox
 ```
 
