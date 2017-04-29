@@ -18,6 +18,8 @@
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 
+#include "../native/audio.h"
+
 static SLObjectItf engineObject = NULL;
 static SLEngineItf engineEngine;
 

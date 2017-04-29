@@ -1,7 +1,3 @@
-// Needs to be defined before main.h
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-
 #include "main.h"
 
 #include "debug.h"
@@ -14,6 +10,7 @@
 #include "native/thread.h"
 
 #include <getopt.h>
+#include <string.h>
 
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
  * if you need to localize them to a specific platform, move them from here, to each

@@ -5,14 +5,14 @@
 
 #include "../debug.h"
 #include "../filesys.h"
-#include "../settings.h"
-#include "../utox.h"
-#include "../theme.h"
-#include "../tox.h"
 #include "../flist.h"
 #include "../main.h"
-
+#include "../settings.h"
+#include "../stb.h"
+#include "../theme.h"
+#include "../tox.h"
 #include "../ui.h"
+#include "../utox.h"
 
 #include "../ui/svg.h"
 #include "../ui/edit.h"

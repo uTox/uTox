@@ -16,6 +16,7 @@
 #include "../main.h"
 #include "../self.h"
 #include "../settings.h"
+#include "../stb.h"
 #include "../text.h"
 #include "../theme.h"
 #include "../tox.h"
