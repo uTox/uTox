@@ -55,7 +55,8 @@ void video_begin(uint32_t id, char *UNUSED(name), uint16_t UNUSED(name_length), 
     }
 
     if (*h) {
-        LOG_ERR("debug", "vid exists");
+        // Video already started.
+        // TODO: We should really call this function in a smarter way.
         return;
     }
 
