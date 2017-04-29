@@ -353,6 +353,11 @@ target_link_libraries(utox
         ${TOX_LIBS}   ${LIBRARIES}    sodium
         vpx           pthread         m )
 
+if(LINUX)
+    # Required for v4l (at least in the Linux static builds on Jenkins)
+    target_link_libraries(utox rt)
+endif()
+
 set_property(TARGET utox PROPERTY C_STANDARD 11)
 if(APPLE)
     set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
