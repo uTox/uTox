@@ -2,6 +2,7 @@
 #include "../debug.h"
 #include "../filesys.h"
 #include "../settings.h"
+#include "../stb.h"
 
 #include "../native/keyboard.h"
 

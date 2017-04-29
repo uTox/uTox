@@ -14,14 +14,6 @@
 
 
 /**********************************************************
- * Forward-declares
- *********************************************************/
-
-typedef struct avatar AVATAR;
-typedef uint8_t *UTOX_IMAGE;
-
-
-/**********************************************************
  * UI and Toxcore Limits
  *********************************************************/
 
@@ -31,9 +23,7 @@ typedef uint8_t *UTOX_IMAGE;
   #error "Unable to compile uTox with this Toxcore version. uTox expects v0.1.*!"
 #endif
 
-#define BORDER 1
-#define CAPTION 26
-#define MAIN_WIDTH 800
+#define MAIN_WIDTH 750
 #define MAIN_HEIGHT 500
 
 //  fixes compile with apple headers
@@ -65,10 +55,6 @@ bool move_window_down; // When the mouse is currently down over the move_window_
                        // non-ideal but I wasn't ready to write a better state system for
                        // moving windows from inside uTox.
                        // seems to be unused?
-
-#include "stb_image.h"
-#include "stb_image_write.h"
-extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
 
 enum {
     USER_STATUS_AVAILABLE,
@@ -111,10 +97,5 @@ void utox_init(void);
  * Free used resources
  */
 void utox_raze(void);
-
-// Android audio
-void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels);
-void audio_begin(int32_t call_index);
-void audio_end(int32_t call_index);
 
 #endif
