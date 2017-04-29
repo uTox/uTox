@@ -122,18 +122,6 @@ bool audio_frame(int16_t *buffer) {
 
 /* *** os *** */
 
-int systemlang(void) {
-    // FIXME maybe replace with NSLocale?
-    char *str = getenv("LC_MESSAGES");
-    if (!str) {
-        str = getenv("LANG");
-    }
-    if (!str) {
-        return DEFAULT_LANG;
-    }
-    return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
-}
-
 #include <mach/clock.h>
 #include <mach/mach.h>
 
@@ -545,9 +533,6 @@ int main(int argc, char const *argv[]) {
     }
 
     setlocale(LC_ALL, "");
-
-    LANG                       = systemlang();
-    dropdown_language.selected = dropdown_language.over = LANG;
 
     /* set the width/height of the drawing region */
 

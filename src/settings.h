@@ -4,6 +4,7 @@
 typedef struct utox_save UTOX_SAVE;
 
 #include "debug.h"
+#include "../langs/i18n_decls.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -36,6 +37,7 @@ typedef struct utox_settings {
     uint16_t proxy_port;
 
     // User interface settings
+    UTOX_LANG language;
     bool audiofilter_enabled;
     bool push_to_talk;
     bool audio_preview;
@@ -117,7 +119,9 @@ typedef struct utox_save {
     uint8_t zero_2              : 5;
     uint8_t zero_3              : 8;
 
-    uint16_t unused[28];
+    uint16_t language;
+
+    uint16_t unused[27];
     uint8_t  proxy_ip[];
 } UTOX_SAVE;
 

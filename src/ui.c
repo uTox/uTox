@@ -58,10 +58,6 @@ static bool background_mleave(PANEL *UNUSED(p)) {
     return false;
 }
 
-
-// Application-wide language setting
-UTOX_LANG LANG;
-
 /***** MAYBE_I18NAL_STRING helpers start *****/
 
 void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char *str, uint16_t length) {
@@ -79,9 +75,9 @@ void maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *mis, UTOX_I18N_STR stri
 STRING *maybe_i18nal_string_get(MAYBE_I18NAL_STRING *mis) {
     if (mis->plain.str) {
         return &mis->plain;
-    } else {
-        return SPTRFORLANG(LANG, mis->i18nal);
     }
+
+    return SPTRFORLANG(settings.language, mis->i18nal);
 }
 
 bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {

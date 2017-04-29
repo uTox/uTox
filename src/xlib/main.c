@@ -624,21 +624,6 @@ void config_osdefaults(UTOX_SAVE *r) {
     r->window_height = DEFAULT_HEIGHT;
 }
 
-static UTOX_LANG systemlang(void) {
-    char *str = getenv("LC_ALL");
-    if (!str) {
-        str = getenv("LC_MESSAGES");
-    }
-    if (!str) {
-        str = getenv("LANG");
-    }
-    if (!str) {
-        return DEFAULT_LANG;
-    }
-    return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
-}
-
-
 static void atom_init(void) {
     wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);
     wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
@@ -730,10 +715,6 @@ int main(int argc, char *argv[]) {
     native_window_create_main(settings.window_x, settings.window_y, settings.window_width, settings.window_height, argv, argc);
     main_window.gc = DefaultGC(display, def_screen_num);
     main_window.drawbuf = XCreatePixmap(display, main_window.window, settings.window_width, settings.window_height, default_depth);
-
-
-    LANG = systemlang();
-    dropdown_language.selected = dropdown_language.over = LANG;
 
     /* choose available libraries for optional UI stuff */
     if (!(libgtk = ugtk_load())) {
