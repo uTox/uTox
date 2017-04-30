@@ -146,7 +146,7 @@ void openfileavatar(void) {
             free(img);
             char message[1024];
             if (sizeof(message) < (unsigned)SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
-                LOG_ERR("NATIVE", "AVATAR_TOO_LARGE message is larger than allocated buffer(%"PRIu64" bytes)\n",
+                LOG_ERR("NATIVE", "AVATAR_TOO_LARGE message is larger than allocated buffer(%llu bytes)\n",
                       sizeof(message));
                 break;
             }

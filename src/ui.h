@@ -1,6 +1,8 @@
 #ifndef UI_H
 #define UI_H
 
+#include "sized_string.h"
+
 #include "../langs/i18n_decls.h"
 
 #include <stdbool.h>

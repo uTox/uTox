@@ -5,7 +5,7 @@
 #ifndef DEVICES_H
 #define DEVICES_H
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <tox/tox.h>
 
 typedef struct UTOX_DEVICE {
@@ -17,7 +17,6 @@ typedef struct UTOX_DEVICE {
 
     //TOX_DEVICE_STATUS status;
     uint8_t status;
-
 } UTOX_DEVICE;
 
 UTOX_DEVICE *devices;

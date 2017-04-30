@@ -1,8 +1,9 @@
-// i18n_decls.h
 #ifndef I18N_DECLS_H
 #define I18N_DECLS_H
 
-#include "../src/sized_string.h"
+typedef struct sized_string STRING;
+
+#include <stdint.h>
 
 typedef enum {
     LANG_BG,
