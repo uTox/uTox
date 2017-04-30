@@ -15,6 +15,8 @@
 #include "../ui/panel.h"
 #include "../ui/text.h"
 
+#include <stddef.h>
+
 static void draw_background(int x, int y, int width, int height) {
     /* Default background                */
     drawrect(x, y, width, height, COLOR_BKGRND_MAIN);

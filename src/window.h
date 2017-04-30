@@ -1,8 +1,6 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <stdbool.h>
-
 typedef struct native_window UTOX_WINDOW;
 typedef struct panel PANEL;
 

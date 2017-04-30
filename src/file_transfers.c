@@ -15,6 +15,7 @@
 #include "native/thread.h"
 #include "native/time.h"
 
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 

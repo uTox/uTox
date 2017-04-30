@@ -24,6 +24,7 @@
 #include "../ui/switch.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* Top bar for user settings */

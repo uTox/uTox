@@ -29,6 +29,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 #include "../layout/friend.h"
 #include "../layout/group.h"

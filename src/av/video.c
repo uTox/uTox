@@ -16,6 +16,7 @@
 #include <tox/toxav.h>
 
 #include <pthread.h>
+#include <stdlib.h>
 #include <vpx/vpx_codec.h>
 #include <vpx/vpx_image.h>
 
