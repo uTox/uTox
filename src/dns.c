@@ -7,9 +7,9 @@
 
 #include "native/thread.h"
 
-#include <tox/toxdns.h>
-
+#include <stdlib.h>
 #include <string.h>
+#include <tox/toxdns.h>
 
 #ifdef __WIN32__
 #include <windows.h>

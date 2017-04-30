@@ -18,6 +18,7 @@
 
 #include "main.h" // UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
 
+#include <stdlib.h>
 #include <string.h>
 
 SETTINGS settings = {

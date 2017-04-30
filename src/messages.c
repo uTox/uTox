@@ -31,6 +31,7 @@
 #include "native/keyboard.h"
 #include "native/os.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 #define UTOX_MAX_BACKLOG_MESSAGES 256

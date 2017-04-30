@@ -1,9 +1,9 @@
 #ifndef SIZED_STRING_H
 #define SIZED_STRING_H
 
-#include <inttypes.h>
+#include <stdint.h>
 
-typedef struct {
+typedef struct sized_string {
     char *str;
 
     uint16_t length;

@@ -1,7 +1,7 @@
 #ifndef UTOX_H
 #define UTOX_H
 
-#include <inttypes.h>
+#include <stdint.h>
 
 /* uTox client thread messages (received by the client thread) */
 typedef enum utox_msg_id {
