@@ -1,10 +1,8 @@
 #ifndef FILE_TRANSFERS_H
 #define FILE_TRANSFERS_H
 
-#include "filesys.h"
-
-#include <inttypes.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <tox/tox.h>
 
@@ -43,7 +41,7 @@ typedef struct file_transfer {
 
     UTOX_FILE_TRANSFER_STATUS status;
 
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t path[1024]; // UTOX_FILE_NAME_LENGTH
 
     uint8_t *name;
     size_t  name_length;

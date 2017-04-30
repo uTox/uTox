@@ -7,6 +7,7 @@
 
 #include "native/window.h"
 
+#include <stddef.h>
 #include <stdint.h>
 
 static uint16_t notification_number = 0;

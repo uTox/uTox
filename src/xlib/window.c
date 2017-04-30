@@ -16,6 +16,7 @@
 
 #include "../main.h" // MAIN_WIDTH, MAIN_HEIGHT
 
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 

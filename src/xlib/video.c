@@ -11,13 +11,13 @@
 
 #include "../native/time.h"
 
-#include <stdio.h>
-
 #include "../main.h"
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <sys/shm.h>
+#include <sys/stat.h>
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     if (!video_win[id]) {
@@ -33,19 +33,21 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     XWindowAttributes attrs;
     XGetWindowAttributes(display, video_win[id], &attrs);
 
-    XImage image = {.width            = attrs.width,
-                    .height           = attrs.height,
-                    .depth            = 24,
-                    .bits_per_pixel   = 32,
-                    .format           = ZPixmap,
-                    .byte_order       = LSBFirst,
-                    .bitmap_unit      = 8,
-                    .bitmap_bit_order = LSBFirst,
-                    .bytes_per_line   = attrs.width * 4,
-                    .red_mask         = 0xFF0000,
-                    .green_mask       = 0xFF00,
-                    .blue_mask        = 0xFF,
-                    .data             = (char *)img_data };
+    XImage image = {
+        .width            = attrs.width,
+        .height           = attrs.height,
+        .depth            = 24,
+        .bits_per_pixel   = 32,
+        .format           = ZPixmap,
+        .byte_order       = LSBFirst,
+        .bitmap_unit      = 8,
+        .bitmap_bit_order = LSBFirst,
+        .bytes_per_line   = attrs.width * 4,
+        .red_mask         = 0xFF0000,
+        .green_mask       = 0xFF00,
+        .blue_mask        = 0xFF,
+        .data             = (char *)img_data
+    };
 
     /* scale image if needed */
     uint8_t *new_data = malloc(attrs.width * attrs.height * 4);

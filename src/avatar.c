@@ -2,10 +2,13 @@
 
 #include "debug.h"
 #include "file_transfers.h"
+#include "filesys.h"
 #include "self.h"
 #include "tox.h"
 
 #include "native/image.h"
+
+#include <stdlib.h>
 
 /* frees the image of an avatar, does nothing if image is NULL */
 static void avatar_free_image(AVATAR *avatar) {

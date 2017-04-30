@@ -17,6 +17,7 @@
 #include "../../langs/i18n_decls.h"
 
 #include <math.h>
+#include <stdlib.h>
 #include <string.h>
 #include <tox/toxav.h>
 

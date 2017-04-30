@@ -22,6 +22,7 @@
 
 #include "ui/edit.h"        // friend_set_name()
 
+#include <stdlib.h>
 #include <string.h>
 
 static FRIEND *friend = NULL;

@@ -27,6 +27,7 @@
 #include "native/ui.h"
 #include "native/video.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 /** Translates status code to text then sends back to the user */

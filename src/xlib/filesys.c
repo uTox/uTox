@@ -3,13 +3,15 @@
 #include "gtk.h"
 
 #include "../chatlog.h"
-#include "../file_transfers.h"
-#include "../friend.h"
 #include "../debug.h"
-#include "../tox.h"
+#include "../file_transfers.h"
+#include "../filesys.h"
+#include "../friend.h"
 #include "../settings.h"
+#include "../tox.h"
 
 #include <fcntl.h>
+#include <stdlib.h>
 #include <string.h>
 
 #if 0 // commented because this function is deprecated, but I'm not ready to delete all this code yet
