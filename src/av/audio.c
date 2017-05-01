@@ -8,7 +8,7 @@
 
 #include "../debug.h"
 #include "../friend.h"
-#include "../main.h" // utox_audio_thread_init, self, USER_STATUS_*, UTOX_MAX_CALLS
+#include "../main.h" // USER_STATUS_*
 #include "../self.h"
 #include "../settings.h"
 #include "../tox.h"
@@ -47,6 +47,8 @@ static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {
     (void)filter_audio_handle;
 #endif
 }
+
+bool utox_audio_thread_init = false;
 
 static ALCdevice *audio_out_handle, *audio_in_handle;
 static void *     audio_out_device, *audio_in_device;

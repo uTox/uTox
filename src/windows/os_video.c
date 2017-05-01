@@ -13,8 +13,6 @@
 
 #include <windows.h>
 
-#include "../main.h" // video super globals
-
 #ifdef __CRT__NO_INLINE
 #undef __CRT__NO_INLINE
 #include <dshow.h>

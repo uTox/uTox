@@ -7,7 +7,6 @@
 
 #include "../debug.h"
 #include "../macros.h"
-#include "../main.h"
 #include "../settings.h"
 #include "../text.h"
 #include "../theme.h"

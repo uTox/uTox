@@ -9,6 +9,8 @@ typedef struct utox_save UTOX_SAVE;
 #include <stdint.h>
 #include <stdbool.h>
 
+extern uint16_t loaded_audio_in_device, loaded_audio_out_device;
+
 typedef struct utox_settings {
     // uTox versions settings
     uint32_t last_version;

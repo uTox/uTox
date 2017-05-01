@@ -12,7 +12,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
-#include "../main.h"
+#include "../main.h" // Lots of things. :(
 #include "../self.h"
 #include "../settings.h"
 #include "../stb.h"

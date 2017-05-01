@@ -36,7 +36,7 @@
 #include <tox/tox.h>
 #include <tox/toxencryptsave.h>
 
-#include "main.h"
+#include "main.h" // utox_data_save/load, DEFAULT_NAME, DEFAULT_STATUS
 
 static bool save_needed = true;
 

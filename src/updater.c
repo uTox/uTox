@@ -29,8 +29,6 @@
 #include <sys/types.h>
 #endif
 
-#include "native/main.h" // Include after winsock2
-
 #if defined __WIN32__
 #define UPDATER_HOST "win"
 #define UPDATER_OUT "uTox.exe"

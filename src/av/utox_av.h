@@ -6,6 +6,8 @@
 
 #include <stdint.h>
 
+extern bool utox_av_ctrl_init;
+
 #define UTOX_MAX_CALLS 16
 // UTOX_MAX_VIDEO_CALLS is never used. Remove?
 #define UTOX_MAX_VIDEO_CALLS 32

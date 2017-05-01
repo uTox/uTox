@@ -8,8 +8,6 @@
 #include "../ui.h"
 #include "../utox.h"
 
-#include "../main.h" // mouse, thread
-
 #include "../native/thread.h"
 #include "../native/time.h"
 

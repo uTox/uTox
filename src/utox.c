@@ -4,12 +4,12 @@
 #include "commands.h"
 #include "debug.h"
 #include "dns.h"
-#include "filesys.h"
 #include "file_transfers.h"
+#include "filesys.h"
 #include "flist.h"
 #include "friend.h"
 #include "groups.h"
-#include "main.h" // loaded audio device vars
+#include "settings.h"
 #include "tox.h"
 
 #include "av/utox_av.h"

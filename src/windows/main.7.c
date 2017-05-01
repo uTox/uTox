@@ -6,8 +6,6 @@
 
 #include "main.h"
 
-#include "../main.h"
-
 #include "../chatlog.h"
 #include "../debug.h"
 #include "../file_transfers.h"
