@@ -5,6 +5,7 @@
 #include "../filesys.h"
 #include "../flist.h"
 #include "../main.h"
+#include "../macros.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
@@ -308,6 +309,10 @@ void openurl(char *str) {
 
     [[NSWorkspace sharedWorkspace] openURL:url];
     [urls release];
+}
+
+void force_redraw(void *UNUSED(args)) {
+    redraw();
 }
 
 void launch_at_startup(bool should) {

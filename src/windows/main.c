@@ -576,7 +576,7 @@ void update_tray(void) {
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
-void force_redraw(void) {
+void force_redraw(void *UNUSED(args)) {
     redraw();
 }
 
