@@ -42,6 +42,11 @@ static bool background_mdown(PANEL *UNUSED(p)) {
     return false;
 }
 
+static bool background_mdbl(PANEL *UNUSED(p), bool triclick) {
+    LOG_ERR("UI root", "bg dblclick %u", triclick);
+    return false;
+}
+
 static bool background_mright(PANEL *UNUSED(p)) {
     return false;
 }
@@ -589,10 +594,24 @@ void panel_mdown(PANEL *p) {
 
 bool panel_dclick(PANEL *p, bool triclick) {
     bool draw = false;
-    if (p->type == PANEL_EDIT) {
-        draw = edit_dclick((EDIT *)p, triclick);
-    } else if (p->type == PANEL_MESSAGES) {
-        draw = messages_dclick(p, triclick);
+    switch (p->type) {
+        case PANEL_NONE: {
+            draw = background_mdbl(p, triclick);
+            break;
+        }
+        case PANEL_EDIT: {
+            draw = edit_dclick((EDIT *)p, triclick);
+            break;
+        }
+        case PANEL_MESSAGES: {
+            draw = messages_dclick(p, triclick);
+            break;
+        }
+        default: {
+            // Not every panel gets a double click event.
+            // TODO this is a bug.
+            break;
+        }
     }
 
     PANEL **pp = p->child;
