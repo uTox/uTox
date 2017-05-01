@@ -4,6 +4,7 @@
 #include "main.h"
 #include "window.h"
 
+#include "../macros.h"
 #include "../text.h"
 #include "../ui.h"
 
@@ -15,7 +16,7 @@ void redraw(void) {
     _redraw = 1;
 }
 
-void force_redraw(void) {
+void force_redraw(void *UNUSED(args)) {
     XEvent ev = {
         .xclient = {
             .type         = ClientMessage,

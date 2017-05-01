@@ -8,10 +8,6 @@
 #include <stdint.h>
 #include <tox/tox.h>
 
-#ifndef ENABLE_MULTIDEVICE
-// typedef uint8_t TOX_DEVICE_STATUS;
-#endif
-
 typedef struct UTOX_DEVICE {
     uint8_t pubkey[TOX_PUBLIC_KEY_SIZE];
     uint8_t pubkey_hex[TOX_PUBLIC_KEY_SIZE * 2];
