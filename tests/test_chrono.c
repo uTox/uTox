@@ -25,7 +25,6 @@ START_TEST (test_chrono_finished)
 }
 END_TEST
 */
-void force_redraw(){}
 
 void thread_callback(void *args) {
     *(bool *)args = true;
@@ -39,15 +38,17 @@ START_TEST(test_chrono_target)
      * to use the stack.
      */
     CHRONO_INFO info;
-    bool finished = false;
 
-    int ptr = 0;
+    memset(&info, 0, sizeof(info));
+
+    bool finished = false;
+    int target = 30, ptr = 0;
 
     info.ptr = &ptr;
     info.step = 5;
     info.interval_ms = 5;
     info.finished = false;
-    info.target = 30;
+    info.target = &target;
     info.callback = thread_callback;
     info.cb_data = &finished;
 

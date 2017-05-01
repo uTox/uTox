@@ -4,6 +4,7 @@
 #include "../debug.h"
 #include "../filesys.h"
 #include "../main.h"
+#include "../macros.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
@@ -302,6 +303,10 @@ void exit_ptt(void) {
 void redraw(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
     [ad soilWindowContents];
+}
+
+void force_redraw(void *UNUSED(args)) {
+    redraw();
 }
 
 void launch_at_startup(bool should) {
