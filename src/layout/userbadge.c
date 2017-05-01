@@ -14,9 +14,6 @@
 #include "../ui/contextmenu.h"
 #include "../ui/edit.h"
 
-#include "../main.h" // tox_tread_init
-
-
 /* On-press functions followed by the update functions when needed... */
 static void button_avatar_on_mup(void) {
     if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {

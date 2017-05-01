@@ -20,6 +20,9 @@
 
 #include <string.h>
 
+uint16_t loaded_audio_out_device = 0;
+uint16_t loaded_audio_in_device  = 0;
+
 SETTINGS settings = {
     // .last_version                // included here to match the full struct
     .curr_version = UTOX_VERSION_NUMBER,
