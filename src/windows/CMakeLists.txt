@@ -39,4 +39,4 @@ target_link_libraries(utoxNATIVE
     oleaut32    strmiids    shell32     opus
     )
 
-set(WINDOWS_ICON icons/icon.rc)
+set(WINDOWS_ICON utox.rc)

@@ -6,15 +6,17 @@
 #include "../debug.h"
 #include "../ui.h"
 
+#include "../native/window.h"
+
 #include <windowsx.h>
 
 static void redraw_notify(UTOX_WINDOW *win) {
-    debug("redraw start\n");
+    LOG_TRACE("Notify", "redraw start");
     native_window_set_target(win);
     panel_draw(win->_.panel, 0, 0, win->_.w, win->_.h);
     SelectObject(win->draw_DC, win->draw_BM);
     BitBlt(win->window_DC, win->_.x, win->_.y, win->_.w, win->_.h, win->draw_DC, win->_.x, win->_.y, SRCCOPY);
-    debug("redraw end\n");
+    LOG_TRACE("Notify", "redraw end");
 }
 
 LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -23,22 +25,22 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
     static int mdown_x, mdown_y;
     switch (msg) {
         case WM_QUIT: {
-            debug("NOTIFY::\tQUIT\n");
+            LOG_TRACE("Notify", "QUIT");
             break;
 
         }
         case WM_CLOSE: {
-            debug("NOTIFY::\tCLOSE\n");
+            LOG_TRACE("Notify", "CLOSE");
             break;
 
         }
         case WM_DESTROY: {
-            debug("NOTIFY::\tDESTROY\n");
+            LOG_TRACE("Notify", "DESTROY");
             break;
 
         }
         case WM_GETMINMAXINFO: {
-            debug("NOTIFY::\tMINMAX_INFO\n");
+            LOG_TRACE("Notify", "MINMAX_INFO");
             POINT min = { SCALE(200), SCALE(200) };
             ((MINMAXINFO *)lParam)->ptMinTrackSize = min;
             break;
@@ -99,35 +101,35 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_MOUSEMOVE: {
-            // debug("NOTIFY::\tMMOVE\n");
+            // LOG_TRACE("Notify", "MMOVE");
             return false;
         }
 
         case WM_LBUTTONDOWN: {
             mdown_x = GET_X_LPARAM(lParam);
             mdown_y = GET_Y_LPARAM(lParam);
-            debug("NOTIFY::\tLeft down %i %i\n", mdown_x, mdown_y);
+            LOG_TRACE("Notify", "Left down %i %i", mdown_x, mdown_y);
             break;
         }
         case WM_LBUTTONUP: {
-            debug("NOTIFY::\tLeft up\n");
+            LOG_TRACE("Notify", "Left up");
             ReleaseCapture();
             redraw_notify(win);
             break;
         }
         case WM_LBUTTONDBLCLK: {
-            debug("NOTIFY::\tDbl click, going to close\n");
+            LOG_TRACE("Notify", "Dbl click, going to close");
             DestroyWindow(window);
             break;
         }
 
         case WM_RBUTTONDOWN: {
-            debug("NOTIFY::\tR BTN DOWN\n");
+            LOG_TRACE("Notify", "R BTN DOWN");
             break;
         }
 
         case WM_RBUTTONUP: {
-            debug("NOTIFY::\tR BTN UP\n");
+            LOG_TRACE("Notify", "R BTN UP");
             break;
         }
 

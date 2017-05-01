@@ -197,7 +197,7 @@ void ensure_directory_r(char *path, int perm) {
     free(parent_copy);
 
     if (mkdir(path, perm) != 0 && errno != EEXIST) {
-        debug("ensure_directory_r(%s): %s", path, strerror(errno));
+        LOG_ERR("Native", "ensure_directory_r(%s): %s", path, strerror(errno));
         abort();
     }
 }
@@ -410,6 +410,7 @@ void launch_at_startup(bool should) {
                                 [[[uToxView alloc] initWithFrame:(CGRect){ 0, 0, self.utox_window.frame.size }] autorelease];
 
                             ui_size(settings.window_width, settings.window_height);
+                            ui_rescale(ui_scale);
 
                             /* start the tox thread */
                             thread(toxcore_thread, NULL);

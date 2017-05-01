@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 3.2)
 project(uTox LANGUAGES C)
 
-#######################################################################
-## Project Version
-#######################################################################
+#####################
+## Project Metadata #
+#####################
+
 set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "15")
 set(PROJECT_VERSION_PATCH "0")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
+set(PROJECT_COPYRIGHT "Copyleft 2017 uTox contributors. Some rights reserved.")
 
 
 ###########
@@ -150,7 +153,7 @@ add_cflag("-fPIC")
 if(CMAKE_C_COMPILER_ID MATCHES "GNU")
     # Have ld strip the symbols from Release and MinSizeRel build types.
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os")
+    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -s")
 
     if(LINUX)
         # enable Link Time Optimization on gcc (linux only currently)
@@ -172,7 +175,7 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
 
     # Have ld strip the symbols from Release and MinSizeRel build types. (-Oz is clang specific)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Oz")
+    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Oz -s")
 
     if(NOT ENABLE_ASAN)
         if(NOT APPLE)
@@ -195,8 +198,8 @@ endif()
 # https://gcc.gnu.org/gcc-4.8/changes.html
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
 if (ENABLE_ASAN)
-    if (UTOX_STATIC)
-        message(SEND_ERROR "ASAN is incompatible with static compilation.")
+    if (UTOX_STATIC AND WINDOWS)
+        message(SEND_ERROR "ASAN is incompatible with static compilation on Windows.")
     endif()
 
     add_cflag("-fsanitize=address")
@@ -268,12 +271,30 @@ if(WIN32)
 
     ## Needed to build the widows icon
     enable_language(RC)
-    set(WINDOWS_ICON icons/icon.rc)
+    set(WINDOWS_ICON src/windows/utox.rc)
 
     add_subdirectory(src/windows)
 elseif(APPLE)
     set(GUI_TYPE MACOSX_BUNDLE)
-    set(MACOSX_BUNDLE_INFO_PLIST src/cocoa/Info.plist)
+
+    # Make apple icon
+    set(APPLE_ICON utox.icns)
+    add_custom_command(OUTPUT utox.icns
+        COMMAND iconutil --convert icns ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset -o utox.icns
+        DEPENDS ${uTox_SOURCE_DIR}/src/cocoa/utox.iconset
+    )
+    set_source_files_properties(${APPLE_ICON} PROPERTIES
+       MACOSX_PACKAGE_LOCATION "Resources")
+
+    include_directories( /usr/local/include /usr/include/malloc )
+    link_directories ( /usr/local/lib )
+
+    # Homebrew installed libtoxcore
+    if(EXISTS /usr/local/opt/libtoxcore/)
+        include_directories( /usr/local/opt/libtoxcore/include )
+        link_directories ( /usr/local/opt/libtoxcore/lib )
+    endif()
+
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
     set(LIBRARIES "opus")
@@ -294,6 +315,7 @@ add_subdirectory(src/av)
 add_executable(utox ${GUI_TYPE}
     src/avatar.c
     src/chatlog.c
+    src/chrono.c
     src/command_funcs.c
     src/commands.c
     src/devices.c
@@ -336,6 +358,14 @@ target_link_libraries(utox
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
 if(APPLE)
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION})
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER "io.utox.future")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "uTox")
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_COPYRIGHT ${PROJECT_COPYRIGHT})
+    set_target_properties(utox PROPERTIES MACOSX_BUNDLE_ICON_FILE "${APPLE_ICON}")
+
     install(TARGETS utox
         RUNTIME DESTINATION "bin"
         BUNDLE  DESTINATION "resources"

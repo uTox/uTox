@@ -40,3 +40,5 @@ if(ENABLE_AUTOUPDATE)
   make_test(updater)
       target_link_libraries(test_updater sodium)
 endif()
+
+make_test(chrono)
