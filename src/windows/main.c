@@ -2,6 +2,7 @@
 
 #include "notify.h"
 #include "screen_grab.h"
+#include "utf8.h"
 #include "window.h"
 
 #include "../avatar.h"
@@ -25,6 +26,7 @@
 #include "../av/utox_av.h"
 
 #include "../native/filesys.h"
+#include "../native/notify.h"
 #include "../native/os.h"
 #include "../native/window.h"
 
@@ -42,23 +44,7 @@
 #include <io.h>
 
 bool flashing = false;
-bool havefocus = true;
 bool hidden = false;
-
-/** Translate a char* from UTF-8 encoding to OS native;
- *
- * Accepts char pointer, native array pointer, length of input;
- * Returns: number of chars writen, or 0 on failure.
- *
- */
-static int utf8tonative(const char *str, wchar_t *out, int length) {
-    return MultiByteToWideChar(CP_UTF8, 0, (char *)str, length, out, length);
-}
-
-static int utf8_to_nativestr(const char *str, wchar_t *out, int length) {
-    /* must be null terminated string                   ↓ */
-    return MultiByteToWideChar(CP_UTF8, 0, (char *)str, -1, out, length);
-}
 
 /** Open system file browser dialog */
 void openfilesend(void) {
@@ -478,38 +464,6 @@ int file_unlock(FILE *file, uint64_t start, size_t length) {
     lock_overlap.OffsetHigh = start + length;
     lock_overlap.hEvent     = 0;
     return UnlockFileEx(file, 0, start, start + length, &lock_overlap);
-}
-
-/** Creates a tray baloon popup with the message, and flashes the main window
- *
- * accepts: char *title, title length, char *msg, msg length;
- * returns void;
- */
-void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *UNUSED(object), bool UNUSED(is_group)) {
-    if (havefocus || self.status == 2) {
-        return;
-    }
-
-    FlashWindow(main_window.window, true);
-    flashing = true;
-
-    NOTIFYICONDATAW nid = {
-        .cbSize      = sizeof(nid),
-        .hWnd        = main_window.window,
-        .uFlags      = NIF_ICON | NIF_INFO,
-        .hIcon       = unread_messages_icon,
-        .uTimeout    = 5000,
-        .dwInfoFlags = 0,
-    };
-
-    utf8tonative(title, nid.szInfoTitle, title_length > sizeof(nid.szInfoTitle) / sizeof(*nid.szInfoTitle) - 1 ?
-                                             sizeof(nid.szInfoTitle) / sizeof(*nid.szInfoTitle) - 1 :
-                                             title_length);
-    utf8tonative(msg, nid.szInfo, msg_length > sizeof(nid.szInfo) / sizeof(*nid.szInfo) - 1 ?
-                                      sizeof(nid.szInfo) / sizeof(*nid.szInfo) - 1 :
-                                      msg_length);
-
-    Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
 void showkeyboard(bool UNUSED(show)) {} /* Added for android support. */
