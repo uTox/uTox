@@ -1,6 +1,8 @@
 #ifndef LAYOUT_SIDEBAR_H
 #define LAYOUT_SIDEBAR_H
 
+#include <stdbool.h>
+
 typedef struct scrollable SCROLLABLE;
 extern SCROLLABLE scrollbar_flist;
 
@@ -25,5 +27,7 @@ extern BUTTON button_avatar,
 
 typedef struct edit EDIT;
 extern EDIT edit_search;
+
+extern bool sidebar_open;
 
 #endif //LAYOUT_SIDEBAR_H

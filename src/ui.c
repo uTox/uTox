@@ -1,5 +1,6 @@
 #include "ui.h"
 
+#include "chrono.h"
 #include "flist.h"
 #include "inline_video.h"
 #include "macros.h"
@@ -28,6 +29,8 @@
 #include "ui/text.h"
 #include "ui/tooltip.h"
 
+static CHRONO_INFO *sidebar_chrono = NULL;
+
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
     return;
@@ -42,9 +45,48 @@ static bool background_mdown(PANEL *UNUSED(p)) {
     return false;
 }
 
+static void sidebar_callback(void *UNUSED(args)) {
+    sidebar_open = !sidebar_open;
+}
+
 static bool background_mdbl(PANEL *UNUSED(p), bool triclick) {
     LOG_ERR("UI root", "bg dblclick %u", triclick);
-    return false;
+
+    int step = 0;
+
+    if (!sidebar_chrono) { //sidebar_chrono has not been initialzed
+        LOG_INFO("UI", "Sidebar chrono is being initialized.");
+        sidebar_chrono = calloc(1, sizeof(CHRONO_INFO));
+        if (!sidebar_chrono) {
+            LOG_ERR("UI", "Could not allocate memory for chrono info.");
+            return false;
+        }
+        sidebar_chrono->target = malloc(sizeof(int));
+        if (!sidebar_chrono->target) {
+            LOG_ERR("UI", "Could not allocate memory for target.");
+            free(sidebar_chrono);
+            sidebar_chrono = NULL;
+            return false;
+        }
+    }
+
+    if (panel_side_bar.width == 50) {
+        *sidebar_chrono->target = 230;
+        step = 2;
+    } else {
+        *sidebar_chrono->target = 50;
+        step = -2;
+    }
+
+    sidebar_chrono->ptr = &panel_side_bar.width;
+    sidebar_chrono->step = step;
+    sidebar_chrono->interval_ms = 1;
+    sidebar_chrono->callback = sidebar_callback;
+    sidebar_chrono->cb_data = NULL;
+
+    chrono_start(sidebar_chrono);
+
+    return true;
 }
 
 static bool background_mright(PANEL *UNUSED(p)) {

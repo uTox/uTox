@@ -33,7 +33,7 @@ bool chrono_start(CHRONO_INFO *info);
 bool chrono_end(CHRONO_INFO *info);
 
 /*
- * Sleep and then
+ * Sleep and then run func with funcargs being passed to it
  */
 void chrono_callback(uint32_t ms, void func(void *), void *funcargs);
 

@@ -13,23 +13,25 @@
 
 bool chrono_thread_init = false;
 
-#include "native/ui.h"
 static void chrono_thread(void *args) {
     LOG_INFO("Chono", "Thread starting");
 
     CHRONO_INFO *info = args;
     chrono_thread_init = true;
-    while (*info->ptr != info->target) {
+
+    while (*info->ptr != *info->target) {
         *info->ptr += info->step;
-        force_redraw();
         yieldcpu(info->interval_ms);
-        redraw();
+        force_redraw();
     }
+
     chrono_thread_init = false;
 
     if (info->callback) {
         info->callback(info->cb_data);
     }
+
+    info->finished = true;
 
     LOG_INFO("Chrono", "Thread exited cleanly");
 }

@@ -40,14 +40,13 @@ START_TEST(test_chrono_target)
      */
     CHRONO_INFO info;
     bool finished = false;
-
-    int ptr = 0;
+    int target = 30, ptr = 0;
 
     info.ptr = &ptr;
     info.step = 5;
     info.interval_ms = 5;
     info.finished = false;
-    info.target = 30;
+    info.target = &target;
     info.callback = thread_callback;
     info.cb_data = &finished;
 

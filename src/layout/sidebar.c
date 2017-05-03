@@ -23,6 +23,8 @@
 
 #include <string.h>
 
+bool sidebar_open = true;
+
 // Scrollbar or friend list
 SCROLLABLE scrollbar_flist = {
     .panel = { .type = PANEL_SCROLLABLE, },

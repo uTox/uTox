@@ -534,27 +534,7 @@ static void button_settings_sub_av_on_mup(void) {
     panel_settings_av.disabled = false;
 }
 
-#include "sidebar.h"
-#include "../chrono.h"
 static void button_settings_sub_adv_on_mup(void) {
-
-    CHRONO_INFO *ci = calloc(1, sizeof(CHRONO_INFO));
-
-    ci->step = 1;
-    ci->ptr = &panel_side_bar.width;
-
-    if (panel_side_bar.width == 50) {
-        ci->target = 230;
-    } else {
-        ci->target = 50;
-        ci->step *= -1;
-    }
-
-    ci->interval_ms = 1;
-
-    chrono_start(ci);
-
-    return;
     scrollbar_settings.content_height = SCALE(300);
     disable_all_setting_sub();
     panel_settings_adv.disabled = false;
@@ -683,23 +663,8 @@ static void button_show_nospam_on_mup(void) {
 #include "../chrono.h"
 #include "sidebar.h"
 static void button_copyid_on_mup(void) {
-    panel_side_bar.width = 0;
-
-    CHRONO_INFO *info = calloc(1, sizeof(CHRONO_INFO));
-    int *trg = malloc(sizeof(int));
-    *trg = 300;
-
-    info->ptr = &panel_side_bar.width;
-    info->target = trg;
-    info->step = 2;
-    info->interval_ms = 10;
-    info->finished = false;
-
-
-    chrono_start(info);
-
-    // edit_setfocus(&edit_toxid);
-    // copy(0);
+    edit_setfocus(&edit_toxid);
+    copy(0);
 }
 
 #include "../settings.h"
