@@ -2,7 +2,7 @@
 set(EXECUTABLE_NAME utox)
 set(APPLE_ICON utox.icns)
 set(APPLE_MENU MainMenu)
-set(MACOSX_DEPLOYMENT_TARGET 10.7)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6)
 
 # Xcode needs these to find libs
 include_directories(/usr/local/include)

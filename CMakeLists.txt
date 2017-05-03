@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6 CACHE STRING "Minimum OS X deployment version")
 project(uTox LANGUAGES C)
 
 #####################
