@@ -5,9 +5,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
-	<string>utox</string>
+	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
-	<string>utox.icns</string>
+	<string></string>
 	<key>CFBundleIdentifier</key>
 	<string>io.utox.future</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -25,25 +25,25 @@
 	<key>CFBundleVersion</key>
 	<string>0.15.0</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.7</string>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright 2017 uTox Contributors. Some Rights Reserved.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>Tox</string>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>tox</string>
-			</array>
-		</dict>
-	</array>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>Tox</string>
+        	<key>CFBundleTypeRole</key>
+        	<string>Viewer</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>tox</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>
