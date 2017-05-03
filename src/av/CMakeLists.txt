@@ -13,10 +13,6 @@ elseif(APPLE)
     include_directories(${LIBOPUS_INCLUDE_DIRS})
     target_link_libraries(utoxAV ${LIBOPUS_LIBRARIES}) # Link OSX against opus
 else()
-    # Both openal and opus are required for the static Linux builds on Jenkins.
-    find_package(libopus REQUIRED)
-    include_directories(${LIBOPUS_INCLUDE_DIRS})
-    target_link_libraries(utoxAV ${LIBOPUS_LIBRARIES})
     target_link_libraries(utoxAV openal)
 endif()
 
