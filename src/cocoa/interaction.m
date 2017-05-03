@@ -32,6 +32,7 @@
 #include "../layout/group.h"
 
 NSCursor *cursors[8];
+bool have_focus = false;
 
 void setup_cursors(void) {
     cursors[CURSOR_NONE]     = [NSCursor arrowCursor];
