@@ -485,6 +485,12 @@ msgstr("Show password field")
 msgid(SHOW_UI_PASSWORD_TOOLTIP)
 msgstr("Click to show profile password field. Changes made here will be instant!")
 
+msgid(HIDE_UI_PASSWORD)
+msgstr("Hide password field")
+
+msgid(HIDE_UI_PASSWORD_TOOLTIP)
+msgstr("Click to hide profile password field.")
+
 msgid(LOCK)
 msgstr("Lock")
 
@@ -811,6 +817,9 @@ msgstr("Block Friend Requests")
 
 msgid(SHOW_NOSPAM)
 msgstr("Show Nospam Settings")
+
+msgid(HIDE_NOSPAM)
+msgstr("Hide Nospam Settings")
 
 msgid(DELETE_FRIEND)
 msgstr("Delete Friend")

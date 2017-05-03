@@ -1,3 +1,6 @@
+#include <stdint.h>
+#include <limits.h>
+
 void drawtext(int x, int y, const char *str, uint16_t length) {
     _drawtext(x, INT_MAX, y, str, length);
 }
@@ -17,15 +20,6 @@ void drawtextwidth(int x, int width, int y, const char *str, uint16_t length) {
     drawtextrange(x, x + width, y, str, length);
 }
 
-void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length) {
-    const int w = textwidth(str, length);
-    if (w <= width) {
-        drawtext(x + width - w, y, str, length);
-    } else {
-        drawtextrange(x, x + width, y, str, length);
-    }
-}
-
 int textwidth(const char *str, uint16_t length) {
     int x = 0;
 
@@ -42,6 +36,15 @@ int textwidth(const char *str, uint16_t length) {
     }
 
     return x;
+}
+
+void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length) {
+    const int w = textwidth(str, length);
+    if (w <= width) {
+        drawtext(x + width - w, y, str, length);
+    } else {
+        drawtextrange(x, x + width, y, str, length);
+    }
 }
 
 // FIXME: The next two functions are identical. Delete one?

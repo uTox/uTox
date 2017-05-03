@@ -7,7 +7,6 @@ typedef unsigned int ALuint;
 typedef struct edit_change EDIT_CHANGE;
 
 #define UTOX_MAX_GROUP_PEERS 256
-#define UTOX_MAX_NUM_GROUPS 64
 
 /*  UTOX_SAVE limits 8 as the max */
 typedef enum {
@@ -82,5 +81,17 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t length);
 
 /* Gets the group qt the specified index */
 GROUPCHAT *get_group(uint32_t group_number);
+
+/* Free all groups */
+void raze_groups(void);
+
+/*
+ * Initalize the groupchats array
+ * This function should only be called once at startup after tox and the self struct have been setup
+ */
+void init_groups(void);
+
+/**/
+bool group_create(uint32_t group_number, bool av_group);
 
 #endif
