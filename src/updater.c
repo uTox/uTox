@@ -31,6 +31,10 @@
 
 #include "native/main.h" // Include after winsock2
 
+#if __ANDROID__
+#define IPPROTO_TCP 0 // I'm not really sure what this does, so hopefully this is fine.
+#endif
+
 #if defined __WIN32__
 #define UPDATER_HOST "win"
 #define UPDATER_OUT "uTox.exe"

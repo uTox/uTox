@@ -554,6 +554,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             UTOX_FRAME_PKG *frame = data;
             STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
+            // TODO: Don't try to start a new video session every frame.
             video_begin(param1, s->str, s->length, frame->w, frame->h);
             video_frame(param1, frame->img, frame->w, frame->h, 0);
             free(frame->img);

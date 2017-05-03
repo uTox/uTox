@@ -7,8 +7,24 @@ stages:
 #
 # build
 #
+android:
+  stage: build
+  tags:
+    - android
+  variables:
+    TOXCORE_REPO: "TokTok/c-toxcore"
+    GL_BUILD: "android"
+  script:
+    - ./tools/build-android.sh --auto-CI
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - ./uTox.ready.apk
+
 build:linux:64:
   stage: build
+  tags:
+    - linux
   cache:
     # keep cache across stages
     key: "$CI_BUILD_REF_NAME/linux"

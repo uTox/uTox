@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 3.2)
 project(uTox LANGUAGES C)
 
-#######################################################################
-## Project Version
-#######################################################################
+#####################
+## Project Metadata #
+#####################
+
 set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "15")
 set(PROJECT_VERSION_PATCH "0")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
+set(PROJECT_COPYRIGHT "Copyleft 2017 uTox contributors. Some rights reserved.")
 
 
 ###########
@@ -152,7 +155,7 @@ add_cflag("-fPIC")
 if(CMAKE_C_COMPILER_ID MATCHES "GNU")
     # Have ld strip the symbols from Release and MinSizeRel build types.
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os")
+    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -s")
 
     if(LINUX)
         # enable Link Time Optimization on gcc (linux only currently)
@@ -174,7 +177,7 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
 
     # Have ld strip the symbols from Release and MinSizeRel build types. (-Oz is clang specific)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
-    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Oz")
+    set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Oz -s")
 
     if(NOT ENABLE_ASAN)
         if(NOT APPLE)
@@ -197,8 +200,8 @@ endif()
 # https://gcc.gnu.org/gcc-4.8/changes.html
 # https://github.com/google/sanitizers/wiki/AddressSanitizer
 if (ENABLE_ASAN)
-    if (UTOX_STATIC)
-        message(SEND_ERROR "ASAN is incompatible with static compilation.")
+    if (UTOX_STATIC AND WINDOWS)
+        message(SEND_ERROR "ASAN is incompatible with static compilation on Windows.")
     endif()
 
     add_cflag("-fsanitize=address")
@@ -267,7 +270,7 @@ if(WIN32)
 
     ## Needed to build the widows icon
     enable_language(RC)
-    set(WINDOWS_ICON icons/icon.rc)
+    set(WINDOWS_ICON src/windows/utox.rc)
 
     add_subdirectory(src/windows)
 elseif(APPLE)

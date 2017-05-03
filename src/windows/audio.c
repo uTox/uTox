@@ -78,7 +78,7 @@ void audio_detect(void) {
     hr = pAudioClient->lpVtbl->GetMixFormat(pAudioClient, &pwfx);
     EXIT_ON_ERROR(hr)
 
-    debug("Windows:\tAudio default format: %u %u %u %lu %lu %u %u\n", WAVE_FORMAT_PCM, pwfx->wFormatTag,
+    LOG_INFO("Windows Audio", "default audio format: %u %u %u %lu %lu %u %u\n", WAVE_FORMAT_PCM, pwfx->wFormatTag,
           pwfx->nChannels, pwfx->nSamplesPerSec, pwfx->nAvgBytesPerSec, pwfx->wBitsPerSample, pwfx->nBlockAlign);
 
     if (pwfx->nSamplesPerSec != 48000 || pwfx->nChannels != 2 || pwfx->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {

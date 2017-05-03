@@ -1,12 +1,19 @@
+#include "gl.h"
+
+#include "freetype.h"
+#include "main.h"
+
+#include "../native/ui.h"
+
 #include "../debug.h"
+#include "../macros.h"
 #include "../settings.h"
+#include "../text.h"
 
-typedef struct {
-    int16_t  x, y;
-    uint16_t tx, ty;
-} VERTEX2D;
+#include "../ui.h"
+#include "../ui/svg.h"
 
-typedef struct { VERTEX2D vertex[4]; } QUAD2D;
+#include "../main.h" // stbi
 
 const char vertex_shader[] = "uniform vec4 matrix;"
                              "attribute vec2 pos;"
@@ -30,7 +37,7 @@ const char vertex_shader[] = "uniform vec4 matrix;"
 
 static GLuint prog, white;
 static GLint  matrix, k, k2, samp;
-static GLuint bitmap[32];
+static GLuint bitmap[BM_ENDMARKER];
 
 static QUAD2D quads[64];
 
@@ -77,7 +84,7 @@ static void makeline(QUAD2D *quad, int16_t x, int16_t y, int16_t x2, int16_t y2)
 }
 
 
-static void makeglyph(QUAD2D *quad, int16_t x, int16_t y, uint16_t mx, uint16_t my, uint16_t width, uint16_t height) {
+void makeglyph(QUAD2D *quad, int16_t x, int16_t y, uint16_t mx, uint16_t my, uint16_t width, uint16_t height) {
     quad->vertex[0].x  = x;
     quad->vertex[0].y  = y;
     quad->vertex[0].tx = mx * 64;
@@ -213,9 +220,15 @@ void popclip(void) {
     glScissor(r->x, r->y, r->width, r->height);
 }
 
-void enddraw(int x, int y, int width, int height) { eglSwapBuffers(display, surface); }
+void enddraw(int x, int y, int width, int height) {
+    LOG_TRACE("AndroidGL", "Going to swap buffers");
+    if (!eglSwapBuffers(display, surface)) {
+        LOG_ERR("AndroidGL", "OpenGL Swap errored! %d", eglGetError());
+    }
+}
 
 bool gl_init(void) {
+    LOG_INFO("AndroidGL", "gl init\n");
     GLuint        vertshader, fragshader;
     GLint         status;
     const GLchar *data;
@@ -223,15 +236,14 @@ bool gl_init(void) {
     vertshader = glCreateShader(GL_VERTEX_SHADER);
     if (!vertshader) {
         LOG_TRACE("gl", "glCreateShader() failed (vert)" );
-        return 0;
+        return false;
     }
 
-    data = &vertex_shader[0];
+    data = vertex_shader;
     glShaderSource(vertshader, 1, &data, NULL);
     glCompileShader(vertshader);
     glGetShaderiv(vertshader, GL_COMPILE_STATUS, &status);
     if (!status) {
-#ifdef DEBUG
         LOG_TRACE("gl", "glCompileShader() failed (vert):\n%s" , data);
         GLint infologsize = 0;
         glGetShaderiv(vertshader, GL_INFO_LOG_LENGTH, &infologsize);
@@ -241,13 +253,12 @@ bool gl_init(void) {
             LOG_TRACE("gl", "Infolog: %s" , infolog);
             free(infolog);
         }
-#endif
-        return 0;
+        return false;
     }
 
     fragshader = glCreateShader(GL_FRAGMENT_SHADER);
     if (!fragshader) {
-        return 0;
+        return false;
     }
 
     data = &fragment_shader[0];
@@ -255,7 +266,6 @@ bool gl_init(void) {
     glCompileShader(fragshader);
     glGetShaderiv(fragshader, GL_COMPILE_STATUS, &status);
     if (!status) {
-#ifdef DEBUG
         LOG_TRACE("gl", "glCompileShader failed (frag):\n%s" , data);
         GLint infologsize = 0;
         glGetShaderiv(fragshader, GL_INFO_LOG_LENGTH, &infologsize);
@@ -265,8 +275,7 @@ bool gl_init(void) {
             LOG_TRACE("gl", "Infolog: %s" , infolog);
             free(infolog);
         }
-#endif
-        return 0;
+        return false;
     }
 
     prog = glCreateProgram();
@@ -278,7 +287,6 @@ bool gl_init(void) {
     glLinkProgram(prog);
     glGetProgramiv(prog, GL_LINK_STATUS, &status);
     if (!status) {
-#ifdef DEBUG
         LOG_TRACE("gl", "glLinkProgram failed" );
         GLint infologsize = 0;
         glGetShaderiv(prog, GL_INFO_LOG_LENGTH, &infologsize);
@@ -288,8 +296,7 @@ bool gl_init(void) {
             LOG_TRACE("gl", "Infolog: %s" , infolog);
             free(infolog);
         }
-#endif
-        return 0;
+        return false;
     }
 
     glUseProgram(prog);
@@ -326,7 +333,7 @@ bool gl_init(void) {
     //
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-#ifndef NO_OPENGL_ES
+    #ifndef NO_OPENGL_ES
     uint8_t  i  = 0;
     uint16_t ii = 0;
     do {
@@ -339,7 +346,7 @@ bool gl_init(void) {
         i += 4;
         ii += 6;
     } while (i);
-#endif
+    #endif
 
     glGenTextures(COUNTOF(bitmap), bitmap);
 
@@ -353,11 +360,197 @@ bool gl_init(void) {
     vec[3] = -2.0 / (float)settings.window_height;
     glUniform4fv(matrix, 1, vec);
 
+    LOG_INFO("AndroidGL", "GL init ready w %u h %u", settings.window_width, settings.window_height);
     ui_size(settings.window_width, settings.window_height);
 
     glViewport(0, 0, settings.window_width, settings.window_height);
 
     redraw();
 
-    return 1;
+    return true;
 }
+
+/* gl initialization with EGL */
+bool init_display(ANativeWindow *window) {
+    LOG_INFO("AndroidGL", "gl display init\n");
+    const EGLint attrib_list[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+
+    const EGLint attribs[] = { EGL_SURFACE_TYPE,
+                               EGL_WINDOW_BIT,
+                               EGL_RENDERABLE_TYPE,
+                               EGL_OPENGL_ES2_BIT,
+                               EGL_BLUE_SIZE,
+                               8,
+                               EGL_GREEN_SIZE,
+                               8,
+                               EGL_RED_SIZE,
+                               8,
+                               EGL_ALPHA_SIZE,
+                               8,
+                               EGL_DEPTH_SIZE,
+                               0,
+                               EGL_NONE };
+
+    EGLint numConfigs;
+
+    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    eglInitialize(display, NULL, NULL);
+    eglChooseConfig(display, attribs, &config, 1, &numConfigs);
+
+    EGLint format;
+    eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
+
+    ANativeWindow_setBuffersGeometry(window, 0, 0, format);
+    surface = eglCreateWindowSurface(display, config, window, NULL);
+    context = eglCreateContext(display, config, NULL, attrib_list);
+
+    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
+        LOG_ERR("AndroidGL", "eglMakeCurrent failed!");
+        return false;
+    }
+
+    int32_t w, h;
+    eglQuerySurface(display, surface, EGL_WIDTH, &w);
+    eglQuerySurface(display, surface, EGL_HEIGHT, &h);
+
+    settings.window_width  = w;
+    settings.window_height = h;
+
+    bool init = gl_init();
+    if (init ==  false) {
+        LOG_ERR("AndroidGL", "gl_init failed :<");
+    }
+
+    return init;
+}
+
+void GL_draw_image(const NATIVE_IMAGE *data, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
+    GLuint texture = data->img;
+
+    makequad(&quads[0], x - imgx, y - imgy, x + width, y + height);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    float one[]  = { 1.0, 1.0, 1.0 };
+    float zero[] = { 0.0, 0.0, 0.0 };
+    glUniform3fv(k, 1, one);
+    glUniform3fv(k2, 1, zero);
+
+    glDrawQuads(0, 1);
+
+    glUniform3fv(k2, 1, one);
+}
+
+NATIVE_IMAGE *GL_utox_image_to_native(const uint8_t *data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+    unsigned width, height, bpp;
+    uint8_t *out = stbi_load_from_memory(data, size, &width, &height, &bpp, 3);
+
+    if (out == NULL || width == 0 || height == 0) {
+        return 0;
+    }
+
+    *w = width;
+    *h = height;
+    GLuint texture = 0;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, out);
+    free(out);
+
+    return texture;
+}
+
+// Returns 1 if redraw is needed
+int GL_utox_android_redraw_window() {
+    LOG_DEBUG("AndroidGL", "Redraw window");
+    int32_t new_width, new_height;
+    eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
+    eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
+
+    if (new_width != (int32_t)settings.window_width || new_height != (int32_t)settings.window_height) {
+        LOG_DEBUG("AndroidGL", "Redraw window new size");
+        settings.window_width  = new_width;
+        settings.window_height = new_height;
+
+        float vec[4];
+        vec[0] = -(float)settings.window_width / 2.0;
+        vec[1] = -(float)settings.window_height / 2.0;
+        vec[2] = 2.0 / (float)settings.window_width;
+        vec[3] = -2.0 / (float)settings.window_height;
+        glUniform4fv(matrix, 1, vec);
+
+        ui_size(settings.window_width, settings.window_height);
+
+        glViewport(0, 0, settings.window_width, settings.window_height);
+
+        return 1;
+    }
+    return 0;
+}
+
+void GL_raze_surface(void) {
+    // eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    eglDestroyContext(display, context);
+    eglDestroySurface(display, surface);
+    eglTerminate(display);
+}
+
+int GL_drawtext(int x, int xmax, int y, char *str, uint16_t length) {
+    glUniform3fv(k, 1, colorf);
+    glBindTexture(GL_TEXTURE_2D, sfont->texture);
+    int c = 0;
+
+    while (length > 0) {
+        uint32_t ch;
+        uint8_t  len = utf8_len_read(str, &ch);
+        str += len;
+        length -= len;
+
+        GLYPH *g = font_getglyph(sfont, ch);
+        if (g) {
+            if (x + g->xadvance > xmax) {
+                x = -x;
+                break;
+            }
+
+            if (c == 64) {
+                glDrawQuads(0, 64);
+                c = 0;
+            }
+
+            makeglyph(&quads[c++], x + g->x, y + g->y, g->mx, g->my, g->width, g->height);
+
+            x += g->xadvance;
+        }
+    }
+
+    glDrawQuads(0, c);
+
+    return x;
+}
+
+#if 0
+void drawimage(NATIVE_IMAGE data, int x, int y, int width, int height, int maxwidth, bool zoom, double position)
+{
+    GLuint texture = data;
+
+    if(!zoom && width > maxwidth) {
+        makequad(&quads[0], x, y, x + maxwidth, y + (height * maxwidth / width));
+    } else {
+        makequad(&quads[0], x - (int)((double)(width - maxwidth) * position), y, x + width, y + height);
+    }
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    float one[] = {1.0, 1.0, 1.0};
+    float zero[] = {0.0, 0.0, 0.0};
+    glUniform3fv(k, 1, one);
+    glUniform3fv(k2, 1, zero);
+
+    glDrawQuads(0, 1);
+
+    glUniform3fv(k2, 1, one);
+}
+#endif
