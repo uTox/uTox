@@ -28,6 +28,8 @@
 	<string>10.7</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright 2017 uTox Contributors. Some Rights Reserved.</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>CFBundleURLTypes</key>
