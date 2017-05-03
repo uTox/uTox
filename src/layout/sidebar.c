@@ -84,7 +84,7 @@ static void draw_user_badge(int x, int y, int width, int UNUSED(height)) {
                   button_usr_state.mouseover ? COLOR_BKGRND_LIST_HOVER : COLOR_BKGRND_LIST);
         uint8_t status = tox_connected ? self.status : 3;
         drawalpha(BM_ONLINE + status,
-                  width - BM_STATUS_WIDTH - BM_STATUSAREA_WIDTH / 2,
+                  width - BM_STATUS_WIDTH - BM_STATUSAREA_WIDTH / 2 - SCALE(1),
                   y + SCALE(SIDEBAR_PADDING) + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2,
                   BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 

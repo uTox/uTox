@@ -13,13 +13,19 @@ bool chrono_thread_init = false;
 
 static void chrono_thread(void *args) {
     LOG_INFO("Chono", "Thread starting");
-    chrono_thread_init = true;
+
     CHRONO_INFO *info = args;
-    while(info->ptr != info->target) {
-        (*info).ptr += info->step;
+    chrono_thread_init = true;
+    while (info->ptr != info->target) {
+        info->ptr += info->step;
         yieldcpu(info->interval_ms);
     }
     chrono_thread_init = false;
+
+    if (info->callback) {
+        info->callback(info->cb_data);
+    }
+
     LOG_INFO("Chrono", "Thread exited cleanly");
 }
 

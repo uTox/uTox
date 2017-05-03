@@ -197,7 +197,7 @@ void ensure_directory_r(char *path, int perm) {
     free(parent_copy);
 
     if (mkdir(path, perm) != 0 && errno != EEXIST) {
-        debug("ensure_directory_r(%s): %s", path, strerror(errno));
+        LOG_ERR("Native", "ensure_directory_r(%s): %s", path, strerror(errno));
         abort();
     }
 }

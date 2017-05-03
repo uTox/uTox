@@ -22,17 +22,21 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **argv, 
 }
 
 void native_window_create_video() {
+    return;
 }
 
 UTOX_WINDOW *native_window_find_notify(void *window) {
     return NULL;
 }
 
-UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *panel) {
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void* panel) {
     return NULL;
 }
 
 static void notify_tween_thread(void *obj) {
+}
+
+void window_set_focus(UTOX_WINDOW *win) {
 }
 
 void native_window_tween(UTOX_WINDOW *win) {

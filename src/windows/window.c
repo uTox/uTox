@@ -13,6 +13,7 @@
 static HWND l_main;
 
 HINSTANCE curr_instance;
+UTOX_WINDOW main_window;
 
 void native_window_init(HINSTANCE instance) {
     static const wchar_t main_classname[] = L"uTox";
@@ -44,7 +45,6 @@ static bool update_DC_BM(UTOX_WINDOW *win, int w, int h) {
     win->mem_DC    = CreateCompatibleDC(win->draw_DC);
 
     win->draw_BM   = CreateCompatibleBitmap(win->window_DC, w, h);
-
 
     return true;
 }
@@ -90,7 +90,7 @@ HWND native_window_create_video(int x, int y, int w, int h) {
 
 UTOX_WINDOW *popup = NULL;
 
-UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel) {
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *panel) {
     static uint16_t notification_number = 0;
 
     static wchar_t class_name[] = L"uTox Notification";
@@ -148,7 +148,7 @@ UTOX_WINDOW *native_window_find_notify(void *window) {
 }
 
 
-void native_window_create_screen_select() {
+void native_window_create_screen_select(void) {
     return;
 }
 

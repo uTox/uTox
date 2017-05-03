@@ -150,6 +150,7 @@ static void set_callbacks(Tox *tox) {
 
 void tox_after_load(Tox *tox) {
     utox_friend_list_init(tox);
+    init_groups();
 
     #ifdef ENABLE_MULTIDEVICE
     // self.group_list_count = tox_self_get_(tox);
@@ -580,6 +581,7 @@ void toxcore_thread(void *UNUSED(args)) {
 
     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
     free_friends();
+    raze_groups();
     LOG_TRACE("Toxcore", "Tox thread:\tClean exit!");
 }
 
@@ -1043,12 +1045,11 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
 
             if (g_num != -1) {
-                GROUPCHAT *g = get_group(g_num);
-                if (!g) {
-                    return;
+                if (group_create(g_num, param2)) {
+                    postmessage_utox(GROUP_ADD, g_num, param2, NULL);
+                } else {
+                    LOG_ERR("Tox", "Failed creating group %u", g_num);
                 }
-                group_init(g, g_num, param2);
-                postmessage_utox(GROUP_ADD, g_num, param2, NULL);
             }
             save_needed = true;
             break;
