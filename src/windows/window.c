@@ -80,6 +80,7 @@ HWND native_window_create_video(int x, int y, int w, int h) {
     LOG_DEBUG("Windows WM", "Creating video window");
 
     wchar_t title[128];
+    // %S for single-byte char, non-standard behaviour
     swprintf(title, 128, L"%S", S(WINDOW_TITLE_VIDEO_PREVIEW));
 
     HWND win = CreateWindowExW(0, L"uTox", title, WS_OVERLAPPEDWINDOW,
