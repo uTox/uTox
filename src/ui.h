@@ -2,6 +2,7 @@
 #define UI_H
 
 #include "../langs/i18n_decls.h"
+#include "settings.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -10,14 +11,14 @@ typedef struct native_image NATIVE_IMAGE;
 typedef struct panel PANEL;
 typedef struct scrollable SCROLLABLE;
 
-#define DEFAULT_LANG LANG_EN // TODO does this belong here?
-#define S(x) (ui_gettext(LANG, (STR_##x))->str)
-#define SLEN(x) (ui_gettext(LANG, (STR_##x))->length)
-#define SPTR(x) (ui_gettext(LANG, (STR_##x)))
+#define S(x) (ui_gettext(settings.language, (STR_##x))->str)
+#define SLEN(x) (ui_gettext(settings.language, (STR_##x))->length)
+#define SPTR(x) (ui_gettext(settings.language, (STR_##x)))
 
 /* if UTOX_STR_WIDTH, is giving you a bad size you've probably changed setfont() from the string you're trying to get
  * the size of. Either store the size before changing, or swap it -> run UTOX_STR_WIDTH() -> swap back. */
-#define UTOX_STR_WIDTH(x) (textwidth((ui_gettext(LANG, (STR_##x))->str), (ui_gettext(LANG, (STR_##x))->length)))
+#define UTOX_STR_WIDTH(x) (textwidth((ui_gettext(settings.language, (STR_##x))->str), \
+                          (ui_gettext(settings.language, (STR_##x))->length)))
 #define SPTRFORLANG(l, x) (ui_gettext((l), (x)))
 
 // TODO: Create ui_native headers or something.
@@ -78,9 +79,6 @@ void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *, char *str, uint16_t le
 void    maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *, UTOX_I18N_STR);
 STRING *maybe_i18nal_string_get(MAYBE_I18NAL_STRING *);
 bool    maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *);
-
-// Application-wide language setting
-extern UTOX_LANG LANG;
 
 /* draws an image in the style of an avatar at within rect (x,y,targetwidth,targetheight)
  * this means: resize the image while keeping proportion so that the dimension(width or height) that has the smallest

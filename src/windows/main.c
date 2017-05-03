@@ -912,12 +912,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     OleInitialize(NULL);
 
-    uint16_t langid = GetUserDefaultUILanguage() & 0xFFFF;
-
-    LANG = ui_guess_lang_by_windows_lang_id(langid, DEFAULT_LANG);
-
-    dropdown_language.selected = dropdown_language.over = LANG;
-
     theme_load(settings.theme);
 
     settings.window_width  = MAX((uint32_t)SCALE(MAIN_WIDTH), settings.window_width);
