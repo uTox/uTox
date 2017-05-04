@@ -21,4 +21,6 @@ void destroy_tray_icon(void);
 
 bool tray_window_event(XEvent event);
 
+void tray_drop_init(PANEL *p);
+
 #endif

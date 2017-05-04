@@ -242,7 +242,7 @@ void togglehide(void) {
     if (hidden) {
         XMoveWindow(display, main_window.window, main_window._.x, main_window._.y);
         XMapWindow(display, main_window.window);
-        redraw();
+        force_redraw();
         hidden = 0;
     } else {
         XWithdrawWindow(display, main_window.window, def_screen_num);

@@ -10,16 +10,6 @@ if(ENABLE_DBUS)
 endif()
 
 #########################################
-## Native Icon data
-#########################################
-add_custom_command(OUTPUT icon.o
-    COMMAND cd ${uTox_SOURCE_DIR}/ && ld -r -b binary -o ${utoxNATIVE_BINARY_DIR}/icon.o icons/utox-128x128.png
-    DEPENDS ../../icons/utox-128x128.png )
-set_source_files_properties( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
-add_library(icon STATIC icon.o)
-set_target_properties( icon PROPERTIES LINKER_LANGUAGE C )
-
-#########################################
 ## Native Interface
 #########################################
 add_library(utoxNATIVE STATIC
@@ -67,7 +57,6 @@ else()
 endif()
 
 target_link_libraries(utoxNATIVE
-        icon
         v4lconvert
         ${X11_LIBRARIES}
         ${X11_Xrender_LIB}

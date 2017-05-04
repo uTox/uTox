@@ -1,6 +1,10 @@
 #ifndef NATIVE_IMAGE_H
 #define NATIVE_IMAGE_H
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 typedef struct native_image NATIVE_IMAGE;
 typedef uint8_t *UTOX_IMAGE;
 

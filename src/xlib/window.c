@@ -194,7 +194,6 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *pane
     // memcpy(name, "alert", 6);
     // XChangeProperty(display, win, a_role, XA_STRING, 8, PropModeReplace, name, 5);
 
-
     Atom list[] = {
         wm_delete_window,
         // XInternAtom(display, "WM_TAKE_FOCUS", 0),
@@ -273,7 +272,6 @@ void window_set_focus(UTOX_WINDOW *win) {
 void native_window_tween(UTOX_WINDOW *win) {
     thread(notify_tween_thread, win);
 }
-
 
 void native_window_create_screen_select() {
     return;

@@ -8,12 +8,12 @@
 #include "../native/image.h"
 #include "../native/ui.h"
 
+#include "../ui.h"
+#include "../ui/draw.h"
+#include "../layout/xlib_tray.h"
+
 #include <string.h>
 #include <inttypes.h>
-
-// Converted to a binary and linked at build time
-extern uint8_t _binary_icons_utox_128x128_png_start;
-extern size_t  _binary_icons_utox_128x128_png_size;
 
 static void send_message(Display *dpy, /* display */
                   Window w, /* sender (tray window) */
@@ -45,7 +45,7 @@ struct native_window tray_window = {
     ._.w = 128u,
     ._.h = 128u,
     ._.next = NULL,
-    ._.panel = NULL,
+    ._.panel = &root_xlib_tray,
     .window = 0,
     .gc     = 0,
     .visual = NULL,
@@ -86,47 +86,11 @@ static void tray_reposition(void) {
     free (geom);*/
 }
 
-static void draw_tray_icon(void) {
-    LOG_NOTE("XLib Tray", "Draw Tray");
-
-    uint16_t width, height;
-    uint8_t *icon_data = (uint8_t *)&_binary_icons_utox_128x128_png_start;
-    size_t   icon_size = (size_t)&_binary_icons_utox_128x128_png_size;
-
-    NATIVE_IMAGE *icon = utox_image_to_native(icon_data, icon_size, &width, &height, 0);
-    if (NATIVE_IMAGE_IS_VALID(icon)) {
-        /* Get tray window size */
-        /* Resize the image from what the system tray dock tells us to be */
-        double scale = (tray_window._.w > tray_window._.h) ?
-                        (double)tray_window._.h / width : (double)tray_window._.w / height;
-
-        image_set_scale(icon, scale);
-        image_set_filter(icon, FILTER_BILINEAR);
-
-        /* Draw the image and copy to the window */
-        XSetForeground(display, tray_window.gc, 0xFFFFFF);
-        XFillRectangle(display, tray_window.drawbuf, tray_window.gc, 0, 0,
-                       tray_window._.w, tray_window._.h);
-
-        /* TODO: copy method of grabbing background for tray from tray.c:tray_update_root_bg_pmap() (stalonetray) */
-        XRenderComposite(display, PictOpOver, icon->rgb, icon->alpha, tray_window.renderpic,
-                         0, 0, 0, 0, 0, 0, tray_window._.w, tray_window._.h);
-
-        XCopyArea(display, tray_window.drawbuf, tray_window.window, tray_window.gc,
-                    0, 0, tray_window._.w, tray_window._.h, 0, 0);
-
-        free(icon);
-    } else {
-        LOG_ERR("XLIB TRAY", "Tray no workie, that not gud!");
-    }
-}
-
 static void tray_xembed(XClientMessageEvent *ev) {
     LOG_NOTE("XEMBED Tray", "ClientMessage on display %u", ev->display);
     LOG_NOTE("XEMBED Tray", "Format (%i) as long %lu %lu parent window %lu proto version %lu %lu",
         ev->format, ev->data.l[0], ev->data.l[1], ev->data.l[2], ev->data.l[3], ev->data.l[4]);
     tray_reposition();
-    draw_tray_icon();
 }
 
 void create_tray_icon(void) {
@@ -139,9 +103,9 @@ void create_tray_icon(void) {
                                              WhitePixel(display, def_screen_num));
 
     XSelectInput(display, tray_window.window,
-                    ExposureMask        | ButtonPressMask | ButtonReleaseMask |
-                    EnterWindowMask     | LeaveWindowMask |
-                    StructureNotifyMask | FocusChangeMask | PropertyChangeMask);
+                 ExposureMask        | ButtonPressMask | ButtonReleaseMask |
+                 PointerMotionMask   | EnterWindowMask | LeaveWindowMask   |
+                 StructureNotifyMask | FocusChangeMask | PropertyChangeMask);
 
     /* Get ready to draw a tray icon */
     tray_window.gc        = XCreateGC(display, root_window, 0, 0);
@@ -170,7 +134,6 @@ void create_tray_icon(void) {
     send_message(display, XGetSelectionOwner(display, XInternAtom(display, "_NET_SYSTEM_TRAY_S0", false)),
                  SYSTEM_TRAY_REQUEST_DOCK, tray_window.window, 0, 0);
     /* Draw the tray */
-    draw_tray_icon();
 }
 
 void destroy_tray_icon(void) {
@@ -183,10 +146,11 @@ bool tray_window_event(XEvent event) {
         return false;
     }
 
+    native_window_set_target(&tray_window);
     switch (event.type) {
         case Expose: {
             LOG_NOTE("XLib Tray", "Expose");
-            draw_tray_icon();
+            panel_draw(tray_window._.panel, 0, 0, tray_window._.w, tray_window._.h);
             return true;
         }
         case NoExpose: {
@@ -231,29 +195,72 @@ bool tray_window_event(XEvent event) {
 
                 tray_window._.w = ev->width;
                 tray_window._.h = ev->height;
-
-                draw_tray_icon();
             }
 
+            panel_draw(tray_window._.panel, 0, 0, tray_window._.w, tray_window._.h);
             return true;
         }
+
+        case MotionNotify: {
+            XMotionEvent *ev = &event.xmotion;
+
+            LOG_TRACE("XLib Tray", "MotionEvent: (%i %i) %u", ev->x, ev->y, ev->state);
+            LOG_DEBUG("XLib Tray", "        root (%i %i)",    ev->x_root, ev->y_root);
+
+            static int mx, my;
+            int dx, dy;
+
+            dx = ev->x - mx;
+            dy = ev->y - my;
+            mx = ev->x;
+            my = ev->y;
+
+            panel_mmove(tray_window._.panel, 0, 0, tray_window._.w, tray_window._.h, ev->x, ev->y, dx, dy);
+            panel_draw(tray_window._.panel, 0, 0, tray_window._.w, tray_window._.h);
+            return true;
+        }
+
         case ButtonPress: {
-            LOG_INFO("XLib Tray", "ButtonPress");
-            // Can't ignore this if you want mup -_- SRSLY Xlib?
+            XButtonEvent *ev = &event.xbutton;
+            LOG_INFO("XLib Tray",  "ButtonPress");
+            switch (ev->button) {
+                case Button1: {
+                    // todo: better double/triple click detect
+                    static Time lastclick, lastclick2;
+                    panel_mmove(tray_window._.panel, 0, 0, tray_window._.w, tray_window._.h, ev->x, ev->y, 0, 0);
+                    panel_mdown(tray_window._.panel);
+                    if (ev->time - lastclick < 300) {
+                        bool triclick = (ev->time - lastclick2 < 600);
+                        panel_dclick(tray_window._.panel, triclick);
+                        if (triclick) {
+                            lastclick = 0;
+                        }
+                    }
+                    lastclick2 = lastclick;
+                    lastclick  = ev->time;
+                    return true;
+                }
+
+                case Button3: {
+                    panel_mright(tray_window._.panel);
+                    return true;
+                }
+            }
+
+            panel_draw(tray_window._.panel, 0, 0, tray_window._.w, tray_window._.h);
             return true;
         }
+
         case ButtonRelease: {
             LOG_INFO("XLib Tray", "ButtonRelease");
-            XButtonEvent *ev = &event.xbutton;
-
-            if (ev->button == Button1) {
-                togglehide();
-            }
+            panel_mup(tray_window._.panel);
+            panel_draw(tray_window._.panel, 0, 0, tray_window._.w, tray_window._.h);
             return true;
         }
 
         case MapNotify: {
             LOG_INFO("XLib Tray", "MapNotify");
+            panel_draw(tray_window._.panel, 0, 0, tray_window._.w, tray_window._.h);
             return true;
         }
 
@@ -277,6 +284,7 @@ bool tray_window_event(XEvent event) {
 
         case ReparentNotify: {
             LOG_WARN("XLib Tray", "ReparentNotify");
+            panel_draw(tray_window._.panel, 0, 0, tray_window._.w, tray_window._.h);
             return true;
         }
 
@@ -285,6 +293,24 @@ bool tray_window_event(XEvent event) {
             break;
         }
     }
+
     LOG_ERR("XLib tray", "Reached end of function, this is bad juju!");
     return false;
+}
+
+void tray_drop_init(PANEL *p)
+{
+    // TODO dont' assume right side tray, calculate and push
+    // int x = ScreenOfDisplay(display, 0)->width;
+    Window w_; // Dummy to avoid null deref
+    int i_;    // Dummy to avoid null deref
+    uint u_;   // Dummy to avoid null deref
+
+    int rx, ry;
+
+    XQueryPointer(display, tray_window.window, &w_, &w_, &rx, &ry, &i_, &i_, &u_);
+
+    const int w = 300, h = 200;
+
+    native_window_create_notify(rx - w, ry, w, h, p);
 }
