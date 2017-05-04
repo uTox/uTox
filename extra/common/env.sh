@@ -20,3 +20,6 @@ export TARGET_HOST=${TARGET_HOST:-""}
 export TARGET_TRGT=${TARGET_TRGT:-""}
 
 export MAKEFLAGS="-j8"
+
+# Used for different builds with the same target
+export CMAKE_EXTRA_ARGS=""

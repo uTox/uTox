@@ -13,5 +13,6 @@ cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-win64.cmake \
          -DENABLE_FILTERAUDIO=OFF \
          -DENABLE_TESTS=OFF \
          -DENABLE_WERROR=OFF \
-         -DTOXCORE_STATIC=ON
+         -DTOXCORE_STATIC=ON \
+         "$CMAKE_EXTRA_ARGS"
 make || make VERBOSE=1
