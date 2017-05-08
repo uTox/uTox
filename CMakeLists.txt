@@ -168,7 +168,11 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack")
     endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
-    # enable Link Time Optimization on clang
+    # Disable warning for `= {0}` in Clang.
+    # Remove once they've resolved https://bugs.llvm.org//show_bug.cgi?id=21689
+    add_cflag("-Wno-missing-field-initializers")
+
+    # Enable Link Time Optimization on Clang
     if(ENABLE_LTO)
         add_cflag("-flto")
     endif()
