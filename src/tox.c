@@ -442,7 +442,6 @@ static int init_toxcore(Tox **tox) {
  * Accepts and returns nothing.
  */
 void toxcore_thread(void *UNUSED(args)) {
-    Tox *  tox              = NULL;
     ToxAV *av               = NULL;
     bool   reconfig         = 1;
     int    toxcore_init_err = 0;
@@ -450,6 +449,7 @@ void toxcore_thread(void *UNUSED(args)) {
     while (reconfig) {
         reconfig = 0;
 
+        Tox *tox = NULL;
         toxcore_init_err = init_toxcore(&tox);
         if (toxcore_init_err == -2) {
             // fatal failure, unable to create tox instance
