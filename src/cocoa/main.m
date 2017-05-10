@@ -122,18 +122,6 @@ bool audio_frame(int16_t *buffer) {
 
 /* *** os *** */
 
-int systemlang(void) {
-    // FIXME maybe replace with NSLocale?
-    char *str = getenv("LC_MESSAGES");
-    if (!str) {
-        str = getenv("LANG");
-    }
-    if (!str) {
-        return DEFAULT_LANG;
-    }
-    return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
-}
-
 #include <mach/clock.h>
 #include <mach/mach.h>
 
@@ -197,7 +185,7 @@ void ensure_directory_r(char *path, int perm) {
     free(parent_copy);
 
     if (mkdir(path, perm) != 0 && errno != EEXIST) {
-        debug("ensure_directory_r(%s): %s", path, strerror(errno));
+        LOG_ERR("Native", "ensure_directory_r(%s): %s", path, strerror(errno));
         abort();
     }
 }
@@ -410,6 +398,7 @@ void launch_at_startup(bool should) {
                                 [[[uToxView alloc] initWithFrame:(CGRect){ 0, 0, self.utox_window.frame.size }] autorelease];
 
                             ui_size(settings.window_width, settings.window_height);
+                            ui_rescale(ui_scale);
 
                             /* start the tox thread */
                             thread(toxcore_thread, NULL);
@@ -544,9 +533,6 @@ int main(int argc, char const *argv[]) {
     }
 
     setlocale(LC_ALL, "");
-
-    LANG                       = systemlang();
-    dropdown_language.selected = dropdown_language.over = LANG;
 
     /* set the width/height of the drawing region */
 

@@ -234,7 +234,7 @@ bool native_video_init(void *handle) {
     NSLog(@"using video: %p", handle);
 
     if (active_video_session) {
-        debug("overlapping video session!");
+        LOG_ERR("Video", "overlapping video session!");
         abort();
     }
 
@@ -353,7 +353,7 @@ uint16_t native_video_detect(void) {
 }
 
 - (void)displayImage:(uint8_t *)rgba w:(uint16_t)width h:(uint16_t)height {
-    // debug("wants image of %hu %hu", width, height);
+    // LOG_TRACE("Video", "wants image of %hu %hu", width, height);
     ((uToxIroncladVideoLayer *)self.layer).temporaryLoadTexture = rgba;
     ((uToxIroncladVideoLayer *)self.layer).temporaryWidth       = width;
     ((uToxIroncladVideoLayer *)self.layer).temporaryHeight      = height;
@@ -457,20 +457,24 @@ uint16_t native_video_detect(void) {
 - (void)windowWillClose:(NSNotification *)notification {
     if ([notification.object isKindOfClass:uToxIroncladWindow.class]) {
         switch (((uToxIroncladWindow *)notification.object).video_id) {
-            case 0:
+            case 0: {
                 settings.video_preview = 0;
                 video_end(0);
                 postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
                 break;
+            }
+
             default: {
-                         FRIEND *f = get_friend(((uToxIroncladWindow *)notification.object).video_id - 1);
-                         if (!f) {
-                             LOG_ERR("Cocoa", "Could not get friend with number: %u", ((uToxIroncladWindow *)notification.object).video_id - 1);
-                             return;
-                         }
-                         postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
-                         break;
-                     }
+                FRIEND *f = get_friend(((uToxIroncladWindow *)notification.object).video_id - 1);
+                if (!f) {
+                    LOG_ERR("Cocoa", "Could not get friend with number: %u",
+                            ((uToxIroncladWindow *)notification.object).video_id - 1);
+                    return;
+                }
+
+                postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+                break;
+            }
         }
         redraw();
     }
@@ -484,12 +488,12 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     uToxIroncladView *view   = win.contentView;
 
     if (!win) {
-        debug("BUG: video_frame called for bogus Ironclad id %lu", id);
+        LOG_WARN("Video", "BUG: video_frame called for bogus Ironclad id %lu", id);
     }
 
     CGSize s = view.videoSize;
     if (resize || s.width != width || s.height != height) {
-        debug("frame size changed, if this happens too often file a bug");
+        LOG_WARN("Video", "frame size changed, if this happens too often file a bug");
 
         CGFloat chrome_metric_w = win.frame.size.width - [win.contentView frame].size.width;
         CGFloat chrome_metric_h = win.frame.size.height - [win.contentView frame].size.height;
@@ -514,7 +518,6 @@ void video_begin(uint32_t _id, char *name, uint16_t name_length, uint16_t width,
                                                 length:name_length
                                               encoding:NSUTF8StringEncoding]
                                            autorelease];
-    // video_win.title = @"Lel";
     video_win.video_id = _id;
 
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];

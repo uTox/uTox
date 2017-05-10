@@ -152,6 +152,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
             if (!msg) {
                 LOG_ERR("Chatlog", "Unable to malloc... sorry!");
+                free(start);
                 fclose(file);
                 return NULL;
             }
@@ -168,7 +169,6 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
                 LOG_ERR("Chatlog", "Unable to malloc for via.txt.msg... sorry!");
                 free(start);
                 free(msg);
-                free(data);
                 fclose(file);
                 return NULL;
             }

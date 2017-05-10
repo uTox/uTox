@@ -147,31 +147,32 @@ void utox_write_metadata(FRIEND *f) {
     snprintf(dest, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
 
     FILE *file = utox_get_file(dest, NULL, UTOX_FILE_OPTS_WRITE);
-    if (file) {
-
-        FRIEND_META_DATA metadata;
-        memset(&metadata, 0, sizeof(metadata));
-        size_t total_size = sizeof(metadata);
-
-        metadata.version          = METADATA_VERSION;
-        metadata.ft_autoaccept    = f->ft_autoaccept;
-        metadata.skip_msg_logging = f->skip_msg_logging;
-
-        if (f->alias && f->alias_length) {
-            metadata.alias_length = f->alias_length;
-            total_size += metadata.alias_length;
-        }
-
-        uint8_t *data = calloc(1, total_size);
-        if (data) {
-            memcpy(data, &metadata, sizeof(metadata));
-            memcpy(data + sizeof(metadata), f->alias, metadata.alias_length);
-
-            fwrite(data, total_size, 1, file);
-            free(data);
-        }
-        fclose(file);
+    if (!file) {
+        LOG_ERR("Friend", "Unable to get file to write metadata for friend %u", f->number);
+        return;
     }
+
+    FRIEND_META_DATA metadata = { 0 };
+    size_t total_size = sizeof(metadata);
+
+    metadata.version          = METADATA_VERSION;
+    metadata.ft_autoaccept    = f->ft_autoaccept;
+    metadata.skip_msg_logging = f->skip_msg_logging;
+
+    if (f->alias && f->alias_length) {
+        metadata.alias_length = f->alias_length;
+        total_size += metadata.alias_length;
+    }
+
+    uint8_t *data = calloc(1, total_size);
+    if (data) {
+        memcpy(data, &metadata, sizeof(metadata));
+        memcpy(data + sizeof(metadata), f->alias, metadata.alias_length);
+
+        fwrite(data, total_size, 1, file);
+        free(data);
+    }
+    fclose(file);
 }
 
 static void friend_meta_data_read(FRIEND *f) {
@@ -188,7 +189,13 @@ static void friend_meta_data_read(FRIEND *f) {
         return;
     }
 
-    FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);
+    if (size < sizeof(FRIEND_META_DATA)) {
+        LOG_ERR("Metadata", "Stored metadata is incomplete.");
+        fclose(file);
+        return;
+    }
+
+    FRIEND_META_DATA *metadata = calloc(1, size);
     if (!metadata) {
         LOG_ERR("Metadata", "Could not allocate memory for metadata." );
         fclose(file);
@@ -206,12 +213,6 @@ static void friend_meta_data_read(FRIEND *f) {
 
     if (metadata->version != 0) {
         LOG_ERR("Metadata", "WARNING! This version of utox does not support this metadata file version." );
-        free(metadata);
-        return;
-    }
-
-    if (size < sizeof(*metadata)) {
-        LOG_ERR("Metadata", "Meta Data was incomplete");
         free(metadata);
         return;
     }
@@ -406,8 +407,13 @@ void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
     postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
     notify(title, title_length, msg, msg_length, f, 0);
 
-    f->unread_msg = 1;
-    postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
+    if (flist_get_friend() != f) {
+        f->unread_msg = true;
+    }
+
+    if (flist_get_friend() != f || !have_focus) {
+        postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
+    }
 }
 
 bool friend_set_online(FRIEND *f, bool online) {

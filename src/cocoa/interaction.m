@@ -21,6 +21,7 @@
 
 #include "../native/clipboard.h"
 #include "../native/keyboard.h"
+#include "../native/notify.h"
 #include "../native/ui.h"
 
 #include "../ui/edit.h"
@@ -31,6 +32,7 @@
 #include "../layout/group.h"
 
 NSCursor *cursors[8];
+bool have_focus = false;
 
 void setup_cursors(void) {
     cursors[CURSOR_NONE]     = [NSCursor arrowCursor];
@@ -122,8 +124,8 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
         int x = ui_element->x, y = ui_element->y, width = settings.window_width, height = settings.window_height;
 
         for (int i = 0; path[i] != -1; i++) {
-            // debug("@: %d %d %d %d", x, y, width, height);
-            // debug("%d %d %d %p", i, path[i], ui_element->child[path[i]]->type,
+            // LOG_TRACE("Interaction", "@: %d %d %d %d", x, y, width, height);
+            // LOG_TRACE("Interaction", "%d %d %d %p", i, path[i], ui_element->child[path[i]]->type,
             // ui_element->child[path[i]]->content_scroll);
 
             ui_element = ui_element->child[path[i]];
@@ -864,10 +866,13 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
         [usernotification release];
     }
 
-    // bounce icon
-    if (![NSApplication sharedApplication].isActive) {
+    if ([NSApplication sharedApplication].isActive) {
+        have_focus = true;
+    } else {
+        // Bounce icon.
         [[NSApplication sharedApplication] requestUserAttention:NSInformationalRequest];
         [NSApplication sharedApplication].dockTile.badgeLabel = @"!";
+        have_focus = false;
     }
 }
 

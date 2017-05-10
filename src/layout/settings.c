@@ -195,7 +195,7 @@ static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(155), AUTO_STARTUP);
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
     #if PLATFORM_ANDROID
-        drawstr(x + SCALE(10),  y + SCALE(215), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
+        drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(215), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
     #endif
 }
 
@@ -266,11 +266,11 @@ SCROLLABLE scrollbar_settings = {
 static void draw_profile_password(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), 20, PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), SCALE(10), PROFILE_PASSWORD);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(x + SCALE(10), MAIN_TOP + 10, PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), SCALE(MAIN_TOP + 5), PROFILE_PASSWORD);
 }
 
 PANEL
@@ -470,6 +470,24 @@ static void button_settings_on_mup(void) {
     }
 }
 
+static void update_show_nospam_button_text(void) {
+    if (panel_nospam_settings.disabled) {
+        maybe_i18nal_string_set_i18nal(&button_show_nospam.button_text, STR_SHOW_NOSPAM);
+    } else {
+        maybe_i18nal_string_set_i18nal(&button_show_nospam.button_text, STR_HIDE_NOSPAM);
+    }
+}
+
+static void update_show_password_button_text(void) {
+    if (panel_profile_password_settings.disabled) {
+        maybe_i18nal_string_set_i18nal(&button_show_password_settings.button_text, STR_SHOW_UI_PASSWORD);
+        maybe_i18nal_string_set_i18nal(&button_show_password_settings.tooltip_text, STR_SHOW_UI_PASSWORD_TOOLTIP);
+    } else {
+        maybe_i18nal_string_set_i18nal(&button_show_password_settings.button_text, STR_HIDE_UI_PASSWORD);
+        maybe_i18nal_string_set_i18nal(&button_show_password_settings.tooltip_text, STR_HIDE_UI_PASSWORD_TOOLTIP);
+    }
+}
+
 BUTTON button_settings = {
     .bm_icon          = BM_SETTINGS,
     .icon_w       = _BM_ADD_WIDTH,
@@ -489,6 +507,8 @@ static void disable_all_setting_sub(void) {
     panel_settings_av.disabled              = true;
     panel_settings_notifications.disabled   = true;
     panel_settings_adv.disabled             = true;
+    update_show_nospam_button_text();
+    update_show_password_button_text();
 }
 
 static void button_settings_sub_profile_on_mup(void) {
@@ -595,11 +615,15 @@ static void button_lock_uTox_on_mup(void) {
     }
     button_show_password_settings.disabled = false;
     button_show_password_settings.nodraw = false;
+    update_show_nospam_button_text();
+    update_show_password_button_text();
 }
 
 static void button_show_password_settings_on_mup(void) {
     panel_nospam_settings.disabled = true;
     panel_profile_password_settings.disabled = !panel_profile_password_settings.disabled;
+    update_show_nospam_button_text();
+    update_show_password_button_text();
 }
 
 
@@ -633,6 +657,8 @@ static void button_revert_nospam_on_mup(void) {
 static void button_show_nospam_on_mup(void) {
     panel_profile_password_settings.disabled = true;
     panel_nospam_settings.disabled = !panel_nospam_settings.disabled;
+    update_show_nospam_button_text();
+    update_show_password_button_text();
 }
 
 static void button_copyid_on_mup(void) {
@@ -1069,13 +1095,13 @@ static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
 }
 
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    LANG = (UTOX_LANG)i;
+    settings.language = (UTOX_LANG)i;
     /* The draw functions need the fonts' and scale to be reset when changing languages. */
     ui_rescale(ui_scale);
 }
 static STRING *dropdown_language_ondisplay(uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    UTOX_LANG l = (UTOX_LANG)i;
-    return SPTRFORLANG(l, STR_LANG_NATIVE_NAME);
+    UTOX_LANG tmp_language = (UTOX_LANG)i;
+    return SPTRFORLANG(tmp_language, STR_LANG_NATIVE_NAME);
 }
 
 static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {

@@ -56,12 +56,12 @@ static void draw_friend(int x, int y, int w, int height) {
                   f->status_length);
 
     if (f->typing) {
-        int typing_y = ((y + height) + CHAT_BOX_TOP - SCALE(14));
+        int typing_y = ((y + height) + SCALE(CHAT_BOX_TOP - 14));
         setfont(FONT_MISC);
         // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_TEXT_HINT);
-        drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, typing_y, f->name, f->name_length);
-        drawtextwidth(x + MESSAGES_X, x + w, typing_y, S(IS_TYPING), SLEN(IS_TYPING));
+        drawtextwidth_right(x, SCALE(MESSAGES_X - NAME_OFFSET - 16), typing_y, f->name, f->name_length);
+        drawtextwidth(x + SCALE(MESSAGES_X - 18), x + w, typing_y, S(IS_TYPING), SLEN(IS_TYPING));
     }
 }
 
@@ -88,9 +88,9 @@ static void draw_friend_settings(int x, int y, int UNUSED(width), int UNUSED(hei
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(10), FRIEND_PUBLIC_KEY);
-    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(60), FRIEND_ALIAS);
-    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
+    drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 10), FRIEND_PUBLIC_KEY);
+    drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 60), FRIEND_ALIAS);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(MAIN_TOP + 112), FRIEND_AUTOACCEPT);
 }
 
 static void draw_friend_deletion(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
@@ -120,15 +120,15 @@ static void draw_add_friend(int x, int UNUSED(y), int UNUSED(w), int height) {
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(x + SCALE(10), MAIN_TOP + SCALE(10), TOXID);
+    drawstr(x + SCALE(10), SCALE(MAIN_TOP + 10), TOXID);
 
-    drawstr(x + SCALE(10), MAIN_TOP + SCALE(58), MESSAGE);
+    drawstr(x + SCALE(10), SCALE(MAIN_TOP + 58), MESSAGE);
 
     if (settings.force_proxy) {
         int push = UTOX_STR_WIDTH(TOXID);
         setfont(FONT_MISC);
         setcolor(C_RED);
-        drawstr(x + SCALE(20) + push, MAIN_TOP + SCALE(12), DNS_DISABLED);
+        drawstr(x + SCALE(20) + push, SCALE(MAIN_TOP + 12), DNS_DISABLED);
     }
 
     if (addfriend_status) {
@@ -580,6 +580,7 @@ static void switchfxn_autoaccept_ft(void) {
     FRIEND *f = flist_get_friend();
     if (f) {
         f->ft_autoaccept = !f->ft_autoaccept;
+        utox_write_metadata(f);
     }
 }
 

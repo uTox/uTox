@@ -56,7 +56,7 @@ void utox_devices_init(void) {
     }
 };
 
-void devices_add_new(char *name, uint16_t length, uint8_t *addr) {
+void devices_add_new(const char *name, uint16_t length, const uint8_t *addr) {
     if (!realloc_devices_list(self.device_list_count + 1)) {
         LOG_ERR("Devices", "Unable to malloc for new device");
         return;
@@ -95,7 +95,7 @@ void utox_device_init(Tox *tox, uint16_t dev_num) {
 
     TOX_ERR_DEVICE_GET error = 0;
 
-    tox_self_get_device(tox, dev_num, devices[dev_num].name, &devices[dev_num].status, devices[dev_num].pubkey, &error);
+    tox_self_get_device(tox, dev_num, devices[dev_num].name, (TOX_DEVICE_STATUS*)&devices[dev_num].status, devices[dev_num].pubkey, &error);
 
     if (error) {
         LOG_ERR("Devices", "Error getting device info dev_num %u error %u" , dev_num, error);
@@ -145,10 +145,10 @@ void devices_update_ui(void) {
 
     uint16_t i;
     for (i = 0; i < self.device_list_count; ++i) {
-        EDIT   *edit = calloc(1, sizeof(EDIT));
+        EDIT *edit = calloc(1, sizeof(EDIT));
         BUTTON *del  = calloc(1, sizeof(BUTTON));
 
-        if (!edit) {
+        if (!edit || !del) {
             LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Can't malloc for an extra device");
         }
 
@@ -165,9 +165,9 @@ void devices_update_ui(void) {
         edit->length = TOX_PUBLIC_KEY_SIZE * 2;
         edit->maxlength = TOX_PUBLIC_KEY_SIZE * 2;
         edit->data = devices[i].pubkey_hex;
-        edit->readonly = 1;
-        edit->noborder = 0;
-        edit->select_completely = 1;
+        edit->noborder = false;
+        edit->readonly = true;
+        edit->select_completely = true;
 
         PANEL b_delete = {
             .type   = PANEL_BUTTON,
@@ -207,7 +207,7 @@ void devices_self_add(char *device, size_t length) {
 
     uint8_t id[TOX_ADDRESS_SIZE];
 
-    if (length_cleaned == TOX_ADDRESS_SIZE * 2 && string_to_id(id, (char*)name_cleaned)) {
+    if (length_cleaned == TOX_ADDRESS_SIZE * 2 && string_to_id(id, (char *)name_cleaned)) {
         /* TODO, names! */
         devices_self_add_submit("Default device name", 19, id);
     } else {

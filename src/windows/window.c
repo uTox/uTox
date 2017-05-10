@@ -7,12 +7,14 @@
 #include "../branding.h"
 #include "../debug.h"
 #include "../macros.h"
+#include "../ui.h"
 
 #include <windows.h>
 
 static HWND l_main;
 
 HINSTANCE curr_instance;
+UTOX_WINDOW main_window;
 
 void native_window_init(HINSTANCE instance) {
     static const wchar_t main_classname[] = L"uTox";
@@ -45,7 +47,6 @@ static bool update_DC_BM(UTOX_WINDOW *win, int w, int h) {
 
     win->draw_BM   = CreateCompatibleBitmap(win->window_DC, w, h);
 
-
     return true;
 }
 
@@ -77,7 +78,12 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h) {
 
 HWND native_window_create_video(int x, int y, int w, int h) {
     LOG_DEBUG("Windows WM", "Creating video window");
-    HWND win = CreateWindowExW(0, L"uTox", L"TEMP TITLE CHANGE ME", WS_OVERLAPPEDWINDOW,
+
+    wchar_t title[128];
+    // %S for single-byte char, non-standard behaviour
+    swprintf(title, 128, L"%S", S(WINDOW_TITLE_VIDEO_PREVIEW));
+
+    HWND win = CreateWindowExW(0, L"uTox", title, WS_OVERLAPPEDWINDOW,
                                x, y, w, h, NULL, NULL, curr_instance, NULL);
 
     if (!win) {
@@ -90,7 +96,7 @@ HWND native_window_create_video(int x, int y, int w, int h) {
 
 UTOX_WINDOW *popup = NULL;
 
-UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel) {
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *panel) {
     static uint16_t notification_number = 0;
 
     static wchar_t class_name[] = L"uTox Notification";
@@ -148,7 +154,7 @@ UTOX_WINDOW *native_window_find_notify(void *window) {
 }
 
 
-void native_window_create_screen_select() {
+void native_window_create_screen_select(void) {
     return;
 }
 

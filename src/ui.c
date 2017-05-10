@@ -59,10 +59,6 @@ static bool background_mleave(PANEL *UNUSED(p)) {
     return false;
 }
 
-
-// Application-wide language setting
-UTOX_LANG LANG;
-
 /***** MAYBE_I18NAL_STRING helpers start *****/
 
 void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char *str, uint16_t length) {
@@ -80,9 +76,9 @@ void maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *mis, UTOX_I18N_STR stri
 STRING *maybe_i18nal_string_get(MAYBE_I18NAL_STRING *mis) {
     if (mis->plain.str) {
         return &mis->plain;
-    } else {
-        return SPTRFORLANG(LANG, mis->i18nal);
     }
+
+    return SPTRFORLANG(settings.language, mis->i18nal);
 }
 
 bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
@@ -292,22 +288,21 @@ void ui_rescale(uint8_t scale) {
     /* Devices */
     CREATE_BUTTON(add_new_device_to_self, -10 - BM_SBUTTON_WIDTH, 28, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    CREATE_EDIT(add_new_device_to_self, 10, 27, 0 - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH,
-                24);
+    CREATE_EDIT(add_new_device_to_self, 10, 27, 0 - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH, 24);
 
 
     /* Friend Add Page */
-    CREATE_BUTTON(send_friend_request, -10 - BM_SBUTTON_WIDTH, MAIN_TOP + 168, BM_SBUTTON_WIDTH,
-                  BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(accept_friend, -60, -80, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(send_friend_request, -10 - _BM_SBUTTON_WIDTH, MAIN_TOP + 168, _BM_SBUTTON_WIDTH,
+                  _BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(accept_friend, -60, -80, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     /* Friend Settings Page */
-    CREATE_BUTTON(export_chatlog, 10, 220, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(export_chatlog, 10, 208, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(friend_pubkey,          10, 88, -10, 24);
     CREATE_EDIT(friend_alias,           10, 138, -10, 24);
 
-    CREATE_SWITCH(friend_autoaccept_ft, -10 -_BM_SWITCH_WIDTH, 170, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(friend_autoaccept_ft, 10, 168, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
 
     /* Group Settings */
     CREATE_EDIT(group_topic, 10, 95, -10, 24);
@@ -337,8 +332,8 @@ void ui_rescale(uint8_t scale) {
     CREATE_EDIT(chat_msg_group, 6, -46, -10 - BM_CHAT_SEND_WIDTH, 40);
 
     /* Confirm deletion */
-    CREATE_BUTTON(confirm_deletion, 10, MAIN_TOP + 40, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(deny_deletion,    80, MAIN_TOP + 40, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(confirm_deletion, 10, MAIN_TOP + 40, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(deny_deletion,    110, MAIN_TOP + 40, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     setscale();
 }

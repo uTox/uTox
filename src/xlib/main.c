@@ -22,6 +22,7 @@
 #include "../av/utox_av.h"
 
 #include "../native/image.h"
+#include "../native/notify.h"
 #include "../native/ui.h"
 
 #include "../ui/draw.h"
@@ -70,9 +71,10 @@ void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data
     XFlush(display);
 }
 
-FILE    *ptt_keyboard_handle;
-Display *ptt_display;
-void     init_ptt(void) {
+static FILE *   ptt_keyboard_handle;
+static Display *ptt_display;
+
+void init_ptt(void) {
     settings.push_to_talk = 1;
 
     char path[UTOX_FILE_NAME_LENGTH];
@@ -387,6 +389,7 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
             UTOX_IMAGE png_image = malloc(size);
             if (!png_image){
                 LOG_ERR("XLIB", "Could not allocate memory for an image");
+                free(native_image);
                 return;
             }
 
@@ -575,7 +578,7 @@ void setscale_fonts(void) {
 }
 
 void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_t msg_length, void *object, bool is_group) {
-    if (havefocus) {
+    if (have_focus) {
         return;
     }
 
@@ -623,21 +626,6 @@ void config_osdefaults(UTOX_SAVE *r) {
     r->window_width  = DEFAULT_WIDTH;
     r->window_height = DEFAULT_HEIGHT;
 }
-
-static UTOX_LANG systemlang(void) {
-    char *str = getenv("LC_ALL");
-    if (!str) {
-        str = getenv("LC_MESSAGES");
-    }
-    if (!str) {
-        str = getenv("LANG");
-    }
-    if (!str) {
-        return DEFAULT_LANG;
-    }
-    return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
-}
-
 
 static void atom_init(void) {
     wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);
@@ -730,10 +718,6 @@ int main(int argc, char *argv[]) {
     native_window_create_main(settings.window_x, settings.window_y, settings.window_width, settings.window_height, argv, argc);
     main_window.gc = DefaultGC(display, def_screen_num);
     main_window.drawbuf = XCreatePixmap(display, main_window.window, settings.window_width, settings.window_height, default_depth);
-
-
-    LANG = systemlang();
-    dropdown_language.selected = dropdown_language.over = LANG;
 
     /* choose available libraries for optional UI stuff */
     if (!(libgtk = ugtk_load())) {

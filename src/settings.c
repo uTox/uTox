@@ -48,6 +48,7 @@ SETTINGS settings = {
 
 
     // User interface settings
+    .language               = LANG_EN,
     .audiofilter_enabled    = true,
     .push_to_talk           = false,
     .audio_preview          = false,
@@ -94,6 +95,10 @@ UTOX_SAVE *config_load(void) {
         LOG_ERR("Settings", "unable to load utox_save data");
         /* Create and set defaults */
         save = calloc(1, sizeof(UTOX_SAVE));
+        if (!save) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Settings", "Unable to malloc for default settings.");
+        }
+
         save->enableipv6  = 1;
         save->disableudp  = 0;
         save->proxyenable = 0;
@@ -116,6 +121,9 @@ UTOX_SAVE *config_load(void) {
     }
 
     /* UX Settings */
+
+    dropdown_language.selected = dropdown_language.over = settings.language = save->language;
+
     dropdown_dpi.selected = dropdown_dpi.over = save->scale - 5;
 
     switch_save_chat_history.switch_on  = save->logging_enabled;
@@ -216,7 +224,8 @@ UTOX_SAVE *config_load(void) {
 
 // TODO refactor to match order in main.h
 void config_save(UTOX_SAVE *save_in) {
-    UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + 256);
+    const uint16_t proxy_address_size = 256; // Magic number inside Toxcore.
+    UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + proxy_address_size);
 
     /* Copy the data from the in data to protect the calloc */
     save->window_x                      = save_in->window_x;
@@ -259,10 +268,12 @@ void config_save(UTOX_SAVE *save_in) {
     save->update_to_develop     = settings.update_to_develop;
     save->send_version          = settings.send_version;
 
-    memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */
+    save->language = settings.language;
+
+    memcpy(save->proxy_ip, proxy_address, proxy_address_size);
 
     LOG_NOTE("uTox", "Writing uTox Save" );
-    utox_data_save_utox(save, sizeof(UTOX_SAVE) + 256); /* Magic number inside toxcore */
+    utox_data_save_utox(save, sizeof(UTOX_SAVE) + proxy_address_size);
     free(save);
 }
 

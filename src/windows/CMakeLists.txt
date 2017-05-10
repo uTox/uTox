@@ -24,6 +24,7 @@ add_library(utoxNATIVE STATIC
     notify.c
     os_video.c
     screen_grab.c
+    utf8.c
     video.c
     window.c
 
@@ -39,4 +40,4 @@ target_link_libraries(utoxNATIVE
     oleaut32    strmiids    shell32     opus
     )
 
-set(WINDOWS_ICON icons/icon.rc)
+set(WINDOWS_ICON utox.rc)

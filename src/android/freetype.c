@@ -1,24 +1,14 @@
-#include <freetype.h>
-#include <ft2build.h>
+#include "main.h"
+
+#include "freetype.h"
+#include "gl.h"
 
 #include "../macros.h"
 
+#include "../ui.h"
+#include "../ui/draw.h"
+
 #define PIXELS(x) (((x) + 32) / 64)
-
-typedef struct {
-    uint32_t ucs4;
-    int16_t  x, y;
-    uint16_t width, height, xadvance, xxxx;
-    int16_t  mx, my;
-} GLYPH;
-
-typedef struct {
-    FT_Face  face;
-    uint8_t *fontmap;
-    uint16_t x, y, my, height;
-    GLuint   texture;
-    GLYPH *  glyphs[128];
-} FONT;
 
 FT_Library ftlib;
 FONT       font[16], *sfont;
@@ -83,7 +73,7 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
     return g;
 }
 
-static void initfonts(void) {
+void initfonts(void) {
     FT_Init_FreeType(&ftlib);
 }
 
@@ -106,7 +96,7 @@ static bool font_open(FONT *f, double size, uint8_t weight) {
     return 1;
 }
 
-static void loadfonts(void) {
+void loadfonts(void) {
     font_open(&font[FONT_TEXT], SCALE(12.0), 0);
 
     font_open(&font[FONT_TITLE], SCALE(12.0), 1);
@@ -125,7 +115,7 @@ static void loadfonts(void) {
     // font_msg_lineheight = (font[FONT_MSG].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
-static void freefonts(void) {
+void freefonts(void) {
     for (size_t i = 0; i != COUNTOF(font); i++) {
         FONT *f = &font[i];
         if (f->face) {
@@ -150,39 +140,7 @@ static void freefonts(void) {
 }
 
 static int _drawtext(int x, int xmax, int y, char *str, uint16_t length) {
-    glUniform3fv(k, 1, colorf);
-    glBindTexture(GL_TEXTURE_2D, sfont->texture);
-    int c = 0;
-
-    GLYPH *  g;
-    uint8_t  len;
-    uint32_t ch;
-    while (length) {
-        len = utf8_len_read(str, &ch);
-        str += len;
-        length -= len;
-
-        g = font_getglyph(sfont, ch);
-        if (g) {
-            if (x + g->xadvance > xmax) {
-                x = -x;
-                break;
-            }
-
-            if (c == 64) {
-                glDrawQuads(0, 64);
-                c = 0;
-            }
-
-            makeglyph(&quads[c++], x + g->x, y + g->y, g->mx, g->my, g->width, g->height);
-
-            x += g->xadvance;
-        }
-    }
-
-    glDrawQuads(0, c);
-
-    return x;
+    return GL_drawtext(x, xmax, y, str, length);
 }
 
 #include "../shared/freetype-text.c"

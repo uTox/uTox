@@ -3,57 +3,60 @@
 #include "test.h"
 
 #include <time.h>
-#include <stdlib.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 /*
 START_TEST (test_chrono_finished)
 {
-    CHRONO_INFO *info = malloc(sizeof(CHRONO_INFO));
-    if (!info) {
-        return;
-    }
+    CHRONO_INFO info;
 
-    info->ptr = 0;
-    info->step = 5;
-    info->interval_ms = 5;
-    info->finished = false;
+    info.ptr = 0;
+    info.step = 5;
+    info.interval_ms = 5;
+    info.finished = false;
 
-    chrono_start(info);
+    chrono_start(&info);
 
     yieldcpu(30);
 
-    chrono_end(info);
+    chrono_end(&info);
 
-    ck_assert_msg((intptr_t)info->ptr == 30, "Expected 30 got: %u", info->ptr);
-
-    free(info);
+    ck_assert_msg((intptr_t)info.ptr == 30, "Expected 30 got: %u", info.ptr);
 }
 END_TEST
 */
 
+void thread_callback(void *args) {
+    *(bool *)args = true;
+}
+
 START_TEST(test_chrono_target)
 {
-    CHRONO_INFO *info = malloc(sizeof(CHRONO_INFO));
-    if (!info) {
-        return;
+    /*
+     * Chrono info should be mallocated in real code.
+     * This function can't exit until the thread exits so it is safe
+     * to use the stack.
+     */
+    CHRONO_INFO info;
+    bool finished = false;
+
+    info.ptr = 0;
+    info.step = 5;
+    info.interval_ms = 5;
+    info.finished = false;
+    info.target = (uint8_t *)30;
+    info.callback = thread_callback;
+    info.cb_data = &finished;
+
+    chrono_start(&info);
+
+    yieldcpu(30); // allow thread to run and exit
+
+    while (!finished) {
+        yieldcpu(1);
     }
 
-    info->ptr = 0;
-    info->step = 5;
-    info->interval_ms = 5;
-    info->finished = false;
-    info->target = (uint8_t *)30;
-
-    chrono_start(info);
-
-    yieldcpu(31); // allow thread to run and exit
-                  // 30 to get to the target and 1 to exit
-
-    ck_assert_msg((intptr_t)info->ptr == 30, "Expected 30 got: %u", info->ptr);
-
-    free(info);
-
+    ck_assert_msg((intptr_t)info.ptr == 30, "Expected 30 got: %u", info.ptr);
 }
 END_TEST
 

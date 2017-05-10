@@ -58,7 +58,6 @@ HWND    video_hwnd[128]; // todo fixme
 HWND    preview_hwnd;    // todo fixme
 
 extern bool flashing;
-extern bool havefocus;
 extern bool hidden;
 
 // internal representation of an image

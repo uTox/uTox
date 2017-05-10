@@ -1,0 +1,33 @@
+101 ICON "../../icons/icon.ico"
+102 ICON "../../icons/icon_unread.ico"
+
+#if defined __WIN32__ || defined _WIN32 || defined __CYGWIN__
+#include <windows.h>
+#endif
+
+#include "../branding.h"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     VER_MAJOR,VER_MINOR,VER_PATCH
+PRODUCTVERSION  VER_MAJOR,VER_MINOR,VER_PATCH
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName",      TITLE
+            VALUE "FileDescription",  UTOX_FILE_DESCRIPTION
+            VALUE "FileVersion",      VERSION
+            VALUE "InternalName",     TITLE
+            VALUE "LegalCopyright",   UTOX_COPYRIGHT
+            VALUE "OriginalFilename", UTOX_FILENAME_WINDOWS
+            VALUE "ProductName",      TITLE
+            VALUE "ProductVersion",   VERSION
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0800, 1200
+    END
+END

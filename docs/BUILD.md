@@ -185,9 +185,14 @@ cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DTOXCORE_STATIC=O
 make
 ```
 
-## OSX
+## macOS
 
-See [COCOA.md](COCOA.md).
+```bash
+brew tap tox/tox
+brew install --HEAD utox
+```
+
+For details see [COCOA.md](COCOA.md).
 
 ## Android
 

@@ -5,9 +5,9 @@
 #include "../src/sized_string.h"
 
 typedef enum {
+    LANG_EN,
     LANG_BG,
     LANG_DE,
-    LANG_EN,
     LANG_ES,
     LANG_FR,
     LANG_HI, // 5
@@ -179,6 +179,8 @@ typedef enum {
     STR_LOCK,
     STR_SHOW_UI_PASSWORD,
     STR_SHOW_UI_PASSWORD_TOOLTIP,
+    STR_HIDE_UI_PASSWORD,
+    STR_HIDE_UI_PASSWORD_TOOLTIP,
 
     STR_DPI,
     STR_SAVELOCATION,
@@ -201,6 +203,7 @@ typedef enum {
     STR_NOSPAM,
     STR_NOSPAM_WARNING,
     STR_SHOW_NOSPAM,
+    STR_HIDE_NOSPAM,
     STR_BLOCK_FRIEND_REQUESTS,
 
 

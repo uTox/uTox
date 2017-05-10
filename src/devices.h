@@ -16,7 +16,6 @@
 #define ENABLE_MULTIDEVICE 1
 #endif
 
-
 typedef struct UTOX_DEVICE {
     uint8_t pubkey[TOX_PUBLIC_KEY_SIZE];
     char    pubkey_hex[TOX_PUBLIC_KEY_SIZE * 2];
@@ -24,7 +23,8 @@ typedef struct UTOX_DEVICE {
     uint8_t name[TOX_MAX_NAME_LENGTH];
     size_t  name_length;
 
-    TOX_DEVICE_STATUS status;
+    //TOX_DEVICE_STATUS status;
+    uint8_t status;
 
 } UTOX_DEVICE;
 
@@ -38,7 +38,7 @@ void utox_devices_init(void);
  * @param length [description]
  * @param addr   [description]
  */
-void devices_add_new(char *name, uint16_t length, uint8_t *addr);
+void devices_add_new(const char *name, uint16_t length, const uint8_t *addr);
 
 void utox_devices_decon(void);
 
