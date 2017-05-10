@@ -118,6 +118,7 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
         LOG_ERR("Groupchats", "Unable to allocate memory for message header.");
+        pthread_mutex_unlock(&messages_lock);
         return UINT32_MAX;
     }
 
@@ -135,6 +136,7 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
     if (!msg->via.grp.author) {
         LOG_ERR("Groupchat", "Unable to allocate space for author nickname.");
         free(msg);
+        pthread_mutex_unlock(&messages_lock);
         return UINT32_MAX;
     }
     memcpy(msg->via.grp.author, peer->name, peer->name_length);

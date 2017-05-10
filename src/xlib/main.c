@@ -389,6 +389,7 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
             UTOX_IMAGE png_image = malloc(size);
             if (!png_image){
                 LOG_ERR("XLIB", "Could not allocate memory for an image");
+                free(native_image);
                 return;
             }
 

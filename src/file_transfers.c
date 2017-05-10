@@ -1279,6 +1279,10 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
             friend_number, file_number, position, length);
 
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    if (!ft) {
+        LOG_ERR("FileTransfer", "Unabele to get file transfer (%u & %u)", friend_number, file_number);
+        return;
+    }
 
     if (length == 0) {
         LOG_NOTE("FileTransfer", "Outgoing transfer is done (%u & %u)", friend_number, file_number);
