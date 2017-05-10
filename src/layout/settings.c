@@ -686,9 +686,9 @@ static void button_audiopreview_update(BUTTON *b) {
 
 static void button_videopreview_on_mup(void) {
     if (settings.video_preview) {
-        postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 1, NULL);
+        postmessage_utoxav(UTOXAV_STOP_VIDEO, UINT16_MAX, 1, NULL);
     } else if (video_width && video_height) {
-        postmessage_utoxav(UTOXAV_START_VIDEO, 0, 1, NULL);
+        postmessage_utoxav(UTOXAV_START_VIDEO, UINT16_MAX, 1, NULL);
     } else {
         LOG_ERR("Button", "Video_width = 0, can't preview\n");
     }

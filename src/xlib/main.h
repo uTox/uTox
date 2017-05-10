@@ -48,7 +48,6 @@ uint8_t pointergrab;
 
 bool     _redraw;
 
-Window  video_win[32]; // TODO we should allocate this dynamically but this'll work for now
 XImage *screen_image;
 
 extern int utox_v4l_fd;
@@ -83,6 +82,10 @@ void setclipboard(void);
 void pastebestformat(const Atom atoms[], size_t len, Atom selection);
 void formaturilist(char *out, const char *in, size_t len);
 void pastedata(void *data, Atom type, size_t len, bool select);
+
+// Brute Force, the video window we got a close command on (xlib/video.c)
+uint32_t brtfrs_video_windows(Window w);
+
 
 // video4linux
 bool v4l_init(char *dev_name);

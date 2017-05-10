@@ -276,19 +276,12 @@ bool doevent(XEvent event) {
         if (event.type == ClientMessage) {
             XClientMessageEvent *ev = &event.xclient;
             if ((Atom)event.xclient.data.l[0] == wm_delete_window) {
-                if (ev->window == video_win[0]) {
-                    postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
+                uint32_t r = brtfrs_video_windows(ev->window);
+                if (r == UINT32_MAX) {
                     return true;
                 }
 
-                uint32_t i;
-                for (i = 0; i != self.friend_list_count; i++) {
-                    if (video_win[i + 1] == ev->window) {
-                        FRIEND *f = get_friend(i);
-                        postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
-                        break;
-                    }
-                }
+                postmessage_utoxav(UTOXAV_STOP_VIDEO, r, (r == UINT16_MAX), NULL);
             }
         }
 
