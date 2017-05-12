@@ -13,13 +13,11 @@ set(LIBSODIUM_DEFINITIONS ${PKG_LIBSODIUM_CFLAGS_OTHER})
 find_path(LIBSODIUM_INCLUDE_DIR sodium.h HINTS
     ${PKG_LIBSODIUM_INCLUDEDIR}
     ${PKG_LIBSODIUM_INCLUDE_DIRS}
-    /usr/local/include/
 )
 
 find_library(LIBSODIUM_LIBRARY NAMES sodium HINTS
     ${PKG_LIBSODIUM_LIBDIR}
     ${PKG_LIBSODIUM_LIBRARY_DIRS}
-    /usr/local/lib/
 )
 
 include(FindPackageHandleStandardArgs)
