@@ -24,7 +24,7 @@ set(UTOX_STATIC ON CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3" CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3" CACHE STRING "" FORCE)
 
-set(INCLUDE_DIRECTORIES SYSTEM /usr/share/mingw-w64/include/)
+include_directories(SYSTEM /usr/share/mingw-w64/include/)
 
 # adjust the default behaviour of the FIND_XXX() commands:
 # search headers and libraries in the target environment, search
