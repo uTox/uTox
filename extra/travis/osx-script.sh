@@ -7,5 +7,5 @@ cmake . \
   -DCMAKE_INCLUDE_PATH="$CACHE_DIR/usr/include" \
   -DCMAKE_LIBRARY_PATH="$CACHE_DIR/usr/lib" \
   -DENABLE_WERROR=OFF
-make VERBOSE=1
+make
 ./run_tests.sh
