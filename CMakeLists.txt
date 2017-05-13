@@ -213,6 +213,12 @@ if(ENABLE_WERROR)
     add_cflag("-Werror")
 endif()
 
+if(ENABLE_FILTERAUDIO)
+    find_package(libfilteraudio REQUIRED)
+    include_directories(${LIBFILTERAUDIO_INCLUDE_DIRS})
+    set(LIBRARIES ${LIBFILTERAUDIO_LIBRARIES})
+endif()
+
 if(UTOX_STATIC)
     if(UNIX)
         add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
