@@ -71,6 +71,14 @@ make
 sudo make install
 ```
 
+### How to create a DMG for distribution
+
+```bash
+cmake .. -DUTOX_STATIC=ON
+make
+sudo make package
+```
+
 Done!
 
 ## How to create an Xcode project
