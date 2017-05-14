@@ -33,3 +33,4 @@ target_link_libraries(utoxNATIVE
     "-framework QuartzCore"
     -lresolv
     )
+message("Read COCOA file [TEMP]")

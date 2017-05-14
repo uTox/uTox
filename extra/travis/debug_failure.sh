@@ -9,6 +9,7 @@ echo "== DEBUGING FAILURE "
 echo "======================================================"
 echo ""
 
+cat "/Users/travis/build/uTox/uTox/CMakeFiles/utox.dir/link.txt"
 echo ""
 echo $HOME
 echo $CACHE_DIR
