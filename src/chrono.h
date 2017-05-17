@@ -5,7 +5,9 @@
 #include <stdint.h>
 
 struct chrono_info {
-    uint8_t *ptr, *target;
+    int *ptr;
+    int  target;
+
     int step;
     uint32_t interval_ms;
     bool finished;

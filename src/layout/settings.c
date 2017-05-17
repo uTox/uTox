@@ -534,7 +534,27 @@ static void button_settings_sub_av_on_mup(void) {
     panel_settings_av.disabled = false;
 }
 
+#include "sidebar.h"
+#include "../chrono.h"
 static void button_settings_sub_adv_on_mup(void) {
+
+    CHRONO_INFO *ci = calloc(1, sizeof(CHRONO_INFO));
+
+    ci->step = 1;
+    ci->ptr = &panel_side_bar.width;
+
+    if (panel_side_bar.width == 50) {
+        ci->target = 230;
+    } else {
+        ci->target = 50;
+        ci->step *= -1;
+    }
+
+    ci->interval_ms = 1;
+
+    chrono_start(ci);
+
+    return;
     scrollbar_settings.content_height = SCALE(300);
     disable_all_setting_sub();
     panel_settings_adv.disabled = false;
