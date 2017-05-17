@@ -121,8 +121,8 @@ static void flist_draw_status_icon(uint8_t status, int x, int y, bool notify) {
     }
 }
 
-static void drawitem(ITEM *i, int x, int y, int width) {
-    flist_draw_itembox(i, x + SCALE(SCROLL_WIDTH), y, width);
+static void drawitem(ITEM *i, int x, int y, int w) {
+    flist_draw_itembox(i, x + SCALE(SCROLL_WIDTH), y, w);
 
     int box_height;
     int avatar_x;
@@ -168,10 +168,15 @@ static void drawitem(ITEM *i, int x, int y, int width) {
                           (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             }
 
-            flist_draw_name(i, name_x, name_y, width, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length,
-                            0, 0);
+            if (w > 100) {
+                flist_draw_name(i, name_x, name_y, w, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length,
+                                0, 0);
 
-            flist_draw_status_icon(status, width - SCALE(15), y + box_height / 2, f->unread_msg);
+                if (w > 200) {
+                    flist_draw_status_icon(status, w - SCALE(15), y + box_height / 2, f->unread_msg);
+                }
+
+            }
             break;
         }
 
@@ -196,9 +201,13 @@ static void drawitem(ITEM *i, int x, int y, int width) {
                 }
             }
 
-            flist_draw_name(i, name_x, name_y, width, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
+            if (w > 100) {
+                flist_draw_name(i, name_x, name_y, w, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
+                if (w > 200) {
+                    flist_draw_status_icon(0, SCALE(w - 15), y + box_height / 2, g->unread_msg);
+                }
+            }
 
-            flist_draw_status_icon(0, SCALE(width - 15), y + box_height / 2, g->unread_msg);
             break;
         }
 
@@ -214,15 +223,18 @@ static void drawitem(ITEM *i, int x, int y, int width) {
 
             drawalpha(contact_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            flist_draw_name(i, name_x, name_y, width, name, r->msg, sizeof(name), r->length, 0, 0);
+            flist_draw_name(i, name_x, name_y, w, name, r->msg, sizeof(name), r->length, 0, 0);
             break;
         }
 
         case ITEM_GROUP_CREATE: {
             drawalpha(group_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            flist_draw_name(i, name_x, name_y, width, S(CREATEGROUPCHAT), S(CURSOR_CLICK_RIGHT), SLEN(CREATEGROUPCHAT),
-                            SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+
+            if (w > 100) {
+                flist_draw_name(i, name_x, name_y, w, S(CREATEGROUPCHAT), S(CURSOR_CLICK_RIGHT), SLEN(CREATEGROUPCHAT),
+                                SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            }
             break;
         }
 

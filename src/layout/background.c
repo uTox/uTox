@@ -58,15 +58,14 @@ static void draw_splash_page(int x, int y, int w, int h) {
                                              SLEN(CHANGE_LOG_TEXT), ~0, ~0, 0, 0, 1);
 }
 
-
 PANEL
 panel_root = {
     .type = PANEL_NONE,
     .drawfunc = draw_background,
     .disabled = 0,
     .child = (PANEL*[]) {
-        &panel_side_bar,
         &panel_main,
+        &panel_side_bar,
         NULL
     }
 },
