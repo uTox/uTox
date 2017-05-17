@@ -8,6 +8,7 @@
 #include <stdbool.h>
 
 #include "native/thread.h"
+#include "native/ui.h"
 
 bool chrono_thread_init = false;
 
@@ -16,8 +17,9 @@ static void chrono_thread(void *args) {
 
     CHRONO_INFO *info = args;
     chrono_thread_init = true;
-    while (info->ptr != info->target) {
-        info->ptr += info->step;
+    while (*info->ptr != info->target) {
+        *info->ptr += info->step;
+        force_redraw();
         yieldcpu(info->interval_ms);
     }
     chrono_thread_init = false;

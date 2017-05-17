@@ -25,6 +25,7 @@ START_TEST (test_chrono_finished)
 }
 END_TEST
 */
+void force_redraw(){}
 
 void thread_callback(void *args) {
     *(bool *)args = true;
@@ -40,11 +41,13 @@ START_TEST(test_chrono_target)
     CHRONO_INFO info;
     bool finished = false;
 
-    info.ptr = 0;
+    int ptr = 0;
+
+    info.ptr = &ptr;
     info.step = 5;
     info.interval_ms = 5;
     info.finished = false;
-    info.target = (uint8_t *)30;
+    info.target = 30;
     info.callback = thread_callback;
     info.cb_data = &finished;
 
@@ -56,7 +59,7 @@ START_TEST(test_chrono_target)
         yieldcpu(1);
     }
 
-    ck_assert_msg((intptr_t)info.ptr == 30, "Expected 30 got: %u", info.ptr);
+    ck_assert_msg(*info.ptr == 30, "Expected 30 got: %u", info.ptr);
 }
 END_TEST
 
