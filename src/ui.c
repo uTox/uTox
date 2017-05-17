@@ -103,11 +103,6 @@ static void sidepanel_FLIST(void) {
     // scrollbar_flist.panel.width  = 230; // TODO remove?
     scrollbar_flist.panel.height = -1;
 
-    panel_flist.x      = 0;
-    panel_flist.y      = 70;
-    panel_flist.width  = 230; // TODO remove?
-    panel_flist.height = ROSTER_BOTTOM;
-
 
     CREATE_BUTTON(filter_friends, SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_TOP, SIDEBAR_FILTER_FRIENDS_WIDTH,
                   SIDEBAR_FILTER_FRIENDS_HEIGHT);
@@ -368,14 +363,14 @@ MAKE_FUNC(bool, mleave);
  * change the relative
  *
  * if w/h <0 use parent panel width (maybe?)    */
-#define FIX_XY_CORDS_FOR_SUBPANELS()                                       \
-    {                                                                      \
-        int relx = (p->x < 0) ? width + SCALE(p->x) : SCALE(p->x);                       \
-        int rely = (p->y < 0) ? height + SCALE(p->y) : SCALE(p->y);                      \
-        x += relx;                                                         \
-        y += rely;                                                         \
-        width  = (p->width <= 0) ? width + SCALE(p->width) - relx : SCALE(p->width);     \
-        height = (p->height <= 0) ? height + SCALE(p->height) - rely : SCALE(p->height); \
+#define FIX_XY_CORDS_FOR_SUBPANELS() \
+    { \
+        int relx = (p->x < 0) ? width + SCALE(p->x) : SCALE(p->x); \
+        int rely = (p->y < 0) ? height + SCALE(p->y) : SCALE(p->y); \
+        x += relx; \
+        y += rely; \
+        width  = (p->width <= 0) ? width + SCALE(p->width) - relx : MIN(width, SCALE(p->width)); \
+        height = (p->height <= 0) ? height + SCALE(p->height) - rely : MIN(height, SCALE(p->height)); \
     }
 
 static void panel_update(PANEL *p, int x, int y, int width, int height) {
@@ -442,7 +437,7 @@ void ui_size(int width, int height) {
     tooltip_reset();
 
     panel_side_bar.disabled = false;
-    panel_main.x = panel_flist.width;
+    panel_main.x = 50;
 
     if (settings.magic_flist_enabled) {
         if (width <= panel_flist.width * 2 || height > width) {
