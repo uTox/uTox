@@ -55,12 +55,31 @@ void native_export_chatlog_init(uint32_t friend_number) {
     }
 }
 
+void sanitize_filename(uint8_t * filename) {
+    for (size_t i = 0; filename[i] != '\0'; ++i) {
+        if ((filename[i] >= 1 && filename[i] <= 31) || // control characters
+             filename[i] == '>'  ||
+             filename[i] == '<'  ||
+             filename[i] == ':'  ||
+             filename[i] == '"'  ||
+             filename[i] == '/'  ||
+             filename[i] == '\\' ||
+             filename[i] == '|'  ||
+             filename[i] == '?'  ||
+             filename[i] == '*') {
+            filename[i] = '_';
+        }
+    }
+}
+
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!path) {
         LOG_ERR("SelectDir", "Could not allocate memory for path.");
         return;
     }
+
+    sanitize_filename(file->name);
 
     memcpy(path, file->name, file->name_length);
 
@@ -105,6 +124,8 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     }
 
     CreateDirectoryW(subpath, NULL);
+
+    sanitize_filename(file->name);
 
     wchar_t filename[UTOX_FILE_NAME_LENGTH] = { 0 };
     MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, filename, UTOX_FILE_NAME_LENGTH);
