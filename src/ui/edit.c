@@ -413,9 +413,13 @@ enum {
 };
 
 void edit_char(uint32_t ch, bool control, uint8_t flags) {
-    /* shift: flags & 1
-     * control: flags & 4 */
+    if (!active_edit) {
+        return;
+    }
     EDIT *edit = active_edit; // TODO this is bad
+
+    // shift:   flags & 1
+    // control: flags & 4
 
     if (control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
         bool modified = false;
