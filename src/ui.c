@@ -45,10 +45,6 @@ static bool background_mdown(PANEL *UNUSED(p)) {
     return false;
 }
 
-static void sidebar_callback(void *UNUSED(args)) {
-    sidebar_open = !sidebar_open;
-}
-
 static bool background_mdbl(PANEL *UNUSED(p), bool triclick) {
     LOG_ERR("UI root", "bg dblclick %u", triclick);
 
@@ -72,17 +68,15 @@ static bool background_mdbl(PANEL *UNUSED(p), bool triclick) {
 
     if (panel_side_bar.width == 50) {
         *sidebar_chrono->target = 230;
-        step = 2;
+        step = 1;
     } else {
         *sidebar_chrono->target = 50;
-        step = -2;
+        step = -1;
     }
 
     sidebar_chrono->ptr = &panel_side_bar.width;
     sidebar_chrono->step = step;
     sidebar_chrono->interval_ms = 1;
-    sidebar_chrono->callback = sidebar_callback;
-    sidebar_chrono->cb_data = NULL;
 
     chrono_start(sidebar_chrono);
 

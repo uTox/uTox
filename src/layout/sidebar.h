@@ -28,6 +28,4 @@ extern BUTTON button_avatar,
 typedef struct edit EDIT;
 extern EDIT edit_search;
 
-extern bool sidebar_open;
-
 #endif //LAYOUT_SIDEBAR_H
