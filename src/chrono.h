@@ -12,6 +12,8 @@ struct chrono_info {
     bool finished;
     void (*callback)(void *);
     void *cb_data;
+    void (*sleep_callback)(void *);
+    void *sleep_cb_data;
 };
 
 typedef struct chrono_info CHRONO_INFO;

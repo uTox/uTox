@@ -9,7 +9,6 @@
 #include <stdbool.h>
 
 #include "native/thread.h"
-#include "native/ui.h"
 
 bool chrono_thread_init = false;
 
@@ -21,8 +20,7 @@ static void chrono_thread(void *args) {
 
     while (*info->ptr != *info->target) {
         *info->ptr += info->step;
-        yieldcpu(info->interval_ms);
-        force_redraw();
+        chrono_callback(info->interval_ms, info->sleep_callback, info->sleep_cb_data);
     }
 
     chrono_thread_init = false;
@@ -64,5 +62,8 @@ bool chrono_end(CHRONO_INFO *info) {
 
 void chrono_callback(uint32_t ms, void func(void *), void *funcargs) {
     yieldcpu(ms);
-    func(funcargs);
+
+    if (func) {
+        func(funcargs);
+    }
 }

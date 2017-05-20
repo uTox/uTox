@@ -507,7 +507,7 @@ void update_tray(void) {
     free(tip);
 }
 
-void force_redraw(void) {
+void force_redraw(void *UNUSED(args)) {
     redraw();
 }
 

@@ -25,7 +25,6 @@ START_TEST (test_chrono_finished)
 }
 END_TEST
 */
-void force_redraw(){}
 
 void thread_callback(void *args) {
     *(bool *)args = true;

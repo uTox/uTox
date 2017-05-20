@@ -50,7 +50,7 @@ static bool background_mdbl(PANEL *UNUSED(p), bool triclick) {
 
     int step = 0;
 
-    if (!sidebar_chrono) { //sidebar_chrono has not been initialzed
+    if (!sidebar_chrono) {
         LOG_INFO("UI", "Sidebar chrono is being initialized.");
         sidebar_chrono = calloc(1, sizeof(CHRONO_INFO));
         if (!sidebar_chrono) {
@@ -77,6 +77,8 @@ static bool background_mdbl(PANEL *UNUSED(p), bool triclick) {
     sidebar_chrono->ptr = &panel_side_bar.width;
     sidebar_chrono->step = step;
     sidebar_chrono->interval_ms = 1;
+    sidebar_chrono->sleep_callback = force_redraw;
+    sidebar_chrono->sleep_cb_data = NULL;
 
     chrono_start(sidebar_chrono);
 

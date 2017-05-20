@@ -1,6 +1,7 @@
 #import "main.h"
 
 #import "../debug.h"
+#import "../macros.h"
 #import "../main.h"
 #import "../settings.h"
 #import "../ui.h"
@@ -604,4 +605,8 @@ void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, i
 
     [inlineVideo displayImage:img_data w:w h:h];
     currently_drawing_into_view.didDrawInlineVideoThisFrame = YES;
+}
+
+void force_redraw(void *UNUSED(args)) {
+    redraw();
 }
