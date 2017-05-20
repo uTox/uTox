@@ -38,6 +38,9 @@ START_TEST(test_chrono_target)
      * to use the stack.
      */
     CHRONO_INFO info;
+
+    memset(&info, 0, sizeof(info));
+
     bool finished = false;
     int target = 30, ptr = 0;
 
