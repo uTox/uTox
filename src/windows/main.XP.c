@@ -1,6 +1,7 @@
 #ifdef __WIN_LEGACY
 
 #include "main.h"
+#include "utf8.h"
 
 #include "../chatlog.h"
 #include "../file_transfers.h"
@@ -57,6 +58,8 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
         LOG_ERR("WinXP", "Unable to calloc when selecting file directory");
         return;
     }
+
+    sanitize_filename(file->name);
     memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
 
@@ -100,6 +103,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
     CreateDirectoryW(subpath, NULL);
 
+    sanitize_filename(file->name);
     wchar_t filename[UTOX_FILE_NAME_LENGTH] = { 0 };
     MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, filename, UTOX_FILE_NAME_LENGTH);
 

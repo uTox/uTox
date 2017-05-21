@@ -5,6 +5,7 @@
 #endif
 
 #include "main.h"
+#include "utf8.h"
 
 #include "../main.h"
 
@@ -52,23 +53,6 @@ void native_export_chatlog_init(uint32_t friend_number) {
         }
     } else {
         LOG_ERR("Windows7", "Unable to open file and export chatlog.");
-    }
-}
-
-void sanitize_filename(uint8_t * filename) {
-    for (size_t i = 0; filename[i] != '\0'; ++i) {
-        if ((filename[i] >= 1 && filename[i] <= 31) || // control characters
-             filename[i] == '>'  ||
-             filename[i] == '<'  ||
-             filename[i] == ':'  ||
-             filename[i] == '"'  ||
-             filename[i] == '/'  ||
-             filename[i] == '\\' ||
-             filename[i] == '|'  ||
-             filename[i] == '?'  ||
-             filename[i] == '*') {
-            filename[i] = '_';
-        }
     }
 }
 
