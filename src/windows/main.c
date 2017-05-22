@@ -233,7 +233,9 @@ uint64_t get_time(void) {
 }
 
 void openurl(char *str) {
-    ShellExecute(NULL, "open", str, NULL, NULL, SW_SHOW);
+    wchar_t url[UTOX_FILE_NAME_LENGTH] = { 0 };
+    utf8tonative(str, url, UTOX_FILE_NAME_LENGTH);
+    ShellExecuteW(NULL, L"open", url, NULL, NULL, SW_SHOW);
 }
 
 void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {
