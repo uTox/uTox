@@ -2,6 +2,8 @@
 #define WIN_UTF8_H
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 // TODO: Maybe this should be a more generic text-util Windows header.
 
@@ -13,5 +15,13 @@
  */
 int utf8tonative(const char *str, wchar_t *out, int length);
 int utf8_to_nativestr(const char *str, wchar_t *out, int length);
+
+/**
+ * Replaces all Windows-forbidden characters in the filename with underscores.
+ *
+ * @param filename a null-terminated string.
+ * @return resulted filename is valid or not.
+ */
+bool sanitize_filename(uint8_t *filename);
 
 #endif
