@@ -11,10 +11,16 @@ int utf8_to_nativestr(const char *str, wchar_t *out, int length) {
 }
 
 // TODO, add utf8 support
-void sanitize_filename(uint8_t *filename) {
+bool sanitize_filename(uint8_t *filename) {
     for (size_t i = 0; filename[i] != '\0'; ++i) {
-        if ((filename[i] >= 1 && filename[i] <= 31) || strchr("<>:\"/\\|?*", filename[i])) {
+        if (filename[i] < 32) {
+            return false;
+        }
+
+        if (strchr("<>:\"/\\|?*", filename[i])) {
             filename[i] = '_';
         }
     }
+
+    return true;
 }

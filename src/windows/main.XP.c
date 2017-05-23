@@ -59,7 +59,11 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
         return;
     }
 
-    sanitize_filename(file->name);
+    if (!sanitize_filename(file->name)) {
+        LOG_ERR("WinXP", "Filename is invalid and could not be sanitized");
+        return;
+    }
+
     memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
 
@@ -103,7 +107,11 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
     CreateDirectoryW(subpath, NULL);
 
-    sanitize_filename(file->name);
+    if (!sanitize_filename(file->name)) {
+        LOG_ERR("WinXP", "Filename is invalid and could not be sanitized");
+        return;
+    }
+
     wchar_t filename[UTOX_FILE_NAME_LENGTH] = { 0 };
     MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, filename, UTOX_FILE_NAME_LENGTH);
 
