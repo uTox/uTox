@@ -635,7 +635,7 @@ bool panel_dclick(PANEL *p, bool triclick) {
     switch (p->type) {
         case PANEL_NONE: {
             draw = background_mdbl(p, triclick);
-            break;
+            return draw;
         }
         case PANEL_EDIT: {
             draw = edit_dclick((EDIT *)p, triclick);
