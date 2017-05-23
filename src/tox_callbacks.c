@@ -152,6 +152,7 @@ void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const in
 static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE type, const uint8_t *data, size_t length,
                                   void *UNUSED(userdata)) {
     if (type != TOX_CONFERENCE_TYPE_TEXT) {
+        LOG_ERR("Tox Callbacks", "Only text groupchats are supported right now.");
         return;
     }
 
