@@ -23,7 +23,7 @@
 void native_export_chatlog_init(uint32_t friend_number) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!path){
-        LOG_ERR("SelectDir", " Could not allocate memory." );
+        LOG_ERR("Windows7", " Could not allocate memory." );
         return;
     }
 
@@ -35,17 +35,28 @@ void native_export_chatlog_init(uint32_t friend_number) {
 
     snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length, f->name);
 
-    OPENFILENAME ofn = {
-        .lStructSize = sizeof(OPENFILENAME),
-        .lpstrFilter = ".txt",
-        .lpstrFile   = path,
+    wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    utf8_to_nativestr(path, filepath, UTOX_FILE_NAME_LENGTH);
+
+    OPENFILENAMEW ofn = {
+        .lStructSize = sizeof(OPENFILENAMEW),
+        .lpstrFilter = L".txt",
+        .lpstrFile   = filepath,
         .nMaxFile    = UTOX_FILE_NAME_LENGTH,
         .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
-        .lpstrDefExt = "txt",
+        .lpstrDefExt = L"txt",
     };
 
-    if (GetSaveFileName(&ofn)) {
-        FILE *file = fopen(path, "wb");
+    if (GetSaveFileNameW(&ofn)) {
+        path = calloc(1, UTOX_FILE_NAME_LENGTH);
+        if (!path){
+            LOG_ERR("Windows7", " Could not allocate memory." );
+            return;
+        }
+
+        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH);
+
+        FILE *file = utox_get_file_simple(path, UTOX_FILE_OPTS_WRITE);
         if (file) {
             utox_export_chatlog(f->id_str, file);
         } else {
@@ -57,27 +68,29 @@ void native_export_chatlog_init(uint32_t friend_number) {
 }
 
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
-    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
-    if (!path) {
-        LOG_ERR("Windows7", "Could not allocate memory for path.");
-        return;
-    }
-
     if (!sanitize_filename(file->name)) {
         LOG_ERR("Windows7", "Filename is invalid and could not be sanitized");
         return;
     }
 
-    memcpy(path, file->name, file->name_length);
+    wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    utf8_to_nativestr((char *)file->name, filepath, file->name_length);
 
-    OPENFILENAME ofn = {
-        .lStructSize = sizeof(OPENFILENAME),
-        .lpstrFile   = path,
+    OPENFILENAMEW ofn = {
+        .lStructSize = sizeof(OPENFILENAMEW),
+        .lpstrFile   = filepath,
         .nMaxFile    = UTOX_FILE_NAME_LENGTH,
         .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
     };
 
-    if (GetSaveFileName(&ofn)) {
+    if (GetSaveFileNameW(&ofn)) {
+        char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+        if (!path) {
+            LOG_ERR("Windows7", "Could not allocate memory for path.");
+            return;
+        }
+
+        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH);
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, num, path);
     } else {
         LOG_ERR("Windows7", "Unable to Get save file for incoming FT.");
@@ -89,12 +102,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
     if (settings.portable_mode) {
         autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH * sizeof(wchar_t));
-
-        // Convert the portable_mode_save_path into a wide string.
-        wchar_t tmp[UTOX_FILE_NAME_LENGTH];
-        mbstowcs(tmp, portable_mode_save_path, strlen(portable_mode_save_path));
-
-        swprintf(autoaccept_folder, UTOX_FILE_NAME_LENGTH, L"%ls", tmp);
+        utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path));
     } else if (SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads,
                                     KF_FLAG_CREATE, NULL, &autoaccept_folder) != S_OK) {
         LOG_ERR("Windows7", "Unable to get auto accept file folder!");
@@ -118,22 +126,19 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     }
 
     wchar_t filename[UTOX_FILE_NAME_LENGTH] = { 0 };
-    MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, filename, UTOX_FILE_NAME_LENGTH);
+    utf8_to_nativestr((char *)file->name, filename, file->name_length);
 
     wchar_t fullpath[UTOX_FILE_NAME_LENGTH] = { 0 };
     swprintf(fullpath, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", subpath, filename);
 
-
-    FILE *f = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
-                                                            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
-                                      0),
-                      "wb");
-
-    if (f) {
-        postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
-    } else {
-        LOG_ERR("Windows7", "Unable to save autoaccepted ft to %ls", fullpath);
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (!path) {
+        LOG_ERR("Windows7", "Could not allocate memory for path.");
+        return;
     }
+
+    native_to_utf8str(fullpath, path, UTOX_FILE_NAME_LENGTH);
+    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, path);
 }
 
 void launch_at_startup(bool should) {
@@ -150,7 +155,7 @@ void launch_at_startup(bool should) {
             path_length += 2;
 
             // 2 bytes per wchar_t
-            uint16_t ret = RegSetKeyValueW(hKey, NULL, L"uTox", REG_SZ, path, path_length * 2);
+            uint16_t ret = RegSetKeyValueW(hKey, NULL, "uTox", REG_SZ, path, path_length * 2);
             if (ret != ERROR_SUCCESS) {
                 LOG_ERR("Windows7", "Unable to set Registry key for startup.");
             }

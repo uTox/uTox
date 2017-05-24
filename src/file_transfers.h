@@ -81,7 +81,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
  * This is non robust and could use some LTC */
 bool ft_set_ui_data(uint32_t friend_number, uint32_t file_number, MSG_HEADER *ui_data);
 
-bool utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file, bool is_file);
+bool utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file);
 
 void utox_set_callbacks_file_transfer(Tox *tox);
 
