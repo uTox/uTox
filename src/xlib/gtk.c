@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LIBGTK_FILENAME "libgtk-3.so.0"
+#define LIBGTK_FILENAME "libgtk-3.so"
 
 #define GTK_FILE_CHOOSER_ACTION_OPEN 0
 #define GTK_FILE_CHOOSER_ACTION_SAVE 1
