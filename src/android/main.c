@@ -161,6 +161,23 @@ static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
     return;
 }
 
+FILE *native_get_file_simple(const uint8_t *path, UTOX_FILE_OPTS opts) {
+    char mode[4] = { 0 };
+    opts_to_sysmode(opts, mode);
+
+    FILE *fp = fopen((char *)path, mode);
+
+    if (!fp && opts & UTOX_FILE_OPTS_READ && opts & UTOX_FILE_OPTS_WRITE) {
+        LOG_WARN("Android Native", "Unable to simple open, falling back to fd" );
+        // read wont create a file if it doesn't' already exist. If we're allowed to write, lets try
+        // to create the file, then reopen it.
+        int fd = open((char *)path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        fp = fdopen(fd, mode);
+    }
+
+    return fp;
+}
+
 FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bool portable_mode) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
@@ -189,17 +206,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
         return NULL;
     }
 
-    char mode[4] = { 0 };
-    opts_to_sysmode(opts, mode);
-
-    FILE *fp = fopen((char *)path, mode);
-
-    if (!fp && opts & UTOX_FILE_OPTS_READ && opts & UTOX_FILE_OPTS_WRITE) {
-        // read wont create a file if it doesn't' already exist. If we're allowed to write, lets try
-        // to create the file, then reopen it.
-        int fd = open((char *)path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-        fp = fdopen(fd, mode);
-    }
+    FILE *fp = native_get_file_simple(path, opts);
 
     if (fp == NULL) {
         LOG_NOTE("Android Native", "Could not open %s" , path);
