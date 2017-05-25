@@ -169,8 +169,6 @@ static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE ty
         group_init(g, gid, 0);
     }
 
-    group_init(g, gid, 0);
-
     LOG_TRACE("Tox Callbacks", "Group Invite (%i,f:%i) type %u" , gid, fid, type);
     postmessage_utox(GROUP_ADD, gid, 0, tox);
 }
