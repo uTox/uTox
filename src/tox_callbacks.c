@@ -164,9 +164,9 @@ static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE ty
 
     GROUPCHAT *g = get_group(gid);
     if (!g) {
-        group_create(gid, false);
+        group_create(gid, true);
     } else {
-        group_init(g, gid, 0);
+        group_init(g, gid, true);
     }
 
     LOG_TRACE("Tox Callbacks", "Group Invite (%i,f:%i) type %u" , gid, fid, type);
