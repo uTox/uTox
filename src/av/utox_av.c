@@ -134,20 +134,36 @@ void utox_av_ctrl_thread(void *args) {
 
                     postmessage_audio(UTOXAUDIO_STOP_FRIEND, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
+                }
 
+                case UTOXAV_GROUPCALL_START :{
                     if (msg->param2) {
-                        // call_count++;
-                        // groups_audio[m->param1] = 1;
-                        // if(!record_on) {
-                        // device_in = alcopencapture(audio_device);
-                        // alccapturestart(device_in);
-                        // record_on = 1;
+                        call_count++;
+                        groups_audio[msg->param1] = true;
+                        //if(!record_on) {
+                        //    device_in = alcopencapture(audio_device);
+                        //    alccapturestart(device_in);
+                        //    record_on = true;
+                        //}
                         LOG_TRACE("uToxAv", "Starting Audio GroupCall" );
-                        // }
                     }
 
                     VERIFY_AUDIO_IN();
                     break;
+                }
+
+                case UTOXAV_GROUPCALL_END: {
+                    GROUPCHAT *g = get_group(msg->param1);
+                    if (!g) {
+                        return;
+                    }
+
+                    if (g->audio_calling) {
+                        //do something maybe
+                    }
+
+                    postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
+
                 }
 
                 case UTOXAV_START_AUDIO: {

@@ -2,6 +2,7 @@
 #define AUDIO_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct ALCdevice_struct ALCdevice;
 
@@ -76,5 +77,7 @@ void sourceplaybuffer(unsigned int i, const int16_t *data, int samples, uint8_t 
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 void utox_audio_thread(void *args);
+
+extern bool groups_audio[512];
 
 #endif

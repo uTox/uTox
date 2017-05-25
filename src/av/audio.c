@@ -536,6 +536,8 @@ void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data
     audio_thread_msg = 1;
 }
 
+bool groups_audio[512] = {0};
+
 // TODO: This function is 300 lines long. Cut it up.
 void utox_audio_thread(void *args) {
     time_t close_device_in = 0;
@@ -551,7 +553,6 @@ void utox_audio_thread(void *args) {
         " enabled in this build" );
     #endif
     // bool call[MAX_CALLS] = {0}, preview = 0;
-     bool groups_audio[512] = {0};
 
     const int perframe = (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A) / 1000;
     uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS]; //, dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
@@ -810,10 +811,12 @@ void utox_audio_thread(void *args) {
                     Tox *tox = toxav_get_tox(av);
                     uint32_t num_chats = tox_conference_get_chatlist_size(tox);
 
+                    LOG_INFO("uTox Audio", "Number of groupchats: %u", num_chats);
+
                     if (num_chats != 0) {
                         uint32_t chats[num_chats];
                         tox_conference_get_chatlist(tox, chats);
-                        for (int i = 0; i < num_chats; ++i) {
+                        for (size_t i = 0; i < num_chats; ++i) {
                             if (groups_audio[chats[i]]) {
                                 toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe,
                                                        UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
