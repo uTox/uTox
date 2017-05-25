@@ -136,7 +136,7 @@ void utox_av_ctrl_thread(void *args) {
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                 }
 
-                case UTOXAV_GROUPCALL_START :{
+                case UTOXAV_GROUPCALL_START: {
                     if (msg->param2) {
                         call_count++;
                         groups_audio[msg->param1] = true;

@@ -836,8 +836,6 @@ void utox_audio_thread(void *args) {
                     Tox *tox = toxav_get_tox(av);
                     uint32_t num_chats = tox_conference_get_chatlist_size(tox);
 
-                    LOG_INFO("uTox Audio", "Number of groupchats: %u", num_chats);
-
                     if (num_chats != 0) {
                         uint32_t chats[num_chats];
                         tox_conference_get_chatlist(tox, chats);

@@ -171,8 +171,8 @@ static void button_group_audio_update(BUTTON *b) {
 }
 
 BUTTON button_group_audio = {
-    .bm_fill          = BM_LBUTTON,
-    .bm_icon          = BM_CALL,
+    .bm_fill      = BM_LBUTTON,
+    .bm_icon      = BM_CALL,
     .icon_w       = _BM_LBICON_WIDTH,
     .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_group_audio_on_mup,
