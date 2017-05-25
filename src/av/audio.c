@@ -551,7 +551,7 @@ void utox_audio_thread(void *args) {
         " enabled in this build" );
     #endif
     // bool call[MAX_CALLS] = {0}, preview = 0;
-    // bool groups_audio[MAX_NUM_GROUPS] = {0};
+     bool groups_audio[512] = {0};
 
     const int perframe = (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A) / 1000;
     uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS]; //, dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
@@ -807,20 +807,19 @@ void utox_audio_thread(void *args) {
                         }
                     }
 
-                    // TODO REMOVED until new groups api can be implemented.
-                    /*Tox *tox = toxav_get_tox(av);
-                    uint32_t num_chats = tox_count_chatlist(tox);
+                    Tox *tox = toxav_get_tox(av);
+                    uint32_t num_chats = tox_conference_get_chatlist_size(tox);
 
                     if (num_chats != 0) {
-                        int32_t chats[num_chats];
-                        uint32_t max = tox_get_chatlist(tox, chats, num_chats);
-                        for (i = 0; i < max; ++i) {
+                        uint32_t chats[num_chats];
+                        tox_conference_get_chatlist(tox, chats);
+                        for (int i = 0; i < num_chats; ++i) {
                             if (groups_audio[chats[i]]) {
                                 toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe,
                                                        UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
                             }
                         }
-                    }*/
+                    }
                 }
             }
         }
