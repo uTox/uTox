@@ -151,20 +151,31 @@ void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const in
 
 static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE type, const uint8_t *data, size_t length,
                                   void *UNUSED(userdata)) {
-    int gid = -1;
-    if (type == TOX_CONFERENCE_TYPE_TEXT) {
-        gid = tox_conference_join(tox, fid, data, length, NULL);
-        group_init(get_group(gid), gid, 0);
-    } else if (type == TOX_CONFERENCE_TYPE_AV) {
-        // TODO FIX THIS AFTER NEW GROUP API IS RELEASED
-        // gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
+    if (type != TOX_CONFERENCE_TYPE_TEXT) {
+        LOG_ERR("Tox Callbacks", "Only text groupchats are supported right now.");
+        return;
     }
 
-    if (gid != -1) {
-        postmessage_utox(GROUP_ADD, gid, 0, tox);
+    uint32_t gid = tox_conference_join(tox, fid, data, length, NULL);
+    if (gid == UINT32_MAX) {
+        return;
     }
+
+    GROUPCHAT *g = get_group(gid);
+    if (!g) {
+        group_create(gid, false);
+    } else {
+        group_init(g, gid, 0);
+    }
+
+    // if (type == TOX_CONFERENCE_TYPE_AV) {
+    //     TODO FIX THIS AFTER NEW GROUP API IS RELEASED
+    //     uint32_t gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
+    // }
+
 
     LOG_TRACE("Tox Callbacks", "Group Invite (%i,f:%i) type %u" , gid, fid, type);
+    postmessage_utox(GROUP_ADD, gid, 0, tox);
 }
 
 static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, TOX_MESSAGE_TYPE type,
