@@ -140,13 +140,10 @@ void utox_av_ctrl_thread(void *args) {
                     if (msg->param2) {
                         call_count++;
                         groups_audio[msg->param1] = true;
-                        //if(!record_on) {
-                        //    device_in = alcopencapture(audio_device);
-                        //    alccapturestart(device_in);
-                        //    record_on = true;
-                        //}
                         LOG_TRACE("uToxAv", "Starting Audio GroupCall" );
                     }
+
+                    postmessage_audio(UTOXAUDIO_START_GROUPCHAT, msg->param1, msg->param2, NULL);
 
                     VERIFY_AUDIO_IN();
                     break;
@@ -162,6 +159,7 @@ void utox_av_ctrl_thread(void *args) {
                         //do something maybe
                     }
 
+                    postmessage_audio(UTOXAUDIO_STOP_GROUPCHAT, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
 
                 }

@@ -608,6 +608,31 @@ void utox_audio_thread(void *args) {
                     }
                     break;
                 }
+                case UTOXAUDIO_START_GROUPCHAT: {
+                    GROUPCHAT *g = get_group(m->param1);
+                    if (!g) {
+                        return;
+                    }
+
+                    if (!g->audio_dest) {
+                        utox_audio_out_device_open();
+                        audio_source_init(&g->audio_dest);
+                    }
+                    break;
+                }
+                case UTOXAUDIO_STOP_GROUPCHAT: {
+                    GROUPCHAT *g = get_group(m->param1);
+                    if (!g) {
+                        return;
+                    }
+
+                    if (g->audio_dest) {
+                        audio_source_term(&g->audio_dest);
+                        g->audio_dest = 0;
+                        utox_audio_out_device_close();
+                    }
+                    break;
+                }
                 case UTOXAUDIO_START_PREVIEW: {
                     utox_audio_out_device_open();
                     preview_on = true;
