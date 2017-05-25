@@ -75,13 +75,8 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
         g->name_length = sizeof(g->name) - 1;
     }
 
-    if (av_group) {
-        g->topic_length = sizeof("Error creating voice group, not supported yet") - 1;
-        strcpy2(g->topic, "Error creating voice group, not supported yet");
-    } else {
-        g->topic_length = sizeof("Drag friends to invite them") - 1;
-        memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
-    }
+    g->topic_length = sizeof("Drag friends to invite them") - 1;
+    memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
 
     g->msg.scroll               = 1.0;
     g->msg.panel.type           = PANEL_MESSAGES;

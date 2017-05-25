@@ -6,6 +6,7 @@
 #include "../debug.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../groups.h"
 #include "../inline_video.h"
 #include "../macros.h"
 #include "../tox.h"

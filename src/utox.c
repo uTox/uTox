@@ -599,7 +599,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             if (g->av_group) {
                 g->last_recv_audio[param2]        = g->last_recv_audio[g->peer_count];
                 g->last_recv_audio[g->peer_count] = 0;
-                // REMOVED UNTIL AFTER NEW GCs group_av_peer_remove(g, param2);
+                group_av_peer_remove(g, param2);
                 g->source[param2] = g->source[g->peer_count];
             }
 
@@ -653,11 +653,12 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case GROUP_AUDIO_START: {
             GROUPCHAT *g = get_group(param1);
             if (!g) {
+                LOG_ERR("uTox", "Can't get group %u", param1);
                 return;
             }
 
             if (g->av_group) {
-                g->audio_calling = 1;
+                g->audio_calling = true;
                 postmessage_utoxav(UTOXAV_GROUPCALL_START, 0, param1, NULL);
                 redraw();
             }
@@ -666,11 +667,12 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case GROUP_AUDIO_END: {
             GROUPCHAT *g = get_group(param1);
             if (!g) {
+                LOG_ERR("uTox", "Can't get group %u", param1);
                 return;
             }
 
             if (g->av_group) {
-                g->audio_calling = 0;
+                g->audio_calling = false;
                 postmessage_utoxav(UTOXAV_GROUPCALL_END, 0, param1, NULL);
                 redraw();
             }

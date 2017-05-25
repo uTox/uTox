@@ -5,9 +5,12 @@
 #include "../native/audio.h"
 #include "../native/keyboard.h"
 #include "../native/thread.h"
+#include "../native/time.h"
 
 #include "../debug.h"
 #include "../friend.h"
+#include "../groups.h"
+#include "../macros.h"
 #include "../main.h" // utox_audio_thread_init, self, USER_STATUS_*, UTOX_MAX_CALLS
 #include "../self.h"
 #include "../settings.h"
@@ -843,11 +846,14 @@ void utox_audio_thread(void *args) {
     LOG_TRACE("uTox Audio", "Clean thread exit!");
 }
 
-// COMMENTED OUT FOR NEW GC
-/*void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
-                                    uint8_t channels, unsigned int sample_rate, void *userdata)
+void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
+                             uint8_t channels, unsigned int sample_rate, void *UNUSED(userdata))
 {
-    GROUPCHAT *g = &group[groupnumber];
+    GROUPCHAT *g = get_group(groupnumber);
+    if (!g) {
+        LOG_ERR("uTox Audio", "Could not get group with number: %i", groupnumber);
+        return;
+    }
 
     uint64_t time = get_time();
 
@@ -867,7 +873,7 @@ void utox_audio_thread(void *args) {
     alGetSourcei(g->source[peernumber], AL_BUFFERS_QUEUED, &queued);
     alSourcei(g->source[peernumber], AL_LOOPING, AL_FALSE);
 
-    if(processed) {
+    if (processed) {
         ALuint bufids[processed];
         alSourceUnqueueBuffers(g->source[peernumber], processed, bufids);
         alDeleteBuffers(processed - 1, bufids + 1);
@@ -885,17 +891,26 @@ void utox_audio_thread(void *args) {
 
     ALint state;
     alGetSourcei(g->source[peernumber], AL_SOURCE_STATE, &state);
-    if(state != AL_PLAYING) {
+    if (state != AL_PLAYING) {
         alSourcePlay(g->source[peernumber]);
         LOG_TRACE("uTox Audio", "Starting source %i %i" , groupnumber, peernumber);
     }
 }
 
 void group_av_peer_add(GROUPCHAT *g, int peernumber) {
+    if (!g || peernumber < 0) {
+        return;
+    }
+
+    LOG_INFO("uTox Audio", "Adding peer %u to group %u", peernumber, g->number);
     alGenSources(1, &g->source[peernumber]);
 }
 
 void group_av_peer_remove(GROUPCHAT *g, int peernumber) {
+    if (!g || peernumber < 0) {
+        return;
+    }
+
+    LOG_INFO("uTox Audio", "Deleting peer %u from group %u", peernumber, g->number);
     alDeleteSources(1, &g->source[peernumber]);
 }
-*/

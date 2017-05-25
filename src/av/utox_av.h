@@ -50,6 +50,8 @@ enum {
 */
 };
 
+typedef struct groupchat GROUPCHAT;
+
 /* send a message to the toxav thread
  */
 void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
@@ -62,9 +64,9 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
 
 void set_av_callbacks(ToxAV *av);
 
-// void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
-//                                     uint8_t channels, unsigned int sample_rate, void *userdata);
-// void group_av_peer_add(GROUPCHAT *g, int peernumber);
-// void group_av_peer_remove(GROUPCHAT *g, int peernumber);
+void callback_av_group_audio(void *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
+                                    uint8_t channels, unsigned int sample_rate, void *userdata);
+void group_av_peer_add(GROUPCHAT *g, int peernumber);
+void group_av_peer_remove(GROUPCHAT *g, int peernumber);
 
 #endif

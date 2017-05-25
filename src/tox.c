@@ -1038,8 +1038,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             TOX_ERR_CONFERENCE_NEW error = 0;
             if (param1) {
                 // TODO FIX THIS AFTER NEW GROUP API
-                // g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
-                g_num = tox_conference_new(tox, &error);
+                g_num = toxav_add_av_groupchat(tox, callback_av_group_audio, NULL);
             } else {
                 g_num = tox_conference_new(tox, &error);
             }
@@ -1101,19 +1100,17 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             free(data);
             break;
         }
-        /* Disabled */
         case TOX_GROUP_AUDIO_START: {
             /* param1: group #
              */
-            break;
             postmessage_utox(GROUP_AUDIO_START, param1, 0, NULL);
+            break;
         }
-        /* Disabled */
         case TOX_GROUP_AUDIO_END: {
             /* param1: group #
              */
-            break;
             postmessage_utox(GROUP_AUDIO_END, param1, 0, NULL);
+            break;
         }
     } // End of switch.
 }
