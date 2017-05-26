@@ -167,11 +167,14 @@ void utox_write_metadata(FRIEND *f) {
     uint8_t *data = calloc(1, total_size);
     if (data) {
         memcpy(data, &metadata, sizeof(metadata));
-        memcpy(data + sizeof(metadata), f->alias, metadata.alias_length);
+        if (f->alias && f->alias_length) {
+            memcpy(data + sizeof(metadata), f->alias, metadata.alias_length);
+        }
 
         fwrite(data, total_size, 1, file);
         free(data);
     }
+
     fclose(file);
 }
 
