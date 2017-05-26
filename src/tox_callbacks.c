@@ -159,6 +159,7 @@ static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE ty
     }
 
     if (gid == UINT32_MAX) {
+        LOG_ERR("Tox Callbacks", "Could not join group with type: %u", type);
         return;
     }
 
