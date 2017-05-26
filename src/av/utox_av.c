@@ -162,6 +162,7 @@ void utox_av_ctrl_thread(void *args) {
                         postmessage_audio(UTOXAUDIO_STOP_GROUPCHAT, msg->param1, msg->param2, NULL);
                         postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                         call_count--;
+                        groups_audio[msg->param1] = false;
                     }
                 }
 
