@@ -611,6 +611,7 @@ void utox_audio_thread(void *args) {
                 case UTOXAUDIO_START_GROUPCHAT: {
                     GROUPCHAT *g = get_group(m->param1);
                     if (!g) {
+                        LOG_ERR("uTox Audio", "Could not get group %u", m->param1);
                         return;
                     }
 
@@ -623,6 +624,7 @@ void utox_audio_thread(void *args) {
                 case UTOXAUDIO_STOP_GROUPCHAT: {
                     GROUPCHAT *g = get_group(m->param1);
                     if (!g) {
+                        LOG_ERR("uTox Audio", "Could not get group %u", m->param1);
                         return;
                     }
 
@@ -839,8 +841,10 @@ void utox_audio_thread(void *args) {
                     if (num_chats != 0) {
                         uint32_t chats[num_chats];
                         tox_conference_get_chatlist(tox, chats);
+                        //LOG_INFO("uTox Audio", "We are in a groupchat.");
                         for (size_t i = 0; i < num_chats; ++i) {
                             if (groups_audio[chats[i]]) {
+                                //LOG_INFO("uTox Audio", "Sending audio in groupchat %u", i);
                                 toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe,
                                                        UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
                             }
@@ -880,6 +884,8 @@ void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber,
         return;
     }
 
+    LOG_INFO("uTox Audio", "Received audio in groupchat %i from peer %i", groupnumber, peernumber);
+
     uint64_t time = get_time();
 
     if (time - g->last_recv_audio[peernumber] > (uint64_t)1 * 1000 * 1000 * 1000) {
@@ -889,6 +895,7 @@ void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber,
     g->last_recv_audio[peernumber] = time;
 
     if(!channels || channels > 2 || g->muted) {
+        LOG_ERR("uTox Audio", "Can continue.");
         return;
     }
 

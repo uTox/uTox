@@ -137,14 +137,10 @@ void utox_av_ctrl_thread(void *args) {
                 }
 
                 case UTOXAV_GROUPCALL_START: {
-                    if (msg->param2) {
-                        call_count++;
-                        groups_audio[msg->param1] = true;
-                        LOG_TRACE("uToxAv", "Starting Audio GroupCall" );
-                    }
-
+                    call_count++;
+                    groups_audio[msg->param1] = true;
+                    LOG_INFO("uToxAv", "Starting group call in groupchat %u", msg->param1);
                     postmessage_audio(UTOXAUDIO_START_GROUPCHAT, msg->param1, msg->param2, NULL);
-
                     VERIFY_AUDIO_IN();
                     break;
                 }
@@ -152,16 +148,21 @@ void utox_av_ctrl_thread(void *args) {
                 case UTOXAV_GROUPCALL_END: {
                     GROUPCHAT *g = get_group(msg->param1);
                     if (!g) {
-                        return;
+                        LOG_ERR("uToxAv", "Could not get group %u", msg->param1);
+                        break;
+                    }
+
+                    if (!call_count) {
+                        LOG_ERR("uToxAv", "Trying to end a call when no call is active.");
+                        break;
                     }
 
                     if (g->audio_calling) {
-                        //do something maybe
+                        LOG_INFO("uToxAv", "Ending group call in groupchat %u", msg->param1);
+                        postmessage_audio(UTOXAUDIO_STOP_GROUPCHAT, msg->param1, msg->param2, NULL);
+                        postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
+                        call_count--;
                     }
-
-                    postmessage_audio(UTOXAUDIO_STOP_GROUPCHAT, msg->param1, msg->param2, NULL);
-                    postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
-
                 }
 
                 case UTOXAV_START_AUDIO: {

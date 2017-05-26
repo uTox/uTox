@@ -651,6 +651,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case GROUP_AUDIO_START: {
+            /* param1: group number
+             */
             GROUPCHAT *g = get_group(param1);
             if (!g) {
                 LOG_ERR("uTox", "Can't get group %u", param1);
@@ -658,13 +660,16 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             }
 
             if (g->av_group) {
+                LOG_INFO("uTox", "We are in an audio group starting call.");
                 g->audio_calling = true;
-                postmessage_utoxav(UTOXAV_GROUPCALL_START, 0, param1, NULL);
+                postmessage_utoxav(UTOXAV_GROUPCALL_START, param1, 0, NULL);
                 redraw();
             }
             break;
         }
         case GROUP_AUDIO_END: {
+            /* param1: group number
+             */
             GROUPCHAT *g = get_group(param1);
             if (!g) {
                 LOG_ERR("uTox", "Can't get group %u", param1);
@@ -672,8 +677,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             }
 
             if (g->av_group) {
+                LOG_INFO("uTox", "We are in an audio group ending call.");
                 g->audio_calling = false;
-                postmessage_utoxav(UTOXAV_GROUPCALL_END, 0, param1, NULL);
+                postmessage_utoxav(UTOXAV_GROUPCALL_END, param1, 0, NULL);
                 redraw();
             }
             break;

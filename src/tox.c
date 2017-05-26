@@ -1103,12 +1103,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         case TOX_GROUP_AUDIO_START: {
             /* param1: group #
              */
+            LOG_INFO("Tox", "Staring call in groupchat %u", param1);
             postmessage_utox(GROUP_AUDIO_START, param1, 0, NULL);
             break;
         }
         case TOX_GROUP_AUDIO_END: {
             /* param1: group #
              */
+            LOG_INFO("Tox", "Ending call in groupchat %u", param1);
             postmessage_utox(GROUP_AUDIO_END, param1, 0, NULL);
             break;
         }
