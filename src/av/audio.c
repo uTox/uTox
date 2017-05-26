@@ -931,6 +931,7 @@ void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber,
 
 void group_av_peer_add(GROUPCHAT *g, int peernumber) {
     if (!g || peernumber < 0) {
+        LOG_ERR("uTox Audio", "Invalid groupchat or peer number");
         return;
     }
 
@@ -940,6 +941,7 @@ void group_av_peer_add(GROUPCHAT *g, int peernumber) {
 
 void group_av_peer_remove(GROUPCHAT *g, int peernumber) {
     if (!g || peernumber < 0) {
+        LOG_ERR("uTox Audio", "Invalid groupchat or peer number");
         return;
     }
 
