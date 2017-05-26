@@ -54,10 +54,9 @@ static void draw_splash_page(int x, int y, int w, int h) {
     ny = utox_draw_text_multiline_within_box(x, ny, w + x, y, ny + h, font_small_lineheight, S(CHANGE_LOG_TITLE),
                                              SLEN(CHANGE_LOG_TITLE), ~0, ~0, 0, 0, 1);
     setfont(FONT_TEXT);
-    ny = utox_draw_text_multiline_within_box(x, ny, w + x, ny, ny + h, font_small_lineheight, S(CHANGE_LOG_TEXT),
-                                             SLEN(CHANGE_LOG_TEXT), ~0, ~0, 0, 0, 1);
+    /* ny =*/ utox_draw_text_multiline_within_box(x, ny, w + x, ny, ny + h, font_small_lineheight, S(CHANGE_LOG_TEXT),
+                                                  SLEN(CHANGE_LOG_TEXT), ~0, ~0, 0, 0, 1);
 }
-
 
 PANEL
 panel_root = {
