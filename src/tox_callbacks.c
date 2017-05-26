@@ -151,7 +151,7 @@ void callback_av_group_audio(void *tox, int groupnumber, int peernumber, const i
 
 static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE type, const uint8_t *data, size_t length,
                                   void *UNUSED(userdata)) {
-    uint32_t gid;
+    uint32_t gid = UINT32_MAX;
     if (type == TOX_CONFERENCE_TYPE_TEXT) {
         gid = tox_conference_join(tox, fid, data, length, NULL);
     } else if (type == TOX_CONFERENCE_TYPE_AV) {

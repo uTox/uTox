@@ -844,7 +844,7 @@ void utox_audio_thread(void *args) {
                         //LOG_INFO("uTox Audio", "We are in a groupchat.");
                         for (size_t i = 0; i < num_chats; ++i) {
                             if (groups_audio[chats[i]]) {
-                                //LOG_INFO("uTox Audio", "Sending audio in groupchat %u", i);
+                                LOG_INFO("uTox Audio", "Sending audio in groupchat %u", chats[i]);
                                 toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe,
                                                        UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
                             }
@@ -935,7 +935,7 @@ void group_av_peer_add(GROUPCHAT *g, int peernumber) {
         return;
     }
 
-    LOG_INFO("uTox Audio", "Adding peer %u to group %u", peernumber, g->number);
+    LOG_INFO("uTox Audio", "Adding source for peer %u in group %u", peernumber, g->number);
     alGenSources(1, &g->source[peernumber]);
 }
 
@@ -945,6 +945,6 @@ void group_av_peer_remove(GROUPCHAT *g, int peernumber) {
         return;
     }
 
-    LOG_INFO("uTox Audio", "Deleting peer %u from group %u", peernumber, g->number);
+    LOG_INFO("uTox Audio", "Deleting source for peer %u in group %u", peernumber, g->number);
     alDeleteSources(1, &g->source[peernumber]);
 }
