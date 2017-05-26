@@ -30,6 +30,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     FRIEND *f = get_friend(friend_number);
     if (!f) {
         LOG_ERR("Windows7", "Could not get friend with number: %u", friend_number);
+        free(path);
         return;
     }
 
@@ -65,6 +66,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     } else {
         LOG_ERR("Windows7", "Unable to open file and export chatlog.");
     }
+    free(path);
 }
 
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {

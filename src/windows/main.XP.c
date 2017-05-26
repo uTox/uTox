@@ -59,6 +59,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     } else {
         LOG_TRACE("WinXP", "GetSaveFileName() failed" );
     }
+    free(path);
 }
 
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
@@ -100,7 +101,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
     if (settings.portable_mode) {
         utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path));
-    } else if (SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, autoaccept_folder) != S_OK) {
+    } else if (SHGetFolderPathW(NULL, CSIDL_DESKTOP, NULL, 0, autoaccept_folder) != S_OK) {
         LOG_ERR("WinXP", "Unable to get auto accept file folder!");
         free(autoaccept_folder);
         return;
@@ -146,7 +147,7 @@ void launch_at_startup(bool should) {
             path[path_length + 1] = '\"';
             path[path_length + 2] = '\0';
             path_length += 2;
-            uint16_t ret = RegSetValueExW(hKey, L"uTox", NULL, REG_SZ, (uint8_t *)path, path_length * 2); /*2 bytes per wchar_t */
+            uint16_t ret = RegSetValueExW(hKey, L"uTox", 0, REG_SZ, (uint8_t *)path, path_length * 2); /*2 bytes per wchar_t */
             if (ret == ERROR_SUCCESS) {
                 LOG_TRACE("WinXP", "Successful auto start addition." );
             }
