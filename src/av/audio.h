@@ -81,6 +81,8 @@ void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data
 
 void utox_audio_thread(void *args);
 
-extern bool groups_audio[512];
+#define MAX_GROUP_CALLS 512
+
+extern bool groups_audio[MAX_GROUP_CALLS]; //TODO: make this dynamic
 
 #endif

@@ -536,7 +536,7 @@ void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data
     audio_thread_msg = 1;
 }
 
-bool groups_audio[512] = {0};
+bool groups_audio[MAX_GROUP_CALLS] = {0};
 
 // TODO: This function is 300 lines long. Cut it up.
 void utox_audio_thread(void *args) {
@@ -618,6 +618,8 @@ void utox_audio_thread(void *args) {
                     if (!g->audio_dest) {
                         utox_audio_out_device_open();
                         audio_source_init(&g->audio_dest);
+                        speakers_count++;
+                        microphone_count++;
                     }
                     break;
                 }
@@ -632,6 +634,8 @@ void utox_audio_thread(void *args) {
                         audio_source_term(&g->audio_dest);
                         g->audio_dest = 0;
                         utox_audio_out_device_close();
+                        speakers_count--;
+                        microphone_count--;
                     }
                     break;
                 }
@@ -844,7 +848,7 @@ void utox_audio_thread(void *args) {
                         //LOG_INFO("uTox Audio", "We are in a groupchat.");
                         for (size_t i = 0; i < num_chats; ++i) {
                             if (groups_audio[chats[i]]) {
-                                LOG_INFO("uTox Audio", "Sending audio in groupchat %u", chats[i]);
+                                //LOG_INFO("uTox Audio", "Sending audio in groupchat %u", chats[i]);
                                 toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe,
                                                        UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
                             }
@@ -895,7 +899,7 @@ void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber,
     g->last_recv_audio[peernumber] = time;
 
     if(!channels || channels > 2 || g->muted) {
-        LOG_ERR("uTox Audio", "Can continue.");
+        LOG_ERR("uTox Audio", "Can't continue.");
         return;
     }
 
