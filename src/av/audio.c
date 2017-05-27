@@ -557,7 +557,7 @@ static void generate_tone_friend_new_msg() { generate_melody(friend_new_msg, 1, 
 static void generate_tone_friend_request() { generate_melody(friend_request, 1, 8, &ToneBuffer); }
 
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
-    while (audio_thread_msg) {
+    while (audio_thread_msg && utox_audio_thread_init) {
         yieldcpu(1);
     }
 
@@ -610,7 +610,7 @@ void utox_audio_thread(void *args) {
     unsigned int preview_buffer_index = 0;
     bool preview_on = false;
 
-    utox_audio_thread_init = 1;
+    utox_audio_thread_init = true;
     while (1) {
         if (audio_thread_msg) {
             const TOX_MSG *m = &audio_msg;
@@ -918,7 +918,7 @@ void utox_audio_thread(void *args) {
     while (audio_out_device_close());
 
     audio_thread_msg       = 0;
-    utox_audio_thread_init = 0;
+    utox_audio_thread_init = true;
     free(preview_buffer);
     LOG_TRACE("uTox Audio", "Clean thread exit!");
 }
