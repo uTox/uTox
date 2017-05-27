@@ -142,7 +142,7 @@ static void button_group_audio_on_mup(void) {
         return;
     }
 
-    if (g->audio_calling) {
+    if (g->active_call) {
         postmessage_toxcore(TOX_GROUP_AUDIO_END, g->number, 0, NULL);
     } else {
         postmessage_toxcore(TOX_GROUP_AUDIO_START, g->number, 0, NULL);
@@ -159,7 +159,7 @@ static void button_group_audio_update(BUTTON *b) {
 
     if (g->av_group) {
         b->disabled = false;
-        if (g->audio_calling) {
+        if (g->active_call) {
             button_setcolors_danger(b);
         } else {
             button_setcolors_success(b);

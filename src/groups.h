@@ -23,29 +23,30 @@ typedef struct group_peer {
 } GROUP_PEER;
 
 typedef struct groupchat {
-    bool     audio_calling, unread_msg;
+    uint16_t number;
+    bool av_group;
     uint32_t our_peer_number;
 
-    uint8_t number;
-    uint8_t av_group;
+    bool unread_msg;
+
+    bool active_call;
+    bool muted;
+    ALuint audio_dest;
+    /* Audio sources */
+    unsigned int source[UTOX_MAX_GROUP_PEERS];
+    /* TODO: thread safety (This should work fine but it isn't very clean.) */
+    volatile uint64_t last_recv_audio[UTOX_MAX_GROUP_PEERS];
 
     GNOTIFY_TYPE notify;
 
-    bool   muted;
-    ALuint audio_dest;
-
     char     name[128];
     uint16_t name_length;
+
     char     topic[256]; /* TODO magic numbers */
     uint16_t topic_length;
-    uint16_t typed_length;
 
     char *typed;
-
-    /* Audio sources */
-    unsigned int source[UTOX_MAX_GROUP_PEERS];
-    volatile uint64_t
-        last_recv_audio[UTOX_MAX_GROUP_PEERS]; /* TODO: thread safety (This should work fine but it isn't very clean.) */
+    uint16_t typed_length;
 
     MESSAGES      msg;
     EDIT_CHANGE **edit_history;
