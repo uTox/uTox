@@ -207,17 +207,23 @@ static bool audio_out_device_open(void) {
     alGenSources((ALuint)1, &preview);
     if ((error = alGetError()) != AL_NO_ERROR) {
         LOG_TRACE("uTox Audio", "Error generating source with err %x" , error);
+        speakers_on = false;
+        speakers_count = 0;
         return false;
     }
     /* Create the buffers for incoming audio */
     alGenSources((ALuint)1, &ringtone);
     if ((error = alGetError()) != AL_NO_ERROR) {
         LOG_TRACE("uTox Audio", "Error generating source with err %x" , error);
+        speakers_on = false;
+        speakers_count = 0;
         return false;
     }
     alGenSources((ALuint)1, &notifytone);
     if ((error = alGetError()) != AL_NO_ERROR) {
         LOG_TRACE("uTox Audio", "Error generating source with err %x" , error);
+        speakers_on = false;
+        speakers_count = 0;
         return false;
     }
 
@@ -249,15 +255,17 @@ static bool audio_out_device_close(void) {
     return false;
 }
 
-void utox_audio_out_device_set(ALCdevice *new_device) {
+bool utox_audio_out_device_set(ALCdevice *new_device) {
     if (new_device) {
         audio_out_device = new_device;
         LOG_TRACE("uTox Audio", "Audio out device changed." );
-    } else {
-        audio_out_device = NULL;
-        audio_out_handle = NULL;
-        LOG_TRACE("uTox Audio", "Audio in device set to null." );
+        return true;
     }
+
+    audio_out_device = NULL;
+    audio_out_handle = NULL;
+    LOG_TRACE("uTox Audio", "Audio in device set to null." );
+    return false;
 }
 
 ALCdevice *utox_audio_out_device_get(void) {
@@ -619,10 +627,12 @@ void utox_audio_thread(void *args) {
                 case UTOXAUDIO_CHANGE_MIC: {
                     while (audio_in_ignore());
                     while (audio_in_device_close());
+
                     break;
                 }
                 case UTOXAUDIO_CHANGE_SPEAKER: {
                     while (audio_out_device_close());
+
                     break;
                 }
                 case UTOXAUDIO_START_FRIEND: {

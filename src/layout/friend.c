@@ -465,8 +465,8 @@ BUTTON button_send_friend_request = {
 };
 
 BUTTON button_call_decline = {
-    .bm_fill          = BM_LBUTTON,
-    .bm_icon          = BM_DECLINE,
+    .bm_fill      = BM_LBUTTON,
+    .bm_icon      = BM_DECLINE,
     .icon_w       = _BM_LBICON_WIDTH,
     .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_decline_on_mup,

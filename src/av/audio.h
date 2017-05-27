@@ -66,7 +66,7 @@ typedef uint8_t Filter_Audio;
 bool utox_audio_in_device_set(ALCdevice *new_device);
 ALCdevice *utox_audio_in_device_get(void);
 
-void utox_audio_out_device_set(ALCdevice *new_device);
+bool utox_audio_out_device_set(ALCdevice *new_device);
 // utox_audio_out_device_get is unused. Delete?
 ALCdevice *utox_audio_out_device_get(void);
 
