@@ -70,12 +70,17 @@
             AVCaptureDevice *dev = [[ad getCaptureDeviceFromHandle:video_dev_handle] retain];
 
             if (!dev) {
+                LOG_TRACE("uTox Video", "Unable to find video device!");
                 return nil;
             }
 
             NSError *       error = NULL;
             AVCaptureInput *input = [[AVCaptureDeviceInput alloc] initWithDevice:dev error:&error];
             [_session beginConfiguration];
+            if (!input) {
+                LOG_TRACE("uTox Video", "Unable to open video device!");
+                return nil;
+            }
             [_session addInput:input];
             _session.sessionPreset = AVCaptureSessionPreset640x480;
             [_session commitConfiguration];
