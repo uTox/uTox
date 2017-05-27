@@ -102,10 +102,10 @@ static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
             break;
         }
 
-		case Button2: {
-			pasteprimary();
-			break;
-		}
+        case Button2: {
+            pasteprimary();
+            break;
+        }
 
         case Button3: {
             if (pointergrab) {
