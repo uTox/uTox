@@ -295,7 +295,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
                 return 0;
             }
         } else {
-            LOG_INFO("Toxcore", "Using unencrypted save file; this could be insecure!");
+            LOG_INFO("Toxcore", "Using unencrypted save file");
             options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
             options->savedata_data   = raw_data;
             options->savedata_length = raw_length;
