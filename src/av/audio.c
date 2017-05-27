@@ -120,7 +120,7 @@ static bool audio_in_listen(void) {
     }
 
     microphone_on    = false;
-    microphone_count = 1;
+    microphone_count = 0;
     return false;
 
 }
@@ -197,12 +197,8 @@ static bool audio_out_device_open(void) {
         return false;
     }
 
-    speakers_on = true;
-    speakers_count++;
-
     ALint error;
     alGetError(); /* clear errors */
-
     /* Create the buffers for the ringtone */
     alGenSources((ALuint)1, &preview);
     if ((error = alGetError()) != AL_NO_ERROR) {
@@ -227,6 +223,8 @@ static bool audio_out_device_open(void) {
         return false;
     }
 
+    speakers_on = true;
+    speakers_count = 1;
     return true;
 }
 
@@ -573,9 +571,7 @@ void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data
 
 // TODO: This function is 300 lines long. Cut it up.
 void utox_audio_thread(void *args) {
-    time_t close_device_in = 0;
-    time_t currtime        = 0;
-
+    time_t close_device_time = 0;
     ToxAV *av = args;
 
     #ifdef AUDIO_FILTERING
@@ -616,13 +612,13 @@ void utox_audio_thread(void *args) {
 
     utox_audio_thread_init = 1;
     while (1) {
-        time(&currtime);
         if (audio_thread_msg) {
             const TOX_MSG *m = &audio_msg;
             if (!m->msg) {
                 break;
             }
 
+            int call_ringing = 0;
             switch (m->msg) {
                 case UTOXAUDIO_CHANGE_MIC: {
                     while (audio_in_ignore());
@@ -638,10 +634,10 @@ void utox_audio_thread(void *args) {
                 case UTOXAUDIO_START_FRIEND: {
                     FRIEND *f = get_friend(m->param1);
                     if (!f->audio_dest) {
-                        audio_out_device_open();
-                        audio_in_listen();
                         audio_source_init(&f->audio_dest);
                     }
+                    audio_out_device_open();
+                    audio_in_listen();
                     break;
                 }
                 case UTOXAUDIO_STOP_FRIEND: {
@@ -649,9 +645,9 @@ void utox_audio_thread(void *args) {
                     if (f->audio_dest) {
                         audio_source_raze(&f->audio_dest);
                         f->audio_dest = 0;
-                        audio_out_device_close();
-                        audio_in_ignore();
                     }
+                    audio_in_ignore();
+                    audio_out_device_close();
                     break;
                 }
                 case UTOXAUDIO_GROUPCHAT_START: {
@@ -663,10 +659,10 @@ void utox_audio_thread(void *args) {
 
                     if (!g->audio_dest) {
                         audio_source_init(&g->audio_dest);
-
-                        audio_out_device_open();
-                        audio_in_listen();
                     }
+
+                    audio_out_device_open();
+                    audio_in_listen();
                     break;
                 }
                 case UTOXAUDIO_GROUPCHAT_STOP: {
@@ -679,21 +675,22 @@ void utox_audio_thread(void *args) {
                     if (g->audio_dest) {
                         audio_source_raze(&g->audio_dest);
                         g->audio_dest = 0;
-                        audio_out_device_close();
-                        audio_in_ignore();
                     }
+
+                    audio_in_ignore();
+                    audio_out_device_close();
                     break;
                 }
                 case UTOXAUDIO_START_PREVIEW: {
+                    preview_on = true;
                     audio_out_device_open();
                     audio_in_listen();
-                    preview_on = true;
                     break;
                 }
                 case UTOXAUDIO_STOP_PREVIEW: {
                     preview_on = false;
-                    audio_out_device_close();
                     audio_in_ignore();
+                    audio_out_device_close();
                     break;
                 }
                 case UTOXAUDIO_PLAY_RINGTONE: {
@@ -708,12 +705,15 @@ void utox_audio_thread(void *args) {
                         alSourcei(ringtone, AL_BUFFER, RingBuffer);
 
                         alSourcePlay(ringtone);
+                        call_ringing++;
                     }
                     break;
                 }
                 case UTOXAUDIO_STOP_RINGTONE: {
+                    call_ringing--;
                     LOG_INFO("uTox Audio", "Going to stop ringtone!" );
                     alSourceStop(ringtone);
+                    yieldcpu(5);
                     audio_out_device_close();
                     break;
                 }
@@ -721,7 +721,7 @@ void utox_audio_thread(void *args) {
                     if (settings.ringtone_enabled && self.status == USER_STATUS_AVAILABLE) {
                         LOG_INFO("uTox Audio", "Going to start notification tone!" );
 
-                        if (close_device_in <= currtime) {
+                        if (close_device_time <= time(NULL)) {
                             audio_out_device_open();
                         }
 
@@ -749,8 +749,8 @@ void utox_audio_thread(void *args) {
 
                         alSourcePlay(notifytone);
 
-                        time(&close_device_in);
-                        close_device_in += 4;
+                        time(&close_device_time);
+                        close_device_time += 10;
                         LOG_INFO("uTox Audio", "close device set!" );
                     }
                     break;
@@ -761,10 +761,10 @@ void utox_audio_thread(void *args) {
             }
             audio_thread_msg = 0;
 
-            if (close_device_in && close_device_in <= currtime) {
+            if (close_device_time && time(NULL) >= close_device_time) {
                 LOG_INFO("uTox Audio", "close device triggered!" );
                 audio_out_device_close();
-                close_device_in = 0;
+                close_device_time = 0;
             }
         }
 
