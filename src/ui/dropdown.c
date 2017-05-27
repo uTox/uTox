@@ -244,7 +244,7 @@ STRING *dropdown_list_ondisplay(uint16_t i, const DROPDOWN *dm) {
 // Generic display function for simple dropdowns,
 // userdata of which is a simple array of UI_STRING_IDs.
 STRING *simple_dropdown_ondisplay(uint16_t i, const DROPDOWN *dm) {
-    return SPTRFORLANG(LANG, ((UTOX_I18N_STR *)dm->userdata)[i]);
+    return SPTRFORLANG(settings.language, ((UTOX_I18N_STR *)dm->userdata)[i]);
 }
 
 /***** simple localized dropdown menu end *****/

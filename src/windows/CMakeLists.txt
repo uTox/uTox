@@ -24,6 +24,7 @@ add_library(utoxNATIVE STATIC
     notify.c
     os_video.c
     screen_grab.c
+    utf8.c
     video.c
     window.c
 

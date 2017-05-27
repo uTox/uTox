@@ -5,9 +5,9 @@
 #include "../src/sized_string.h"
 
 typedef enum {
+    LANG_EN,
     LANG_BG,
     LANG_DE,
-    LANG_EN,
     LANG_ES,
     LANG_FR,
     LANG_HI, // 5

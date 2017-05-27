@@ -580,6 +580,7 @@ static void switchfxn_autoaccept_ft(void) {
     FRIEND *f = flist_get_friend();
     if (f) {
         f->ft_autoaccept = !f->ft_autoaccept;
+        utox_write_metadata(f);
     }
 }
 

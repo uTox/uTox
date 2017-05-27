@@ -100,7 +100,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
 
     FILE *file = chatlog_get_file(hex, false);
     if (!file) {
-        LOG_TRACE("Chatlog", "Log read:\tUnable to access file provided." );
+        LOG_TRACE("Chatlog", "Log read:\tUnable to access file provided.");
         return NULL;
     }
 
@@ -108,7 +108,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
         count = records_count - skip;
     }
 
-    MSG_HEADER **data = calloc(count + 1, sizeof(MSG_HEADER));
+    MSG_HEADER **data = calloc(count + 1, sizeof(MSG_HEADER *));
     MSG_HEADER **start = data;
 
     if (!data) {
@@ -152,6 +152,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
             if (!msg) {
                 LOG_ERR("Chatlog", "Unable to malloc... sorry!");
+                free(start);
                 fclose(file);
                 return NULL;
             }
@@ -168,7 +169,6 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
                 LOG_ERR("Chatlog", "Unable to malloc for via.txt.msg... sorry!");
                 free(start);
                 free(msg);
-                free(data);
                 fclose(file);
                 return NULL;
             }

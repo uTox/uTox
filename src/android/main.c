@@ -20,6 +20,7 @@
 #include "../layout/background.h"
 
 #include "../native/keyboard.h"
+#include "../native/notify.h"
 
 #include <pthread.h>
 #include <stdint.h>
@@ -33,7 +34,8 @@
 
 #include <android/native_activity.h>
 
-static volatile bool destroy, focused;
+static volatile bool destroy;
+bool have_focus = false;
 
 static bool shift;
 
@@ -664,7 +666,7 @@ static void android_main(struct android_app *state) {
             }
         }
 
-        if (window != NULL && focused) {
+        if (window != NULL && have_focus) {
             utox_android_redraw_window();
         }
 
@@ -737,7 +739,7 @@ static void onNativeWindowDestroyed(ANativeActivity *act, ANativeWindow *win) {
 }
 
 static void onWindowFocusChanged(ANativeActivity *act, int focus) {
-    focused = (focus != 0);
+    have_focus = (focus != 0);
 }
 
 static void onInputQueueCreated(ANativeActivity *act, AInputQueue *queue) {

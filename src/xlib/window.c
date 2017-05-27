@@ -79,6 +79,7 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
     XClassHint *class_hints = XAllocClassHint();
     if (!size_hints || !wm_hints || !class_hints) {
         LOG_ERR("XLIB Wind", "XLIB_Windows: couldn't allocate memory.");
+        free(window);
         return NULL;
     }
 
@@ -127,6 +128,10 @@ void native_window_raze(UTOX_WINDOW *window) {
 UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **UNUSED(argv), int UNUSED(argc)) {
     char *title = calloc(1, 256); // TODO there's a better way to do this
                                   // and leaks
+    if (!title){
+        LOG_FATAL_ERR(EXIT_FAILURE, "XLIB Wind", "Unable to create main window.");
+    }
+
     snprintf(title, 256, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 
     if (!native_window_create(&main_window, title, CWBackPixmap | CWBorderPixel | CWEventMask,
