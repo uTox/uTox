@@ -133,7 +133,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
 
     if (!fp) {
         if (opts > UTOX_FILE_OPTS_READ) {
-            LOG_NOTE("WinFilesys", "Could not open %S for writing.", path);
+            LOG_NOTE("WinFilesys", "Could not open %s for writing.", path);
         }
 
         return NULL;

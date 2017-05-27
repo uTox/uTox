@@ -157,7 +157,7 @@ void launch_at_startup(bool should) {
             path_length += 2;
 
             // 2 bytes per wchar_t
-            uint16_t ret = RegSetKeyValueW(hKey, NULL, "uTox", REG_SZ, path, path_length * 2);
+            uint16_t ret = RegSetKeyValueW(hKey, NULL, L"uTox", REG_SZ, path, path_length * 2);
             if (ret != ERROR_SUCCESS) {
                 LOG_ERR("Windows7", "Unable to set Registry key for startup.");
             }
