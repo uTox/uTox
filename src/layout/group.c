@@ -386,8 +386,8 @@ static void e_chat_msg_ontab(EDIT *edit) {
     }
 }
 
-void e_chat_msg_onenter(EDIT *edit) {
-    char *   text   = edit->data;
+void e_group_msg_onenter(EDIT *edit) {
+    char *text = edit->data;
     uint16_t length = edit->length;
 
     if (length <= 0) {
@@ -395,7 +395,8 @@ void e_chat_msg_onenter(EDIT *edit) {
     }
 
     uint16_t command_length = 0; //, argument_length = 0;
-    char *   command = NULL, *argument = NULL;
+    char *command = NULL;
+    char *argument = NULL;
 
     command_length = utox_run_command(text, length, &command, &argument, 1);
 
@@ -433,6 +434,8 @@ void e_chat_msg_onenter(EDIT *edit) {
         }
         memcpy(d, text, length);
         postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), g->number, length, d);
+    } else {
+        LOG_ERR("Groups", "No Group selected!");
     }
 
     completion.active = 0;
@@ -482,7 +485,7 @@ EDIT edit_chat_msg_group = {
     .multiline   = true,
     .maxlength   = sizeof e_chat_msg_group_data - 1,
     .data        = e_chat_msg_group_data,
-    .onenter     = e_chat_msg_onenter,
+    .onenter     = e_group_msg_onenter,
     .ontab       = e_chat_msg_ontab,
     .onshifttab  = e_chat_msg_onshifttab,
     .onlosefocus = edit_msg_onlosefocus,
@@ -515,57 +518,9 @@ EDIT edit_group_topic = {
     .empty_str      = {.plain = STRING_INIT("") },
 };
 
-void e_msg_onenter_group(EDIT *edit) {
-    char *text   = edit->data;
-    uint16_t length = edit->length;
-
-    if (length <= 0) {
-        return;
-    }
-
-    char *command = NULL, *argument = NULL;
-    uint16_t command_length = utox_run_command(text, length, &command, &argument, 1);
-
-    // TODO: Magic number
-    if (command_length == UINT16_MAX) {
-        edit->length = 0;
-        return;
-    }
-
-    bool action = false;
-    if (command_length) {
-        length = length - command_length - 2; /* first / and then the SPACE */
-        text   = argument;
-        if ((command_length == 2) && (!memcmp(command, "me", 2))) {
-            if (argument) {
-                action = true;
-            } else {
-                return;
-            }
-        }
-    }
-
-    if (!text) {
-        return;
-    }
-
-    GROUPCHAT *g = flist_get_groupchat();
-    if (g) {
-        void *d = malloc(length);
-        if (!d) {
-            return;
-        }
-        memcpy(d, text, length);
-        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), g->number, length, d);
-    }
-
-    completion.active = 0;
-    edit->length      = 0;
-}
-
 static void button_chat_send_on_mup(void) {
     if (flist_get_type() == ITEM_GROUP) {
-        e_msg_onenter_group(&edit_chat_msg_group);
+        e_group_msg_onenter(&edit_chat_msg_group);
         // reset focus to the chat window on send to prevent segfault. May break on android.
         edit_setfocus(&edit_chat_msg_group);
     }

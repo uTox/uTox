@@ -1036,7 +1036,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             int g_num = -1;
 
             TOX_ERR_CONFERENCE_NEW error = 0;
-            if (param1) {
+            if (param2) {
                 // TODO FIX THIS AFTER NEW GROUP API
                 g_num = toxav_add_av_groupchat(tox, callback_av_group_audio, NULL);
             } else {
@@ -1044,16 +1044,37 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
 
             if (g_num != -1) {
-                if (group_create(g_num, param2)) {
-                    postmessage_utox(GROUP_ADD, g_num, param2, NULL);
+                GROUPCHAT *g = get_group(g_num);
+                if (!g) {
+                    if (!group_create(g_num, param2)) {
+                        LOG_ERR("Tox", "Failed creating group %u", g_num);
+                        break;
+                    }
                 } else {
-                    LOG_ERR("Tox", "Failed creating group %u", g_num);
+                    group_init(g, g_num, param2);
                 }
+                postmessage_utox(GROUP_ADD, g_num, param2, NULL);
             }
+
+            uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
+            tox_conference_peer_get_public_key(tox, g_num, 0, pkey, NULL);
+            uint64_t pkey_to_number = 0;
+            int      key_i          = 0;
+            for (; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
+                pkey_to_number += pkey[key_i];
+            }
+            srand(pkey_to_number);
+            uint32_t name_color = RGB(rand(), rand(), rand());
+
+            group_peer_add(get_group(g_num), 0, 1, name_color);
+            group_peer_name_change(get_group(g_num), 0, (const uint8_t*)self.name, self.name_length);
+            postmessage_utox(GROUP_PEER_ADD, g_num, 0, NULL);
+
             save_needed = true;
             break;
         }
         case TOX_GROUP_JOIN: {
+            break;
         }
         case TOX_GROUP_PART: {
             /* param1: group #

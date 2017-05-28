@@ -983,7 +983,7 @@ void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber,
     alGetSourcei(g->source[peernumber], AL_SOURCE_STATE, &state);
     if (state != AL_PLAYING) {
         alSourcePlay(g->source[peernumber]);
-        LOG_TRACE("uTox Audio", "Starting source %i %i" , groupnumber, peernumber);
+        LOG_DEBUG("uTox Audio", "Starting source %i %i" , groupnumber, peernumber);
     }
 }
 
