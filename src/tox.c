@@ -802,8 +802,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             // Check if user has switched to another friend window chat.
             // Take care not to react on obsolete data from old Tox instance.
-            bool need_resetting =
-                (typing_state.tox == tox) && (typing_state.friendnumber != param1) && (typing_state.sent_value);
+            bool need_resetting = (typing_state.tox == tox)
+                               && (typing_state.friendnumber != param1)
+                               && (typing_state.sent_value);
 
             if (need_resetting) {
                 // Tell previous friend that he's betrayed.
@@ -1059,15 +1060,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
             tox_conference_peer_get_public_key(tox, g_num, 0, pkey, NULL);
             uint64_t pkey_to_number = 0;
-            int      key_i          = 0;
-            for (; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
+            for (int key_i = 0; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
                 pkey_to_number += pkey[key_i];
             }
             srand(pkey_to_number);
             uint32_t name_color = RGB(rand(), rand(), rand());
 
             group_peer_add(get_group(g_num), 0, 1, name_color);
-            group_peer_name_change(get_group(g_num), 0, (const uint8_t*)self.name, self.name_length);
+            group_peer_name_change(get_group(g_num), 0, (uint8_t *)self.name, self.name_length);
             postmessage_utox(GROUP_PEER_ADD, g_num, 0, NULL);
 
             save_needed = true;

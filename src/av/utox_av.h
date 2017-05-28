@@ -66,6 +66,7 @@ void set_av_callbacks(ToxAV *av);
 
 void callback_av_group_audio(void *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
                                     uint8_t channels, unsigned int sample_rate, void *userdata);
+
 void group_av_peer_add(GROUPCHAT *g, int peernumber);
 void group_av_peer_remove(GROUPCHAT *g, int peernumber);
 

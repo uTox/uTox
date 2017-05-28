@@ -626,13 +626,13 @@ void utox_audio_thread(void *args) {
             int call_ringing = 0;
             switch (m->msg) {
                 case UTOXAUDIO_CHANGE_MIC: {
-                    while (audio_in_ignore());
-                    while (audio_in_device_close());
+                    while (audio_in_ignore()) { continue; }
+                    while (audio_in_device_close()) { continue; }
 
                     break;
                 }
                 case UTOXAUDIO_CHANGE_SPEAKER: {
-                    while (audio_out_device_close());
+                    while (audio_out_device_close()) { continue; }
 
                     break;
                 }
@@ -921,8 +921,8 @@ void utox_audio_thread(void *args) {
     alDeleteSources(1, &preview);
     alDeleteBuffers(1, &RingBuffer);
 
-    while (audio_in_device_close());
-    while (audio_out_device_close());
+    while (audio_in_device_close()) { continue; }
+    while (audio_out_device_close()) {continue; }
 
     audio_thread_msg       = 0;
     utox_audio_thread_init = false;
