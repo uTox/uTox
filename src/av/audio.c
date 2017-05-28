@@ -61,17 +61,22 @@ static ALuint ringtone, preview, notifytone;
 
 static ALuint RingBuffer, ToneBuffer;
 
-static void audio_in_device_open(void) {
+static bool audio_in_device_open(void) {
     if (!audio_in_device) {
-        return;
+        return false;
     }
     if (audio_in_device == (void *)1) {
         audio_in_handle = (void *)1;
-        return;
+        return true;
     }
 
+    alGetError();
     audio_in_handle = alcCaptureOpenDevice(audio_in_device, UTOX_DEFAULT_SAMPLE_RATE_A, AL_FORMAT_MONO16,
                                            (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A * 4) / 1000);
+    if (alGetError() == AL_NO_ERROR) {
+        return true;
+    }
+    return false;
 }
 
 static bool audio_in_device_close(void) {
