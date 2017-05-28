@@ -152,6 +152,8 @@ void callback_av_group_audio(void *tox, int groupnumber, int peernumber, const i
 static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE type, const uint8_t *data, size_t length,
                                   void *UNUSED(userdata))
 {
+    LOG_NOTE("Tox Callbacks", "Group Invite (friend %i || type %u)", fid, type);
+
     uint32_t gid = UINT32_MAX;
     if (type == TOX_CONFERENCE_TYPE_TEXT) {
         gid = tox_conference_join(tox, fid, data, length, NULL);
@@ -171,7 +173,7 @@ static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE ty
         group_init(g, gid, true);
     }
 
-    LOG_TRACE("Tox Callbacks", "Group Invite (%i,f:%i) type %u" , gid, fid, type);
+    LOG_NOTE("Tox Callbacks", "auto join successful group number %u", gid);
     postmessage_utox(GROUP_ADD, gid, 0, tox);
 }
 
