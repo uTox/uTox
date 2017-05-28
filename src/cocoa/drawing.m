@@ -351,31 +351,20 @@ void setscale_fonts(void) {
     for (int i = 0; i < sizeof(fonts) / sizeof(CTFontRef); ++i) {
         RELEASE_CHK(CFRelease, fonts[i]);
     }
-
-    NSString *fontnames[] = {@".SFNSText", @"HelveticaNeue", @"LucidaGrande", @"Arial"};
-    NSFont *font;
-
-    for (size_t i = 0; i < sizeof(fontnames); i++) {
-        font = [NSFont fontWithName:fontnames[i] size:12.0];
-        if (font) { // Test for font existence
-            LOG_TRACE("OSX Drawing", "Using %s fontfamily", fontnames[i].UTF8String);
-            CFStringRef reg = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s-Regular"), fontnames[i].UTF8String);
-            CFStringRef bold = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s-Bold"), fontnames[i].UTF8String);
-            fonts[FONT_TEXT] = CTFontCreateWithNameAndOptions(reg, SCALE(12.0), NULL, kCTFontOptionsDefault);
-            fonts[FONT_STATUS]    = CTFontCreateWithNameAndOptions(reg, SCALE(11.0), NULL, kCTFontOptionsDefault);
-            fonts[FONT_LIST_NAME] = CTFontCreateWithNameAndOptions(reg, SCALE(12.0), NULL, kCTFontOptionsDefault);
-            fonts[FONT_TITLE]     = CTFontCreateWithNameAndOptions(bold, SCALE(12.0), NULL, kCTFontOptionsDefault);
-            fonts[FONT_SELF_NAME] = CTFontCreateWithNameAndOptions(bold, SCALE(14.0), NULL, kCTFontOptionsDefault);
-            fonts[FONT_MISC]      = CTFontCreateWithNameAndOptions(bold, SCALE(10.0), NULL, kCTFontOptionsDefault);
-            CFRelease(reg);
-            CFRelease(bold);
-            break;
-        }
-    }
     
-#undef COCOA_BASE_FONT_NEW
-#undef COCOA_BASE_FONT_OLD
-
+    CFStringRef reg = (CFStringRef) [NSFont systemFontOfSize:0.0].fontName;
+    CFStringRef bold = (CFStringRef) [NSFont boldSystemFontOfSize:0.0].fontName;
+    LOG_TRACE("OSX Drawing", "Using %s fontfamily", CFStringGetCStringPtr(reg, kCFStringEncodingUTF8));
+    
+    fonts[FONT_TEXT] = CTFontCreateWithNameAndOptions(reg, SCALE(12.0), NULL, kCTFontOptionsDefault);
+    fonts[FONT_STATUS] = CTFontCreateWithNameAndOptions(reg, SCALE(11.0), NULL, kCTFontOptionsDefault);
+    fonts[FONT_LIST_NAME] = CTFontCreateWithNameAndOptions(reg, SCALE(12.0), NULL, kCTFontOptionsDefault);
+    fonts[FONT_TITLE] = CTFontCreateWithNameAndOptions(bold, SCALE(12.0), NULL, kCTFontOptionsDefault);
+    fonts[FONT_SELF_NAME] = CTFontCreateWithNameAndOptions(bold, SCALE(14.0), NULL, kCTFontOptionsDefault);
+    fonts[FONT_MISC] = CTFontCreateWithNameAndOptions(bold, SCALE(10.0), NULL, kCTFontOptionsDefault);
+    CFRelease(reg);
+    CFRelease(bold);
+    
     AT_LEAST_ELCAPITAN_DO {
         font_small_lineheight = CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height;
     }
