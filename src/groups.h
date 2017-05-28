@@ -24,11 +24,11 @@ typedef struct group_peer {
 
 typedef struct groupchat {
     uint16_t number;
-    bool av_group;
     uint32_t our_peer_number;
 
     bool unread_msg;
 
+    bool av_group;
     bool active_call;
     bool muted;
     ALuint audio_dest;

@@ -136,12 +136,10 @@ void utox_av_ctrl_thread(void *args) {
                         break;
                     }
 
-                    if (g->active_call) {
-                        LOG_INFO("uToxAv", "Ending group call in groupchat %u", msg->param1);
-                        postmessage_audio(UTOXAUDIO_GROUPCHAT_STOP, msg->param1, msg->param2, NULL);
-                        postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
-                        call_count--;
-                    }
+                    LOG_INFO("uToxAv", "Ending group call in groupchat %u", msg->param1);
+                    postmessage_audio(UTOXAUDIO_GROUPCHAT_STOP, msg->param1, msg->param2, NULL);
+                    postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
+                    call_count--;
                     break;
                 }
 

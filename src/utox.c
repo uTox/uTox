@@ -677,12 +677,10 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 return;
             }
 
-            if (g->av_group) {
-                LOG_INFO("uTox", "We are in an audio group ending call.");
-                g->active_call = false;
-                postmessage_utoxav(UTOXAV_GROUPCALL_END, param1, 0, NULL);
-                redraw();
-            }
+            LOG_INFO("uTox", "We are in an audio group ending call.");
+            g->active_call = false;
+            postmessage_utoxav(UTOXAV_GROUPCALL_END, param1, 0, NULL);
+            redraw();
             break;
         }
 

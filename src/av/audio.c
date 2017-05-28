@@ -656,6 +656,7 @@ void utox_audio_thread(void *args) {
                     break;
                 }
                 case UTOXAUDIO_GROUPCHAT_START: {
+                    LOG_DEBUG("Audio", "Starting Groupchat Audio %u", m->param1);
                     GROUPCHAT *g = get_group(m->param1);
                     if (!g) {
                         LOG_ERR("uTox Audio", "Could not get group %u", m->param1);
@@ -671,6 +672,7 @@ void utox_audio_thread(void *args) {
                     break;
                 }
                 case UTOXAUDIO_GROUPCHAT_STOP: {
+                    LOG_DEBUG("Audio", "Stopping Groupchat Audio %u", m->param1);
                     GROUPCHAT *g = get_group(m->param1);
                     if (!g) {
                         LOG_ERR("uTox Audio", "Could not get group %u", m->param1);
@@ -897,7 +899,7 @@ void utox_audio_thread(void *args) {
                     if (num_chats) {
                         for (size_t i = 0 ; i < num_chats; ++i) {
                             if (get_group(i) && get_group(i)->active_call) {
-                                //LOG_INFO("uTox Audio", "Sending audio in groupchat %u", chats[i]);
+                                LOG_TRACE("uTox Audio", "Sending audio in groupchat %u", i);
                                 toxav_group_send_audio(tox, i, (int16_t *)buf, perframe,
                                                        UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
                             }
@@ -936,8 +938,12 @@ void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber,
         LOG_ERR("uTox Audio", "Could not get group with number: %i", groupnumber);
         return;
     }
-
     LOG_INFO("uTox Audio", "Received audio in groupchat %i from peer %i", groupnumber, peernumber);
+
+    if (!g->active_call) {
+        LOG_INFO("uTox Audio", "Packets for inactive call %u", groupnumber);
+        return;
+    }
 
     uint64_t time = get_time();
 
@@ -953,7 +959,7 @@ void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber,
     }
 
     if (g->muted) {
-        LOG_TRACE("uTox Audio", "Group %u audio muted.", groupnumber);
+        LOG_INFO("uTox Audio", "Group %u audio muted.", groupnumber);
         return;
     }
 
@@ -971,7 +977,7 @@ void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber,
     } else if(queued < 16) {
         alGenBuffers(1, &bufid);
     } else {
-        LOG_TRACE("uTox Audio", "dropped audio frame %i %i" , groupnumber, peernumber);
+        LOG_WARN("uTox Audio", "dropped audio frame %i %i" , groupnumber, peernumber);
         return;
     }
 
