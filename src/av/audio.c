@@ -659,7 +659,7 @@ void utox_audio_thread(void *args) {
                     GROUPCHAT *g = get_group(m->param1);
                     if (!g) {
                         LOG_ERR("uTox Audio", "Could not get group %u", m->param1);
-                        return;
+                        break;
                     }
 
                     if (!g->audio_dest) {
@@ -674,7 +674,7 @@ void utox_audio_thread(void *args) {
                     GROUPCHAT *g = get_group(m->param1);
                     if (!g) {
                         LOG_ERR("uTox Audio", "Could not get group %u", m->param1);
-                        return;
+                        break;
                     }
 
                     if (g->audio_dest) {

@@ -114,12 +114,14 @@ void utox_av_ctrl_thread(void *args) {
 
                     postmessage_audio(UTOXAUDIO_STOP_FRIEND, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
+                    break;
                 }
 
                 case UTOXAV_GROUPCALL_START: {
                     call_count++;
                     LOG_INFO("uToxAv", "Starting group call in groupchat %u", msg->param1);
-                    postmessage_audio(UTOXAUDIO_GROUPCHAT_START, msg->param1, msg->param2, NULL);                    break;
+                    postmessage_audio(UTOXAUDIO_GROUPCHAT_START, msg->param1, msg->param2, NULL);
+                    break;
                 }
 
                 case UTOXAV_GROUPCALL_END: {
@@ -140,6 +142,7 @@ void utox_av_ctrl_thread(void *args) {
                         postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                         call_count--;
                     }
+                    break;
                 }
 
                 case UTOXAV_START_AUDIO: {
