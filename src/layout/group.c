@@ -142,6 +142,7 @@ static void button_group_audio_on_mup(void) {
         return;
     }
 
+    // We have to take the long way around, because the UI shouldn't depend on AV
     if (g->active_call) {
         postmessage_toxcore(TOX_GROUP_AUDIO_END, g->number, 0, NULL);
     } else {
