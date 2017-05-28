@@ -923,7 +923,7 @@ void utox_audio_thread(void *args) {
     while (audio_out_device_close());
 
     audio_thread_msg       = 0;
-    utox_audio_thread_init = true;
+    utox_audio_thread_init = false;
     free(preview_buffer);
     LOG_TRACE("uTox Audio", "Clean thread exit!");
 }
