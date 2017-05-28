@@ -947,8 +947,13 @@ void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber,
 
     g->last_recv_audio[peernumber] = time;
 
-    if (!channels || channels > 2 || g->muted) {
-        LOG_ERR("uTox Audio", "Can't continue.");
+    if (channels < 1 || channels > 2) {
+        LOG_ERR("uTox Audio", "Can't continue, with channel > 2 or < 1.");
+        return;
+    }
+
+    if (g->muted) {
+        LOG_TRACE("uTox Audio", "Group %u audio muted.", groupnumber);
         return;
     }
 
