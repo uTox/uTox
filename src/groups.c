@@ -8,6 +8,7 @@
 #include "text.h"
 
 #include "av/audio.h"
+#include "av/utox_av.h"
 
 #include "native/notify.h"
 
@@ -174,6 +175,11 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
 
     g->peer[peer_id] = peer;
     g->peer_count++;
+
+    if (g->av_group) {
+        group_av_peer_add(g, peer_id); //add a source for the peer
+    }
+
     pthread_mutex_unlock(&messages_lock);
 }
 

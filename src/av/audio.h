@@ -78,5 +78,4 @@ void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data
 
 void utox_audio_thread(void *args);
 
-#define MAX_GROUP_CALLS 512
 #endif
