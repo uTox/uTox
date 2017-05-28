@@ -63,6 +63,13 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 }
 
 void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
+    LOG_INFO("Video", "video window id: %u", id);
+
+    if (id >= 32) {
+        LOG_ERR("Video", "id is too large. Got %u expected it to be less than 32", id);
+        return;
+    }
+
     Window *win = &video_win[id];
     if (*win) {
         return;

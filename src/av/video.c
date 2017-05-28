@@ -266,7 +266,7 @@ void utox_video_thread(void *args) {
                                 utox_video_frame.v, utox_video_frame.w, (utox_video_frame.w / 2),
                                 (utox_video_frame.w / 2), frame->img);
 
-                    postmessage_utox(AV_VIDEO_FRAME, UINT16_MAX, 1, (void *)frame);
+                    postmessage_utox(AV_VIDEO_FRAME, 0, 1, (void *)frame); // 0 for preview
                 }
 
                 size_t active_video_count = 0;
