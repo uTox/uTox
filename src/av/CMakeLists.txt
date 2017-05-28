@@ -4,6 +4,7 @@ add_library(utoxAV STATIC
     utox_av.c
     audio.c
     video.c
+    filter_audio.c
     )
 
 if(WIN32)

@@ -1,6 +1,7 @@
 #include "audio.h"
 
 #include "utox_av.h"
+#include "filter_audio.h"
 
 #include "../native/audio.h"
 #include "../native/keyboard.h"
@@ -566,8 +567,6 @@ void utox_audio_thread(void *args) {
     // utox_audio_out_device_open();
     // utox_audio_out_device_close();
 
-    Filter_Audio *f_a = NULL;
-
     #define PREVIEW_BUFFER_SIZE (UTOX_DEFAULT_SAMPLE_RATE_A / 2)
     int16_t *preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
     if (!preview_buffer) {
@@ -686,26 +685,7 @@ void utox_audio_thread(void *args) {
             }
         }
 
-        // TODO move this code to filter_audio.c
-        #ifdef AUDIO_FILTERING
-        if (!f_a && settings.audiofilter_enabled) {
-            f_a = new_filter_audio(UTOX_DEFAULT_SAMPLE_RATE_A);
-            if (!f_a) {
-                settings.audiofilter_enabled = false;
-                LOG_TRACE("uTox Audio", "filter audio failed" );
-            } else {
-                LOG_TRACE("uTox Audio", "filter audio on" );
-            }
-        } else if (f_a && !settings.audiofilter_enabled) {
-            kill_filter_audio(f_a);
-            f_a = NULL;
-            LOG_TRACE("uTox Audio", "filter audio off" );
-        }
-        #else
-        if (settings.audiofilter_enabled) {
-            settings.audiofilter_enabled = false;
-        }
-        #endif
+        filter_audio_check();
 
         bool sleep = true;
 
