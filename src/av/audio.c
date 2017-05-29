@@ -685,7 +685,7 @@ void utox_audio_thread(void *args) {
             }
         }
 
-        filter_audio_check();
+        settings.audiofilter_enabled = filter_audio_check();
 
         bool sleep = true;
 

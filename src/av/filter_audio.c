@@ -4,30 +4,31 @@
 
 #include "../settings.h"
 
+#include <stdbool.h>
+
 #ifdef AUDIO_FILTERING
 #include <filter_audio.h>
 #endif
 
 Filter_Audio *f_a = NULL;
 
-void filter_audio_check(void) {
+bool filter_audio_check(void) {
 #ifdef AUDIO_FILTERING
     if (!f_a && settings.audiofilter_enabled) {
         f_a = new_filter_audio(UTOX_DEFAULT_SAMPLE_RATE_A);
         if (!f_a) {
-            settings.audiofilter_enabled = false;
-            LOG_TRACE("Filter Audio", "filter audio failed" );
-        } else {
-            LOG_TRACE("Filter Audio", "filter audio on" );
+            LOG_INFO("Filter Audio", "filter audio failed" );
+            return false;
+        } else { // no return is needed for this one because it is already true
+            LOG_INFO("Filter Audio", "filter audio on" );
         }
-    } else if (f_a && !settings.audiofilter_enabled) {
+    } else if (f_a && !settings.audiofilter_enabled) { //no return is needed for this one because its already false
         kill_filter_audio(f_a);
         f_a = NULL;
-        LOG_TRACE("Filter Audio", "filter audio off" );
+        LOG_INFO("Filter Audio", "filter audio off" );
     }
+    return settings.audiofilter_enabled; //if there is no change return the current value
 #else
-    if (settings.audiofilter_enabled) {
-        settings.audiofilter_enabled = false;
-    }
+    return false;
 #endif
 }
