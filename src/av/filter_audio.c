@@ -19,9 +19,8 @@ bool filter_audio_check(void) {
         if (!f_a) {
             LOG_INFO("Filter Audio", "filter audio failed" );
             return false;
-        } else { // no return is needed for this one because it is already true
-            LOG_INFO("Filter Audio", "filter audio on" );
         }
+        LOG_INFO("Filter Audio", "filter audio on" );
     } else if (f_a && !settings.audiofilter_enabled) { //no return is needed for this one because its already false
         kill_filter_audio(f_a);
         f_a = NULL;
