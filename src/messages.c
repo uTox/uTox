@@ -943,8 +943,7 @@ static int messages_draw_group(MESSAGES *m, MSG_HEADER *msg, uint32_t curr_msg_i
            + MESSAGES_SPACING;
 }
 
-static void messages_time_change(MESSAGES *m, MSG_HEADER *msg, size_t index, int x, int y, int width, int height) {
-
+static int messages_time_change(MESSAGES *m, MSG_HEADER *msg, size_t index, int x, int y, int width, int height) {
     uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
 
     if ((m->sel_start_msg > index && m->sel_end_msg > index)
@@ -981,9 +980,9 @@ static void messages_time_change(MESSAGES *m, MSG_HEADER *msg, size_t index, int
         }
     }
 
-    y = messages_draw_text(msg->via.notice.msg, msg->via.notice.length, msg->height,
-                           msg->msg_type, msg->our_msg, msg->receipt_time,
-                           h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
+    return messages_draw_text(msg->via.notice.msg, msg->via.notice.length, msg->height,
+                              msg->msg_type, msg->our_msg, msg->receipt_time,
+                              h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
 }
 
 /** Formats all messages from self and friends, and then call draw functions
@@ -1093,11 +1092,11 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             case MSG_TYPE_NOTICE: {
                 // Draw timestamps
                 messages_draw_timestamp(x + width, y, &msg->time);
-                messages_time_change(m, msg, curr_msg_i, x, y, width, height);
+                y = messages_time_change(m, msg, curr_msg_i, x, y, width, height);
                 break;
             }
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
-                messages_time_change(m, msg, curr_msg_i, x, y, width, height);
+                y = messages_time_change(m, msg, curr_msg_i, x, y, width, height);
                 break;
             }
 
