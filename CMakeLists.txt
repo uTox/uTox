@@ -319,6 +319,8 @@ add_subdirectory(src/ui)
 # include utoxAV
 add_subdirectory(src/av)
 
+include_directories(SYSTEM src/stb)
+
 #######################################################################
 # :: uTox main
 #######################################################################
@@ -344,8 +346,6 @@ add_executable(utox ${GUI_TYPE}
     src/self.c
     src/settings.c
     src/sized_string.h
-    src/stb_image.h
-    src/stb_image_write.h
     src/text.c
     src/theme.c
     src/tox.c

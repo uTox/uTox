@@ -66,8 +66,8 @@ bool move_window_down; // When the mouse is currently down over the move_window_
                        // moving windows from inside uTox.
                        // seems to be unused?
 
-#include "stb_image.h"
-#include "stb_image_write.h"
+#include "stb/stb_image.h"
+#include "stb/stb_image_write.h"
 extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
 
 enum {
