@@ -327,6 +327,8 @@ add_subdirectory(src/ui)
 # include utoxAV
 add_subdirectory(src/av)
 
+include_directories(SYSTEM src/stb)
+
 #######################################################################
 # :: uTox main
 #######################################################################
