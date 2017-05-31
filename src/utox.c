@@ -437,7 +437,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         case FRIEND_MESSAGE: {
             // TODO implement notification
-            //notify_new(NULL, NULL); // Intentional fallthrough
+            //notify_new(NULL, NULL);
+            redraw();
+            break;
         }
         case FRIEND_MESSAGE_UPDATE: {
             redraw();
@@ -559,7 +561,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             video_frame(param1, frame->img, frame->w, frame->h, 0);
             free(frame->img);
             free(data);
-            // Intentional fall through
+            redraw();
+            break;
         }
         case AV_INLINE_FRAME: {
             redraw();

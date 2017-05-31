@@ -943,6 +943,49 @@ static int messages_draw_group(MESSAGES *m, MSG_HEADER *msg, uint32_t curr_msg_i
            + MESSAGES_SPACING;
 }
 
+static void messages_time_change(MESSAGES *m, MSG_HEADER *msg, size_t index, int x, int y, int width, int height) {
+
+    uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
+
+    if ((m->sel_start_msg > index && m->sel_end_msg > index)
+        || (m->sel_start_msg < index && m->sel_end_msg < index)) {
+        /* Out side the highlight area */
+        h1 = UINT32_MAX;
+        h2 = UINT32_MAX;
+    } else {
+        if (m->sel_start_msg < index) {
+            h1 = 0;
+        } else {
+            h1 = m->sel_start_position;
+        }
+
+        if (m->sel_end_msg > index) {
+            h2 = msg->via.notice.length;
+        } else {
+            h2 = m->sel_end_position;
+        }
+    }
+
+                /* error check */
+    if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
+        h1 = UINT32_MAX;
+        h2 = UINT32_MAX;
+    }
+
+    /* text.c is super broken, so we have to be hacky here */
+    if (h2 != msg->via.notice.length) {
+        if (m->sel_end_msg != index) {
+            h2 = msg->via.notice.length - h2;
+        } else {
+            h2 -= h1;
+        }
+    }
+
+    y = messages_draw_text(msg->via.notice.msg, msg->via.notice.length, msg->height,
+                           msg->msg_type, msg->our_msg, msg->receipt_time,
+                           h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
+}
+
 /** Formats all messages from self and friends, and then call draw functions
  * to write them to the UI.
  *
@@ -1050,49 +1093,11 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             case MSG_TYPE_NOTICE: {
                 // Draw timestamps
                 messages_draw_timestamp(x + width, y, &msg->time);
-                /* intentional fall through */
+                messages_time_change(m, msg, curr_msg_i, x, y, width, height);
+                break;
             }
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
-                // Normal message
-                uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
-
-                if ((m->sel_start_msg > curr_msg_i && m->sel_end_msg > curr_msg_i)
-                    || (m->sel_start_msg < curr_msg_i && m->sel_end_msg < curr_msg_i)) {
-                    /* Out side the highlight area */
-                    h1 = UINT32_MAX;
-                    h2 = UINT32_MAX;
-                } else {
-                    if (m->sel_start_msg < curr_msg_i) {
-                        h1 = 0;
-                    } else {
-                        h1 = m->sel_start_position;
-                    }
-
-                    if (m->sel_end_msg > curr_msg_i) {
-                        h2 = msg->via.notice.length;
-                    } else {
-                        h2 = m->sel_end_position;
-                    }
-                }
-
-                /* error check */
-                if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
-                    h1 = UINT32_MAX;
-                    h2 = UINT32_MAX;
-                }
-
-                /* text.c is super broken, so we have to be hacky here */
-                if (h2 != msg->via.notice.length) {
-                    if (m->sel_end_msg != curr_msg_i) {
-                        h2 = msg->via.notice.length - h2;
-                    } else {
-                        h2 -= h1;
-                    }
-                }
-
-                y = messages_draw_text(msg->via.notice.msg, msg->via.notice.length, msg->height,
-                                       msg->msg_type, msg->our_msg, msg->receipt_time,
-                                       h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
+                messages_time_change(m, msg, curr_msg_i, x, y, width, height);
                 break;
             }
 

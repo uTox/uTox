@@ -135,6 +135,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
 add_cflag("-Wall")
 add_cflag("-Wextra")
 add_cflag("-Wpointer-arith")
+add_cflag("-Wimplicit-fallthrough=5")
 
 ## Warnings we don't tolerate
 add_cflag("-Werror=implicit-function-declaration")
