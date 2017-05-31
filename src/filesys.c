@@ -11,7 +11,7 @@ FILE *utox_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
 }
 
 FILE *utox_get_file_simple(const char *name, UTOX_FILE_OPTS opts) {
-    return native_get_file_simple((uint8_t *)name, opts);
+    return native_get_file_simple(name, opts);
 }
 
 bool utox_remove_file(const uint8_t *full_name, size_t length) {

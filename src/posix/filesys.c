@@ -39,17 +39,17 @@ static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
     return;
 }
 
-FILE *native_get_file_simple(const uint8_t *path, UTOX_FILE_OPTS opts) {
+FILE *native_get_file_simple(const char *path, UTOX_FILE_OPTS opts) {
     char mode[4] = { 0 };
     opts_to_sysmode(opts, mode);
 
-    FILE *fp = fopen((char *)path, mode);
+    FILE *fp = fopen(path, mode);
 
     if (!fp && opts & UTOX_FILE_OPTS_READ && opts & UTOX_FILE_OPTS_WRITE) {
         LOG_WARN("POSIX", "Unable to simple open, falling back to fd" );
         // read wont create a file if it doesn't' already exist. If we're allowed to write, lets try
         // to create the file, then reopen it.
-        int fd = open((char *)path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        int fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         fp = fdopen(fd, mode);
     }
 
@@ -98,7 +98,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
         *p = push;
     }
 
-    FILE *fp = native_get_file_simple(path, opts);
+    FILE *fp = native_get_file_simple((char *)path, opts);
 
     if (fp == NULL) {
         LOG_TRACE("Filesys", "Could not open %s" , path);

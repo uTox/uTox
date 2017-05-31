@@ -1341,7 +1341,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     ft->current_size += length;
 }
 
-bool utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *file) {
+bool utox_file_start_write(uint32_t friend_number, uint32_t file_number, const char *file) {
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft || !file) {
         LOG_ERR("FileTransfer", "FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",

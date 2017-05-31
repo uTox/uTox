@@ -10,7 +10,7 @@ typedef struct file_transfer FILE_TRANSFER;
 
 FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bool portable_mode);
 
-FILE *native_get_file_simple(const uint8_t *name, UTOX_FILE_OPTS opts);
+FILE *native_get_file_simple(const char *name, UTOX_FILE_OPTS opts);
 
 /** given a filename, native_remove_file will delete that file from the local config dir */
 bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode);

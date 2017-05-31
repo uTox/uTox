@@ -43,11 +43,11 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
     return _fdopen(_open_osfhandle((intptr_t)winFile, 0), mode);
 }
 
-FILE *native_get_file_simple(const uint8_t *path, UTOX_FILE_OPTS opts) {
+FILE *native_get_file_simple(const char *path, UTOX_FILE_OPTS opts) {
     //TODO: Check for forbidden opts (only read, write and append allowed)
 
     wchar_t wide_path[UTOX_FILE_NAME_LENGTH] = { 0 };
-    utf8_to_nativestr((char *)path, wide_path, UTOX_FILE_NAME_LENGTH);
+    utf8_to_nativestr(path, wide_path, UTOX_FILE_NAME_LENGTH * 2);
 
     FILE *f = get_file(wide_path, opts);
 
@@ -129,7 +129,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
     }
 
 
-    FILE *fp = native_get_file_simple((uint8_t *)path, opts);
+    FILE *fp = native_get_file_simple(path, opts);
 
     if (!fp) {
         if (opts > UTOX_FILE_OPTS_READ) {

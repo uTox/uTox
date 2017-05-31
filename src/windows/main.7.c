@@ -21,23 +21,22 @@
 #include <io.h>
 
 void native_export_chatlog_init(uint32_t friend_number) {
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("Windows7", "Could not get friend with number: %u", friend_number);
+        return;
+    }
+
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!path){
         LOG_ERR("Windows7", " Could not allocate memory." );
         return;
     }
 
-    FRIEND *f = get_friend(friend_number);
-    if (!f) {
-        LOG_ERR("Windows7", "Could not get friend with number: %u", friend_number);
-        free(path);
-        return;
-    }
-
     snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length, f->name);
 
     wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
-    utf8_to_nativestr(path, filepath, UTOX_FILE_NAME_LENGTH);
+    utf8_to_nativestr(path, filepath, UTOX_FILE_NAME_LENGTH * 2);
 
     OPENFILENAMEW ofn = {
         .lStructSize = sizeof(OPENFILENAMEW),
@@ -76,7 +75,7 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     }
 
     wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
-    utf8_to_nativestr((char *)file->name, filepath, file->name_length);
+    utf8_to_nativestr((char *)file->name, filepath, file->name_length * 2);
 
     OPENFILENAMEW ofn = {
         .lStructSize = sizeof(OPENFILENAMEW),
@@ -92,7 +91,7 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
             return;
         }
 
-        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH);
+        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH * 2);
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, num, path);
     } else {
         LOG_ERR("Windows7", "Unable to Get save file for incoming FT.");
@@ -104,7 +103,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
     if (settings.portable_mode) {
         autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH * sizeof(wchar_t));
-        utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path));
+        utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path) * 2);
     } else if (SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads,
                                     KF_FLAG_CREATE, NULL, &autoaccept_folder) != S_OK) {
         LOG_ERR("Windows7", "Unable to get auto accept file folder!");
@@ -128,7 +127,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     }
 
     wchar_t filename[UTOX_FILE_NAME_LENGTH] = { 0 };
-    utf8_to_nativestr((char *)file->name, filename, file->name_length);
+    utf8_to_nativestr((char *)file->name, filename, file->name_length * 2);
 
     wchar_t fullpath[UTOX_FILE_NAME_LENGTH] = { 0 };
     swprintf(fullpath, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", subpath, filename);

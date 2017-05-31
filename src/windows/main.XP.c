@@ -15,22 +15,22 @@
 #include <io.h>
 
 void native_export_chatlog_init(uint32_t friend_number) {
-    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
-    if (!path){
-        LOG_ERR("WinXP", "Could not allocate memory.");
-        return;
-    }
-
     FRIEND *f = get_friend(friend_number);
     if (!f) {
         LOG_ERR("WinXP", "Could not get friend with number: %u", friend_number);
         return;
     }
 
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (!path){
+        LOG_ERR("WinXP", "Could not allocate memory.");
+        return;
+    }
+
     snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length, f->name);
 
     wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
-    utf8_to_nativestr(path, filepath, UTOX_FILE_NAME_LENGTH);
+    utf8_to_nativestr(path, filepath, UTOX_FILE_NAME_LENGTH * 2);
 
     OPENFILENAMEW ofn = {
         .lStructSize = sizeof(OPENFILENAMEW),
@@ -69,7 +69,7 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     }
 
     wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
-    utf8_to_nativestr((char *)file->name, filepath, file->name_length);
+    utf8_to_nativestr((char *)file->name, filepath, file->name_length * 2);
 
     OPENFILENAMEW ofn = {
         .lStructSize = sizeof(OPENFILENAMEW),
@@ -100,7 +100,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     }
 
     if (settings.portable_mode) {
-        utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path));
+        utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path) * 2);
     } else if (SHGetFolderPathW(NULL, CSIDL_DESKTOP, NULL, 0, autoaccept_folder) != S_OK) {
         LOG_ERR("WinXP", "Unable to get auto accept file folder!");
         free(autoaccept_folder);
@@ -120,7 +120,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     }
 
     wchar_t filename[UTOX_FILE_NAME_LENGTH] = { 0 };
-    utf8_to_nativestr((char *)file->name, filename, file->name_length);
+    utf8_to_nativestr((char *)file->name, filename, file->name_length * 2);
 
     wchar_t fullpath[UTOX_FILE_NAME_LENGTH] = { 0 };
     swprintf(fullpath, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", subpath, filename);
