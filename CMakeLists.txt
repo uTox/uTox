@@ -128,7 +128,6 @@ if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     string(REPLACE "\n" " " GIT_VERSION ${GIT_VERSION})
 endif()
 
-
 #######################################################################
 # C compiler flags
 #######################################################################
@@ -287,6 +286,8 @@ find_package(libsodium REQUIRED)
 include_directories(${LIBSODIUM_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBSODIUM_LIBRARIES})
 
+include_directories(SYSTEM src/stb)
+
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
@@ -326,8 +327,6 @@ add_subdirectory(src/layout)
 add_subdirectory(src/ui)
 # include utoxAV
 add_subdirectory(src/av)
-
-include_directories(SYSTEM src/stb)
 
 #######################################################################
 # :: uTox main
