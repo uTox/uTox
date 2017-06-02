@@ -105,6 +105,7 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
 
     if (peer_id >= UTOX_MAX_GROUP_PEERS) {
         LOG_ERR("Groupchats", "Unable to add message from peer %u - peer id too large.", peer_id);
+        pthread_mutex_unlock(&messages_lock);
         return UINT32_MAX;
     }
 
@@ -118,6 +119,7 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
         LOG_ERR("Groupchats", "Unable to allocate memory for message header.");
+        pthread_mutex_unlock(&messages_lock);
         return UINT32_MAX;
     }
 
@@ -135,6 +137,7 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
     if (!msg->via.grp.author) {
         LOG_ERR("Groupchat", "Unable to allocate space for author nickname.");
         free(msg);
+        pthread_mutex_unlock(&messages_lock);
         return UINT32_MAX;
     }
     memcpy(msg->via.grp.author, peer->name, peer->name_length);
@@ -180,7 +183,7 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
 }
 
 void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
-    group_add_message(g, peer_id, (const uint8_t *)"<- has Quit!", 12, MSG_TYPE_NOTICE);
+    group_add_message(g, peer_id, (uint8_t *)"<- has Quit!", 12, MSG_TYPE_NOTICE);
 
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
 
@@ -219,45 +222,45 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
     }
 
     if (peer->name_length) {
-        uint8_t old[TOX_MAX_NAME_LENGTH];
-        uint8_t msg[TOX_MAX_NAME_LENGTH];
-        size_t size = 0;
+        char old[TOX_MAX_NAME_LENGTH];
+        char msg[TOX_MAX_NAME_LENGTH];
 
         memcpy(old, peer->name, peer->name_length);
-        size = snprintf((char *)msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s",
-                        (int)peer->name_length, old);
+        size_t size = snprintf(msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s",
+                               peer->name_length, old);
 
         GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
 
-        if (new_peer) {
-            peer = new_peer;
-        } else {
+        if (!new_peer) {
             free(peer);
             LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "couldn't realloc for group peer name!");
         }
 
+        peer = new_peer;
         peer->name_length = utf8_validate(name, length);
         memcpy(peer->name, name, length);
         g->peer[peer_id] = peer;
+
         pthread_mutex_unlock(&messages_lock);
-        group_add_message(g, peer_id, msg, size, MSG_TYPE_NOTICE);
+        group_add_message(g, peer_id, (uint8_t *)msg, size, MSG_TYPE_NOTICE);
         return;
     }
 
     /* Hopefully, they just joined, because that's the UX message we're going with! */
     GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
 
-    if (new_peer) {
-        peer = new_peer;
-    } else {
+    if (!new_peer) {
+        free(peer);
         LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "Unable to realloc for group peer who just joined.");
     }
 
+    peer = new_peer;
     peer->name_length = utf8_validate(name, length);
     memcpy(peer->name, name, length);
     g->peer[peer_id] = peer;
+
     pthread_mutex_unlock(&messages_lock);
-    group_add_message(g, peer_id, (const uint8_t *)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
+    group_add_message(g, peer_id, (uint8_t *)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
 }
 
 void group_reset_peerlist(GROUPCHAT *g) {
@@ -282,7 +285,11 @@ void group_free(GROUPCHAT *g) {
 
     for (size_t i = 0; i < g->msg.number; ++i) {
         free(g->msg.data[i]->via.grp.author);
-        free(g->msg.data[i]->via.grp.msg);
+
+        // Freeing this here was causing a double free.
+        // TODO: Is it needed to prevent a memory leak in some cases?
+        // free(g->msg.data[i]->via.grp.msg);
+
         message_free(g->msg.data[i]);
     }
     free(g->msg.data);
@@ -338,8 +345,7 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
 
     char title[g->name_length + 25];
 
-    size_t title_length =
-        snprintf(title, g->name_length + 25, "uTox new message in %.*s", (int)g->name_length, g->name);
+    size_t title_length = snprintf(title, g->name_length + 25, "uTox new message in %.*s", g->name_length, g->name);
 
     notify(title, title_length, msg, msg_length, g, 1);
 

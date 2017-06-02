@@ -171,7 +171,11 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack")
     endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
-    # enable Link Time Optimization on clang
+    # Disable warning for `= {0}` in Clang.
+    # Remove once they've resolved https://bugs.llvm.org//show_bug.cgi?id=21689
+    add_cflag("-Wno-missing-field-initializers")
+
+    # Enable Link Time Optimization on Clang
     if(ENABLE_LTO)
         add_cflag("-flto")
     endif()
@@ -281,6 +285,11 @@ elseif(APPLE)
     add_subdirectory(src/cocoa)
 elseif(UNIX)
     add_subdirectory(src/xlib)
+
+    if(LINUX)
+        # Required for v4l (at least in the Linux static builds on Jenkins)
+        set(LIBRARIES "rt")
+    endif()
 endif()
 
 # include utoxLAYOUT
@@ -326,10 +335,8 @@ add_executable(utox ${GUI_TYPE}
     src/updater.c
     src/utox.c
     src/window.c
-
     ${WINDOWS_ICON}
     ${APPLE_FILES}
-
     )
 
 target_link_libraries(utox

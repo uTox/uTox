@@ -21,6 +21,7 @@
 
 #include "../native/clipboard.h"
 #include "../native/keyboard.h"
+#include "../native/notify.h"
 #include "../native/ui.h"
 
 #include "../ui/edit.h"
@@ -31,6 +32,7 @@
 #include "../layout/group.h"
 
 NSCursor *cursors[8];
+bool have_focus = false;
 
 void setup_cursors(void) {
     cursors[CURSOR_NONE]     = [NSCursor arrowCursor];
@@ -864,10 +866,13 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
         [usernotification release];
     }
 
-    // bounce icon
-    if (![NSApplication sharedApplication].isActive) {
+    if ([NSApplication sharedApplication].isActive) {
+        have_focus = true;
+    } else {
+        // Bounce icon.
         [[NSApplication sharedApplication] requestUserAttention:NSInformationalRequest];
         [NSApplication sharedApplication].dockTile.badgeLabel = @"!";
+        have_focus = false;
     }
 }
 

@@ -7,6 +7,7 @@
 #include "../branding.h"
 #include "../debug.h"
 #include "../macros.h"
+#include "../ui.h"
 
 #include <windows.h>
 
@@ -77,7 +78,12 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h) {
 
 HWND native_window_create_video(int x, int y, int w, int h) {
     LOG_DEBUG("Windows WM", "Creating video window");
-    HWND win = CreateWindowExW(0, L"uTox", L"TEMP TITLE CHANGE ME", WS_OVERLAPPEDWINDOW,
+
+    wchar_t title[128];
+    // %S for single-byte char, non-standard behaviour
+    swprintf(title, 128, L"%S", S(WINDOW_TITLE_VIDEO_PREVIEW));
+
+    HWND win = CreateWindowExW(0, L"uTox", title, WS_OVERLAPPEDWINDOW,
                                x, y, w, h, NULL, NULL, curr_instance, NULL);
 
     if (!win) {

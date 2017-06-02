@@ -234,7 +234,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
 }
 
 // find index of given item in shown_list, or INT_MAX if it can't be found
-static int find_item_shown_index(ITEM *it) {
+static unsigned int find_item_shown_index(ITEM *it) {
     for (unsigned int i = 0; i < showncount; ++i) {
         if (shown_list[i] == it - item) { // (it - item) returns the index of the item in the full items list
             return i;
@@ -331,7 +331,7 @@ static void change_tab(int offset) {
      * so I commented it incase it breaks stuff...  */
     // if (selected_item->item == ITEM_FRIEND ||
     // selected_item->item == ITEM_GROUP) {
-    int index = find_item_shown_index(selected_item);
+    unsigned int index = find_item_shown_index(selected_item);
     if (index != INT_MAX) {
         // flist_selectchat will check if out of bounds
         flist_selectchat((index + offset + showncount) % showncount);
@@ -955,12 +955,12 @@ bool flist_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
             } else {
                 d = (selected_item_dy - real_height / 2) / real_height;
             }
-            int index = find_item_shown_index(selected_item);
+            unsigned int index = find_item_shown_index(selected_item);
             if (index != INT_MAX) { // selected_item was found in shown list
                 index += d;         // get item being dragged over
 
                 // set item being dragged over
-                if (index >= 0 && ((uint32_t)index) < itemcount) {
+                if (index < itemcount) {
                     nitem = &item[shown_list[index]];
                 }
             }

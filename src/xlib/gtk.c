@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LIBGTK_FILENAME "libgtk-3.so.0"
+#define LIBGTK_FILENAME "libgtk-3.so"
 
 #define GTK_FILE_CHOOSER_ACTION_OPEN 0
 #define GTK_FILE_CHOOSER_ACTION_SAVE 1
@@ -251,6 +251,7 @@ static void ugtk_savethread(void *args) {
                     utoxGTK_dialog_run(errordialog);
                     utoxGTK_widget_destroy(errordialog);
                     utoxGTK_widget_destroy(dialog);
+                    free(path);
                     continue;
                 } else {
                     LOG_TRACE("GTK", "Unknown file write error..." );
@@ -351,6 +352,11 @@ void ugtk_openfilesend(void) {
     }
     utoxGTK_open = true;
     FRIEND *f = flist_get_friend();
+    if (!f) {
+        LOG_ERR("GTK", "Unable to get friend from flist.");
+        return;
+    }
+
     uint32_t number = f->number;
     thread(ugtk_opensendthread, (void*)(size_t)number);
 }

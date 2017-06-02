@@ -1,5 +1,6 @@
 #include "main.h"
 
+#include "utf8.h"
 #include "window.h"
 
 #include "../debug.h"
@@ -19,9 +20,6 @@ BLENDFUNCTION blend_function = {
     .SourceConstantAlpha = 0xFF,
     .AlphaFormat         = AC_SRC_ALPHA
 };
-
-#define utf8tonative(str, out, length) MultiByteToWideChar(CP_UTF8, 0, (char *)str, length, out, length)
-
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
     if (!bitmap[bm]) {

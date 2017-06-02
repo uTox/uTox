@@ -223,6 +223,7 @@ static uint8_t *download(char *host, char *file, size_t *out_len) {
         }
 
         LOG_ERR("Updater", "bad download from host [%s]" , host);
+        free(data);
         return NULL;
     }
 

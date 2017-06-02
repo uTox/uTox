@@ -14,4 +14,4 @@ cmake .. \
     -DTOXCORE_STATIC=ON \
     -DENABLE_TESTS=OFF \
     -DENABLE_WERROR=OFF
-make VERBOSE=1
+make || make VERBOSE=1

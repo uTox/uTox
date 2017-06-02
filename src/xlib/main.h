@@ -46,7 +46,6 @@ Cursor  cursors[8];
 /* Screen grab vars */
 uint8_t pointergrab;
 
-bool     havefocus;
 bool     _redraw;
 
 Window  video_win[32]; // TODO we should allocate this dynamically but this'll work for now

@@ -166,7 +166,7 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
             if (a_mark == end) {
                 if (greentext) {
                     setcolor(c1);
-                    greentext = 0;
+                    // greentext = 0; This is a dead assignment. Was something meant to be done with this?
                 }
                 break;
             }
@@ -243,7 +243,7 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
 
             if (*a == '\n') {
                 if (my >= 0 && my < lineheight) {
-                    x = mx;
+                    // x = mx; This is a dead assignment. Was something meant to be done with this?
                     return a - str;
                 }
                 b += utf8_len(b);
