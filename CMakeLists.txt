@@ -288,7 +288,7 @@ elseif(UNIX)
 
     if(LINUX)
         # Required for v4l (at least in the Linux static builds on Jenkins)
-        set(LIBRARIES "rt")
+        set(LIBRARIES ${LIBRARIES} "rt")
     endif()
 endif()
 

@@ -10,6 +10,8 @@ mkdir build_win
 cd build_win
 cmake .. \
     -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-win32.cmake \
+    -DCMAKE_INCLUDE_PATH="$CACHE_DIR/usr/include" \
+    -DCMAKE_LIBRARY_PATH="$CACHE_DIR/usr/lib" \
     -DWIN_XP_LEGACY=ON \
     -DUTOX_STATIC=ON \
     -DTOXCORE_STATIC=ON \
