@@ -65,6 +65,8 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
     // Why?
     if (XStringListToTextProperty(&title_name, 1, &native_window_name) == 0 ) {
         LOG_ERR("XLIB Wind", "FATAL ERROR: Unable to alloc for a sting during window creation");
+        XDestroyWindow(display, window->window);
+        free(window);
         return NULL;
     }
     // "Because FUCK your use of sane coding strategies" -Xlib... probably...
@@ -79,6 +81,7 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
     XClassHint *class_hints = XAllocClassHint();
     if (!size_hints || !wm_hints || !class_hints) {
         LOG_ERR("XLIB Wind", "XLIB_Windows: couldn't allocate memory.");
+        XDestroyWindow(display, window->window);
         free(window);
         return NULL;
     }
@@ -126,11 +129,7 @@ void native_window_raze(UTOX_WINDOW *window) {
 }
 
 UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **UNUSED(argv), int UNUSED(argc)) {
-    char *title = calloc(1, 256); // TODO there's a better way to do this
-                                  // and leaks
-    if (!title){
-        LOG_FATAL_ERR(EXIT_FAILURE, "XLIB Wind", "Unable to create main window.");
-    }
+    char title[256];
 
     snprintf(title, 256, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 
