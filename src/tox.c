@@ -109,7 +109,7 @@ static int utox_decrypt_data(void *cypher_data, size_t cypher_length, uint8_t *c
     switch (err) {
         case TOX_ERR_DECRYPTION_OK: return 0;
         case TOX_ERR_DECRYPTION_NULL:
-        case TOX_ERR_DECRYPTION_INVALID_LENGTH:
+        case TOX_ERR_DECRYPTION_INVALID_LENGTH: return UTOX_ENC_ERR_LENGTH;
         case TOX_ERR_DECRYPTION_BAD_FORMAT: return UTOX_ENC_ERR_BAD_DATA;
         case TOX_ERR_DECRYPTION_KEY_DERIVATION_FAILED: return UTOX_ENC_ERR_UNKNOWN;
         case TOX_ERR_DECRYPTION_FAILED: return UTOX_ENC_ERR_BAD_PASS;
@@ -279,7 +279,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
             if (decrypt_err) {
                 if (decrypt_err == UTOX_ENC_ERR_LENGTH) {
                     LOG_WARN("Toxcore", "Password too short!\r");
-                } else if (decrypt_err == UTOX_ENC_ERR_LENGTH) {
+                } else if (decrypt_err == UTOX_ENC_ERR_BAD_PASS) {
                     LOG_ERR("Toxcore", "Couldn't decrypt, wrong password?\r");
                 } else {
                     LOG_ERR("Toxcore", "Unknown error, please file a bug report!" );
