@@ -142,9 +142,6 @@ msgstr(
 msgid(REQ_SENT)
 msgstr("Запит на додавання в друзі відправлений. Ваш друг з'явиться в мережі, як тільки підтвердить запит.")
 
-msgid(REQ_RESOLVE)
-msgstr("Визначення DNS-імені...")
-
 msgid(DNS_DISABLED)
 msgstr("Визначення DNS-імен вимкнено при використанні проксі-сервера без UDP!") // Check the correctness
 

@@ -21,7 +21,6 @@
 #include "../ui/text.h"
 
 #include "../main.h" // add friend status // TODO this is stupid wrong
-#include "../dns.h"
 
 #include <string.h>
 
@@ -124,64 +123,63 @@ static void draw_add_friend(int x, int UNUSED(y), int UNUSED(w), int height) {
 
     drawstr(x + SCALE(10), SCALE(MAIN_TOP + 58), MESSAGE);
 
-    if (settings.force_proxy) {
-        int push = UTOX_STR_WIDTH(TOXID);
-        setfont(FONT_MISC);
-        setcolor(C_RED);
-        drawstr(x + SCALE(20) + push, SCALE(MAIN_TOP + 12), DNS_DISABLED);
+    // if (settings.force_proxy) {
+    //     int push = UTOX_STR_WIDTH(TOXID);
+    //     setfont(FONT_MISC);
+    //     setcolor(C_RED);
+    //     drawstr(x + SCALE(20) + push, SCALE(MAIN_TOP + 12), DNS_DISABLED);
+    // }
+
+    if (!addfriend_status) {
+        return;
     }
 
-    if (addfriend_status) {
-        setfont(FONT_MISC);
-        setcolor(C_RED);
+    setfont(FONT_MISC);
+    setcolor(C_RED);
 
-        STRING *str;
+    STRING *str;
 
-        switch (addfriend_status) {
-            case ADDF_SENT:
-                str = SPTR(REQ_SENT);
-                break;
-            case ADDF_DISCOVER:
-                str = SPTR(REQ_RESOLVE);
-                break;
-            case ADDF_BADNAME:
-                str = SPTR(REQ_INVALID_ID);
-                break;
-            case ADDF_NONAME:
-                str = SPTR(REQ_EMPTY_ID);
-                break;
-            case ADDF_TOOLONG: // if message length is too long.
-                str = SPTR(REQ_LONG_MSG);
-                break;
-            case ADDF_NOMESSAGE: // if no message (message length must be >= 1 byte).
-                str = SPTR(REQ_NO_MSG);
-                break;
-            case ADDF_OWNKEY: // if user's own key.
-                str = SPTR(REQ_SELF_ID);
-                break;
-            case ADDF_ALREADYSENT: // if friend request already sent or already a friend.
-                str = SPTR(REQ_ALREADY_FRIENDS);
-                break;
-            case ADDF_BADCHECKSUM: // if bad checksum in address.
-                str = SPTR(REQ_BAD_CHECKSUM);
-                break;
-            case ADDF_SETNEWNOSPAM: // if the friend was already there but the nospam was different.
-                str = SPTR(REQ_BAD_NOSPAM);
-                break;
-            case ADDF_NOMEM: // if increasing the friend list size fails.
-                str = SPTR(REQ_NO_MEMORY);
-                break;
-            case ADDF_UNKNOWN: // for unknown error.
-            case ADDF_NONE:    // this case must never be rendered, but if it does, assume it's an error
-            default:
-                str = SPTR(REQ_UNKNOWN);
-                break;
-        }
-
-        utox_draw_text_multiline_within_box(x + SCALE(10), MAIN_TOP + SCALE(166),
-                                            settings.window_width - BM_SBUTTON_WIDTH - SCALE(10), 0, height,
-                                            font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
+    switch (addfriend_status) {
+        case ADDF_SENT:
+            str = SPTR(REQ_SENT);
+            break;
+        case ADDF_BADNAME:
+            str = SPTR(REQ_INVALID_ID);
+            break;
+        case ADDF_NONAME:
+            str = SPTR(REQ_EMPTY_ID);
+            break;
+        case ADDF_TOOLONG: // if message length is too long.
+            str = SPTR(REQ_LONG_MSG);
+            break;
+        case ADDF_NOMESSAGE: // if no message (message length must be >= 1 byte).
+            str = SPTR(REQ_NO_MSG);
+            break;
+        case ADDF_OWNKEY: // if user's own key.
+            str = SPTR(REQ_SELF_ID);
+            break;
+        case ADDF_ALREADYSENT: // if friend request already sent or already a friend.
+            str = SPTR(REQ_ALREADY_FRIENDS);
+            break;
+        case ADDF_BADCHECKSUM: // if bad checksum in address.
+            str = SPTR(REQ_BAD_CHECKSUM);
+            break;
+        case ADDF_SETNEWNOSPAM: // if the friend was already there but the nospam was different.
+            str = SPTR(REQ_BAD_NOSPAM);
+            break;
+        case ADDF_NOMEM: // if increasing the friend list size fails.
+            str = SPTR(REQ_NO_MEMORY);
+            break;
+        case ADDF_UNKNOWN: // for unknown error.
+        case ADDF_NONE:    // this case must never be rendered, but if it does, assume it's an error
+        default:
+            str = SPTR(REQ_UNKNOWN);
+            break;
     }
+
+    utox_draw_text_multiline_within_box(x + SCALE(10), MAIN_TOP + SCALE(166),
+                                        settings.window_width - BM_SBUTTON_WIDTH - SCALE(10), 0, height,
+                                        font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
 }
 
 SCROLLABLE scrollbar_friend = {

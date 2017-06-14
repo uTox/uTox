@@ -29,9 +29,6 @@ msgstr("Bienvenue sur le nouveau uTox !")
 msgid(REQ_SENT)
 msgstr("Demande envoyée. Votre ami apparaîtra en ligne quand il acceptera votre demande.")
 
-msgid(REQ_RESOLVE)
-msgstr("Tentative de résolution DNS...")
-
 msgid(DNS_DISABLED)
 msgstr("La résolution DNS est désactivée lors de l'utilisation d'un proxy sans UDP !")
 

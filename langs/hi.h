@@ -8,10 +8,6 @@ msgid(REQ_SENT)
 msgstr("मित्र अनुरोध. अपने दोस्त यहाँ होगा")
 
 //TODO: Same as in English? Localize or remove.
-//msgid(REQ_RESOLVE)
-//msgstr("Attempting to resolve DNS name...")
-
-//TODO: Same as in English? Localize or remove.
 //msgid(REQ_INVALID_ID)
 //msgstr("Error: Invalid Tox ID")
 

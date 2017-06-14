@@ -7,9 +7,6 @@ msgstr("SIMPLIFIED CHINESE")
 msgid(REQ_SENT)
 msgstr("好友请求已发送。对方接受之后将显示为在线状态。")
 
-msgid(REQ_RESOLVE)
-msgstr("正在尝试解析该DNS域名……")
-
 msgid(DNS_DISABLED)
 msgstr("因使用非UDP服务的代理，DNS域名解析被禁用！")
 

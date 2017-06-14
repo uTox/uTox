@@ -7,9 +7,6 @@ msgstr("JAPANESE")
 msgid(REQ_SENT)
 msgstr("フレンド要求が送信されました。要求が承諾されるとオンライン表示になります。")
 
-msgid(REQ_RESOLVE)
-msgstr("DNS解決中")
-
 msgid(REQ_INVALID_ID)
 msgstr("エラー: 無効なTox IDです")
 

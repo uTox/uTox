@@ -3,7 +3,6 @@
 #include "avatar.h"
 #include "commands.h"
 #include "debug.h"
-#include "dns.h"
 #include "filesys.h"
 #include "file_transfers.h"
 #include "flist.h"

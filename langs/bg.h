@@ -7,9 +7,6 @@ msgstr("BULGARIAN")
 msgid(REQ_SENT)
 msgstr("Поканата за приятелство изпратена. Приятелят ви ще се покаже онлайн когато приеме поканата.")
 
-msgid(REQ_RESOLVE)
-msgstr("Опит за намиране на DNS име...")
-
 msgid(REQ_INVALID_ID)
 msgstr("Грешка: Невалиден Tox ID")
 
