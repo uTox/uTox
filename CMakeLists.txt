@@ -235,7 +235,6 @@ if(TOXCORE_STATIC)
     set(TOX_LIBS
         toxencryptsave
         toxav
-        toxdns
         toxcore
         toxgroup
         toxmessenger
@@ -248,7 +247,6 @@ if(TOXCORE_STATIC)
 else()
     set(TOX_LIBS
         toxencryptsave
-        toxdns
         toxav
         toxcore
         )

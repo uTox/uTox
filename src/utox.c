@@ -109,19 +109,6 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             redraw();
             break;
         }
-        case DNS_RESULT: {
-            /* param1: result (0 = failure, 1 = success)
-             * data: resolved tox id (if successful)
-             */
-            if (param1) {
-                friend_addid(data, edit_add_new_friend_msg.data, edit_add_new_friend_msg.length);
-            } else {
-                addfriend_status = ADDF_BADNAME;
-            }
-            free(data);
-            redraw();
-            break;
-        }
 
         /* OS interaction/integration messages */
         case AUDIO_IN_DEVICE: {
