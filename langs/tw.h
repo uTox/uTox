@@ -7,9 +7,6 @@ msgstr("TRADITIONAL CHINESE")
 msgid(REQ_SENT)
 msgstr("好友請求已發送。對方接受之後將顯示為在線狀態。")
 
-msgid(DNS_DISABLED)
-msgstr("因使用非UDP服務的代理，DNS域名解析被禁用！")
-
 msgid(REQ_INVALID_ID)
 msgstr("錯誤：無效的 Tox ID")
 

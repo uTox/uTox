@@ -7,9 +7,6 @@ msgstr("Croatian")
 msgid(REQ_SENT)
 msgstr("Zahtjev za prijateljstvom je poslan. Kad zahtjev bude prihvaćen, kontakt će postati nazočan.")
 
-msgid(DNS_DISABLED)
-msgstr("DNS je onemogućen dok se rabi proxy poslužitelj bez mogućnosti slanja UDP paketa!")
-
 msgid(REQ_INVALID_ID)
 msgstr("Greška: Tox ID nije valjan")
 

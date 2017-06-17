@@ -123,13 +123,6 @@ static void draw_add_friend(int x, int UNUSED(y), int UNUSED(w), int height) {
 
     drawstr(x + SCALE(10), SCALE(MAIN_TOP + 58), MESSAGE);
 
-    // if (settings.force_proxy) {
-    //     int push = UTOX_STR_WIDTH(TOXID);
-    //     setfont(FONT_MISC);
-    //     setcolor(C_RED);
-    //     drawstr(x + SCALE(20) + push, SCALE(MAIN_TOP + 12), DNS_DISABLED);
-    // }
-
     if (!addfriend_status) {
         return;
     }

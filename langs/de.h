@@ -14,9 +14,6 @@ msgstr("GERMAN")
 msgid(REQ_SENT)
 msgstr("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, sobald er deine Anfrage akzeptiert hat.")
 
-msgid(DNS_DISABLED)
-msgstr("DNS-Auflösung ist bei Nutzung eines Proxys ohne UDP deaktiviert!")
-
 msgid(REQ_INVALID_ID)
 msgstr("Fehler: Ungültige Tox ID")
 

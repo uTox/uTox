@@ -7,9 +7,6 @@ msgstr("ESPERANTO")
 msgid(REQ_SENT)
 msgstr("Amikiĝpeto sendita. Via amiko aperos enrete post la konsento de la peto.")
 
-msgid(DNS_DISABLED)
-msgstr("Solvo de DNS-nomo malebligita kvankam oni uzas prokurilon sen UDP!")
-
 msgid(REQ_INVALID_ID)
 msgstr("Eraro: Nevalida Tox-identigilo")
 

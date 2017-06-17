@@ -50,7 +50,6 @@ typedef enum {
     STR_CHANGE_LOG_TEXT,
 
     STR_REQ_SENT,
-    STR_DNS_DISABLED,
     STR_REQ_INVALID_ID,
     STR_REQ_EMPTY_ID,
     STR_REQ_LONG_MSG,

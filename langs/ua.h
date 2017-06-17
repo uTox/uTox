@@ -142,9 +142,6 @@ msgstr(
 msgid(REQ_SENT)
 msgstr("Запит на додавання в друзі відправлений. Ваш друг з'явиться в мережі, як тільки підтвердить запит.")
 
-msgid(DNS_DISABLED)
-msgstr("Визначення DNS-імен вимкнено при використанні проксі-сервера без UDP!") // Check the correctness
-
 msgid(REQ_INVALID_ID)
 msgstr("Помилка: Невірний Tox ID")
 

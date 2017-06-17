@@ -144,9 +144,6 @@ msgstr(
 msgid(REQ_SENT)
 msgstr("Friend request sent. Your friend will appear online after the request is accepted.")
 
-msgid(DNS_DISABLED)
-msgstr("DNS name resolution disabled while using a proxy without UDP!")
-
 msgid(REQ_INVALID_ID)
 msgstr("Error: Invalid Tox ID")
 
