@@ -151,7 +151,9 @@ void launch_at_startup(bool should) {
 
             // 2 bytes per wchar_t
             uint16_t ret = RegSetKeyValueW(hKey, NULL, L"uTox", REG_SZ, path, path_length * 2);
-            if (ret != ERROR_SUCCESS) {
+            if (ret == ERROR_SUCCESS) {
+                LOG_INFO("Windows7", "Set uTox to run at startup.");
+            } else {
                 LOG_ERR("Windows7", "Unable to set Registry key for startup.");
             }
 
@@ -162,6 +164,8 @@ void launch_at_startup(bool should) {
         if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
             uint16_t ret = RegDeleteKeyValueW(hKey, NULL, L"uTox");
             if (ret == ERROR_SUCCESS) {
+                LOG_INFO("Windows7", "Set uTox to not run at startup.");
+            } else {
                 LOG_ERR("Windows7", "Unable to delete Registry key for startup.");
             }
             RegCloseKey(hKey);
