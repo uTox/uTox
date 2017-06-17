@@ -1463,6 +1463,9 @@ bool messages_dclick(PANEL *panel, bool triclick) {
                 }
                 m->sel_end_position = i;
 
+                uint32_t diff = m->sel_end_position - m->sel_start_position;
+                setselection(msg->via.txt.msg + m->sel_start_position, diff);
+
                 return true;
             }
 
