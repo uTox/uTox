@@ -3,7 +3,6 @@
 #include "avatar.h"
 #include "commands.h"
 #include "debug.h"
-#include "dns.h"
 #include "filesys.h"
 #include "file_transfers.h"
 #include "flist.h"
@@ -107,19 +106,6 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             } else {
                 LOG_NOTE("uTox", "Disconnected from DHT!" );
             }
-            redraw();
-            break;
-        }
-        case DNS_RESULT: {
-            /* param1: result (0 = failure, 1 = success)
-             * data: resolved tox id (if successful)
-             */
-            if (param1) {
-                friend_addid(data, edit_add_new_friend_msg.data, edit_add_new_friend_msg.length);
-            } else {
-                addfriend_status = ADDF_BADNAME;
-            }
-            free(data);
             redraw();
             break;
         }

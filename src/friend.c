@@ -3,7 +3,6 @@
 #include "avatar.h"
 #include "chatlog.h"
 #include "debug.h"
-#include "dns.h"
 #include "filesys.h"
 #include "flist.h"
 #include "macros.h"
@@ -477,9 +476,7 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     if (length_cleaned == TOX_ADDRESS_SIZE * 2 && string_to_id(id, (char *)name_cleaned)) {
         friend_addid(id, msg, msg_length);
     } else {
-        /* not a regular id, try DNS discovery */
-        addfriend_status = ADDF_DISCOVER;
-        dns_request((char *)name_cleaned, length_cleaned);
+        addfriend_status = ADDF_BADNAME;
     }
 }
 
