@@ -482,7 +482,7 @@ uint16_t native_video_detect(void) {
 
 @end
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
+void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     NSWindow *        win    = [utoxapp ironcladWindowForID:id];
     uToxIroncladView *view   = win.contentView;
@@ -509,7 +509,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     [view displayImage:img_data w:width h:height];
 }
 
-void video_begin(uint32_t _id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
+void video_begin(uint16_t _id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
     if ([(uToxAppDelegate *)[NSApp delegate] ironcladWindowForID:_id])
         return;
 
@@ -540,7 +540,7 @@ void video_begin(uint32_t _id, char *name, uint16_t name_length, uint16_t width,
     [video_win release];
 }
 
-void video_end(uint32_t id) {
+void video_end(uint16_t id) {
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     [utoxapp releaseIroncladWindowForID:id];
 }

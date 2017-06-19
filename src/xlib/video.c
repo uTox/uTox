@@ -19,26 +19,27 @@
 #include <sys/stat.h>
 #include <sys/shm.h>
 
-static Window video_win[32]; // TODO we should allocate this dynamically but this'll work for now
+#define MAX_VID_WINDOWS 32 // TODO drop this for dynamic allocation
+static Window video_win[MAX_VID_WINDOWS]; // TODO we should allocate this dynamically but this'll work for now
 static Window preview;        // Video preview
 
-uint32_t find_video_windows(Window w)
+uint16_t find_video_windows(Window w)
 {
     if (w == preview) {
         return UINT16_MAX;
     }
 
-    for (unsigned i = 0; i < 32; ++i ) {
+    for (unsigned i = 0; i < MAX_VID_WINDOWS; ++i ) {
         if (w == video_win[i]) {
             return i;
         }
     }
 
-    return UINT32_MAX;
+    return UINT16_MAX;
 }
 
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
+void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     Window *win = &video_win[id];
     if (id == UINT16_MAX) {
         // Preview window
@@ -89,7 +90,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     free(new_data);
 }
 
-void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
+void video_begin(uint16_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
     Window *win = &video_win[id];
     if (id == UINT16_MAX) {
         // Preview window
@@ -118,7 +119,7 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, 
     LOG_TRACE("Video", "new window %u" , id);
 }
 
-void video_end(uint32_t id) {
+void video_end(uint16_t id) {
     Window *win = &video_win[id];
     if (id == UINT16_MAX) {
         // Preview window

@@ -443,7 +443,7 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
         free(frame->img);
         free(frame);
     } else {
-        postmessage_utox(AV_VIDEO_FRAME, friend_number + 1, 0, (void *)frame);
+        postmessage_utox(AV_VIDEO_FRAME, friend_number, 0, (void *)frame);
     }
 }
 

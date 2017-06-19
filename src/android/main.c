@@ -330,15 +330,15 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
 void desktopgrab(bool video)
 { /* Unsupported on android */ }
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height,
+void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height,
                  bool resize)
 { /* Unsupported on android */ }
 
-void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width,
+void video_begin(uint16_t id, char *name, uint16_t name_length, uint16_t width,
                  uint16_t height)
 { /* Unsupported on android */ }
 
-void video_end(uint32_t id)
+void video_end(uint16_t id)
 { /* Unsupported on android */ }
 
 uint16_t native_video_detect(void)
