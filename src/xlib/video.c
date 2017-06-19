@@ -22,7 +22,7 @@
 Window video_win[32]; // TODO we should allocate this dynamically but this'll work for now
 Window preview;        // Video preview
 
-uint32_t brtfrs_video_windows(Window w)
+uint32_t find_video_windows(Window w)
 {
     if (w == preview) {
         return UINT16_MAX;

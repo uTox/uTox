@@ -84,7 +84,7 @@ void formaturilist(char *out, const char *in, size_t len);
 void pastedata(void *data, Atom type, size_t len, bool select);
 
 // Brute Force, the video window we got a close command on (xlib/video.c)
-uint32_t brtfrs_video_windows(Window w);
+uint32_t find_video_windows(Window w);
 
 
 // video4linux

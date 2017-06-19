@@ -276,7 +276,7 @@ bool doevent(XEvent event) {
         if (event.type == ClientMessage) {
             XClientMessageEvent *ev = &event.xclient;
             if ((Atom)event.xclient.data.l[0] == wm_delete_window) {
-                uint32_t r = brtfrs_video_windows(ev->window);
+                uint32_t r = find_video_windows(ev->window);
                 if (r == UINT32_MAX) {
                     return true;
                 }
