@@ -2,8 +2,9 @@
 #define NATIVE_VIDEO_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize);
+void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize);
 
 /**
  * Opens the OS window for the incoming video frames
@@ -19,10 +20,10 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
  * @param width       starting size of the video frame
  * @param height      starting size of the video frame
  */
-void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height);
+void video_begin(uint16_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height);
 
 
-void video_end(uint32_t id);
+void video_end(uint16_t id);
 
 uint16_t native_video_detect(void);
 bool native_video_init(void *handle);

@@ -482,7 +482,7 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
 
 void friend_history_clear(FRIEND *f) {
     if (!f) {
-        LOG_ERR("FList", "Unable to clear history for missing friend.");
+        LOG_ERR("Friend", "Unable to clear history for missing friend.");
         return;
     }
     messages_clear_all(&f->msg);

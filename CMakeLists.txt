@@ -123,6 +123,8 @@ function(add_cflag flag)
     check_c_compiler_flag("${flag}" HAVE_C${var} QUIET)
     if(HAVE_C${var})
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}" PARENT_SCOPE)
+    else()
+        message(STATUS "ERROR! Can't find : ${flag}")
     endif()
 endfunction()
 
@@ -159,7 +161,12 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU")
         # enable Link Time Optimization on gcc (linux only currently)
         # TODO someone should figure out how this works on windows, or we need to have gitlab-ci for GCC
         if(ENABLE_LTO)
+            ## -flto is a flag that needs to exist at link time as well,
+            #  so we use some hacky save/restore to help cmake.
+            set(SAVE_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
+            set(CMAKE_REQUIRED_LIBRARIES "-flto")
             add_cflag("-flto")
+            set(CMAKE_REQUIRED_LIBRARIES "${SAVE_CMAKE_REQUIRED_LIBRARIES}")
         endif()
 
         set(CMAKE_AR "gcc-ar")
@@ -174,7 +181,12 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
 
     # Enable Link Time Optimization on Clang
     if(ENABLE_LTO)
+        ## -flto is a flag that needs to exist at link time as well,
+        #  so we use some hacky save/restore to help cmake.
+        set(SAVE_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
+        set(CMAKE_REQUIRED_LIBRARIES "-flto")
         add_cflag("-flto")
+        set(CMAKE_REQUIRED_LIBRARIES "${SAVE_CMAKE_REQUIRED_LIBRARIES}")
     endif()
 
     # Have ld strip the symbols from Release and MinSizeRel build types. (-Oz is clang specific)
@@ -206,8 +218,11 @@ if (ENABLE_ASAN)
         message(SEND_ERROR "ASAN is incompatible with static compilation on Windows.")
     endif()
 
+    set(SAVE_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
+    set(CMAKE_REQUIRED_LIBRARIES "-fsanitize=address")
     add_cflag("-fsanitize=address")
     add_cflag("-fno-omit-frame-pointer")
+    set(CMAKE_REQUIRED_LIBRARIES "${SAVE_CMAKE_REQUIRED_LIBRARIES}")
 endif()
 
 if(ENABLE_WERROR)

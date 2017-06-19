@@ -462,18 +462,18 @@ uint16_t native_video_detect(void) {
 - (void)windowWillClose:(NSNotification *)notification {
     if ([notification.object isKindOfClass:uToxIroncladWindow.class]) {
         switch (((uToxIroncladWindow *)notification.object).video_id) {
-            case 0: {
+            case UINT16_MAX: {
                 settings.video_preview = 0;
                 video_end(0);
-                postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
+                postmessage_utoxav(UTOXAV_STOP_VIDEO, UINT16_MAX, UINT16_MAX, NULL);
                 break;
             }
 
             default: {
-                FRIEND *f = get_friend(((uToxIroncladWindow *)notification.object).video_id - 1);
+                FRIEND *f = get_friend(((uToxIroncladWindow *)notification.object).video_id);
                 if (!f) {
                     LOG_ERR("Cocoa", "Could not get friend with number: %u",
-                            ((uToxIroncladWindow *)notification.object).video_id - 1);
+                            ((uToxIroncladWindow *)notification.object).video_id);
                     return;
                 }
 
@@ -487,7 +487,7 @@ uint16_t native_video_detect(void) {
 
 @end
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
+void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     NSWindow *        win    = [utoxapp ironcladWindowForID:id];
     uToxIroncladView *view   = win.contentView;
@@ -514,7 +514,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     [view displayImage:img_data w:width h:height];
 }
 
-void video_begin(uint32_t _id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
+void video_begin(uint16_t _id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
     if ([(uToxAppDelegate *)[NSApp delegate] ironcladWindowForID:_id])
         return;
 
@@ -545,7 +545,7 @@ void video_begin(uint32_t _id, char *name, uint16_t name_length, uint16_t width,
     [video_win release];
 }
 
-void video_end(uint32_t id) {
+void video_end(uint16_t id) {
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     [utoxapp releaseIroncladWindowForID:id];
 }
