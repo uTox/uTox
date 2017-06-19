@@ -19,8 +19,8 @@
 #include <sys/stat.h>
 #include <sys/shm.h>
 
-Window video_win[32]; // TODO we should allocate this dynamically but this'll work for now
-Window preview;        // Video preview
+static Window video_win[32]; // TODO we should allocate this dynamically but this'll work for now
+static Window preview;        // Video preview
 
 uint32_t find_video_windows(Window w)
 {
