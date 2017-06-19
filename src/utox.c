@@ -585,7 +585,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             if (g->av_group) {
                 g->last_recv_audio[param2]        = g->last_recv_audio[g->peer_count];
                 g->last_recv_audio[g->peer_count] = 0;
-                // REMOVED UNTIL AFTER NEW GCs group_av_peer_remove(g, param2);
+                group_av_peer_remove(g, param2);
                 g->source[param2] = g->source[g->peer_count];
             }
 
@@ -614,6 +614,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             if (selected != g) {
                 g->unread_msg = true;
             }
+
             redraw();
             break;
         }
@@ -637,29 +638,35 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case GROUP_AUDIO_START: {
+            /* param1: group number
+             */
             GROUPCHAT *g = get_group(param1);
             if (!g) {
+                LOG_ERR("uTox", "Can't get group %u", param1);
                 return;
             }
 
             if (g->av_group) {
-                g->audio_calling = 1;
-                postmessage_utoxav(UTOXAV_GROUPCALL_START, 0, param1, NULL);
+                LOG_INFO("uTox", "We are in an audio group starting call.");
+                g->active_call = true;
+                postmessage_utoxav(UTOXAV_GROUPCALL_START, param1, 0, NULL);
                 redraw();
             }
             break;
         }
         case GROUP_AUDIO_END: {
+            /* param1: group number
+             */
             GROUPCHAT *g = get_group(param1);
             if (!g) {
+                LOG_ERR("uTox", "Can't get group %u", param1);
                 return;
             }
 
-            if (g->av_group) {
-                g->audio_calling = 0;
-                postmessage_utoxav(UTOXAV_GROUPCALL_END, 0, param1, NULL);
-                redraw();
-            }
+            LOG_INFO("uTox", "We are in an audio group ending call.");
+            g->active_call = false;
+            postmessage_utoxav(UTOXAV_GROUPCALL_END, param1, 0, NULL);
+            redraw();
             break;
         }
 

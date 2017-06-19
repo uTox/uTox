@@ -146,35 +146,34 @@ void utox_set_callbacks_friends(Tox *tox) {
     tox_callback_friend_connection_status(tox, callback_connection_status);
 }
 
-void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
+void callback_av_group_audio(void *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
                              uint8_t channels, unsigned int sample_rate, void *userdata);
 
 static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE type, const uint8_t *data, size_t length,
-                                  void *UNUSED(userdata)) {
-    if (type != TOX_CONFERENCE_TYPE_TEXT) {
-        LOG_ERR("Tox Callbacks", "Only text groupchats are supported right now.");
-        return;
+                                  void *UNUSED(userdata))
+{
+    LOG_NOTE("Tox Callbacks", "Group Invite (friend %i || type %u)", fid, type);
+
+    uint32_t gid = UINT32_MAX;
+    if (type == TOX_CONFERENCE_TYPE_TEXT) {
+        gid = tox_conference_join(tox, fid, data, length, NULL);
+    } else if (type == TOX_CONFERENCE_TYPE_AV) {
+        gid = toxav_join_av_groupchat(tox, fid, data, length, callback_av_group_audio, NULL);
     }
 
-    uint32_t gid = tox_conference_join(tox, fid, data, length, NULL);
     if (gid == UINT32_MAX) {
+        LOG_ERR("Tox Callbacks", "Could not join group with type: %u", type);
         return;
     }
 
     GROUPCHAT *g = get_group(gid);
     if (!g) {
-        group_create(gid, false);
+        group_create(gid, type == TOX_CONFERENCE_TYPE_AV ? true : false);
     } else {
-        group_init(g, gid, 0);
+        group_init(g, gid, type == TOX_CONFERENCE_TYPE_AV ? true : false);
     }
 
-    // if (type == TOX_CONFERENCE_TYPE_AV) {
-    //     TODO FIX THIS AFTER NEW GROUP API IS RELEASED
-    //     uint32_t gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
-    // }
-
-
-    LOG_TRACE("Tox Callbacks", "Group Invite (%i,f:%i) type %u" , gid, fid, type);
+    LOG_NOTE("Tox Callbacks", "auto join successful group number %u", gid);
     postmessage_utox(GROUP_ADD, gid, 0, tox);
 }
 
@@ -200,16 +199,21 @@ static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid,
 
 static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid, TOX_CONFERENCE_STATE_CHANGE change,
                                            void *UNUSED(userdata)) {
+    LOG_ERR("Group callback", "gid %u pid %u change %u", gid, pid, change);
     GROUPCHAT *g = get_group(gid);
+    if (!g) {
+        LOG_ERR("Tox Callbacks", "Invalid group");
+    }
 
     switch (change) {
         case TOX_CONFERENCE_STATE_CHANGE_PEER_JOIN: {
+            LOG_DEBUG("Group", "Add (%u, %u)" , gid, pid);
+
             if (g->peer) {
                 g->peer = realloc(g->peer, sizeof(void *) * (g->peer_count + 2));
             } else {
                 g->peer = calloc(g->peer_count + 2, sizeof(void *));
             }
-            LOG_TRACE("Group", "Add (%u, %u)" , gid, pid);
             bool is_us = 0;
             if (tox_conference_peer_number_is_ours(tox, gid, pid, 0)) {
                 g->our_peer_number = pid;
@@ -234,21 +238,22 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
         }
 
         case TOX_CONFERENCE_STATE_CHANGE_PEER_NAME_CHANGE: {
-            LOG_TRACE("Tox Callbacks", "Group:\tPeer name change (%u, %u)" , gid, pid);
+            LOG_DEBUG("Tox Callbacks", "Group:\tPeer name change (%u, %u)" , gid, pid);
 
             if (g->peer) {
                 if (!g->peer[pid]) {
-                    LOG_TRACE("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant peer!" );
+                    LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant peer!" );
                     break;
                 }
             } else {
-                LOG_TRACE("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant Group!" );
+                // TODO can't happen
+                LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant Group!" );
             }
 
             uint8_t name[TOX_MAX_NAME_LENGTH];
-            size_t  len = tox_conference_peer_get_name_size(tox, gid, pid, NULL);
+            size_t len = tox_conference_peer_get_name_size(tox, gid, pid, NULL);
             tox_conference_peer_get_name(tox, gid, pid, name, NULL);
-            len         = utf8_validate(name, len);
+            len = utf8_validate(name, len);
             group_peer_name_change(g, pid, name, len);
 
             postmessage_utox(GROUP_PEER_NAME, gid, pid, NULL);
@@ -256,7 +261,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
         }
 
         case TOX_CONFERENCE_STATE_CHANGE_PEER_EXIT: {
-            LOG_TRACE("Group", "Peer Quit (%u, %u)" , gid, pid);
+            LOG_DEBUG("Group", "Peer Quit (%u, %u)" , gid, pid);
             group_add_message(g, pid, (const uint8_t *)"<- has Quit!", 12, MSG_TYPE_NOTICE);
 
             pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
@@ -371,7 +376,6 @@ static void callback_mdev_self_status_msg(Tox *tox, uint32_t dev_num, const uint
 static void callback_mdev_self_state(Tox *tox, uint32_t device_number, TOX_USER_STATUS state, void *user_data) {
     self.status = state;
 }
-
 
 static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint32_t target_friend,
                                          TOX_MESSAGE_TYPE type, uint8_t *msg, size_t msg_length) {
