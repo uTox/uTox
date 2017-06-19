@@ -457,18 +457,18 @@ uint16_t native_video_detect(void) {
 - (void)windowWillClose:(NSNotification *)notification {
     if ([notification.object isKindOfClass:uToxIroncladWindow.class]) {
         switch (((uToxIroncladWindow *)notification.object).video_id) {
-            case 0: {
+            case UINT16_MAX: {
                 settings.video_preview = 0;
                 video_end(0);
-                postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
+                postmessage_utoxav(UTOXAV_STOP_VIDEO, UINT16_MAX, UINT16_MAX, NULL);
                 break;
             }
 
             default: {
-                FRIEND *f = get_friend(((uToxIroncladWindow *)notification.object).video_id - 1);
+                FRIEND *f = get_friend(((uToxIroncladWindow *)notification.object).video_id);
                 if (!f) {
                     LOG_ERR("Cocoa", "Could not get friend with number: %u",
-                            ((uToxIroncladWindow *)notification.object).video_id - 1);
+                            ((uToxIroncladWindow *)notification.object).video_id);
                     return;
                 }
 
