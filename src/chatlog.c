@@ -250,15 +250,15 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
 
     LOG_FILE_MSG_HEADER header;
     FILE *file = chatlog_get_file(hex, false);
-
-    char buffer[128];
-    time_t timetmp = time(NULL);
-    struct tm tm_curr, tm_prev = {0, 0, 0, 1, 0, 0, 0, 0};
+    struct tm tm_curr, tm_prev = {.tm_sec = 0, .tm_min = 0, .tm_hour = 0, .tm_mday = 1, 
+                                  .tm_mon = 0, .tm_year = 0, .tm_yday = 0, .tm_isdst = 0};
 
     while (fread(&header, sizeof(header), 1, file) == 1) {
 
+        /* NOTE: localtime_r is not part of the standard */
         localtime_r(&header.time, &tm_curr);
 
+        char buffer[128];
         if (tm_curr.tm_year > tm_prev.tm_year
             || (tm_curr.tm_year == tm_prev.tm_year && tm_curr.tm_mon > tm_prev.tm_mon)
             || (tm_curr.tm_year == tm_prev.tm_year && tm_curr.tm_mon == tm_prev.tm_mon && tm_curr.tm_mday > tm_prev.tm_mday))
