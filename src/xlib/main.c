@@ -890,4 +890,4 @@ int main(int argc, char *argv[]) {
 }
 
 /* Dummy functions used in other systems... */
-void launch_at_startup(int UNUSED(is_launch_at_startup)) {}
+void launch_at_startup(bool UNUSED(is_launch_at_startup)) {}
