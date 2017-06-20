@@ -248,10 +248,29 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
         return;
     }
 
+    LOG_FILE_MSG_HEADER header;
     FILE *file = chatlog_get_file(hex, false);
 
-    LOG_FILE_MSG_HEADER header;
+    char buffer[128];
+    time_t timetmp = time(NULL);
+    struct tm tm_curr, tm_prev = {0, 0, 0, 1, 0, 0, 0, 0};
+
     while (fread(&header, sizeof(header), 1, file) == 1) {
+
+        localtime_r(&header.time, &tm_curr);
+
+        if (tm_curr.tm_year > tm_prev.tm_year
+            || (tm_curr.tm_year == tm_prev.tm_year && tm_curr.tm_mon > tm_prev.tm_mon)
+            || (tm_curr.tm_year == tm_prev.tm_year && tm_curr.tm_mon == tm_prev.tm_mon && tm_curr.tm_mday > tm_prev.tm_mday))
+        {
+            size_t len = strftime(buffer, 128,  "Day has changed to %A %B %d %Y\n", &tm_curr);
+            fwrite(buffer, len, 1, dest_file);
+        }
+
+        /* Write Timestamp */
+        fprintf(dest_file, "[%02d:%02d] ", tm_curr.tm_hour, tm_curr.tm_min);
+        tm_prev = tm_curr;
+
         int c;
         /* Write Author */
         fwrite("<", 1, 1, dest_file);
@@ -259,8 +278,6 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
             c = fgetc(file);
             if (c != EOF) {
                 fputc(c, dest_file);
-            } else {
-                continue;
             }
         }
         fwrite(">", 1, 1, dest_file);
@@ -271,8 +288,6 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
             c = fgetc(file);
             if (c != EOF) {
                 fputc(c, dest_file);
-            } else {
-                continue;
             }
         }
         c = fgetc(file); /* the newline char */
