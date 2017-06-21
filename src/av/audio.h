@@ -59,21 +59,21 @@ enum {
     (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) \
      && !!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_A))
 
-#ifndef AUDIO_FILTERING
-typedef uint8_t Filter_Audio;
-#endif
-
 bool utox_audio_in_device_set(ALCdevice *new_device);
-ALCdevice *utox_audio_in_device_get(void);
-
 bool utox_audio_out_device_set(ALCdevice *new_device);
+ALCdevice *utox_audio_in_device_get(void);
 // utox_audio_out_device_get is unused. Delete?
 ALCdevice *utox_audio_out_device_get(void);
 
+void utox_audio_in_device_open(void);
+void utox_audio_in_device_close(void);
+
+void utox_audio_in_listen(void);
+void utox_audio_in_ignore(void);
+
 void sourceplaybuffer(unsigned int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate);
 
-/* send a message to the audio thread
- */
+/* send a message to the audio thread */
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 void utox_audio_thread(void *args);
