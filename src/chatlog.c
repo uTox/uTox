@@ -250,25 +250,32 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
 
     LOG_FILE_MSG_HEADER header;
     FILE *file = chatlog_get_file(hex, false);
-    struct tm tm_curr, tm_prev = { .tm_mday = 1 };
+
+    struct tm *tm_curr;
+    struct tm_tmp {
+        int tm_year;
+        int tm_mon;
+        int tm_mday;
+    } tm_prev = { .tm_mday = 1};
 
     while (fread(&header, sizeof(header), 1, file) == 1) {
 
-        /* NOTE: localtime_r is not part of the standard */
-        localtime_r(&header.time, &tm_curr);
+        tm_curr = localtime(&header.time);
 
         char buffer[128];
-        if (tm_curr.tm_year > tm_prev.tm_year
-            || (tm_curr.tm_year == tm_prev.tm_year && tm_curr.tm_mon > tm_prev.tm_mon)
-            || (tm_curr.tm_year == tm_prev.tm_year && tm_curr.tm_mon == tm_prev.tm_mon && tm_curr.tm_mday > tm_prev.tm_mday))
+        if (tm_curr->tm_year > tm_prev.tm_year
+            || (tm_curr->tm_year == tm_prev.tm_year && tm_curr->tm_mon > tm_prev.tm_mon)
+            || (tm_curr->tm_year == tm_prev.tm_year && tm_curr->tm_mon == tm_prev.tm_mon && tm_curr->tm_mday > tm_prev.tm_mday))
         {
-            size_t len = strftime(buffer, 128,  "Day has changed to %A %B %d %Y\n", &tm_curr);
+            size_t len = strftime(buffer, 128,  "Day has changed to %A %B %d %Y\n", tm_curr);
             fwrite(buffer, len, 1, dest_file);
         }
 
         /* Write Timestamp */
-        fprintf(dest_file, "[%02d:%02d] ", tm_curr.tm_hour, tm_curr.tm_min);
-        tm_prev = tm_curr;
+        fprintf(dest_file, "[%02d:%02d] ", tm_curr->tm_hour, tm_curr->tm_min);
+        tm_prev.tm_year = tm_curr->tm_year;
+        tm_prev.tm_mon = tm_curr->tm_mon;
+        tm_prev.tm_mday = tm_curr->tm_mday;
 
         int c;
         /* Write Author */
