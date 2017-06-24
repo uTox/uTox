@@ -8,7 +8,6 @@ typedef enum utox_msg_id {
     /* General core and networking messages */
     TOX_DONE, // 0
     DHT_CONNECTED,
-    DNS_RESULT,
 
     /* OS interaction/integration messages*/
     AUDIO_IN_DEVICE,

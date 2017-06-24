@@ -28,7 +28,6 @@
 
 #define STRSAFE_NO_DEPRECATE
 #include <windows.h>
-#include <windns.h>
 #include <winreg.h>
 
 #define STRSAFE_NO_DEPRECATE

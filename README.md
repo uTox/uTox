@@ -32,7 +32,6 @@ You shouldn't have to choose a new client for every device: So µTox works every
 - Group chats
   - New API support ready.
 - File transfers, with inline images support
-- Tox DNS support with [uTox.org](http://register.utox.org/)
 - Tox URI support (clickable Tox links)
 - Emoticons
 - Auto-updates on Windows.

@@ -7,9 +7,6 @@ msgstr("NORWEGIAN")
 msgid(REQ_SENT)
 msgstr("Venneforespørsel er sent. Din venn vil bli vist som pålogget når venneforespørselen blir godtatt.")
 
-msgid(REQ_RESOLVE)
-msgstr("Forsøker å løse DNS-navnet...")
-
 msgid(REQ_INVALID_ID)
 msgstr("Feil: Ugyldig Tox ID")
 

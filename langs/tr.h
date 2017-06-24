@@ -7,9 +7,6 @@ msgstr("TURKISH")
 msgid(REQ_SENT)
 msgstr("Arkadaşlık talebi gönderildi. Talebiniz karşı taraf tarafından kabul edildiğinde, arkadaşınız çevirimiçi olarak gözükecek.")
 
-msgid(REQ_RESOLVE)
-msgstr("DNS adı çözümleniyor...")
-
 msgid(REQ_INVALID_ID)
 msgstr("Hata: Geçersiz Tox ID")
 

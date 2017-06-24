@@ -1,7 +1,6 @@
 #include "tox.h"
 
 #include "avatar.h"
-#include "dns.h"
 #include "file_transfers.h"
 #include "flist.h"
 #include "friend.h"
@@ -109,7 +108,7 @@ static int utox_decrypt_data(void *cypher_data, size_t cypher_length, uint8_t *c
     switch (err) {
         case TOX_ERR_DECRYPTION_OK: return 0;
         case TOX_ERR_DECRYPTION_NULL:
-        case TOX_ERR_DECRYPTION_INVALID_LENGTH:
+        case TOX_ERR_DECRYPTION_INVALID_LENGTH: return UTOX_ENC_ERR_LENGTH;
         case TOX_ERR_DECRYPTION_BAD_FORMAT: return UTOX_ENC_ERR_BAD_DATA;
         case TOX_ERR_DECRYPTION_KEY_DERIVATION_FAILED: return UTOX_ENC_ERR_UNKNOWN;
         case TOX_ERR_DECRYPTION_FAILED: return UTOX_ENC_ERR_BAD_PASS;
@@ -279,7 +278,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
             if (decrypt_err) {
                 if (decrypt_err == UTOX_ENC_ERR_LENGTH) {
                     LOG_WARN("Toxcore", "Password too short!\r");
-                } else if (decrypt_err == UTOX_ENC_ERR_LENGTH) {
+                } else if (decrypt_err == UTOX_ENC_ERR_BAD_PASS) {
                     LOG_ERR("Toxcore", "Couldn't decrypt, wrong password?\r");
                 } else {
                     LOG_ERR("Toxcore", "Unknown error, please file a bug report!" );
@@ -295,7 +294,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
                 return 0;
             }
         } else {
-            LOG_INFO("Toxcore", "Using unencrypted save file; this could be insecure!");
+            LOG_INFO("Toxcore", "Using unencrypted save file");
             options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
             options->savedata_data   = raw_data;
             options->savedata_length = raw_length;
@@ -802,8 +801,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             // Check if user has switched to another friend window chat.
             // Take care not to react on obsolete data from old Tox instance.
-            bool need_resetting =
-                (typing_state.tox == tox) && (typing_state.friendnumber != param1) && (typing_state.sent_value);
+            bool need_resetting = (typing_state.tox == tox)
+                               && (typing_state.friendnumber != param1)
+                               && (typing_state.sent_value);
 
             if (need_resetting) {
                 // Tell previous friend that he's betrayed.
@@ -1036,25 +1036,44 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             int g_num = -1;
 
             TOX_ERR_CONFERENCE_NEW error = 0;
-            if (param1) {
+            if (param2) {
                 // TODO FIX THIS AFTER NEW GROUP API
-                // g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
-                g_num = tox_conference_new(tox, &error);
+                g_num = toxav_add_av_groupchat(tox, callback_av_group_audio, NULL);
             } else {
                 g_num = tox_conference_new(tox, &error);
             }
 
             if (g_num != -1) {
-                if (group_create(g_num, param2)) {
-                    postmessage_utox(GROUP_ADD, g_num, param2, NULL);
+                GROUPCHAT *g = get_group(g_num);
+                if (!g) {
+                    if (!group_create(g_num, param2)) {
+                        LOG_ERR("Tox", "Failed creating group %u", g_num);
+                        break;
+                    }
                 } else {
-                    LOG_ERR("Tox", "Failed creating group %u", g_num);
+                    group_init(g, g_num, param2);
                 }
+                postmessage_utox(GROUP_ADD, g_num, param2, NULL);
             }
+
+            uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
+            tox_conference_peer_get_public_key(tox, g_num, 0, pkey, NULL);
+            uint64_t pkey_to_number = 0;
+            for (int key_i = 0; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
+                pkey_to_number += pkey[key_i];
+            }
+            srand(pkey_to_number);
+            uint32_t name_color = RGB(rand(), rand(), rand());
+
+            group_peer_add(get_group(g_num), 0, 1, name_color);
+            group_peer_name_change(get_group(g_num), 0, (uint8_t *)self.name, self.name_length);
+            postmessage_utox(GROUP_PEER_ADD, g_num, 0, NULL);
+
             save_needed = true;
             break;
         }
         case TOX_GROUP_JOIN: {
+            break;
         }
         case TOX_GROUP_PART: {
             /* param1: group #
@@ -1101,19 +1120,17 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             free(data);
             break;
         }
-        /* Disabled */
         case TOX_GROUP_AUDIO_START: {
-            /* param1: group #
-             */
-            break;
+            // We have to take the long way around, because the UI shouldn't depend on AV
+            LOG_INFO("Tox", "Staring call in groupchat %u", param1);
             postmessage_utox(GROUP_AUDIO_START, param1, 0, NULL);
-        }
-        /* Disabled */
-        case TOX_GROUP_AUDIO_END: {
-            /* param1: group #
-             */
             break;
+        }
+        case TOX_GROUP_AUDIO_END: {
+            // We have to take the long way around, because the UI shouldn't depend on AV
+            LOG_INFO("Tox", "Ending call in groupchat %u", param1);
             postmessage_utox(GROUP_AUDIO_END, param1, 0, NULL);
+            break;
         }
     } // End of switch.
 }

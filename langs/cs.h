@@ -7,9 +7,6 @@ msgstr("Czech")
 msgid(REQ_SENT)
 msgstr("Žádost poslána. Váš kontakt se objeví online, jakmile vaši žádost přijme.")
 
-msgid(REQ_RESOLVE)
-msgstr("Pokus o zjištění DNS jména...")
-
 msgid(REQ_INVALID_ID)
 msgstr("Chyba: Neplatné Tox ID")
 

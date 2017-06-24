@@ -7,9 +7,6 @@ msgstr("LATVIAN")
 msgid(REQ_SENT)
 msgstr("Draugu pieprasījums ir nosūtīts. Jūsu draugs parādīsies tiešsaistē kad pieprasījums būs pieņemts.")
 
-msgid(REQ_RESOLVE)
-msgstr("Atrisinājam DNS ierakstus")
-
 msgid(REQ_INVALID_ID)
 msgstr("Kļūda: Nederīgs Tox ID")
 

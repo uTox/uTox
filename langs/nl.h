@@ -7,9 +7,6 @@ msgstr("DUTCH")
 msgid(REQ_SENT)
 msgstr("Vriendschapsverzoek verstuurd. Uw vriend zal online verschijnen zodra hij/zij deze heeft geaccepteerd.")
 
-msgid(REQ_RESOLVE)
-msgstr("Proberen om de DNS naam op te zoeken...")
-
 msgid(REQ_INVALID_ID)
 msgstr("Fout: Ongeldig Tox ID")
 

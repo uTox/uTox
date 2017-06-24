@@ -213,7 +213,7 @@ keytool -genkey -v -keystore ./tmp/debug.keystore -alias $ALIAS -keyalg RSA -key
 ### Compile + Pack APK
 
 ```bash
-arm-linux-androideabi-gcc --sysroot=$NDK_PATH/platforms/android-9/arch-arm/ -I../include/freetype2/ -I../include/ ./*.c ./png/png.c -llog -landroid -lEGL -lGLESv2 -lOpenSLES ../lib/libtoxcore.a ../lib/libtoxdns.a ../lib/libtoxav.a ../lib/libsodium.a ../lib/libopus.a ../lib/libvpx.a ../lib/libfreetype.a -lm -lz -ldl -shared -o ./tmp/libs/armeabi/libn.so
+arm-linux-androideabi-gcc --sysroot=$NDK_PATH/platforms/android-9/arch-arm/ -I../include/freetype2/ -I../include/ ./*.c ./png/png.c -llog -landroid -lEGL -lGLESv2 -lOpenSLES ../lib/libtoxcore.a ../lib/libtoxav.a ../lib/libsodium.a ../lib/libopus.a ../lib/libvpx.a ../lib/libfreetype.a -lm -lz -ldl -shared -o ./tmp/libs/armeabi/libn.so
 /aapt package -f -M ./android/AndroidManifest.xml -S ./android/res -I $SDK_PATH/platforms/android-10/android.jar -F ./tmp/tmp1.apk -J ./tmp/java
 javac -d ./tmp/java ./tmp/java/R.java
 dx --dex --output=./tmp/classes.dex ./tmp/java
@@ -221,4 +221,4 @@ java -classpath $SDK_PATH/tools/lib/sdklib.jar com.android.sdklib.build.ApkBuild
 jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore ./tmp/debug.keystore -storepass $PASSWORD ./tmp/tmp2.apk $ALIAS
 ```
 
-Come to think of it, this section is woahfully out of date. The android build script in tools/ is likely to be more helpful at this point. Or come to #tox-dev and ask for grayhatter. If you're interested in working on android. He'll get you a build enviroment set up!
+Come to think of it, this section is woefully out of date. The android build script in tools/ is likely to be more helpful at this point. Or come to [#utox on Freenode](https://webchat.freenode.net/?channels=#utox) and ask for grayhatter. If you're interested in working on android. He'll get you a build enviroment set up!

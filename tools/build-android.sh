@@ -52,7 +52,6 @@ fi
 
 TOX_LIBS=${TOX_LIBS-\
     $TOXCORE_LIBS/libtoxcore.a \
-    $TOXCORE_LIBS/libtoxdns.a \
     $TOXCORE_LIBS/libtoxav.a \
     $TOXCORE_LIBS/libtoxencryptsave.a }
 
@@ -82,7 +81,6 @@ if ! [ -f ${BUILD_DIR}/lib/armeabi/libuTox.so ]; then
         ./toxcore/toxcore/*.c \
         ./toxcore/toxav/*.c \
         ./toxcore/toxencryptsave/*.c \
-        ./toxcore/toxdns/*.c \
         $ANDROID_NDK_HOME/sources/android/cpufeatures/cpu-features.c \
         ${LDFLAGS} \
         ${MORE_LIBS} \

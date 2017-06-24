@@ -7,9 +7,6 @@ msgstr("ROMANIAN")
 msgid(REQ_SENT)
 msgstr("Cerere de prietenie trimisă. Prietenul tău va apărea online după ce va fi acceptată cererea.")
 
-msgid(REQ_RESOLVE)
-msgstr("Încerc să rezolv numele DNS")
-
 msgid(REQ_INVALID_ID)
 msgstr("Error: Tox ID invalid")
 

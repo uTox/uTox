@@ -2,6 +2,7 @@
 #define AUDIO_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct ALCdevice_struct ALCdevice;
 
@@ -9,8 +10,14 @@ enum {
     // kill the audio thread
     UTOXAUDIO_KILL,
 
+    UTOXAUDIO_CHANGE_MIC,
+    UTOXAUDIO_CHANGE_SPEAKER,
+
     UTOXAUDIO_START_FRIEND,
     UTOXAUDIO_STOP_FRIEND,
+
+    UTOXAUDIO_GROUPCHAT_START,
+    UTOXAUDIO_GROUPCHAT_STOP,
 
     UTOXAUDIO_START_PREVIEW,
     UTOXAUDIO_STOP_PREVIEW,
@@ -52,27 +59,21 @@ enum {
     (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) \
      && !!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_A))
 
-#ifndef AUDIO_FILTERING
-typedef uint8_t Filter_Audio;
-#endif
-
-void utox_audio_in_device_open(void);
-void utox_audio_in_device_close(void);
-void utox_audio_in_listen(void);
-void utox_audio_in_ignore(void);
-void utox_audio_in_device_set(ALCdevice *new_device);
+bool utox_audio_in_device_set(ALCdevice *new_device);
+bool utox_audio_out_device_set(ALCdevice *new_device);
 ALCdevice *utox_audio_in_device_get(void);
-
-void utox_audio_out_device_open(void);
-void utox_audio_out_device_close(void);
-void utox_audio_out_device_set(ALCdevice *new_device);
 // utox_audio_out_device_get is unused. Delete?
 ALCdevice *utox_audio_out_device_get(void);
 
+void utox_audio_in_device_open(void);
+void utox_audio_in_device_close(void);
+
+void utox_audio_in_listen(void);
+void utox_audio_in_ignore(void);
+
 void sourceplaybuffer(unsigned int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate);
 
-/* send a message to the audio thread
- */
+/* send a message to the audio thread */
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 void utox_audio_thread(void *args);

@@ -7,9 +7,6 @@ msgstr("ITALIAN")
 msgid(REQ_SENT)
 msgstr("Richiesta d'amicizia inviata. Il contatto apparirà online quando accetterà la richiesta.")
 
-msgid(REQ_RESOLVE)
-msgstr("Tentativo di risoluzione del nome attraverso DNS...")
-
 msgid(REQ_INVALID_ID)
 msgstr("Errore: Tox ID non valido")
 

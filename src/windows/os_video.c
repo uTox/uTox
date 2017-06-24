@@ -46,7 +46,7 @@ static void *  dibits;
 
 static uint16_t video_x, video_y;
 
-void video_begin(uint32_t id, char *UNUSED(name), uint16_t UNUSED(name_length), uint16_t width, uint16_t height) {
+void video_begin(uint16_t id, char *UNUSED(name), uint16_t UNUSED(name_length), uint16_t width, uint16_t height) {
     HWND *h;
     if (id >= UINT16_MAX) {
         h = &preview_hwnd;
@@ -85,7 +85,7 @@ void video_begin(uint32_t id, char *UNUSED(name), uint16_t UNUSED(name_length), 
     ShowWindow(*h, SW_SHOW);
 }
 
-void video_end(uint32_t id) {
+void video_end(uint16_t id) {
     if (id >= UINT16_MAX) {
         DestroyWindow(preview_hwnd);
         preview_hwnd = NULL;

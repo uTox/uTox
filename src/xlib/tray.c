@@ -179,7 +179,7 @@ void destroy_tray_icon(void) {
 
 bool tray_window_event(XEvent event) {
     if (event.xany.window != tray_window.window) {
-        LOG_ERR("TRAY", "in %u oun %u", event.xany.window, tray_window.window);
+        LOG_WARN("TRAY", "in %u ours %u", event.xany.window, tray_window.window);
         return false;
     }
 

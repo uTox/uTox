@@ -14,10 +14,6 @@ msgstr("Swedish")
 msgid(REQ_SENT)
 msgstr("Vänskapsbegäran skickad. Din vän kommer att visas som online efter att din begäran har accepterats.")
 
-msgid(REQ_RESOLVE)
-msgstr("Försöker att avgöra/utgöra information från DNS namnet...")
-//msgstr("Attempting to resolve DNS name...")
-
 msgid(REQ_INVALID_ID)
 msgstr("Fel: Ogiltigt Tox ID")
 

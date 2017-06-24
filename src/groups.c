@@ -8,6 +8,7 @@
 #include "text.h"
 
 #include "av/audio.h"
+#include "av/utox_av.h"
 
 #include "native/notify.h"
 
@@ -75,13 +76,8 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
         g->name_length = sizeof(g->name) - 1;
     }
 
-    if (av_group) {
-        g->topic_length = sizeof("Error creating voice group, not supported yet") - 1;
-        strcpy2(g->topic, "Error creating voice group, not supported yet");
-    } else {
-        g->topic_length = sizeof("Drag friends to invite them") - 1;
-        memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
-    }
+    g->topic_length = sizeof("Drag friends to invite them") - 1;
+    memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
 
     g->msg.scroll               = 1.0;
     g->msg.panel.type           = PANEL_MESSAGES;
@@ -179,6 +175,11 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
 
     g->peer[peer_id] = peer;
     g->peer_count++;
+
+    if (g->av_group) {
+        group_av_peer_add(g, peer_id); //add a source for the peer
+    }
+
     pthread_mutex_unlock(&messages_lock);
 }
 

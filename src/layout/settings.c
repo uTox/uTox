@@ -13,6 +13,7 @@
 #include "../native/clipboard.h"
 #include "../native/keyboard.h"
 #include "../native/notify.h"
+#include "../native/os.h"
 
 #include "../ui/button.h"
 #include "../ui/draw.h"
@@ -686,9 +687,9 @@ static void button_audiopreview_update(BUTTON *b) {
 
 static void button_videopreview_on_mup(void) {
     if (settings.video_preview) {
-        postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 1, NULL);
+        postmessage_utoxav(UTOXAV_STOP_VIDEO, UINT16_MAX, 1, NULL);
     } else if (video_width && video_height) {
-        postmessage_utoxav(UTOXAV_START_VIDEO, 0, 1, NULL);
+        postmessage_utoxav(UTOXAV_START_VIDEO, UINT16_MAX, 1, NULL);
     } else {
         LOG_ERR("Button", "Video_width = 0, can't preview\n");
     }
@@ -808,7 +809,9 @@ static void switch_update(UISWITCH *s) {
     switch_set_size(s);
 }
 
-static void switchfxn_logging(void) { settings.logging_enabled = !settings.logging_enabled; }
+static void switchfxn_logging(void) {
+    settings.logging_enabled = !settings.logging_enabled;
+}
 
 static void switchfxn_mini_contacts(void) {
     settings.use_mini_flist = !settings.use_mini_flist;
@@ -825,13 +828,22 @@ static void switchfxn_udp(void) {
     tox_settingschanged();
 }
 
-static void switchfxn_close_to_tray(void) { settings.close_to_tray = !settings.close_to_tray; }
+static void switchfxn_close_to_tray(void) {
+    settings.close_to_tray = !settings.close_to_tray;
+}
 
-static void switchfxn_start_in_tray(void) { settings.start_in_tray = !settings.start_in_tray; }
+static void switchfxn_start_in_tray(void) {
+    settings.start_in_tray = !settings.start_in_tray;
+}
 
-static void switchfxn_auto_startup(void) { settings.start_with_system = !settings.start_with_system; }
+static void switchfxn_auto_startup(void) {
+    settings.start_with_system = !settings.start_with_system;
+    launch_at_startup(settings.start_with_system);
+}
 
-static void switchfxn_typing_notes(void) { settings.send_typing_status = !settings.send_typing_status; }
+static void switchfxn_typing_notes(void) {
+    settings.send_typing_status = !settings.send_typing_status;
+}
 
 static void switchfxn_audible_notifications(void) { settings.ringtone_enabled = !settings.ringtone_enabled; }
 

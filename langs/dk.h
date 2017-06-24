@@ -7,9 +7,6 @@ msgstr("DANISH")
 msgid(REQ_SENT)
 msgstr("Venneanmodning sendt. Din ven vil forekomme online når anmodningen er accepteret.")
 
-msgid(REQ_RESOLVE)
-msgstr("Prøver at afkode DNS navn...")
-
 msgid(REQ_INVALID_ID)
 msgstr("Fejl: Ugyldigt Tox ID")
 

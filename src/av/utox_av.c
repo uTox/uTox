@@ -6,6 +6,7 @@
 #include "../debug.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../groups.h"
 #include "../inline_video.h"
 #include "../macros.h"
 #include "../tox.h"
@@ -31,22 +32,6 @@ void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *dat
 
     toxav_thread_msg = 1;
 }
-
-#define VERIFY_AUDIO_IN()                    \
-    do {                                     \
-        if (call_count) {                    \
-            if (!audio_in) {                 \
-                utox_audio_in_device_open(); \
-                utox_audio_in_listen();      \
-                audio_in = 1;                \
-            }                                \
-        } else {                             \
-            utox_audio_in_ignore();          \
-            utox_audio_in_device_close();    \
-            audio_in = 0;                    \
-        }                                    \
-        yieldcpu(5);                         \
-    } while (0)
 
 void utox_av_ctrl_thread(void *args) {
     ToxAV *av = args;
@@ -79,9 +64,7 @@ void utox_av_ctrl_thread(void *args) {
                     break;
                 }
 
-                case UTOXAV_INCOMING_CALL_ANSWER: {
-                    VERIFY_AUDIO_IN();
-                    FRIEND *f = get_friend(msg->param1);
+                case UTOXAV_INCOMING_CALL_ANSWER: {                    FRIEND *f = get_friend(msg->param1);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
                     f->call_state_self = (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A);
@@ -99,9 +82,7 @@ void utox_av_ctrl_thread(void *args) {
                 }
 
                 case UTOXAV_OUTGOING_CALL_PENDING: {
-                    call_count++;
-                    VERIFY_AUDIO_IN();
-                    postmessage_audio(UTOXAUDIO_PLAY_RINGTONE, msg->param1, msg->param2, NULL);
+                    call_count++;                    postmessage_audio(UTOXAUDIO_PLAY_RINGTONE, msg->param1, msg->param2, NULL);
                     FRIEND *f          = get_friend(msg->param1);
                     f->call_state_self = (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A);
                     if (msg->param2) {
@@ -125,27 +106,39 @@ void utox_av_ctrl_thread(void *args) {
                 case UTOXAV_CALL_END: {
                     call_count--;
                     FRIEND *f = get_friend(msg->param1);
-                    if (f && f->call_state_self
-                             & (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V))
+                    if (f
+                        && f->call_state_self & (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V))
                     {
                         utox_video_stop(false);
                     }
 
                     postmessage_audio(UTOXAUDIO_STOP_FRIEND, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
+                    break;
+                }
 
-                    if (msg->param2) {
-                        // call_count++;
-                        // groups_audio[m->param1] = 1;
-                        // if(!record_on) {
-                        // device_in = alcopencapture(audio_device);
-                        // alccapturestart(device_in);
-                        // record_on = 1;
-                        LOG_TRACE("uToxAv", "Starting Audio GroupCall" );
-                        // }
+                case UTOXAV_GROUPCALL_START: {
+                    call_count++;
+                    LOG_INFO("uToxAv", "Starting group call in groupchat %u", msg->param1);
+                    postmessage_audio(UTOXAUDIO_GROUPCHAT_START, msg->param1, msg->param2, NULL);
+                    break;
+                }
+
+                case UTOXAV_GROUPCALL_END: {
+                    GROUPCHAT *g = get_group(msg->param1);
+                    if (!g) {
+                        LOG_ERR("uToxAv", "Could not get group %u", msg->param1);
+                        break;
                     }
 
-                    VERIFY_AUDIO_IN();
+                    if (!call_count) {
+                        LOG_ERR("uToxAv", "Trying to end a call when no call is active.");
+                        break;
+                    }
+
+                    LOG_INFO("uToxAv", "Ending group call in groupchat %u", msg->param1);
+                    postmessage_audio(UTOXAUDIO_GROUPCHAT_STOP, msg->param1, msg->param2, NULL);
+                    call_count--;
                     break;
                 }
 
@@ -153,7 +146,6 @@ void utox_av_ctrl_thread(void *args) {
                     call_count++;
                     if (msg->param1) { /* Start audio preview */
                         call_count++;
-                        VERIFY_AUDIO_IN();
                         LOG_TRACE("uToxAV", "Starting Audio Preview" );
                         postmessage_audio(UTOXAUDIO_START_PREVIEW, 0, 0, NULL);
                     }
@@ -200,8 +192,7 @@ void utox_av_ctrl_thread(void *args) {
                 case UTOXAV_SET_AUDIO_IN: {
                     LOG_TRACE("uToxAV", "Set audio in" );
                     if (audio_in) {
-                        utox_audio_in_ignore();
-                        utox_audio_in_device_close();
+                        postmessage_audio(UTOXAUDIO_CHANGE_MIC, 0, 0, NULL);
                     }
 
                     utox_audio_in_device_set(msg->data);
@@ -213,18 +204,18 @@ void utox_av_ctrl_thread(void *args) {
                         break;
                     }
 
-                    if (audio_in) {
-                        utox_audio_in_device_open();
-                        utox_audio_in_listen();
-                    }
+                    // TODO get a count in audio.c and allow count restore
+                    // if (audio_in) {
+                    //     utox_audio_in_device_open();
+                    //     utox_audio_in_listen();
+                    // }
                     break;
                 }
 
                 case UTOXAV_SET_AUDIO_OUT: {
                     LOG_TRACE("uToxAV", "Set audio out" );
-                    utox_audio_out_device_close();
+                    postmessage_audio(UTOXAUDIO_CHANGE_SPEAKER, 0, 0, NULL);
                     utox_audio_out_device_set(msg->data);
-                    utox_audio_out_device_open();
                     break;
                 }
 
@@ -238,8 +229,6 @@ void utox_av_ctrl_thread(void *args) {
                     break;
                 }
             }
-
-            VERIFY_AUDIO_IN();
         }
 
         toxav_thread_msg = false;
@@ -443,7 +432,7 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
         free(frame->img);
         free(frame);
     } else {
-        postmessage_utox(AV_VIDEO_FRAME, friend_number + 1, 0, (void *)frame);
+        postmessage_utox(AV_VIDEO_FRAME, friend_number, 0, (void *)frame);
     }
 }
 
