@@ -37,6 +37,8 @@ enum {
 
     UTOXAV_SET_VIDEO_IN,
     UTOXAV_SET_VIDEO_OUT,
+
+    UTOXAV_NEW_TOX_INSTANCE,
 };
 
 enum {

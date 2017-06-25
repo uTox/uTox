@@ -13,6 +13,8 @@
 #include "native/main.h"
 #include "native/thread.h"
 
+#include "av/utox_av.h"
+
 #include <getopt.h>
 
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
@@ -281,7 +283,7 @@ void utox_init(void) {
 
     // We likely want to start this on every system.
     thread(updater_thread, (void*)1);
-
+    thread(utox_av_ctrl_thread, NULL);
 }
 
 void utox_raze(void) {

@@ -33,8 +33,8 @@ void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *dat
     toxav_thread_msg = 1;
 }
 
-void utox_av_ctrl_thread(void *args) {
-    ToxAV *av = args;
+void utox_av_ctrl_thread(void *UNUSED(args)) {
+    ToxAV *av = NULL;
 
     utox_av_ctrl_init = 1;
     LOG_TRACE("uToxAv", "Toxav thread init" );
@@ -43,14 +43,28 @@ void utox_av_ctrl_thread(void *args) {
     volatile bool     audio_in   = 0;
     // volatile bool video_on  = 0;
 
-    thread(utox_audio_thread, av);
-    thread(utox_video_thread, av);
-
     while (1) {
         if (toxav_thread_msg) {
             TOX_MSG *msg = &toxav_msg;
             if (msg->msg == UTOXAV_KILL) {
                 break;
+            } else if (msg->msg == UTOXAV_NEW_TOX_INSTANCE) {
+                if (av != NULL) {
+                    // terminate av threads
+                    postmessage_audio(UTOXAUDIO_KILL, 0, 0, NULL);
+                    postmessage_video(UTOXVIDEO_KILL, 0, 0, NULL);
+
+                    while (utox_audio_thread_init || utox_video_thread_init) {
+                        yieldcpu(10);
+                    }
+                    toxav_kill(av);
+                }
+
+                av = msg->data;
+                set_av_callbacks(av);
+
+                thread(utox_audio_thread, av);
+                thread(utox_video_thread, av);
             }
 
             if (!utox_audio_thread_init || !utox_video_thread_init) {
@@ -232,8 +246,13 @@ void utox_av_ctrl_thread(void *args) {
         }
 
         toxav_thread_msg = false;
-        toxav_iterate(av);
-        yieldcpu(toxav_iteration_interval(av));
+
+        if (av) {
+            toxav_iterate(av);
+            yieldcpu(toxav_iteration_interval(av));
+        } else {
+            yieldcpu(10);
+        }
     }
 
 
@@ -248,6 +267,7 @@ void utox_av_ctrl_thread(void *args) {
     toxav_thread_msg  = false;
     utox_av_ctrl_init = false;
 
+    toxav_kill(av);
     LOG_NOTE("UTOXAV", "Clean thread exit!");
     return;
 }
