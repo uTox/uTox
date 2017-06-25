@@ -221,8 +221,6 @@ void tox_settingschanged(void) {
     dropdown_list_clear(&dropdown_audio_out);
     dropdown_list_clear(&dropdown_video);
 
-    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
-
     // send the reconfig message!
     postmessage_toxcore(0, 1, 0, NULL);
 
@@ -484,16 +482,12 @@ void toxcore_thread(void *UNUSED(args)) {
         } else {
             init_self(tox);
 
-            // Start the tox av session.
             TOXAV_ERR_NEW toxav_error;
             av = toxav_new(tox, &toxav_error);
 
             if (!av) {
                 LOG_ERR("Toxcore", "Unable to get ToxAV (%u)" , toxav_error);
             }
-
-            // Give toxcore the av functions to call
-            set_av_callbacks(av);
 
             tox_thread_init = UTOX_TOX_THREAD_INIT_SUCCESS;
 
@@ -502,12 +496,7 @@ void toxcore_thread(void *UNUSED(args)) {
             postmessage_utox(UPDATE_TRAY, 0, 0, NULL);
             postmessage_utox(PROFILE_DID_LOAD, 0, 0, NULL);
 
-            // Start the treads
-            thread(utox_av_ctrl_thread, av);
-
-            /* Moved into the utoxav ctrl thread */
-            // thread(utox_audio_thread, av);
-            // thread(utox_video_thread, av);
+            postmessage_utoxav(UTOXAV_NEW_TOX_INSTANCE, 0, 0, av);
         }
 
         bool     connected = 0;
@@ -567,14 +556,8 @@ void toxcore_thread(void *UNUSED(args)) {
         write_save(tox);
         edit_setstr(&edit_profile_password, (char *)"", 0);
 
-        // Wait for all a/v threads to return 0
-        while (utox_audio_thread_init || utox_video_thread_init || utox_av_ctrl_init) {
-            yieldcpu(1);
-        }
-
-        // Stop av threads, and toxcore.
-        LOG_TRACE("Toxcore", "av_thread exit, tox thread ending");
-        toxav_kill(av);
+        // Stop toxcore.
+        LOG_TRACE("Toxcore", "tox thread ending");
         tox_kill(tox);
     }
 
