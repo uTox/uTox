@@ -64,7 +64,10 @@ void utox_av_ctrl_thread(void *args) {
                     break;
                 }
 
-                case UTOXAV_INCOMING_CALL_ANSWER: {                    FRIEND *f = get_friend(msg->param1);
+                case UTOXAV_INCOMING_CALL_ANSWER: {
+                    FRIEND *f = get_friend(msg->param1);
+                    f->call_started = time(NULL);
+                    message_add_type_notice(&f->msg, "Call started", 12, true); // log to disk
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
                     f->call_state_self = (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A);
@@ -93,6 +96,10 @@ void utox_av_ctrl_thread(void *args) {
                 }
 
                 case UTOXAV_OUTGOING_CALL_ACCEPTED: {
+                    FRIEND *f = get_friend(msg->param1);
+                    f->call_started = time(NULL);
+                    message_add_type_notice(&f->msg, "Call started", 12, true); // log to disk
+
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
                     LOG_NOTE("uToxAV", "Call accepted by friend" );
                     // intentional fall thorough
@@ -111,6 +118,25 @@ void utox_av_ctrl_thread(void *args) {
                     {
                         utox_video_stop(false);
                     }
+
+                    char notice_msg[64];
+                    double duration = difftime(time(NULL), f->call_started);
+                    int hours = duration / 3600;
+                    int minutes = ((int)duration / 60) % 60;
+                    int seconds = (int)duration % 60;
+                    int length = snprintf(notice_msg, 64, "Call ended:");
+
+                    if (hours) {
+                        length += snprintf(notice_msg + length, 64 - length, " %d hours", hours);
+                    }
+                    if (minutes) {
+                        length += snprintf(notice_msg + length, 64 - length, " %d minutes", minutes);
+                    }
+                    if (seconds) {
+                        length += snprintf(notice_msg + length, 64 - length, " %d seconds", seconds);
+                    }
+
+                    message_add_type_notice(&f->msg, notice_msg, length, true); // log to disk
 
                     postmessage_audio(UTOXAUDIO_STOP_FRIEND, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
@@ -458,7 +484,6 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     } else if (state == 2) {
         LOG_NOTE("uToxAV", "Call ended with friend_number %u." , friend_number);
         utox_av_remote_disconnect(av, friend_number);
-        message_add_type_notice(&f->msg, "Friend Has Ended the call!", 26, 0); /* TODO localization with S() SLEN() */
         return;
     } else if (!f->call_state_friend) {
         utox_audio_friend_accepted(av, friend_number, state);

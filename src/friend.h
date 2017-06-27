@@ -88,6 +88,7 @@ typedef struct utox_friend {
     int32_t  call_state_self, call_state_friend;
     uint16_t video_width, video_height;
     ALuint   audio_dest;
+    time_t call_started;
 
     /* File transfers */
     bool ft_autoaccept;
