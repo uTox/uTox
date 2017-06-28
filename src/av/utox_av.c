@@ -119,25 +119,28 @@ void utox_av_ctrl_thread(void *args) {
                         utox_video_stop(false);
                     }
 
-                    char notice_msg[64];
-                    double duration = difftime(time(NULL), f->call_started);
-                    int hours = duration / 3600;
-                    int minutes = ((int)duration / 60) % 60;
-                    int seconds = (int)duration % 60;
-                    int length = snprintf(notice_msg, 64, "Call ended:");
+                    if (f->call_started != 0) {
+                        char notice_msg[64];
+                        double duration = difftime(time(NULL), f->call_started);
+                        int hours = duration / 3600;
+                        int minutes = ((int)duration / 60) % 60;
+                        int seconds = (int)duration % 60;
+                        int length = snprintf(notice_msg, 64, "Call ended:");
 
-                    if (hours) {
-                        length += snprintf(notice_msg + length, 64 - length, " %d hours", hours);
-                    }
-                    if (minutes) {
-                        length += snprintf(notice_msg + length, 64 - length, " %d minutes", minutes);
-                    }
-                    if (seconds) {
-                        length += snprintf(notice_msg + length, 64 - length, " %d seconds", seconds);
-                    }
+                        if (hours) {
+                            length += snprintf(notice_msg + length, 64 - length, " %d hours", hours);
+                        }
+                        if (minutes) {
+                            length += snprintf(notice_msg + length, 64 - length, " %d minutes", minutes);
+                        }
+                        if (seconds) {
+                            length += snprintf(notice_msg + length, 64 - length, " %d seconds", seconds);
+                        }
 
-                    message_add_type_notice(&f->msg, notice_msg, length, true); // log to disk
-
+                        message_add_type_notice(&f->msg, notice_msg, length, true); // log to disk
+                        f->call_started = 0;
+                    }
+                    
                     postmessage_audio(UTOXAUDIO_STOP_FRIEND, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                     break;
