@@ -272,22 +272,26 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
         }
 
         /* Write Timestamp */
-        fprintf(dest_file, "[%02d:%02d] ", tm_curr->tm_hour, tm_curr->tm_min);
+        fprintf(dest_file, "[%02d:%02d]", tm_curr->tm_hour, tm_curr->tm_min);
         tm_prev.tm_year = tm_curr->tm_year;
         tm_prev.tm_mon = tm_curr->tm_mon;
         tm_prev.tm_mday = tm_curr->tm_mday;
 
         int c;
-        /* Write Author */
-        fwrite("<", 1, 1, dest_file);
-        for (size_t i = 0; i < header.author_length; ++i) {
-            c = fgetc(file);
-            if (c != EOF) {
-                fputc(c, dest_file);
+        if (header.msg_type == MSG_TYPE_NOTICE) {
+            fseek(file, header.author_length, SEEK_CUR);
+        } else {
+            /* Write Author */
+            fwrite(" <", 2, 1, dest_file);
+            for (size_t i = 0; i < header.author_length; ++i) {
+                c = fgetc(file);
+                if (c != EOF) {
+                    fputc(c, dest_file);
+                }
             }
+            fwrite(">", 1, 1, dest_file);
         }
-        fwrite(">", 1, 1, dest_file);
-
+        
         /* Write text */
         fwrite(" ", 1, 1, dest_file);
         for (size_t i = 0; i < header.msg_length; ++i) {
