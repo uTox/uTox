@@ -425,6 +425,9 @@ msgstr("Audio Output Device")
 msgid(VIDEOINPUTDEVICE)
 msgstr("Video Input Device")
 
+msgid(VIDEOFRAMERATE)
+msgstr("Video Frame Rate (FPS)")
+
 msgid(PUSH_TO_TALK)
 msgstr("Push To Talk")
 

@@ -73,6 +73,7 @@ typedef struct utox_settings {
     uint32_t window_baseline;
 
     bool    window_maximized;
+    uint32_t video_fps_ms;
 } SETTINGS;
 
 extern SETTINGS settings;
@@ -121,7 +122,8 @@ typedef struct utox_save {
 
     uint16_t language;
 
-    uint16_t unused[27];
+    uint32_t video_fps_ms;
+    uint16_t unused[25];
     uint8_t  proxy_ip[];
 } UTOX_SAVE;
 

@@ -222,9 +222,11 @@ static void draw_settings_text_av(int x, int y, int UNUSED(w), int UNUSED(height
     draw_pos_y += draw_pos_y_inc;
     drawstr(x + SCALE(10), y + SCALE(draw_pos_y - 7), AUDIOOUTPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y - 15), VIDEOINPUTDEVICE);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y - 15), VIDEOFRAMERATE);
     draw_pos_y += draw_pos_y_inc;
-    drawstr(x + SCALE(10), y + SCALE(draw_pos_y - 23), PREVIEW);
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y - 23), VIDEOINPUTDEVICE);
+    draw_pos_y += draw_pos_y_inc;
+    drawstr(x + SCALE(10), y + SCALE(draw_pos_y - 30), PREVIEW);
 }
 
 // Notification settings page
@@ -404,6 +406,7 @@ panel_settings_master = {
             (PANEL*)&button_callpreview,
             (PANEL*)&switch_push_to_talk,
             (PANEL*)&button_videopreview,
+            (PANEL*)&edit_video_fps,
             (PANEL*)&dropdown_audio_in,
             (PANEL*)&dropdown_audio_out,
             (PANEL*)&dropdown_video,
@@ -1092,6 +1095,12 @@ static void dropdown_audio_out_onselect(uint16_t i, const DROPDOWN *dm) {
     postmessage_utoxav(UTOXAV_SET_AUDIO_OUT, 0, 0, handle);
 }
 
+static void edit_video_fps_onlosefocus(EDIT *UNUSED(edit))
+{
+    edit_video_fps.data[edit_video_fps.length] = 0;
+    settings.video_fps_ms = 1000 / strtol((char*)edit_video_fps.data, NULL, 0);
+}
+
 #include "../screen_grab.h"
 static void dropdown_video_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     if (i == 1) {
@@ -1211,6 +1220,7 @@ static char edit_name_data[128],
             edit_status_msg_data[128],
             edit_proxy_ip_data[256],
             edit_proxy_port_data[8],
+            edit_video_fps_data[8],
             edit_profile_password_data[65535],
             edit_nospam_data[sizeof(uint32_t) * 2];
 #ifdef ENABLE_MULTIDEVICE
@@ -1293,6 +1303,13 @@ EDIT edit_proxy_port = {
     .maxlength   = sizeof edit_proxy_port_data - 1,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_PORT },
+};
+
+EDIT edit_video_fps = {
+    .data = edit_video_fps_data,
+    .maxlength = sizeof edit_video_fps - 1,
+    .onlosefocus = edit_video_fps_onlosefocus,
+    /* .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_PORT }, */
 };
 
 static void edit_profile_password_update(EDIT *UNUSED(edit)) {
