@@ -66,7 +66,7 @@ SETTINGS settings = {
     .use_mini_flist         = false,
     .magic_flist_enabled    = false,
 
-    .video_fps_ms           = 40, /* 25 fps */
+    .video_fps              = 40, /* 25 fps */
 
     // Notifications / Alerts
     .ringtone_enabled       = true,
@@ -205,10 +205,10 @@ UTOX_SAVE *config_load(void) {
     settings.update_to_develop      = save->update_to_develop;
     settings.send_version           = save->send_version;
 
-    settings.video_fps_ms           = save->video_fps_ms;
+    settings.video_fps              = save->video_fps;
 
     edit_video_fps.length =
-        snprintf((char*)edit_video_fps.data, edit_video_fps.maxlength + 1, "%u", 1000 / save->video_fps_ms);
+        snprintf((char*)edit_video_fps.data, edit_video_fps.maxlength + 1, "%u", save->video_fps);
     if (edit_video_fps.length >= edit_video_fps.maxlength + 1) {
         edit_video_fps.length = edit_video_fps.maxlength;
     }
@@ -257,8 +257,7 @@ void config_save(UTOX_SAVE *save_in) {
     save->use_mini_flist                = settings.use_mini_flist;
     save->magic_flist_enabled           = settings.magic_flist_enabled;
 
-                                                                      /* 25 fps */
-    save->video_fps_ms                  = (settings.video_fps_ms == 0) ? 40 : settings.video_fps_ms;
+    save->video_fps                     = (settings.video_fps == 0) ? 25 : settings.video_fps;
 
     save->disableudp              = !settings.enable_udp;
     save->enableipv6              = settings.enable_ipv6;
