@@ -85,6 +85,8 @@ extern EDIT /* Profile */
             edit_proxy_port,
             edit_profile_password,
             edit_nospam,
+            /* Video */
+            edit_video_fps,
             /* MDevice */
             edit_add_new_device_to_self;
 
