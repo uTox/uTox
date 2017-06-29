@@ -1100,11 +1100,11 @@ static void edit_video_fps_onlosefocus(EDIT *UNUSED(edit))
     edit_video_fps.data[edit_video_fps.length] = 0;
     long tmp = strtol((char*)edit_video_fps.data, NULL, 0);
     if (tmp <= 0) {
-        settings.video_fps_ms = 1000 / 25;
+        settings.video_fps = 25;
         edit_video_fps.length =
             snprintf((char*)edit_video_fps.data, edit_video_fps.maxlength + 1, "25");
     } else {
-        settings.video_fps_ms = 1000 / tmp;
+        settings.video_fps = tmp;
     }
 }
 
