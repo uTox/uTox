@@ -257,7 +257,8 @@ void config_save(UTOX_SAVE *save_in) {
     save->use_mini_flist                = settings.use_mini_flist;
     save->magic_flist_enabled           = settings.magic_flist_enabled;
 
-    save->video_fps_ms                  = settings.video_fps_ms;
+                                                                      /* 25 fps */
+    save->video_fps_ms                  = (settings.video_fps_ms == 0) ? 40 : settings.video_fps_ms;
 
     save->disableudp              = !settings.enable_udp;
     save->enableipv6              = settings.enable_ipv6;
