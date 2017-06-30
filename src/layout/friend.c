@@ -167,6 +167,9 @@ static void draw_add_friend(int x, int UNUSED(y), int UNUSED(w), int height) {
         case ADDF_NOMEM: // if increasing the friend list size fails.
             str = SPTR(REQ_NO_MEMORY);
             break;
+        case ADDF_NOFREQUESTSENT:
+            str = SPTR(REQ_ADDED_NO_FREQ_SENT);
+            break;
         case ADDF_UNKNOWN: // for unknown error.
         case ADDF_NONE:    // this case must never be rendered, but if it does, assume it's an error
         default:

@@ -452,6 +452,31 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             redraw();
             break;
         }
+
+        case FRIEND_ADD_NO_REQ: {
+            /* confirmation that friend has been added to friend list (add) */
+            if (param1) {
+                /* friend was not added */
+                addfriend_status = param2;
+            } else {
+                /* friend was added */
+                edit_add_new_friend_id.length  = 0;
+                edit_add_new_friend_msg.length = 0;
+
+                FRIEND *f = get_friend(param2);
+                if (!f) {
+                    LOG_ERR("uTox", "Could not get friend with number: %u", param2);
+                    return;
+                }
+                flist_add_friend(f);
+
+                addfriend_status = ADDF_NOFREQUESTSENT;
+            }
+            free(data);
+            redraw();
+            break;
+        }
+
         case FRIEND_SEND_REQUEST: {
             /* confirmation that friend has been added to friend list (add) */
             if (param1) {
