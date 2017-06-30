@@ -147,6 +147,9 @@ msgstr("Friend request sent. Your friend will appear online after the request is
 msgid(REQ_INVALID_ID)
 msgstr("Error: Invalid Tox ID")
 
+msgid(REQ_ADDED_NO_FREQ_SENT)
+msgstr("Note: Friend added but friend request was not sent (nospam missing)")
+
 msgid(REQ_EMPTY_ID)
 msgstr("Error: No Tox ID specified")
 

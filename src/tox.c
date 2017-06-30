@@ -728,6 +728,24 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             break;
         }
 
+        case TOX_FRIEND_NEW_NO_REQ: {
+            /* data: friend's public key
+             */
+            TOX_ERR_FRIEND_ADD f_err;
+            uint32_t fid = tox_friend_add_norequest(tox, data, &f_err);
+
+            if (!f_err) {
+                utox_friend_init(tox, fid);
+                postmessage_utox(FRIEND_ADD_NO_REQ, 0, fid, data);
+            } else {
+                char hex_id[TOX_ADDRESS_SIZE * 2];
+                id_to_string(hex_id, data);
+                LOG_TRACE("Toxcore", "Unable to accept friend %s, error num = %i" , hex_id, fid);
+            }
+            save_needed = 1;
+            break;
+        }
+
         case TOX_FRIEND_ACCEPT: {
             /* data: FREQUEST
              */
