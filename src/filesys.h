@@ -31,6 +31,16 @@ typedef enum UTOX_FILE_OPTS {
 FILE *utox_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts);
 
 /**
+ * @brief OS independent way of opening a file from filesystem.
+ *
+ * @param name full path of file to open.
+ * @param opts Options to apply when opening the file, see UTOX_FILE_OPTS for available options.
+ *
+ * @return open file pointer, or NULL on failure.
+ */
+FILE *utox_get_file_simple(const char *name, UTOX_FILE_OPTS opts);
+
+/**
  * TODO DOCUMENTATION
  */
 bool utox_remove_file(const uint8_t *full_name, size_t length);

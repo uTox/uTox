@@ -48,24 +48,20 @@ bool hidden = false;
 
 /** Open system file browser dialog */
 void openfilesend(void) {
-    char *filepath = calloc(1, UTOX_FILE_NAME_LENGTH);
-    if (filepath == NULL) {
-        LOG_ERR("Windows", " Could not allocate memory for path.");
-        return;
-    }
-
     wchar_t dir[UTOX_FILE_NAME_LENGTH];
     GetCurrentDirectoryW(COUNTOF(dir), dir);
 
-    OPENFILENAME ofn = {
-        .lStructSize = sizeof(OPENFILENAME),
+    wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
+
+    OPENFILENAMEW ofn = {
+        .lStructSize = sizeof(OPENFILENAMEW),
         .hwndOwner   = main_window.window,
         .lpstrFile   = filepath,
         .nMaxFile    = UTOX_FILE_NAME_LENGTH,
         .Flags       = OFN_EXPLORER | OFN_FILEMUSTEXIST,
     };
 
-    if (GetOpenFileName(&ofn)) {
+    if (GetOpenFileNameW(&ofn)) {
         FRIEND *f = flist_get_friend();
         if (!f) {
             LOG_ERR("Windows", "Unable to get friend for file send msg.");
@@ -78,8 +74,15 @@ void openfilesend(void) {
             return;
         }
 
-        msg->file = fopen(filepath, "rb");
-        msg->name = (uint8_t *)filepath;
+        char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+        if (!path) {
+            LOG_ERR("Windows", " Could not allocate memory for path.");
+            return;
+        }
+
+        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH);
+        msg->file = utox_get_file_simple(path, UTOX_FILE_OPTS_READ);
+        msg->name = (uint8_t *)path;
 
         postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
     } else {
@@ -189,10 +192,6 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
     }
 
     free(path);
-}
-
-int native_to_utf8str(const wchar_t *str_in, char *str_out, uint32_t max_size) {
-    return WideCharToMultiByte(CP_UTF8, 0, str_in, -1, str_out, max_size, NULL, NULL);
 }
 
 void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
