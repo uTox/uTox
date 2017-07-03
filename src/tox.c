@@ -741,6 +741,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 char hex_id[TOX_ADDRESS_SIZE * 2];
                 id_to_string(hex_id, data);
                 LOG_TRACE("Toxcore", "Unable to accept friend %s, error num = %i" , hex_id, fid);
+                free(data);
             }
             save_needed = 1;
             break;

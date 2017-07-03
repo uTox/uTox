@@ -466,6 +466,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 FRIEND *f = get_friend(param2);
                 if (!f) {
                     LOG_ERR("uTox", "Could not get friend with number: %u", param2);
+                    free(data);
                     return;
                 }
                 flist_add_friend(f);
