@@ -240,6 +240,7 @@ static struct {
     uint16_t friendnumber;
     uint64_t time;
     bool     sent_value;
+    bool     sent;
 } typing_state = {
     .tox = NULL, .friendnumber = 0, .time = 0, .sent_value = 0,
 };
@@ -551,6 +552,7 @@ void toxcore_thread(void *UNUSED(args)) {
                 }
                 tox_thread_message(tox, av, time, msg->msg, msg->param1, msg->param2, msg->data);
                 tox_thread_msg = 0;
+                typing_state.sent = (msg->msg == TOX_SEND_MESSAGE || msg->msg == TOX_SEND_ACTION);
             }
 
             if (settings.send_typing_status) {
@@ -817,7 +819,10 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             // send a notification if it deems necessary.
             typing_state.tox          = tox;
             typing_state.friendnumber = param1;
-            typing_state.time         = time;
+
+            // UINT64_MAX will set the is_typing in utox_thread_work_for_typing_notifications to 0
+            // and send typing state 0 to friend when message is sent
+            typing_state.time         = (typing_state.sent) ? UINT64_MAX : time;
 
             // LOG_TRACE("Toxcore", "Set typing state for friend (%d): %d" , typing_state.friendnumber, typing_state.sent_value);
             break;
