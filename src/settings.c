@@ -66,7 +66,7 @@ SETTINGS settings = {
     .use_mini_flist         = false,
     .magic_flist_enabled    = false,
 
-    .video_fps              = 40, /* 25 fps */
+    .video_fps              = 25,
 
     // Notifications / Alerts
     .ringtone_enabled       = true,
@@ -208,8 +208,8 @@ UTOX_SAVE *config_load(void) {
     settings.video_fps              = save->video_fps;
 
     edit_video_fps.length =
-        snprintf((char*)edit_video_fps.data, edit_video_fps.maxlength + 1, "%u", save->video_fps);
-    if (edit_video_fps.length >= edit_video_fps.maxlength + 1) {
+        snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1, "%u", save->video_fps);
+    if (edit_video_fps.length >= edit_video_fps.maxlength) {
         edit_video_fps.length = edit_video_fps.maxlength;
     }
 

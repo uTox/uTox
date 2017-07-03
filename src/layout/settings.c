@@ -1098,11 +1098,11 @@ static void dropdown_audio_out_onselect(uint16_t i, const DROPDOWN *dm) {
 static void edit_video_fps_onlosefocus(EDIT *UNUSED(edit))
 {
     edit_video_fps.data[edit_video_fps.length] = 0;
-    long tmp = strtol((char*)edit_video_fps.data, NULL, 0);
+    long tmp = strtol((char *)edit_video_fps.data, NULL, 0);
     if (tmp <= 0) {
         settings.video_fps = 25;
         edit_video_fps.length =
-            snprintf((char*)edit_video_fps.data, edit_video_fps.maxlength + 1, "25");
+            snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1, "25");
     } else {
         settings.video_fps = tmp;
     }
