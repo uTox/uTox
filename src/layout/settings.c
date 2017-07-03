@@ -1212,7 +1212,7 @@ static char edit_name_data[128],
             edit_proxy_ip_data[256],
             edit_proxy_port_data[8],
             edit_profile_password_data[65535],
-            edit_nospam_data[sizeof(uint32_t) * 2];
+            edit_nospam_data[(sizeof(uint32_t) * 2) + 1] = { 0 };
 #ifdef ENABLE_MULTIDEVICE
 static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4];
 #endif
@@ -1317,10 +1317,15 @@ EDIT edit_toxid = {
     .select_completely = 1,
 };
 
-static void edit_change_nospam_onenter(EDIT *UNUSED(edit)) {
-    long int nospam = strtol(edit_nospam_data, NULL, 16);
+static void edit_change_nospam_onenter(EDIT *edit) {
+    char *endptr;
+    edit_nospam_data[edit->length] = '\0';
+    long int nospam = strtol(edit_nospam_data, &endptr, 16);
     if (nospam == 0 || nospam < 0) {
         LOG_ERR("Nospam", "Invalid nospam value: %lu", nospam);
+        return;
+    } else if (endptr == edit_nospam_data) {
+        LOG_ERR("Nospam", "No numbers found.");
         return;
     }
     postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, nospam, 0, NULL);
