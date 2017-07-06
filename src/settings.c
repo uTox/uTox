@@ -209,7 +209,7 @@ UTOX_SAVE *config_load(void) {
 
     edit_video_fps.length =
         snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1, "%u", save->video_fps);
-    if (edit_video_fps.length >= edit_video_fps.maxlength) {
+    if (edit_video_fps.length > edit_video_fps.maxlength) {
         edit_video_fps.length = edit_video_fps.maxlength;
     }
 
