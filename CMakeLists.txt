@@ -17,7 +17,13 @@ set(PROJECT_COPYRIGHT "Copyleft 2017 uTox contributors. Some rights reserved.")
 # Options #
 ###########
 
-option(ENABLE_ASAN          "Enable Address Sanitizer on debug builds"                      ON )
+if (APPLE) # disable ASAN for macOS due to "AddressSanitizer: odr-violation: global". see #957
+    set(ASAN_DEFAULT OFF)
+else()
+    set(ASAN_DEFAULT ON)
+endif()
+
+option(ENABLE_ASAN          "Enable Address Sanitizer on debug builds"                      ${ASAN_DEFAULT} )
 option(ENABLE_TESTS         "Whether to build test binaries (currently linux only)"         ON )
 option(ENABLE_WERROR        "Error on Warning, whether to put -Werror flag to the compiler" OFF)
 option(ENABLE_FILTERAUDIO   "Enable Filter Audio"                                           ON )
