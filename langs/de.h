@@ -296,6 +296,9 @@ msgstr("Beschäftigt")
 msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Kompakte Kontaktliste verwenden")
 
+msgid(SETTINGS_UI_AUTO_HIDE_SIDEBAR)
+msgstr("Seitenleiste automatisch verstecken")
+
 msgid(NOT_CONNECTED)
 msgstr("Nicht verbunden")
 
@@ -329,6 +332,12 @@ msgstr("Passwortfeld anzeigen")
 msgid(SHOW_UI_PASSWORD_TOOLTIP)
 msgstr("Hier klicken, um Passwortfeld anzuzeigen. Änderungen werden sofort angewendet!")
 
+msgid(HIDE_UI_PASSWORD)
+msgstr("Passwortfeld verstecken")
+
+msgid(HIDE_UI_PASSWORD_TOOLTIP)
+msgstr("Hier klicken, um Passwortfeld zu verstecken.")
+
 msgid(LOCK)
 msgstr("Sperren")
 
@@ -340,6 +349,9 @@ msgstr("Sprache")
 
 msgid(NETWORK)
 msgstr("Netzwerk")
+
+msgid(PROXY_FORCE)
+msgstr("Verwendung des Proxy's erzwingen")
 
 msgid(WARNING)
 msgstr("Das Verändern von Netzwerk-/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk.")
@@ -541,3 +553,12 @@ msgstr("Freundschaftsanfragen blockieren")
 
 msgid(SHOW_NOSPAM)
 msgstr("Nospam Einstellungen anzeigen")
+
+msgid(HIDE_NOSPAM)
+msgstr("Nospam Einstellungen verstecken")
+
+msgid(DELETE_FRIEND)
+msgstr("Freund löschen")
+
+msgid(KEEP)
+msgstr("Behalten")
