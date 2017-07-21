@@ -164,10 +164,11 @@ static void settings_AV(void) {
     const uint16_t draw_y_vect = 30;
     CREATE_DROPDOWN(audio_in,  10, (start_draw_y + draw_y_vect + 5), 24, 360);
     CREATE_DROPDOWN(audio_out, 10, (start_draw_y + draw_y_vect + 57), 24, 360);
-    CREATE_DROPDOWN(video,     10, (start_draw_y + draw_y_vect + 110), 24, 360);
+    CREATE_EDIT(video_fps,     10, (start_draw_y + draw_y_vect + 110), 360, 24);
+    CREATE_DROPDOWN(video,     10, (start_draw_y + draw_y_vect + 162), 24, 360);
 
-    CREATE_BUTTON(callpreview,  10, (preview_button_pos_y - 23), _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(videopreview, 70, (preview_button_pos_y - 23), _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(callpreview,  10, (preview_button_pos_y + 35), _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(videopreview, 70, (preview_button_pos_y + 35), _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
 }
 
 static void settings_NOTIFY(void) {
