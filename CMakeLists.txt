@@ -228,6 +228,8 @@ if (ENABLE_ASAN)
     set(CMAKE_REQUIRED_LIBRARIES "-fsanitize=address")
     add_cflag("-fsanitize=address")
     add_cflag("-fno-omit-frame-pointer")
+    add_cflag("-mllvm -asan-use-private-alias")
+
     set(CMAKE_REQUIRED_LIBRARIES "${SAVE_CMAKE_REQUIRED_LIBRARIES}")
 endif()
 
