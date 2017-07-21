@@ -12,29 +12,6 @@ set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT
 
 set(PROJECT_COPYRIGHT "Copyleft 2017 uTox contributors. Some rights reserved.")
 
-
-###########
-# Options #
-###########
-
-if (APPLE) # disable ASAN for macOS due to "AddressSanitizer: odr-violation: global". see #957
-    set(ASAN_DEFAULT OFF)
-else()
-    set(ASAN_DEFAULT ON)
-endif()
-
-option(ENABLE_ASAN          "Enable Address Sanitizer on debug builds"                      ${ASAN_DEFAULT} )
-option(ENABLE_TESTS         "Whether to build test binaries (currently linux only)"         ON )
-option(ENABLE_WERROR        "Error on Warning, whether to put -Werror flag to the compiler" OFF)
-option(ENABLE_FILTERAUDIO   "Enable Filter Audio"                                           ON )
-option(ENABLE_AUTOUPDATE    "Enable Auto-updater"                                           OFF)
-
-option(UTOX_STATIC          "Link uTox statically"                                          OFF)
-option(TOXCORE_STATIC       "Build uTox with the static version of Toxcore"                 OFF)
-
-option(ENABLE_LTO           "Enable link time optimizations"                                ON )
-
-
 ########################
 # Set helper-variables #
 ########################
@@ -70,6 +47,27 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 else()
   set(ARCH_64 FALSE)
 endif()
+
+###########
+# Options #
+###########
+
+option(UTOX_STATIC          "Link uTox statically"                                          OFF)
+option(TOXCORE_STATIC       "Build uTox with the static version of Toxcore"                 OFF)
+
+if (APPLE OR (UTOX_STATIC AND WINDOWS)) # disable ASAN for macOS due to "AddressSanitizer: odr-violation: global". see #957
+    set(ASAN_DEFAULT OFF)
+else()
+    set(ASAN_DEFAULT ON)
+endif()
+
+option(ENABLE_ASAN          "Enable Address Sanitizer on debug builds"          ${ASAN_DEFAULT})
+option(ENABLE_TESTS         "Whether to build test binaries (currently linux only)"         ON )
+option(ENABLE_WERROR        "Error on Warning, whether to put -Werror flag to the compiler" OFF)
+option(ENABLE_FILTERAUDIO   "Enable Filter Audio"                                           ON )
+option(ENABLE_AUTOUPDATE    "Enable Auto-updater"                                           OFF)
+
+option(ENABLE_LTO           "Enable link time optimizations"                                ON )
 
 
 #################################

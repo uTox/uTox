@@ -37,5 +37,3 @@ set(WIN32 TRUE) # This is for cmake
 
 set(UNIX FALSE)
 set(CROSS_COMPILING TRUE)
-
-set(ENABLE_ASAN OFF CACHE STRING "" FORCE)
