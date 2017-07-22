@@ -291,7 +291,7 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
             }
             fwrite(">", 1, 1, dest_file);
         }
-        
+
         /* Write text */
         fwrite(" ", 1, 1, dest_file);
         for (size_t i = 0; i < header.msg_length; ++i) {

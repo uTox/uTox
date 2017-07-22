@@ -121,10 +121,10 @@ void utox_av_ctrl_thread(void *args) {
 
                     if (f->call_started != 0) {
                         char notice_msg[64];
-                        double duration = difftime(time(NULL), f->call_started);
+                        int duration = difftime(time(NULL), f->call_started);
                         int hours = duration / 3600;
-                        int minutes = ((int)duration / 60) % 60;
-                        int seconds = (int)duration % 60;
+                        int minutes = (duration / 60) % 60;
+                        int seconds = duration % 60;
                         int length = snprintf(notice_msg, 64, "Call ended:");
 
                         if (hours) {
@@ -140,7 +140,7 @@ void utox_av_ctrl_thread(void *args) {
                         message_add_type_notice(&f->msg, notice_msg, length, true); // log to disk
                         f->call_started = 0;
                     }
-                    
+
                     postmessage_audio(UTOXAUDIO_STOP_FRIEND, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                     break;
