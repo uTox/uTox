@@ -94,7 +94,7 @@ static bool audio_in_device_close(void) {
     }
     audio_in_handle = NULL;
     microphone_on = false;
-    return true; /* and the audio thread hangs... */
+    return false;
 }
 
 static bool audio_in_listen(void) {
