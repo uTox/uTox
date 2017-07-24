@@ -145,7 +145,7 @@ LANG_WINDOWS_ID(0x041F)
 LANG_POSIX_LOCALE("uk_UA")
 LANG_WINDOWS_ID(0x0422)
 #include "../langs/en.h" //fallback to English for untranslated things
-#include "../langs/ua.h"
+#include "../langs/uk.h"
 #undef _LANG_ID
 
 //"SIMPLIFIED CHINESE" "简体中文"
