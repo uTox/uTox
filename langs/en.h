@@ -12,10 +12,10 @@ msgstr("ENGLISH")
  *** Splash Message & Change Log                                            ***
  ******************************************************************************/
 msgid(SPLASH_TITLE)
-msgstr("Welcome to the new uTox!")
+msgstr("Welcome to the newer uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.16.0! Release name: TODO")
+msgstr("You have just upgraded to version 0.16.0! Release name: No capes!")
 
 msgid(CHANGE_LOG_TITLE)
 msgstr("Changes in v0.16.0 (check out our new website, utox.io, we beg you)")
@@ -28,11 +28,32 @@ msgstr(
 "    and enable it in the settings.\n"
 "\n"
 "  Features:\n"
-"    TODO\n"
+"    Language is now saved.\n"
+"    Added group audio calls.\n"
+"    User-specified FPS during video call.\n"
 "  Fixes:\n"
-"    TODO.\n"
-"  Development\n"
-"    TODO.\n"
+"    OS X stability improvements.\n"
+"    Video now works on Linux again.\n"
+"    UI bugfixes and improvements. (Thanks @redmanmale!)\n"
+"    Fixed Windows video preview window title. (Thanks @thorpelawrence!)\n"
+"    More groupchat crashes fixed.\n"
+"    Middle/double click in X11 now have the correct functionality. (Thanks @dkmoz!)\n"
+"    Unicode urls now work on Windows.\n"
+"    File transfer names are now sanitized on Windows.\n"
+"    Autoaccept file transfer setting now saves again.\n"
+"    Audio notifications now only play when uTox isn't in focus.\n"
+"    Messages aren't marked as unread if the chat is open when messages are received.\n"
+"    The GTK file picker now works on OpenBSD and NetBSD.\n"
+"    Fixed autostart toggle being a no-op.\n"
+"    Fixed typing notifications not using the contact's alias.\n"
+"    Added timestamps to exported chatlog.\n"
+"  Development:\n"
+"    Dropped support for ToxDNS.\n"
+"    Build instructions for OS X now exist. (Thanks @publicarray!)\n"
+"    Tests are now run against OS X in addition to Linux.\n"
+"    Added Python script for finding missing translations.\n"
+"    Decreased size of MinSizeRel builds.\n"
+"    Updated lots of translations.\n"
 "\n"
 "  Do you know another language? Rather read the changelog in your language?\n"
 "    Help us translate uTox!\n"
