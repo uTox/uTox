@@ -3,11 +3,11 @@
 
 #include "../langs/i18n_decls.h"
 #include "settings.h"
+#include "typedefs.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct native_image NATIVE_IMAGE;
 typedef struct panel PANEL;
 typedef struct scrollable SCROLLABLE;
 

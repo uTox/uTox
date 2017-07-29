@@ -14,8 +14,6 @@ before the main thread receives the message for the old one?
 #include <stddef.h>
 #include <stdint.h>
 
-typedef uint8_t *UTOX_IMAGE;
-
 typedef struct {
     uint8_t  msg;
     uint32_t param1, param2;

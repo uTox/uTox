@@ -5,11 +5,9 @@
 
 #include <tox/tox.h>
 
-typedef struct avatar AVATAR;
-typedef struct edit_change EDIT_CHANGE;
+#include "typedefs.h"
+
 typedef struct file_transfer FILE_TRANSFER;
-typedef uint8_t *UTOX_IMAGE;
-typedef unsigned int ALuint;
 
 typedef enum {
     ADDF_NONE,
@@ -51,7 +49,7 @@ typedef struct friend_meta_data_old {
 } FRIEND_META_DATA_OLD;
 
 
-typedef struct utox_friend {
+struct utox_friend {
     uint8_t cid[TOX_PUBLIC_KEY_SIZE]; // TODO DEPERCATED REMOVE!
 
     uint8_t id_bin[TOX_PUBLIC_KEY_SIZE];
@@ -99,15 +97,15 @@ typedef struct utox_friend {
     FILE_TRANSFER  *ft_outgoing;
     uint16_t        ft_outgoing_size;
     uint16_t        ft_outgoing_active_count;
-} FRIEND;
+};
 
-typedef struct utox_friend_request {
+struct utox_friend_request {
     uint16_t number;
     uint8_t  bin_id[TOX_ADDRESS_SIZE];
 
     char *msg;
     size_t length;
-} FREQUEST;
+};
 
 // add friend page
 uint8_t addfriend_status;

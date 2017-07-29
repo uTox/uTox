@@ -4,9 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct groupchat GROUPCHAT;
-typedef struct utox_friend FRIEND;
-typedef struct utox_friend_request FREQUEST;
+#include "typedefs.h"
 
 // call to switch to previous or next friend in list
 void flist_previous_tab(void);

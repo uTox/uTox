@@ -3,8 +3,6 @@
 
 #include <tox/tox.h>
 
-typedef struct avatar AVATAR;
-
 struct utox_self {
     uint8_t status;
     char    name[TOX_MAX_NAME_LENGTH];

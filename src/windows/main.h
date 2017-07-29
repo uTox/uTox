@@ -23,6 +23,8 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#include "../typedefs.h"
+
 #undef CLEARTYPE_QUALITY
 #define CLEARTYPE_QUALITY 5
 
@@ -75,7 +77,7 @@ typedef struct native_image {
     // stretch mode used when stretching this image, either
     // COLORONCOLOR(ugly and fast), or HALFTONE(prettier and slower)
     int stretch_mode;
-} NATIVE_IMAGE;
+};
 
 // static char save_path[280];
 char portable_mode_save_path[MAX_PATH];

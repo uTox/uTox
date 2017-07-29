@@ -9,7 +9,7 @@
 #define _GNU_SOURCE
 #include <EGL/egl.h>
 
-typedef struct native_image NATIVE_IMAGE;
+#include "../typedefs.h"
 
 typedef struct {
     int16_t  x, y;

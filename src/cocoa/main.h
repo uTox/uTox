@@ -6,6 +6,8 @@
 #define COCOA_MAIN_H
 #define MAIN_H
 
+#include "../typedefs.h"
+
 /* Don't put Objective-C declarations here so we don't have to compile
  * all of uTox as ObjC. Stuff that requires ObjC available goes in objc_main.h,
  * included below. */
@@ -18,7 +20,6 @@
 
 #include <errno.h>
 
-typedef struct native_image NATIVE_IMAGE;
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img);
 
 #ifdef __OBJC__

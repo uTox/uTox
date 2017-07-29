@@ -6,6 +6,8 @@
 
 #include <stdint.h>
 
+#include "../typedefs.h"
+
 #define UTOX_MAX_CALLS 16
 // UTOX_MAX_VIDEO_CALLS is never used. Remove?
 #define UTOX_MAX_VIDEO_CALLS 32
@@ -49,8 +51,6 @@ enum {
     UTOXVIDEO_PREVIEW_STOP,
 */
 };
-
-typedef struct groupchat GROUPCHAT;
 
 /* send a message to the toxav thread
  */

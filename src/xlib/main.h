@@ -11,6 +11,7 @@
 #endif
 
 #include "../ui/svg.h"
+#include "../typedefs.h"
 
 #include <stdint.h>
 
@@ -25,7 +26,6 @@
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-typedef struct native_image NATIVE_IMAGE;
 struct native_image {
     // This is really a Picture, but it is just a typedef for XID, and I didn't
     // want to clutter namespace with #include <X11/extensions/Xrender.h> for it.

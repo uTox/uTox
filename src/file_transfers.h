@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <tox/tox.h>
 
-typedef struct msg_header MSG_HEADER;
+#include "typedefs.h"
 
 #define MAX_FILE_TRANSFERS 32
 
