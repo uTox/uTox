@@ -23,7 +23,6 @@ void native_export_chatlog_init(uint32_t friend_number);
 // TODO same as for chatlogs, this is mainly native because of the file selector thing
 void file_save_inline_image_png(MSG_HEADER *msg);
 // TODO same as for chatlogs, this is mainly native because of the file selector thing
-typedef struct file_transfer FILE_TRANSFER;
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file);
 

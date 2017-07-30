@@ -5,8 +5,6 @@
 
 #include "typedefs.h"
 
-typedef struct native_window UTOX_WINDOW;
-
 /** window_raze()
  *
  * Cleans and frees all the data related to a created window.

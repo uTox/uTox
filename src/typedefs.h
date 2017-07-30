@@ -1,6 +1,8 @@
 #ifndef TYPEDEFS_H
 #define TYPEDEFS_H
 
+#include <stdint.h>
+
 /* gather together all of the typedefs of incomplete structs,
  * so that they can be done once only, for compatibility with C99
  */
@@ -66,51 +68,10 @@ typedef struct edit EDIT;
 /* from ui/dropdown.h */
 typedef struct dropdown DROPDOWN;
 
-#if 0
+/* from windows/window.h, xlib/window.h */
+typedef struct native_window UTOX_WINDOW;
 
-./src/layout/settings.h
-typedef struct dropdown DROPDOWN;
-./src/native/os.h
-typedef struct utox_save UTOX_SAVE;
-./src/native/window.h
-typedef struct native_window UTOX_WINDOW;
-./src/notify.h
-typedef struct native_window UTOX_WINDOW;
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image.h
-typedef struct
-./src/stb_image_write.h
-typedef struct
-./src/ui/tooltip.h
+/* from ui.h */
 typedef struct maybe_i18nal_string MAYBE_I18NAL_STRING;
-./src/window.h
-typedef struct native_window UTOX_WINDOW;
-
-#endif  /* #if 0 */
 
 #endif

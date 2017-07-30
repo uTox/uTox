@@ -3,6 +3,8 @@
 
 #include <tox/tox.h>
 
+#include "typedefs.h"
+
 struct utox_self {
     uint8_t status;
     char    name[TOX_MAX_NAME_LENGTH];

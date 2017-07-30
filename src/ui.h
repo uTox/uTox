@@ -67,10 +67,10 @@ typedef enum {
     AUXILIARY_STYLE, // gray style, used on friends side
 } UI_ELEMENT_STYLE;
 
-typedef struct maybe_i18nal_string {
+struct maybe_i18nal_string {
     STRING        plain;
     UTOX_I18N_STR i18nal;
-} MAYBE_I18NAL_STRING;
+};
 
 void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *, char *str, uint16_t length);
 void    maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *, UTOX_I18N_STR);
