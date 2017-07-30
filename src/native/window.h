@@ -3,8 +3,9 @@
 
 #include <stdbool.h>
 
+#include "../typedefs.h"
+
 typedef struct native_window UTOX_WINDOW;
-typedef struct panel PANEL;
 
 // The following is a hollow struct with window vars common across all platforms
 // Each platform's window struct starts with this, then follows with their own

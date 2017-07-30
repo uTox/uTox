@@ -7,8 +7,6 @@
 
 #include "typedefs.h"
 
-typedef struct file_transfer FILE_TRANSFER;
-
 typedef enum {
     ADDF_NONE,
     ADDF_SENT,

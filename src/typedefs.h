@@ -42,74 +42,40 @@ typedef struct edit_change EDIT_CHANGE;
 /* from friend.h, main.h, native/image.h, tox.h */
 typedef uint8_t *UTOX_IMAGE;
 
+/* from settings.h */
+typedef struct utox_save UTOX_SAVE;
+
+/* from file_transfers.h */
+typedef struct file_transfer FILE_TRANSFER;
+
+/* from ui/panel.h */
+typedef struct panel PANEL;
+
+/* from ui/scrollable.h */
+typedef struct scrollable SCROLLABLE;
+
+/* from ui/button.h */
+typedef struct button BUTTON;
+
+/* from ui/switch.h */
+typedef struct uiswitch UISWITCH;
+
+/* from ui/edit.h */
+typedef struct edit EDIT;
+
+/* from ui/dropdown.h */
+typedef struct dropdown DROPDOWN;
+
 #if 0
 
-./src/friend.h
-typedef struct file_transfer FILE_TRANSFER;
-./src/layout/background.h
-typedef struct panel PANEL;
-./src/layout/friend.h
-typedef struct scrollable SCROLLABLE;
-./src/layout/friend.h
-typedef struct panel PANEL;
-./src/layout/friend.h
-typedef struct button BUTTON;
-./src/layout/friend.h
-typedef struct uiswitch UISWITCH;
-./src/layout/friend.h
-typedef struct edit EDIT;
-./src/layout/group.h
-typedef struct scrollable SCROLLABLE;
-./src/layout/group.h
-typedef struct panel PANEL;
-./src/layout/group.h
-typedef struct button BUTTON;
-./src/layout/group.h
-typedef struct dropdown DROPDOWN;
-./src/layout/group.h
-typedef struct edit EDIT;
-./src/layout/notify.h
-typedef struct panel PANEL;
-./src/layout/notify.h
-typedef struct button BUTTON;
-./src/layout/settings.h
-typedef struct scrollable SCROLLABLE;
-./src/layout/settings.h
-typedef struct panel PANEL;
-./src/layout/settings.h
-typedef struct button BUTTON;
-./src/layout/settings.h
-typedef struct uiswitch UISWITCH;
 ./src/layout/settings.h
 typedef struct dropdown DROPDOWN;
-./src/layout/settings.h
-typedef struct edit EDIT;
-./src/layout/sidebar.h
-typedef struct scrollable SCROLLABLE;
-./src/layout/sidebar.h
-typedef struct panel PANEL;
-./src/layout/sidebar.h
-typedef struct button BUTTON;
-./src/layout/sidebar.h
-typedef struct edit EDIT;
-./src/layout/userbadge.h
-typedef struct button BUTTON;
-./src/layout/userbadge.h
-typedef struct edit EDIT;
-./src/native/filesys.h
-typedef struct file_transfer FILE_TRANSFER;
-./src/native/filesys.h
-typedef struct file_transfer FILE_TRANSFER;
 ./src/native/os.h
 typedef struct utox_save UTOX_SAVE;
 ./src/native/window.h
 typedef struct native_window UTOX_WINDOW;
-./src/native/window.h
-typedef struct panel PANEL;
 ./src/notify.h
 typedef struct native_window UTOX_WINDOW;
-./src/settings.h
-typedef struct utox_save UTOX_SAVE;
 ./src/stb_image.h
 typedef struct
 ./src/stb_image.h
@@ -140,34 +106,10 @@ typedef struct
 typedef struct
 ./src/stb_image_write.h
 typedef struct
-./src/ui/button.h
-typedef struct button BUTTON;
-./src/ui/edit.h
-typedef struct scrollable SCROLLABLE;
-./src/ui/edit.h
-typedef struct edit EDIT;
-./src/ui/panel.h
-typedef struct panel PANEL;
-./src/ui/panel.h
-typedef struct scrollable SCROLLABLE;
-./src/ui/switch.h
-typedef struct uiswitch UISWITCH;
-./src/ui/text.h
-typedef struct scrollable SCROLLABLE;
 ./src/ui/tooltip.h
 typedef struct maybe_i18nal_string MAYBE_I18NAL_STRING;
-./src/ui.h
-typedef struct panel PANEL;
-./src/ui.h
-typedef struct scrollable SCROLLABLE;
 ./src/window.h
 typedef struct native_window UTOX_WINDOW;
-./src/window.h
-typedef struct panel PANEL;
-./src/xlib/gtk.h
-typedef struct file_transfer FILE_TRANSFER;
-./src/xlib/gtk.h
-typedef struct file_transfer FILE_TRANSFER;
 
 #endif  /* #if 0 */
 

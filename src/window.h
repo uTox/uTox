@@ -3,8 +3,9 @@
 
 #include <stdbool.h>
 
+#include "typedefs.h"
+
 typedef struct native_window UTOX_WINDOW;
-typedef struct panel PANEL;
 
 /** window_raze()
  *

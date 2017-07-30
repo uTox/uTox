@@ -1,7 +1,8 @@
 #ifndef LAYOUT_BACKGROUND_H
 #define LAYOUT_BACKGROUND_H
 
-typedef struct panel PANEL;
+#include "../typedefs.h"
+
 extern PANEL panel_root,
              panel_main,
              panel_chat,

@@ -4,6 +4,7 @@
 #include "panel.h"
 
 #include "../ui.h"
+#include "../typedefs.h"
 
 #include <stdint.h>
 
@@ -13,7 +14,7 @@ typedef struct {
     void *              handle;
 } DROP_ELEMENT;
 
-typedef struct dropdown {
+struct dropdown {
     PANEL    panel;
     bool     mouseover, open;
     uint16_t dropcount, selected, over;
@@ -24,7 +25,7 @@ typedef struct dropdown {
     UI_ELEMENT_STYLE style;
 
     void *userdata;
-} DROPDOWN;
+};
 
 void dropdown_drawactive(void);
 

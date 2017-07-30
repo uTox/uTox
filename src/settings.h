@@ -1,14 +1,14 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-typedef struct utox_save UTOX_SAVE;
-
 #include "debug.h"
 #include "../langs/i18n_decls.h"
 
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+
+#include "typedefs.h"
 
 typedef struct utox_settings {
     // uTox versions settings
@@ -80,7 +80,7 @@ extern SETTINGS settings;
 
 /* House keeping for uTox save file. */
 #define UTOX_SAVE_VERSION 3
-typedef struct utox_save {
+struct utox_save {
     uint8_t save_version;
     uint8_t scale;
     uint8_t enableipv6;
@@ -125,7 +125,7 @@ typedef struct utox_save {
     uint8_t  video_fps;
     uint8_t  unused[53];
     uint8_t  proxy_ip[];
-} UTOX_SAVE;
+};
 
 /*
  * Loads the config file and returns a settings struct

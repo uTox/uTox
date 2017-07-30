@@ -3,10 +3,10 @@
 
 #include <stdbool.h>
 
-typedef struct panel PANEL;
+#include "../typedefs.h"
+
 extern PANEL panel_notify_generic;
 
-typedef struct button BUTTON;
 extern BUTTON button_notify_one,
               button_notify_two,
               button_notify_three,

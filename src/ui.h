@@ -8,9 +8,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct panel PANEL;
-typedef struct scrollable SCROLLABLE;
-
 #define S(x) (ui_gettext(settings.language, (STR_##x))->str)
 #define SLEN(x) (ui_gettext(settings.language, (STR_##x))->length)
 #define SPTR(x) (ui_gettext(settings.language, (STR_##x)))

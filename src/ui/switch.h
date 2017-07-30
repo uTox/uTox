@@ -5,13 +5,12 @@
 #include "svg.h"
 
 #include "../ui.h"
-
+#include "../typedefs.h"
 
 
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct uiswitch UISWITCH;
 struct uiswitch {
     PANEL panel;
 

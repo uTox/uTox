@@ -28,7 +28,7 @@ typedef struct {
     uint8_t *name;
 } UTOX_MSG_FT;
 
-typedef struct file_transfer {
+struct file_transfer {
     bool in_use;
     bool incoming;
     bool in_memory;
@@ -66,7 +66,7 @@ typedef struct file_transfer {
 
     MSG_HEADER *ui_data;
     bool decon_wait; // Used to pause decon/file cleanup, for the UI thread to copy the data;
-} FILE_TRANSFER;
+};
 
 void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
 
