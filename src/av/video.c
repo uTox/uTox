@@ -246,6 +246,8 @@ void utox_video_thread(void *args) {
             TOX_MSG *m = &video_msg;
             if (!m->msg || m->msg == UTOXVIDEO_KILL) {
                 break;
+            } else if (m->msg == UTOXVIDEO_NEW_AV_INSTANCE) {
+                av = m->data;
             }
         }
 

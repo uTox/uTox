@@ -49,22 +49,17 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
             if (msg->msg == UTOXAV_KILL) {
                 break;
             } else if (msg->msg == UTOXAV_NEW_TOX_INSTANCE) {
-                if (av != NULL) {
-                    // terminate av threads
-                    postmessage_audio(UTOXAUDIO_KILL, 0, 0, NULL);
-                    postmessage_video(UTOXVIDEO_KILL, 0, 0, NULL);
-
-                    while (utox_audio_thread_init || utox_video_thread_init) {
-                        yieldcpu(10);
-                    }
+                if (av) { /* toxcore restart */
                     toxav_kill(av);
+                    postmessage_audio(UTOXAUDIO_NEW_AV_INSTANCE, 0, 0, msg->data);
+                    postmessage_video(UTOXVIDEO_NEW_AV_INSTANCE, 0, 0, msg->data);
+                } else {
+                    thread(utox_audio_thread, msg->data);
+                    thread(utox_video_thread, msg->data);
                 }
 
                 av = msg->data;
                 set_av_callbacks(av);
-
-                thread(utox_audio_thread, av);
-                thread(utox_video_thread, av);
             }
 
             if (!utox_audio_thread_init || !utox_video_thread_init) {

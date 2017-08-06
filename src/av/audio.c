@@ -764,6 +764,10 @@ void utox_audio_thread(void *args) {
                 case UTOXAUDIO_STOP_NOTIFICATION: {
                     break;
                 }
+
+                case UTOXAUDIO_NEW_AV_INSTANCE: {
+                    av = m->data;
+                }
             }
             audio_thread_msg = 0;
 

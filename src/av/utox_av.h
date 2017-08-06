@@ -44,6 +44,7 @@ enum {
 enum {
     // kill the video thread
     UTOXVIDEO_KILL,
+    UTOXVIDEO_NEW_AV_INSTANCE,
     /*    UTOXVIDEO_RECORD_START,
     UTOXVIDEO_RECORD_STOP,
     UTOXVIDEO_SET,
