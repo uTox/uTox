@@ -2,9 +2,7 @@
 #define GROUPS_H
 
 #include "messages.h"
-
-typedef unsigned int ALuint;
-typedef struct edit_change EDIT_CHANGE;
+#include "typedefs.h"
 
 #define UTOX_MAX_GROUP_PEERS 256
 
@@ -22,7 +20,7 @@ typedef struct group_peer {
     uint8_t name[];
 } GROUP_PEER;
 
-typedef struct groupchat {
+struct groupchat {
     uint16_t number;
     uint32_t our_peer_number;
 
@@ -54,7 +52,7 @@ typedef struct groupchat {
 
     uint32_t peer_count;
     GROUP_PEER **peer;
-} GROUPCHAT;
+};
 
 /* Initialize a new groupchat */
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group);

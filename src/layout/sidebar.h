@@ -1,10 +1,10 @@
 #ifndef LAYOUT_SIDEBAR_H
 #define LAYOUT_SIDEBAR_H
 
-typedef struct scrollable SCROLLABLE;
+#include "../typedefs.h"
+
 extern SCROLLABLE scrollbar_flist;
 
-typedef struct panel PANEL;
 extern PANEL panel_side_bar,
              panel_self,
 
@@ -14,7 +14,6 @@ extern PANEL panel_side_bar,
              panel_quick_buttons,
              panel_lower_buttons;
 
-typedef struct button BUTTON;
 extern BUTTON button_avatar,
               button_name,
               button_status_msg,
@@ -23,7 +22,6 @@ extern BUTTON button_avatar,
               button_filter_friends,
               button_add_new_contact;
 
-typedef struct edit EDIT;
 extern EDIT edit_search;
 
 #endif //LAYOUT_SIDEBAR_H

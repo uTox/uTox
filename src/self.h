@@ -3,7 +3,7 @@
 
 #include <tox/tox.h>
 
-typedef struct avatar AVATAR;
+#include "typedefs.h"
 
 struct utox_self {
     uint8_t status;

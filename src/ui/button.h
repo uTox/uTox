@@ -4,11 +4,11 @@
 #include "panel.h"
 
 #include "../ui.h"
+#include "../typedefs.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct button BUTTON;
 struct button {
     PANEL panel;
 

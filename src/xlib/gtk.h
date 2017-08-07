@@ -3,10 +3,7 @@
 
 #include <stdint.h>
 
-typedef struct file_transfer FILE_TRANSFER;
-typedef struct msg_header MSG_HEADER;
-
-typedef struct file_transfer FILE_TRANSFER;
+#include "../typedefs.h"
 
 void ugtk_openfilesend(void);
 

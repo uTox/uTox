@@ -4,8 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct scrollable SCROLLABLE;
-
+#include "../typedefs.h"
 
 /** Used to draw text within a specified box, starting with the x, y, of the first line of the text.
     Followed by right, top, then bottom borders of the box we're allowed to draw within.

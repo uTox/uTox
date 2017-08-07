@@ -17,9 +17,6 @@
  * Forward-declares
  *********************************************************/
 
-typedef struct avatar AVATAR;
-typedef uint8_t *UTOX_IMAGE;
-
 
 /**********************************************************
  * UI and Toxcore Limits

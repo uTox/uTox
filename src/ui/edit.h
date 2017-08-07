@@ -4,21 +4,19 @@
 #include "panel.h"
 
 #include "../ui.h"
+#include "../typedefs.h"
 
 /* TODO replace windows functions, multiline edits, add missing edit functions (ex: double click to select word)*/
 
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct scrollable SCROLLABLE;
-
-typedef struct edit_change {
+struct edit_change {
     bool     remove, padding;
     uint16_t start, length;
     char     data[];
-} EDIT_CHANGE;
+};
 
-typedef struct edit EDIT;
 struct edit {
     PANEL panel;
 

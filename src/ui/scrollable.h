@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+#include "../typedefs.h"
+
 struct scrollable {
     PANEL panel;
 

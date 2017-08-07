@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+#include "../typedefs.h"
+
 typedef enum {
     PANEL_NONE,
     PANEL_MAIN,
@@ -15,9 +17,6 @@ typedef enum {
     PANEL_EDIT,
     PANEL_SCROLLABLE,
 } PANEL_TYPE;
-
-typedef struct panel PANEL;
-typedef struct scrollable SCROLLABLE;
 
 typedef void ui_draw_cb(int x, int y, int w, int h);
 typedef void ui_update_cb(int width, int height, int scale);

@@ -1,8 +1,7 @@
 #ifndef NATIVE_IMAGE_H
 #define NATIVE_IMAGE_H
 
-typedef struct native_image NATIVE_IMAGE;
-typedef uint8_t *UTOX_IMAGE;
+#include "../typedefs.h"
 
 enum {
     FILTER_NEAREST, // ugly and quick filtering

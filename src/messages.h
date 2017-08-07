@@ -7,9 +7,9 @@
 #include <time.h>
 #include <pthread.h>
 
-pthread_mutex_t messages_lock;
+#include "typedefs.h"
 
-typedef struct native_image NATIVE_IMAGE;
+pthread_mutex_t messages_lock;
 
 typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_NULL,
@@ -74,7 +74,7 @@ typedef struct msg_file {
 } MSG_FILE;
 
 /* Generic Message type */
-typedef struct msg_header {
+struct msg_header {
     UTOX_MSG_TYPE msg_type;
 
     // true, if we're the author, false, if someone else.
@@ -101,7 +101,7 @@ typedef struct msg_header {
 
         MSG_FILE ft;
     } via;
-} MSG_HEADER;
+};
 
 // Type for indexing into MSG_DATA->data array of messages
 typedef struct messages {
