@@ -30,14 +30,18 @@ endif()
 pkg_check_modules(_PKG_TOX QUIET libtoxcore)
 set(LIBTOX_DEFINITIONS ${_PKG_TOX_CFLAGS_OTHER})
 
-find_path(LIBTOX_INCLUDE_DIR tox/tox.h
-    HINTS ${_PKG_TOX_INCLUDEDIR} ${_PKG_TOX_INCLUDE_DIRS}
+find_path(LIBTOX_INCLUDE_DIR tox/tox.h HINTS
+    ${_PKG_TOX_INCLUDEDIR}
+    ${_PKG_TOX_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/libs/windows-x64/include
 )
 
 # required components
 foreach(_COMPNENT ${_TOX_COMPNENTS})
-    find_library(_TEMP NAMES ${_COMPNENT}
-        HINTS ${_PKG_TOX_LIBDIR} ${_PKG_TOX_LIBRARY_DIRS}
+    find_library(_TEMP NAMES ${_COMPNENT} HINTS
+        ${_PKG_TOX_LIBDIR}
+        ${_PKG_TOX_LIBRARY_DIRS}
+        ${CMAKE_SOURCE_DIR}/libs/windows-x64/lib
     )
     list(APPEND LIBTOX_LIBRARIES ${_TEMP})
     unset(_TEMP CACHE)

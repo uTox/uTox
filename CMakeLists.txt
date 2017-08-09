@@ -270,7 +270,7 @@ if(TOXCORE_STATIC AND WIN32)
         toxnetcrypto
         toxcrypto
         toxnetwork
-        )
+    )
 else()
     find_package(libtox REQUIRED COMPONENTS toxencryptsave toxav toxcore)
 endif()
@@ -315,7 +315,7 @@ elseif(UNIX)
 
     if(LINUX)
         # Required for v4l (at least in the Linux static builds on Jenkins)
-        set(LIBRARIES "rt")
+        set(LIBRARIES ${LIBRARIES} "rt")
     endif()
 endif()
 
@@ -383,7 +383,7 @@ if(APPLE)
         if(UTOX_STATIC OR TOXCORE_STATIC)
             verify_bundle_prerequisites(${CMAKE_BINARY_DIR}/utox.app RETURN_VAR INFO_VAR)
         endif()"
-        )
+    )
     # needed for packaging, so that CPack can find the app
     install(TARGETS utox DESTINATION .)
     # install App
