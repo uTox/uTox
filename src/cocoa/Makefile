@@ -25,7 +25,7 @@ LDFLAGS += $(shell pkg-config --libs $(DEPS))
 DESTDIR ?=
 PREFIX ?= /usr/local
 
-SRC = $(wildcard src/*.c src/ui/*.c src/av/*.c src/cocoa/*.m)
+SRC = $(wildcard src/*.c src/layout/*.c src/ui/*.c src/av/*.c src/cocoa/*.m src/cocoa/*.c src/posix/filesys.c)
 OBJ = $(SRC:=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 CFLAGS += -DGIT_VERSION=\"$(GIT_V)\"
