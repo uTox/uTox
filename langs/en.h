@@ -252,6 +252,9 @@ msgstr("Call ringing")
 msgid(CALL_STARTED)
 msgstr("Call started")
 
+msgid(CALL_ENDED)
+msgstr("Call ended")
+
 msgid(CALL_FRIEND_HAD_ENDED_CALL)
 msgstr(" has ended the call!")
 

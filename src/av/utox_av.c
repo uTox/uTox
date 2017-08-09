@@ -11,6 +11,7 @@
 #include "../macros.h"
 #include "../tox.h"
 #include "../utox.h"
+#include "../ui.h"
 
 #include "../native/thread.h"
 
@@ -67,7 +68,7 @@ void utox_av_ctrl_thread(void *args) {
                 case UTOXAV_INCOMING_CALL_ANSWER: {
                     FRIEND *f = get_friend(msg->param1);
                     f->call_started = time(NULL);
-                    message_add_type_notice(&f->msg, "Call started", 12, true); // log to disk
+                    message_add_type_notice(&f->msg, S(CALL_STARTED), 12, true); // log to disk
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
                     f->call_state_self = (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A);
@@ -98,7 +99,7 @@ void utox_av_ctrl_thread(void *args) {
                 case UTOXAV_OUTGOING_CALL_ACCEPTED: {
                     FRIEND *f = get_friend(msg->param1);
                     f->call_started = time(NULL);
-                    message_add_type_notice(&f->msg, "Call started", 12, true); // log to disk
+                    message_add_type_notice(&f->msg, S(CALL_STARTED), 12, true); // log to disk
 
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
                     LOG_NOTE("uToxAV", "Call accepted by friend" );
@@ -122,20 +123,8 @@ void utox_av_ctrl_thread(void *args) {
                     if (f->call_started != 0) {
                         char notice_msg[64];
                         int duration = difftime(time(NULL), f->call_started);
-                        int hours = duration / 3600;
-                        int minutes = (duration / 60) % 60;
-                        int seconds = duration % 60;
-                        int length = snprintf(notice_msg, 64, "Call ended:");
-
-                        if (hours) {
-                            length += snprintf(notice_msg + length, 64 - length, " %d hours", hours);
-                        }
-                        if (minutes) {
-                            length += snprintf(notice_msg + length, 64 - length, " %d minutes", minutes);
-                        }
-                        if (seconds) {
-                            length += snprintf(notice_msg + length, 64 - length, " %d seconds", seconds);
-                        }
+                        int length = snprintf(notice_msg, 64, "%s: %02u:%02u:%02u",
+                                S(CALL_ENDED), duration / 3600, (duration / 60) % 60, duration % 60);
 
                         message_add_type_notice(&f->msg, notice_msg, length, true); // log to disk
                         f->call_started = 0;
