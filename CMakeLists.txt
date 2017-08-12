@@ -113,6 +113,8 @@ configure_file(${uTox_SOURCE_DIR}/src/cocoa/Info.plist.in
                ${uTox_SOURCE_DIR}/src/cocoa/Info.plist)
 configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
                ${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml)
+configure_file(${uTox_SOURCE_DIR}/src/utox.1.in
+               ${uTox_SOURCE_DIR}/src/utox.1)
 
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     execute_process(COMMAND git describe --abbrev=8 --dirty --always --tags
