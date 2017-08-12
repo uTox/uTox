@@ -68,7 +68,7 @@ void utox_av_ctrl_thread(void *args) {
                 case UTOXAV_INCOMING_CALL_ANSWER: {
                     FRIEND *f = get_friend(msg->param1);
                     f->call_started = time(NULL);
-                    message_add_type_notice(&f->msg, S(CALL_STARTED), 12, true); // log to disk
+                    message_add_type_notice(&f->msg, S(CALL_STARTED), SLEN(CALL_STARTED), true);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
                     f->call_state_self = (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A);
@@ -99,7 +99,7 @@ void utox_av_ctrl_thread(void *args) {
                 case UTOXAV_OUTGOING_CALL_ACCEPTED: {
                     FRIEND *f = get_friend(msg->param1);
                     f->call_started = time(NULL);
-                    message_add_type_notice(&f->msg, S(CALL_STARTED), 12, true); // log to disk
+                    message_add_type_notice(&f->msg, S(CALL_STARTED), SLEN(CALL_STARTED), true);
 
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
                     LOG_NOTE("uToxAV", "Call accepted by friend" );
@@ -125,8 +125,8 @@ void utox_av_ctrl_thread(void *args) {
                         int duration = difftime(time(NULL), f->call_started);
                         int length = snprintf(notice_msg, 64, "%s: %02u:%02u:%02u",
                                 S(CALL_ENDED), duration / 3600, (duration / 60) % 60, duration % 60);
-
-                        message_add_type_notice(&f->msg, notice_msg, length, true); // log to disk
+						if (length < 64)
+							message_add_type_notice(&f->msg, notice_msg, length, true);
                         f->call_started = 0;
                     }
 
