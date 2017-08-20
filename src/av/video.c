@@ -221,11 +221,8 @@ void postmessage_video(uint8_t msg, uint32_t param1, uint32_t param2, void *data
     video_thread_msg = true;
 }
 
-void utox_video_thread(void *args) {
-    ToxAV *av = args;
-
-    pthread_mutex_init(&video_thread_lock, NULL);
-
+// Populates the video device dropdown.
+static void init_video_devices() {
     // Add always-present null video input device.
     utox_video_append_device(NULL, 1, (void *)STR_VIDEO_IN_NONE, 1);
 
@@ -239,6 +236,14 @@ void utox_video_thread(void *args) {
             close_video_device(video_device[video_device_current]);
         }
     }
+}
+
+void utox_video_thread(void *args) {
+    ToxAV *av = args;
+
+    pthread_mutex_init(&video_thread_lock, NULL);
+
+    init_video_devices();
 
     utox_video_thread_init = 1;
 
@@ -251,6 +256,7 @@ void utox_video_thread(void *args) {
             switch (video_msg.msg) {
                 case UTOXVIDEO_NEW_AV_INSTANCE: {
                     av = video_msg.data;
+                    init_video_devices();
                     break;
                 }
             }
