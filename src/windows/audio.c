@@ -188,7 +188,7 @@ bool audio_frame(int16_t *buffer) {
         }
 
         if (numFramesAvailable != 480) {
-            printf("ERROR\n");
+            LOG_ERR("Windows Audio", "Incorrect number of frames available.");
         }
 
         static bool frame = true;
