@@ -94,7 +94,7 @@ static bool audio_in_device_close(void) {
     }
     audio_in_handle = NULL;
     microphone_on = false;
-    return true;
+    return false;
 }
 
 static bool audio_in_listen(void) {
@@ -618,7 +618,7 @@ void utox_audio_thread(void *args) {
     while (1) {
         if (audio_thread_msg) {
             const TOX_MSG *m = &audio_msg;
-            if (!m->msg) {
+            if (m->msg == UTOXAUDIO_KILL) {
                 break;
             }
 
@@ -763,6 +763,10 @@ void utox_audio_thread(void *args) {
                 }
                 case UTOXAUDIO_STOP_NOTIFICATION: {
                     break;
+                }
+
+                case UTOXAUDIO_NEW_AV_INSTANCE: {
+                    av = m->data;
                 }
             }
             audio_thread_msg = 0;

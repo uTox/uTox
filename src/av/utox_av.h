@@ -37,11 +37,14 @@ enum {
 
     UTOXAV_SET_VIDEO_IN,
     UTOXAV_SET_VIDEO_OUT,
+
+    UTOXAV_NEW_TOX_INSTANCE,
 };
 
 enum {
     // kill the video thread
     UTOXVIDEO_KILL,
+    UTOXVIDEO_NEW_AV_INSTANCE,
     /*    UTOXVIDEO_RECORD_START,
     UTOXVIDEO_RECORD_STOP,
     UTOXVIDEO_SET,
