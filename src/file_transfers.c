@@ -593,6 +593,13 @@ void ft_friend_online(Tox *tox, uint32_t friend_number) {
             file->via.file = fopen((char *)file->path, "rb+");
             ft_send_file(tox, friend_number, file->via.file, file->path, strlen((char *)file->path), file->data_hash);
         }
+
+        char name[UTOX_FILE_NAME_LENGTH];
+        if (resumeable_name(file, name)) {
+            LOG_INFO("FileTransfer", "Loading outgoing %u, deleting origin file.", i);
+            utox_get_file(name, NULL, UTOX_FILE_OPTS_DELETE);
+        }
+
         free(file);
     }
 }
@@ -619,7 +626,8 @@ void ft_friend_offline(Tox *UNUSED(tox), uint32_t friend_number) {
 void ft_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control) {
     FILE_TRANSFER *info  = get_file_transfer(friend_number, file_number);
     if (!info) {
-        LOG_ERR("FileTransfer", "We know nothing of this file. This is probably an error.");
+        LOG_ERR("FileTransfer", "We know nothing of this file. This is probably an error. Friend(%u) FileNum(%u)",
+                friend_number, file_number);
         return;
     }
 

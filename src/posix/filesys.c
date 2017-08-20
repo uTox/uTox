@@ -84,6 +84,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
     }
 
     if (opts == UTOX_FILE_OPTS_DELETE) {
+        LOG_DEBUG("Filesys", "removing file %s", path);
         remove((char *)path);
         return NULL;
     }
