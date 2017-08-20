@@ -7,7 +7,6 @@
 #include "../debug.h"
 #include "../tox.h"
 #include "../macros.h"
-#include "../main.h"
 
 typedef struct {
     IDropTarget dt;

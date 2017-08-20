@@ -8,8 +8,9 @@
 #include "../native/image.h"
 #include "../native/ui.h"
 
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
 
 // Converted to a binary and linked at build time
 extern uint8_t _binary_icons_utox_128x128_png_start;

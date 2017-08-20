@@ -7,8 +7,6 @@
 #include "../theme.h"
 #include "../ui.h"
 
-#include "../main.h"
-
 static CONTEXTMENU context_menu;
 
 #define CONTEXT_WIDTH (SCALE(120))

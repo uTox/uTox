@@ -1,10 +1,13 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdbool.h>
 
 typedef struct ALCdevice_struct ALCdevice;
+
+extern bool utox_audio_thread_init;
 
 enum {
     // kill the audio thread

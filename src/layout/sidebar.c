@@ -19,8 +19,6 @@
 #include "../ui/button.h"
 #include "../ui/svg.h"
 
-#include "../main.h" // tox_thread global
-
 #include <string.h>
 
 // Scrollbar or friend list

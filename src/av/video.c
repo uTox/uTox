@@ -13,13 +13,13 @@
 #include "../native/thread.h"
 #include "../native/video.h"
 
-#include <tox/toxav.h>
-
 #include <pthread.h>
+#include <stdlib.h>
+#include <tox/toxav.h>
 #include <vpx/vpx_codec.h>
 #include <vpx/vpx_image.h>
 
-#include "../main.h" // video/screen super globals
+bool utox_video_thread_init = false;
 
 static void *   video_device[16]     = { NULL }; /* TODO; magic number */
 static int16_t  video_device_count   = 0;
