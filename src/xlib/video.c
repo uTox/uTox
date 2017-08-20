@@ -11,13 +11,13 @@
 
 #include "../native/time.h"
 
-#include <stdio.h>
-
 #include "../main.h"
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <sys/shm.h>
+#include <sys/stat.h>
 
 #define MAX_VID_WINDOWS 32 // TODO drop this for dynamic allocation
 static Window video_win[MAX_VID_WINDOWS]; // TODO we should allocate this dynamically but this'll work for now
@@ -57,7 +57,7 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
     }
 
     XWindowAttributes attrs;
-    XGetWindowAttributes(display, *win, &attrs);
+    XGetWindowAttributes(display, video_win[id], &attrs);
 
     XImage image = {
         .width            = attrs.width,
@@ -73,7 +73,7 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
         .green_mask       = 0xFF00,
         .blue_mask        = 0xFF,
         .data             = (char *)img_data
-        };
+    };
 
     /* scale image if needed */
     uint8_t *new_data = malloc(attrs.width * attrs.height * 4);

@@ -1,8 +1,6 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include <stdlib.h>
-
 #ifndef EXIT_SUCCESS // should be defined in stdlib.h
 #define EXIT_SUCCESS 0 /* Successful exit status. */
 #endif

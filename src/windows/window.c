@@ -9,6 +9,7 @@
 #include "../macros.h"
 #include "../ui.h"
 
+#include <stdio.h>
 #include <windows.h>
 
 static HWND l_main;
@@ -36,7 +37,6 @@ void native_window_init(HINSTANCE instance) {
 }
 
 void native_window_raze(UTOX_WINDOW *UNUSED(window)) {
-    return;
 }
 
 static bool update_DC_BM(UTOX_WINDOW *win, int w, int h) {
@@ -49,13 +49,6 @@ static bool update_DC_BM(UTOX_WINDOW *win, int w, int h) {
 
     return true;
 }
-
-#if 0
-static HWND window_create() {
-    return NULL;
-}
-#endif
-
 
 UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h) {
     static const wchar_t class[] = L"uTox";

@@ -18,6 +18,7 @@
 
 #include "main.h" // UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
 
+#include <stdlib.h>
 #include <string.h>
 
 uint16_t loaded_audio_out_device = 0;

@@ -17,8 +17,9 @@
 #include "../native/os.h"
 #include "../native/ui.h"
 
-#include <string.h>
 #include <limits.h>
+#include <stdlib.h>
+#include <string.h>
 
 static EDIT *active_edit;
 

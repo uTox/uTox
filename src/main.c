@@ -12,7 +12,9 @@
 #include "av/utox_av.h"
 
 #include <getopt.h>
+#include <stdlib.h>
 #include <string.h>
+
 
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
  * if you need to localize them to a specific platform, move them from here, to each

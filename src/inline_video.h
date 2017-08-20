@@ -3,9 +3,9 @@
 
 #include "ui/panel.h"
 
-#include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 typedef struct inline_vid { PANEL panel; } INLINE_VID;
 
