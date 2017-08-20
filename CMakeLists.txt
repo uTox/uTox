@@ -12,6 +12,9 @@ set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT
 
 set(PROJECT_COPYRIGHT "Copyleft 2017 uTox contributors. Some rights reserved.")
 
+execute_process(COMMAND date +%Y OUTPUT_VARIABLE BUILD_YEAR OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND date +%B OUTPUT_VARIABLE BUILD_MONTH OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 ########################
 # Set helper-variables #
 ########################
@@ -113,6 +116,8 @@ configure_file(${uTox_SOURCE_DIR}/src/cocoa/Info.plist.in
                ${uTox_SOURCE_DIR}/src/cocoa/Info.plist)
 configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
                ${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml)
+configure_file(${uTox_SOURCE_DIR}/src/utox.1.in
+               ${uTox_SOURCE_DIR}/src/utox.1)
 
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     execute_process(COMMAND git describe --abbrev=8 --dirty --always --tags

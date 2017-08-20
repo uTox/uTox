@@ -1,4 +1,4 @@
-.TH UTOX "1" "January 2017" "µTox 0.12.1"
+.TH UTOX "1" "@BUILD_MONTH@ @BUILD_YEAR@" "µTox @PROJECT_VERSION@"
 .SH NAME
 µTox \- Lightweight Tox client
 

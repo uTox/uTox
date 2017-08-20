@@ -39,3 +39,6 @@ install_manifest.txt
 # CI common dirs
 toxcore/tox*
 sys/**
+
+
+src/utox.1
