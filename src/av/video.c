@@ -207,6 +207,7 @@ bool utox_video_stop(bool UNUSED(preview)) {
     return true;
 }
 
+static TOX_MSG video_msg;
 void postmessage_video(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while (video_thread_msg) {
         yieldcpu(1);
@@ -217,7 +218,7 @@ void postmessage_video(uint8_t msg, uint32_t param1, uint32_t param2, void *data
     video_msg.param2 = param2;
     video_msg.data   = data;
 
-    video_thread_msg = 1;
+    video_thread_msg = true;
 }
 
 void utox_video_thread(void *args) {
@@ -243,12 +244,17 @@ void utox_video_thread(void *args) {
 
     while (1) {
         if (video_thread_msg) {
-            TOX_MSG *m = &video_msg;
-            if (!m->msg || m->msg == UTOXVIDEO_KILL) {
+            if (!video_msg.msg || video_msg.msg == UTOXVIDEO_KILL) {
                 break;
-            } else if (m->msg == UTOXVIDEO_NEW_AV_INSTANCE) {
-                av = m->data;
             }
+
+            switch (video_msg.msg) {
+                case UTOXVIDEO_NEW_AV_INSTANCE: {
+                    av = video_msg.data;
+                    break;
+                }
+            }
+            video_thread_msg = false;
         }
 
         if (video_active) {

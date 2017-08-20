@@ -119,7 +119,7 @@ typedef enum {
 UTOX_TOX_THREAD_INIT tox_thread_init;
 
 /* Inter-thread communication vars. */
-TOX_MSG       tox_msg, audio_msg, video_msg, toxav_msg;
+TOX_MSG       tox_msg, audio_msg, toxav_msg;
 volatile bool tox_thread_msg, audio_thread_msg, video_thread_msg;
 
 bool tox_connected;
