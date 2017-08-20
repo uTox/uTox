@@ -57,6 +57,7 @@ msgstr(
 "\n"
 "  Do you know another language? Rather read the changelog in your language?\n"
 "    Help us translate uTox!\n"
+"\nv0.15.0\n"
 "  Fixes:\n"
 "    Video now works on Windows again.\n"
 "    Autoaccepting files in portable mode now saves to the portable folder.\n"
