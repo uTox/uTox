@@ -298,11 +298,9 @@ if(WIN32)
     ## separation of the sections of uTox, until then, this
     ## makes everything work.
     ############################################################
-    include_directories( libs/toktok/include libs/windows-x64/include/ )
-    if(WIN64)
-        link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
-    else()
-        link_directories( libs/toktok_32/lib /usr/i686-w64-mingw32/lib/ libs/windows-x32/lib )
+
+    if(WIN32)
+        link_directories( ${WIN_LIBS_DIR}/lib )
     endif()
 
     ## Needed to build the widows icon
