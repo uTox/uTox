@@ -12,6 +12,9 @@ set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT
 
 set(PROJECT_COPYRIGHT "Copyleft 2017 uTox contributors. Some rights reserved.")
 
+execute_process(COMMAND date +%Y OUTPUT_VARIABLE BUILD_YEAR OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND date +%B OUTPUT_VARIABLE BUILD_MONTH OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 ########################
 # Set helper-variables #
 ########################
