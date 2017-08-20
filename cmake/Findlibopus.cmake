@@ -11,15 +11,15 @@ pkg_check_modules(PKG_LIBOPUS QUIET libopus)
 set(LIBOPUS_DEFINITIONS ${PKG_LIBOPUS_CFLAGS_OTHER})
 
 find_path(LIBOPUS_INCLUDE_DIR opus/opus.h HINTS
+    ${CMAKE_SOURCE_DIR}/${WIN_LIBS_DIR}/include
     ${PKG_LIBOPUS_INCLUDEDIR}
     ${PKG_LIBOPUS_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/libs/windows-x64/include
 )
 
 find_library(LIBOPUS_LIBRARY NAMES opus HINTS
+    ${CMAKE_SOURCE_DIR}/${WIN_LIBS_DIR}/lib
     ${PKG_LIBOPUS_LIBDIR}
     ${PKG_LIBOPUS_LIBRARY_DIRS}
-    ${CMAKE_SOURCE_DIR}/libs/windows-x64/lib
 )
 
 include(FindPackageHandleStandardArgs)

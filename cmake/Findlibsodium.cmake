@@ -11,15 +11,15 @@ pkg_check_modules(PKG_LIBSODIUM QUIET libsodium)
 set(LIBSODIUM_DEFINITIONS ${PKG_LIBSODIUM_CFLAGS_OTHER})
 
 find_path(LIBSODIUM_INCLUDE_DIR sodium.h HINTS
+    ${CMAKE_SOURCE_DIR}/${WIN_LIBS_DIR}/include
     ${PKG_LIBSODIUM_INCLUDEDIR}
     ${PKG_LIBSODIUM_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/libs/windows-x64/include
 )
 
 find_library(LIBSODIUM_LIBRARY NAMES sodium HINTS
+    ${CMAKE_SOURCE_DIR}/${WIN_LIBS_DIR}/lib
     ${PKG_LIBSODIUM_LIBDIR}
     ${PKG_LIBSODIUM_LIBRARY_DIRS}
-    ${CMAKE_SOURCE_DIR}/libs/windows-x64/lib
 )
 
 include(FindPackageHandleStandardArgs)
