@@ -313,8 +313,14 @@ void theme_load(const THEME loadtheme) {
             COLOR_MAIN_TEXT_SUBTEXT = COLOR_MAIN_TEXT;
             COLOR_MAIN_TEXT_ACTION  = COLOR_PROC(0xd0bf8f);
             COLOR_MAIN_TEXT_QUOTE   = COLOR_PROC(0x7f9f7f);
+            COLOR_MAIN_TEXT_RED     = COLOR_PROC(0xcc9393);
             COLOR_MAIN_TEXT_URL     = COLOR_PROC(0x6ca0a3);
             COLOR_MAIN_TEXT_HINT    = COLOR_MAIN_TEXT;
+
+            COLOR_MSG_USER          = COLOR_MAIN_TEXT;
+            COLOR_MSG_USER_PEND     = COLOR_MAIN_TEXT_ACTION;
+            COLOR_MSG_USER_ERROR    = COLOR_MAIN_TEXT_RED;
+            COLOR_MSG_CONTACT       = COLOR_MAIN_TEXT;
 
             COLOR_MENU_TEXT         = COLOR_MAIN_TEXT;
             COLOR_MENU_TEXT_SUBTEXT = COLOR_MAIN_TEXT;
@@ -346,7 +352,7 @@ void theme_load(const THEME loadtheme) {
 
             COLOR_STATUS_ONLINE = COLOR_MAIN_TEXT_QUOTE;
             COLOR_STATUS_AWAY   = COLOR_MAIN_TEXT_ACTION;
-            COLOR_STATUS_BUSY   = COLOR_PROC(0xcc9393);
+            COLOR_STATUS_BUSY   = COLOR_MAIN_TEXT_RED;
 
             COLOR_BTN_SUCCESS_BKGRND       = COLOR_MAIN_TEXT_QUOTE;
             COLOR_BTN_SUCCESS_TEXT         = COLOR_MAIN_TEXT;
