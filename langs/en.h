@@ -15,10 +15,10 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the newer uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.16.0! Release name: No capes!")
+msgstr("You have just upgraded to version 0.16.1! Release name: No capes!")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.16.0 (check out our new website, utox.io, we beg you)")
+msgstr("Changes in v0.16.1 (check out our new website, utox.io, we beg you)")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
