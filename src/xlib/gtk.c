@@ -25,6 +25,7 @@
 #include <string.h>
 
 #define LIBGTK_FILENAME "libgtk-3.so"
+#define LIBGTK_FILENAME_FALLBACK "libgtk-3.so.0"
 
 #define GTK_FILE_CHOOSER_ACTION_OPEN 0
 #define GTK_FILE_CHOOSER_ACTION_SAVE 1
@@ -424,6 +425,11 @@ void ugtk_save_chatlog(uint32_t friend_number) {
 void *ugtk_load(void) {
     // return NULL;
     void *lib = dlopen(LIBGTK_FILENAME, RTLD_LAZY);
+    if (!lib) { //try again with libgtk-3.so.0 if the first one failed
+        LOG_INFO("GTK", "Failed loading: %s. Falling back to %s", LIBGTK_FILENAME, LIBGTK_FILENAME_FALLBACK);
+        lib = dlopen(LIBGTK_FILENAME_FALLBACK, RTLD_LAZY);
+    }
+
     if (lib) {
         LOG_TRACE("GTK", "have GTK" );
 
