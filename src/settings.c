@@ -147,7 +147,8 @@ UTOX_SAVE *config_load(void) {
     switch_auto_startup.switch_on       = save->auto_startup;
     switch_auto_update.switch_on        = save->auto_update;
 
-    dropdown_global_group_notifications.selected = save->group_notifications;
+    settings.group_notifications = dropdown_global_group_notifications.selected =
+        dropdown_global_group_notifications.over = save->group_notifications;
 
     switch_audible_notifications.switch_on = save->audible_notifications_enabled;
     switch_audio_filtering.switch_on       = save->audio_filtering_enabled;
@@ -194,7 +195,6 @@ UTOX_SAVE *config_load(void) {
     settings.audiofilter_enabled    = save->audio_filtering_enabled;
 
     settings.send_typing_status     = !save->no_typing_notifications;
-    settings.group_notifications    = save->group_notifications;
     settings.status_notifications   = save->status_notifications;
 
     settings.window_width           = save->window_width;
