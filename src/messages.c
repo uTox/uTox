@@ -133,6 +133,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
                 m->data = realloc(m->data, (m->number + 10) * sizeof(void *));
                 m->extra += 10;
             } else {
+                m->number = 0;
                 m->data = calloc(20, sizeof(void *));
                 m->extra = 20;
             }
