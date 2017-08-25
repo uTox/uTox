@@ -43,10 +43,7 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
                                   void *gui_panel, bool override)
 {
     if (!window) {
-        window = calloc(1, sizeof(UTOX_WINDOW));
-        if (!window) {
-            return NULL;
-        }
+        return NULL;
     }
 
     XSetWindowAttributes attrib = {
@@ -68,7 +65,6 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
     if (XStringListToTextProperty(&title_name, 1, &native_window_name) == 0 ) {
         LOG_ERR("XLIB Wind", "FATAL ERROR: Unable to alloc for a sting during window creation");
         XDestroyWindow(display, window->window);
-        free(window);
         return NULL;
     }
     // "Because FUCK your use of sane coding strategies" -Xlib... probably...
@@ -84,7 +80,6 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
     if (!size_hints || !wm_hints || !class_hints) {
         LOG_ERR("XLIB Wind", "XLIB_Windows: couldn't allocate memory.");
         XDestroyWindow(display, window->window);
-        free(window);
         return NULL;
     }
 
@@ -137,7 +132,7 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **UNUSED
 
     if (!native_window_create(&main_window, title, CWBackPixmap | CWBorderPixel | CWEventMask,
                       x, y, w, h, MAIN_WIDTH, MAIN_HEIGHT, &panel_root, false)) {
-        LOG_FATAL_ERR(EXIT_FAILURE, "XLIB Wind", "Unable to create main window.");
+        LOG_FATAL_ERR(EXIT_FAILURE,"XLIB Wind", "Unable to create main window.");
     }
 
     Atom a_pid  = XInternAtom(display, "_NET_WM_PID", 0);
@@ -171,6 +166,11 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *pane
 
     if (!popup_window.window) {
         next = &popup_window;
+    } else {
+        next = calloc(sizeof(UTOX_WINDOW), 1);
+        if (!next) {
+            LOG_FATAL_ERR(EXIT_FAILURE, "XIB Wind", "Unable to allocate data for popup window.");
+        }
     }
 
     UTOX_WINDOW *win = native_window_create(next, "uTox Alert",
