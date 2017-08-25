@@ -29,8 +29,7 @@ void switch_draw(UISWITCH *s, int x, int y, int w, int h) {
 
     // Switch background color
     uint32_t color = s->mousedown ? s->press_color : (s->mouseover ? s->hover_color : s->bg_color);
-    drawalpha(s->style_outer, x, y, w, h,
-              s->disabled ? (s->disabled_color ? s->disabled_color : s->disabled_color) : color);
+    drawalpha(s->style_outer, x, y, w, h, s->disabled ? s->disabled_color : color);
 
     // SVG offsets, used for centering
     int tx = ((w / 2 - s->toggle_w) / 2), ty = ((h - s->toggle_h) / 2), ix0 = ((w / 2 - s->icon_off_w) / 2),
