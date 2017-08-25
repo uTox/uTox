@@ -3,8 +3,6 @@ include(CTest)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-find_package(Check REQUIRED)
-
 function(make_test name)
     add_executable(test_${name} test_${name}.c)
     set_target_properties(test_${name} PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
