@@ -94,6 +94,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 /* Included in dnd.c */
 void dnd_init(HWND window);
 
+void tray_icon_init(HWND window, HICON icon);
+
 // Converts a Windows wide null-terminated string to utf8.
 int native_to_utf8str(const wchar_t *str_in, char *str_out, uint32_t max_size);
 
