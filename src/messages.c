@@ -1750,7 +1750,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 
     pthread_mutex_lock(&messages_lock);
 
-    memset(m, 0, sizeof(*m) * COUNTOF(m));
+    memset(m, 0, sizeof(*m));
 
     m->data = calloc(20, sizeof(void *));
     if (!m->data) {

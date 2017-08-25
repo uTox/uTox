@@ -240,18 +240,9 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
         return;
     }
     self.friend_list_count++;
-
     uint8_t name[TOX_MAX_NAME_LENGTH];
 
     memset(f, 0, sizeof(FRIEND));
-
-    // Set scroll position to bottom of window.
-    f->msg.scroll               = 1.0;
-    f->msg.panel.type           = PANEL_MESSAGES;
-    f->msg.panel.content_scroll = &scrollbar_friend;
-    f->msg.panel.y              = MAIN_TOP;
-    f->msg.panel.height         = CHAT_BOX_TOP;
-    f->msg.panel.width          = -SCROLL_WIDTH;
 
     // Get and set the public key for this friend number and set it.
     tox_friend_get_public_key(tox, friend_number, f->cid, 0);
@@ -283,7 +274,13 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
 
     MESSAGES *m = &f->msg;
     messages_init(m, friend_number);
-
+    // Set scroll position to bottom of window.
+    f->msg.scroll               = 1.0;
+    f->msg.panel.type           = PANEL_MESSAGES;
+    f->msg.panel.content_scroll = &scrollbar_friend;
+    f->msg.panel.y              = MAIN_TOP;
+    f->msg.panel.height         = CHAT_BOX_TOP;
+    f->msg.panel.width          = -SCROLL_WIDTH;
     // Get the chat backlog
     messages_read_from_log(friend_number);
 
