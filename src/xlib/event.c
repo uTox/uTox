@@ -551,13 +551,14 @@ bool doevent(XEvent event) {
             if (ev->property == XA_ATOM) {
                 pastebestformat((Atom *)data, len, ev->selection);
             } else if (ev->property == XdndDATA) {
-                char *path = malloc(len + 1);
-                formaturilist(path, (char *)data, len);
                 FRIEND *f = flist_get_friend();
                 if (!f) {
                     LOG_ERR("Event", "Could not get selected friend.");
                     return false;
                 }
+
+                char *path = calloc(len + 1, 1);
+                formaturilist(path, (char *)data, len);
                 postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0xFFFF, path);
             } else if (type == XA_INCR) {
                 if (pastebuf.data) {
