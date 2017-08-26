@@ -15,7 +15,7 @@ You shouldn't have to choose a new client for every device: So µTox works every
  * [static x86-64](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
  * [static x86](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
 * **macOS**
- * [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.16.0/uTox-0.16.0.dmg) -- *could be out of date, check the version list below*
+ * [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.16.1/uTox-0.16.1.dmg) -- *could be out of date, check the version list below*
  * [Version List](https://github.com/uTox/uTox/releases)
 * **Android**
  * [uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox) **You should use [Antox](https://play.google.com/store/apps/details?id=chat.tox.antox&hl=en)
