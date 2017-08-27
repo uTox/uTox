@@ -396,7 +396,6 @@ endif()
 # packaging
 include(CPack)
 
-
 ###########
 # Testing #
 ###########
@@ -404,13 +403,8 @@ include(CPack)
 if(ENABLE_TESTS)
   if(UNIX)
     # Tests currently only run on Linux and macOS.
-    find_package(Check)
-    if(CHECK_FOUND)
-        enable_testing()
-        add_subdirectory(tests)
-    else()
-        message(WARNING "Testing enabled, but couldn't find Check!")
-    endif()
+    enable_testing()
+    add_subdirectory(tests)
   endif()
 endif()
 
