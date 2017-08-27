@@ -4,7 +4,7 @@ The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
 [**TokTok Site**](http://toktok.github.io/) **|** [**Installing**](docs/INSTALL.md) **|** [**Changelog**](CHANGELOG.md) **|** [**Compiling**](docs/BUILD.md) **|** [**Toxcore Spec**](https://toktok.github.io/spec).
 
-You shouldn't have to choose a new client for every device: So µTox works everywhere! On every major system **Windows**, **OSX**, **Linux**, and even **Android**.
+You shouldn't have to choose a new client for every device: So µTox works everywhere! On every major system **Windows**, **macOS**, **Linux**, and even **Android**.
 
 ## Downloads
 * **Windows**
@@ -14,8 +14,8 @@ You shouldn't have to choose a new client for every device: So µTox works every
 * **Linux/Posix**
  * [static x86-64](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
  * [static x86](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
-* **OSX**
- * [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.9.8/uTox-0.9.8.dmg) -- *could be out of date, check the version list below*
+* **macOS**
+ * [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.16.1/uTox-0.16.1.dmg) -- *could be out of date, check the version list below*
  * [Version List](https://github.com/uTox/uTox/releases)
 * **Android**
  * [uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox) **You should use [Antox](https://play.google.com/store/apps/details?id=chat.tox.antox&hl=en)
@@ -43,9 +43,9 @@ Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or 
 
 ![μTox on Windows 10](images/utox-windows10.png "μTox running on Windows 10")
 
-μTox running on OSX:
+μTox running on macOS:
 
-![μTox on OSX](images/utox-osx.png "μTox running on OSX")
+![μTox on macOS](images/utox-osx.png "μTox running on macOS")
 
 μTox running on Linux (Ubuntu)
 
