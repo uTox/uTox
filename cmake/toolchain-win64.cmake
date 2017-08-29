@@ -35,6 +35,9 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 set(WIN32 TRUE) # This is for cmake
 set(WIN64 TRUE) # This is for uTox lib dirs
-set(WIN_LIBS_DIR libs/windows-x64)
 set(UNIX FALSE)
 set(CROSS_COMPILING TRUE)
+
+if(NOT CMAKE_PREFIX_PATH)
+    set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/libs/windows-x64)
+endif()

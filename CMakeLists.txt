@@ -288,14 +288,10 @@ if(WIN32)
     if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
         set(GUI_TYPE WIN32)
     endif()
-    ############################################################
-    ## This is a hack, that we can remove once we have better
-    ## separation of the sections of uTox, until then, this
-    ## makes everything work.
-    ############################################################
-    link_directories( ${WIN_LIBS_DIR}/lib )
 
-    ## Needed to build the widows icon
+    link_directories(${CMAKE_PREFIX_PATH}/lib)
+
+    # Windows icons
     enable_language(RC)
     set(WINDOWS_ICON src/windows/utox.rc)
 

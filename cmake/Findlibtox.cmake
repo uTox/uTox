@@ -33,7 +33,6 @@ set(LIBTOX_DEFINITIONS ${_PKG_TOX_CFLAGS_OTHER})
 
 
 find_path(LIBTOX_INCLUDE_DIR tox/tox.h HINTS
-    ${CMAKE_SOURCE_DIR}/${WIN_LIBS_DIR}/include
     ${_PKG_TOX_INCLUDEDIR}
     ${_PKG_TOX_INCLUDE_DIRS}
 )
@@ -41,7 +40,6 @@ find_path(LIBTOX_INCLUDE_DIR tox/tox.h HINTS
 # required components
 foreach(_COMPNENT ${_TOX_COMPNENTS})
     find_library(_TEMP NAMES ${_COMPNENT} HINTS
-        ${CMAKE_SOURCE_DIR}/${WIN_LIBS_DIR}/lib
         ${_PKG_TOX_LIBDIR}
         ${_PKG_TOX_LIBRARY_DIRS}
     )

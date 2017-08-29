@@ -35,6 +35,9 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 set(WIN32 TRUE) # This is for cmake
 
-set(WIN_LIBS_DIR libs/windows-x32)
 set(UNIX FALSE)
 set(CROSS_COMPILING TRUE)
+
+if(NOT CMAKE_PREFIX_PATH)
+    set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/libs/windows-x32)
+endif()
