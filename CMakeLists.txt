@@ -80,7 +80,7 @@ endif()
 option(UTOX_STATIC        "Link uTox statically"                                 ${STATIC_DEFAULT} )
 option(TOXCORE_STATIC     "Build uTox with the static version of Toxcore"        ${STATIC_DEFAULT} )
 option(ENABLE_ASAN        "Enable Address Sanitizer on debug builds"               ${ASAN_DEFAULT} )
-option(ENABLE_TESTS       "Whether to build test binaries (currently linux only)"               ON )
+option(ENABLE_TESTS       "Whether to build test binaries (currently linux only)"               OFF)
 option(ENABLE_WERROR      "Error on Warning, whether to put -Werror flag to the compiler"       OFF)
 option(ENABLE_FILTERAUDIO "Enable Filter Audio"                                                 ON )
 option(ENABLE_AUTOUPDATE  "Enable Auto-updater"                                                 OFF)
@@ -392,7 +392,6 @@ endif()
 # packaging
 include(CPack)
 
-
 ###########
 # Testing #
 ###########
@@ -400,13 +399,8 @@ include(CPack)
 if(ENABLE_TESTS)
   if(UNIX)
     # Tests currently only run on Linux and macOS.
-    find_package(Check)
-    if(CHECK_FOUND)
-        enable_testing()
-        add_subdirectory(tests)
-    else()
-        message(WARNING "Testing enabled, but couldn't find Check!")
-    endif()
+    enable_testing()
+    add_subdirectory(tests)
   endif()
 endif()
 
