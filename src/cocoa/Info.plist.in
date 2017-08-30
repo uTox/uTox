@@ -27,7 +27,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>@CMAKE_OSX_DEPLOYMENT_TARGET@</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyleft 2017 uTox contributors. Some rights reserved.</string>
+	<string>@PROJECT_COPYRIGHT@</string>
 	<key>NSMainNibFile</key>
 	<string>@APPLE_MENU@</string>
 	<key>NSPrincipalClass</key>
