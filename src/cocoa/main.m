@@ -3,6 +3,7 @@
 #include "../commands.h"
 #include "../debug.h"
 #include "../filesys.h"
+#include "../flist.h"
 #include "../main.h"
 #include "../settings.h"
 #include "../theme.h"
@@ -136,20 +137,6 @@ uint64_t get_time(void) {
     ts.tv_nsec = machtime.tv_nsec;
 
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
-}
-
-void openurl(char *str) {
-    NSString *urls = [[NSString alloc] initWithCString:(char *)str encoding:NSUTF8StringEncoding];
-
-    NSURL *url = NULL;
-    if (!strncasecmp((const char *)str, "http://", 7) || !strncasecmp((const char *)str, "https://", 8)) {
-        url = [NSURL URLWithString:urls];
-    } else /* it's a path */ {
-        url = [NSURL fileURLWithPath:urls];
-    }
-
-    [[NSWorkspace sharedWorkspace] openURL:url];
-    [urls release];
 }
 
 void config_osdefaults(UTOX_SAVE *r) {
@@ -302,6 +289,25 @@ void exit_ptt(void) {
 void redraw(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
     [ad soilWindowContents];
+}
+
+void openurl(char *str) {
+    if (try_open_tox_uri(str)) {
+        redraw();
+        return;
+    }
+
+    NSString *urls = [[NSString alloc] initWithCString:(char *)str encoding:NSUTF8StringEncoding];
+
+    NSURL *url = NULL;
+    if (!strncasecmp((const char *)str, "http://", 7) || !strncasecmp((const char *)str, "https://", 8)) {
+        url = [NSURL URLWithString:urls];
+    } else /* it's a path */ {
+        url = [NSURL fileURLWithPath:urls];
+    }
+
+    [[NSWorkspace sharedWorkspace] openURL:url];
+    [urls release];
 }
 
 void launch_at_startup(bool should) {
