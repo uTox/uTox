@@ -886,6 +886,44 @@ ITEM_TYPE flist_get_type(void) {
     return selected_item->item;
 }
 
+bool get_tox_id_from_uri(const char *str, char *tox_id) {
+    const char *tox_uri_scheme = "tox:";
+    const int tox_uri_scheme_length = 4;
+
+    if (strncmp(str, tox_uri_scheme, tox_uri_scheme_length) == 0 &&
+        strlen(str) - tox_uri_scheme_length == TOX_ADDRESS_SIZE * 2) {
+        memcpy(tox_id, &str[tox_uri_scheme_length], TOX_ADDRESS_SIZE * 2);
+        tox_id[TOX_ADDRESS_SIZE * 2] = '\0';
+        return true;
+    }
+
+    return false;
+}
+
+bool try_open_tox_uri(const char *str) {
+    char tox_id[TOX_ADDRESS_SIZE * 2 + 1];
+
+    if (!get_tox_id_from_uri(str, tox_id)) {
+        return false;
+    }
+
+    FRIEND *friend = get_friend_by_id(tox_id);
+
+    if (friend) {
+        flist_selectchat(friend->number);
+    }
+    else {
+        if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
+            edit_setstr(&edit_add_new_friend_id, tox_id, TOX_ADDRESS_SIZE * 2);
+            edit_setstr(&edit_search, (char *)"", 0);
+            flist_selectaddfriend();
+            edit_setfocus(&edit_add_new_friend_msg);
+        }
+    }
+
+    return true;
+}
+
 /******************************************************************************
  ****** UI functions                                                     ******
  ******************************************************************************/

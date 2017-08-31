@@ -69,6 +69,8 @@ FREQUEST *flist_get_frequest(void);
 GROUPCHAT *flist_get_groupchat(void);
 ITEM_TYPE flist_get_type(void);
 
+bool try_open_tox_uri(const char *str);
+
 /* UI functions */
 void flist_draw(void *n, int x, int y, int width, int height);
 bool flist_mmove(void *n, int x, int y, int width, int height, int mx, int my, int dx, int dy);
