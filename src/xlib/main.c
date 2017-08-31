@@ -209,6 +209,11 @@ uint64_t get_time(void) {
 }
 
 void openurl(char *str) {
+    if (try_open_tox_uri(str)) {
+        redraw();
+        return;
+    }
+
     char *cmd = "xdg-open";
     if (!fork()) {
         execlp(cmd, cmd, str, (char *)0);
