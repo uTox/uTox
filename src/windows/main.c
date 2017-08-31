@@ -232,12 +232,6 @@ uint64_t get_time(void) {
     return ((uint64_t)clock() * 1000 * 1000);
 }
 
-void openurl(char *str) {
-    wchar_t url[UTOX_FILE_NAME_LENGTH] = { 0 };
-    utf8tonative(str, url, UTOX_FILE_NAME_LENGTH);
-    ShellExecuteW(NULL, L"open", url, NULL, NULL, SW_SHOW);
-}
-
 void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {
     // TODO: Implement.
 }
@@ -511,6 +505,17 @@ void update_tray(void) {
 
 void force_redraw(void) {
     redraw();
+}
+
+void openurl(char *str) {
+    if (try_open_tox_uri(str)) {
+        redraw();
+        return;
+    }
+
+    wchar_t url[UTOX_FILE_NAME_LENGTH] = { 0 };
+    utf8tonative(str, url, UTOX_FILE_NAME_LENGTH);
+    ShellExecuteW(NULL, L"open", url, NULL, NULL, SW_SHOW);
 }
 
 void freefonts() {
