@@ -537,6 +537,22 @@ FRIEND *find_friend_by_name(uint8_t *name) {
     return NULL;
 }
 
+FRIEND *get_friend_by_id(const char *id_str) {
+    for (size_t i = 0; i < self.friend_list_count; i++) {
+        FRIEND *f = get_friend(i);
+        if (!f) {
+            LOG_ERR("Friend", "Could not get friend %u", i);
+            continue;
+        }
+
+        if (strcmp2(f->id_str, id_str) == 0) {
+            return f;
+        }
+    }
+
+    return NULL;
+}
+
 void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char *state) {
     if (!settings.status_notifications) {
         return;
