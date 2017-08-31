@@ -96,8 +96,8 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
 
             if ((a_mark == data || *(a_mark - 1) == '\n' || *(a_mark - 1) == ' ')
                 && (   (end - a_mark >= 7 && memcmp(a_mark, "http://", 7) == 0)
-                    || (end - a_mark >= 8 && memcmp(a_mark, "https://", 8) == 0))
-
+                    || (end - a_mark >= 8 && memcmp(a_mark, "https://", 8) == 0)
+                    || (end - a_mark >= 8 && memcmp(a_mark, "tox:", 4) == 0))
             ) {
                 c2   = setcolor(COLOR_MAIN_TEXT_URL);
                 link = 1;
