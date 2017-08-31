@@ -1156,6 +1156,9 @@ static bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, 
             } else if (m->cursor_over_uri == UINT32_MAX && end - str >= 8 && (strcmp2(str, "https://") == 0)) {
                 cursor             = CURSOR_HAND;
                 m->cursor_over_uri = str - message;
+            } else if (m->cursor_over_uri == UINT32_MAX && end - str >= 4 && (strcmp2(str, "tox:") == 0)) {
+                cursor             = CURSOR_HAND;
+                m->cursor_over_uri = str - message;
             }
         }
         str++;
