@@ -906,10 +906,14 @@ void native_export_chatlog_init(uint32_t fid) {
     [fname release];
     int ret = [picker runModal];
 
-    if (ret == NSFileHandlingPanelOKButton) {
+        if (ret == NSFileHandlingPanelOKButton) {
         NSURL *destination = picker.URL;
-        // FIXME: might be leaking
-        utox_export_chatlog(fid, strdup(destination.path.UTF8String));
+        FILE *file = utox_get_file_simple(destination.path.UTF8String, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+        if (!file) {
+            LOG_ERR("Cocoa", "Could write to file: %s", destination.path.UTF8String);
+        }
+
+        utox_export_chatlog(f->id_str, file);
     }
 }
 
