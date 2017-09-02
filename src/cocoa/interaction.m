@@ -896,23 +896,27 @@ void native_export_chatlog_init(uint32_t fid) {
     }
 
     NSSavePanel *picker = [NSSavePanel savePanel];
-    NSString *fname     = [[NSString alloc] initWithBytesNoCopy:f->name
-                                                     length:f->name_length
-                                                   encoding:NSUTF8StringEncoding
-                                               freeWhenDone:NO];
-    picker.message = [NSString
-        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), f->name_length, f->name];
+    NSString *fname = [[NSString alloc]
+        initWithBytesNoCopy:f->name
+        length:f->name_length
+        encoding:NSUTF8StringEncoding
+        freeWhenDone:NO];
+
+    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), 
+            f->name_length, 
+            f->name];
+
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];
 
-        if (ret == NSFileHandlingPanelOKButton) {
+    if (ret == NSFileHandlingPanelOKButton) {
         NSURL *destination = picker.URL;
         FILE *file = utox_get_file_simple(destination.path.UTF8String, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
         if (!file) {
             LOG_ERR("Cocoa", "Could write to file: %s", destination.path.UTF8String);
+            return;
         }
-
         utox_export_chatlog(f->id_str, file);
     }
 }
