@@ -886,7 +886,15 @@ ITEM_TYPE flist_get_type(void) {
     return selected_item->item;
 }
 
-bool get_tox_id_from_uri(const char *str, char *tox_id) {
+/**
+ * @brief Extract string ToxId from Tox URI.
+ *
+ * @param str Null-terminated Tox URI.
+ * @param tox_id Extracted ToxId; it has to be at least TOX_ADDRESS_SIZE * 2 + 1.
+ *
+ * @return True if success false otherwise.
+ */
+static bool get_tox_id_from_uri(const char *str, char *tox_id) {
     const char *tox_uri_scheme = "tox:";
     const int tox_uri_scheme_length = 4;
 
