@@ -919,14 +919,11 @@ bool try_open_tox_uri(const char *str) {
 
     if (friend) {
         flist_selectchat(friend->number);
-    }
-    else {
-        if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
-            edit_setstr(&edit_add_new_friend_id, tox_id, TOX_ADDRESS_SIZE * 2);
-            edit_setstr(&edit_search, (char *)"", 0);
-            flist_selectaddfriend();
-            edit_setfocus(&edit_add_new_friend_msg);
-        }
+    } else if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
+        edit_setstr(&edit_add_new_friend_id, tox_id, TOX_ADDRESS_SIZE * 2);
+        edit_setstr(&edit_search, (char *)"", 0);
+        flist_selectaddfriend();
+        edit_setfocus(&edit_add_new_friend_msg);
     }
 
     return true;
