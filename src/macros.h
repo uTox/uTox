@@ -18,7 +18,6 @@
     ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
 
 // This is hacky and almost never better, try to use an alternative.
-#define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
 #define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
 
 // Is the video stream just a selection of the desktop
