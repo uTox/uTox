@@ -545,7 +545,7 @@ FRIEND *get_friend_by_id(const char *id_str) {
             continue;
         }
 
-        if (strcmp2(f->id_str, id_str) == 0) {
+        if (strncmp(f->id_str, id_str, TOX_PUBLIC_KEY_SIZE * 2) == 0) {
             return f;
         }
     }
