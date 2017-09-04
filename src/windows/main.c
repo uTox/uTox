@@ -189,14 +189,13 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
             fclose(file);
 
             msg->via.ft.path = calloc(1, UTOX_FILE_NAME_LENGTH);
-            if(!msg->via.ft.path) {
-                LOG_ERR("NATIVE", "Could not allocate memory  for path." );
+            if (!msg->via.ft.path) {
+                LOG_ERR("NATIVE", "Could not allocate memory for path." );
                 free(path);
                 return;
             }
 
-            snprintf((char *) msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", path);
-
+            msg->via.ft.path = (uint8_t *)strdup(path);
             msg->via.ft.name = basename((char *) msg->via.ft.path);
             msg->via.ft.name_length = strlen((char *) msg->via.ft.name);
 
