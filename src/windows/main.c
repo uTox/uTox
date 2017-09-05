@@ -43,6 +43,7 @@
 
 #include <windowsx.h>
 #include <io.h>
+#include <libgen.h>
 
 bool flashing = false;
 bool hidden = false;
@@ -160,39 +161,53 @@ void openfileavatar(void) {
 }
 
 void file_save_inline_image_png(MSG_HEADER *msg) {
-    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
-    if (!path) {
-        LOG_FATAL_ERR(EXIT_MALLOC, "file_save_inline_image_png", "Could not allocate memory for path.");
-    }
+    wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    utf8_to_nativestr((char *)msg->via.ft.name, filepath, msg->via.ft.name_length * 2);
 
-    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s", (int)msg->via.ft.name_length, (char *)msg->via.ft.name);
-
-    OPENFILENAME ofn = {
-        .lStructSize    = sizeof(OPENFILENAME),
+    OPENFILENAMEW ofn = {
+        .lStructSize    = sizeof(OPENFILENAMEW),
         .hwndOwner      = main_window.window,
-        .lpstrFile      = path,
+        .lpstrFile      = filepath,
         .nMaxFile       = UTOX_FILE_NAME_LENGTH,
-        .lpstrDefExt    = "png",
-        .nFileExtension = strlen(path) - 3,
-        .Flags          = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
+        .lpstrDefExt    = L"png",
+        .lpstrFilter    = L"PNG Files\0*.png\0",
+        .Flags          = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST,
     };
 
-    if (GetSaveFileName(&ofn)) {
-        FILE *fp = fopen(path, "wb");
-        if (fp) {
-            fwrite(msg->via.ft.data, msg->via.ft.data_size, 1, fp);
-            fclose(fp);
+    if (GetSaveFileNameW(&ofn)) {
+        char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+        if (!path){
+            LOG_ERR("NATIVE", "Could not allocate memory for path." );
+            return;
+        }
 
-            snprintf((char *)msg->via.ft.path, UTOX_FILE_NAME_LENGTH, "%s", path);
+        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH);
+
+        FILE *file = utox_get_file_simple(path, UTOX_FILE_OPTS_WRITE);
+        if (file) {
+            fwrite(msg->via.ft.data, msg->via.ft.data_size, 1, file);
+            fclose(file);
+
+            msg->via.ft.path = calloc(1, UTOX_FILE_NAME_LENGTH);
+            if (!msg->via.ft.path) {
+                LOG_ERR("NATIVE", "Could not allocate memory for path." );
+                free(path);
+                return;
+            }
+
+            msg->via.ft.path = (uint8_t *)strdup(path);
+            msg->via.ft.name = basename(strdup(path));
+            msg->via.ft.name_length = strlen((char *) msg->via.ft.name);
+
             msg->via.ft.inline_png = false;
         } else {
             LOG_ERR("NATIVE", "file_save_inline_image_png:\tCouldn't open path: `%s` to save inline file.", path);
         }
+
+        free(path);
     } else {
         LOG_ERR("NATIVE", "GetSaveFileName() failed");
     }
-
-    free(path);
 }
 
 void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
