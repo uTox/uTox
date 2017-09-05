@@ -121,6 +121,8 @@ uint8_t addfriend_status;
  */
 FRIEND *get_friend(uint32_t friend_number);
 
+FRIEND *get_friend_by_id(const char *id_str);
+
 FREQUEST *get_frequest(uint16_t frequest_number);
 
 /* Add a new friend request */
