@@ -985,15 +985,15 @@ void openfilesend(void) {
     int ret                        = [picker runModal];
 
     if (ret == NSFileHandlingPanelOKButton) {
-        NSArray * urls = picker.URLs;
+        NSArray *urls = picker.URLs;
         FRIEND *f = flist_get_friend();
         if (!f) {
             LOG_ERR("Cocoa", "Could not get friend.");
             return;
         }
-        
+
         for (NSURL *url in urls) {
-            UTOX_MSG_FT *msg = malloc(sizeof(UTOX_MSG_FT));
+            UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
             if (!msg) {
                 LOG_ERR("Cocoa", "Failed to malloc for file sending.");
                 return;
