@@ -985,12 +985,24 @@ void openfilesend(void) {
     int ret                        = [picker runModal];
 
     if (ret == NSFileHandlingPanelOKButton) {
-        NSArray *        urls = picker.URLs;
-        NSMutableString *s    = [NSMutableString string];
-        for (NSURL *url in urls) {
-            [s appendFormat:@"%@\n", url.path];
+        NSArray *urls = picker.URLs;
+        FRIEND *f = flist_get_friend();
+        if (!f) {
+            LOG_ERR("Cocoa", "Could not get friend.");
+            return;
         }
-        //postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND *)selected_item->data - friend, 0xFFFF, strdup(s.UTF8String));
+
+        for (NSURL *url in urls) {
+            UTOX_MSG_FT *msg = calloc(1, sizeof(UTOX_MSG_FT));
+            if (!msg) {
+                LOG_ERR("Cocoa", "Failed to malloc for file sending.");
+                return;
+            }
+            msg->file = fopen(url.path.UTF8String, "r");
+            msg->name = (uint8_t*)strdup(url.path.UTF8String);
+            postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0, msg);
+            LOG_INFO("Cocoa", "File %s sent!", url.path.UTF8String);
+        }
     }
 }
 
