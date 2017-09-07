@@ -57,7 +57,7 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
     }
 
     XWindowAttributes attrs;
-    XGetWindowAttributes(display, video_win[id], &attrs);
+    XGetWindowAttributes(display, *win, &attrs);
 
     XImage image = {
         .width            = attrs.width,
