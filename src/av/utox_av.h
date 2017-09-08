@@ -9,8 +9,10 @@
 extern bool utox_av_ctrl_init;
 
 #define UTOX_MAX_CALLS 16
-// UTOX_MAX_VIDEO_CALLS is never used. Remove?
 #define UTOX_MAX_VIDEO_CALLS 32
+
+#define UTOX_AV_ACTIVE_CALL(friend) ( (friend)->call_state_self) || (friend)->call_state_friend )
+
 /* utox av thread commands */
 enum {
     UTOXAV_KILL,

@@ -48,21 +48,16 @@ enum {
 #define UTOX_DEFAULT_AUDIO_CHANNELS 1
 
 /* Check self */
-#define UTOX_SENDING_AUDIO(f_number) (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_A))
-// UTOX_ACCEPTING_AUDIO is unused. Delete?
-#define UTOX_ACCEPTING_AUDIO(f_number) (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A))
-
+#define UTOX_SENDING_AUDIO(friend) ( (friend)->call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_A )
 /* Check friend */
-#define UTOX_AVAILABLE_AUDIO(f_number) (!!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_A))
+#define UTOX_AVAILABLE_AUDIO(friend) ( (friend)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_A )
 
 /* Check both */
-#define UTOX_SEND_AUDIO(f_number)                                             \
-    (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_A) \
-     && !!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A))
+#define UTOX_SEND_AUDIO(friend) ( ((friend)->call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_A)     \
+                               && ((friend)->call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) )
 // UTOX_ACCEPT_AUDIO is unused. Delete?
-#define UTOX_ACCEPT_AUDIO(f_number)                                             \
-    (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) \
-     && !!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_A))
+#define UTOX_ACCEPT_AUDIO(friend) ( ((friend)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) \
+                                 && ((friend)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_A) )
 
 bool utox_audio_in_device_set(ALCdevice *new_device);
 bool utox_audio_out_device_set(ALCdevice *new_device);
