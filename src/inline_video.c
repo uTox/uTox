@@ -21,70 +21,101 @@
 #include "av/video.h"
 
 #include "native/image.h"
+#include "native/thread.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 static UTOX_FRAME_PKG *preview_frame = NULL;
-static UTOX_FRAME_PKG current_frame = { 0, 0, 0, 0 };
+static UTOX_FRAME_PKG *current_frame = NULL;
+
+/* Xlib is VERY threaded, so we need to make our own copy of the data we're going to draw
+ * I know memcpy isn't ideal here, but perfect is the enemy of done. I'd love to see a better
+ * implementation here! Please try to better me on this!
+ */
+static void clone_frame(UTOX_FRAME_PKG *dst, UTOX_FRAME_PKG *src) {
+    if (!src->size) {
+        return;
+    }
+
+    if (dst->size != src->size) {
+        void *img = realloc(dst->img, src->size);
+        if (!img) {
+            LOG_FATAL_ERR(EXIT_MALLOC ,"Inline Image", "Unable to malloc for this image");
+        }
+
+        dst->img  = img;
+    }
+
+    dst->w    = src->w;
+    dst->h    = src->h;
+    dst->size = src->size;
+    memcpy(dst->img, src->img, dst->size);
+}
+
 
 bool inline_set_frame_self(UTOX_FRAME_PKG *frame) {
-    if (preview_frame) {
-        if (preview_frame->img) {
-            free(preview_frame->img);
+    if (!settings.inline_video) {
+        return false;
+    }
+
+    if (!preview_frame) {
+        preview_frame = calloc(1, sizeof *preview_frame);
+        if (!preview_frame) {
+            LOG_FATAL_ERR(EXIT_MALLOC,"Inline Image", "Unable to calloc for our preview");
         }
-        free(preview_frame);
-        preview_frame = NULL;
     }
 
     if (frame) {
-        preview_frame = frame;
+        clone_frame(preview_frame, frame);
         return true;
+    } else {
+        free(preview_frame->img);
+        preview_frame->img = NULL;
+        // TODO free(preview_frame); // We can't free this without friend ownership else DOS exploit
     }
 
     return false;
 }
 
 
-bool inline_set_frame_friend(uint16_t w, uint16_t h, size_t size, void *img) {
-    current_frame.w    = w;
-    current_frame.h    = h;
-    current_frame.size = size;
-
-    uint8_t *tmp = realloc(current_frame.img, size);
-    if (!size || !tmp) {
-        current_frame.w    = 0;
-        current_frame.h    = 0;
-        current_frame.size = 0;
-        tmp ? free(tmp) : free(current_frame.img);
-
-        return false;
+bool inline_set_frame_friend(UTOX_FRAME_PKG *frame) {
+    if (!current_frame) {
+        current_frame = calloc(1, sizeof *current_frame);
+        if (!current_frame) {
+            LOG_FATAL_ERR(EXIT_MALLOC,"Inline Image", "Unable to calloc for our preview");
+        }
     }
 
-    current_frame.img = tmp;
-    memcpy(current_frame.img, img, size);
-    return true;
+    if (frame) {
+        clone_frame(current_frame, frame);
+        return true;
+    } else {
+        free(current_frame->img);
+        current_frame->img = NULL;
+        // TODO free(current_frame); // We can't free this without friend ownership else DOS exploit
+    }
+
+    return false;
 }
 
 void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int width, int height) {
+    LOG_TRACE("Inline Video", "Drawing new frame." );
     if (!settings.inline_video) {
         return;
     }
 
-    LOG_TRACE("Inline Video", "Drawing new frame." );
-
-    if (current_frame.img && current_frame.size) {
-        draw_inline_image(current_frame.img, current_frame.size,
-                          MIN(current_frame.w, width), MIN(current_frame.h, height),
+    if (current_frame && current_frame->img && current_frame->size) {
+        draw_inline_image(current_frame->img, current_frame->size,
+                          MIN(current_frame->w, width), MIN(current_frame->h, height),
                           x, y + SCALE(MAIN_TOP_FRAME_THICK + 2));
 
         // TODO advanced maths to determine best plase to place P-by-P
-        x += MIN(current_frame.w, width) + SCALE(2);
-        // y += MIN(current_frame.h, height);
+        x += MIN(current_frame->w, width) + SCALE(2);
+        // y += MIN(current_frame->h, height);
     }
 
     if (preview_frame && preview_frame->size && preview_frame->img) {
-
         draw_inline_image(preview_frame->img, preview_frame->size,
                           MIN(preview_frame->w, width), MIN(preview_frame->h, height),
                           x, y + SCALE(MAIN_TOP_FRAME_THICK + 2));
