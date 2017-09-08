@@ -178,13 +178,13 @@ void destroy_tray_icon(void) {
     XDestroyWindow(display, tray_window.window);
 }
 
-bool tray_window_event(XEvent event) {
-    if (event.xany.window != tray_window.window) {
-        LOG_WARN("TRAY", "in %u ours %u", event.xany.window, tray_window.window);
+bool tray_window_event(XEvent *event) {
+    if (event->xany.window != tray_window.window) {
+        LOG_WARN("TRAY", "in %u ours %u", event->xany.window, tray_window.window);
         return false;
     }
 
-    switch (event.type) {
+    switch (event->type) {
         case Expose: {
             LOG_NOTE("XLib Tray", "Expose");
             draw_tray_icon();
@@ -195,7 +195,7 @@ bool tray_window_event(XEvent event) {
             return true;
         }
         case ClientMessage: {
-            XClientMessageEvent msg = event.xclient;
+            XClientMessageEvent msg = event->xclient;
             if (msg.message_type == XInternAtom(msg.display, "_XEMBED", true)) {
                 tray_xembed(&msg);
                 return true;
@@ -211,7 +211,7 @@ bool tray_window_event(XEvent event) {
 
         case ConfigureNotify: {
             LOG_NOTE("XLib Tray", "Tray configure event");
-            XConfigureEvent *ev = &event.xconfigure;
+            XConfigureEvent *ev = &event->xconfigure;
             tray_window._.x = ev->x;
             tray_window._.y = ev->y;
             if (tray_window._.w != (unsigned)ev->width || tray_window._.h != (unsigned)ev->height) {
@@ -245,10 +245,16 @@ bool tray_window_event(XEvent event) {
         }
         case ButtonRelease: {
             LOG_INFO("XLib Tray", "ButtonRelease");
-            XButtonEvent *ev = &event.xbutton;
+            XButtonEvent *ev = &event->xbutton;
 
-            if (ev->button == Button1) {
-                togglehide();
+            switch (ev->button) {
+                case Button1: {
+                    togglehide();
+                    break;
+                }
+                case Button3: {
+                    LOG_ERR("XLib Tray", "Button 3 %i %i", ev->x_root, ev->y_root);
+                }
             }
             return true;
         }
@@ -282,7 +288,7 @@ bool tray_window_event(XEvent event) {
         }
 
         default: {
-            LOG_ERR("XLib Tray", "Incoming tray window event (%u)", event.type);
+            LOG_ERR("XLib Tray", "Incoming tray window event (%u)", event->type);
             break;
         }
     }

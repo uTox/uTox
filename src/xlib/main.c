@@ -839,7 +839,7 @@ int main(int argc, char *argv[]) {
     while (!shutdown) {
         XEvent event;
         XNextEvent(display, &event);
-        if (!doevent(event)) {
+        if (!doevent(&event)) {
             break;
         }
 

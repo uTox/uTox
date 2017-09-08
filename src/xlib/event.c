@@ -206,8 +206,8 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
 
 
 // Should return false if the result of the action should close/exit the window.
-static bool popup_event(XEvent event, UTOX_WINDOW *win) {
-    switch (event.type) {
+static bool popup_event(XEvent *event, UTOX_WINDOW *win) {
+    switch (event->type) {
         case Expose: {
             LOG_TRACE("XLIB", "Main window expose");
             native_window_set_target(win);
@@ -219,25 +219,25 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
             /* This could be noop code, I'm not convinced we need to support _NET_WM_PING but
              * in case we do, we already have the response ready.  */
             Atom ping = XInternAtom(display, "_NET_WM_PING", 0);
-            if ((Atom)event.xclient.data.l[0] == ping) {
+            if ((Atom)event->xclient.data.l[0] == ping) {
                 LOG_TRACE("XLIB", "ping");
-                event.xany.window = root_window;
-                XSendEvent(display, root_window, False, NoEventMask, &event);
+                event->xany.window = root_window;
+                XSendEvent(display, root_window, False, NoEventMask, event);
             } else {
                 LOG_TRACE("XLIB", "not ping");
             }
             break;
         }
         case MotionNotify: {
-            mouse_move(&event.xmotion, win);
+            mouse_move(&event->xmotion, win);
             break;
         }
         case ButtonPress: {
-            mouse_down(&event.xbutton, win);
+            mouse_down(&event->xbutton, win);
             break;
         }
         case ButtonRelease: {
-            mouse_up(&event.xbutton, win);
+            mouse_up(&event->xbutton, win);
             break;
         }
 
@@ -251,7 +251,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
             break;
         }
         default: {
-            LOG_WARN("XLIB", "other event: %u", event.type);
+            LOG_WARN("XLIB", "other event: %u", event->type);
             break;
         }
 
@@ -260,16 +260,16 @@ static bool popup_event(XEvent event, UTOX_WINDOW *win) {
     return true;
 }
 
-bool doevent(XEvent event) {
+bool doevent(XEvent *event) {
     if (XFilterEvent(&event, None)) {
         return true;
     }
 
-    if (event.xany.window && event.xany.window != main_window.window) {
+    if (event->xany.window && event->xany.window != main_window.window) {
 
-        if (native_window_find_notify(&event.xany.window)) {
+        if (native_window_find_notify(&event->xany.window)) {
             // TODO perhaps we should roll this into one?
-            return popup_event(event, native_window_find_notify(&event.xany.window));
+            return popup_event(event, native_window_find_notify(&event->xany.window));
             // return true;
         }
 
@@ -277,9 +277,9 @@ bool doevent(XEvent event) {
             return true;
         }
 
-        if (event.type == ClientMessage) {
-            XClientMessageEvent *ev = &event.xclient;
-            if ((Atom)event.xclient.data.l[0] == wm_delete_window) {
+        if (event->type == ClientMessage) {
+            XClientMessageEvent *ev = &event->xclient;
+            if ((Atom)event->xclient.data.l[0] == wm_delete_window) {
                 uint32_t r = find_video_windows(ev->window);
                 if (r == UINT32_MAX) {
                     return true;
@@ -292,7 +292,7 @@ bool doevent(XEvent event) {
         return true;
     }
 
-    switch (event.type) {
+    switch (event->type) {
         case Expose: {
             enddraw(0, 0, settings.window_width, settings.window_height);
             break;
@@ -331,7 +331,7 @@ bool doevent(XEvent event) {
         }
 
         case ConfigureNotify: {
-            XConfigureEvent *ev = &event.xconfigure;
+            XConfigureEvent *ev = &event->xconfigure;
             main_window._.x = ev->x;
             main_window._.y = ev->y;
 
@@ -363,27 +363,27 @@ bool doevent(XEvent event) {
         }
 
         case MotionNotify: {
-            mouse_move(&event.xmotion, &main_window);
+            mouse_move(&event->xmotion, &main_window);
             break;
         }
 
         case ButtonPress: {
-            mouse_down(&event.xbutton, &main_window);
+            mouse_down(&event->xbutton, &main_window);
             break;
         }
 
         case ButtonRelease: {
-            mouse_up(&event.xbutton, &main_window);
+            mouse_up(&event->xbutton, &main_window);
         }
 
         case KeyRelease: {
-            // XKeyEvent *ev = &event.xkey;
+            // XKeyEvent *ev = event->xkey;
             // KeySym sym = XLookupKeysym(ev, 0);
             break;
         }
 
         case KeyPress: {
-            XKeyEvent *ev  = &event.xkey;
+            XKeyEvent *ev  = &event->xkey;
             KeySym     sym = XLookupKeysym(ev, 0); // XKeycodeToKeysym(display, ev->keycode, 0)
 
             if (pointergrab && sym == XK_Escape) {
@@ -527,7 +527,7 @@ bool doevent(XEvent event) {
         case SelectionNotify: {
             LOG_NOTE("XLib Event", "SelectionNotify" );
 
-            XSelectionEvent *ev = &event.xselection;
+            XSelectionEvent *ev = &event->xselection;
 
             if (ev->property == None) {
                 break;
@@ -581,7 +581,7 @@ bool doevent(XEvent event) {
         }
 
         case SelectionRequest: {
-            XSelectionRequestEvent *ev = &event.xselectionrequest;
+            XSelectionRequestEvent *ev = &event->xselectionrequest;
 
             XEvent resp = {
                 .xselection = {
@@ -617,7 +617,7 @@ bool doevent(XEvent event) {
         }
 
         case PropertyNotify: {
-            XPropertyEvent *ev = &event.xproperty;
+            XPropertyEvent *ev = &event->xproperty;
             if (ev->state == PropertyNewValue && ev->atom == targets && pastebuf.data) {
                 LOG_TRACE("Event", "Property changed: %s" , XGetAtomName(display, ev->atom));
 
@@ -651,7 +651,7 @@ bool doevent(XEvent event) {
         }
 
         case ClientMessage: {
-            XClientMessageEvent *ev = &event.xclient;
+            XClientMessageEvent *ev = &event->xclient;
             if (ev->window == 0) {
                 void *data;
                 memcpy(&data, &ev->data.s[2], sizeof(void *));
@@ -660,7 +660,7 @@ bool doevent(XEvent event) {
             }
 
             if (ev->message_type == wm_protocols) {
-                if ((Atom)event.xclient.data.l[0] == wm_delete_window) {
+                if ((Atom)event->xclient.data.l[0] == wm_delete_window) {
                     if (settings.close_to_tray) {
                         LOG_TRACE("Event", "Closing to tray." );
                         togglehide();
