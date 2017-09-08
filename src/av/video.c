@@ -289,7 +289,12 @@ void utox_video_thread(void *args) {
 
                 size_t active_video_count = 0;
                 for (size_t i = 0; i < self.friend_list_count; i++) {
-                    if (SEND_VIDEO_FRAME(i)) {
+                    FRIEND *f = get_friend(i);
+                    if (!f) {
+                        continue;
+                    }
+
+                    if (SEND_VIDEO_FRAME(f)) {
                         LOG_TRACE("uToxVideo", "sending video frame to friend %lu" , i);
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
@@ -305,16 +310,20 @@ void utox_video_thread(void *args) {
                         // LOG_TRACE("uToxVideo", "Sent video frame to friend %u" , i);
                         if (error) {
                             if (error == TOXAV_ERR_SEND_FRAME_SYNC) {
-                                LOG_ERR("uToxVideo", "Vid Frame sync error: w=%u h=%u", utox_video_frame.w, utox_video_frame.h);
+                                LOG_ERR("uToxVideo", "Vid Frame sync error: w=%u h=%u", utox_video_frame.w,
+                                    utox_video_frame.h);
                             } else if (error == TOXAV_ERR_SEND_FRAME_PAYLOAD_TYPE_DISABLED) {
-                                LOG_ERR("uToxVideo", "ToxAV disagrees with our AV state for friend %lu, self %u, friend %u",
-                                        i, f->call_state_self, f->call_state_friend);
+                                LOG_ERR("uToxVideo",
+                                    "ToxAV disagrees with our AV state for friend %lu, self %u, friend %u",
+                                    i, f->call_state_self, f->call_state_friend);
                             } else {
-                                LOG_ERR("uToxVideo", "toxav_send_video error friend: %i error: %u", f->number, error);
+                                LOG_ERR("uToxVideo", "toxav_send_video error friend: %i error: %u",
+                                    f->number, error);
                             }
                         } else {
                             if (active_video_count >= UTOX_MAX_CALLS) {
-                                LOG_ERR("uToxVideo", "Trying to send video frame to too many peers. Please report this bug!");
+                                LOG_ERR("uToxVideo",
+                                    "Trying to send video frame to too many peers. Please report this bug!");
                                 break;
                             }
                         }
@@ -328,8 +337,10 @@ void utox_video_thread(void *args) {
             }
 
             pthread_mutex_unlock(&video_thread_lock);
-            yieldcpu(1000 / settings.video_fps); /* 60fps = 16.666ms || 25 fps = 40ms || the data quality is SO much better at 25... */
-            continue;     /* We're running video, so don't sleep for an extra 100 ms */
+            /* 60fps = 16.666ms || 25 fps = 40ms || the data quality is SO much better at 25... */
+            yieldcpu(1000 / settings.video_fps);
+            /* We're running video, so don't sleep for an extra 100 ms */
+            continue;
         }
 
         yieldcpu(100);
@@ -370,7 +381,9 @@ void yuv420tobgr(uint16_t width, uint16_t height, const uint8_t *y, const uint8_
     }
 }
 
-void yuv422to420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *input, uint16_t width, uint16_t height) {
+void yuv422to420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *input, uint16_t width,
+        uint16_t height)
+{
     const uint8_t *end = input + width * height * 2;
     while (input != end) {
         uint8_t *line_end = input + width * 2;
@@ -406,7 +419,8 @@ static uint8_t rgb_to_v(int r, int g, int b) {
     return v > 255 ? 255 : v < 0 ? 0 : v;
 }
 
-void bgrtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height) {
+void bgrtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height)
+{
     uint8_t *p;
     uint8_t  r, g, b;
 

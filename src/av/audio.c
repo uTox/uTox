@@ -864,7 +864,12 @@ void utox_audio_thread(void *args) {
                 if (voice) {
                     size_t active_call_count = 0;
                     for (size_t i = 0; i < self.friend_list_count; i++) {
-                        if (UTOX_SEND_AUDIO(i)) {
+                        FRIEND *f = get_friend(i);
+                        if (!f) {
+                            continue;
+                        }
+
+                        if (UTOX_SEND_AUDIO(f)) {
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // LOG_TRACE("uTox Audio", "Sending audio frame!" );
@@ -876,11 +881,13 @@ void utox_audio_thread(void *args) {
                             toxav_audio_send_frame(av, f->number, (const int16_t *)buf, perframe,
                                                    UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, &error);
                             if (error) {
-                                LOG_TRACE("uTox Audio", "toxav_send_audio error friend == %lu, error ==  %i" , i, error);
+                                LOG_TRACE("uTox Audio", "toxav_send_audio error friend == %lu, error ==  %i",
+                                          f->number, error);
                             } else {
                                 // LOG_TRACE("uTox Audio", "Send a frame to friend %i" ,i);
                                 if (active_call_count >= UTOX_MAX_CALLS) {
-                                    LOG_TRACE("uTox Audio", "We're calling more peers than allowed by UTOX_MAX_CALLS, This is a bug" );
+                                    LOG_TRACE("uTox Audio", "We're calling more peers than allowed by UTOX_MAX_CALLS, "
+                                              "This is a bug" );
                                     break;
                                 }
                             }

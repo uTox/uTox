@@ -488,10 +488,12 @@ static void utox_audio_friend_accepted(ToxAV *av, uint32_t friend_number, uint32
     if (!f) {
         LOG_FATAL_ERR(EXIT_FAILURE, "uToxAV", "Unable to get friend when A/V call accepted %u", friend_number);
     }
+
     f->call_state_friend = state;
-    if (SELF_SEND_VIDEO(friend_number) && !FRIEND_ACCEPTING_VIDEO(friend_number)) {
+    if (SELF_SEND_VIDEO(f) && !FRIEND_ACCEPTING_VIDEO(f)) {
         utox_av_local_call_control(av, friend_number, TOXAV_CALL_CONTROL_HIDE_VIDEO);
     }
+
     postmessage_utoxav(UTOXAV_OUTGOING_CALL_ACCEPTED, friend_number, 0, NULL);
     postmessage_utox(AV_CALL_ACCEPTED, friend_number, 0, NULL);
 }

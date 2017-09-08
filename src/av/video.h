@@ -16,14 +16,14 @@ extern bool utox_video_thread_init;
 #define UTOX_DEFAULT_VID_HEIGHT 720
 
 /* Check self */
-#define SELF_SEND_VIDEO(f_number) (get_friend(f_number) && (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_V)))
-#define SELF_ACCEPT_VIDEO(f_number) (get_friend(f_number) && (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)))
+#define SELF_SEND_VIDEO(friend) ((friend) && (!!((friend)->call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_V)))
+#define SELF_ACCEPT_VIDEO(friend) ((friend) && (!!((friend)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)))
 /* Check friend */
-#define FRIEND_SENDING_VIDEO(f_number) (get_friend(f_number) && (!!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V)))
-#define FRIEND_ACCEPTING_VIDEO(f_number) (get_friend(f_number) && (!!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)))
+#define FRIEND_SENDING_VIDEO(friend) ((friend) && (!!((friend)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V)))
+#define FRIEND_ACCEPTING_VIDEO(friend) ((friend) && (!!((friend)->call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)))
 
 /* Check both */
-#define SEND_VIDEO_FRAME(f_number) (SELF_SEND_VIDEO(f_number) && FRIEND_ACCEPTING_VIDEO(f_number))
+#define SEND_VIDEO_FRAME(friend) (SELF_SEND_VIDEO(friend) && FRIEND_ACCEPTING_VIDEO(friend))
 
 typedef struct UTOX_AV_VIDEO_FRAME {
     uint16_t w, h;

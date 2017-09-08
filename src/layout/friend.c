@@ -323,7 +323,7 @@ static void button_call_decline_update(BUTTON *b) {
         return;
     }
 
-    if (UTOX_AVAILABLE_AUDIO(f->number) && !UTOX_SENDING_AUDIO(f->number)) {
+    if (UTOX_AVAILABLE_AUDIO(f) && !UTOX_SENDING_AUDIO(f)) {
         button_setcolors_danger(b);
         b->nodraw = b->disabled = b->panel.disabled = false;
     } else {
@@ -340,7 +340,7 @@ static void button_call_audio_on_mup(void) {
     }
 
     if (f->call_state_self) {
-        if (UTOX_SENDING_AUDIO(f->number)) {
+        if (UTOX_SENDING_AUDIO(f)) {
             LOG_TRACE("Layout Friend", "Ending call: %u", f->number);
             /* var 3/4 = bool send video */
             postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
@@ -348,7 +348,7 @@ static void button_call_audio_on_mup(void) {
             LOG_TRACE("Layout Friend", "Canceling call: friend = %d", f->number);
             postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
         }
-    } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
+    } else if (UTOX_AVAILABLE_AUDIO(f)) {
         LOG_TRACE("Layout Friend", "Accept Call: %u", f->number);
         postmessage_toxcore(TOX_CALL_ANSWER, f->number, 0, NULL);
     } else if (f->online) {
@@ -364,10 +364,10 @@ static void button_call_audio_update(BUTTON *b) {
         return;
     }
 
-    if (UTOX_SENDING_AUDIO(f->number)) {
+    if (UTOX_SENDING_AUDIO(f)) {
         button_setcolors_danger(b);
         b->disabled = false;
-    } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
+    } else if (UTOX_AVAILABLE_AUDIO(f)) {
         button_setcolors_warning(b);
         b->disabled = false;
     } else {
@@ -390,10 +390,10 @@ static void button_call_video_on_mup(void) {
     }
 
     if (f->call_state_self) {
-        if (SELF_ACCEPT_VIDEO(f->number)) {
+        if (SELF_ACCEPT_VIDEO(f)) {
             LOG_TRACE("Layout Friend", "Canceling call (video): %u", f->number);
             postmessage_toxcore(TOX_CALL_PAUSE_VIDEO, f->number, 1, NULL);
-        } else if (UTOX_SENDING_AUDIO(f->number)) {
+        } else if (UTOX_SENDING_AUDIO(f)) {
             LOG_TRACE("Layout Friend", "Audio call inprogress, adding video");
             postmessage_toxcore(TOX_CALL_RESUME_VIDEO, f->number, 1, NULL);
         } else {
@@ -416,10 +416,10 @@ static void button_call_video_update(BUTTON *b) {
         return;
     }
 
-    if (SELF_SEND_VIDEO(f->number)) {
+    if (SELF_SEND_VIDEO(f)) {
         button_setcolors_danger(b);
         b->disabled = false;
-    } else if (FRIEND_SENDING_VIDEO(f->number)) {
+    } else if (FRIEND_SENDING_VIDEO(f)) {
         button_setcolors_warning(b);
         b->disabled = false;
     } else {
