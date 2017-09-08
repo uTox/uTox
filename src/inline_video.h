@@ -12,7 +12,7 @@ typedef struct inline_vid { PANEL panel; } INLINE_VID;
 
 bool inline_set_frame_self(UTOX_FRAME_PKG *frame);
 
-bool inline_set_frame_friend(uint16_t w, uint16_t h, size_t size, void *img);
+bool inline_set_frame_friend(UTOX_FRAME_PKG *frame);
 
 void inline_video_draw(INLINE_VID *p, int x, int y, int width, int height);
 
