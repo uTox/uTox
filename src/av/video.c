@@ -271,11 +271,13 @@ void utox_video_thread(void *args) {
                                                 utox_video_frame.w, utox_video_frame.h);
             if (r == 1) {
                 UTOX_FRAME_PKG *frame = malloc(sizeof(UTOX_FRAME_PKG));
+                LOG_MALLOC_ERR(frame, "uToxVideo", "Unable to malloc for UTOX_FRAME_PKG");
 
                 frame->w    = utox_video_frame.w;
                 frame->h    = utox_video_frame.h;
                 frame->size = utox_video_frame.w * utox_video_frame.h * 4;
                 frame->img  = malloc(frame->size);
+                LOG_MALLOC_ERR(frame->img, "uToxVideo", "Unable to malloc for UTOX_FRAME_PKG");
 
                 yuv420tobgr(utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u,
                             utox_video_frame.v, utox_video_frame.w, (utox_video_frame.w / 2),

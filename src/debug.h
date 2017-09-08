@@ -36,6 +36,12 @@ void debug(const char *fmt, ...);
 #define VERB(x) (utox_verbosity() >= LOG_LVL_##x)
 
 #define LOG_FATAL_ERR(ex, file, str, ...) debug("\n\n%-14s:" str "\n\n", file ": ", ## __VA_ARGS__ ); exit(ex)
+#define LOG_MALLOC_ERR(test, file, str, ...) do { \
+    if (!(test)) { \
+        debug("\n\n%-14s:" str "\n\n", file ": ", ##__VA_ARGS__) ; \
+        exit(EXIT_MALLOC); \
+    } \
+} while(0)
 
 #define LOG_ERR(file, str, ...)       (VERB(ERROR)     ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
 #define LOG_WARN(file, str, ...)      (VERB(WARNING)   ? debug("%-14s" str "\n", file ": ", ## __VA_ARGS__ ) : ((void)(0)))
