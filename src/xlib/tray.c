@@ -8,6 +8,8 @@
 #include "../native/image.h"
 #include "../native/ui.h"
 
+#include "../layout/tray.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -253,7 +255,8 @@ bool tray_window_event(XEvent *event) {
                     break;
                 }
                 case Button3: {
-                    LOG_ERR("XLib Tray", "Button 3 %i %i", ev->x_root, ev->y_root);
+                    LOG_WARN("XLib Tray", "Button 3 %i %i", ev->x_root, ev->y_root);
+                    native_window_create_traypop(ev->x_root, ev->y_root, 300, 60, &panel_tray);
                 }
             }
             return true;

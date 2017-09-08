@@ -296,6 +296,7 @@ typedef enum {
     STR_ON,
     STR_SHOW,
     STR_HIDE,
+    STR_EXIT,
 
     STR_VIDEO_IN_NONE,
     STR_AUDIO_IN_NONE = STR_VIDEO_IN_NONE,

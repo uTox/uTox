@@ -261,7 +261,7 @@ static bool popup_event(XEvent *event, UTOX_WINDOW *win) {
 }
 
 bool doevent(XEvent *event) {
-    if (XFilterEvent(&event, None)) {
+    if (XFilterEvent(event, None)) {
         return true;
     }
 
