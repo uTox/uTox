@@ -52,7 +52,7 @@ void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_
 }
 
 void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
-    if (!curr->visual) {
+    if (!curr_win->visual) {
         LOG_ERR("Xlib drawing", "Could not draw inline image");
         return;
     }

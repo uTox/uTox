@@ -25,9 +25,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+static UTOX_FRAME_PKG *preview_frame = NULL;
 static UTOX_FRAME_PKG current_frame = { 0, 0, 0, 0 };
 
-bool inline_set_frame(uint16_t w, uint16_t h, size_t size, void *img) {
+bool inline_set_frame_self(UTOX_FRAME_PKG *frame) {
+    if (preview_frame) {
+        if (preview_frame->img) {
+            free(preview_frame->img);
+        }
+        free(preview_frame);
+        preview_frame = NULL;
+    }
+
+    if (frame) {
+        preview_frame = frame;
+        return true;
+    }
+
+    return false;
+}
+
+
+bool inline_set_frame_friend(uint16_t w, uint16_t h, size_t size, void *img) {
     current_frame.w    = w;
     current_frame.h    = h;
     current_frame.size = size;
@@ -57,7 +76,18 @@ void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int width, int heigh
     if (current_frame.img && current_frame.size) {
         draw_inline_image(current_frame.img, current_frame.size,
                           MIN(current_frame.w, width), MIN(current_frame.h, height),
-                          x, y + MAIN_TOP_FRAME_THICK);
+                          x, y + SCALE(MAIN_TOP_FRAME_THICK + 2));
+
+        // TODO advanced maths to determine best plase to place P-by-P
+        x += MIN(current_frame.w, width) + SCALE(2);
+        // y += MIN(current_frame.h, height);
+    }
+
+    if (preview_frame && preview_frame->size && preview_frame->img) {
+
+        draw_inline_image(preview_frame->img, preview_frame->size,
+                          MIN(preview_frame->w, width), MIN(preview_frame->h, height),
+                          x, y + SCALE(MAIN_TOP_FRAME_THICK + 2));
     }
 }
 

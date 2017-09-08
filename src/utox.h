@@ -55,6 +55,7 @@ typedef enum utox_msg_id {
     AV_CALL_ACCEPTED,
     AV_CALL_DISCONNECTED,
     AV_VIDEO_FRAME,
+    AV_START_INLINE,
     AV_INLINE_FRAME,
     AV_CLOSE_WINDOW,
 
