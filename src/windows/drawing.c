@@ -10,7 +10,7 @@
 
 #include "../ui/svg.h"
 
-UTOX_WINDOW *curr = NULL;
+static UTOX_WINDOW *curr = NULL;
 
 void *bitmap[BM_ENDMARKER + 1];
 
