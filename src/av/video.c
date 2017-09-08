@@ -9,6 +9,7 @@
 #include "../settings.h"
 #include "../tox.h"
 #include "../utox.h"
+#include "../inline_video.h"
 
 #include "../native/thread.h"
 #include "../native/video.h"
@@ -269,19 +270,22 @@ void utox_video_thread(void *args) {
             const int r = native_video_getframe(utox_video_frame.y, utox_video_frame.u, utox_video_frame.v,
                                                 utox_video_frame.w, utox_video_frame.h);
             if (r == 1) {
+                UTOX_FRAME_PKG *frame = malloc(sizeof(UTOX_FRAME_PKG));
+
+                frame->w    = utox_video_frame.w;
+                frame->h    = utox_video_frame.h;
+                frame->size = utox_video_frame.w * utox_video_frame.h * 4;
+                frame->img  = malloc(frame->size);
+
+                yuv420tobgr(utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u,
+                            utox_video_frame.v, utox_video_frame.w, (utox_video_frame.w / 2),
+                            (utox_video_frame.w / 2), frame->img);
+
                 if (settings.video_preview) {
                     /* Make a copy of the video frame for uTox to display */
-                    UTOX_FRAME_PKG *frame = malloc(sizeof(UTOX_FRAME_PKG));
-                    frame->w              = utox_video_frame.w;
-                    frame->h              = utox_video_frame.h;
-                    frame->img            = malloc(utox_video_frame.w * utox_video_frame.h * 4);
-
-                    yuv420tobgr(utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u,
-                                utox_video_frame.v, utox_video_frame.w, (utox_video_frame.w / 2),
-                                (utox_video_frame.w / 2), frame->img);
-
                     postmessage_utox(AV_VIDEO_FRAME, UINT16_MAX, 1, (void *)frame);
                 }
+                inline_set_frame_self(frame);
 
                 size_t active_video_count = 0;
                 for (size_t i = 0; i < self.friend_list_count; i++) {

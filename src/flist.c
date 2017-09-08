@@ -1082,7 +1082,7 @@ static void contextmenu_friend(FLIST_CONTEXT_MENU rcase) {
             panel_friend_settings.disabled = true;
             settings.inline_video          = true;
             f->video_inline                = true;
-            postmessage_utox(AV_CLOSE_WINDOW, f->number + 1, 0, NULL);
+            postmessage_utox(AV_START_INLINE, f->number, 0, NULL);
             break;
         }
         case CLEAR_HISTOR: {

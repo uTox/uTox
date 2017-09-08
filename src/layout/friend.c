@@ -192,49 +192,60 @@ PANEL messages_friend = {
 PANEL
 panel_friend = {
     .type = PANEL_NONE,
-    .disabled = 1,
+    .disabled = true,
     .child = (PANEL*[]) {
         &panel_friend_chat,
         &panel_friend_video,
         &panel_friend_settings,
         &panel_friend_confirm_deletion,
-        NULL
+        NULL,
     }
 },
+
+panel_friend_header = {
+    .type = PANEL_NONE,
+    .disabled = false,
+    .child = (PANEL*[]) {
+        (PANEL*)&button_call_decline,
+        (PANEL*)&button_call_audio,
+        (PANEL*)&button_call_video,
+        NULL,
+    }
+},
+
 panel_friend_chat = {
     .type = PANEL_NONE,
-    .disabled = 0,
+    .disabled = false,
     .drawfunc = draw_friend,
     .child = (PANEL*[]) {
         (PANEL*)&scrollbar_friend,
         (PANEL*)&edit_chat_msg_friend, // this needs to be one of the first, to get events before the others
         (PANEL*)&messages_friend,
-        (PANEL*)&button_call_decline,
-        (PANEL*)&button_call_audio,
-        (PANEL*)&button_call_video,
+        (PANEL*)&panel_friend_header,
         (PANEL*)&button_send_file,
         (PANEL*)&button_send_screenshot,
         (PANEL*)&button_chat_send_friend,
-        NULL
+        NULL,
     }
 },
 panel_friend_video = {
     .type = PANEL_INLINE_VIDEO,
-    .disabled = 1,
+    .disabled = true,
     .child = (PANEL*[]) {
-        NULL
+        (PANEL*)&panel_friend_header,
+        NULL,
     }
 },
 panel_friend_settings = {
     .type = PANEL_NONE,
-    .disabled = 1,
+    .disabled = true,
     .drawfunc = draw_friend_settings,
     .child = (PANEL*[]) {
         (PANEL*)&edit_friend_pubkey,
         (PANEL*)&edit_friend_alias,
         (PANEL*)&switch_friend_autoaccept_ft,
         (PANEL*)&button_export_chatlog,
-        NULL
+        NULL,
     }
 },
 panel_friend_confirm_deletion = {
@@ -244,28 +255,28 @@ panel_friend_confirm_deletion = {
     .child = (PANEL*[]) {
         (PANEL *)&button_confirm_deletion,
         (PANEL *)&button_deny_deletion,
-        NULL
+        NULL,
     }
 
 },
 panel_friend_request = {
     .type = PANEL_NONE,
-    .disabled = 1,
+    .disabled = true,
     .drawfunc = draw_friend_request,
     .child = (PANEL*[]) {
         (PANEL*)&button_accept_friend,
-        NULL
+        NULL,
     }
 },
 panel_add_friend = {
     .type = PANEL_NONE,
-    .disabled = 1,
+    .disabled = true,
     .drawfunc = draw_add_friend,
     .child = (PANEL*[]) {
         (PANEL*)&button_send_friend_request,
         (PANEL*)&edit_add_new_friend_id,
         (PANEL*)&edit_add_new_friend_msg,
-        NULL
+        NULL,
     }
 };
 

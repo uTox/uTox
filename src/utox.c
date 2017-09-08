@@ -544,9 +544,13 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             // TODO: Don't try to start a new video session every frame.
             video_begin(param1, s->str, s->length, frame->w, frame->h);
             video_frame(param1, frame->img, frame->w, frame->h, 0);
-            free(frame->img);
-            free(data);
-            // Intentional fall through
+            // Don't free data or data->img, that will be done by the inline code after the data goes stale.
+            redraw();
+            break;
+        }
+        case AV_START_INLINE: {
+            video_end(param1);
+            break;
         }
         case AV_INLINE_FRAME: {
             redraw();

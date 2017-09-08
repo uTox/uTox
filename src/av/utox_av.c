@@ -459,8 +459,9 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
 
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
     if (f->video_inline) {
-        if (!inline_set_frame(width, height, size, frame->img)) {
+        if (!inline_set_frame_friend(width, height, size, frame->img)) {
             LOG_ERR("uToxAV", "Error setting frame for inline video.");
+            return;
         }
 
         postmessage_utox(AV_INLINE_FRAME, friend_number, 0, NULL);
