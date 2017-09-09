@@ -1,0 +1,190 @@
+machine:
+  timezone:
+    Europe/Berlin
+  environment:
+    MAKEFLAGS: ""
+## ----------- RASPI cross compile ----------------
+    RASPI_PATH: "/home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin:$PATH"
+    RASPI_SYSROOT_: "/home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot"
+    RASPI_TOOL_PREFIX: arm-linux-gnueabihf
+    RASPI_INSTALL_DEST: "/home/ubuntu/installdest/"
+    RASPI_TARGET_: arm-linux-gnueabi
+    RASPI_HOST_: arm-linux-gnueabi
+    RASPI_CXX: $RASPI_TOOL_PREFIX-g++
+    RASPI_AR: $RASPI_TOOL_PREFIX-ar
+    RASPI_RANLIB: $RASPI_TOOL_PREFIX-ranlib
+    RASPI_CC: $RASPI_TOOL_PREFIX-gcc
+    RASPI_LD: $RASPI_TOOL_PREFIX-ld
+    RASPI_PKG_CONFIG_PATH: "/home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/pkgconfig"
+    RASPI_s_: "/home/ubuntu/src/"
+    RASPI_PKGSDIR: "/home/ubuntu/pkgs/"
+## ----------- RASPI cross compile ----------------
+    # ---------------------------------------------------
+    # v0.1.10 mobtweaks f73b345c21fae0e0e56fae86dc82f63188a00aca
+    # c-toxcore v0.1.9 a429ef4a28a5e5e0ad010efffb76d2abc3ada0af
+    # c-toxcore v0.1.8 f6db9333e2d1262e7ba3846563c30f63c98ffa38
+    # c-toxcore v0.1.7 48c86e942d487a8856cbd25797b320bfb1879ddc
+    # c-toxcore v0.1.6 895de7ef26e7617769f2271345e414545c2581f8
+    # c-toxcore v0.1.5 995578f1038842288c1ff552fd796ab2377db6e1
+    # c-toxcore v0.1.4 27a97a8280813ec05a5209811c40ab23203bb292
+    # c-toxcore v0.1.3 fdb46f6cf216a866d29402ae991be9c43282dde6
+    # c-toxcore v0.1.2 a096c71db867ac83fc3e01e0fbe98573d20f9286
+    # ---------------------------------------------------
+    # c-toxcore version used
+    CTOXCORE_VERSION_HASH: f73b345c21fae0e0e56fae86dc82f63188a00aca
+    # c-toxcore repo used
+    # CTOXCORE_URL: "https://github.com/TokTok/c-toxcore"
+    CTOXCORE_URL: "https://github.com/zoff99/c-toxcore"
+    LIBSODIUM_VERSION: "tags/1.0.13"
+    LIBSODIUM_BRANCH: "1.0.13"
+    RASPBERRRY_TOOLS_HASH: d820ab9c21969013b4e56c7e9cba25518afcdd44
+    
+dependencies:
+  pre:
+    # -----------------------------------
+    - sudo /etc/init.d/mysql stop ; exit 0
+    - sudo /etc/init.d/postgresql stop ; exit 0
+    # -----------------------------------
+    - sudo apt-get update
+    - sudo apt-get install cmake
+    - aptitude search 4l|grep -i convert ; exit 0
+    - aptitude search 4l|grep -i v4l ; exit 0
+    - sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libv4lconvert0 libv4l-dev
+    - sudo apt-get install libopus-dev libvpx-dev pkg-config
+    - sudo apt-get install libasound2-dev
+    - sudo apt-get install linux-generic
+    - sudo apt-get install libjpeg-dev
+    - sudo apt-get install libpulse-dev
+    - sudo apt-get install libconfig-dev
+
+    - sudo bash -c "echo '::1             localhost ipv6-localhost ipv6-loopback' >> /etc/hosts" # ipv6 localhost entry
+
+    - gcc --version ; exit 0
+    - clang --version ; exit 0
+
+    ### submodules ----------------
+    - git submodule add --force https://github.com/TokTok/c-toxcore c-toxcore ; echo ok
+    - git submodule add --force https://github.com/jedisct1/libsodium libsodium ; echo ok
+    - git submodule init ; git submodule update ; echo ok
+    # -- sometimes submodule can't find commit hash, whatever ------
+    - rm -Rf c-toxcore ; git clone "$CTOXCORE_URL"
+    # -- sometimes submodule can't find commit hash, whatever ------
+    - cd c-toxcore/ ; git checkout $CTOXCORE_VERSION_HASH
+    - cd libsodium/ ; git checkout $LIBSODIUM_VERSION
+    ### submodules ----------------
+
+    ### ------- compile and install libsodium -------
+    - cd libsodium/ ; ./autogen.sh
+    - cd libsodium/ ; ./configure && make check
+    - cd libsodium/ ; sudo bash -c "printf 'y\naa\n\n' | checkinstall --install --pkgname libsodium --pkgversion 1.0.0 --nodoc --deldesc=no --pkglicense='GPL2'"
+    - cd libsodium/ ; sudo ldconfig
+    - cd libsodium ; sudo ldconfig -v 2>/dev/null | grep sodium
+    ## --- now again to save the artefact ---
+    - cd libsodium ; export INSTALL_DEST=/home/ubuntu/installdest_linux/ ; rm -Rf "$INSTALL_DEST"
+    - cd libsodium ; export INSTALL_DEST=/home/ubuntu/installdest_linux/ ; mkdir -p  "$INSTALL_DEST"/usr ; ./configure --prefix="$INSTALL_DEST"/usr
+    - cd libsodium ; export INSTALL_DEST=/home/ubuntu/installdest_linux/ ; make install ; ls -alR "$INSTALL_DEST"/usr
+    - mkdir -p $CIRCLE_ARTIFACTS/ubuntu_14_04_binaries
+    - export INSTALL_DEST=/home/ubuntu/installdest_linux/ ; cd "$INSTALL_DEST" ; tar -czvf $CIRCLE_ARTIFACTS/ubuntu_14_04_binaries/pkg_libsodium.tar.gz *
+    ## --- now again to save the artefact ---
+    ### ------- compile and install libsodium -------
+
+    ### ------------ compile and install c-toxcore ------------
+    - cd c-toxcore ; cmake -DWARNINGS=OFF .
+    - cd c-toxcore ; make
+    - cd c-toxcore ; sudo make install
+    - cd c-toxcore ; sudo ldconfig -v 2>/dev/null | grep toxcore
+    ## --- now again to save the artefact ---
+    - cd c-toxcore ; export INSTALL_DEST=/home/ubuntu/installdest_linux/ ; rm -Rf "$INSTALL_DEST"
+    - cd c-toxcore ; export INSTALL_DEST=/home/ubuntu/installdest_linux/ ; mkdir -p  "$INSTALL_DEST"/usr ; autoreconf -fi ; ./configure --enable-logging --disable-soname-versions --prefix="$INSTALL_DEST"/usr
+    - cd c-toxcore ; export INSTALL_DEST=/home/ubuntu/installdest_linux/ ; make install ; ls -alR "$INSTALL_DEST"/usr
+    - mkdir -p $CIRCLE_ARTIFACTS/ubuntu_14_04_binaries
+    - export INSTALL_DEST=/home/ubuntu/installdest_linux/ ; cd "$INSTALL_DEST" ; tar -czvf $CIRCLE_ARTIFACTS/ubuntu_14_04_binaries/pkg_c-toxcore.tar.gz *
+    ## --- now again to save the artefact ---
+    ### ------------ run tests
+    # - cd c-toxcore ; make test ARGS="-V" ; ex1=$? ; if [ $ex1 -ne 0 ]; then sleep 60; make test ARGS="-V" ; exit $? ; fi
+    ### ------------ compile and install c-toxcore ------------
+
+
+
+## ----------- RASPI cross compile ----------------
+    ## ----------- set architecture -------------------
+    ## ----------- set architecture -------------------
+    - ARCH="RASPI";printf '#! /bin/bash\nexport CUR_ARCH_="'"$ARCH"'"\n' > ~/glo
+    - chmod a+rx ~/glo
+    - cat ~/glo
+    ## ----------- set architecture -------------------
+    ## ----------- set architecture -------------------
+
+    - mkdir ~/cc/
+    - cd ~/cc ; git clone https://github.com/raspberrypi/tools
+    - cd ~/cc/tools/ ; git checkout $RASPBERRRY_TOOLS_HASH
+
+    - . ~/glo;a=${CUR_ARCH_}_PKG_CONFIG_PATH;mkdir -p "${!a}"
+    - . ~/glo;a=${CUR_ARCH_}_PKGSDIR;mkdir -p "${!a}"
+    - . ~/glo;a=${CUR_ARCH_}_SYSROOT_;ls -al "${!a}"
+    - . ~/glo;a=${CUR_ARCH_}_s_;mkdir -p "${!a}"
+    - . ~/glo;a=${CUR_ARCH_}_PKGSDIR;mkdir -p "${!a}"
+
+    - . ~/glo;echo 'export PKGSDIR="$'"${CUR_ARCH_}"'_PKGSDIR";export INSTALL_DEST="$'"${CUR_ARCH_}"'_INSTALL_DEST";export PKG_CONFIG_PATH="$'"${CUR_ARCH_}"'_PKG_CONFIG_PATH";export PATH="$'"${CUR_ARCH_}"'_PATH";export CC="$'"${CUR_ARCH_}"'_CC";export CXX="$'"${CUR_ARCH_}"'_CXX";export AR="$'"${CUR_ARCH_}"'_AR";export RANLIB="$'"${CUR_ARCH_}"'_RANLIB";export _s_="$'"${CUR_ARCH_}"'_s_";export _SYSROOT_="$'"${CUR_ARCH_}"'_SYSROOT_";export _HOST_="$'"${CUR_ARCH_}"'_HOST_";export _TARGET_="$'"${CUR_ARCH_}"'_TARGET_";export _TOOL_PREFIX="$'"${CUR_ARCH_}"'_TOOL_PREFIX";export CUR_ARCH_="'"${CUR_ARCH_}"'";export LD="$'"${CUR_ARCH_}"'_LD"' > ~/pp
+    - chmod u+x ~/pp
+    - cat ~/pp
+
+    - . ~/glo;printf '#! /bin/bash\n. ~/pp;rm -Rf ~/build/\nmkdir -p ~/build/\narg1_="$1";shift;cd ~/build/;$'"${CUR_ARCH_}"'_s_/"$arg1_"/configure $* && make && make install\n' > ~/do_compile.sh
+    - chmod a+rx ~/do_compile.sh
+    - cat ~/do_compile.sh
+
+    - . ~/glo;printf '#! /bin/bash\n. ~/pp;rm -Rf ~/build/\nmkdir -p ~/build/\nrm -Rf "$INSTALL_DEST"\narg1_="$1";shift;cd ~/build/;$_s_/"$arg1_"/configure $* && make && make install && cd "$INSTALL_DEST" && tar -czvf "$PKGSDIR""/"pkg_"$arg1_".tar.gz * && rm -Rf "$INSTALL_DEST" \n' > ~/do_package.sh
+    - chmod a+rx ~/do_package.sh
+    - cat ~/do_package.sh
+
+
+    - . ~/pp;cd $_s_;git clone --depth=1 --branch=v1.3.0 https://github.com/yasm/yasm.git
+    - . ~/pp;cd $_s_/yasm/;autoreconf -fi
+    - . ~/pp;~/do_compile.sh "yasm" --prefix="$_SYSROOT_"/usr --disable-shared --disable-soname-versions --with-sysroot="$_SYSROOT_" --host="$_HOST_" --target="$_TARGET_"
+
+    - . ~/pp;cd $_s_;git clone --depth=1 --branch=v1.6.1 https://github.com/webmproject/libvpx.git
+    - . ~/pp;export CROSS="arm-linux-gnueabihf-" ; ~/do_compile.sh "libvpx" --prefix="$_SYSROOT_"/usr --disable-examples --disable-unit-tests --target=generic-gnu --extra-cflags="--sysroot=$_SYSROOT_"
+    - . ~/pp;export CROSS="arm-linux-gnueabihf-" ; ~/do_package.sh "libvpx" --prefix="$INSTALL_DEST"/usr --disable-examples --disable-unit-tests --target=generic-gnu --extra-cflags="--sysroot=$_SYSROOT_"
+
+    - . ~/pp;cd $_s_;git clone --depth=1 --branch=v1.2.1 https://github.com/xiph/opus.git
+    - . ~/pp;cd $_s_/opus/;autoreconf -fi
+    - . ~/pp;~/do_compile.sh "opus" --prefix="$_SYSROOT_"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX"
+    - . ~/pp;~/do_package.sh "opus" --prefix="$INSTALL_DEST"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX"
+
+    - . ~/pp;cd $_s_;git clone --depth=1 --branch=$LIBSODIUM_BRANCH https://github.com/jedisct1/libsodium.git
+    - . ~/pp;cd $_s_/libsodium/;autoreconf -fi
+    - . ~/pp;~/do_compile.sh "libsodium" --prefix="$_SYSROOT_"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX" --enable-minimal --disable-pie
+    - . ~/pp;~/do_package.sh "libsodium" --prefix="$INSTALL_DEST"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX" --enable-minimal --disable-pie
+
+    # install raspi binary pkgs -------------------------
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libv4l-dev.tgz' -O ~/pkg2.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg2.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libv4lconvert0.tgz' -O ~/pkg3.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg3.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libjpeg62-turbo.tgz' -O ~/pkg4.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg4.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libjpeg62-turbo-dev.tgz' -O ~/pkg1.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg1.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libconfig-dev.tgz' -O ~/pkg1.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg1.tgz
+    # install raspi binary pkgs -------------------------
+
+    - . ~/pp;cd $_s_;git clone "$CTOXCORE_URL"
+    - . ~/pp;cd $_s_/c-toxcore/;git checkout $CTOXCORE_VERSION_HASH
+    - . ~/pp;cd $_s_/c-toxcore/;autoreconf -fi
+    - . ~/pp;~/do_compile.sh "c-toxcore" --prefix="$_SYSROOT_"/usr --enable-logging --disable-soname-versions --host="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --disable-testing --disable-rt
+    - . ~/pp;~/do_package.sh "c-toxcore" --prefix="$INSTALL_DEST"/usr --enable-logging --disable-soname-versions --host="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --disable-testing --disable-rt
+    
+    - . ~/pp;mkdir -p $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
+    - . ~/pp;cp -av "$PKGSDIR"/* $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
+    
+    - echo "write me RASPI"
+
+## ----------- RASPI cross compile ----------------
+
+
+test:
+  override:
+    - echo "write me RASPI"
+
+
