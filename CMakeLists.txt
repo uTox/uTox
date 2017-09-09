@@ -128,7 +128,6 @@ if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     string(REPLACE "\n" " " GIT_VERSION ${GIT_VERSION})
 endif()
 
-
 #######################################################################
 # C compiler flags
 #######################################################################
@@ -162,6 +161,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
 add_cflag("-Wall")
 add_cflag("-Wextra")
 add_cflag("-Wpointer-arith")
+add_cflag("-Wimplicit-fallthrough=5")
 
 ## Warnings we don't tolerate
 add_cflag("-Werror=implicit-function-declaration")
@@ -280,6 +280,8 @@ include_directories(${LIBTOX_INCLUDE_DIRS})
 find_package(libsodium REQUIRED)
 include_directories(${LIBSODIUM_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBSODIUM_LIBRARIES})
+
+include_directories(SYSTEM src/stb)
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty

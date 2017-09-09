@@ -112,8 +112,9 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
                     message_add_type_notice(&f->msg, S(CALL_STARTED), SLEN(CALL_STARTED), true);
 
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
+                    postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
                     LOG_NOTE("uToxAV", "Call accepted by friend" );
-                    // intentional fall thorough
+                    break;
                 }
 
                 case UTOXAV_OUTGOING_CALL_REJECTED: {

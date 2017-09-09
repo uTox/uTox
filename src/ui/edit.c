@@ -398,6 +398,28 @@ static uint16_t edit_redo(EDIT *edit) {
     return r;
 }
 
+static void edit_del(EDIT *edit) {
+
+    if (edit->readonly) {
+        return;
+    }
+
+    char *p = active_edit->data + edit_sel.start;
+    if (edit_sel.length) {
+        edit_do(edit, edit_sel.start, edit_sel.length, 1);
+        memmove(p, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
+        active_edit->length -= edit_sel.length;
+    } else if (edit_sel.start < active_edit->length) {
+        uint8_t len = utf8_len(p);
+        edit_do(edit, edit_sel.start, len, 1);
+        memmove(p, p + len, active_edit->length - edit_sel.start - len);
+        active_edit->length -= len;
+    }
+    edit_sel.p1     = edit_sel.start;
+    edit_sel.p2     = edit_sel.start;
+    edit_sel.length = 0;
+}
+
 #define updatesel()                                  \
     if (edit_sel.p1 <= edit_sel.p2) {                \
         edit_sel.start  = edit_sel.p1;               \
@@ -463,31 +485,16 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                     edit_sel.p1 = edit_sel.start;
                     edit_sel.p2 = edit_sel.start;
                     break;
-                } else {
-                    /* fall through to KEY_DEL */
                 }
+
+                edit_del(edit);
+                modified = true;
+                break;
             }
 
             case KEY_DEL: {
-                if (edit->readonly) {
-                    return;
-                }
-
-                char *p = active_edit->data + edit_sel.start;
-                if (edit_sel.length) {
-                    edit_do(edit, edit_sel.start, edit_sel.length, 1);
-                    memmove(p, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
-                    active_edit->length -= edit_sel.length;
-                } else if (edit_sel.start < active_edit->length) {
-                    uint8_t len = utf8_len(p);
-                    edit_do(edit, edit_sel.start, len, 1);
-                    memmove(p, p + len, active_edit->length - edit_sel.start - len);
-                    active_edit->length -= len;
-                }
-                edit_sel.p1     = edit_sel.start;
-                edit_sel.p2     = edit_sel.start;
-                edit_sel.length = 0;
-                modified        = true;
+                edit_del(edit);
+                modified = true;
                 break;
             }
 
@@ -673,7 +680,15 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                     }
                     break;
                 } else {
-                    /* ctrl+shift+z, fall to ctrl+y*/
+                    uint16_t p = edit_redo(edit);
+                    if (p != UINT16_MAX) {
+                        edit_sel.p1     = p;
+                        edit_sel.p2     = p;
+                        edit_sel.start  = p;
+                        edit_sel.length = 0;
+                        modified        = false;
+                    }
+                    break;
                 }
             }
 
