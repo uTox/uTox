@@ -558,9 +558,9 @@ void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char
         return;
     }
 
-    int size = UTOX_FRIEND_NAME_LENGTH(f) + 25;
+    const int size = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(STATUS_MESSAGE) + strlen(state);
     char title[size];
-    size_t  title_length = snprintf(title, size, "uTox %.*s is now %s.",
+    size_t  title_length = snprintf(title, size, S(STATUS_MESSAGE),
                                    (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
 
     notify(title, title_length, (char *)msg, msg_length, f, 0);

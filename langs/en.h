@@ -475,6 +475,12 @@ msgstr("Away")
 msgid(STATUS_BUSY)
 msgstr("Busy")
 
+msgid(STATUS_OFFLINE)
+msgstr("Offline")
+
+msgid(STATUS_MESSAGE)
+msgstr("uTox %.*s is now %s.")
+
 msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Use mini contact list")
 

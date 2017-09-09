@@ -121,7 +121,7 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
         /* resend avatar info (in case it changed) */
         /* Avatars must be sent LAST or they will clobber existing file transfers! */
         avatar_on_friend_online(tox, fid);
-        friend_notify_status(f, (uint8_t *)f->status_message, f->status_length, "online");
+        friend_notify_status(f, (uint8_t *)f->status_message, f->status_length, S(STATUS_ONLINE));
     }
     postmessage_utox(FRIEND_ONLINE, fid, !!status, NULL);
 
@@ -131,7 +131,7 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
         LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tOnline (TCP)", fid);
     } else {
         LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tOffline", fid);
-        friend_notify_status(f, NULL, 0, "offline");
+        friend_notify_status(f, NULL, 0, S(STATUS_OFFLINE));
     }
 }
 
