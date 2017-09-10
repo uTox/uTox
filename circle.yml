@@ -92,7 +92,7 @@ dependencies:
     ### ------------ filter_audio ------------
     - git clone git://github.com/irungentoo/filter_audio.git
     - cd filter_audio ; make
-    - cd filter_audio ; sudo checkinstall
+    - cd filter_audio/ ; sudo bash -c "printf 'y\naa\n\n' | checkinstall --install --pkgname filter_audio --pkgversion 1.0.0 --nodoc --deldesc=no --pkglicense='GPL2'"
     ### ------------ filter_audio ------------
 
     ### ------------ compile and install c-toxcore ------------
