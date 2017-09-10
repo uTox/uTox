@@ -242,22 +242,17 @@ dependencies:
     - cd ../ ; mkdir build_raspi
     #- cd ; cp ./cc/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/lib/libasan.a $_SYSROOT_/usr/lib/
     #- cd ; cp ./cc/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/lib/libasan_preinit.o $_SYSROOT_/usr/lib/
-    - cp "$_SYSROOT_"/usr/share/pkgconfig/xproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
-    - cp "$_SYSROOT_"/usr/share/pkgconfig/inputproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
-    - cp "$_SYSROOT_"/usr/share/pkgconfig/kbproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
-    - cp "$_SYSROOT_"/usr/share/pkgconfig/renderproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - . ~/pp;cp "$_SYSROOT_"/usr/share/pkgconfig/xproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - . ~/pp;cp "$_SYSROOT_"/usr/share/pkgconfig/inputproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - . ~/pp;cp "$_SYSROOT_"/usr/share/pkgconfig/kbproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - . ~/pp;cp "$_SYSROOT_"/usr/share/pkgconfig/renderproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
 
-    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/x11.pc "$_SYSROOT_"/usr/lib/pkgconfig/
-    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xau.pc "$_SYSROOT_"/usr/lib/pkgconfig/
-    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xcb.pc "$_SYSROOT_"/usr/lib/pkgconfig/
-    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xdmcp.pc "$_SYSROOT_"/usr/lib/pkgconfig/
-    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xrender.pc "$_SYSROOT_"/usr/lib/pkgconfig/
-    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xext.pc "$_SYSROOT_"/usr/lib/pkgconfig/
-
-    - export X11_INCLUDE_DIR=$_SYSROOT_/usr/include/X11/
-    - export X11_LIBRARIES=$_SYSROOT_/usr/lib/arm-linux-gnueabihf/
-    - export X11_Xrender_INCLUDE_PATH=$_SYSROOT_/usr/include/X11/extensions/
-    - export X11_Xrender_LIB=$_SYSROOT_/usr/lib/arm-linux-gnueabihf/
+    - . ~/pp;cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/x11.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - . ~/pp;cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xau.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - . ~/pp;cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xcb.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - . ~/pp;cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xdmcp.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - . ~/pp;cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xrender.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - . ~/pp;cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xext.pc "$_SYSROOT_"/usr/lib/pkgconfig/
 
     #- touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libX11.so.6.3.0
     #- touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libXext.so.6.4.0
@@ -267,6 +262,10 @@ dependencies:
     - cd /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/ ; ln -s arm-linux-gnueabihf-ld ld
 
     - cd ../ ; cd build_raspi/ ; . ~/pp ; export RPI_ROOT_PATH="$_SYSROOT_" ;
+      export X11_INCLUDE_DIR=$_SYSROOT_/usr/include/X11/
+      export X11_LIBRARIES=$_SYSROOT_/usr/lib/arm-linux-gnueabihf/
+      export X11_Xrender_INCLUDE_PATH=$_SYSROOT_/usr/include/X11/extensions/
+      export X11_Xrender_LIB=$_SYSROOT_/usr/lib/arm-linux-gnueabihf/
       export PKG_CONFIG_PATH=$_SYSROOT_/usr/lib/pkgconfig ;
       cmake -DASAN=0 -DENABLE_ASAN=0 -DCMAKE_TOOLCHAIN_FILE=~/uTox/arm-linux-gnueabihf-4.9.cmake
       -DENABLE_FILTERAUDIO=0
