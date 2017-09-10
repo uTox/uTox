@@ -381,6 +381,8 @@ dependencies:
 
     - cd ../ ; cd build_raspi/ ; ls -al
     - cd ../ ; cd build_raspi/ ; ls -al utox
+
+    - . ~/pp;cd ../ ; cd build_raspi/ ; cp -av utox $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
 ## ----------- RASPI cross compile ----------------
 
 
@@ -388,6 +390,7 @@ test:
   override:
     - echo "-- compile linux --"
     #- sudo apt-get install cmake3
+    - cp -av CMakeLists.txt_orig CMakeLists.txt # use the original for linux
     - cd ../ ; mkdir build2
     - cd ../build2/ ; cmake -DTOXCORE_STATIC=ON ../uTox
     - cd ../build2/ ; make -j4
