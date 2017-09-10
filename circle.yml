@@ -184,6 +184,38 @@ dependencies:
     - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg1.tgz
     - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libfreetype6-dev.tgz' -O ~/pkg__.tgz
     - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libasan1.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libexpat1-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libfontconfig1-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libopenal-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/zlib1g-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxdmcp-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxcb1-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxau-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libx11-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxrender-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxext-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/x11proto-core-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/x11proto-input-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/x11proto-kb-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/x11proto-render-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/x11proto-xext-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
     # install raspi binary pkgs -------------------------
 
     - . ~/pp;cd $_s_;git clone "$CTOXCORE_URL"
@@ -198,9 +230,38 @@ dependencies:
     - echo "compile RASPI"
     - sudo apt-get install cmake3
     - cd ../ ; mkdir build_raspi
-    - cd ../ ; cd build_raspi/ ; . ~/pp ; cmake  -DCMAKE_TOOLCHAIN_FILE=~/uTox/arm-linux-gnueabihf-4.9.cmake -DRPI_ROOT_PATH="$_SYSROOT_" -DTOXCORE_STATIC=ON ../uTox ; exit 0
-    - cd ../ ; cd build_raspi/ ; . ~/pp ; make -j4 ; exit 0
+    #- cd ; cp ./cc/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/lib/libasan.a $_SYSROOT_/usr/lib/
+    #- cd ; cp ./cc/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/lib/libasan_preinit.o $_SYSROOT_/usr/lib/
+    - cp "$_SYSROOT_"/usr/share/pkgconfig/xproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - cp "$_SYSROOT_"/usr/share/pkgconfig/inputproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - cp "$_SYSROOT_"/usr/share/pkgconfig/kbproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - cp "$_SYSROOT_"/usr/share/pkgconfig/renderproto.pc "$_SYSROOT_"/usr/lib/pkgconfig/
 
+    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/x11.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xau.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xcb.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xdmcp.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xrender.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+    - cp "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/pkgconfig/xext.pc "$_SYSROOT_"/usr/lib/pkgconfig/
+
+    - export X11_INCLUDE_DIR=$_SYSROOT_/usr/include/X11/
+    - export X11_LIBRARIES=$_SYSROOT_/usr/lib/arm-linux-gnueabihf/
+    - export X11_Xrender_INCLUDE_PATH=$_SYSROOT_/usr/include/X11/extensions/
+    - export X11_Xrender_LIB=$_SYSROOT_/usr/lib/arm-linux-gnueabihf/
+
+    - touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libX11.so.6.3.0
+    - touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libXext.so.6.4.0
+    - touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libXrender.so.1.3.0
+    - touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libfreetype.so.6.12.0
+
+    - cd ../ ; cd build_raspi/ ; . ~/pp ; export RPI_ROOT_PATH="$_SYSROOT_" ;
+      export PKG_CONFIG_PATH=$_SYSROOT_/usr/lib/pkgconfig ;
+      cmake -DASAN=0 -DENABLE_ASAN=0 -DCMAKE_TOOLCHAIN_FILE=~/uTox/arm-linux-gnueabihf-4.9.cmake
+      -DENABLE_FILTERAUDIO=0
+      -DENABLE_AUTOUPDATE=0
+      -DENABLE_DBUS=0
+      -DRPI_ROOT_PATH="$_SYSROOT_" -DTOXCORE_STATIC=ON ../uTox ; exit 0
+    - cd ../ ; cd build_raspi/ ; . ~/pp ; make -j4 ; exit 0
 ## ----------- RASPI cross compile ----------------
 
 
