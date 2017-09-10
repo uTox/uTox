@@ -216,6 +216,16 @@ dependencies:
     - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
     - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/x11proto-xext-dev.tgz' -O ~/pkg__.tgz
     - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libopenal1.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxrender1.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxext6.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libx11-6.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libfreetype6.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
     # install raspi binary pkgs -------------------------
 
     - . ~/pp;cd $_s_;git clone "$CTOXCORE_URL"
@@ -249,10 +259,12 @@ dependencies:
     - export X11_Xrender_INCLUDE_PATH=$_SYSROOT_/usr/include/X11/extensions/
     - export X11_Xrender_LIB=$_SYSROOT_/usr/lib/arm-linux-gnueabihf/
 
-    - touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libX11.so.6.3.0
-    - touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libXext.so.6.4.0
-    - touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libXrender.so.1.3.0
-    - touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libfreetype.so.6.12.0
+    #- touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libX11.so.6.3.0
+    #- touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libXext.so.6.4.0
+    #- touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libXrender.so.1.3.0
+    #- touch /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libfreetype.so.6.12.0
+
+    - cd /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/ ; ln -s arm-linux-gnueabihf-ld ld
 
     - cd ../ ; cd build_raspi/ ; . ~/pp ; export RPI_ROOT_PATH="$_SYSROOT_" ;
       export PKG_CONFIG_PATH=$_SYSROOT_/usr/lib/pkgconfig ;
