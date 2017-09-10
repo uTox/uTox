@@ -452,7 +452,7 @@ BUTTON button_add_new_contact = {
 };
 
 BUTTON button_send_friend_request = {
-    .bm_fill         = BM_SBUTTON,
+    .bm_fill     = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update      = button_setcolors_success,
     .on_mup      = button_send_friend_request_on_mup,
@@ -565,7 +565,7 @@ BUTTON button_send_screenshot = {
 };
 
 BUTTON button_accept_friend = {
-    .bm_fill         = BM_SBUTTON,
+    .bm_fill     = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update      = button_setcolors_success,
     .on_mup      = button_accept_friend_on_mup,

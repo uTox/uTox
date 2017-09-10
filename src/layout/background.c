@@ -2,6 +2,7 @@
 
 #include "friend.h"
 #include "group.h"
+#include "group_invite.h"
 #include "notify.h"
 #include "settings.h"
 #include "sidebar.h"
@@ -89,6 +90,7 @@ panel_chat = {
     .disabled = 1,
     .child = (PANEL*[]) {
         &panel_group,
+        &panel_group_invite,
         &panel_friend,
         &panel_friend_request,
         NULL

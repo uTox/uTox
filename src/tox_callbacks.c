@@ -1,15 +1,16 @@
 #include "tox_callbacks.h"
 
 #include "avatar.h"
+#include "debug.h"
 #include "file_transfers.h"
 #include "friend.h"
+#include "group_invite.h"
 #include "groups.h"
-#include "debug.h"
 #include "macros.h"
 #include "settings.h"
 #include "text.h"
-#include "utox.h"
 #include "ui.h"
+#include "utox.h"
 
 #include "av/audio.h"
 #include "av/utox_av.h"
@@ -146,35 +147,15 @@ void utox_set_callbacks_friends(Tox *tox) {
     tox_callback_friend_connection_status(tox, callback_connection_status);
 }
 
-void callback_av_group_audio(void *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
-                             uint8_t channels, unsigned int sample_rate, void *userdata);
-
-static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE type, const uint8_t *data, size_t length,
-                                  void *UNUSED(userdata))
+static void callback_group_invite(Tox *UNUSED(tox), uint32_t friend_number, TOX_CONFERENCE_TYPE type,
+                                  const uint8_t *cookie, size_t length, void *UNUSED(userdata))
 {
-    LOG_NOTE("Tox Callbacks", "Group Invite (friend %i || type %u)", fid, type);
+    const uint8_t request_id = group_invite_new(friend_number,
+                                                cookie, length,
+                                                type == TOX_CONFERENCE_TYPE_AV);
 
-    uint32_t gid = UINT32_MAX;
-    if (type == TOX_CONFERENCE_TYPE_TEXT) {
-        gid = tox_conference_join(tox, fid, data, length, NULL);
-    } else if (type == TOX_CONFERENCE_TYPE_AV) {
-        gid = toxav_join_av_groupchat(tox, fid, data, length, callback_av_group_audio, NULL);
-    }
-
-    if (gid == UINT32_MAX) {
-        LOG_ERR("Tox Callbacks", "Could not join group with type: %u", type);
-        return;
-    }
-
-    GROUPCHAT *g = get_group(gid);
-    if (!g) {
-        group_create(gid, type == TOX_CONFERENCE_TYPE_AV ? true : false);
-    } else {
-        group_init(g, gid, type == TOX_CONFERENCE_TYPE_AV ? true : false);
-    }
-
-    LOG_NOTE("Tox Callbacks", "auto join successful group number %u", gid);
-    postmessage_utox(GROUP_ADD, gid, 0, tox);
+    postmessage_utox(GROUP_INCOMING_REQUEST, request_id, 0, NULL);
+    postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_REQUEST, 0, NULL);
 }
 
 static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, TOX_MESSAGE_TYPE type,
@@ -228,8 +209,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
                 pkey_to_number += pkey[key_i];
             }
             srand(pkey_to_number);
-            uint32_t name_color = 0;
-            name_color          = RGB(rand(), rand(), rand());
+            uint32_t name_color = RGB(rand(), rand(), rand());
 
             group_peer_add(g, pid, is_us, name_color);
 

@@ -4,6 +4,7 @@
 
 #include "avatar.h"
 #include "friend.h"
+#include "group_invite.h"
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
@@ -26,6 +27,7 @@
 #include "layout/background.h"
 #include "layout/friend.h"
 #include "layout/group.h"
+#include "layout/group_invite.h"
 #include "layout/settings.h"
 #include "layout/sidebar.h"
 
@@ -161,8 +163,8 @@ static void drawitem(ITEM *i, int x, int y, int width) {
 
             // draw avatar or default image
             if (friend_has_avatar(f)) {
-                draw_avatar_image(f->avatar->img, avatar_x, avatar_y, f->avatar->width, f->avatar->height,
-                                  default_w, default_w);
+                draw_avatar_image(f->avatar->img, avatar_x, avatar_y, f->avatar->width,
+                                  f->avatar->height, default_w, default_w);
             } else {
                 drawalpha(contact_bitmap, avatar_x, avatar_y, default_w, default_w,
                           (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
@@ -178,7 +180,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
         case ITEM_GROUP: {
             GROUPCHAT *g = get_group(i->id_number);
             drawalpha(group_bitmap, avatar_x, avatar_y, default_w, default_w,
-                      (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+                      selected_item == i ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
 
             bool color_overide = false;
             uint32_t color = 0;
@@ -223,6 +225,17 @@ static void drawitem(ITEM *i, int x, int y, int width) {
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             flist_draw_name(i, name_x, name_y, width, S(CREATEGROUPCHAT), S(CURSOR_CLICK_RIGHT), SLEN(CREATEGROUPCHAT),
                             SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            break;
+        }
+
+        case ITEM_GROUP_INVITE: {
+            drawalpha(group_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
+                      selected_item == i ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+
+            char *title = "Groupchat invite";
+
+            flist_draw_name(i, name_x, name_y, width, title, NULL,
+                            strlen(title), 0, 0, 0);
             break;
         }
 
@@ -419,6 +432,12 @@ static void page_close(ITEM *i) {
             break;
         }
 
+        case ITEM_GROUP_INVITE: {
+            panel_chat.disabled         = true;
+            panel_group_invite.disabled = true;
+            break;
+        }
+
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
                 panel_splash_page.disabled = true;
@@ -542,6 +561,12 @@ static void page_open(ITEM *i) {
             break;
         }
 
+        case ITEM_GROUP_INVITE: {
+            panel_chat.disabled         = false;
+            panel_group_invite.disabled = false;
+            break;
+        }
+
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
                 button_settings.disabled       = 1;
@@ -640,6 +665,12 @@ void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
     }
 }
 
+void flist_add_group_request(uint8_t request_id) {
+    ITEM *i = newitem();
+    i->item = ITEM_GROUP_INVITE;
+    i->id_number = request_id;
+}
+
 void flist_add_group(GROUPCHAT *g) {
     ITEM *i = newitem();
     i->item = ITEM_GROUP;
@@ -681,6 +712,10 @@ static void deleteitem(ITEM *i) {
             GROUPCHAT *g = get_group(i->id_number);
             postmessage_toxcore(TOX_GROUP_PART, g->number, 0, NULL);
             group_free(g);
+            break;
+        }
+
+        case ITEM_GROUP_INVITE: {
             break;
         }
 
@@ -802,6 +837,7 @@ static void push_selected(void) {
         }
         case ITEM_FREQUEST:
         case ITEM_GROUP:
+        case ITEM_GROUP_INVITE:
         case ITEM_GROUP_CREATE: {
             return;
         }
@@ -837,6 +873,7 @@ static void pop_selected(void) {
 
         case ITEM_FREQUEST:
         case ITEM_GROUP:
+        case ITEM_GROUP_INVITE:
         case ITEM_GROUP_CREATE: {
             show_page(&item_settings);
             return;
@@ -880,6 +917,14 @@ GROUPCHAT *flist_get_groupchat(void) {
     }
 
     return NULL;
+}
+
+uint8_t flist_get_group_invite_id(void) {
+    if (flist_get_type() == ITEM_GROUP_INVITE) {
+        return selected_item->id_number;
+    }
+
+    return UINT8_MAX;
 }
 
 ITEM_TYPE flist_get_type(void) {
