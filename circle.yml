@@ -56,7 +56,7 @@ dependencies:
     - sudo apt-get install libjpeg-dev
     - sudo apt-get install libpulse-dev
     - sudo apt-get install libconfig-dev
-    - sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libopus-dev libvpx-dev pkg-config libfontconfig1-dev libdbus-1-dev libv4l-dev libxrender-dev libopenal-dev libxext-dev cmake
+    - sudo apt-get install libfontconfig1-dev libdbus-1-dev libxrender-dev libopenal-dev libxext-dev
 
     - sudo bash -c "echo '::1             localhost ipv6-localhost ipv6-loopback' >> /etc/hosts" # ipv6 localhost entry
 
@@ -166,7 +166,8 @@ dependencies:
 
     ### ------------ filter_audio ------------
     - . ~/pp;cd $_s_;git clone git://github.com/irungentoo/filter_audio.git
-    - . ~/pp;cd $_s_/filter_audio ; make ; exit 0
+    - . ~/pp;cd $_s_/filter_audio ; make SHELL="/bin/bash -x"
+    - . ~/pp;cd $_s_/filter_audio ; ls -al libfilteraudio.a
     ### ------------ filter_audio ------------
 
 
@@ -181,6 +182,8 @@ dependencies:
     - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg1.tgz
     - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libconfig-dev.tgz' -O ~/pkg1.tgz
     - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg1.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libfreetype6-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
     # install raspi binary pkgs -------------------------
 
     - . ~/pp;cd $_s_;git clone "$CTOXCORE_URL"
@@ -192,7 +195,11 @@ dependencies:
     - . ~/pp;mkdir -p $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
     - . ~/pp;cp -av "$PKGSDIR"/* $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
     
-    - echo "write me RASPI"
+    - echo "compile RASPI"
+    - sudo apt-get install cmake3
+    - cd ../ ; mkdir build_raspi
+    - cd ../ ; cd build_raspi/ ; . ~/pp ; cmake  -DCMAKE_TOOLCHAIN_FILE=~/uTox/arm-linux-gnueabihf-4.9.cmake -DRPI_ROOT_PATH="$_SYSROOT_" -DTOXCORE_STATIC=ON ../uTox ; exit 0
+    - cd ../ ; cd build_raspi/ ; . ~/pp ; make -j4 ; exit 0
 
 ## ----------- RASPI cross compile ----------------
 
@@ -200,7 +207,7 @@ dependencies:
 test:
   override:
     - echo "-- compile linux --"
-    - sudo apt-get install cmake3
+    #- sudo apt-get install cmake3
     - cd ../ ; mkdir build2
     - cd ../build2/ ; cmake -DTOXCORE_STATIC=ON ../uTox
     - cd ../build2/ ; make -j4
