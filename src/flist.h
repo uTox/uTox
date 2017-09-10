@@ -21,18 +21,22 @@ uint8_t flist_get_filter(void);
 void flist_set_filter(uint8_t filter);
 
 // set the search string in the list. Disable search by setting it to NULL. Updates list afterwards
-// warning: list will just remember the pointer, it will assume you won't deallocate the memory, and it
-// won't deallocate it after setting to NULL. The string should be NULL-terminated.
+// warning: list will just remember the pointer, it will assume you won't deallocate the memory,
+// and it won't deallocate it after setting to NULL. The string should be NULL-terminated.
 void flist_search(char *str);
 
-/* non-exhaustive list of panels we to select from, it's probably better to replace this but I don't know with what. */
+// non-exhaustive list of panels we to select from,
+// it's probably better to replace this but I don't know with what.
 typedef enum {
     ITEM_NONE,
     ITEM_SETTINGS,
     ITEM_ADD,
+
     ITEM_FRIEND,
     ITEM_FREQUEST,
+
     ITEM_GROUP,
+    ITEM_GROUP_INVITE,
     ITEM_GROUP_CREATE,
 } ITEM_TYPE;
 
@@ -45,6 +49,7 @@ void flist_start(void);
 void flist_add_friend(FRIEND *f, const char *msg, const int msg_length);
 void flist_add_friend_accepted(FRIEND *f, FREQUEST *req);
 void flist_add_group(GROUPCHAT *g);
+void flist_add_group_request(uint8_t request_id);
 void flist_add_frequest(FREQUEST *f);
 void flist_delete_sitem(void);
 void flist_delete_rmouse_item(void);
@@ -67,6 +72,7 @@ void flist_reload_contacts(void);
 FRIEND *flist_get_friend(void);
 FREQUEST *flist_get_frequest(void);
 GROUPCHAT *flist_get_groupchat(void);
+uint8_t flist_get_group_invite_id(void);
 ITEM_TYPE flist_get_type(void);
 
 bool try_open_tox_uri(const char *str);
