@@ -200,8 +200,15 @@ dependencies:
 test:
   override:
     - echo "-- compile linux --"
-    - cd ../ ; mkdir build
-    - cd ../ ; cmake -DTOXCORE_STATIC=ON ../uTox
-    - cd ../ ; make -j4
+    - sudo apt-get install cmake3
+    - cd ../ ; mkdir build2
+    - cd ../build2/ ; cmake -DTOXCORE_STATIC=ON ../uTox
+    - cd ../build2/ ; make -j4
+    - cd ../build2/ ; ls -al utox ; ldd utox ; exit 0
+    - cd ../build2/ ; cp -av $CIRCLE_ARTIFACTS/ubuntu_14_04_binaries/
 
+    - cd ../build2/ ; ./utox :
+        background: true
+    - sleep 120 # let the program startup
+    - import -window root $CIRCLE_ARTIFACTS/capture_app_running.png
 
