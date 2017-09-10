@@ -56,6 +56,7 @@ dependencies:
     - sudo apt-get install libjpeg-dev
     - sudo apt-get install libpulse-dev
     - sudo apt-get install libconfig-dev
+    - sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libopus-dev libvpx-dev pkg-config libfontconfig1-dev libdbus-1-dev libv4l-dev libxrender-dev libopenal-dev libxext-dev cmake
 
     - sudo bash -c "echo '::1             localhost ipv6-localhost ipv6-loopback' >> /etc/hosts" # ipv6 localhost entry
 
@@ -87,6 +88,12 @@ dependencies:
     - export INSTALL_DEST=/home/ubuntu/installdest_linux/ ; cd "$INSTALL_DEST" ; tar -czvf $CIRCLE_ARTIFACTS/ubuntu_14_04_binaries/pkg_libsodium.tar.gz *
     ## --- now again to save the artefact ---
     ### ------- compile and install libsodium -------
+
+    ### ------------ filter_audio ------------
+    - git clone git://github.com/irungentoo/filter_audio.git
+    - cd filter_audio ; make
+    - cd filter_audio ; sudo checkinstall
+    ### ------------ filter_audio ------------
 
     ### ------------ compile and install c-toxcore ------------
     - cd c-toxcore ; cmake -DWARNINGS=OFF .
@@ -156,6 +163,13 @@ dependencies:
     - . ~/pp;~/do_compile.sh "libsodium" --prefix="$_SYSROOT_"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX" --enable-minimal --disable-pie
     - . ~/pp;~/do_package.sh "libsodium" --prefix="$INSTALL_DEST"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX" --enable-minimal --disable-pie
 
+
+    ### ------------ filter_audio ------------
+    - . ~/pp;cd $_s_;git clone --depth=1 --branch=$LIBSODIUM_BRANCH git://github.com/irungentoo/filter_audio.git
+    - . ~/pp;cd $_s_/filter_audio ; make ; exit 0
+    ### ------------ filter_audio ------------
+
+
     # install raspi binary pkgs -------------------------
     - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libv4l-dev.tgz' -O ~/pkg2.tgz
     - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg2.tgz
@@ -185,6 +199,9 @@ dependencies:
 
 test:
   override:
-    - echo "write me RASPI"
+    - echo "-- compile linux --"
+    - cd ../ ; mkdir build
+    - cd ../ ; cmake -DTOXCORE_STATIC=ON ../uTox
+    - cd ../ ; make -j4
 
 
