@@ -165,7 +165,7 @@ dependencies:
 
 
     ### ------------ filter_audio ------------
-    - . ~/pp;cd $_s_;git clone --depth=1 --branch=$LIBSODIUM_BRANCH git://github.com/irungentoo/filter_audio.git
+    - . ~/pp;cd $_s_;git clone git://github.com/irungentoo/filter_audio.git
     - . ~/pp;cd $_s_/filter_audio ; make ; exit 0
     ### ------------ filter_audio ------------
 
