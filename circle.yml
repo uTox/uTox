@@ -160,8 +160,8 @@ dependencies:
 
     - . ~/pp;cd $_s_;git clone --depth=1 --branch=$LIBSODIUM_BRANCH https://github.com/jedisct1/libsodium.git
     - . ~/pp;cd $_s_/libsodium/;autoreconf -fi
-    - . ~/pp;~/do_compile.sh "libsodium" --prefix="$_SYSROOT_"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX" --enable-minimal --disable-pie
-    - . ~/pp;~/do_package.sh "libsodium" --prefix="$INSTALL_DEST"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX" --enable-minimal --disable-pie
+    - . ~/pp;~/do_compile.sh "libsodium" --prefix="$_SYSROOT_"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX" --disable-pie
+    - . ~/pp;~/do_package.sh "libsodium" --prefix="$INSTALL_DEST"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX" --disable-pie
 
 
     ### ------------ filter_audio ------------
@@ -226,6 +226,59 @@ dependencies:
     - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
     - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libfreetype6.tgz' -O ~/pkg__.tgz
     - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libaudio-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libaudio2.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxt-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxt6.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxau6.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libsm6.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libice6.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libuuid1.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxcb1.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libxdmcp6.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libfontconfig1.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/zlib1g.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libexpat1.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libpng12-0.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libpng12-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libjpeg62-turbo.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libjpeg62-turbo-dev.tgz' -O ~/pkg__.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg__.tgz
+
+
+
+# arm-linux-gnueabihf-gcc openal-example.o -o openal-example -laudio -L"$_SYSROOT_/usr/lib/arm-linux-gnueabihf" -L$_SYSROOT_//usr/lib/arm-linux-gnueabihf/
+# "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/libopenal.so.1.15.1 $_SYSROOT_/usr/lib/arm-linux-gnueabihf/libaudio.so.2.4
+# $_SYSROOT_//usr/lib/arm-linux-gnueabihf/libXt.so.6 $_SYSROOT_//usr/lib/arm-linux-gnueabihf/libXau.so
+# $_SYSROOT_//usr/lib/arm-linux-gnueabihf/libSM.so.6.0.1 $_SYSROOT_//usr/lib/arm-linux-gnueabihf/libICE.so.6.3.0 
+# $_SYSROOT_//usr/lib/arm-linux-gnueabihf/libX11.so.6.3.0  $_SYSROOT_//usr/lib/arm-linux-gnueabihf/libxcb.so 
+# $_SYSROOT_//usr/lib/arm-linux-gnueabihf/libXdmcp.so.6.0.0 $_SYSROOT_/lib/arm-linux-gnueabihf/libuuid.so.1.3.0
+
     # install raspi binary pkgs -------------------------
 
     - . ~/pp;cd $_s_;git clone "$CTOXCORE_URL"
@@ -271,8 +324,63 @@ dependencies:
       -DENABLE_FILTERAUDIO=0
       -DENABLE_AUTOUPDATE=0
       -DENABLE_DBUS=0
-      -DRPI_ROOT_PATH="$_SYSROOT_" -DTOXCORE_STATIC=ON ../uTox ; exit 0
-    - cd ../ ; cd build_raspi/ ; . ~/pp ; make -j4 ; exit 0
+      -DRPI_ROOT_PATH="$_SYSROOT_" -DTOXCORE_STATIC=ON ../uTox
+    - cd ../ ; cd build_raspi/ ; . ~/pp ; make VERBOSE=1 -j4 ; exit 0
+
+    - cd ../ ; cd build_raspi/ ; . ~/pp ; /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-cc
+      --sysroot=/home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot
+      -Wall -Wextra -Wpointer-arith -Werror=implicit-function-declaration -Wformat=0 -Wno-misleading-indentation
+      -fno-strict-aliasing -fPIC -flto   -Wl,-z,noexecstack CMakeFiles/utox.dir/src/avatar.c.o
+      CMakeFiles/utox.dir/src/chatlog.c.o CMakeFiles/utox.dir/src/chrono.c.o CMakeFiles/utox.dir/src/command_funcs.c.o
+      CMakeFiles/utox.dir/src/commands.c.o CMakeFiles/utox.dir/src/devices.c.o CMakeFiles/utox.dir/src/file_transfers.c.o
+      CMakeFiles/utox.dir/src/filesys.c.o CMakeFiles/utox.dir/src/flist.c.o CMakeFiles/utox.dir/src/friend.c.o CMakeFiles/utox.dir/src/groups.c.o
+      CMakeFiles/utox.dir/src/inline_video.c.o CMakeFiles/utox.dir/src/logging.c.o CMakeFiles/utox.dir/src/main.c.o CMakeFiles/utox.dir/src/messages.c.o
+      CMakeFiles/utox.dir/src/notify.c.o CMakeFiles/utox.dir/src/screen_grab.c.o CMakeFiles/utox.dir/src/self.c.o CMakeFiles/utox.dir/src/settings.c.o
+      CMakeFiles/utox.dir/src/stb.c.o CMakeFiles/utox.dir/src/text.c.o CMakeFiles/utox.dir/src/theme.c.o CMakeFiles/utox.dir/src/tox.c.o
+      CMakeFiles/utox.dir/src/tox_callbacks.c.o CMakeFiles/utox.dir/src/ui.c.o CMakeFiles/utox.dir/src/ui_i18n.c.o
+      CMakeFiles/utox.dir/src/updater.c.o CMakeFiles/utox.dir/src/utox.c.o CMakeFiles/utox.dir/src/window.c.o
+      -o utox
+      -rdynamic src/av/libutoxAV.a
+      src/xlib/libutoxNATIVE.a
+      src/ui/libutoxUI.a
+      -Wl,-Bstatic -lsodium -Wl,-Bdynamic
+      -lrt
+      -lvpx
+      -lpthread
+      -lm
+      -Wl,-Bstatic -lopus -Wl,-Bdynamic
+      "$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/libopenal.so.1.15.1 $_SYSROOT_/usr/lib/arm-linux-gnueabihf/libaudio.so.2.4
+      src/xlib/libicon.a
+      /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libv4lconvert.a
+      /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libv4lconvert.so.0.0.0
+      /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libX11.so.6.3.0
+      /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libXext.so.6.4.0
+      /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libXrender.so
+      /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libfontconfig.so.1.8.0
+      /home/ubuntu/cc/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib/arm-linux-gnueabihf/libfreetype.so.6.12.0
+      "$_SYSROOT_"//usr/lib/arm-linux-gnueabihf/libXt.so.6
+      $_SYSROOT_//usr/lib/arm-linux-gnueabihf/libXau.so
+      "$_SYSROOT_"//usr/lib/arm-linux-gnueabihf/libSM.so.6.0.1
+      $_SYSROOT_//usr/lib/arm-linux-gnueabihf/libICE.so.6.3.0
+      "$_SYSROOT_"//usr/lib/arm-linux-gnueabihf/libX11.so.6.3.0
+      $_SYSROOT_//usr/lib/arm-linux-gnueabihf/libxcb.so
+      "$_SYSROOT_"//usr/lib/arm-linux-gnueabihf/libXdmcp.so.6.0.0
+      $_SYSROOT_/lib/arm-linux-gnueabihf/libuuid.so.1.3.0
+      $_SYSROOT_/lib/arm-linux-gnueabihf/libexpat.so.1.6.0
+      $_SYSROOT_/lib/arm-linux-gnueabihf/libz.so.1.2.8
+      $_SYSROOT_/lib/arm-linux-gnueabihf/libpng12.so.0.50.0
+      $_SYSROOT_/usr/lib/arm-linux-gnueabihf/libjpeg.so.62.1.0
+      $_SYSROOT_/usr/lib/libtoxav.so
+      $_SYSROOT_/usr/lib/libtoxcore.so
+      $_SYSROOT_/usr/lib/libtoxdns.so
+      $_SYSROOT_/usr/lib/libtoxencryptsave.so
+      -lresolv
+      -ldl
+      src/layout/libutoxLAYOUT.a
+      -Wl,-rpath,/usr/lib/arm-linux-gnueabihf
+
+    - cd ../ ; cd build_raspi/ ; ls -al
+    - cd ../ ; cd build_raspi/ ; ls -al utox
 ## ----------- RASPI cross compile ----------------
 
 
