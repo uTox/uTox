@@ -96,25 +96,24 @@ bool inline_set_frame_friend(UTOX_FRAME_PKG *frame) {
     return false;
 }
 
-void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int width, int height) {
+void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int UNUSED(width), int UNUSED(height)) {
     LOG_TRACE("Inline Video", "Drawing new frame." );
     if (!settings.inline_video) {
         return;
     }
 
+    // TODO scale the frames by the width/hight of the Window
     if (current_frame && current_frame->img && current_frame->size) {
-        draw_inline_image(current_frame->img, current_frame->size,
-                          MIN(current_frame->w, width), MIN(current_frame->h, height),
+        draw_inline_image(current_frame->img, current_frame->size, current_frame->w, current_frame->h,
                           x, y + SCALE(MAIN_TOP_FRAME_THICK + 2));
 
         // TODO advanced maths to determine best plase to place P-by-P
-        x += MIN(current_frame->w, width) + SCALE(2);
+        x += current_frame->w + SCALE(2);
         // y += MIN(current_frame->h, height);
     }
 
     if (preview_frame && preview_frame->size && preview_frame->img) {
-        draw_inline_image(preview_frame->img, preview_frame->size,
-                          MIN(preview_frame->w, width), MIN(preview_frame->h, height),
+        draw_inline_image(preview_frame->img, preview_frame->size, preview_frame->w, preview_frame->h,
                           x, y + SCALE(MAIN_TOP_FRAME_THICK + 2));
     }
 }
