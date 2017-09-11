@@ -21,7 +21,6 @@
 #include "av/video.h"
 
 #include "native/image.h"
-#include "native/thread.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -69,12 +68,11 @@ bool inline_set_frame_self(UTOX_FRAME_PKG *frame) {
     if (frame) {
         clone_frame(preview_frame, frame);
         return true;
-    } else {
-        free(preview_frame->img);
-        preview_frame->img = NULL;
-        // TODO free(preview_frame); // We can't free this without friend ownership else DOS exploit
     }
 
+    free(preview_frame->img);
+    preview_frame->img = NULL;
+    // TODO free(preview_frame); // We can't free this without friend ownership else DOS exploit
     return false;
 }
 
@@ -90,12 +88,11 @@ bool inline_set_frame_friend(UTOX_FRAME_PKG *frame) {
     if (frame) {
         clone_frame(current_frame, frame);
         return true;
-    } else {
-        free(current_frame->img);
-        current_frame->img = NULL;
-        // TODO free(current_frame); // We can't free this without friend ownership else DOS exploit
     }
 
+    free(current_frame->img);
+    current_frame->img = NULL;
+    // TODO free(current_frame); // We can't free this without friend ownership else DOS exploit
     return false;
 }
 

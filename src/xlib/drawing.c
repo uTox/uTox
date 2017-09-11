@@ -12,12 +12,12 @@
 static uint32_t scolor;
 
 static UTOX_WINDOW *curr_win = NULL;
-bool draw_set_target(UTOX_WINDOW *new) {
-    if (curr_win == new || !new) {
+bool draw_set_target(UTOX_WINDOW *next_win) {
+    if (curr_win == next_win || !next_win) {
         return false;
     }
 
-    curr_win = new;
+    curr_win = next_win;
     return true;
 }
 

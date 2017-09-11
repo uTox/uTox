@@ -283,12 +283,6 @@ void utox_video_thread(void *args) {
                             utox_video_frame.v, utox_video_frame.w, (utox_video_frame.w / 2),
                             (utox_video_frame.w / 2), frame->img);
 
-                if (settings.video_preview) {
-                    /* Make a copy of the video frame for uTox to display */
-                    postmessage_utox(AV_VIDEO_FRAME, UINT16_MAX, 1, (void *)frame);
-                }
-                inline_set_frame_self(frame);
-
                 size_t active_video_count = 0;
                 for (size_t i = 0; i < self.friend_list_count; i++) {
                     if (SEND_VIDEO_FRAME(i)) {
@@ -317,6 +311,17 @@ void utox_video_thread(void *args) {
                         }
                     }
                 }
+
+                inline_set_frame_self(frame);
+                if (settings.video_preview) {
+                    /* Make a copy of the video frame for uTox to display */
+                    postmessage_utox(AV_VIDEO_FRAME, UINT16_MAX, 1, (void *)frame);
+                } else {
+                    free(frame->img);
+                    free(frame);
+                }
+
+
             } else if (r == -1) {
                 LOG_ERR("uToxVideo", "Err... something really bad happened trying to get this frame, I'm just going "
                             "to plots now!");
