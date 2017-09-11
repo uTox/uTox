@@ -107,6 +107,7 @@ UTOX_SAVE *config_load(void) {
         save->enableipv6  = 1;
         save->disableudp  = 0;
         save->proxyenable = 0;
+        save->force_proxy = 0;
 
         save->audio_filtering_enabled       = 1;
         save->audible_notifications_enabled = 1;
@@ -137,12 +138,12 @@ UTOX_SAVE *config_load(void) {
     switch_mini_contacts.switch_on      = save->use_mini_flist;
     switch_magic_sidebar.switch_on      = save->magic_flist_enabled;
 
-    switch_ipv6.switch_on        = save->enableipv6;
-    switch_udp.switch_on         = !save->disableudp;
-    switch_proxy.switch_on       = save->proxyenable;
-    switch_proxy_force.switch_on = false; // TODO, this is a bug. We really should be saving this data, but I don't want
-                                          // to touch this until we decide how we want to save uTox data in the future.
-                                          // -- Grayhatter, probably...
+    switch_ipv6.switch_on             = save->enableipv6;
+    switch_udp.switch_on              = !save->disableudp;
+    switch_udp.panel.disabled         = save->force_proxy;
+    switch_proxy.switch_on            = save->proxyenable;
+    switch_proxy_force.switch_on      = save->force_proxy;
+    switch_proxy_force.panel.disabled = !save->proxyenable;
 
     switch_auto_startup.switch_on       = save->auto_startup;
     switch_auto_update.switch_on        = save->auto_update;
@@ -166,6 +167,7 @@ UTOX_SAVE *config_load(void) {
     settings.enable_udp  = !save->disableudp;
     settings.use_proxy   = !!save->proxyenable;
     settings.proxy_port  = save->proxy_port;
+    settings.force_proxy = save->force_proxy;
 
     if (strlen((char *)save->proxy_ip) <= 256){
         strcpy((char *)proxy_address, (char *)save->proxy_ip);
@@ -268,8 +270,9 @@ void config_save(UTOX_SAVE *save_in) {
     save->enableipv6              = settings.enable_ipv6;
     save->no_typing_notifications = !settings.send_typing_status;
 
-    save->filter     = flist_get_filter();
-    save->proxy_port = settings.proxy_port;
+    save->filter      = flist_get_filter();
+    save->proxy_port  = settings.proxy_port;
+    save->force_proxy = settings.force_proxy;
 
     save->audio_device_in  = dropdown_audio_in.selected;
     save->audio_device_out = dropdown_audio_out.selected;

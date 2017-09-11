@@ -1034,11 +1034,14 @@ UISWITCH switch_block_friend_requests = {
 
 static void switchfxn_proxy(void) {
     settings.use_proxy   = !settings.use_proxy;
+
     if (settings.use_proxy) {
-        settings.force_proxy = false;
         switch_proxy_force.panel.disabled = false;
     } else {
+        settings.force_proxy              = false;
+        switch_proxy_force.switch_on      = false;
         switch_proxy_force.panel.disabled = true;
+        switch_udp.panel.disabled         = false;
     }
 
     memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
@@ -1054,8 +1057,11 @@ static void switchfxn_proxy_force(void) {
     settings.force_proxy = !settings.force_proxy;
 
     if (settings.force_proxy) {
-        switch_udp.disabled       = true;
+        switch_udp.switch_on      = false;
+        settings.enable_udp       = false;
         switch_udp.panel.disabled = true;
+    } else {
+        switch_udp.panel.disabled = false;
     }
 
     edit_proxy_port.data[edit_proxy_port.length] = 0;
