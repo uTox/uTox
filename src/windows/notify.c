@@ -9,8 +9,8 @@
 #include "../self.h"
 #include "../ui.h"
 
+#include "../native/drawing.h"
 #include "../native/notify.h"
-#include "../native/window.h"
 
 #include <windowsx.h>
 
@@ -50,7 +50,7 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
 
 static void redraw_notify(UTOX_WINDOW *win) {
     LOG_TRACE("Notify", "redraw start");
-    native_window_set_target(win);
+    draw_set_target(win);
     panel_draw(win->_.panel, 0, 0, win->_.w, win->_.h);
     SelectObject(win->draw_DC, win->draw_BM);
     BitBlt(win->window_DC, win->_.x, win->_.y, win->_.w, win->_.h, win->draw_DC, win->_.x, win->_.y, SRCCOPY);

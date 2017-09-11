@@ -26,10 +26,10 @@
 
 #include "../av/utox_av.h"
 
+#include "../native/drawing.h"
 #include "../native/filesys.h"
 #include "../native/notify.h"
 #include "../native/os.h"
-#include "../native/window.h"
 
 #include "../ui/draw.h"
 #include "../ui/dropdown.h"
@@ -483,7 +483,7 @@ void edit_will_deactivate(void) {}
 
 /* Redraws the main UI window */
 void redraw(void) {
-    native_window_set_target(&main_window);
+    draw_set_target(&main_window);
 
     SelectObject(main_window.draw_DC, main_window.draw_BM);
 
