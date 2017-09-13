@@ -475,6 +475,17 @@ msgstr("Away")
 msgid(STATUS_BUSY)
 msgstr("Busy")
 
+msgid(STATUS_OFFLINE)
+msgstr("Offline")
+
+/*
+ * Leave %.*s. They are variables
+ * The first one is your friend's name
+ * The second one is the state your friend is now in
+ */
+msgid(STATUS_MESSAGE)
+msgstr("uTox %.*s is now %s.")
+
 msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Use mini contact list")
 

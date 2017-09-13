@@ -159,6 +159,8 @@ typedef enum {
     STR_STATUS_ONLINE,
     STR_STATUS_AWAY,
     STR_STATUS_BUSY,
+    STR_STATUS_OFFLINE,
+    STR_STATUS_MESSAGE,
 
     // Settings Strings
     STR_SETTINGS_UI_MINI_ROSTER,
