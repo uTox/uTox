@@ -11,7 +11,7 @@ If you're looking for it to "just work" you're going to want [these instructions
 
 The easy way out is:
 ```sh
-git clone git://github.com/uTox/uTox.git
+git clone --recursive git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
@@ -27,7 +27,7 @@ make install
 
 or if you built toxcore statically:
 ```sh
-git clone git://github.com/uTox/uTox.git
+git clone --recursive git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
@@ -70,7 +70,7 @@ cd ..
 
 sudo ldconfig
 
-git clone git://github.com/uTox/uTox.git
+git clone --recursive git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
@@ -107,7 +107,7 @@ cd ..
 Now compile uTox:
 
 ```bash
-git clone https://github.com/uTox/uTox.git
+git clone --recursive git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
@@ -137,7 +137,7 @@ cd ..
 Now compile uTox:
 
 ```bash
-git clone https://github.com/uTox/uTox.git
+git clone --recursive git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
@@ -148,9 +148,9 @@ sudo make install
 
 ## Windows
 
-### Compiling for Windows
+You will need a working Cygwin environment or Unix desktop to compile windows.
 
-Dependencies:
+Dependencies can be downloaded from [here](https://build.tox.chat/). Make sure you grab the right bit version.
 
 |   Name       | Required |
 |--------------|----------|
@@ -161,29 +161,53 @@ Dependencies:
 | opus         |   yes    |
 | toxcore      |   yes    |
 
-The dependencies can be downloaded from here: https://build.tox.chat/ (Make sure you grab the right bit version.) All the libraries should be place in $UTOX_ROOT/libs/windows-x64/.
+### Cygwin setup
 
-You will need a working Cygwin environment or Unix desktop to compile windows.
+- Download Cygwin ([x86](https://cygwin.com/setup-x86.exe)/[x64](https://cygwin.com/setup-x86_64.exe))
+- Search and select exactly these packages in Devel category:
+  - mingw64-i686-gcc-core (x86) / mingw64-x86_64-gcc-core (x64)
+  - make
+  - cmake
+  - gdb
 
-For 32 bit:
+In case of Cygwin all following commands should be executed in Cygwin Terminal.
+
 ```bash
-git clone https://github.com/uTox/uTox.git
-cd uTox/
+cd /cygdrive/c
+mkdir projects
+cd projects/
+git clone --recursive git://github.com/uTox/uTox.git
+mkdir libs
+cd libs/
+mkdir windows-x64
+cd ../uTox/
 mkdir build
 cd build
-cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake" -DTOXCORE_STATIC=ON ..
-make
 ```
 
-For 64 bit:
-```bash
-git clone https://github.com/uTox/uTox.git
-cd uTox/
-mkdir build
-cd build
-cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DTOXCORE_STATIC=ON ..
-make
-```
+Download .zip files and place them into `windows-x64` folder.
+Extract here with your archiver and merge when it'll ask for replacement:
+
+- toxcore ([x86](https://build.tox.chat/view/libtoxcore/job/libtoxcore-toktok_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libtoxcore-toktok_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libtoxcore/job/libtoxcore-toktok_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libtoxcore-toktok_build_windows_x86-64_static_release.zip))
+- openal ([x86](https://build.tox.chat/view/libopenal/job/libopenal_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libopenal_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libopenal/job/libopenal_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libopenal_build_windows_x86-64_static_release.zip))
+- sodium ([x86](https://build.tox.chat/view/libsodium/job/libsodium_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libsodium_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libsodium/job/libsodium_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libsodium_build_windows_x86-64_static_release.zip))
+- libvpx ([x86](https://build.tox.chat/view/libvpx/job/libvpx_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libvpx_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libvpx/job/libvpx_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libvpx_build_windows_x86-64_static_release.zip))
+- opus ([x86](https://build.tox.chat/view/libopus/job/libopus_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libopus_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libopus/job/libopus_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libopus_build_windows_x86-64_static_release.zip))
+- filter_audio ([x86](https://build.tox.chat/view/libfilteraudio/job/libfilteraudio_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libfilteraudio.zip)/[x64](https://build.tox.chat/view/libfilteraudio/job/libfilteraudio_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libfilteraudio.zip))
+
+And go back to terminal (make sure you're still in `build` folder):
+
+- For 32 bit:
+    ```bash
+    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake" -DTOXCORE_STATIC=ON ..
+    make
+    ```
+
+- For 64 bit:
+    ```bash
+    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DTOXCORE_STATIC=ON ..
+    make
+    ```
 
 ## macOS
 

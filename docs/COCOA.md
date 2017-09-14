@@ -57,7 +57,7 @@ cd ..
 ## How to compile uTox
 
 ```bash
-git clone git://github.com/uTox/uTox.git
+git clone --recursive git://github.com/uTox/uTox.git
 cd uTox
 mkdir build
 cd build
@@ -86,7 +86,7 @@ Done!
 1. Install the [dependencies](#how-to-compile-dependencies)
 
 ```bash
-git clone git://github.com/uTox/uTox.git
+git clone --recursive git://github.com/uTox/uTox.git
 cd uTox
 mkdir build
 cd build
