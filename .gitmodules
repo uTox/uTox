@@ -1,0 +1,3 @@
+[submodule "minIni"]
+	path = minIni
+	url = https://github.com/compuphase/minIni.git
