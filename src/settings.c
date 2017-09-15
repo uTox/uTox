@@ -215,7 +215,7 @@ static int config_parser(const char* section, const char* key, const char* value
 UTOX_SAVE *utox_load_config(void) {
     UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + proxy_address_size + 1);
 
-    if(!save) {
+    if (!save) {
         LOG_ERR("Settings", "Unable to calloc for UTOX_SAVE");
         return NULL;
     }
@@ -224,12 +224,14 @@ UTOX_SAVE *utox_load_config(void) {
 
     if (!config_path) {
         LOG_ERR("Settings", "Unable to get utox_save.ini path");
+        free(save);
         return NULL;
     }
 
     if (!ini_browse(config_parser, save, config_path)) {
         LOG_ERR("Settings", "Unable to parse utox_save.ini");
         free(config_path);
+        free(save);
         return NULL;
     }
 
@@ -302,7 +304,7 @@ UTOX_SAVE *config_load(void) {
     UTOX_SAVE *save = utox_load_config();
 
     // TODO: Remove this in ~0.18.0 release
-    if(!save) {
+    if (!save) {
         LOG_NOTE("Settings", "New utox_save.ini not found. Trying old utox_save.");
         save = utox_data_load_utox();
     }

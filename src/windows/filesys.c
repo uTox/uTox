@@ -13,6 +13,11 @@
 char *native_get_filepath(const char *name, bool portable_mode) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
 
+    if (!path) {
+        LOG_ERR("WinFilesys", "Unable to allocate memory for file path.");
+        return NULL;
+    }
+
     if (portable_mode) {
         strcpy(path, portable_mode_save_path);
     } else {
@@ -27,6 +32,7 @@ char *native_get_filepath(const char *name, bool portable_mode) {
 
     if (strlen(path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
         LOG_ERR("WinFilesys", "Load directory name too long");
+        free(path);
         return NULL;
     }
 
