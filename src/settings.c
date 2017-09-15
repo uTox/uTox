@@ -1,4 +1,5 @@
 #include "settings.h"
+#include "../minIni/dev/minIni.h"
 
 #include "debug.h"
 #include "flist.h"
@@ -104,10 +105,207 @@ SETTINGS settings = {
     .window_maximized     = 0,
 };
 
+void write_config_value_int(const char *filename, const char *section, const char *key, const long value) {
+    if (ini_putl(section, key, value, filename) != 1) {
+        LOG_ERR("Settings", "Error saving config value: %lu", value);
+    }
+}
+
+void write_config_value_str(const char *filename, const char *section, const char *key, const char *value) {
+    if (ini_puts(section, key, value, filename) != 1) {
+        LOG_ERR("Settings", "Error saving config value: %s", value);
+    }
+}
+
+void write_config_value_bool(const char *filename, const char *section, const char *key, const bool value) {
+    if (ini_puts(section, key, BOOL_TO_STR(value), filename) != 1) {
+        LOG_ERR("Settings", "Error saving config value: %s", value);
+    }
+}
+
+static int config_parser(const char* section, const char* key, const char* value, void* config_v) {
+    UTOX_SAVE *config = (UTOX_SAVE*) config_v;
+
+    // general
+    if (MATCH(general_section, NAMEOF(config->save_version))) {
+        config->save_version = atoi(value);
+    } else if (MATCH(general_section, NAMEOF(config->utox_last_version))) {
+        config->utox_last_version = atoi(value);
+    } else if (MATCH(general_section, NAMEOF(config->send_version))) {
+        config->send_version = STR_TO_BOOL(value);
+    } else if (MATCH(general_section, NAMEOF(config->update_to_develop))) {
+        config->update_to_develop = STR_TO_BOOL(value);
+    }
+
+    // interface
+    else if (MATCH(interface_section, NAMEOF(config->language))) {
+        config->language = atoi(value);
+    } else if (MATCH(interface_section, NAMEOF(config->window_x))) {
+        config->window_x = atoi(value);
+    } else if (MATCH(interface_section, NAMEOF(config->window_y))) {
+        config->window_y = atoi(value);
+    } else if (MATCH(interface_section, NAMEOF(config->window_width))) {
+        config->window_width = atoi(value);
+    } else if (MATCH(interface_section, NAMEOF(config->window_height))) {
+        config->window_height = atoi(value);
+    } else if (MATCH(interface_section, NAMEOF(config->theme))) {
+        config->theme = atoi(value);
+    } else if (MATCH(interface_section, NAMEOF(config->scale))) {
+        config->scale = atoi(value);
+    } else if (MATCH(interface_section, NAMEOF(config->logging_enabled))) {
+        config->logging_enabled = STR_TO_BOOL(value);
+    } else if (MATCH(interface_section, NAMEOF(config->close_to_tray))) {
+        config->close_to_tray = STR_TO_BOOL(value);
+    } else if (MATCH(interface_section, NAMEOF(config->start_in_tray))) {
+        config->start_in_tray = STR_TO_BOOL(value);
+    } else if (MATCH(interface_section, NAMEOF(config->auto_startup))) {
+        config->auto_startup = STR_TO_BOOL(value);
+    } else if (MATCH(interface_section, NAMEOF(config->use_mini_flist))) {
+        config->use_mini_flist = STR_TO_BOOL(value);
+    } else if (MATCH(interface_section, NAMEOF(config->filter))) {
+        config->filter = STR_TO_BOOL(value);
+    } else if (MATCH(interface_section, NAMEOF(config->magic_flist_enabled))) {
+        config->magic_flist_enabled = STR_TO_BOOL(value);
+    }
+
+    // av
+    else if (MATCH(av_section, NAMEOF(config->push_to_talk))) {
+        config->push_to_talk = STR_TO_BOOL(value);
+    } else if (MATCH(av_section, NAMEOF(config->audio_filtering_enabled))) {
+        config->audio_filtering_enabled = STR_TO_BOOL(value);
+    } else if (MATCH(av_section, NAMEOF(config->audio_device_in))) {
+        config->audio_device_in = atoi(value);
+    } else if (MATCH(av_section, NAMEOF(config->audio_device_out))) {
+        config->audio_device_out = atoi(value);
+    } else if (MATCH(av_section, NAMEOF(config->video_fps))) {
+        config->video_fps = atoi(value);
+    }
+
+    // notifications
+    else if (MATCH(notifications_section, NAMEOF(config->audible_notifications_enabled))) {
+        config->audible_notifications_enabled = STR_TO_BOOL(value);
+    } else if (MATCH(notifications_section, NAMEOF(config->status_notifications))) {
+        config->status_notifications = STR_TO_BOOL(value);
+    } else if (MATCH(notifications_section, NAMEOF(config->no_typing_notifications))) {
+        config->no_typing_notifications = STR_TO_BOOL(value);
+    } else if (MATCH(notifications_section, NAMEOF(config->group_notifications))) {
+        config->group_notifications = atoi(value);
+    }
+
+    // advanced
+    else if (MATCH(advanced_section, NAMEOF(config->enableipv6))) {
+        config->enableipv6 = STR_TO_BOOL(value);
+    } else if (MATCH(advanced_section, NAMEOF(config->disableudp))) {
+        config->disableudp = STR_TO_BOOL(value);
+    } else if (MATCH(advanced_section, NAMEOF(config->proxyenable))) {
+        config->proxyenable = STR_TO_BOOL(value);
+    } else if (MATCH(advanced_section, NAMEOF(config->proxy_port))) {
+        config->proxy_port = atoi(value);
+    } else if (MATCH(advanced_section, NAMEOF(config->proxy_ip))) {
+        strcpy((char *)config->proxy_ip, value);
+    } else if (MATCH(advanced_section, NAMEOF(config->force_proxy))) {
+        config->force_proxy = STR_TO_BOOL(value);
+    } else if (MATCH(advanced_section, NAMEOF(config->auto_update))) {
+        config->auto_update = STR_TO_BOOL(value);
+    }
+
+    return 1;
+}
+
+UTOX_SAVE *utox_load_config(void) {
+    UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + proxy_address_size + 1);
+
+    if(!save) {
+        LOG_ERR("Settings", "Unable to calloc for UTOX_SAVE");
+        return NULL;
+    }
+
+    char *config_path = get_filepath("utox_save.ini");
+
+    if (!config_path) {
+        LOG_ERR("Settings", "Unable to get utox_save.ini path");
+        return NULL;
+    }
+
+    if (!ini_browse(config_parser, save, config_path)) {
+        LOG_ERR("Settings", "Unable to parse utox_save.ini");
+        free(config_path);
+        return NULL;
+    }
+
+    free(config_path);
+
+    return save;
+}
+
+bool utox_save_config(UTOX_SAVE *config) {
+    char *config_path = get_filepath("utox_save.ini");
+
+    if (!config_path) {
+        LOG_ERR("Settings", "Unable to get utox_save.ini path");
+        return NULL;
+    }
+
+    // general
+    write_config_value_int(config_path, general_section, NAMEOF(config->save_version), config->save_version);
+    write_config_value_int(config_path, general_section, NAMEOF(config->utox_last_version), config->utox_last_version);
+    write_config_value_bool(config_path, general_section, NAMEOF(config->send_version), config->send_version);
+    write_config_value_bool(config_path, general_section, NAMEOF(config->update_to_develop), config->update_to_develop);
+
+    // interface
+    write_config_value_int(config_path, interface_section, NAMEOF(config->language), config->language);
+    write_config_value_int(config_path, interface_section, NAMEOF(config->window_x), config->window_x);
+    write_config_value_int(config_path, interface_section, NAMEOF(config->window_y), config->window_y);
+    write_config_value_int(config_path, interface_section, NAMEOF(config->window_width), config->window_width);
+    write_config_value_int(config_path, interface_section, NAMEOF(config->window_height), config->window_height);
+    write_config_value_int(config_path, interface_section, NAMEOF(config->theme), config->theme);
+    write_config_value_int(config_path, interface_section, NAMEOF(config->scale), config->scale);
+    write_config_value_bool(config_path, interface_section, NAMEOF(config->logging_enabled), config->logging_enabled);
+    write_config_value_bool(config_path, interface_section, NAMEOF(config->close_to_tray), config->close_to_tray);
+    write_config_value_bool(config_path, interface_section, NAMEOF(config->start_in_tray), config->start_in_tray);
+    write_config_value_bool(config_path, interface_section, NAMEOF(config->auto_startup), config->auto_startup);
+    write_config_value_bool(config_path, interface_section, NAMEOF(config->use_mini_flist), config->use_mini_flist);
+    write_config_value_bool(config_path, interface_section, NAMEOF(config->filter), config->filter);
+    write_config_value_bool(config_path, interface_section, NAMEOF(config->magic_flist_enabled), config->magic_flist_enabled);
+
+    // av
+    write_config_value_bool(config_path, av_section, NAMEOF(config->push_to_talk), config->push_to_talk);
+    write_config_value_bool(config_path, av_section, NAMEOF(config->audio_filtering_enabled), config->audio_filtering_enabled);
+    write_config_value_int(config_path, av_section, NAMEOF(config->audio_device_in), config->audio_device_in);
+    write_config_value_int(config_path, av_section, NAMEOF(config->audio_device_out), config->audio_device_out);
+    write_config_value_int(config_path, av_section, NAMEOF(config->video_fps), config->video_fps);
+    // TODO: video_input_device
+
+    // notifications
+    write_config_value_bool(config_path, notifications_section, NAMEOF(config->audible_notifications_enabled), config->audible_notifications_enabled);
+    write_config_value_bool(config_path, notifications_section, NAMEOF(config->status_notifications), config->status_notifications);
+    write_config_value_bool(config_path, notifications_section, NAMEOF(config->no_typing_notifications), config->no_typing_notifications);
+    write_config_value_int(config_path, notifications_section, NAMEOF(config->group_notifications), config->group_notifications);
+
+    // advanced
+    write_config_value_bool(config_path, advanced_section, NAMEOF(config->enableipv6), config->enableipv6);
+    write_config_value_bool(config_path, advanced_section, NAMEOF(config->disableudp), config->disableudp);
+    write_config_value_bool(config_path, advanced_section, NAMEOF(config->proxyenable), config->proxyenable);
+    write_config_value_int(config_path, advanced_section, NAMEOF(config->proxy_port), config->proxy_port);
+    write_config_value_str(config_path, advanced_section, NAMEOF(config->proxy_ip), (const char *)config->proxy_ip);
+    write_config_value_bool(config_path, advanced_section, NAMEOF(config->force_proxy), config->force_proxy);
+    write_config_value_bool(config_path, advanced_section, NAMEOF(config->auto_update), config->auto_update);
+    // TODO: block_friend_requests
+
+    free(config_path);
+
+    return true;
+}
+
 // TODO refactor to match same order in main.h
 UTOX_SAVE *config_load(void) {
-    UTOX_SAVE *save;
-    save = utox_data_load_utox();
+    UTOX_SAVE *save = utox_load_config();
+
+    // TODO: Remove this in ~0.18.0 release
+    if(!save) {
+        LOG_NOTE("Settings", "New utox_save.ini not found. Trying old utox_save.");
+        save = utox_data_load_utox();
+    }
 
     if (!save) {
         LOG_ERR("Settings", "unable to load utox_save data");
@@ -303,11 +501,15 @@ void config_save(UTOX_SAVE *save_in) {
     memcpy(save->proxy_ip, proxy_address, proxy_address_size);
 
     LOG_NOTE("uTox", "Writing uTox Save" );
+    utox_save_config(save);
+
+    // TODO: Remove this in ~0.18.0 release
     utox_data_save_utox(save, sizeof(UTOX_SAVE) + proxy_address_size);
+
     free(save);
 }
 
-
+// TODO: Remove this in ~0.18.0 release
 bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
     FILE *fp = utox_get_file("utox_save", NULL, UTOX_FILE_OPTS_WRITE);
 
@@ -328,6 +530,7 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
     return true;
 }
 
+// TODO: Remove this in ~0.18.0 release
 UTOX_SAVE *utox_data_load_utox(void) {
     size_t size = 0;
     FILE *fp = utox_get_file("utox_save", &size, UTOX_FILE_OPTS_READ);
