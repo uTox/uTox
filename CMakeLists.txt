@@ -361,6 +361,7 @@ add_executable(utox ${GUI_TYPE}
     src/updater.c
     src/utox.c
     src/window.c
+    minIni/dev/minIni.c
 
     ${WINDOWS_ICON}
     ${APPLE_FILES}
