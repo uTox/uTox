@@ -62,4 +62,6 @@ bool native_create_dir(const uint8_t *filepath);
  */
 void *file_raw(char *path, uint32_t *size);
 
+char *get_filepath(const char *name);
+
 #endif

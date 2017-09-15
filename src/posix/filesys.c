@@ -11,6 +11,25 @@
 #include <string.h>
 #include <sys/stat.h>
 
+char *native_get_filepath(const char *name, bool portable_mode) {
+    uint8_t *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+
+    if (portable_mode) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+    if (strlen((char *)path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
+        LOG_ERR("Filesys", "Load directory name too long" );
+        return NULL;
+    }
+
+    snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "%s", name);
+
+    return path;
+}
+
 bool native_create_dir(const uint8_t *filepath) {
     const int status = mkdir((char *)filepath, S_IRWXU);
     if (status == 0 || errno == EEXIST) {
