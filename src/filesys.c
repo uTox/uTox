@@ -60,3 +60,7 @@ void *file_raw(char *path, uint32_t *size) {
 
     return data;
 }
+
+char *get_filepath(const char *name) {
+    return native_get_filepath(name, settings.portable_mode);
+}
