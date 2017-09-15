@@ -117,13 +117,13 @@ UTOX_SAVE *config_load(void) {
             LOG_FATAL_ERR(EXIT_MALLOC, "Settings", "Unable to malloc for default settings.");
         }
 
-        save->enableipv6  = 1;
-        save->disableudp  = 0;
-        save->proxyenable = 0;
-        save->force_proxy = 0;
+        save->enableipv6  = true;
+        save->disableudp  = false;
+        save->proxyenable = false;
+        save->force_proxy = false;
 
-        save->audio_filtering_enabled       = 1;
-        save->audible_notifications_enabled = 1;
+        save->audio_filtering_enabled       = true;
+        save->audible_notifications_enabled = true;
     }
 
     if (save->scale > 30) {
