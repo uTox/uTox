@@ -21,8 +21,21 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(key, n) == 0
+#define BOOL_TO_STR(b) b ? "true" : "false"
+#define STR_TO_BOOL(s) strcmp(s, "true") == 0 ? true : false
+#define NAMEOF(s) strchr((const char *)(#s), '>') == NULL ? #s : (strchr((const char *)(#s), '>') + 1)
+
 uint16_t loaded_audio_out_device = 0;
 uint16_t loaded_audio_in_device  = 0;
+
+const uint16_t proxy_address_size = 256; // Magic number inside Toxcore.
+
+const char *general_section = "general";
+const char *interface_section = "interface";
+const char *av_section = "av";
+const char *notifications_section = "notifications";
+const char *advanced_section = "advanced";
 
 SETTINGS settings = {
     // .last_version                // included here to match the full struct
@@ -169,7 +182,7 @@ UTOX_SAVE *config_load(void) {
     settings.proxy_port  = save->proxy_port;
     settings.force_proxy = save->force_proxy;
 
-    if (strlen((char *)save->proxy_ip) <= 256){
+    if (strlen((char *)save->proxy_ip) <= proxy_address_size){
         strcpy((char *)proxy_address, (char *)save->proxy_ip);
     }
 
@@ -240,7 +253,6 @@ UTOX_SAVE *config_load(void) {
 
 // TODO refactor to match order in main.h
 void config_save(UTOX_SAVE *save_in) {
-    const uint16_t proxy_address_size = 256; // Magic number inside Toxcore.
     UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + proxy_address_size);
 
     /* Copy the data from the in data to protect the calloc */
