@@ -12,7 +12,7 @@
 #include <sys/stat.h>
 
 char *native_get_filepath(const char *name, bool portable_mode) {
-    uint8_t *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
 
     if (!path) {
         LOG_ERR("Filesys", "Unable to allocate memory for file path.");
@@ -20,18 +20,18 @@ char *native_get_filepath(const char *name, bool portable_mode) {
     }
 
     if (portable_mode) {
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    if (strlen((char *)path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
         LOG_ERR("Filesys", "Load directory name too long" );
         free(path);
         return NULL;
     }
 
-    snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "%s", name);
+    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
 
     return path;
 }
