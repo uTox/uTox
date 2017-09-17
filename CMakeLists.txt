@@ -262,18 +262,26 @@ if(ENABLE_AUTOUPDATE)
     add_cflag("-DENABLE_AUTOUPDATE=1")
 endif()
 
-find_package(libtox REQUIRED COMPONENTS
-    toxencryptsave
-    toxav
-    toxcore
-    toxgroup
-    toxmessenger
-    toxfriends
-    toxdht
-    toxnetcrypto
-    toxcrypto
-    toxnetwork
-)
+if(TOXCORE_STATIC)
+    find_package(libtox REQUIRED COMPONENTS
+        toxencryptsave
+        toxav
+        toxcore
+        toxgroup
+        toxmessenger
+        toxfriends
+        toxdht
+        toxnetcrypto
+        toxcrypto
+        toxnetwork
+    )
+else()
+    find_package(libtox REQUIRED COMPONENTS
+        toxencryptsave
+        toxav
+        toxcore
+    )
+endif()
 
 include_directories(${LIBTOX_INCLUDE_DIRS})
 
