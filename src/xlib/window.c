@@ -167,7 +167,7 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *pane
     if (!popup_window.window) {
         next = &popup_window;
     } else {
-        next = calloc(sizeof(UTOX_WINDOW), 1);
+        next = calloc(1, sizeof(UTOX_WINDOW));
         if (!next) {
             LOG_FATAL_ERR(EXIT_FAILURE, "XIB Wind", "Unable to allocate data for popup window.");
         }
