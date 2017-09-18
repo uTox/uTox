@@ -107,6 +107,8 @@ notifications:
   irc:
     channels:
       - "chat.freenode.net#utox"
+    use_notice: true
+    skip_join: true
     template:
       - "TRAVIS #%{build_number} %{result} %{repository_name} %{build_url}"
 
