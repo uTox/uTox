@@ -784,8 +784,13 @@ static bool pending_update(void) {
     return false;
 }
 
-static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd) {
-    *mutex = CreateMutex(NULL, 0, TITLE);
+static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd, const char *utox_path) {
+    char *mutex_name = strdup(utox_path);
+    sanitize_filename((uint8_t *)mutex_name);
+
+    *mutex = CreateMutex(NULL, false, mutex_name);
+
+    free(mutex_name);
 
     if (!mutex) {
         LOG_FATAL_ERR(-4, "Win Mutex", "Unable to create windows mutex.");
@@ -830,18 +835,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     parse_args(argc, argv, &skip_updater, &should_launch_at_startup, &set_show_window);
     GlobalFree(argv);
 
+    char path[MAX_PATH];
     if (settings.portable_mode == true) {
         /* force the working directory if opened with portable command */
         const HMODULE hModule = GetModuleHandle(NULL);
-        char          path[MAX_PATH];
-        const int     len = GetModuleFileName(hModule, path, MAX_PATH);
-        unsigned int i;
-        for (i = len - 1; path[i] != '\\'; --i) {
-            // Do nothing until we reach the folder separator.
-        }
-        path[i] = 0;
-        SetCurrentDirectory(path);
-        strcpy(portable_mode_save_path, path);
+        GetModuleFileName(hModule, path, MAX_PATH);
+
+        char *utox_folder = dirname(strdup(path));
+
+        SetCurrentDirectory(utox_folder);
+        strcpy(portable_mode_save_path, utox_folder);
+    } else {
+        GetModuleFileName(NULL, path, MAX_PATH);
     }
 
     // We call utox_init after parse_args()
@@ -859,7 +864,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     HANDLE utox_mutex;
-    win_init_mutex(&utox_mutex, hInstance, cmd);
+    win_init_mutex(&utox_mutex, hInstance, cmd, path);
 
     if (!skip_updater) {
         LOG_NOTE("WinMain", "Not skipping updater");
