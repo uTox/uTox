@@ -62,6 +62,12 @@ bool native_create_dir(const uint8_t *filepath);
  */
 void *file_raw(char *path, uint32_t *size);
 
+/**
+ * @brief Get full path of the file in the Tox profile folder.
+ *
+ * @param name name of the file.
+ * @return null-terminated string, or NULL on failure.
+ */
 char *get_filepath(const char *name);
 
 #endif
