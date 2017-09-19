@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-char *native_get_filepath(const char *name, bool portable_mode) {
+char *native_get_filepath(const char *name) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
 
     if (!path) {
@@ -18,7 +18,7 @@ char *native_get_filepath(const char *name, bool portable_mode) {
         return NULL;
     }
 
-    if (portable_mode) {
+    if (settings.portable_mode) {
         strcpy(path, portable_mode_save_path);
     } else {
         if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {

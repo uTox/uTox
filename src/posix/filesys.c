@@ -1,6 +1,7 @@
 #include "../filesys.h"
 
 #include "../debug.h"
+#include "../settings.h"
 
 #include "../native/filesys.h"
 
@@ -11,7 +12,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-char *native_get_filepath(const char *name, bool portable_mode) {
+char *native_get_filepath(const char *name) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
 
     if (!path) {
@@ -19,7 +20,7 @@ char *native_get_filepath(const char *name, bool portable_mode) {
         return NULL;
     }
 
-    if (portable_mode) {
+    if (settings.portable_mode) {
         snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
         snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));

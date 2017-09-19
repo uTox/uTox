@@ -62,5 +62,5 @@ void *file_raw(char *path, uint32_t *size) {
 }
 
 char *get_filepath(const char *name) {
-    return native_get_filepath(name, settings.portable_mode);
+    return native_get_filepath(name);
 }
