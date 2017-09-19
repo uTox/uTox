@@ -130,6 +130,15 @@ typedef struct utox_save {
     uint8_t  proxy_ip[];
 } UTOX_SAVE;
 
+typedef enum {
+    GENERAL_SECTION,
+    INTERFACE_SECTION,
+    AV_SECTION,
+    NOTIFICATIONS_SECTION,
+    ADVANCED_SECTION,
+    UNKNOWN_SECTION
+} CONFIG_SECTION;
+
 /*
  * Loads the config file and returns a settings struct
  */
