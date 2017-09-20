@@ -32,11 +32,23 @@ uint16_t loaded_audio_in_device  = 0;
 
 static const uint16_t proxy_address_size = 256; // Magic number inside Toxcore.
 
-static const char *general_section = "general";
-static const char *interface_section = "interface";
-static const char *av_section = "av";
+static const char *general_section       = "general";
+static const char *interface_section     = "interface";
+static const char *av_section            = "av";
 static const char *notifications_section = "notifications";
-static const char *advanced_section = "advanced";
+static const char *advanced_section      = "advanced";
+
+/**
+ * Config section names.
+ */
+typedef enum {
+    GENERAL_SECTION,
+    INTERFACE_SECTION,
+    AV_SECTION,
+    NOTIFICATIONS_SECTION,
+    ADVANCED_SECTION,
+    UNKNOWN_SECTION
+} CONFIG_SECTION;
 
 SETTINGS settings = {
     // .last_version                // included here to match the full struct
