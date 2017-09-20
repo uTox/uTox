@@ -30,7 +30,7 @@ char *native_get_filepath(const char *name) {
 
     snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "\\Tox\\");
 
-    if (strlen(path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
         LOG_ERR("WinFilesys", "Load directory name too long");
         free(path);
         return NULL;
