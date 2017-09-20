@@ -417,11 +417,11 @@ UTOX_SAVE *config_load(void) {
 
     dropdown_dpi.selected = dropdown_dpi.over = save->scale - 5;
 
-    switch_save_chat_history.switch_on  = save->logging_enabled;
-    switch_close_to_tray.switch_on      = save->close_to_tray;
-    switch_start_in_tray.switch_on      = save->start_in_tray;
-    switch_mini_contacts.switch_on      = save->use_mini_flist;
-    switch_magic_sidebar.switch_on      = save->magic_flist_enabled;
+    switch_save_chat_history.switch_on = save->logging_enabled;
+    switch_close_to_tray.switch_on     = save->close_to_tray;
+    switch_start_in_tray.switch_on     = save->start_in_tray;
+    switch_mini_contacts.switch_on     = save->use_mini_flist;
+    switch_magic_sidebar.switch_on     = save->magic_flist_enabled;
 
     switch_ipv6.switch_on             = save->enableipv6;
     switch_udp.switch_on              = !save->disableudp;
@@ -471,33 +471,33 @@ UTOX_SAVE *config_load(void) {
     }
 
     /* UX settings */
-    settings.logging_enabled        = save->logging_enabled;
-    settings.close_to_tray          = save->close_to_tray;
-    settings.start_in_tray          = save->start_in_tray;
-    settings.start_with_system      = save->auto_startup;
-    settings.use_mini_flist         = save->use_mini_flist;
-    settings.magic_flist_enabled    = save->magic_flist_enabled;
+    settings.logging_enabled      = save->logging_enabled;
+    settings.close_to_tray        = save->close_to_tray;
+    settings.start_in_tray        = save->start_in_tray;
+    settings.start_with_system    = save->auto_startup;
+    settings.use_mini_flist       = save->use_mini_flist;
+    settings.magic_flist_enabled  = save->magic_flist_enabled;
 
-    settings.ringtone_enabled       = save->audible_notifications_enabled;
-    settings.audiofilter_enabled    = save->audio_filtering_enabled;
+    settings.ringtone_enabled     = save->audible_notifications_enabled;
+    settings.audiofilter_enabled  = save->audio_filtering_enabled;
 
-    settings.send_typing_status     = !save->no_typing_notifications;
-    settings.status_notifications   = save->status_notifications;
+    settings.send_typing_status   = !save->no_typing_notifications;
+    settings.status_notifications = save->status_notifications;
 
-    settings.window_width           = save->window_width;
-    settings.window_height          = save->window_height;
+    settings.window_width         = save->window_width;
+    settings.window_height        = save->window_height;
 
-    settings.last_version           = save->utox_last_version;
+    settings.last_version         = save->utox_last_version;
 
-    loaded_audio_out_device         = save->audio_device_out;
-    loaded_audio_in_device          = save->audio_device_in;
+    loaded_audio_out_device       = save->audio_device_out;
+    loaded_audio_in_device        = save->audio_device_in;
 
-    settings.auto_update            = save->auto_update;
-    switch_auto_update.switch_on    = save->auto_update;
-    settings.update_to_develop      = save->update_to_develop;
-    settings.send_version           = save->send_version;
+    settings.auto_update          = save->auto_update;
+    switch_auto_update.switch_on  = save->auto_update;
+    settings.update_to_develop    = save->update_to_develop;
+    settings.send_version         = save->send_version;
 
-    settings.video_fps              = save->video_fps;
+    settings.video_fps            = save->video_fps;
 
     edit_video_fps.length =
         snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1, "%u", save->video_fps);
@@ -550,27 +550,27 @@ void config_save(UTOX_SAVE *save_in) {
 
     save->video_fps                     = (settings.video_fps == 0) ? 25 : settings.video_fps;
 
-    save->disableudp              = !settings.enable_udp;
-    save->enableipv6              = settings.enable_ipv6;
-    save->no_typing_notifications = !settings.send_typing_status;
+    save->disableudp                    = !settings.enable_udp;
+    save->enableipv6                    = settings.enable_ipv6;
+    save->no_typing_notifications       = !settings.send_typing_status;
 
-    save->filter      = flist_get_filter();
-    save->proxy_port  = settings.proxy_port;
-    save->force_proxy = settings.force_proxy;
+    save->filter                        = flist_get_filter();
+    save->proxy_port                    = settings.proxy_port;
+    save->force_proxy                   = settings.force_proxy;
 
-    save->audio_device_in  = dropdown_audio_in.selected;
-    save->audio_device_out = dropdown_audio_out.selected;
-    save->theme            = settings.theme;
+    save->audio_device_in               = dropdown_audio_in.selected;
+    save->audio_device_out              = dropdown_audio_out.selected;
+    save->theme                         = settings.theme;
 
-    save->utox_last_version    = settings.curr_version;
-    save->group_notifications  = settings.group_notifications;
-    save->status_notifications = settings.status_notifications;
+    save->utox_last_version             = settings.curr_version;
+    save->group_notifications           = settings.group_notifications;
+    save->status_notifications          = settings.status_notifications;
 
-    save->auto_update           = settings.auto_update;
-    save->update_to_develop     = settings.update_to_develop;
-    save->send_version          = settings.send_version;
+    save->auto_update                   = settings.auto_update;
+    save->update_to_develop             = settings.update_to_develop;
+    save->send_version                  = settings.send_version;
 
-    save->language = settings.language;
+    save->language                      = settings.language;
 
     memcpy(save->proxy_ip, proxy_address, proxy_address_size);
 
