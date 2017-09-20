@@ -22,13 +22,16 @@
 #include <string.h>
 #include <minIni.h>
 
-#define MATCH(s) (strcasecmp(key, s) == 0)
+#define MATCH(x, y) (strcasecmp(x, y) == 0)
 #define BOOL_TO_STR(b) b ? "true" : "false"
 #define STR_TO_BOOL(s) (strcasecmp(s, "true") == 0)
 #define NAMEOF(s) strchr((const char *)(#s), '>') == NULL ? #s : (strchr((const char *)(#s), '>') + 1)
 
 uint16_t loaded_audio_out_device = 0;
 uint16_t loaded_audio_in_device  = 0;
+
+static const char *config_file_name     = "utox_save.ini";
+static const char *config_file_name_old = "utox_save";
 
 static const uint16_t proxy_address_size = 256; // Magic number inside Toxcore.
 
@@ -117,127 +120,127 @@ SETTINGS settings = {
     .window_maximized     = 0,
 };
 
-void write_config_value_int(const char *filename, const char *section, const char *key, const long value) {
+static void write_config_value_int(const char *filename, const char *section, const char *key, const long value) {
     if (ini_putl(section, key, value, filename) != 1) {
         LOG_ERR("Settings", "Unable to save config value: %lu.", value);
     }
 }
 
-void write_config_value_str(const char *filename, const char *section, const char *key, const char *value) {
+static void write_config_value_str(const char *filename, const char *section, const char *key, const char *value) {
     if (ini_puts(section, key, value, filename) != 1) {
         LOG_ERR("Settings", "Unable to save config value: %s.", value);
     }
 }
 
-void write_config_value_bool(const char *filename, const char *section, const char *key, const bool value) {
+static void write_config_value_bool(const char *filename, const char *section, const char *key, const bool value) {
     if (ini_puts(section, key, BOOL_TO_STR(value), filename) != 1) {
         LOG_ERR("Settings", "Unable to save config value: %s.", value);
     }
 }
 
-static CONFIG_SECTION get_section(const char* key) {
-    if (MATCH(general_section)) {
+static CONFIG_SECTION get_section(const char* section) {
+    if (MATCH(general_section, section)) {
         return GENERAL_SECTION;
     }
-    if (MATCH(interface_section)) {
+    if (MATCH(interface_section, section)) {
         return INTERFACE_SECTION;
     }
-    if (MATCH(av_section)) {
+    if (MATCH(av_section, section)) {
         return AV_SECTION;
     }
-    if (MATCH(notifications_section)) {
+    if (MATCH(notifications_section, section)) {
         return NOTIFICATIONS_SECTION;
     }
-    if (MATCH(advanced_section)) {
+    if (MATCH(advanced_section, section)) {
         return ADVANCED_SECTION;
     }
     return UNKNOWN_SECTION;
 }
 
 static void parse_general_section(UTOX_SAVE *config, const char* key, const char* value) {
-    if (MATCH(NAMEOF(config->save_version))) {
+    if (MATCH(NAMEOF(config->save_version), key)) {
         config->save_version = atoi(value);
-    } else if (MATCH(NAMEOF(config->utox_last_version))) {
+    } else if (MATCH(NAMEOF(config->utox_last_version), key)) {
         config->utox_last_version = atoi(value);
-    } else if (MATCH(NAMEOF(config->send_version))) {
+    } else if (MATCH(NAMEOF(config->send_version), key)) {
         config->send_version = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->update_to_develop))) {
+    } else if (MATCH(NAMEOF(config->update_to_develop), key)) {
         config->update_to_develop = STR_TO_BOOL(value);
     }
 }
 
 static void parse_interface_section(UTOX_SAVE *config, const char* key, const char* value) {
-    if (MATCH(NAMEOF(config->language))) {
+    if (MATCH(NAMEOF(config->language), key)) {
         config->language = atoi(value);
-    } else if (MATCH(NAMEOF(config->window_x))) {
+    } else if (MATCH(NAMEOF(config->window_x), key)) {
         config->window_x = atoi(value);
-    } else if (MATCH(NAMEOF(config->window_y))) {
+    } else if (MATCH(NAMEOF(config->window_y), key)) {
         config->window_y = atoi(value);
-    } else if (MATCH(NAMEOF(config->window_width))) {
+    } else if (MATCH(NAMEOF(config->window_width), key)) {
         config->window_width = atoi(value);
-    } else if (MATCH(NAMEOF(config->window_height))) {
+    } else if (MATCH(NAMEOF(config->window_height), key)) {
         config->window_height = atoi(value);
-    } else if (MATCH(NAMEOF(config->theme))) {
+    } else if (MATCH(NAMEOF(config->theme), key)) {
         config->theme = atoi(value);
-    } else if (MATCH(NAMEOF(config->scale))) {
+    } else if (MATCH(NAMEOF(config->scale), key)) {
         config->scale = atoi(value);
-    } else if (MATCH(NAMEOF(config->logging_enabled))) {
+    } else if (MATCH(NAMEOF(config->logging_enabled), key)) {
         config->logging_enabled = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->close_to_tray))) {
+    } else if (MATCH(NAMEOF(config->close_to_tray), key)) {
         config->close_to_tray = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->start_in_tray))) {
+    } else if (MATCH(NAMEOF(config->start_in_tray), key)) {
         config->start_in_tray = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->auto_startup))) {
+    } else if (MATCH(NAMEOF(config->auto_startup), key)) {
         config->auto_startup = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->use_mini_flist))) {
+    } else if (MATCH(NAMEOF(config->use_mini_flist), key)) {
         config->use_mini_flist = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->filter))) {
+    } else if (MATCH(NAMEOF(config->filter), key)) {
         config->filter = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->magic_flist_enabled))) {
+    } else if (MATCH(NAMEOF(config->magic_flist_enabled), key)) {
         config->magic_flist_enabled = STR_TO_BOOL(value);
     }
 }
 
 static void parse_av_section(UTOX_SAVE *config, const char* key, const char* value) {
-    if (MATCH(NAMEOF(config->push_to_talk))) {
+    if (MATCH(NAMEOF(config->push_to_talk), key)) {
         config->push_to_talk = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->audio_filtering_enabled))) {
+    } else if (MATCH(NAMEOF(config->audio_filtering_enabled), key)) {
         config->audio_filtering_enabled = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->audio_device_in))) {
+    } else if (MATCH(NAMEOF(config->audio_device_in), key)) {
         config->audio_device_in = atoi(value);
-    } else if (MATCH(NAMEOF(config->audio_device_out))) {
+    } else if (MATCH(NAMEOF(config->audio_device_out), key)) {
         config->audio_device_out = atoi(value);
-    } else if (MATCH(NAMEOF(config->video_fps))) {
+    } else if (MATCH(NAMEOF(config->video_fps), key)) {
         config->video_fps = atoi(value);
     }
 }
 
 static void parse_notifications_section(UTOX_SAVE *config, const char* key, const char* value) {
-    if (MATCH(NAMEOF(config->audible_notifications_enabled))) {
+    if (MATCH(NAMEOF(config->audible_notifications_enabled), key)) {
         config->audible_notifications_enabled = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->status_notifications))) {
+    } else if (MATCH(NAMEOF(config->status_notifications), key)) {
         config->status_notifications = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->no_typing_notifications))) {
+    } else if (MATCH(NAMEOF(config->no_typing_notifications), key)) {
         config->no_typing_notifications = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->group_notifications))) {
+    } else if (MATCH(NAMEOF(config->group_notifications), key)) {
         config->group_notifications = atoi(value);
     }
 }
 
 static void parse_advanced_section(UTOX_SAVE *config, const char* key, const char* value) {
-    if (MATCH(NAMEOF(config->enableipv6))) {
+    if (MATCH(NAMEOF(config->enableipv6), key)) {
         config->enableipv6 = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->disableudp))) {
+    } else if (MATCH(NAMEOF(config->disableudp), key)) {
         config->disableudp = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->proxyenable))) {
+    } else if (MATCH(NAMEOF(config->proxyenable), key)) {
         config->proxyenable = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->proxy_port))) {
+    } else if (MATCH(NAMEOF(config->proxy_port), key)) {
         config->proxy_port = atoi(value);
-    } else if (MATCH(NAMEOF(config->proxy_ip))) {
+    } else if (MATCH(NAMEOF(config->proxy_ip), key)) {
         strcpy((char *)config->proxy_ip, value);
-    } else if (MATCH(NAMEOF(config->force_proxy))) {
+    } else if (MATCH(NAMEOF(config->force_proxy), key)) {
         config->force_proxy = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->auto_update))) {
+    } else if (MATCH(NAMEOF(config->auto_update), key)) {
         config->auto_update = STR_TO_BOOL(value);
     }
 }
@@ -275,7 +278,7 @@ static int config_parser(const char* section, const char* key, const char* value
     return 1;
 }
 
-UTOX_SAVE *utox_load_config(void) {
+static UTOX_SAVE *utox_load_config(void) {
     UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + proxy_address_size + 1);
 
     if (!save) {
@@ -283,16 +286,16 @@ UTOX_SAVE *utox_load_config(void) {
         return NULL;
     }
 
-    char *config_path = get_filepath("utox_save.ini");
+    char *config_path = get_filepath(config_file_name);
 
     if (!config_path) {
-        LOG_ERR("Settings", "Unable to get utox_save.ini path.");
+        LOG_ERR("Settings", "Unable to get %s path.", config_file_name);
         free(save);
         return NULL;
     }
 
     if (!ini_browse(config_parser, save, config_path)) {
-        LOG_ERR("Settings", "Unable to parse utox_save.ini.");
+        LOG_ERR("Settings", "Unable to parse %s.", config_file_name);
         free(config_path);
         free(save);
         return NULL;
@@ -303,11 +306,11 @@ UTOX_SAVE *utox_load_config(void) {
     return save;
 }
 
-bool utox_save_config(UTOX_SAVE *config) {
-    char *config_path = get_filepath("utox_save.ini");
+static bool utox_save_config(UTOX_SAVE *config) {
+    char *config_path = get_filepath(config_file_name);
 
     if (!config_path) {
-        LOG_ERR("Settings", "Unable to get utox_save.ini path.");
+        LOG_ERR("Settings", "Unable to get %s path.", config_file_name);
         return false;
     }
 
@@ -386,7 +389,7 @@ UTOX_SAVE *config_load(void) {
 
     // TODO: Remove this in ~0.18.0 release
     if (!save) {
-        LOG_NOTE("Settings", "Unable to load uTox settings from new utox_save.ini. Trying old utox_save.");
+        LOG_NOTE("Settings", "Unable to load uTox settings from %s. Trying old %s.", config_file_name, config_file_name_old);
         save = utox_data_load_utox();
     }
 
@@ -577,52 +580,28 @@ void config_save(UTOX_SAVE *save_in) {
         LOG_ERR("uTox", "Unable to save uTox settings.");
     }
 
-    // TODO: Remove this in ~0.18.0 release
-    utox_data_save_utox(save, sizeof(UTOX_SAVE) + proxy_address_size);
-
     free(save);
-}
-
-// TODO: Remove this in ~0.18.0 release
-bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
-    FILE *fp = utox_get_file("utox_save", NULL, UTOX_FILE_OPTS_WRITE);
-
-    if (!fp) {
-        LOG_ERR("Settings", "Unable to open file for uTox settings.");
-        return false;
-    }
-
-    if (fwrite(data, size, 1, fp) != 1) {
-        LOG_ERR("Settings", "Unable to write uTox settings to file.");
-        fclose(fp);
-        return false;
-    }
-
-    flush_file(fp);
-    fclose(fp);
-
-    return true;
 }
 
 // TODO: Remove this in ~0.18.0 release
 UTOX_SAVE *utox_data_load_utox(void) {
     size_t size = 0;
-    FILE *fp = utox_get_file("utox_save", &size, UTOX_FILE_OPTS_READ);
+    FILE *fp = utox_get_file(config_file_name_old, &size, UTOX_FILE_OPTS_READ);
 
     if (!fp) {
-        LOG_ERR("Settings", "Unable to open utox_save.");
+        LOG_ERR("Settings", "Unable to open %s.", config_file_name_old);
         return NULL;
     }
 
     UTOX_SAVE *save = calloc(1, size + 1);
     if (!save) {
-        LOG_ERR("Settings", "Unable to malloc for utox_save.");
+        LOG_ERR("Settings", "Unable to malloc for %s.", config_file_name_old);
         fclose(fp);
         return NULL;
     }
 
     if (fread(save, size, 1, fp) != 1) {
-        LOG_ERR("Settings", "Could not read save file");
+        LOG_ERR("Settings", "Could not read save file %s", config_file_name_old);
         fclose(fp);
         free(save);
         return NULL;
