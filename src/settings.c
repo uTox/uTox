@@ -1,5 +1,4 @@
 #include "settings.h"
-#include "../minIni/dev/minIni.h"
 
 #include "debug.h"
 #include "flist.h"
@@ -21,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <minIni.h>
 
 #define MATCH(s) (strcasecmp(key, s) == 0)
 #define BOOL_TO_STR(b) b ? "true" : "false"
