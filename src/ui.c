@@ -92,10 +92,10 @@ bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
 static void sidepanel_USERBADGE(void) {
     // Converting DEFINES to magic becaues this will be moved to layout/
     // and will then get a different format/selection
-    CREATE_BUTTON(avatar,     10, SIDEBAR_AVATAR_TOP, 40, 40);
-    CREATE_BUTTON(name,       64, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - 2);
-    CREATE_BUTTON(status_msg, 64, SIDEBAR_STATUSMSG_TOP, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_HEIGHT - 2);
-    CREATE_BUTTON(usr_state,  210, 10, 20, 40);
+    CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, 40, 40);
+    CREATE_BUTTON(name, SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - 2);
+    CREATE_BUTTON(status_msg, SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_TOP, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_HEIGHT - 2);
+    CREATE_BUTTON(usr_state, 200, 10, 25, 45);
 }
 
 static void sidepanel_FLIST(void) {
