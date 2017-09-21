@@ -44,6 +44,10 @@
  * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
  */
 
+static int get_time_width() {
+    return SCALE(settings.use_long_time_msg ? TIME_WIDTH_LONG : TIME_WIDTH);
+}
+
 static int msgheight(MSG_HEADER *msg, int width) {
     switch (msg->msg_type) {
         case MSG_TYPE_NULL: {
@@ -55,13 +59,13 @@ static int msgheight(MSG_HEADER *msg, int width) {
         case MSG_TYPE_ACTION_TEXT:
         case MSG_TYPE_NOTICE:
         case MSG_TYPE_NOTICE_DAY_CHANGE: {
-            int  theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight,
+            int  theight = text_height(abs(width - MESSAGES_X - get_time_width()), font_small_lineheight,
                                        msg->via.txt.msg, msg->via.txt.length);
             return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
         }
 
         case MSG_TYPE_IMAGE: {
-            uint32_t maxwidth = width - MESSAGES_X - TIME_WIDTH;
+            uint32_t maxwidth = width - MESSAGES_X - get_time_width();
             if (msg->via.img.zoom || msg->via.img.w <= maxwidth) {
                 return msg->via.img.h + MESSAGES_SPACING;
             }
@@ -83,7 +87,7 @@ static int msgheight_group(MSG_HEADER *msg, int width) {
         case MSG_TYPE_ACTION_TEXT:
         case MSG_TYPE_NOTICE:
         case MSG_TYPE_NOTICE_DAY_CHANGE: {
-            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight,
+            int theight = text_height(abs(width - MESSAGES_X - get_time_width()), font_small_lineheight,
                                       msg->via.grp.msg, msg->via.grp.length);
             return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
         }
@@ -747,7 +751,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
     // Used in macros.
     int room_for_clip = BM_FT_CAP_WIDTH + SCALE(2);
     int dx            = x + MESSAGES_X + room_for_clip;
-    int d_width       = w - MESSAGES_X - TIME_WIDTH - room_for_clip;
+    int d_width       = w - MESSAGES_X - get_time_width() - room_for_clip;
     /* Mouse Positions */
     bool mo             = (m->cursor_over_msg == i);
     bool mouse_over     = (mo && m->cursor_over_position) ? 1 : 0;
@@ -940,7 +944,7 @@ static int messages_draw_group(MESSAGES *m, MSG_HEADER *msg, uint32_t curr_msg_i
     messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->via.grp.author, msg->via.grp.author_length, msg->via.grp.author_color);
     messages_draw_timestamp(x + width, y, &msg->time);
     return messages_draw_text(msg->via.grp.msg, msg->via.grp.length, msg->height, msg->msg_type, msg->our_msg, 1,
-                              h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height)
+                              h1, h2, x + MESSAGES_X, y, width - get_time_width() - MESSAGES_X, height)
            + MESSAGES_SPACING;
 }
 
@@ -983,7 +987,7 @@ static int messages_time_change(MESSAGES *m, MSG_HEADER *msg, size_t index, int 
 
     return messages_draw_text(msg->via.notice.msg, msg->via.notice.length, msg->height,
                               msg->msg_type, msg->our_msg, msg->receipt_time,
-                              h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
+                              h1, h2, x + MESSAGES_X, y, width - get_time_width() - MESSAGES_X, height);
 }
 
 /** Formats all messages from self and friends, and then call draw functions
@@ -992,7 +996,7 @@ static int messages_time_change(MESSAGES *m, MSG_HEADER *msg, size_t index, int 
  * accepts: messages struct *pointer, int x,y positions, int width,height
  */
 void messages_draw(PANEL *panel, int x, int y, int width, int height) {
-    if (width - MESSAGES_X - TIME_WIDTH <= 0) {
+    if (width - MESSAGES_X - get_time_width() <= 0) {
         return;
     }
 
@@ -1008,7 +1012,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
     if (m->width != width) {
         m->width = width;
-        messages_updateheight(m, width - MESSAGES_X + TIME_WIDTH);
+        messages_updateheight(m, width - MESSAGES_X + get_time_width());
         y -= scroll_gety(panel->content_scroll, height);
     }
 
@@ -1103,7 +1107,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
             // Draw image
             case MSG_TYPE_IMAGE: {
-                y += messages_draw_image(&msg->via.img, x + MESSAGES_X, y, width - MESSAGES_X - TIME_WIDTH);
+                y += messages_draw_image(&msg->via.img, x + MESSAGES_X, y, width - MESSAGES_X - get_time_width());
                 break;
             }
 
@@ -1125,7 +1129,7 @@ static bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, 
                                 uint16_t msg_length)
 {
     cursor                  = CURSOR_TEXT;
-    m->cursor_over_position = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, (my < 0 ? 0 : my),
+    m->cursor_over_position = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - get_time_width(), (my < 0 ? 0 : my),
                                                msg_height, font_small_lineheight, message, msg_length, 1);
 
     if (my < 0 || my >= dy || mx < MESSAGES_X || m->cursor_over_position == msg_length) {
@@ -1194,9 +1198,9 @@ static bool messages_mmove_image(MSG_IMG *image, uint32_t max_width, int mx, int
 static uint8_t messages_mmove_filetransfer(int mx, int my, int width) {
     mx -= SCALE(10); /* Why? */
     if (mx >= 0 && mx < width && my >= 0 && my < FILE_TRANSFER_BOX_HEIGHT) {
-        if (mx >= width - TIME_WIDTH - (BM_FTB_WIDTH * 2) - SCALE(2) - SCROLL_WIDTH
-            && mx <= width - TIME_WIDTH - SCROLL_WIDTH) {
-            if (mx >= width - TIME_WIDTH - BM_FTB_WIDTH - SCROLL_WIDTH) {
+        if (mx >= width - get_time_width() - (BM_FTB_WIDTH * 2) - SCALE(2) - SCROLL_WIDTH
+            && mx <= width - get_time_width() - SCROLL_WIDTH) {
+            if (mx >= width - get_time_width() - BM_FTB_WIDTH - SCROLL_WIDTH) {
                 // mouse is over the right button (pause / accept)
                 return 2;
             } else {
@@ -1214,14 +1218,14 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
 {
     MESSAGES *m = panel->object;
 
-    if (mx >= width - TIME_WIDTH) {
+    if (mx >= width - get_time_width()) {
         m->cursor_over_time = 1;
     } else {
         m->cursor_over_time = 0;
     }
 
     if (m->cursor_down_msg < m->number) {
-        uint32_t maxwidth = width - MESSAGES_X - TIME_WIDTH;
+        uint32_t maxwidth = width - MESSAGES_X - get_time_width();
         MSG_HEADER *msg = m->data[m->cursor_down_msg];
         if ((msg->msg_type == MSG_TYPE_IMAGE) && (msg->via.img.w > maxwidth)) {
             msg->via.img.position -= (double)dx / (double)(msg->via.img.w - maxwidth);
@@ -1284,7 +1288,7 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
                 }
 
                 case MSG_TYPE_IMAGE: {
-                    m->cursor_over_position = messages_mmove_image(&msg->via.img, (width - MESSAGES_X - TIME_WIDTH), mx, my);
+                    m->cursor_over_position = messages_mmove_image(&msg->via.img, (width - MESSAGES_X - get_time_width()), mx, my);
                     break;
                 }
 

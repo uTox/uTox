@@ -197,7 +197,7 @@ double ui_scale;
 #define MESSAGES_SPACING 4
 #define MESSAGES_X 110
 #define TIME_WIDTH 45
-#define ACTUAL_TIME_WIDTH 32
+#define TIME_WIDTH_LONG 60
 #define NAME_OFFSET 14
 
 #endif
