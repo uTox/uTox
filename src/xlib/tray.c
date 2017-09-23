@@ -14,7 +14,7 @@
 
 // Converted to a binary and linked at build time
 extern uint8_t _binary_icons_utox_128x128_png_start;
-extern size_t  _binary_icons_utox_128x128_png_size;
+extern uint8_t _binary_icons_utox_128x128_png_end;
 
 static void send_message(Display *dpy, /* display */
                   Window w, /* sender (tray window) */
@@ -92,7 +92,7 @@ static void draw_tray_icon(void) {
 
     uint16_t width, height;
     uint8_t *icon_data = &_binary_icons_utox_128x128_png_start;
-    size_t   icon_size = _binary_icons_utox_128x128_png_size;
+    size_t   icon_size = &_binary_icons_utox_128x128_png_end - &_binary_icons_utox_128x128_png_start;
 
     NATIVE_IMAGE *icon = utox_image_to_native(icon_data, icon_size, &width, &height, 0);
     if (NATIVE_IMAGE_IS_VALID(icon)) {
