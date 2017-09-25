@@ -22,7 +22,7 @@ typedef enum {
     LANG_RO,
     LANG_RU,
     LANG_TR, // 15
-    LANG_UA,
+    LANG_UK,
     LANG_CN,
     LANG_TW,
     LANG_CS,

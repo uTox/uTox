@@ -141,7 +141,7 @@ LANG_WINDOWS_ID(0x041F)
 #undef _LANG_ID
 
 //"UKRAINIAN" "Українська"
-#define _LANG_ID LANG_UA
+#define _LANG_ID LANG_UK
 LANG_POSIX_LOCALE("uk_UA")
 LANG_WINDOWS_ID(0x0422)
 #include "../langs/en.h" //fallback to English for untranslated things
