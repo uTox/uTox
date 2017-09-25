@@ -39,11 +39,13 @@
 #include <locale.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 
 bool hidden = false;
 
 XIC xic = NULL;
 static XSizeHints *xsh = NULL;
+static bool shutdown = false;
 
 void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, main_window.window, CurrentTime);
@@ -671,6 +673,12 @@ static void cursors_init(void) {
     cursors[CURSOR_ZOOM_OUT] = XCreateFontCursor(display, XC_target);
 }
 
+static void signal_handler(int signal)
+{
+    LOG_INFO("XLIB MAIN", "Got signal: %s (%i)", strsignal(signal), signal);
+    shutdown = true;
+}
+
 #include "../ui/dropdown.h" // this is for dropdown.language TODO provide API
 int main(int argc, char *argv[]) {
     if (!XInitThreads()) {
@@ -731,6 +739,14 @@ int main(int argc, char *argv[]) {
 
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, main_window.window, &wm_delete_window, 1);
+
+    struct sigaction action;
+    action.sa_handler = &signal_handler;
+
+    /* catch terminating signals */
+    sigaction(SIGINT, &action, NULL);
+    sigaction(SIGHUP, &action, NULL);
+    sigaction(SIGTERM, &action, NULL);
 
     /* set drag and drog version */
     Atom dndversion = 3;
@@ -815,7 +831,7 @@ int main(int argc, char *argv[]) {
     thread(toxcore_thread, NULL);
 
     /* event loop */
-    while (true) {
+    while (!shutdown) {
         XEvent event;
         XNextEvent(display, &event);
         if (!doevent(event)) {
