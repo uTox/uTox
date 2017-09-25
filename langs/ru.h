@@ -204,10 +204,13 @@ msgid(CALL_RINGING)
 msgstr("Исходящий вызов")
 
 msgid(CALL_STARTED)
-msgstr("Разговор начат")
+msgstr("Идёт вызов")
+
+msgid(CALL_ENDED)
+msgstr("Вызов завершён")
 
 msgid(CALL_FRIEND_HAD_ENDED_CALL)
-msgstr(" завершил разговор!")
+msgstr(" завершил вызов!")
 
 msgid(CALL_VIDEO_SHOW_INLINE)
 msgstr("Показывать видео встроенным")
@@ -390,13 +393,19 @@ msgid(STATUS)
 msgstr("Статус")
 
 msgid(STATUS_ONLINE)
-msgstr("На связи")
+msgstr("в сети")
 
 msgid(STATUS_AWAY)
-msgstr("Отсутствую")
+msgstr("не на месте")
 
 msgid(STATUS_BUSY)
-msgstr("Занят(а)")
+msgstr("занят(а)")
+
+msgid(STATUS_OFFLINE)
+msgstr("не в сети")
+
+msgid(STATUS_MESSAGE)
+msgstr("uTox %.*s теперь %s.")
 
 msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Компактный список контактов")
