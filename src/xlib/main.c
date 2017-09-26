@@ -13,6 +13,7 @@
 #include "../friend.h"
 #include "../macros.h"
 #include "../main.h" // MAIN_WIDTH, MAIN_WIDTH, DEFAULT_SCALE, parse_args, utox_init
+#include "../self.h"
 #include "../settings.h"
 #include "../stb.h"
 #include "../text.h"
@@ -40,12 +41,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <time.h>
+#include <X11/Xlib.h>
+#include <X11/extensions/scrnsaver.h>
 
 bool hidden = false;
+XIC xic     = NULL;
 
-XIC xic = NULL;
 static XSizeHints *xsh = NULL;
-static bool shutdown = false;
+static bool shutdown   = false;
+static bool idle       = false;
 
 void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, main_window.window, CurrentTime);
@@ -678,10 +683,86 @@ static void cursors_init(void) {
     cursors[CURSOR_ZOOM_OUT] = XCreateFontCursor(display, XC_target);
 }
 
-static void signal_handler(int signal)
-{
+static void signal_handler(int signal) {
     LOG_INFO("XLIB MAIN", "Got signal: %s (%i)", strsignal(signal), signal);
     shutdown = true;
+}
+
+static void idle_handler() {
+    if (!settings.idle_status) {
+        return;
+    }
+
+    int32_t x11event = 0, x11error = 0;
+    if (!XScreenSaverQueryExtension(display, &x11event, &x11error)) {
+        LOG_WARN("XLIB MAIN", "XScreenSaverQueryExtension not found.");
+        return;
+    }
+
+    XScreenSaverInfo *mit_info = XScreenSaverAllocInfo();
+    if (!mit_info) {
+        LOG_ERR("XLIB MAIN", "Could not allocate memory for XScreenSaverInfo.");
+        return;
+    }
+
+    if (!XScreenSaverQueryInfo(display, root_window, mit_info)) {
+        LOG_ERR("XLIB MAIN", "Could not get last user activity.");
+        XFree(mit_info);
+        return;
+    }
+
+    int idle_time = mit_info->idle;
+
+    XFree(mit_info);
+
+    if (idle_time > settings.idle_interval * 1000) {
+        if (!idle && self.status == TOX_USER_STATUS_NONE) {
+            LOG_NOTE("XLIB MAIN", "Changing status to away.");
+
+            self.status = TOX_USER_STATUS_AWAY;
+            postmessage_toxcore(TOX_SELF_SET_STATE, self.status, 0, NULL);
+            redraw();
+        }
+
+        idle = true;
+    } else {
+        if (idle && self.status == TOX_USER_STATUS_AWAY) {
+            LOG_NOTE("XLIB MAIN", "Changing status to online.");
+
+            self.status = TOX_USER_STATUS_NONE;
+            postmessage_toxcore(TOX_SELF_SET_STATE, self.status, 0, NULL);
+            redraw();
+        }
+
+        idle = false;
+    }
+}
+
+
+static bool XNextEventTimed(XEvent *event_return, struct timeval *tv) {
+    if (tv == NULL) {
+        XNextEvent(display, event_return);
+        return true;
+    }
+
+    if (XPending(display) == 0) {
+        int fd = ConnectionNumber(display);
+        fd_set readset;
+        FD_ZERO(&readset);
+        FD_SET(fd, &readset);
+
+        if (select(fd + 1, &readset, NULL, NULL, tv) == 0) {
+            tv->tv_sec = idle_check_period;
+            tv->tv_usec = 0;
+            return false;
+        } else {
+            XNextEvent(display, event_return);
+            return true;
+        }
+    } else {
+        XNextEvent(display, event_return);
+        return true;
+    }
 }
 
 #include "../ui/dropdown.h" // this is for dropdown.language TODO provide API
@@ -835,12 +916,19 @@ int main(int argc, char *argv[]) {
     // start toxcore thread
     thread(toxcore_thread, NULL);
 
+    struct timeval tv;
+    tv.tv_sec = idle_check_period;
+    tv->tv_usec = 0;
+
     /* event loop */
     while (!shutdown) {
         XEvent event;
-        XNextEvent(display, &event);
-        if (!doevent(event)) {
-            break;
+        if (XNextEventTimed(&event, &tv)) {
+            if (!doevent(event)) {
+                break;
+            }
+        } else {
+            idle_handler();
         }
 
         if (XPending(display)) {
