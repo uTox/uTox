@@ -298,6 +298,11 @@ find_package(libsodium REQUIRED)
 include_directories(${LIBSODIUM_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBSODIUM_LIBRARIES})
 
+if(UNIX AND NOT APPLE)
+    include_directories(${X11_INCLUDE_DIR})
+    set(LIBRARIES Xss)
+endif()
+
 include_directories(SYSTEM third-party/stb)
 
 # Protip, you must use a different directory for each build target...
