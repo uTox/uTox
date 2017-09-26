@@ -14,6 +14,11 @@ typedef struct utox_save UTOX_SAVE;
 
 extern uint16_t loaded_audio_in_device, loaded_audio_out_device;
 
+/**
+ * Period (in seconds) for check is user idle or not.
+ */
+static const uint16_t idle_check_period = 1;
+
 typedef struct utox_settings {
     // uTox versions settings
     uint32_t last_version;
@@ -58,6 +63,9 @@ typedef struct utox_settings {
     bool start_with_system;
     bool use_mini_flist;
     bool magic_flist_enabled;
+
+    bool idle_status;
+    uint16_t idle_interval;
 
     // Notifications / Alerts
     bool    ringtone_enabled;
