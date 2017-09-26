@@ -102,6 +102,10 @@ SETTINGS settings = {
     .use_mini_flist         = false,
     .magic_flist_enabled    = false,
 
+    // TODO: Add to save
+    .idle_status            = true,
+    .idle_interval          = 10 * 60, // 10 minutes
+
     .video_fps              = 25,
 
     // Notifications / Alerts
