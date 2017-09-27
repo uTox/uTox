@@ -715,7 +715,7 @@ static void idle_handler() {
 
     XFree(mit_info);
 
-    if (idle_time > settings.idle_interval * 1000) {
+    if (idle_time > settings.idle_interval * 1000 * 60) {
         if (!idle && self.status == TOX_USER_STATUS_NONE) {
             LOG_NOTE("XLIB MAIN", "Changing status to away.");
 
