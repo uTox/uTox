@@ -819,7 +819,7 @@ static void CALLBACK idle_handler(HWND UNUSED(hwnd), UINT UNUSED(message), UINT 
 
     GetLastInputInfo(&last_active);
 
-    if (dwTime - last_active.dwTime > settings.idle_interval * 1000) {
+    if (dwTime - last_active.dwTime > settings.idle_interval * 1000 * 60) {
         if (!idle && self.status == TOX_USER_STATUS_NONE) {
             LOG_NOTE("WinMain", "Changing status to away.");
 
