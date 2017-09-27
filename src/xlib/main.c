@@ -913,7 +913,7 @@ int main(int argc, char *argv[]) {
 
     struct timeval tv;
     tv.tv_sec = idle_check_period;
-    tv->tv_usec = 0;
+    tv.tv_usec = 0;
 
     /* event loop */
     while (!shutdown) {
