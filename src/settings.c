@@ -103,8 +103,8 @@ SETTINGS settings = {
     .magic_flist_enabled    = false,
 
     // TODO: Add to save
-    .idle_status            = true,
-    .idle_interval          = 10 * 60, // 10 minutes
+    .idle_status            = false,
+    .idle_interval          = 10,
 
     .video_fps              = 25,
 
@@ -429,6 +429,13 @@ UTOX_SAVE *config_load(void) {
     switch_start_in_tray.switch_on     = save->start_in_tray;
     switch_mini_contacts.switch_on     = save->use_mini_flist;
     switch_magic_sidebar.switch_on     = save->magic_flist_enabled;
+
+    switch_idle_status.switch_on = settings.idle_status;
+    edit_idle_interval.length =
+        snprintf((char *)edit_idle_interval.data, edit_idle_interval.maxlength + 1, "%u", settings.idle_interval);
+    if (edit_idle_interval.length > edit_idle_interval.maxlength) {
+        edit_idle_interval.length = edit_idle_interval.maxlength;
+    }
 
     switch_ipv6.switch_on             = save->enableipv6;
     switch_udp.switch_on              = !save->disableudp;
