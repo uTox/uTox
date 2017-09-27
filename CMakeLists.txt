@@ -283,7 +283,7 @@ set(LIBRARIES ${LIBRARIES} ${LIBVPX_LIBRARIES})
 
 if(UNIX AND NOT APPLE)
     include_directories(${X11_INCLUDE_DIR})
-    set(LIBRARIES Xss)
+    set(LIBRARIES ${LIBRARIES} Xss)
 endif()
 
 include_directories(SYSTEM third-party/stb)
