@@ -149,7 +149,7 @@ static void settings_UI(void) {
 static void settings_AV(void) {
     panel_settings_av.y = 32;
 
-    CREATE_SWITCH(push_to_talk, 10, 9, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(push_to_talk, 10, 10, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
 
     #ifndef AUDIO_FILTERING
         const uint16_t start_draw_y = 30;
@@ -195,11 +195,15 @@ static void settings_ADV(void) {
     CREATE_SWITCH(block_friend_requests, 10, 177, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
 
     CREATE_BUTTON(show_password_settings, 10,  207, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(show_nospam,            300, 207, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
+
+    const int show_nospam_x = 30 + UN_SCALE(MAX(UTOX_STR_WIDTH(SHOW_UI_PASSWORD), UTOX_STR_WIDTH(HIDE_UI_PASSWORD)));
+    CREATE_BUTTON(show_nospam, show_nospam_x, 207, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(nospam,           10,  265, -10, 24);
     CREATE_BUTTON(change_nospam,  10,  295, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(revert_nospam,  300, 295, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
+
+    const int revert_nospam_x = 30 + UN_SCALE(UTOX_STR_WIDTH(RANDOMIZE_NOSPAM));
+    CREATE_BUTTON(revert_nospam, revert_nospam_x, 295, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(profile_password, 10,  85, -10, 24);
     CREATE_BUTTON(lock_uTox,      10,  295, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
