@@ -492,6 +492,18 @@ msgstr("uTox %.*s is now %s.")
 msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Use mini contact list")
 
+/**
+ * Status name (Away) should be the same as STATUS_AWAY
+ */
+msgid(SETTINGS_IDLE_STATUS)
+msgstr("Show me as Away after")
+
+msgid(SETTINGS_IDLE_STATUS_END)
+msgstr("minutes of inactivity")
+
+msgid(SETTINGS_IDLE_STATUS_TOOLTIP)
+msgstr("Idle status")
+
 msgid(SETTINGS_UI_AUTO_HIDE_SIDEBAR)
 msgstr("Auto hide sidebar")
 

@@ -410,6 +410,18 @@ msgstr("uTox %.*s теперь %s.")
 msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Компактный список контактов")
 
+/**
+ * Название статуса (не на месте) должно быть таким же, как STATUS_AWAY
+ */
+msgid(SETTINGS_IDLE_STATUS)
+msgstr("Статус 'не на месте' после")
+
+msgid(SETTINGS_IDLE_STATUS_END)
+msgstr("минут неактивности")
+
+msgid(SETTINGS_IDLE_STATUS_TOOLTIP)
+msgstr("Изменять статус при неактивности")
+
 msgid(SETTINGS_UI_AUTO_HIDE_SIDEBAR)
 msgstr("Скрывать боковую панель автоматически")
 
