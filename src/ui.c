@@ -134,14 +134,15 @@ static void settings_UI(void) {
     panel_settings_ui.y            = 32;
 
     CREATE_DROPDOWN(theme, 10, 85, 24, 120);
-
     CREATE_DROPDOWN(dpi,   150, 85, 24, 200);
 
-    CREATE_SWITCH(save_chat_history, 10, 115,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(close_to_tray,     10, 145,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(save_chat_history, 10, 115, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(close_to_tray,     10, 145, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
     CREATE_SWITCH(start_in_tray,     10, 175, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
     CREATE_SWITCH(auto_startup,      10, 205, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
     CREATE_SWITCH(mini_contacts,     10, 235, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(idle_status,       10, 265, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_EDIT(idle_interval, _BM_SWITCH_WIDTH + 25 + UN_SCALE(UTOX_STR_WIDTH(SETTINGS_IDLE_STATUS)), 266, 50, 24);
 }
 
 static void settings_AV(void) {

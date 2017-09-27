@@ -48,6 +48,7 @@ extern UISWITCH /* User Interface Tab */
                 switch_start_in_tray,
                 switch_auto_startup,
                 switch_mini_contacts,
+                switch_idle_status,
                 switch_magic_sidebar,
                 /* AV Tab */
                 switch_push_to_talk,
@@ -82,6 +83,7 @@ extern EDIT /* Profile */
             edit_name,
             edit_status_msg,
             edit_toxid,
+            edit_idle_interval,
             /* Advanced */
             edit_proxy_ip,
             edit_proxy_port,
