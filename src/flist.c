@@ -610,10 +610,14 @@ void flist_start(void) {
     flist_update_shown_list();
 }
 
-void flist_add_friend(FRIEND *f) {
+void flist_add_friend(FRIEND *f, const char *msg, const int msg_length) {
     ITEM *i = newitem();
     i->item = ITEM_FRIEND;
     i->id_number = f->number;
+
+    if (msg_length > 0) {
+        message_add_type_text(&f->msg, true, msg, msg_length, true, false);
+    }
 }
 
 void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
