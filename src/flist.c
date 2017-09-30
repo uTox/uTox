@@ -632,6 +632,10 @@ void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
                 messages_friend.content_scroll->content_height        = f->msg.height;
                 messages_friend.content_scroll->d                     = f->msg.scroll;
 
+                if (req->length > 0) {
+                    message_add_type_text(&f->msg, false, req->msg, req->length, true, false);
+                }
+
                 f->msg.id = f->number;
             }
 
