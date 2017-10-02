@@ -242,7 +242,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
 
         case TOX_CONFERENCE_STATE_CHANGE_PEER_EXIT: {
             LOG_DEBUG("Group", "Peer Quit (%u, %u)" , gid, pid);
-            group_add_message(g, pid, (const uint8_t *)"<- has Quit!", 12, MSG_TYPE_NOTICE);
+            group_add_message(g, pid, (const uint8_t *)S(GROUP_MESSAGE_QUIT), SLEN(GROUP_MESSAGE_QUIT), MSG_TYPE_NOTICE);
 
             pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
 

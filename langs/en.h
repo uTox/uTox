@@ -328,6 +328,24 @@ msgstr("Remove Group")
 msgid(LEAVE_GROUP)
 msgstr("Leave Group")
 
+msgid(GROUP_INVITE)
+msgstr("Groupchat invite")
+
+msgid(GROUP_INVITE_FRIEND)
+msgstr("%s invites you to the groupchat")
+
+msgid(GROUP_MESSAGE_INVITE)
+msgstr("<- invited %s")
+
+msgid(GROUP_MESSAGE_JOIN)
+msgstr("<- has joined")
+
+msgid(GROUP_MESSAGE_CHANGE_NAME)
+msgstr("<- has changed name from %.*s")
+
+msgid(GROUP_MESSAGE_QUIT)
+msgstr("<- has quit")
+
 
 /******************************************************************************
  *** Group Settings                                                         ***
