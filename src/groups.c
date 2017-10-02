@@ -184,7 +184,7 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
 }
 
 void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
-    group_add_message(g, peer_id, (uint8_t *)"<- has Quit!", 12, MSG_TYPE_NOTICE);
+    group_add_message(g, peer_id, (const uint8_t *)S(GROUP_MESSAGE_QUIT), SLEN(GROUP_MESSAGE_QUIT), MSG_TYPE_NOTICE);
 
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
 
@@ -223,12 +223,9 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
     }
 
     if (peer->name_length) {
-        char old[TOX_MAX_NAME_LENGTH];
-        char msg[TOX_MAX_NAME_LENGTH];
-
-        memcpy(old, peer->name, peer->name_length);
-        size_t size = snprintf(msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s",
-                               peer->name_length, old);
+        size_t size = peer->name_length + SLEN(GROUP_MESSAGE_CHANGE_NAME);
+        char msg[size];
+        size = snprintf(msg, size, S(GROUP_MESSAGE_CHANGE_NAME), peer->name_length, peer->name);
 
         GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
 
@@ -261,7 +258,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
     g->peer[peer_id] = peer;
 
     pthread_mutex_unlock(&messages_lock);
-    group_add_message(g, peer_id, (uint8_t *)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
+    group_add_message(g, peer_id, (const uint8_t *)S(GROUP_MESSAGE_JOIN), SLEN(GROUP_MESSAGE_JOIN), MSG_TYPE_NOTICE);
 }
 
 void group_reset_peerlist(GROUPCHAT *g) {
