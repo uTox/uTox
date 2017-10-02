@@ -5,7 +5,9 @@
 #include "debug.h"
 #include "tox.h"
 #include "macros.h"
+#include "ui.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -52,7 +54,14 @@ bool slash_alias(void *object, char *arg, int arg_length) {
 bool slash_invite(void *object, char *arg, int UNUSED(arg_length)) {
     GROUPCHAT *g =  object;
     FRIEND *f = find_friend_by_name((uint8_t *)arg);
+
     if (f != NULL && f->online) {
+        size_t msg_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_MESSAGE_INVITE);
+
+        uint8_t *msg = calloc(msg_length, sizeof(uint8_t));
+        msg_length = snprintf((char *)msg, msg_length, S(GROUP_MESSAGE_INVITE), UTOX_FRIEND_NAME(f));
+
+        group_add_message(g, 0, msg, msg_length, MSG_TYPE_NOTICE);
         postmessage_toxcore(TOX_GROUP_SEND_INVITE, g->number, f->number, NULL);
         return true;
     }
