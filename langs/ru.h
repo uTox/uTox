@@ -253,6 +253,24 @@ msgstr("Удалить группу")
 msgid(LEAVE_GROUP)
 msgstr("Покинуть группу")
 
+msgid(GROUP_INVITE)
+msgstr("Приглашение в групповой чат")
+
+msgid(GROUP_INVITE_FRIEND)
+msgstr("%s приглашает вас в групповой чат")
+
+msgid(GROUP_MESSAGE_INVITE)
+msgstr("<- пригласил %s")
+
+msgid(GROUP_MESSAGE_JOIN)
+msgstr("<- присоединился")
+
+msgid(GROUP_MESSAGE_CHANGE_NAME)
+msgstr("<- сменил имя с %.*s")
+
+msgid(GROUP_MESSAGE_QUIT)
+msgstr("<- вышел")
+
 
 /******************************************************************************
  *** Group Settings                                                         ***
