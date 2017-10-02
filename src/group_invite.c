@@ -1,9 +1,9 @@
 #include "group_invite.h"
-
 #include "groups.h"
 #include "utox.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #include <tox/toxav.h>
 
@@ -11,7 +11,7 @@
 
 struct group_invite {
     uint32_t friend_number;
-    const uint8_t *cookie;
+    uint8_t *cookie;
     size_t length;
     bool is_av_group;
 };
@@ -28,13 +28,14 @@ static uint8_t find_free_slot(void) {
 }
 
 static void group_invite_free(const uint8_t invite_id) {
+    free(invites[invite_id]->cookie);
     free(invites[invite_id]);
     invites[invite_id] = NULL;
 }
 
 uint8_t group_invite_new(const uint32_t friend_number,
                          const uint8_t *cookie,
-                         const size_t length,
+                         const size_t cookie_length,
                          const bool is_av_group)
 {
     const uint8_t invite_id = find_free_slot();
@@ -48,9 +49,10 @@ uint8_t group_invite_new(const uint32_t friend_number,
     }
 
     invite->friend_number = friend_number;
-    invite->cookie = cookie;
-    invite->length = length;
+    invite->length = cookie_length;
     invite->is_av_group = is_av_group;
+    invite->cookie = calloc(cookie_length, sizeof(uint8_t));
+    memcpy(invite->cookie, cookie, cookie_length * sizeof(uint8_t));
 
     invites[invite_id] = invite;
 
@@ -79,6 +81,7 @@ bool group_invite_accept(Tox *tox, const uint8_t invite_id) {
                                        invites[invite_id]->length,
                                        NULL);
     }
+
     if (group_id == UINT32_MAX) {
         group_invite_free(invite_id);
         return false;
@@ -98,8 +101,7 @@ bool group_invite_accept(Tox *tox, const uint8_t invite_id) {
 }
 
 void group_invite_reject(const uint8_t invite_id) {
-    free(invites[invite_id]);
-    invites[invite_id] = NULL;
+    group_invite_free(invite_id);
 }
 
 uint32_t group_invite_get_friend_id(const uint8_t invite_id) {

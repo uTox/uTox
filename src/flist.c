@@ -1299,7 +1299,14 @@ bool flist_mup(void *UNUSED(n)) {
                 if (nitem->item == ITEM_GROUP) {
                     FRIEND *f = get_friend(selected_item->id_number);
                     GROUPCHAT *g = get_group(nitem->id_number);
+
                     if (f->online) {
+                        size_t msg_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_MESSAGE_INVITE);
+
+                        uint8_t *msg = calloc(msg_length, sizeof(uint8_t));
+                        msg_length = snprintf((char *)msg, msg_length, S(GROUP_MESSAGE_INVITE), UTOX_FRIEND_NAME(f));
+
+                        group_add_message(g, 0, msg, msg_length, MSG_TYPE_NOTICE);
                         postmessage_toxcore(TOX_GROUP_SEND_INVITE, g->number, f->number, NULL);
                     }
                 }
