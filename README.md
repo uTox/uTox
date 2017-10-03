@@ -59,3 +59,4 @@ GitLab | IRC | Email | Fingerprint
 @TheGrayHatter | grayhatter | greg@grayhatter.com | `9D1D 5990 88E2 23DD 9900 7DE2 AEA1 0D4E A053 0876`
 @robinlinden | robinli | dev@robinlinden.eu | `B700 8FF1 2C07 9BF6 E6EA 19D1 601A 604B 7E60 5776`
 @dkmoz | dkmoz | dkmoz@airmail.cc | `E28E 7252 B1E7 FCFE D358  CF8E 3763 B3A7 93AA FA0F`
+@redmanmale | redmanmale | redmanmale@gmail.com | `BCEE 99DC A339 ABF9 CC36  428D 61A9 B9AF D2E5 3885`
