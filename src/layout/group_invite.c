@@ -80,7 +80,8 @@ static void draw_group_invite(int x, int y, int UNUSED(w), int UNUSED(h)) {
 
     size_t invite_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_INVITE_FRIEND);
     char invite_text[invite_length];
-    invite_length = snprintf(invite_text, invite_length, S(GROUP_INVITE_FRIEND), UTOX_FRIEND_NAME(f));
+    invite_length = snprintf(invite_text, invite_length, S(GROUP_INVITE_FRIEND),
+                             UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
 
     drawtext(x + SCALE(10), y + SCALE(70), invite_text, invite_length);
 }

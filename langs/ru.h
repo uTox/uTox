@@ -260,10 +260,10 @@ msgid(GROUP_INVITE)
 msgstr("Приглашение в чат")
 
 msgid(GROUP_INVITE_FRIEND)
-msgstr("%s приглашает вас в чат")
+msgstr("%.*s приглашает вас в чат")
 
 msgid(GROUP_MESSAGE_INVITE)
-msgstr("<- пригласил %s")
+msgstr("<- пригласил %.*s")
 
 msgid(GROUP_MESSAGE_JOIN)
 msgstr("<- присоединился")
