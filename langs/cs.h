@@ -160,9 +160,6 @@ msgstr("Vybrat vše")
 msgid(REMOVE)
 msgstr("Odstranit")
 
-msgid(LEAVE)
-msgstr("Opustit")
-
 msgid(ACCEPT)
 msgstr("Přijmout")
 

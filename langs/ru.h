@@ -231,6 +231,9 @@ msgstr("Принимать передаваемые файлы без подтв
 msgid(FRIEND_EXPORT_CHATLOG)
 msgstr("Экспортировать историю переписки как текст")
 
+msgid(FRIEND_MESSAGE_NEW)
+msgstr("uTox: новое сообщение от %.*s")
+
 
 /******************************************************************************
  *** Group Strings                                                          ***
@@ -239,25 +242,25 @@ msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Присоединиться к голосовому чату")
 
 msgid(GROUP_CREATE_TEXT)
-msgstr("Создать текстовый групповой чат")
+msgstr("Создать текстовый чат")
 
 msgid(GROUP_CREATE_VOICE)
-msgstr("Создать голосовой групповой чат")
+msgstr("Создать голосовой чат")
 
 msgid(CREATEGROUPCHAT)
-msgstr("Создать групповой чат")
-
-msgid(REMOVE_GROUP)
-msgstr("Удалить группу")
+msgstr("Создать чат")
 
 msgid(LEAVE_GROUP)
-msgstr("Покинуть группу")
+msgstr("Выйти из чата")
+
+msgid(GROUP_STATUS)
+msgstr("Пользователей в чате: %u")
 
 msgid(GROUP_INVITE)
-msgstr("Приглашение в групповой чат")
+msgstr("Приглашение в чат")
 
 msgid(GROUP_INVITE_FRIEND)
-msgstr("%s приглашает вас в групповой чат")
+msgstr("%s приглашает вас в чат")
 
 msgid(GROUP_MESSAGE_INVITE)
 msgstr("<- пригласил %s")
@@ -271,27 +274,30 @@ msgstr("<- сменил имя с %.*s")
 msgid(GROUP_MESSAGE_QUIT)
 msgstr("<- вышел")
 
+msgid(GROUP_MESSAGE_NEW)
+msgstr("uTox: новое сообщение в %.*s")
+
 
 /******************************************************************************
  *** Group Settings                                                         ***
  ******************************************************************************/
 msgid(GROUPCHAT_SETTINGS)
-msgstr("Настройки группового чата")
+msgstr("Настройки чата")
 
 msgid(GROUP_NOTIFICATIONS)
-msgstr("Групповые уведомления")
+msgstr("Уведомления чата")
 
 msgid(GROUP_NOTIFICATIONS_ON)
 msgstr("Вкл")
 
 msgid(GROUP_NOTIFICATIONS_MENTION)
-msgstr("Упомянутые")
+msgstr("При упоминании")
 
 msgid(GROUP_NOTIFICATIONS_OFF)
 msgstr("Выкл")
 
 msgid(GROUP_TOPIC)
-msgstr("Тема группы")
+msgstr("Тема чата")
 
 
 /******************************************************************************
@@ -360,7 +366,7 @@ msgid(MESSAGE)
 msgstr("Сообщение")
 
 msgid(FILTER_ONLINE)
-msgstr("Контакты на связи")
+msgstr("Контакты в сети")
 
 msgid(FILTER_ALL)
 msgstr("Все контакты")
@@ -562,9 +568,6 @@ msgstr("Удалить")
 
 msgid(REMOVE_FRIEND)
 msgstr("Удалить контакт")
-
-msgid(LEAVE)
-msgstr("Выйти")
 
 msgid(CTOPIC)
 msgstr("Сменить тему")

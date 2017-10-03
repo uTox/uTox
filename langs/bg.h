@@ -628,9 +628,6 @@ msgstr("Премахни")
 msgid(REMOVE_FRIEND)
 msgstr("Премахни приятел")
 
-msgid(LEAVE)
-msgstr("Напусни")
-
 msgid(CTOPIC)
 msgstr("Промени темата")
 

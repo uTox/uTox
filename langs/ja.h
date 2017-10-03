@@ -165,9 +165,6 @@ msgstr("すべてを選択")
 msgid(REMOVE)
 msgstr("削除")
 
-msgid(LEAVE)
-msgstr("退出")
-
 msgid(ACCEPT)
 msgstr("承認")
 

@@ -172,9 +172,6 @@ msgstr("Mindet kiválaszt")
 msgid(REMOVE)
 msgstr("Eltávolítás")
 
-msgid(LEAVE)
-msgstr("Kihagyás")
-
 msgid(ACCEPT)
 msgstr("Elfogadás")
 

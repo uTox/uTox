@@ -167,9 +167,6 @@ msgstr("Hepsini Seç")
 msgid(REMOVE)
 msgstr("Kaldır")
 
-msgid(LEAVE)
-msgstr("Ayrıl")
-
 msgid(ACCEPT)
 msgstr("Onayla")
 
