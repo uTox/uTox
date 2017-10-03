@@ -58,7 +58,7 @@ bool slash_invite(void *object, char *arg, int UNUSED(arg_length)) {
     if (f != NULL && f->online) {
         size_t msg_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_MESSAGE_INVITE);
 
-        uint8_t *msg = calloc(msg_length, sizeof(uint8_t));
+        uint8_t msg[msg_length];
         msg_length = snprintf((char *)msg, msg_length, S(GROUP_MESSAGE_INVITE), UTOX_FRIEND_NAME(f));
 
         group_add_message(g, 0, msg, msg_length, MSG_TYPE_NOTICE);
