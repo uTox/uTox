@@ -331,7 +331,6 @@ void init_groups(void) {
     LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
 }
 
-
 void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
     if (g->notify == GNOTIFY_NEVER) {
         return;
@@ -341,11 +340,11 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
         return;
     }
 
-    char title[g->name_length + 25];
+    size_t title_length = g->name_length + SLEN(GROUP_MESSAGE_NEW);
+    char title[title_length];
+    title_length = snprintf(title, title_length, S(GROUP_MESSAGE_NEW), g->name_length, g->name);
 
-    size_t title_length = snprintf(title, g->name_length + 25, "uTox new message in %.*s", g->name_length, g->name);
-
-    notify(title, title_length, msg, msg_length, g, 1);
+    notify(title, title_length, msg, msg_length, g, true);
 
     if (flist_get_groupchat() != g) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);

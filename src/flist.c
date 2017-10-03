@@ -200,7 +200,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
 
             flist_draw_name(i, name_x, name_y, width, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
 
-            flist_draw_status_icon(0, SCALE(width - 15), y + box_height / 2, g->unread_msg);
+            flist_draw_status_icon(0, width - SCALE(15), y + box_height / 2, g->unread_msg);
             break;
         }
 
@@ -232,10 +232,11 @@ static void drawitem(ITEM *i, int x, int y, int width) {
             drawalpha(group_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       selected_item == i ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
 
-            char *title = "Groupchat invite";
+            size_t msg_length = SLEN(GROUP_INVITE) + 4;
+            char msg[msg_length];
+            msg_length = snprintf(msg, msg_length, "%s #%u", S(GROUP_INVITE), i->id_number);
 
-            flist_draw_name(i, name_x, name_y, width, title, NULL,
-                            strlen(title), 0, 0, 0);
+            flist_draw_name(i, name_x, name_y, width, msg, NULL, msg_length, 0, 0, 0);
             break;
         }
 
@@ -745,12 +746,20 @@ static void deleteitem(ITEM *i) {
 void flist_delete_sitem(void) {
     if (selected_item >= item && selected_item < item + COUNTOF(item)) {
         deleteitem(selected_item);
+
+        if (itemcount > 1) {
+            flist_select_last();
+        }
     }
 }
 
 void flist_delete_rmouse_item(void) {
     if (right_mouse_item >= item && right_mouse_item < item + COUNTOF(item)) {
         deleteitem(right_mouse_item);
+
+        if (itemcount > 1) {
+            flist_select_last();
+        }
     }
 }
 
@@ -1215,11 +1224,11 @@ bool flist_mright(void *UNUSED(n)) {
             };
 
     static UTOX_I18N_STR menu_group_unmuted[] = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_MUTE,
-                                                  STR_REMOVE_GROUP };
+                                                  STR_LEAVE_GROUP };
     static UTOX_I18N_STR menu_group_muted[] = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_UNMUTE,
-                                                STR_REMOVE_GROUP };
+                                                STR_LEAVE_GROUP };
 
-    static UTOX_I18N_STR menu_group[]        = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP };
+    static UTOX_I18N_STR menu_group[]        = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_LEAVE_GROUP };
     static UTOX_I18N_STR menu_create_group[] = { STR_GROUP_CREATE_TEXT, STR_GROUP_CREATE_VOICE };
     static UTOX_I18N_STR menu_request[]      = { STR_REQ_ACCEPT, STR_REQ_DECLINE };
 
@@ -1303,7 +1312,7 @@ bool flist_mup(void *UNUSED(n)) {
                     if (f->online) {
                         size_t msg_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_MESSAGE_INVITE);
 
-                        uint8_t *msg = calloc(msg_length, sizeof(uint8_t));
+                        uint8_t msg[msg_length];
                         msg_length = snprintf((char *)msg, msg_length, S(GROUP_MESSAGE_INVITE), UTOX_FRIEND_NAME(f));
 
                         group_add_message(g, 0, msg, msg_length, MSG_TYPE_NOTICE);

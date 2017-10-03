@@ -16,6 +16,7 @@
 #include "ui/dropdown.h"
 #include "ui/edit.h"
 #include "ui/tooltip.h"
+#include "ui.h"
 
 #include "layout/friend.h"
 #include "layout/settings.h"
@@ -601,7 +602,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 g->source[param2] = g->source[g->peer_count];
             }
 
-            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
+            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), S(GROUP_STATUS), g->peer_count);
             if (g->topic_length >= sizeof(g->topic)) {
                 g->topic_length = sizeof(g->topic) - 1;
             }
@@ -617,7 +618,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 return;
             }
 
-            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
+            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), S(GROUP_STATUS), g->peer_count);
             if (g->topic_length >= sizeof(g->topic)) {
                 g->topic_length = sizeof(g->topic) - 1;
             }
