@@ -33,11 +33,27 @@ static void group_invite_free(const uint8_t invite_id) {
     invites[invite_id] = NULL;
 }
 
+static uint8_t find_invite(const uint8_t *cookie, const size_t cookie_length) {
+    for (uint8_t i = 0; i < MAX_GROUP_INVITES; ++i) {
+        if (invites[i] &&
+            invites[i]->length == cookie_length &&
+            memcmp(invites[i]->cookie, cookie, cookie_length) == 0) {
+                return i;
+        }
+    }
+
+    return UINT8_MAX;
+}
+
 uint8_t group_invite_new(const uint32_t friend_number,
                          const uint8_t *cookie,
                          const size_t cookie_length,
                          const bool is_av_group)
 {
+    if (find_invite(cookie, cookie_length) != UINT8_MAX) {
+        return UINT8_MAX;
+    }
+
     const uint8_t invite_id = find_free_slot();
     if (invite_id == UINT8_MAX) {
         return UINT8_MAX;
