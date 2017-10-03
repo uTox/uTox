@@ -1313,7 +1313,8 @@ bool flist_mup(void *UNUSED(n)) {
                         size_t msg_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_MESSAGE_INVITE);
 
                         uint8_t msg[msg_length];
-                        msg_length = snprintf((char *)msg, msg_length, S(GROUP_MESSAGE_INVITE), UTOX_FRIEND_NAME(f));
+                        msg_length = snprintf((char *)msg, msg_length, S(GROUP_MESSAGE_INVITE),
+                                              UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
 
                         group_add_message(g, 0, msg, msg_length, MSG_TYPE_NOTICE);
                         postmessage_toxcore(TOX_GROUP_SEND_INVITE, g->number, f->number, NULL);
