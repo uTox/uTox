@@ -401,13 +401,12 @@ void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uin
 }
 
 void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
-    char title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
-
-    size_t title_length = snprintf((char *)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s",
-                                   (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    size_t title_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(FRIEND_MESSAGE_NEW);
+    char title[title_length];
+    title_length = snprintf(title, title_length, S(FRIEND_MESSAGE_NEW), UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
 
     postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
-    notify(title, title_length, msg, msg_length, f, 0);
+    notify(title, title_length, msg, msg_length, f, false);
 
     if (flist_get_friend() != f) {
         f->unread_msg = true;
