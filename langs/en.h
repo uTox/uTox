@@ -338,10 +338,10 @@ msgid(GROUP_INVITE)
 msgstr("Chat invite")
 
 msgid(GROUP_INVITE_FRIEND)
-msgstr("%s invites you to the chat")
+msgstr("%.*s invites you to the chat")
 
 msgid(GROUP_MESSAGE_INVITE)
-msgstr("<- invited %s")
+msgstr("<- invited %.*s")
 
 msgid(GROUP_MESSAGE_JOIN)
 msgstr("<- has joined")
