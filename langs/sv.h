@@ -177,9 +177,6 @@ msgstr("Skapa en gruppchat med ljud")
 msgid(CREATEGROUPCHAT)
 msgstr("Skapa Gruppchat")
 
-msgid(REMOVE_GROUP)
-msgstr("Ta Bort Grupp")
-
 msgid(LEAVE_GROUP)
 msgstr("Lämna Grupp")
 
@@ -449,9 +446,6 @@ msgstr("Tabort")
 
 msgid(REMOVE_FRIEND)
 msgstr("Ta bort vänn")
-
-msgid(LEAVE)
-msgstr("Leave")
 
 msgid(CTOPIC)
 msgstr("Ändra tema")

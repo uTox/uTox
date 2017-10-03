@@ -193,9 +193,6 @@ msgstr("Utwórz grupę z rozmową głosową")
 msgid(CREATEGROUPCHAT)
 msgstr("Utwórz grupę")
 
-msgid(REMOVE_GROUP)
-msgstr("Usuń grupę")
-
 msgid(LEAVE_GROUP)
 msgstr("Opuść grupę")
 
@@ -430,9 +427,6 @@ msgstr("Usuń")
 
 msgid(REMOVE_FRIEND)
 msgstr("Usuń znajomego")
-
-msgid(LEAVE)
-msgstr("Opuść")
 
 msgid(CTOPIC)
 msgstr("Zmień temat")

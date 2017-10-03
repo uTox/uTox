@@ -265,12 +265,6 @@ msgstr("Forigi")
 msgid(REMOVE_FRIEND)
 msgstr("Forigi amikon")
 
-msgid(REMOVE_GROUP)
-msgstr("Forigi grupon")
-
-msgid(LEAVE)
-msgstr("Eliri")
-
 msgid(LEAVE_GROUP)
 msgstr("Eliri grupon")
 

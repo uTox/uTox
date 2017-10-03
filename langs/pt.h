@@ -193,9 +193,6 @@ msgstr("Selecionar Tudo")
 msgid(REMOVE)
 msgstr("Remover")
 
-msgid(LEAVE)
-msgstr("Sair")
-
 msgid(CTOPIC)
 msgstr("Mudar topico")
 

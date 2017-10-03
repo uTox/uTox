@@ -212,9 +212,6 @@ msgstr("Створити голосовий чат")
 msgid(CREATEGROUPCHAT)
 msgstr("Створити чат")
 
-msgid(REMOVE_GROUP)
-msgstr("Видалити чат")
-
 msgid(LEAVE_GROUP)
 msgstr("Вийти з чату")
 
@@ -487,9 +484,6 @@ msgstr("Видалити")
 
 msgid(REMOVE_FRIEND)
 msgstr("Видалити друга")
-
-msgid(LEAVE)
-msgstr("Вийти")
 
 msgid(CTOPIC)
 msgstr("Змінити тему")

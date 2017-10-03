@@ -199,9 +199,6 @@ msgstr("भाषा")
 msgid(REMOVE)
 msgstr("निकालें")
 
-msgid(LEAVE)
-msgstr("छोड़ दो")
-
 msgid(ACCEPT)
 msgstr("इसे ले")
 

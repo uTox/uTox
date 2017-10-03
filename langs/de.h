@@ -157,9 +157,6 @@ msgstr("Audio-Gruppenchat erstellen")
 msgid(CREATEGROUPCHAT)
 msgstr("Gruppenchat erstellen")
 
-msgid(REMOVE_GROUP)
-msgstr("Gruppe entfernen")
-
 msgid(LEAVE_GROUP)
 msgstr("Gruppe verlassen")
 
@@ -400,9 +397,6 @@ msgstr("Entfernen")
 
 msgid(REMOVE_FRIEND)
 msgstr("Freund entfernen")
-
-msgid(LEAVE)
-msgstr("Verlassen")
 
 msgid(CTOPIC)
 msgstr("Thema ändern")
