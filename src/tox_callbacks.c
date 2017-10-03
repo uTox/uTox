@@ -154,6 +154,10 @@ static void callback_group_invite(Tox *UNUSED(tox), uint32_t friend_number, TOX_
                                                 cookie, length,
                                                 type == TOX_CONFERENCE_TYPE_AV);
 
+    if (request_id == UINT8_MAX) {
+        return;
+    }
+
     postmessage_utox(GROUP_INCOMING_REQUEST, request_id, 0, NULL);
     postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_REQUEST, 0, NULL);
 }
