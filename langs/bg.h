@@ -167,9 +167,6 @@ msgstr("Избери Всички")
 msgid(REMOVE)
 msgstr("Премахни")
 
-msgid(LEAVE)
-msgstr("Излез")
-
 msgid(ACCEPT)
 msgstr("Приеми")
 

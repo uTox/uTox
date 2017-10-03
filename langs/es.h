@@ -214,12 +214,6 @@ msgstr("Eliminar")
 msgid(REMOVE_FRIEND)
 msgstr("Eliminar Amigo")
 
-msgid(REMOVE_GROUP)
-msgstr("Eliminar Grupo")
-
-msgid(LEAVE)
-msgstr("Salir")
-
 msgid(LEAVE_GROUP)
 msgstr("Salir del grupo")
 

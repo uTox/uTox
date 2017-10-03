@@ -175,9 +175,6 @@ msgstr("Velg alle")
 msgid(REMOVE)
 msgstr("Fjern")
 
-msgid(LEAVE)
-msgstr("Forlat")
-
 msgid(CTOPIC)
 msgstr("Endre tittel")
 

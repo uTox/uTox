@@ -145,9 +145,6 @@ msgstr("Atlasīt visu")
 msgid(REMOVE)
 msgstr("Noņemt")
 
-msgid(LEAVE)
-msgstr("Pamest")
-
 msgid(ACCEPT)
 msgstr("Pieņemt")
 

@@ -277,12 +277,6 @@ msgstr("移除")
 msgid(REMOVE_FRIEND)
 msgstr("移除好友")
 
-msgid(REMOVE_GROUP)
-msgstr("移除群組")
-
-msgid(LEAVE)
-msgstr("離開")
-
 msgid(LEAVE_GROUP)
 msgstr("離開群組")
 

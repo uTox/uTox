@@ -172,9 +172,6 @@ msgstr("Créer un salon de discussion vocal")
 msgid(CREATEGROUPCHAT)
 msgstr("Créer un salon de discussion")
 
-msgid(REMOVE_GROUP)
-msgstr("Supprimer le salon")
-
 msgid(LEAVE_GROUP)
 msgstr("Quitter le salon")
 
@@ -367,9 +364,6 @@ msgstr("Effacer")
 
 msgid(REMOVE_FRIEND)
 msgstr("Supprimer l'ami")
-
-msgid(LEAVE)
-msgstr("Partir")
 
 msgid(CTOPIC)
 msgstr("Changer le sujet")

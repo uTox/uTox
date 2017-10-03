@@ -199,12 +199,6 @@ msgstr("Rimuovi")
 msgid(REMOVE_FRIEND)
 msgstr("Rimuovi contatto")
 
-msgid(REMOVE_GROUP)
-msgstr("Rimuovi gruppo")
-
-msgid(LEAVE)
-msgstr("Abbandona")
-
 msgid(LEAVE_GROUP)
 msgstr("Abbandona gruppo")
 

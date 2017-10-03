@@ -253,12 +253,6 @@ msgstr("Ukloni")
 msgid(REMOVE_FRIEND)
 msgstr("Ukloni prijatelja")
 
-msgid(REMOVE_GROUP)
-msgstr("Ukloni grupu")
-
-msgid(LEAVE)
-msgstr("Izađi")
-
 msgid(LEAVE_GROUP)
 msgstr("Izađi iz grupe")
 
