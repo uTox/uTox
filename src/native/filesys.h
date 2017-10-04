@@ -20,7 +20,8 @@ bool native_move_file(const uint8_t *current_name, const uint8_t *new_name);
 // shows a file chooser to the user and calls utox_export_chatlog in turn
 // TODO not let this depend on chatlogs
 // TODO refactor this to be a simple filechooser which returns the file instead
-void native_export_chatlog_init(uint32_t friend_number);
+void native_export_chatlog_init(uint32_t chat_number, bool is_chat);
+
 // TODO same as for chatlogs, this is mainly native because of the file selector thing
 
 typedef struct msg_header MSG_HEADER;

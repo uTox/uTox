@@ -661,7 +661,18 @@ static void button_export_chatlog_on_mup(void) {
         LOG_ERR("Settings", "Could not get selected friend.");
         return;
     }
-    utox_export_chatlog_init(f->number);
+    utox_export_chatlog_init(f->number, false);
+}
+
+#include "../groups.h"
+static void button_export_chatlog_group_on_mup(void) {
+    GROUPCHAT *g = flist_get_groupchat();
+    if (!g) {
+        LOG_ERR("Settings", "Could not get selected group.");
+        return;
+    }
+
+    utox_export_chatlog_init(g->number, true);
 }
 
 static void button_change_nospam_on_mup(void) {
@@ -845,6 +856,15 @@ BUTTON button_export_chatlog = {
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_export_chatlog_on_mup,
+    .disabled     = false,
+    .button_text  = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
+    .tooltip_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
+};
+
+BUTTON button_export_chatlog_group = {
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_export_chatlog_group_on_mup,
     .disabled     = false,
     .button_text  = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
     .tooltip_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },

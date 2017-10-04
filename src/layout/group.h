@@ -15,7 +15,8 @@ extern PANEL panel_group,
 typedef struct button BUTTON;
 extern BUTTON button_group_audio,
               button_chat_send_group,
-              button_create_group;
+              button_create_group,
+              button_export_chatlog_group;
 
 typedef struct dropdown DROPDOWN;
 extern DROPDOWN dropdown_notify_groupchats;

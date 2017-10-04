@@ -19,7 +19,6 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tox/tox.h>
 
 static GROUPCHAT *group = NULL;
 
@@ -90,6 +89,15 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     g->number   = group_number;
     g->notify   = settings.group_notifications;
     g->av_group = av_group;
+
+    srand(time(NULL));
+    uint8_t random[TOX_PUBLIC_KEY_SIZE];
+    for (uint8_t i = 0; i < TOX_PUBLIC_KEY_SIZE; ++i)
+    {
+        random[i] = rand();
+    }
+    to_hex(g->id_str, random, TOX_PUBLIC_KEY_SIZE);
+
     pthread_mutex_unlock(&messages_lock);
 
     flist_add_group(g);

@@ -10,7 +10,7 @@
 
 #define MOCK_FRIEND_ID "6460FF76319AF777A999ABA2024D5D0AEB202360688ECBABFE56C9403B872D2F"
 
-void native_export_chatlog_init(uint32_t friend_number) {
+void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
     char* name = strdup("chatlog_export.txt");
     FILE *file = fopen(name, "wb");
     if (file) {

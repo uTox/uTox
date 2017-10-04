@@ -4,21 +4,33 @@
 #include "utf8.h"
 
 #include "../chatlog.h"
+#include "../debug.h"
 #include "../file_transfers.h"
 #include "../filesys.h"
 #include "../friend.h"
-#include "../debug.h"
+#include "../groups.h"
 #include "../main.h"
 #include "../tox.h"
 #include "../settings.h"
 
 #include <io.h>
 
-void native_export_chatlog_init(uint32_t friend_number) {
-    FRIEND *f = get_friend(friend_number);
-    if (!f) {
-        LOG_ERR("WinXP", "Could not get friend with number: %u", friend_number);
-        return;
+void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
+    FRIEND *f = NULL;
+    GROUPCHAT *g = NULL;
+
+    if (is_chat) {
+        g = get_group(chat_number);
+        if (!g) {
+            LOG_ERR("Windows7", "Could not get friend with number: %u", chat_number);
+            return;
+        }
+    } else {
+        f = get_friend(chat_number);
+        if (!f) {
+            LOG_ERR("Windows7", "Could not get friend with number: %u", chat_number);
+            return;
+        }
     }
 
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
@@ -27,7 +39,9 @@ void native_export_chatlog_init(uint32_t friend_number) {
         return;
     }
 
-    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length, f->name);
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt",
+             (int)(is_chat ? g->name_length : f->name_length),
+             is_chat ? g->name : f->name);
 
     wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
     utf8_to_nativestr(path, filepath, UTOX_FILE_NAME_LENGTH * 2);
@@ -52,7 +66,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
 
         FILE *file = utox_get_file_simple(path, UTOX_FILE_OPTS_WRITE);
         if (file) {
-            utox_export_chatlog(f->id_str, file);
+            utox_export_chatlog(is_chat ? g->id_str : f->id_str, file);
         } else {
             LOG_ERR("WinXP", "Opening file %s failed", path);
         }
