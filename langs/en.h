@@ -372,7 +372,7 @@ msgid(GROUP_NOTIFICATIONS_OFF)
 msgstr("Off")
 
 msgid(GROUP_TOPIC)
-msgstr("Set chat Topic")
+msgstr("Chat Topic")
 
 /******************************************************************************
  *** Settings / Profile Strings                                             ***

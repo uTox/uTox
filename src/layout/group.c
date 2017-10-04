@@ -91,8 +91,8 @@ static void draw_group_settings(int x, int y, int UNUSED(width), int UNUSED(heig
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(10), GROUP_TOPIC);
-    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(70), GROUP_NOTIFICATIONS);
+    drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 10), GROUP_TOPIC);
+    drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 70), GROUP_NOTIFICATIONS);
 }
 
 PANEL

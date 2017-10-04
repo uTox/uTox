@@ -307,6 +307,7 @@ void ui_rescale(uint8_t scale) {
 
     /* Group Settings */
     CREATE_EDIT(group_topic, 10, 95, -10, 24);
+    CREATE_DROPDOWN(notify_groupchats, 10, 150, 24, 100);
 
     /* Friend / Group Page  */
     CREATE_BUTTON(call_decline, -186, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
