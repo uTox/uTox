@@ -3,6 +3,8 @@
 
 #include "messages.h"
 
+#include <tox/tox.h>
+
 typedef unsigned int ALuint;
 typedef struct edit_change EDIT_CHANGE;
 
@@ -25,6 +27,8 @@ typedef struct group_peer {
 typedef struct groupchat {
     uint16_t number;
     uint32_t our_peer_number;
+
+    char id_str[TOX_PUBLIC_KEY_SIZE * 2];
 
     bool unread_msg;
 
