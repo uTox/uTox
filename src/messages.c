@@ -235,6 +235,7 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
 /* TODO leaving this here is a little hacky, but it was the fastest way
  * without considering if I should expose messages_add */
 uint32_t message_add_group(MESSAGES *m, MSG_HEADER *msg) {
+    message_log_to_disk(m, msg);
     return message_add(m, msg);
 }
 
@@ -391,24 +392,31 @@ MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incomi
 }
 
 bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
-    if (m->is_groupchat) {
-        /* We don't support logging groupchats yet */
-        return false;
-    }
-
     if (!settings.logging_enabled) {
         return false;
     }
 
-    FRIEND *f = get_friend(m->id);
+    FRIEND *f = NULL;
+    GROUPCHAT *g = NULL;
 
-    if (!f) {
-        LOG_ERR("Messages", "Could not get friend with number: %u", m->id);
-        return false;
-    }
+    if (m->is_groupchat) {
+        g = get_group(m->id);
 
-    if (f->skip_msg_logging) {
-        return false;
+        if (!g) {
+            LOG_ERR("Messages", "Could not get group with number: %u", m->id);
+            return false;
+        }
+    } else {
+        f = get_friend(m->id);
+
+        if (!f) {
+            LOG_ERR("Messages", "Could not get friend with number: %u", m->id);
+            return false;
+        }
+
+        if (f->skip_msg_logging) {
+            return false;
+        }
     }
 
     LOG_FILE_MSG_HEADER header;
@@ -424,8 +432,8 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
                 author_length = self.name_length;
                 author        = self.name;
             } else {
-                author_length = f->name_length;
-                author        = f->name;
+                author_length = m->is_groupchat ? msg->via.grp.author_length : f->name_length;
+                author        = m->is_groupchat ? msg->via.grp.author : f->name;
             }
 
             header.log_version   = LOGFILE_SAVE_VERSION;
@@ -447,7 +455,7 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
             memcpy(data + sizeof(header) + author_length, msg->via.txt.msg, msg->via.txt.length);
             strcpy2(data + length - 1, "\n");
 
-            msg->disk_offset = utox_save_chatlog(f->id_str, data, length);
+            msg->disk_offset = utox_save_chatlog(m->is_groupchat ? g->id_str : f->id_str, data, length);
 
             free(data);
             return true;
@@ -456,6 +464,7 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
             LOG_NOTE("Messages", "uTox Logging:\tUnsupported message type %i", msg->msg_type);
         }
     }
+
     return false;
 }
 
