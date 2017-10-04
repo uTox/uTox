@@ -127,6 +127,7 @@ panel_group = {
         .child = (PANEL*[]) {
             (PANEL*)&edit_group_topic,
             (PANEL*)&dropdown_notify_groupchats,
+            (PANEL*)&button_export_chatlog_group,
             NULL
         }
     },
