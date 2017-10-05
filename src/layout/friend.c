@@ -311,12 +311,10 @@ static void button_call_decline_update(BUTTON *b) {
 
     if (UTOX_AVAILABLE_AUDIO(f->number) && !UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_danger(b);
-        b->nodraw   = false;
-        b->disabled = false;
+        b->nodraw = b->disabled = b->panel.disabled = false;
     } else {
         button_setcolors_disabled(b);
-        b->nodraw   = true;
-        b->disabled = true;
+        b->nodraw = b->disabled = b->panel.disabled = true;
     }
 }
 
