@@ -262,6 +262,10 @@ if(ENABLE_AUTOUPDATE)
     add_cflag("-DENABLE_AUTOUPDATE=1")
 endif()
 
+if(ENABLE_FILTERAUDIO)
+    add_cflag("-DAUDIO_FILTERING=1")
+endif()
+
 if(TOXCORE_STATIC)
     find_package(libtox REQUIRED COMPONENTS
         toxencryptsave
