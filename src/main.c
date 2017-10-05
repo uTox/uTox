@@ -126,6 +126,8 @@ void parse_args(int argc, char *argv[],
         { "debug", required_argument, NULL, 1 },        { 0, 0, 0, 0 }
     };
 
+    settings.debug_file = stdout;
+
     int opt, long_index = 0;
     while ((opt = getopt_long(argc, argv, "t:ps:u:nvh", long_options, &long_index)) != -1) {
         // loop through each option; ":" after each option means an argument is required
