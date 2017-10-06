@@ -47,7 +47,10 @@
 
 bool flashing = false;
 bool hidden = false;
+
+#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 static bool idle = false;
+#endif
 
 /** Open system file browser dialog */
 void openfilesend(void) {
@@ -808,6 +811,7 @@ static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd) {
     return true;
 }
 
+#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 static void CALLBACK idle_handler(HWND UNUSED(hwnd), UINT UNUSED(message), UINT UNUSED(idTimer), DWORD dwTime)
 {
     if (!settings.idle_status) {
@@ -841,6 +845,7 @@ static void CALLBACK idle_handler(HWND UNUSED(hwnd), UINT UNUSED(message), UINT 
         idle = false;
     }
 }
+#endif
 
 /** client main()
  *
@@ -971,7 +976,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         }
     }
 
+    #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
     SetTimer(main_window.window, rand(), idle_check_period * 1000, (TIMERPROC)idle_handler);
+    #endif
 
     if (settings.start_in_tray) {
         ShowWindow(main_window.window, SW_HIDE);
