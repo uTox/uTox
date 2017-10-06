@@ -666,6 +666,12 @@ bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool 
 }
 
  bool panel_mup(PANEL *p) {
+    if (p == &panel_root && contextmenu_mup()) {
+        tooltip_mup();
+        redraw();
+        return true;
+    }
+
     bool draw = p->type ? mupfunc[p->type - 1](p) : false;
     PANEL **pp = p->child;
     if (pp) {
@@ -678,7 +684,6 @@ bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool 
     }
 
     if (p == &panel_root) {
-        draw |= contextmenu_mup();
         tooltip_mup();
         if (draw) {
             redraw();
