@@ -413,6 +413,7 @@ msgstr("Компактный список контактов")
 /**
  * Название статуса (не на месте) должно быть таким же, как STATUS_AWAY
  */
+#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 msgid(SETTINGS_IDLE_STATUS)
 msgstr("Статус 'не на месте' после")
 
@@ -421,6 +422,7 @@ msgstr("минут неактивности")
 
 msgid(SETTINGS_IDLE_STATUS_TOOLTIP)
 msgstr("Изменять статус при неактивности")
+#endif
 
 msgid(SETTINGS_UI_AUTO_HIDE_SIDEBAR)
 msgstr("Скрывать боковую панель автоматически")
