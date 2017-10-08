@@ -181,7 +181,7 @@ msgstr("Eksportuj historię czatu znajomego do tekstu")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Dołącz do grupowej rozmowy audio")
 
 msgid(GROUP_CREATE_TEXT)
@@ -190,7 +190,7 @@ msgstr("Utwórz grupę tekstową")
 msgid(GROUP_CREATE_VOICE)
 msgstr("Utwórz grupę z rozmową głosową")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Utwórz grupę")
 
 msgid(LEAVE_GROUP)

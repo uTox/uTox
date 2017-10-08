@@ -200,7 +200,7 @@ msgstr("Зберегти історію чату як текст")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Приєднатися до аудіо чату")
 
 msgid(GROUP_CREATE_TEXT)
@@ -209,7 +209,7 @@ msgstr("Створити текстовий чат")
 msgid(GROUP_CREATE_VOICE)
 msgstr("Створити голосовий чат")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Створити чат")
 
 msgid(LEAVE_GROUP)
