@@ -184,7 +184,7 @@ BUTTON button_group_audio = {
     .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_group_audio_on_mup,
     .update       = button_group_audio_update,
-    .tooltip_text = {.i18nal = STR_GROUPCHAT_JOIN_AUDIO },
+    .tooltip_text = {.i18nal = STR_GROUP_JOIN_AUDIO },
 };
 
 

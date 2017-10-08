@@ -73,7 +73,7 @@ msgstr("Prijenos datoteka otkazan")
 msgid(TRANSFER_COMPLETE)
 msgstr("Prijenos datoteka dovršen")
 
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Spoji se na audio chat")
 
 msgid(CALL_START_AUDIO)
@@ -121,7 +121,7 @@ msgstr("Uključi-isključi offline prijatelje.")
 msgid(ADD)
 msgstr("Dodaj")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Stvori grupni chat")
 
 msgid(FRIENDREQUEST)

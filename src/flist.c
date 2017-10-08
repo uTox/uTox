@@ -223,7 +223,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
         case ITEM_GROUP_CREATE: {
             drawalpha(group_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            flist_draw_name(i, name_x, name_y, width, S(CREATEGROUPCHAT), S(CURSOR_CLICK_RIGHT), SLEN(CREATEGROUPCHAT),
+            flist_draw_name(i, name_x, name_y, width, S(GROUP_CREATE), S(CURSOR_CLICK_RIGHT), SLEN(GROUP_CREATE),
                             SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             break;
         }

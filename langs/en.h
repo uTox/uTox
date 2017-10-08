@@ -313,29 +313,29 @@ msgstr("uTox: new message from %.*s")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
-msgstr("Join audio chat")
+msgid(GROUP_JOIN_AUDIO)
+msgstr("Join audio groupchat")
 
 msgid(GROUP_CREATE_TEXT)
-msgstr("Create a text chat")
+msgstr("Create a text groupchat")
 
 msgid(GROUP_CREATE_VOICE)
-msgstr("Create an audio chat")
+msgstr("Create an audio groupchat")
 
-msgid(CREATEGROUPCHAT)
-msgstr("Create chat")
+msgid(GROUP_CREATE)
+msgstr("Create groupchat")
 
 msgid(LEAVE_GROUP)
-msgstr("Leave chat")
+msgstr("Leave groupchat")
 
 msgid(GROUP_STATUS)
-msgstr("%u users in chat")
+msgstr("%u users in groupchat")
 
 msgid(GROUP_INVITE)
-msgstr("Chat invite")
+msgstr("Groupchat invite")
 
 msgid(GROUP_INVITE_FRIEND)
-msgstr("%.*s invites you to the chat")
+msgstr("%.*s invites you to the groupchat")
 
 msgid(GROUP_MESSAGE_INVITE)
 msgstr("<- invited %.*s")
@@ -357,10 +357,10 @@ msgstr("uTox: new message in %.*s")
  *** Group Settings                                                         ***
  ******************************************************************************/
 msgid(GROUPCHAT_SETTINGS)
-msgstr("Chat Settings")
+msgstr("Groupchat Settings")
 
 msgid(GROUP_NOTIFICATIONS)
-msgstr("Chat Notifications")
+msgstr("Groupchat Notifications")
 
 msgid(GROUP_NOTIFICATIONS_ON)
 msgstr("On")
@@ -372,7 +372,7 @@ msgid(GROUP_NOTIFICATIONS_OFF)
 msgstr("Off")
 
 msgid(GROUP_TOPIC)
-msgstr("Chat Topic")
+msgstr("Groupchat Topic")
 
 /******************************************************************************
  *** Settings / Profile Strings                                             ***

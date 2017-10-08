@@ -238,7 +238,7 @@ msgstr("uTox: новое сообщение от %.*s")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Присоединиться к голосовому чату")
 
 msgid(GROUP_CREATE_TEXT)
@@ -247,7 +247,7 @@ msgstr("Создать текстовый чат")
 msgid(GROUP_CREATE_VOICE)
 msgstr("Создать голосовой чат")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Создать чат")
 
 msgid(LEAVE_GROUP)
