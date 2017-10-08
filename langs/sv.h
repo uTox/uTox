@@ -165,7 +165,7 @@ msgstr("Exportera chattlog i klartext")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Gå med i audio chatt")
 
 msgid(GROUP_CREATE_TEXT)
@@ -174,7 +174,7 @@ msgstr("Skapa en text gruppchat")
 msgid(GROUP_CREATE_VOICE)
 msgstr("Skapa en gruppchat med ljud")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Skapa Gruppchat")
 
 msgid(LEAVE_GROUP)

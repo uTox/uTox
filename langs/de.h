@@ -145,7 +145,7 @@ msgstr("Chatverlauf als Text exportieren")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Audiochat beitreten")
 
 msgid(GROUP_CREATE_TEXT)
@@ -154,7 +154,7 @@ msgstr("Text-Gruppenchat erstellen")
 msgid(GROUP_CREATE_VOICE)
 msgstr("Audio-Gruppenchat erstellen")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Gruppenchat erstellen")
 
 msgid(LEAVE_GROUP)
