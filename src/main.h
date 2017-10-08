@@ -38,12 +38,6 @@
 #define ENABLE_MULTIDEVICE 1
 #endif
 
-enum {
-    USER_STATUS_AVAILABLE,
-    USER_STATUS_AWAY_IDLE,
-    USER_STATUS_DO_NOT_DISTURB,
-};
-
 /**
  * Takes data and the size of data and writes it to the disk
  *

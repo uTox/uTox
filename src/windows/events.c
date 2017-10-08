@@ -65,11 +65,11 @@ static void ShowContextMenu(void) {
 
         InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
 
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_NONE) ? MF_CHECKED : 0),
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == USER_STATUS_AVAILABLE) ? MF_CHECKED : 0),
                    TRAY_STATUS_AVAILABLE, "Available");
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_AWAY) ? MF_CHECKED : 0),
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == USER_STATUS_AWAY_IDLE) ? MF_CHECKED : 0),
                    TRAY_STATUS_AWAY, "Away");
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_BUSY) ? MF_CHECKED : 0),
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == USER_STATUS_DO_NOT_DISTURB) ? MF_CHECKED : 0),
                    TRAY_STATUS_BUSY, "Busy");
 
         InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
@@ -434,17 +434,17 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
 
                 case TRAY_STATUS_AVAILABLE: {
-                    setstatus(TOX_USER_STATUS_NONE);
+                    setstatus(USER_STATUS_AVAILABLE);
                     break;
                 }
 
                 case TRAY_STATUS_AWAY: {
-                    setstatus(TOX_USER_STATUS_AWAY);
+                    setstatus(USER_STATUS_AWAY_IDLE);
                     break;
                 }
 
                 case TRAY_STATUS_BUSY: {
-                    setstatus(TOX_USER_STATUS_BUSY);
+                    setstatus(USER_STATUS_DO_NOT_DISTURB);
                     break;
                 }
             }

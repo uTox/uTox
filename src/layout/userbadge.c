@@ -72,8 +72,8 @@ extern bool unity_running;
 #endif
 static void button_status_on_mup(void) {
     self.status++;
-    if (self.status == 3) { // TODO typedef enum
-        self.status = 0;
+    if (self.status == USER_STATUS_OFFLINE) {
+        self.status = USER_STATUS_AVAILABLE;
     }
 
     #ifdef UNITY

@@ -22,7 +22,7 @@ bool have_focus = false;
  * returns void;
  */
 void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *UNUSED(object), bool UNUSED(is_group)) {
-    if (have_focus || self.status == 2) {
+    if (have_focus || self.status == USER_STATUS_DO_NOT_DISTURB) {
         return;
     }
 

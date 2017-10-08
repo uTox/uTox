@@ -48,22 +48,22 @@ void mm_set_status(int status) {
 static void status_changed(MessagingMenuApp *mmapp_, gint status, gpointer user_data) {
     switch (status) {
         case MESSAGING_MENU_STATUS_AVAILABLE:
-            self.status = 0;
+            self.status = USER_STATUS_AVAILABLE;
             postmessage_toxcore(TOX_SETSTATUS, 0, 0, NULL);
             break;
 
         case MESSAGING_MENU_STATUS_AWAY:
-            self.status = 1;
+            self.status = USER_STATUS_AWAY_IDLE;
             postmessage_toxcore(TOX_SETSTATUS, 1, 0, NULL);
             break;
 
         case MESSAGING_MENU_STATUS_BUSY:
-            self.status = 2;
+            self.status = USER_STATUS_DO_NOT_DISTURB;
             postmessage_toxcore(TOX_SETSTATUS, 2, 0, NULL);
             break;
 
         default:
-            self.status = 1;
+            self.status = MESSAGING_MENU_STATUS_AWAY;
             postmessage_toxcore(TOX_SETSTATUS, 1, 0, NULL);
             break;
     }
