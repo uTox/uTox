@@ -22,13 +22,13 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
     if (is_chat) {
         g = get_group(chat_number);
         if (!g) {
-            LOG_ERR("Windows7", "Could not get friend with number: %u", chat_number);
+            LOG_ERR("WinXP", "Could not get group with number: %u", chat_number);
             return;
         }
     } else {
         f = get_friend(chat_number);
         if (!f) {
-            LOG_ERR("Windows7", "Could not get friend with number: %u", chat_number);
+            LOG_ERR("WinXP", "Could not get friend with number: %u", chat_number);
             return;
         }
     }
@@ -58,7 +58,7 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
     if (GetSaveFileNameW(&ofn)) {
         path = calloc(1, UTOX_FILE_NAME_LENGTH);
         if (!path){
-            LOG_ERR("WinXP", " Could not allocate memory." );
+            LOG_ERR("WinXP", "Could not allocate memory.");
             return;
         }
 
@@ -71,7 +71,7 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
             LOG_ERR("WinXP", "Opening file %s failed", path);
         }
     } else {
-        LOG_TRACE("WinXP", "GetSaveFileName() failed" );
+        LOG_ERR("WinXP", "Could not open file and export chatlog.");
     }
     free(path);
 }
