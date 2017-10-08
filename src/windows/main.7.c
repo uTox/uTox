@@ -26,7 +26,7 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
     if (is_chat) {
         g = get_group(chat_number);
         if (!g) {
-            LOG_ERR("Windows7", "Could not get friend with number: %u", chat_number);
+            LOG_ERR("Windows7", "Could not get group with number: %u", chat_number);
             return;
         }
     } else {
@@ -62,7 +62,7 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
     if (GetSaveFileNameW(&ofn)) {
         path = calloc(1, UTOX_FILE_NAME_LENGTH);
         if (!path){
-            LOG_ERR("Windows7", " Could not allocate memory." );
+            LOG_ERR("Windows7", "Could not allocate memory.");
             return;
         }
 
@@ -75,7 +75,7 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
             LOG_ERR("Windows7", "Opening file %s failed", path);
         }
     } else {
-        LOG_ERR("Windows7", "Unable to open file and export chatlog.");
+        LOG_ERR("Windows7", "Could not open file and export chatlog.");
     }
     free(path);
 }
