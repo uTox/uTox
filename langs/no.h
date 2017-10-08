@@ -91,7 +91,7 @@ msgstr("Melding")
 msgid(ADD)
 msgstr("Legg til")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Lag Gruppesamtale")
 
 msgid(FRIENDREQUEST)

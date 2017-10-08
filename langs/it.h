@@ -94,7 +94,7 @@ msgstr("Messaggio")
 msgid(ADD)
 msgstr("Aggiungi")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Crea chat di gruppo")
 
 msgid(FRIENDREQUEST)
