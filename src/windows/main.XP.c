@@ -22,13 +22,13 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
     if (is_chat) {
         g = get_group(chat_number);
         if (!g) {
-            LOG_ERR("Windows7", "Could not get friend with number: %u", chat_number);
+            LOG_ERR("WinXP", "Could not get group with number: %u", chat_number);
             return;
         }
     } else {
         f = get_friend(chat_number);
         if (!f) {
-            LOG_ERR("Windows7", "Could not get friend with number: %u", chat_number);
+            LOG_ERR("WinXP", "Could not get friend with number: %u", chat_number);
             return;
         }
     }
