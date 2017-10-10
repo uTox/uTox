@@ -221,8 +221,8 @@ static void drawitem(ITEM *i, int x, int y, int width) {
         case ITEM_GROUP_CREATE: {
             drawalpha(group_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            flist_draw_name(i, name_x, name_y, width, S(CREATEGROUPCHAT), S(CURSOR_CLICK_RIGHT), SLEN(CREATEGROUPCHAT),
-                            SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            flist_draw_name(i, name_x, name_y, width, S(CREATEGROUPCHAT), NULL, SLEN(CREATEGROUPCHAT),
+                            0, 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             break;
         }
 
@@ -442,6 +442,8 @@ static void page_close(ITEM *i) {
         }
 
         case ITEM_GROUP_CREATE: {
+            panel_chat.disabled  = true;
+            panel_group_create.disabled = true;
             break;
         }
 
@@ -534,11 +536,12 @@ static void page_open(ITEM *i) {
             edit_chat_msg_group.history_cur    = g->edit_history_cur;
             edit_chat_msg_group.history_length = g->edit_history_length;
 
-            panel_chat.disabled           = 0;
-            panel_group.disabled          = 0;
-            panel_group_chat.disabled     = 0;
-            panel_group_video.disabled    = 1;
-            panel_group_settings.disabled = 1;
+            panel_chat.disabled           = false;
+            panel_group.disabled          = false;
+            panel_group_chat.disabled     = false;
+            panel_group_video.disabled    = true;
+            panel_group_settings.disabled = true;
+            panel_group_create.disabled   = true;
             break;
         }
 
@@ -560,6 +563,8 @@ static void page_open(ITEM *i) {
         }
 
         case ITEM_GROUP_CREATE: {
+            panel_chat.disabled         = false;
+            panel_group_create.disabled = false;
             // postmessage_toxcore(TOX_GROUP_CREATE, 0, 0, NULL);
             break;
         }
@@ -1114,7 +1119,6 @@ static void contextmenu_list_onselect(uint8_t i) {
                 contextmenu_friend(i);
                 return;
             }
-
             case ITEM_GROUP: {
                 panel_group_chat.disabled = false;
                 GROUPCHAT *g = get_group(right_mouse_item->id_number);
@@ -1145,16 +1149,6 @@ static void contextmenu_list_onselect(uint8_t i) {
                 }
                 return;
             }
-
-            case ITEM_GROUP_CREATE: {
-                if (i) {
-                    postmessage_toxcore(TOX_GROUP_CREATE, 0, 1, NULL);
-                } else {
-                    postmessage_toxcore(TOX_GROUP_CREATE, 0, 0, NULL);
-                }
-                return;
-            }
-
             default: {
                 LOG_TRACE("F-List", "blerg" );
                 return;
@@ -1183,7 +1177,6 @@ bool flist_mright(void *UNUSED(n)) {
                                                 STR_REMOVE_GROUP };
 
     static UTOX_I18N_STR menu_group[]        = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP };
-    static UTOX_I18N_STR menu_create_group[] = { STR_GROUP_CREATE_TEXT, STR_GROUP_CREATE_VOICE };
     static UTOX_I18N_STR menu_request[]      = { STR_REQ_ACCEPT, STR_REQ_DECLINE };
 
     if (mouseover_item) {
@@ -1211,7 +1204,6 @@ bool flist_mright(void *UNUSED(n)) {
             }
 
             case ITEM_GROUP_CREATE: {
-                contextmenu_new(COUNTOF(menu_create_group), menu_create_group, contextmenu_list_onselect);
                 break;
             }
 
