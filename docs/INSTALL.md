@@ -20,6 +20,7 @@ Dependencies:
 | filter_audio |   no     |
 | freetype     |   yes    |
 | GTK          |   no (runtime only) |
+| opus         |   yes    |
 | libvpx       |   yes    |
 | openal       |   yes    |
 | toxcore      |   yes    |
