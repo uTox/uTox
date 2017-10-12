@@ -1025,7 +1025,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             /* Empty message */
             pthread_mutex_unlock(&messages_lock);
             return;
-        } else if (y + msg->height <= (unsigned)MAIN_TOP) {
+        } else if (y + msg->height <= (unsigned)SCALE(MAIN_TOP)) {
             /* message is exclusively above the viewing window */
             y += msg->height;
             continue;
@@ -1068,16 +1068,28 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             }
 
             if (draw_author) {
-                if (msg->our_msg != lastauthor) {
+                if (msg->our_msg != lastauthor || y < SCALE(MAIN_TOP) + font_small_lineheight) {
+                    int msg_y;
+
+                    if (y < SCALE(MAIN_TOP) + font_small_lineheight) {
+                        msg_y = SCALE(MAIN_TOP);
+
+                        // Clear previous author label to draw a new one.
+                        // MAIN_TOP + 1 because otherwise it cuts off one pixel from TOP FRAME somehow
+                        draw_rect_fill(x, SCALE(MAIN_TOP) + 1, MESSAGES_X, font_small_lineheight, COLOR_BKGRND_MAIN);
+                    } else {
+                        msg_y = y;
+                    }
+
                     FRIEND *f = get_friend(m->id);
                     if (msg->our_msg) {
-                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length,
+                        messages_draw_author(x, msg_y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length,
                                              COLOR_MAIN_TEXT_SUBTEXT);
                     } else if (f->alias) {
-                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length,
+                        messages_draw_author(x, msg_y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length,
                                              COLOR_MAIN_TEXT_CHAT);
                     } else {
-                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length,
+                        messages_draw_author(x, msg_y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length,
                                              COLOR_MAIN_TEXT_CHAT);
                     }
                     lastauthor = msg->our_msg;
