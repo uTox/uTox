@@ -1140,7 +1140,10 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 static bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, char *message, uint32_t msg_height,
                                 uint16_t msg_length)
 {
-    cursor                  = CURSOR_TEXT;
+    if (mx < width - get_time_width()) {
+        cursor = CURSOR_TEXT;
+    }
+
     m->cursor_over_position = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - get_time_width(), (my < 0 ? 0 : my),
                                                msg_height, font_small_lineheight, message, msg_length, 1);
 
@@ -1230,11 +1233,7 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
 {
     MESSAGES *m = panel->object;
 
-    if (mx >= width - get_time_width()) {
-        m->cursor_over_time = 1;
-    } else {
-        m->cursor_over_time = 0;
-    }
+    m->cursor_over_time = inrect(mx, my, width - get_time_width(), 0, get_time_width(), m->height);
 
     if (m->cursor_down_msg < m->number) {
         uint32_t maxwidth = width - MESSAGES_X - get_time_width();
