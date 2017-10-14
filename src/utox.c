@@ -471,7 +471,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                     return;
                 }
 
-                memcpy(f->cid, data, sizeof(f->cid));
+                memcpy(f->id_bin, data, TOX_PUBLIC_KEY_SIZE);
                 flist_add_friend(f);
 
                 addfriend_status = ADDF_SENT;
