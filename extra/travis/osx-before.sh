@@ -4,6 +4,8 @@ set -eux
 
 . ./extra/travis/env.sh
 
+brew update
+
 brew install yasm
 brew install check
 
