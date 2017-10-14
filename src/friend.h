@@ -52,8 +52,6 @@ typedef struct friend_meta_data_old {
 
 
 typedef struct utox_friend {
-    uint8_t cid[TOX_PUBLIC_KEY_SIZE]; // TODO DEPERCATED REMOVE!
-
     uint8_t id_bin[TOX_PUBLIC_KEY_SIZE];
     char    id_str[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t number;
