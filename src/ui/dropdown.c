@@ -125,6 +125,26 @@ void dropdown_draw(DROPDOWN *d, int x, int y, int width, int height) {
 
 bool dropdown_mmove(DROPDOWN *d, int UNUSED(x), int y, int w, int h, int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
     if (d->open) {
+        bool mouseover;
+
+        if (my > 0) {
+            mouseover = inrect(mx, my, 0, 0, w, MIN(h * d->dropcount, (int)settings.window_height));
+        } else {
+            mouseover = mx >= 0 && mx <= w && abs(my) <= h * d->selected;
+        }
+
+        if (d->mouseover != mouseover) {
+            d->mouseover = mouseover;
+        }
+
+        if (mouseover) {
+            d->skip_mup = true;
+        } else {
+            d->over     = false;
+            d->skip_mup = false;
+            return true;
+        }
+
         int over = my / h + d->selected;
 
         if (y + h * d->dropcount > (int)settings.window_height) {
@@ -138,59 +158,80 @@ bool dropdown_mmove(DROPDOWN *d, int UNUSED(x), int y, int w, int h, int mx, int
             // over = index(d, over);
             if (over != d->over) {
                 d->over = over;
-                return 1;
+                return true;
             }
         }
     } else {
         bool mouseover = inrect(mx, my, 0, 0, w, h);
-        if (mouseover != d->mouseover) {
+        if (d->mouseover != mouseover) {
             d->mouseover = mouseover;
-            return 1;
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }
 
 bool dropdown_mdown(DROPDOWN *d) {
     if (d->mouseover && d->dropcount) {
-        d->open         = 1;
+        d->open         = true;
         active_dropdown = d;
-        return 1;
+        return true;
     }
 
-    return 0;
+    if (d->skip_mup) {
+        d->open         = false;
+        active_dropdown = NULL;
+        return true;
+    }
+
+    return false;
 }
 
 bool dropdown_mright(DROPDOWN *UNUSED(d)) {
-    return 0;
+    return false;
 }
 
 bool dropdown_mwheel(DROPDOWN *UNUSED(d), int UNUSED(height), double UNUSED(dlta), bool UNUSED(smooth)) {
-    return 0;
+    return false;
 }
 
 bool dropdown_mup(DROPDOWN *d) {
     if (d->open) {
-        d->open         = 0;
-        active_dropdown = NULL;
-        if (d->over < d->dropcount) {
-            d->selected = d->over;
-            d->onselect(d->selected, d);
+        if (!d->mouseover) {
+            d->open         = false;
+            active_dropdown = NULL;
+            return true;
         }
-        return 1;
+
+        if (d->skip_mup) {
+            d->open     = false;
+            d->skip_mup = false;
+            active_dropdown = NULL;
+
+            if (d->over < d->dropcount) {
+                d->selected = d->over;
+                d->onselect(d->selected, d);
+            }
+
+            return true;
+        } else {
+            d->skip_mup = true;
+        }
+
+        return false;
     }
 
-    return 0;
+    return false;
 }
 
 bool dropdown_mleave(DROPDOWN *d) {
     if (d->mouseover) {
-        d->mouseover = 0;
-        return 1;
+        d->mouseover = false;
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
 /***** list-based dropdown menu start *****/
@@ -226,7 +267,7 @@ void dropdown_list_clear(DROPDOWN *d) {
     free(d->userdata);
     d->userdata  = NULL;
     d->dropcount = 0;
-    d->over      = 0;
+    d->over      = false;
     d->selected  = 0;
 }
 
