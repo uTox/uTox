@@ -595,7 +595,7 @@ void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_
     } else {
         FRIEND *obj = object;
         if (friend_has_avatar(obj)) {
-            f_cid = obj->cid;
+            f_cid = obj->id_bin;
         }
     }
 
