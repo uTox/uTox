@@ -72,7 +72,7 @@ extern bool unity_running;
 #endif
 static void button_status_on_mup(void) {
     self.status++;
-    if (self.status == USER_STATUS_OFFLINE) {
+    if (self.status >= USER_STATUS_INVALID) {
         self.status = USER_STATUS_AVAILABLE;
     }
 
@@ -82,7 +82,7 @@ static void button_status_on_mup(void) {
     }
     #endif
 
-    postmessage_toxcore(TOX_SELF_SET_STATE, self.status, 0, NULL);
+    postmessage_toxcore(TOX_SELF_SET_STATE, to_tox_user_status(self.status), 0, NULL);
 }
 
 static void contextmenu_avatar_onselect(uint8_t i) {

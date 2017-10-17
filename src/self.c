@@ -28,3 +28,16 @@ void init_self(Tox *tox) {
 
     avatar_init_self();
 }
+
+TOX_USER_STATUS to_tox_user_status(USER_STATUS utox_user_status) {
+    if (utox_user_status == USER_STATUS_OFFLINE ||
+        utox_user_status == USER_STATUS_INVALID) {
+        return TOX_USER_STATUS_NONE;
+    }
+
+    return (TOX_USER_STATUS)(utox_user_status - 1);
+}
+
+USER_STATUS to_utox_user_status(TOX_USER_STATUS tox_user_status) {
+    return (USER_STATUS)(tox_user_status + 1);
+}

@@ -6,6 +6,7 @@
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
+#include "self.h"
 #include "settings.h"
 #include "text.h"
 #include "utox.h"
@@ -84,7 +85,7 @@ static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_
 }
 
 static void callback_user_status(Tox *UNUSED(tox), uint32_t fid, TOX_USER_STATUS status, void *UNUSED(userdata)) {
-    postmessage_utox(FRIEND_STATE, fid, status, NULL);
+    postmessage_utox(FRIEND_STATE, fid, to_utox_user_status(status), NULL);
     LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tState:\t%u", fid, status);
 }
 
@@ -374,7 +375,7 @@ static void callback_mdev_self_status_msg(Tox *tox, uint32_t dev_num, const uint
 }
 
 static void callback_mdev_self_state(Tox *tox, uint32_t device_number, TOX_USER_STATUS state, void *user_data) {
-    self.status = state;
+    self.status = to_utox_user_status(state);
 }
 
 static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint32_t target_friend,
