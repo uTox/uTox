@@ -1,8 +1,6 @@
 #ifndef LAYOUT_GROUP_H
 #define LAYOUT_GROUP_H
 
-void group_create_draw(void);
-
 typedef struct scrollable SCROLLABLE;
 extern SCROLLABLE scrollbar_group;
 
