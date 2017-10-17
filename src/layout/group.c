@@ -25,9 +25,6 @@
 #include <string.h>
 #include <tox/tox.h>
 
-static void draw_group_create(int x, int y, int UNUSED(width), int UNUSED(height));
-void group_create_draw(void);
-
 SCROLLABLE scrollbar_group = {
     .panel = { .type = PANEL_SCROLLABLE, },
     .color = C_SCROLL,
@@ -99,11 +96,6 @@ static void draw_group_create(int x, int y, int UNUSED(width), int UNUSED(height
     setfont(FONT_SELF_NAME);
 
     drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 10), CREATEGROUPCHAT);
-}
-
-void group_create_draw() {
-    CREATE_SWITCH(group_type, 10, MAIN_TOP + 35, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_BUTTON(create_group, 20 + _BM_SWITCH_WIDTH, MAIN_TOP + 37, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 }
 
 static void button_create_group_on_mup(void) {
@@ -582,6 +574,13 @@ BUTTON button_chat_send_group = {
 };
 
 BUTTON button_create_group = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 20 + _BM_SWITCH_WIDTH,
+        .y      = MAIN_TOP + 37,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_create_group_on_mup,
@@ -590,6 +589,13 @@ BUTTON button_create_group = {
 };
 
 UISWITCH switch_group_type = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = MAIN_TOP + 35,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,

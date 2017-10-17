@@ -339,8 +339,6 @@ void ui_rescale(uint8_t scale) {
     CREATE_BUTTON(confirm_deletion, 10, MAIN_TOP + 40, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
     CREATE_BUTTON(deny_deletion,    110, MAIN_TOP + 40, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
-    group_create_draw();
-
     setscale();
 }
 
