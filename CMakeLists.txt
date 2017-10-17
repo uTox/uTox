@@ -73,6 +73,11 @@ else()
     set(ASAN_DEFAULT ON)
 endif()
 
+# ASAN causes uTox to be slower so do no use it for release builds
+if (CMAKE_BUILD_TYPE MATCHES "Release")
+   set(ASAN_DEFAULT OFF)
+endif()
+
 ###########
 # Options #
 ###########
