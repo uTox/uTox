@@ -492,7 +492,6 @@ msgstr("Use mini contact list")
 /**
  * Status name (Away) should be the same as STATUS_AWAY
  */
-#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 msgid(SETTINGS_IDLE_STATUS)
 msgstr("Show me as Away after")
 
@@ -501,7 +500,6 @@ msgstr("minutes of inactivity")
 
 msgid(SETTINGS_IDLE_STATUS_TOOLTIP)
 msgstr("Idle status")
-#endif
 
 msgid(SETTINGS_UI_AUTO_HIDE_SIDEBAR)
 msgstr("Auto hide sidebar")
