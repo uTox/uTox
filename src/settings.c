@@ -102,11 +102,9 @@ SETTINGS settings = {
     .use_mini_flist         = false,
     .magic_flist_enabled    = false,
 
-    #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
     // TODO: Add to save
     .idle_status            = false,
     .idle_interval          = 10,
-    #endif
 
     .video_fps              = 25,
 
@@ -432,14 +430,12 @@ UTOX_SAVE *config_load(void) {
     switch_mini_contacts.switch_on     = save->use_mini_flist;
     switch_magic_sidebar.switch_on     = save->magic_flist_enabled;
 
-    #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
     switch_idle_status.switch_on = settings.idle_status;
     edit_idle_interval.length =
         snprintf((char *)edit_idle_interval.data, edit_idle_interval.maxlength + 1, "%u", settings.idle_interval);
     if (edit_idle_interval.length > edit_idle_interval.maxlength) {
         edit_idle_interval.length = edit_idle_interval.maxlength;
     }
-    #endif
 
     switch_ipv6.switch_on             = save->enableipv6;
     switch_udp.switch_on              = !save->disableudp;

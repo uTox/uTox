@@ -210,10 +210,8 @@ static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(125), START_IN_TRAY);
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(155), AUTO_STARTUP);
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
-    #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(215), SETTINGS_IDLE_STATUS);
     drawstr(x + SCALE(80) + BM_SWITCH_WIDTH + UTOX_STR_WIDTH(SETTINGS_IDLE_STATUS), y + SCALE(215), SETTINGS_IDLE_STATUS_END);
-    #endif
     #if PLATFORM_ANDROID
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(215), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
     #endif
@@ -413,10 +411,8 @@ panel_settings_master = {
             (PANEL*)&switch_start_in_tray,
             (PANEL*)&switch_auto_startup,
             (PANEL*)&switch_mini_contacts,
-            #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
             (PANEL*)&switch_idle_status,
             (PANEL*)&edit_idle_interval,
-            #endif
             #if PLATFORM_ANDROID
             (PANEL*)&switch_magic_sidebar,
             #endif
@@ -988,7 +984,6 @@ UISWITCH switch_mini_contacts = {
     .tooltip_text   = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER },
 };
 
-#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 static void switchfxn_idle_status(void) {
     settings.idle_status = !settings.idle_status;
 }
@@ -1002,7 +997,6 @@ UISWITCH switch_idle_status = {
     .on_mup         = switchfxn_idle_status,
     .tooltip_text   = {.i18nal = STR_SETTINGS_IDLE_STATUS_TOOLTIP },
 };
-#endif
 
 static void switchfxn_magic_sidebar(void) {
     settings.magic_flist_enabled = !settings.magic_flist_enabled;
@@ -1348,9 +1342,7 @@ static char edit_name_data[128],
             edit_proxy_port_data[8],
             edit_video_fps_data[8],
             edit_profile_password_data[65535],
-            #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
             edit_idle_interval_data[UINT16_MAX],
-            #endif
             edit_nospam_data[(sizeof(uint32_t) * 2) + 1] = { 0 };
 
 #ifdef ENABLE_MULTIDEVICE
@@ -1500,7 +1492,6 @@ EDIT edit_add_new_device_to_self = {
     .onenter   = edit_add_new_device_to_self_onenter,
 };
 
-#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 static void edit_idle_interval_onenter(EDIT *UNUSED(edit)) {
     edit_idle_interval.data[edit_idle_interval.length] = 0;
     settings.idle_interval = strtol((char *)edit_idle_interval.data, NULL, 0);
@@ -1512,4 +1503,3 @@ EDIT edit_idle_interval = {
     .onlosefocus = edit_idle_interval_onenter,
     .onenter     = edit_idle_interval_onenter,
 };
-#endif
