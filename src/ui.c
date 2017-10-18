@@ -140,10 +140,8 @@ static void settings_UI(void) {
     CREATE_SWITCH(start_in_tray,     10, 175, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
     CREATE_SWITCH(auto_startup,      10, 205, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
     CREATE_SWITCH(mini_contacts,     10, 235, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
     CREATE_SWITCH(idle_status,       10, 265, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
     CREATE_EDIT(idle_interval, _BM_SWITCH_WIDTH + 25 + UN_SCALE(UTOX_STR_WIDTH(SETTINGS_IDLE_STATUS)), 266, 50, 24);
-    #endif
 }
 
 static void settings_AV(void) {

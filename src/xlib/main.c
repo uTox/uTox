@@ -50,10 +50,7 @@ XIC xic     = NULL;
 
 static XSizeHints *xsh = NULL;
 static bool shutdown   = false;
-
-#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 static bool idle       = false;
-#endif
 
 void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, main_window.window, CurrentTime);
@@ -691,7 +688,6 @@ static void signal_handler(int signal) {
     shutdown = true;
 }
 
-#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 static void idle_handler() {
     if (!settings.idle_status) {
         return;
@@ -768,7 +764,6 @@ static bool XNextEventTimed(XEvent *event_return, struct timeval *tv) {
         return true;
     }
 }
-#endif
 
 #include "../ui/dropdown.h" // this is for dropdown.language TODO provide API
 int main(int argc, char *argv[]) {
@@ -921,17 +916,14 @@ int main(int argc, char *argv[]) {
     // start toxcore thread
     thread(toxcore_thread, NULL);
 
-    #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
     struct timeval tv;
     tv.tv_sec = idle_check_period;
     tv.tv_usec = 0;
-    #endif
 
     /* event loop */
     while (!shutdown) {
         XEvent event;
 
-        #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
         if (XNextEventTimed(&event, &tv)) {
             if (!doevent(event)) {
                 break;
@@ -939,12 +931,6 @@ int main(int argc, char *argv[]) {
         } else {
             idle_handler();
         }
-        #else
-        XNextEvent(display, &event);
-        if (!doevent(event)) {
-            break;
-        }
-        #endif
 
         if (XPending(display)) {
             continue;

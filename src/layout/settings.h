@@ -48,9 +48,7 @@ extern UISWITCH /* User Interface Tab */
                 switch_start_in_tray,
                 switch_auto_startup,
                 switch_mini_contacts,
-                #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
                 switch_idle_status,
-                #endif
                 switch_magic_sidebar,
                 /* AV Tab */
                 switch_push_to_talk,
@@ -85,9 +83,7 @@ extern EDIT /* Profile */
             edit_name,
             edit_status_msg,
             edit_toxid,
-            #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
             edit_idle_interval,
-            #endif
             /* Advanced */
             edit_proxy_ip,
             edit_proxy_port,

@@ -17,9 +17,7 @@ extern uint16_t loaded_audio_in_device, loaded_audio_out_device;
 /**
  * Period (in seconds) for check is user idle or not.
  */
-#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 static const uint16_t idle_check_period = 1;
-#endif
 
 typedef struct utox_settings {
     // uTox versions settings
@@ -66,10 +64,8 @@ typedef struct utox_settings {
     bool use_mini_flist;
     bool magic_flist_enabled;
 
-    #if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
     bool idle_status;
     uint16_t idle_interval;
-    #endif
 
     // Notifications / Alerts
     bool    ringtone_enabled;

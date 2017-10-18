@@ -39,10 +39,7 @@ struct thread_call {
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
 struct utox_self *tox_self; // reference to self from self.h
-
-#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 static bool idle = false;
-#endif
 
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) {
     return img != NULL && img->image != nil;
@@ -322,7 +319,6 @@ void launch_at_startup(bool should) {
     id local_event_listener;
 }
 
-#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
 - (void)idle_handler {
 
     if (!settings.idle_status) {
@@ -358,7 +354,6 @@ void launch_at_startup(bool should) {
         idle = false;
     }
 }
-#endif
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
     [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self
@@ -435,13 +430,11 @@ void launch_at_startup(bool should) {
                             [self.utox_window makeFirstResponder:self.utox_window.contentView];
                             [self.utox_window makeKeyAndOrderFront:self];
 
-#if !DISABLE_IDLE_STATUS && !PLATFORM_ANDROID
     [NSTimer scheduledTimerWithTimeInterval:idle_check_period // run idle_handler() approx. every idle_check_period seconds
         target:self
         selector:@selector(idle_handler)
         userInfo:nil
         repeats:YES];
-#endif
 }
 
 - (NSMenu *)applicationDockMenu:(NSApplication *)sender {

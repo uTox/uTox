@@ -88,7 +88,6 @@ option(ENABLE_WERROR      "Error on Warning, whether to put -Werror flag to the 
 option(ENABLE_FILTERAUDIO "Enable Filter Audio"                                                 ON )
 option(ENABLE_AUTOUPDATE  "Enable Auto-updater"                                                 OFF)
 option(ENABLE_LTO         "Enable link time optimizations"                                      ON )
-option(DISABLE_IDLESTATUS "Disable idle status option (Linux only)"                             OFF)
 
 
 #################################
@@ -283,12 +282,8 @@ include_directories(${LIBVPX_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBVPX_LIBRARIES})
 
 if(UNIX AND NOT APPLE)
-    if(DISABLE_IDLESTATUS)
-        add_cflag("-DDISABLE_IDLE_STATUS=1")
-    else()
-        include_directories(${X11_INCLUDE_DIR})
-        set(LIBRARIES ${LIBRARIES} Xss)
-    endif()
+    include_directories(${X11_INCLUDE_DIR})
+    set(LIBRARIES ${LIBRARIES} Xss)
 endif()
 
 include_directories(SYSTEM third-party/stb)
@@ -436,7 +431,6 @@ message("- Filter Audio:            ${ENABLE_FILTERAUDIO}")
 message("- Auto Updater:            ${ENABLE_AUTOUPDATE}")
 message("- uTox Static:             ${UTOX_STATIC}")
 message("- Toxcore Static:          ${TOXCORE_STATIC}")
-message("- Disable idle status:     ${DISABLE_IDLESTATUS}")
 message("-- Platform Options --------------")
 if(WINDOWS)
     message("- Windows Legacy:          ${WIN_XP_LEGACY}")
