@@ -136,6 +136,9 @@ typedef enum {
     /* TODO REMOVE OLD ONES! */
     STR_ADDFRIENDS,
     STR_TOXID,
+    STR_SHOW_QR,
+    STR_HIDE_QR,
+    STR_SAVE_QR,
     STR_MESSAGE,
     STR_FILTER_ALL,
     STR_FILTER_ONLINE,
@@ -213,7 +216,7 @@ typedef enum {
 
     // Interact with texts / clipboard
     STR_COPY,
-    STR_COPY_TOX_ID = STR_COPY,
+    STR_COPY_TOX_ID,
     STR_COPYWITHOUTNAMES,
     STR_COPY_WITH_NAMES,
     STR_CUT,

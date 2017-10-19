@@ -11,11 +11,13 @@
 #include "../av/video.h"
 
 #include "../native/clipboard.h"
+#include "../native/filesys.h"
 #include "../native/keyboard.h"
 #include "../native/notify.h"
 #include "../native/os.h"
 
 #include "../ui/button.h"
+#include "../ui/contextmenu.h"
 #include "../ui/draw.h"
 #include "../ui/dropdown.h"
 #include "../ui/edit.h"
@@ -146,6 +148,18 @@ static void draw_settings_text_profile(int x, int y, int UNUSED(w), int UNUSED(h
     drawstr(x + SCALE(10), y + SCALE(65), STATUSMESSAGE);
     drawstr(x + SCALE(10), y + SCALE(120), TOXID);
     drawstr(x + SCALE(10), y + SCALE(175), LANGUAGE);
+
+    if (self.qr_image && !button_qr.disabled) {
+        // Enlarge original QR for better recognition
+        const double image_scale = SCALE(4);
+        const uint32_t image_size = self.qr_data_size * image_scale;
+
+        button_qr.panel.width = button_qr.panel.height = UN_SCALE(self.qr_image_size * image_scale);
+
+        image_set_scale(self.qr_image, image_scale);
+        draw_image(self.qr_image, x + SCALE(10), y + SCALE(230), image_size, image_size, 0, 0);
+        image_set_scale(self.qr_image, 1.0);
+    }
 }
 
 // Devices settings page
@@ -367,7 +381,9 @@ panel_settings_master = {
             // Text: Tox ID
             (PANEL*)&edit_toxid,
             (PANEL*)&button_copyid,
+            (PANEL*)&button_show_qr,
             (PANEL*)&dropdown_language,
+            (PANEL*)&button_qr,
             NULL
         }
     },
@@ -682,6 +698,31 @@ static void button_copyid_on_mup(void) {
     copy(0);
 }
 
+static void button_show_qr_on_mup(void) {
+    if (button_qr.disabled) {
+        maybe_i18nal_string_set_i18nal(&button_show_qr.button_text, STR_HIDE_QR);
+    } else {
+        maybe_i18nal_string_set_i18nal(&button_show_qr.button_text, STR_SHOW_QR);
+    }
+
+    button_qr.disabled = !button_qr.disabled;
+    button_qr.panel.disabled = button_qr.disabled;
+}
+
+static void contextmenu_qr_onselect(uint8_t i) {
+    if (i == 0) {
+        LOG_ERR("Settings", "name=%s", self.name);
+        if (!native_save_image_png(self.name, self.qr_data, self.qr_data_size)) {
+            LOG_ERR("Self", "Unable to save QR code.");
+        }
+    }
+}
+
+static void button_qr_on_mright(void) {
+    static UTOX_I18N_STR menu[] = { STR_SAVE_QR };
+    contextmenu_new(COUNTOF(menu), menu, contextmenu_qr_onselect);
+}
+
 #include "../settings.h"
 #include "../av/utox_av.h"
 static void button_audiopreview_on_mup(void) {
@@ -719,12 +760,45 @@ static void button_videopreview_update(BUTTON *b) {
         button_setcolors_success(b);
     }
 }
+
+static void button_show_qr_update(BUTTON *b) {
+    button_setcolors_success(b);
+    b->panel.x = 85 + UN_SCALE(UTOX_STR_WIDTH(COPY_TOX_ID));
+}
+
 BUTTON button_copyid = {
     .bm_fill  = BM_SBUTTON,
     .update   = button_setcolors_success,
     .on_mup   = button_copyid_on_mup,
     .disabled = false,
     .button_text = {.i18nal = STR_COPY_TOX_ID },
+};
+
+BUTTON button_show_qr = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 85 + _BM_SBUTTON_WIDTH,
+        .y      = 117,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT
+    },
+    .bm_fill  = BM_SBUTTON,
+    .update   = button_show_qr_update,
+    .on_mup   = button_show_qr_on_mup,
+    .disabled = false,
+    .button_text = {.i18nal = STR_SHOW_QR },
+};
+
+BUTTON button_qr = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 10,
+        .y      = 230,
+        .disabled = true,
+    },
+    .nodraw   = true,
+    .disabled = true,
+    .onright  = button_qr_on_mright,
 };
 
 BUTTON button_callpreview = {

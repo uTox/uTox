@@ -283,6 +283,10 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
 void native_export_chatlog_init(uint32_t friend_number)
 {   /* Unsupported on Android */ }
 
+bool native_save_image_png(const char *name, const uint8_t *image, const int image_size) {
+    /* Unsupported on Android */
+}
+
 void flush_file(FILE *file) {
     fflush(file);
     int fd = fileno(file);

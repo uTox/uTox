@@ -2,6 +2,7 @@
 #define SELF_H
 
 #include <tox/tox.h>
+#include "native/image.h"
 
 typedef struct avatar AVATAR;
 
@@ -22,6 +23,12 @@ struct utox_self {
 
     char   id_str[TOX_ADDRESS_SIZE * 2];
     size_t id_str_length;
+
+    NATIVE_IMAGE *qr_image;
+    int qr_data_size;
+
+    uint8_t *qr_data;
+    int qr_image_size;
 
     uint8_t id_binary[TOX_ADDRESS_SIZE];
 
