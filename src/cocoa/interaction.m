@@ -976,6 +976,28 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
         msg->via.ft.inline_png = false;
     }
 }
+
+bool native_save_image_png(const char *name, const uint8_t *image, const int image_size) {
+    NSSavePanel *picker = [NSSavePanel savePanel];
+    NSString *fname =
+        [[NSString alloc] initWithBytes:name length:strlen(name) encoding:NSUTF8StringEncoding];
+    picker.message = [NSString
+        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), strlen(name), name];
+    picker.nameFieldStringValue = fname;
+    [fname release];
+    int ret = [picker runModal];
+
+    if (ret == NSFileHandlingPanelOKButton) {
+        NSURL  *destination = picker.URL;
+        NSData *d = [NSData dataWithBytesNoCopy:image length:image_size freeWhenDone:NO];
+        [d writeToURL:destination atomically:YES];
+
+        return true;
+    }
+
+    return false;
+}
+
 //@"Select one or more files to send."
 void openfilesend(void) {
     NSOpenPanel *picker            = [NSOpenPanel openPanel];
