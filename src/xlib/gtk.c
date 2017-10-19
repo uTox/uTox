@@ -348,6 +348,44 @@ static void ugtk_save_chatlog_thread(void *args) {
     utoxGTK_open = false;
 }
 
+void ugtk_save_image_png_thread(void *args) {
+    FILE_IMAGE *image = args;
+
+    char name[TOX_MAX_NAME_LENGTH + sizeof ".png"] = { 0 };
+    snprintf(name, sizeof name, "%s.png", image->name);
+
+    void *dialog = utoxGTK_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
+                                                   "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
+    void *filter = utoxGTK_file_filter_new();
+    utoxGTK_file_filter_add_mime_type(filter, "image/png");
+    utoxGTK_file_chooser_set_filter(dialog, filter);
+
+    utoxGTK_file_chooser_set_current_name(dialog, name);
+    int result = utoxGTK_dialog_run(dialog);
+    if (result == GTK_RESPONSE_ACCEPT) {
+        char *file_name = utoxGTK_file_chooser_get_filename(dialog);
+
+        FILE *file = fopen(file_name, "wb");
+        if (file) {
+            fwrite(image->data, image->data_size, 1, file);
+            fclose(file);
+        } else {
+            LOG_ERR("GTK", "Could not open file %s for write.", file_name);
+        }
+
+        free(file_name);
+    }
+
+    utoxGTK_widget_destroy(dialog);
+
+    while (utoxGTK_events_pending()) {
+        utoxGTK_main_iteration();
+    }
+
+    utoxGTK_open = false;
+    free(image);
+}
+
 void ugtk_openfilesend(void) {
     if (utoxGTK_open) {
         return;
@@ -385,6 +423,15 @@ void ugtk_file_save_inline(MSG_HEADER *msg) {
     }
     utoxGTK_open = true;
     thread(ugtk_save_data_thread, msg);
+}
+
+void ugtk_file_save_image_png(FILE_IMAGE *image) {
+    if (utoxGTK_open) {
+        return;
+    }
+    utoxGTK_open = true;
+    LOG_ERR("Native", "no thread name=%s", image->name);
+    thread(ugtk_save_image_png_thread, image);
 }
 
 void ugtk_save_chatlog(uint32_t friend_number) {

@@ -210,6 +210,46 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
     }
 }
 
+bool native_save_image_png(const char *name, const uint8_t *image, const int image_size) {
+    wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    size_t length = strlen(name);
+    utf8_to_nativestr(name, filepath, length * 2);
+
+    OPENFILENAMEW ofn = {
+        .lStructSize    = sizeof(OPENFILENAMEW),
+        .hwndOwner      = main_window.window,
+        .lpstrFile      = filepath,
+        .nMaxFile       = UTOX_FILE_NAME_LENGTH,
+        .lpstrDefExt    = L"png",
+        .lpstrFilter    = L"PNG Files\0*.png\0",
+        .Flags          = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST,
+    };
+
+    if (GetSaveFileNameW(&ofn)) {
+        char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+        if (!path){
+            LOG_ERR("NATIVE", "Could not allocate memory for path.");
+            return false;
+        }
+
+        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH);
+
+        FILE *file = utox_get_file_simple(path, UTOX_FILE_OPTS_WRITE);
+        if (file) {
+            fwrite(image, image_size, 1, file);
+            fclose(file);
+            free(path);
+            return true;
+        } else {
+            LOG_ERR("NATIVE", "Could not open file %s for write.", path);
+            free(path);
+            return false;
+        }
+    }
+
+    return false;
+}
+
 void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
     PostMessage(main_window.window, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
 }
