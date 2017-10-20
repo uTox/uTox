@@ -984,6 +984,7 @@ bool native_save_image_png(const char *name, const uint8_t *image, const int ima
     picker.message = [NSString
         stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), strlen(name), name];
     picker.nameFieldStringValue = fname;
+    picker.allowedFileTypes = @[ @"png" ];
     [fname release];
     int ret = [picker runModal];
 

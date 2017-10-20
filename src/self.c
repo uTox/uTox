@@ -38,9 +38,10 @@ void qr_setup() {
     const char *tox_uri_scheme = "tox:";
     const int tox_uri_scheme_length = 4;
     const uint8_t channel_number = 3;
+    const uint8_t tox_uri_length = TOX_ADDRESS_SIZE * 2 + tox_uri_scheme_length + 1;
 
-    char tox_uri[TOX_ADDRESS_SIZE * 2 + tox_uri_scheme_length];
-    memset(tox_uri, 0, TOX_ADDRESS_SIZE * 2 + tox_uri_scheme_length);
+    char tox_uri[tox_uri_length];
+    memset(tox_uri, 0, tox_uri_length);
     strcat(tox_uri, tox_uri_scheme);
     strcat(tox_uri, self.id_str);
 

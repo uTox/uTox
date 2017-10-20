@@ -711,7 +711,6 @@ static void button_show_qr_on_mup(void) {
 
 static void contextmenu_qr_onselect(uint8_t i) {
     if (i == 0) {
-        LOG_ERR("Settings", "name=%s", self.name);
         if (!native_save_image_png(self.name, self.qr_data, self.qr_data_size)) {
             LOG_ERR("Self", "Unable to save QR code.");
         }
