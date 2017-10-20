@@ -3,11 +3,6 @@ set -e -u -x
 
 . ./extra/travis/env.sh
 
-if [ -f /usr/bin/gcc-6 ]; then # the default version of gcc is broken on travis
-    export CC=gcc-6
-    export CFLAGS="-fuse-ld=gold"
-fi
-
 cmake . \
   -DCMAKE_INCLUDE_PATH="$CACHE_DIR/usr/include" \
   -DCMAKE_LIBRARY_PATH="$CACHE_DIR/usr/lib" \
