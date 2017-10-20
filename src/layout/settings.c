@@ -152,7 +152,7 @@ static void draw_settings_text_profile(int x, int y, int UNUSED(w), int UNUSED(h
     if (self.qr_image && !button_qr.disabled) {
         // Enlarge original QR for better recognition
         const double image_scale = SCALE(4);
-        const uint32_t image_size = self.qr_data_size * image_scale;
+        const uint32_t image_size = self.qr_image_size * image_scale;
 
         button_qr.panel.width = button_qr.panel.height = UN_SCALE(self.qr_image_size * image_scale);
 
@@ -711,7 +711,6 @@ static void button_show_qr_on_mup(void) {
 
 static void contextmenu_qr_onselect(uint8_t i) {
     if (i == 0) {
-        LOG_ERR("Settings", "name=%s", self.name);
         if (!native_save_image_png(self.name, self.qr_data, self.qr_data_size)) {
             LOG_ERR("Self", "Unable to save QR code.");
         }
