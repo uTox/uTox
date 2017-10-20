@@ -42,7 +42,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-6
+            - gcc-7
             - cmake
             - check
             - yasm
