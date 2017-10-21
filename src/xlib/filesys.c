@@ -233,6 +233,11 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
 bool native_save_image_png(char *name, uint8_t *image, int image_size) {
     if (libgtk) {
         FILE_IMAGE *file_image = calloc(1, sizeof(FILE_IMAGE));
+        if (!file_image) {
+            LOG_ERR("Native", "Could not allocate memory.");
+            return false;
+        }
+
         file_image->name       = name;
         file_image->data       = image;
         file_image->data_size  = image_size;
