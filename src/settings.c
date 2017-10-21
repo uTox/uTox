@@ -141,20 +141,17 @@ static void write_config_value_bool(const char *filename, const char *section, c
 static CONFIG_SECTION get_section(const char* section) {
     if (MATCH(general_section, section)) {
         return GENERAL_SECTION;
-    }
-    if (MATCH(interface_section, section)) {
+    } else if (MATCH(interface_section, section)) {
         return INTERFACE_SECTION;
-    }
-    if (MATCH(av_section, section)) {
+    } else if (MATCH(av_section, section)) {
         return AV_SECTION;
-    }
-    if (MATCH(notifications_section, section)) {
+    } else if (MATCH(notifications_section, section)) {
         return NOTIFICATIONS_SECTION;
-    }
-    if (MATCH(advanced_section, section)) {
+    } else if (MATCH(advanced_section, section)) {
         return ADVANCED_SECTION;
+    } else {
+        return UNKNOWN_SECTION;
     }
-    return UNKNOWN_SECTION;
 }
 
 static void parse_general_section(UTOX_SAVE *config, const char* key, const char* value) {
