@@ -290,7 +290,7 @@ include_directories(${LIBSODIUM_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBSODIUM_LIBRARIES})
 
 include_directories(SYSTEM src/stb)
-include_directories(SYSTEM minIni/dev)
+include_directories(SYSTEM third-party/minini/dev)
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -362,7 +362,7 @@ add_executable(utox ${GUI_TYPE}
     src/updater.c
     src/utox.c
     src/window.c
-    minIni/dev/minIni.c
+    third-party/minini/dev/minIni.c
 
     ${WINDOWS_ICON}
     ${APPLE_FILES}
