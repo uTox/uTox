@@ -286,7 +286,7 @@ static UTOX_SAVE *utox_load_config(void) {
         return NULL;
     }
 
-    char *config_path = get_filepath(config_file_name);
+    char *config_path = utox_get_filepath(config_file_name);
 
     if (!config_path) {
         LOG_ERR("Settings", "Unable to get %s path.", config_file_name);
@@ -307,7 +307,7 @@ static UTOX_SAVE *utox_load_config(void) {
 }
 
 static bool utox_save_config(UTOX_SAVE *config) {
-    char *config_path = get_filepath(config_file_name);
+    char *config_path = utox_get_filepath(config_file_name);
 
     if (!config_path) {
         LOG_ERR("Settings", "Unable to get %s path.", config_file_name);

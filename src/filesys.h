@@ -68,6 +68,6 @@ void *file_raw(char *path, uint32_t *size);
  * @param name name of the file.
  * @return null-terminated string, or NULL on failure.
  */
-char *get_filepath(const char *name);
+char *utox_get_filepath(const char *name);
 
 #endif
