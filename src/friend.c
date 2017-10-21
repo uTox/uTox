@@ -475,6 +475,18 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     uint8_t id[TOX_ADDRESS_SIZE];
     if (length_cleaned == TOX_ADDRESS_SIZE * 2 && string_to_id(id, (char *)name_cleaned)) {
         friend_addid(id, msg, msg_length);
+    } else if (length_cleaned == TOX_PUBLIC_KEY_SIZE * 2) {
+        string_to_id(id, (char*)name_cleaned);
+        uint8_t *data = calloc(sizeof(uint8_t), TOX_PUBLIC_KEY_SIZE);
+
+        if (!data) {
+            LOG_ERR("Calloc", "Memory allocation failed!");
+            return;
+        }
+
+        memcpy(data, id, TOX_PUBLIC_KEY_SIZE);
+        postmessage_toxcore(TOX_FRIEND_NEW_NO_REQ, TOX_PUBLIC_KEY_SIZE, 0, data);
+        addfriend_status = ADDF_NOFREQUESTSENT;
     } else {
         addfriend_status = ADDF_BADNAME;
     }
