@@ -29,6 +29,8 @@
 #include "ui/text.h"
 #include "ui/tooltip.h"
 
+#include <stdlib.h>
+
 static CHRONO_INFO *sidebar_chrono = NULL;
 
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
