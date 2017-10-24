@@ -44,7 +44,7 @@ struct utox_self {
 
 void init_self(Tox *tox);
 
-TOX_USER_STATUS to_tox_user_status(USER_STATUS utox_user_status);
-USER_STATUS to_utox_user_status(TOX_USER_STATUS tox_user_status);
+TOX_USER_STATUS user_status_to_tox(USER_STATUS utox_user_status);
+USER_STATUS user_status_to_utox(TOX_USER_STATUS tox_user_status);
 
 #endif
