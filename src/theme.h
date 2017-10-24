@@ -1,6 +1,8 @@
 #ifndef THEME_H
 #define THEME_H
 
+#include "self.h"
+
 #include <stdint.h>
 
 typedef enum {
@@ -99,7 +101,7 @@ uint32_t COLOR_BTN_INPROGRESS_FORGRND;
 
 void theme_load(const THEME loadtheme);
 
-uint32_t status_color[5];
+uint32_t status_color[USER_STATUS_INVALID];
 
 extern const char *COLOUR_NAME_TABLE[];
 extern uint32_t *COLOUR_POINTER_TABLE[];
