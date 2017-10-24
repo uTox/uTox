@@ -80,7 +80,7 @@ SETTINGS settings = {
     .verbose = LOG_LVL_ERROR,
     .debug_file = NULL,
 
-    // .theme                       // included here to match the full struct
+    .theme                = UINT32_MAX,
     // OS interface settings
     .window_x             = 0,
     .window_y             = 0,
@@ -223,10 +223,8 @@ UTOX_SAVE *config_load(void) {
     // TODO: Don't clobber (and start saving) commandline flags.
 
     // Allow users to override theme on the cmdline.
-    // 0 is the default theme.
-    // TODO: `utox -t default` is still broken.
-    if (settings.theme == 0) {
-        settings.theme              = save->theme;
+    if (settings.theme == UINT32_MAX) {
+        settings.theme = save->theme;
     }
 
     ui_set_scale(save->scale);
