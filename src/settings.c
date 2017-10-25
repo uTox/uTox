@@ -35,12 +35,6 @@ static const char *config_file_name_old = "utox_save";
 
 static const uint16_t proxy_address_size = 256; // Magic number inside Toxcore.
 
-static const char *general_section       = "general";
-static const char *interface_section     = "interface";
-static const char *av_section            = "av";
-static const char *notifications_section = "notifications";
-static const char *advanced_section      = "advanced";
-
 /**
  * Config section names.
  */
@@ -52,6 +46,14 @@ typedef enum {
     ADVANCED_SECTION,
     UNKNOWN_SECTION
 } CONFIG_SECTION;
+
+static const char *config_sections[UNKNOWN_SECTION] = {
+    "general",
+    "interface",
+    "av",
+    "notifications",
+    "advanced"
+};
 
 SETTINGS settings = {
     // .last_version                // included here to match the full struct
@@ -139,15 +141,15 @@ static void write_config_value_bool(const char *filename, const char *section, c
 }
 
 static CONFIG_SECTION get_section(const char* section) {
-    if (MATCH(general_section, section)) {
+    if (MATCH(config_sections[GENERAL_SECTION], section)) {
         return GENERAL_SECTION;
-    } else if (MATCH(interface_section, section)) {
+    } else if (MATCH(config_sections[INTERFACE_SECTION], section)) {
         return INTERFACE_SECTION;
-    } else if (MATCH(av_section, section)) {
+    } else if (MATCH(config_sections[AV_SECTION], section)) {
         return AV_SECTION;
-    } else if (MATCH(notifications_section, section)) {
+    } else if (MATCH(config_sections[NOTIFICATIONS_SECTION], section)) {
         return NOTIFICATIONS_SECTION;
-    } else if (MATCH(advanced_section, section)) {
+    } else if (MATCH(config_sections[ADVANCED_SECTION], section)) {
         return ADVANCED_SECTION;
     } else {
         return UNKNOWN_SECTION;
@@ -312,49 +314,49 @@ static bool utox_save_config(UTOX_SAVE *config) {
     }
 
     // general
-    write_config_value_int(config_path, general_section, NAMEOF(config->save_version), config->save_version);
-    write_config_value_int(config_path, general_section, NAMEOF(config->utox_last_version), config->utox_last_version);
-    write_config_value_bool(config_path, general_section, NAMEOF(config->send_version), config->send_version);
-    write_config_value_bool(config_path, general_section, NAMEOF(config->update_to_develop), config->update_to_develop);
+    write_config_value_int(config_path, config_sections[GENERAL_SECTION], NAMEOF(config->save_version), config->save_version);
+    write_config_value_int(config_path, config_sections[GENERAL_SECTION], NAMEOF(config->utox_last_version), config->utox_last_version);
+    write_config_value_bool(config_path, config_sections[GENERAL_SECTION], NAMEOF(config->send_version), config->send_version);
+    write_config_value_bool(config_path, config_sections[GENERAL_SECTION], NAMEOF(config->update_to_develop), config->update_to_develop);
 
     // interface
-    write_config_value_int(config_path, interface_section, NAMEOF(config->language), config->language);
-    write_config_value_int(config_path, interface_section, NAMEOF(config->window_x), config->window_x);
-    write_config_value_int(config_path, interface_section, NAMEOF(config->window_y), config->window_y);
-    write_config_value_int(config_path, interface_section, NAMEOF(config->window_width), config->window_width);
-    write_config_value_int(config_path, interface_section, NAMEOF(config->window_height), config->window_height);
-    write_config_value_int(config_path, interface_section, NAMEOF(config->theme), config->theme);
-    write_config_value_int(config_path, interface_section, NAMEOF(config->scale), config->scale);
-    write_config_value_bool(config_path, interface_section, NAMEOF(config->logging_enabled), config->logging_enabled);
-    write_config_value_bool(config_path, interface_section, NAMEOF(config->close_to_tray), config->close_to_tray);
-    write_config_value_bool(config_path, interface_section, NAMEOF(config->start_in_tray), config->start_in_tray);
-    write_config_value_bool(config_path, interface_section, NAMEOF(config->auto_startup), config->auto_startup);
-    write_config_value_bool(config_path, interface_section, NAMEOF(config->use_mini_flist), config->use_mini_flist);
-    write_config_value_bool(config_path, interface_section, NAMEOF(config->filter), config->filter);
-    write_config_value_bool(config_path, interface_section, NAMEOF(config->magic_flist_enabled), config->magic_flist_enabled);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->language), config->language);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->window_x), config->window_x);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->window_y), config->window_y);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->window_width), config->window_width);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->window_height), config->window_height);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->theme), config->theme);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->scale), config->scale);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->logging_enabled), config->logging_enabled);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->close_to_tray), config->close_to_tray);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->start_in_tray), config->start_in_tray);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->auto_startup), config->auto_startup);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->use_mini_flist), config->use_mini_flist);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->filter), config->filter);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->magic_flist_enabled), config->magic_flist_enabled);
 
     // av
-    write_config_value_bool(config_path, av_section, NAMEOF(config->push_to_talk), config->push_to_talk);
-    write_config_value_bool(config_path, av_section, NAMEOF(config->audio_filtering_enabled), config->audio_filtering_enabled);
-    write_config_value_int(config_path, av_section, NAMEOF(config->audio_device_in), config->audio_device_in);
-    write_config_value_int(config_path, av_section, NAMEOF(config->audio_device_out), config->audio_device_out);
-    write_config_value_int(config_path, av_section, NAMEOF(config->video_fps), config->video_fps);
+    write_config_value_bool(config_path, config_sections[AV_SECTION], NAMEOF(config->push_to_talk), config->push_to_talk);
+    write_config_value_bool(config_path, config_sections[AV_SECTION], NAMEOF(config->audio_filtering_enabled), config->audio_filtering_enabled);
+    write_config_value_int(config_path, config_sections[AV_SECTION], NAMEOF(config->audio_device_in), config->audio_device_in);
+    write_config_value_int(config_path, config_sections[AV_SECTION], NAMEOF(config->audio_device_out), config->audio_device_out);
+    write_config_value_int(config_path, config_sections[AV_SECTION], NAMEOF(config->video_fps), config->video_fps);
     // TODO: video_input_device
 
     // notifications
-    write_config_value_bool(config_path, notifications_section, NAMEOF(config->audible_notifications_enabled), config->audible_notifications_enabled);
-    write_config_value_bool(config_path, notifications_section, NAMEOF(config->status_notifications), config->status_notifications);
-    write_config_value_bool(config_path, notifications_section, NAMEOF(config->no_typing_notifications), config->no_typing_notifications);
-    write_config_value_int(config_path, notifications_section, NAMEOF(config->group_notifications), config->group_notifications);
+    write_config_value_bool(config_path, config_sections[NOTIFICATIONS_SECTION], NAMEOF(config->audible_notifications_enabled), config->audible_notifications_enabled);
+    write_config_value_bool(config_path, config_sections[NOTIFICATIONS_SECTION], NAMEOF(config->status_notifications), config->status_notifications);
+    write_config_value_bool(config_path, config_sections[NOTIFICATIONS_SECTION], NAMEOF(config->no_typing_notifications), config->no_typing_notifications);
+    write_config_value_int(config_path, config_sections[NOTIFICATIONS_SECTION], NAMEOF(config->group_notifications), config->group_notifications);
 
     // advanced
-    write_config_value_bool(config_path, advanced_section, NAMEOF(config->enableipv6), config->enableipv6);
-    write_config_value_bool(config_path, advanced_section, NAMEOF(config->disableudp), config->disableudp);
-    write_config_value_bool(config_path, advanced_section, NAMEOF(config->proxyenable), config->proxyenable);
-    write_config_value_int(config_path, advanced_section, NAMEOF(config->proxy_port), config->proxy_port);
-    write_config_value_str(config_path, advanced_section, NAMEOF(config->proxy_ip), (const char *)config->proxy_ip);
-    write_config_value_bool(config_path, advanced_section, NAMEOF(config->force_proxy), config->force_proxy);
-    write_config_value_bool(config_path, advanced_section, NAMEOF(config->auto_update), config->auto_update);
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->enableipv6), config->enableipv6);
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->disableudp), config->disableudp);
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->proxyenable), config->proxyenable);
+    write_config_value_int(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->proxy_port), config->proxy_port);
+    write_config_value_str(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->proxy_ip), (const char *)config->proxy_ip);
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->force_proxy), config->force_proxy);
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->auto_update), config->auto_update);
     // TODO: block_friend_requests
 
     free(config_path);
