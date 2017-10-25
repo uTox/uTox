@@ -93,7 +93,7 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
 }
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
-    wchar_t *autoaccept_folder = calloc(1, MAX_PATH);
+    wchar_t *autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!autoaccept_folder) {
         LOG_ERR("WinXP", "Unable to malloc for autoaccept path.");
         return;

@@ -76,7 +76,7 @@ typedef struct native_image {
 } NATIVE_IMAGE;
 
 // static char save_path[280];
-char portable_mode_save_path[MAX_PATH];
+char portable_mode_save_path[2048]; // This is bad, but I'm lazy
 
 // WM_COMMAND
 enum {
