@@ -681,6 +681,8 @@ static void signal_handler(int signal)
 
 #include "../ui/dropdown.h" // this is for dropdown.language TODO provide API
 int main(int argc, char *argv[]) {
+    utox_preinit();
+
     if (!XInitThreads()) {
         LOG_FATAL_ERR(EXIT_FAILURE, "XLIB MAIN", "XInitThreads failed.");
     }

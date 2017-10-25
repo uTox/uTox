@@ -516,6 +516,8 @@ int main(int argc, char const *argv[]) {
     int8_t set_show_window;
     bool   skip_updater;
 
+    utox_preinit();
+
     utox_init();
 
     settings.window_width  = DEFAULT_WIDTH;

@@ -71,6 +71,11 @@ void parse_args(int argc, char *argv[],
 
 
 /**
+ * Anything that should be done right after uTox starts
+ */
+void utox_preinit(void);
+
+/**
  * Initialize uTox
  */
 void utox_init(void);

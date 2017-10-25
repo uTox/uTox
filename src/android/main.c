@@ -595,6 +595,8 @@ static void utox_andoid_input(AInputQueue *in_queue, AInputEvent *event) {
 }
 
 static void android_main(struct android_app *state) {
+	utox_preinit();
+
     utox_init();
 
     theme_load(THEME_DEFAULT);

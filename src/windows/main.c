@@ -816,6 +816,8 @@ static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd) {
  * also handles call from other apps.
  */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cmd, int nCmdShow) {
+	utox_preinit();
+
     pthread_mutex_init(&messages_lock, NULL);
 
     int argc;
