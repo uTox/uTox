@@ -102,7 +102,8 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
 void parse_args(int argc, char *argv[],
                 bool *skip_updater,
                 int8_t *should_launch_at_startup,
-                int8_t *set_show_window
+                int8_t *set_show_window,
+                bool *allow_root
                 ) {
     // set default options
     if (skip_updater) {
@@ -117,13 +118,18 @@ void parse_args(int argc, char *argv[],
         *set_show_window = 0;
     }
 
+    if (allow_root) {
+        *allow_root = false;
+    }
+
     static struct option long_options[] = {
         { "theme", required_argument, NULL, 't' },      { "portable", no_argument, NULL, 'p' },
         { "set", required_argument, NULL, 's' },        { "unset", required_argument, NULL, 'u' },
         { "skip-updater", no_argument, NULL, 'N' },     { "delete-updater", required_argument, NULL, 'D'},
         { "version", no_argument, NULL, 0 },            { "silent", no_argument, NULL, 'S' },
         { "verbose", no_argument, NULL, 'v' },          { "help", no_argument, NULL, 'h' },
-        { "debug", required_argument, NULL, 1 },        { 0, 0, 0, 0 }
+        { "debug", required_argument, NULL, 1 },        { "allow-root", no_argument, NULL, 2 },
+        { 0, 0, 0, 0 }
     };
 
     settings.debug_file = stdout;
@@ -234,6 +240,13 @@ void parse_args(int argc, char *argv[],
                 if (!settings.debug_file) {
                     settings.debug_file = stdout;
                     LOG_NORM("Could not open %s. Logging to stdout.\n", optarg);
+                }
+                break;
+            }
+
+            case 2: {
+                if (allow_root) {
+                    *allow_root = true;
                 }
                 break;
             }
