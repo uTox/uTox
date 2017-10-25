@@ -329,6 +329,16 @@ elseif(UNIX)
     endif()
 endif()
 
+# Acquire 3rd party headers
+find_path(STBI_INCLUDE_DIR NAMES stb_image.h stb_image_write.h PATHS third-party/stb)
+if((NOT STBI_INCLUDE_DIR) OR (NOT EXISTS ${STBI_INCLUDE_DIR}))
+    message("STBI not found")
+    execute_process(COMMAND git submodule update --init -- third-party/stb WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    # set FOO_INCLUDE_DIR properly
+    set(STBI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/stb/ CACHE PATH "stbi include directory")
+endif()
+
+
 # include utoxLAYOUT
 add_subdirectory(src/layout)
 # include utoxUI
