@@ -42,7 +42,7 @@ typedef struct {
 } ITEM;
 
 void flist_start(void);
-void flist_add_friend(FRIEND *f);
+void flist_add_friend(FRIEND *f, const char *msg, const int msg_length);
 void flist_add_friend_accepted(FRIEND *f, FREQUEST *req);
 void flist_add_group(GROUPCHAT *g);
 void flist_add_frequest(FREQUEST *f);

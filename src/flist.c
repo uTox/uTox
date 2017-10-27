@@ -610,10 +610,14 @@ void flist_start(void) {
     flist_update_shown_list();
 }
 
-void flist_add_friend(FRIEND *f) {
+void flist_add_friend(FRIEND *f, const char *msg, const int msg_length) {
     ITEM *i = newitem();
     i->item = ITEM_FRIEND;
     i->id_number = f->number;
+
+    if (msg_length > 0) {
+        message_add_type_text(&f->msg, true, msg, msg_length, true, false);
+    }
 }
 
 void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
@@ -631,6 +635,10 @@ void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
                 ((MESSAGES *)messages_friend.object)->cursor_over_msg = UINT32_MAX;
                 messages_friend.content_scroll->content_height        = f->msg.height;
                 messages_friend.content_scroll->d                     = f->msg.scroll;
+
+                if (req->length > 0) {
+                    message_add_type_text(&f->msg, false, req->msg, req->length, true, false);
+                }
 
                 f->msg.id = f->number;
             }

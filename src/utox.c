@@ -488,19 +488,29 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 addfriend_status = param2;
             } else {
                 /* friend was added */
-                edit_add_new_friend_id.length  = 0;
-                edit_add_new_friend_msg.length = 0;
-
                 FRIEND *f = get_friend(param2);
                 if (!f) {
+                    edit_add_new_friend_id.length  = 0;
+                    edit_add_new_friend_msg.length = 0;
                     LOG_ERR("uTox", "Could not get friend with number: %u", param2);
                     return;
                 }
 
                 memcpy(f->id_bin, data, TOX_PUBLIC_KEY_SIZE);
-                flist_add_friend(f);
 
+                char *request_message = strdup(edit_add_new_friend_msg.data);
+                if (request_message) {
+                    flist_add_friend(f, request_message, edit_add_new_friend_msg.length);
+                    free(request_message);
+                } else {
+                    LOG_ERR("uTox", "Could not allocate memory for request message.");
+                }
+
+                flist_selectchat(f->number);
                 addfriend_status = ADDF_SENT;
+
+                edit_add_new_friend_id.length  = 0;
+                edit_add_new_friend_msg.length = 0;
             }
             free(data);
             redraw();
