@@ -4,7 +4,7 @@ OPUS_VERSION="1.2.1"
 
 # install libopus, needed for audio encoding/decoding
 if ! [ -f "$CACHE_DIR/usr/lib/pkgconfig/opus.pc" ]; then
-  curl https://ftp.osuosl.org/pub/xiph/releases/opus/opus-${OPUS_VERSION}.tar.gz -o opus.tar.gz
+  curl https://archive.mozilla.org/pub/opus/opus-${OPUS_VERSION}.tar.gz -o opus.tar.gz
   tar xzf opus.tar.gz
   cd opus-${OPUS_VERSION}
   ./configure "$TARGET_HOST" \
