@@ -1069,16 +1069,16 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
             if (draw_author) {
                 if (msg->our_msg != lastauthor || y < SCALE(MAIN_TOP) + font_small_lineheight) {
-                    int msg_y;
+                    int msg_y = y;
 
+                    // If previous author label is invisible (i.e. above top side of the messages window)
+                    // than clear its old place by drawing a rectangle with background colour.
+                    // After that we are able to draw a new author label at the same place.
                     if (y < SCALE(MAIN_TOP) + font_small_lineheight) {
                         msg_y = SCALE(MAIN_TOP);
 
-                        // Clear previous author label to draw a new one.
                         // MAIN_TOP + 1 because otherwise it cuts off one pixel from TOP FRAME somehow
                         draw_rect_fill(x, SCALE(MAIN_TOP) + 1, MESSAGES_X, font_small_lineheight, COLOR_BKGRND_MAIN);
-                    } else {
-                        msg_y = y;
                     }
 
                     FRIEND *f = get_friend(m->id);
