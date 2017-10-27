@@ -1,6 +1,7 @@
 #include "../filesys.h"
 
 #include "../debug.h"
+#include "../settings.h"
 
 #include "../native/filesys.h"
 
@@ -10,6 +11,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+
+char *native_get_filepath(const char *name) {
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+
+    if (!path) {
+        LOG_ERR("Filesys", "Unable to allocate memory for file path.");
+        return NULL;
+    }
+
+    if (settings.portable_mode) {
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
+        LOG_ERR("Filesys", "Load directory name too long" );
+        free(path);
+        return NULL;
+    }
+
+    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
+
+    return path;
+}
 
 bool native_create_dir(const uint8_t *filepath) {
     const int status = mkdir((char *)filepath, S_IRWXU);

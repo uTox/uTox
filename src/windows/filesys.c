@@ -8,6 +8,38 @@
 #include <io.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+
+char *native_get_filepath(const char *name) {
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+
+    if (!path) {
+        LOG_ERR("WinFilesys", "Unable to allocate memory for file path.");
+        return NULL;
+    }
+
+    if (settings.portable_mode) {
+        strcpy(path, portable_mode_save_path);
+    } else {
+        if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {
+            if (FAILED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path))) {
+                strcpy(path, portable_mode_save_path);
+            }
+        }
+    }
+
+    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "\\Tox\\");
+
+    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
+        LOG_ERR("WinFilesys", "Load directory name too long");
+        free(path);
+        return NULL;
+    }
+
+    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
+
+    return path;
+}
 
 static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) {
     // assert(UTOX_FILE_NAME_LENGTH <= (32,767 wide characters) );
