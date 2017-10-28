@@ -238,6 +238,9 @@ msgstr("Экспортировать историю переписки как т
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Присоединиться к голосовому чату")
 
+msgid(GROUP_CREATE_WITH_AUDIO)
+msgstr("Со звуком")
+
 msgid(GROUP_CREATE_TEXT)
 msgstr("Создать текстовый групповой чат")
 

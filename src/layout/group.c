@@ -96,6 +96,7 @@ static void draw_group_create(int x, int y, int UNUSED(width), int UNUSED(height
     setfont(FONT_SELF_NAME);
 
     drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 10), CREATEGROUPCHAT);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(MAIN_TOP + 40), GROUP_CREATE_WITH_AUDIO);
 }
 
 static void button_create_group_on_mup(void) {
@@ -576,8 +577,8 @@ BUTTON button_chat_send_group = {
 BUTTON button_create_group = {
     .panel = {
         .type   = PANEL_BUTTON,
-        .x      = 20 + _BM_SWITCH_WIDTH,
-        .y      = MAIN_TOP + 37,
+        .x      = 10,
+        .y      = MAIN_TOP + 67,
         .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT
     },

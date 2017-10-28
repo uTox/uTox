@@ -313,6 +313,9 @@ msgstr("Export Chatlog as plain text")
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Join audio chat")
 
+msgid(GROUP_CREATE_WITH_AUDIO)
+msgstr("Enable Audio")
+
 msgid(GROUP_CREATE_TEXT)
 msgstr("Create a text group chat")
 
