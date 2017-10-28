@@ -1,3 +1,6 @@
-[submodule "stb"]
-	path = stb
+[submodule "third-party/stb"]
+	path = third-party/stb
 	url = https://github.com/nothings/stb.git
+[submodule "third-party/minini"]
+	path = third-party/minini
+	url = https://github.com/compuphase/minIni.git

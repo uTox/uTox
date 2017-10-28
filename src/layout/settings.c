@@ -650,12 +650,24 @@ static void button_change_nospam_on_mup(void) {
 }
 
 static void button_revert_nospam_on_mup(void) {
+    if (button_revert_nospam.disabled) {
+        return;
+    }
+
     if (self.old_nospam == 0 || self.nospam == self.old_nospam) { //nospam can not be 0
         LOG_ERR("Settings", "Invalid or current nospam: %u.", self.old_nospam);
         return;
     }
     postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, self.old_nospam, 0, NULL);
     button_revert_nospam.disabled = true;
+}
+
+static void button_revert_nospam_on_update(BUTTON *b) {
+    if (button_revert_nospam.disabled) {
+        button_setcolors_disabled(b);
+    } else {
+        button_setcolors_success(b);
+    }
 }
 
 static void button_show_nospam_on_mup(void) {
@@ -770,7 +782,7 @@ BUTTON button_change_nospam = {
 
 BUTTON button_revert_nospam = {
     .bm_fill      = BM_SBUTTON,
-    .update       = button_setcolors_success,
+    .update       = button_revert_nospam_on_update,
     .on_mup       = button_revert_nospam_on_mup,
     .disabled     = true,
     .button_text  = {.i18nal = STR_REVERT_NOSPAM},

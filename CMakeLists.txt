@@ -73,6 +73,11 @@ else()
     set(ASAN_DEFAULT ON)
 endif()
 
+# ASAN causes uTox to be slower so do no use it for release builds
+if (CMAKE_BUILD_TYPE MATCHES "Release")
+   set(ASAN_DEFAULT OFF)
+endif()
+
 ###########
 # Options #
 ###########
@@ -293,7 +298,8 @@ find_package(libsodium REQUIRED)
 include_directories(${LIBSODIUM_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBSODIUM_LIBRARIES})
 
-include_directories(SYSTEM src/stb)
+include_directories(SYSTEM third-party/stb)
+include_directories(SYSTEM third-party/minini/dev)
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -365,6 +371,7 @@ add_executable(utox ${GUI_TYPE}
     src/updater.c
     src/utox.c
     src/window.c
+    third-party/minini/dev/minIni.c
 
     ${WINDOWS_ICON}
     ${APPLE_FILES}

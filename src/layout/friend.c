@@ -167,6 +167,9 @@ static void draw_add_friend(int x, int UNUSED(y), int UNUSED(w), int height) {
         case ADDF_NOMEM: // if increasing the friend list size fails.
             str = SPTR(REQ_NO_MEMORY);
             break;
+        case ADDF_NOFREQUESTSENT:
+            str = SPTR(REQ_ADDED_NO_FREQ_SENT);
+            break;
         case ADDF_UNKNOWN: // for unknown error.
         case ADDF_NONE:    // this case must never be rendered, but if it does, assume it's an error
         default:
@@ -311,12 +314,10 @@ static void button_call_decline_update(BUTTON *b) {
 
     if (UTOX_AVAILABLE_AUDIO(f->number) && !UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_danger(b);
-        b->nodraw   = false;
-        b->disabled = false;
+        b->nodraw = b->disabled = b->panel.disabled = false;
     } else {
         button_setcolors_disabled(b);
-        b->nodraw   = true;
-        b->disabled = true;
+        b->nodraw = b->disabled = b->panel.disabled = true;
     }
 }
 

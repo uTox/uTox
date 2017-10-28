@@ -470,7 +470,7 @@ static void page_open(ITEM *i) {
 
             #ifdef UNITY
             if (unity_running) {
-                mm_rm_entry(f->cid);
+                mm_rm_entry(f->id_bin);
             }
             #endif
 
@@ -780,7 +780,7 @@ void flist_selectswap(void) {
 
 static struct {
     ITEM_TYPE type;
-    void *    data;
+    uint8_t * data;
 } push_pop;
 
 static void push_selected(void) {
@@ -802,7 +802,7 @@ static void push_selected(void) {
                                                                                // a lot of damage
                 return;
             }
-            memcpy(push_pop.data, &f->cid, TOX_PUBLIC_KEY_SIZE);
+            memcpy(push_pop.data, &f->id_bin, TOX_PUBLIC_KEY_SIZE);
             break;
         }
         case ITEM_FREQUEST:
@@ -830,7 +830,7 @@ static void pop_selected(void) {
             for (uint16_t i = 0; i < itemcount; ++i) {
                 if (item[i].item == ITEM_FRIEND) {
                     FRIEND *f = get_friend(item[i].id_number);
-                    if (memcmp(push_pop.data, &f->cid, TOX_PUBLIC_KEY_SIZE) == 0) {
+                    if (memcmp(push_pop.data, &f->id_bin, TOX_PUBLIC_KEY_SIZE) == 0) {
                         show_page(&item[i]);
                         return;
                     }

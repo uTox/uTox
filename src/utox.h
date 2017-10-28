@@ -46,6 +46,7 @@ typedef enum utox_msg_id {
     FRIEND_INCOMING_REQUEST,
     FRIEND_ACCEPT_REQUEST,
     FRIEND_SEND_REQUEST,
+    FRIEND_ADD_NO_REQ,
     FRIEND_REMOVE,
 
     /* Audio & Video calls, */
