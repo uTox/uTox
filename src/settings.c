@@ -497,7 +497,7 @@ UTOX_SAVE *config_load(void) {
     settings.update_to_develop    = save->update_to_develop;
     settings.send_version         = save->send_version;
 
-    settings.video_fps            = save->video_fps;
+    settings.video_fps = save->video_fps ? save->video_fps : 25;
 
     edit_video_fps.length =
         snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1, "%u", save->video_fps);
