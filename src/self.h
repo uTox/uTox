@@ -25,10 +25,10 @@ struct utox_self {
     size_t id_str_length;
 
     NATIVE_IMAGE *qr_image;
-    int qr_data_size;
+    int qr_image_size;
 
     uint8_t *qr_data;
-    int qr_image_size;
+    int qr_data_size;
 
     uint8_t id_binary[TOX_ADDRESS_SIZE];
 

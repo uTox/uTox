@@ -358,6 +358,7 @@ add_executable(utox ${GUI_TYPE}
     src/main.c
     src/messages.c
     src/notify.c
+    src/qr.c
     src/screen_grab.c
     src/self.c
     src/settings.c
