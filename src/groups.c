@@ -92,8 +92,7 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
 
     srand(time(NULL));
     uint8_t random[TOX_PUBLIC_KEY_SIZE];
-    for (uint8_t i = 0; i < TOX_PUBLIC_KEY_SIZE; ++i)
-    {
+    for (uint8_t i = 0; i < TOX_PUBLIC_KEY_SIZE; ++i) {
         random[i] = rand();
     }
     to_hex(g->id_str, random, TOX_PUBLIC_KEY_SIZE);
