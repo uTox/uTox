@@ -348,7 +348,7 @@ static void ugtk_save_chatlog_thread(void *args) {
     utoxGTK_open = false;
 }
 
-void ugtk_save_image_png_thread(void *args) {
+static void ugtk_save_image_png_thread(void *args) {
     FILE_IMAGE *image = args;
 
     char name[TOX_MAX_NAME_LENGTH + sizeof ".png"] = { 0 };
@@ -430,7 +430,6 @@ void ugtk_file_save_image_png(FILE_IMAGE *image) {
         return;
     }
     utoxGTK_open = true;
-    LOG_ERR("Native", "no thread name=%s", image->name);
     thread(ugtk_save_image_png_thread, image);
 }
 

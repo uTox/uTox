@@ -1,5 +1,4 @@
 #include "main.h"
-
 #include "notify.h"
 #include "screen_grab.h"
 #include "utf8.h"
@@ -235,16 +234,16 @@ bool native_save_image_png(const char *name, const uint8_t *image, const int ima
         native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH);
 
         FILE *file = utox_get_file_simple(path, UTOX_FILE_OPTS_WRITE);
-        if (file) {
-            fwrite(image, image_size, 1, file);
-            fclose(file);
-            free(path);
-            return true;
-        } else {
+        if (!file) {
             LOG_ERR("NATIVE", "Could not open file %s for write.", path);
             free(path);
             return false;
         }
+
+        fwrite(image, image_size, 1, file);
+        fclose(file);
+        free(path);
+        return true;
     }
 
     return false;

@@ -244,20 +244,20 @@ bool native_save_image_png(char *name, uint8_t *image, int image_size) {
 
         ugtk_file_save_image_png(file_image);
         return true;
-    } else {
-        char path[TOX_MAX_NAME_LENGTH + sizeof(".png")] = { 0 };
-        snprintf(path, sizeof(path), "%s.png", name);
-
-        FILE *file = fopen(path, "wb");
-        if (!file) {
-            LOG_ERR("Native", "Could not open file %s for write.", path);
-            return false;
-        }
-
-        fwrite(image, image_size, 1, file);
-        fclose(file);
-        return true;
     }
+
+    char path[TOX_MAX_NAME_LENGTH + sizeof(".png")] = { 0 };
+    snprintf(path, sizeof(path), "%s.png", name);
+
+    FILE *file = fopen(path, "wb");
+    if (!file) {
+        LOG_ERR("Native", "Could not open file %s for write.", path);
+        return false;
+    }
+
+    fwrite(image, image_size, 1, file);
+    fclose(file);
+    return true;
 }
 
 int file_lock(FILE *file, uint64_t start, size_t length) {
