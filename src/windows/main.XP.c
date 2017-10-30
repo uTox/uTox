@@ -3,78 +3,13 @@
 #include "main.h"
 #include "utf8.h"
 
-#include "../chatlog.h"
 #include "../debug.h"
 #include "../file_transfers.h"
 #include "../filesys.h"
-#include "../friend.h"
-#include "../groups.h"
-#include "../main.h"
-#include "../tox.h"
 #include "../settings.h"
+#include "../tox.h"
 
 #include <io.h>
-
-void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
-    FRIEND *f = NULL;
-    GROUPCHAT *g = NULL;
-
-    if (is_chat) {
-        g = get_group(chat_number);
-        if (!g) {
-            LOG_ERR("WinXP", "Could not get group with number: %u", chat_number);
-            return;
-        }
-    } else {
-        f = get_friend(chat_number);
-        if (!f) {
-            LOG_ERR("WinXP", "Could not get friend with number: %u", chat_number);
-            return;
-        }
-    }
-
-    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
-    if (!path){
-        LOG_ERR("WinXP", "Could not allocate memory.");
-        return;
-    }
-
-    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt",
-             (int)(is_chat ? g->name_length : f->name_length),
-             is_chat ? g->name : f->name);
-
-    wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
-    utf8_to_nativestr(path, filepath, UTOX_FILE_NAME_LENGTH * 2);
-
-    OPENFILENAMEW ofn = {
-        .lStructSize = sizeof(OPENFILENAMEW),
-        .lpstrFilter = L".txt",
-        .lpstrFile   = filepath,
-        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
-        .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
-        .lpstrDefExt = L"txt",
-    };
-
-    if (GetSaveFileNameW(&ofn)) {
-        path = calloc(1, UTOX_FILE_NAME_LENGTH);
-        if (!path){
-            LOG_ERR("WinXP", " Could not allocate memory." );
-            return;
-        }
-
-        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH);
-
-        FILE *file = utox_get_file_simple(path, UTOX_FILE_OPTS_WRITE);
-        if (file) {
-            utox_export_chatlog(is_chat ? g->id_str : f->id_str, file);
-        } else {
-            LOG_ERR("WinXP", "Opening file %s failed", path);
-        }
-    } else {
-        LOG_TRACE("WinXP", "GetSaveFileName() failed" );
-    }
-    free(path);
-}
 
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     if (!sanitize_filename(file->name)) {

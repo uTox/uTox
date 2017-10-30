@@ -6,12 +6,14 @@
 #include "window.h"
 
 #include "../avatar.h"
+#include "../chatlog.h"
 #include "../commands.h"
 #include "../debug.h"
 #include "../file_transfers.h"
 #include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../groups.h"
 #include "../macros.h"
 #include "../main.h" // Lots of things. :(
 #include "../self.h"
@@ -47,6 +49,68 @@
 
 bool flashing = false;
 bool hidden = false;
+
+void native_export_chatlog_init(uint32_t chat_number, bool is_groupchat) {
+    FRIEND *f = NULL;
+    GROUPCHAT *g = NULL;
+
+    if (is_groupchat) {
+        g = get_group(chat_number);
+        if (!g) {
+            LOG_ERR("Windows", "Could not get group with number: %u", chat_number);
+            return;
+        }
+    } else {
+        f = get_friend(chat_number);
+        if (!f) {
+            LOG_ERR("Windows", "Could not get friend with number: %u", chat_number);
+            return;
+        }
+    }
+
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (!path){
+        LOG_ERR("Windows", "Could not allocate memory for path.");
+        return;
+    }
+
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt",
+             (int)(is_groupchat ? g->name_length : f->name_length),
+             is_groupchat ? g->name : f->name);
+
+    wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    utf8_to_nativestr(path, filepath, UTOX_FILE_NAME_LENGTH * 2);
+
+    OPENFILENAMEW ofn = {
+        .lStructSize = sizeof(OPENFILENAMEW),
+        .lpstrFilter = L".txt",
+        .lpstrFile   = filepath,
+        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
+        .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
+        .lpstrDefExt = L"txt",
+    };
+
+    if (GetSaveFileNameW(&ofn)) {
+        path = calloc(1, UTOX_FILE_NAME_LENGTH);
+        if (!path){
+            LOG_ERR("Windows", "Could not allocate memory for path.");
+            return;
+        }
+
+        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH);
+
+        FILE *file = utox_get_file_simple(path, UTOX_FILE_OPTS_WRITE);
+        if (file) {
+            utox_export_chatlog(is_groupchat ? g->id_str : f->id_str, file);
+        } else {
+            LOG_ERR("Windows", "Opening file %s failed", path);
+        }
+    } else {
+        LOG_ERR("Windows", "Unable to open file and export chatlog.");
+    }
+
+    free(path);
+}
 
 /** Open system file browser dialog */
 void openfilesend(void) {
