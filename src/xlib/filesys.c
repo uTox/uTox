@@ -129,36 +129,46 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
-void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
+void native_export_chatlog_init(uint32_t chat_number, bool is_groupchat) {
     if (libgtk) {
-        ugtk_save_chatlog(chat_number);
+        CHAT *chat = calloc(1, sizeof(CHAT));
+        if (!chat) {
+            LOG_ERR("Native", "Could not allocate memory for chat.");
+            return;
+        }
+
+        chat->chat_number  = chat_number;
+        chat->is_groupchat = is_groupchat;
+
+        ugtk_save_chatlog(chat);
+        return;
+    }
+
+    FRIEND *f = NULL;
+    GROUPCHAT *g = NULL;
+
+    if (is_groupchat) {
+        g = get_group(chat_number);
+        if (!g) {
+            LOG_ERR("Filesys", "Could not get group with number: %u", chat_number);
+            return;
+        }
     } else {
-        FRIEND *f = NULL;
-        GROUPCHAT *g = NULL;
-
-        if (is_chat) {
-            g = get_group(chat_number);
-            if (!g) {
-                LOG_ERR("Filesys", "Could not get group with number: %u", chat_number);
-                return;
-            }
-        } else {
-            f = get_friend(chat_number);
-            if (!f) {
-                LOG_ERR("Filesys", "Could not get friend with number: %u", chat_number);
-                return;
-            }
+        f = get_friend(chat_number);
+        if (!f) {
+            LOG_ERR("Filesys", "Could not get friend with number: %u", chat_number);
+            return;
         }
+    }
 
-        char name[TOX_MAX_NAME_LENGTH + sizeof(".txt")];
-        snprintf((char *)name, sizeof(name), "%.*s.txt",
-             (int)(is_chat ? g->name_length : f->name_length),
-             is_chat ? g->name : f->name);
+    char name[TOX_MAX_NAME_LENGTH + sizeof(".txt")];
+    snprintf((char *)name, sizeof(name), "%.*s.txt",
+         (int)(is_groupchat ? g->name_length : f->name_length),
+         is_groupchat ? g->name : f->name);
 
-        FILE *file = fopen((char *)name, "wb");
-        if (file) {
-            utox_export_chatlog(is_chat ? g->id_str : f->id_str, file);
-        }
+    FILE *file = fopen((char *)name, "wb");
+    if (file) {
+        utox_export_chatlog(is_groupchat ? g->id_str : f->id_str, file);
     }
 }
 

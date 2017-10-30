@@ -7,6 +7,7 @@
 #include "../filesys.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../groups.h"
 #include "../macros.h"
 #include "../stb.h"
 #include "../text.h"
@@ -20,7 +21,6 @@
 
 #include <dlfcn.h>
 #include <errno.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -317,16 +317,33 @@ static void ugtk_save_data_thread(void *args) {
 }
 
 static void ugtk_save_chatlog_thread(void *args) {
-    size_t friend_number = (size_t)args;
-    FRIEND *f = get_friend(friend_number);
-    if (!f) {
-        LOG_ERR("GTK", "Could not get friend with number: %u", friend_number);
-        utoxGTK_open = false;
-        return;
+    CHAT *chat = args;
+
+    FRIEND *f = NULL;
+    GROUPCHAT *g = NULL;
+
+    if (chat->is_groupchat) {
+        g = get_group(chat->chat_number);
+        if (!g) {
+            LOG_ERR("GTK", "Could not get group with number: %u", chat->chat_number);
+            free(chat);
+            utoxGTK_open = false;
+            return;
+        }
+    } else {
+        f = get_friend(chat->chat_number);
+        if (!f) {
+            LOG_ERR("GTK", "Could not get friend with number: %u", chat->chat_number);
+            free(chat);
+            utoxGTK_open = false;
+            return;
+        }
     }
 
     char name[TOX_MAX_NAME_LENGTH + sizeof ".txt"];
-    snprintf(name, sizeof name, "%.*s.txt", (int)f->name_length, f->name);
+    snprintf(name, sizeof name, "%.*s.txt",
+             (int)(chat->is_groupchat ? g->name_length : f->name_length),
+             chat->is_groupchat ? g->name : f->name);
 
     void *dialog = utoxGTK_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
                                                    "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
@@ -337,7 +354,7 @@ static void ugtk_save_chatlog_thread(void *args) {
 
         FILE *fp = fopen(file_name, "wb");
         if (fp) {
-            utox_export_chatlog(f->id_str, fp);
+            utox_export_chatlog(chat->is_groupchat ? g->id_str : f->id_str, fp);
         }
     }
 
@@ -347,6 +364,7 @@ static void ugtk_save_chatlog_thread(void *args) {
     }
 
     utoxGTK_open = false;
+    free(chat);
 }
 
 void ugtk_openfilesend(void) {
@@ -389,15 +407,13 @@ void ugtk_file_save_inline(MSG_HEADER *msg) {
     thread(ugtk_save_data_thread, msg);
 }
 
-void ugtk_save_chatlog(uint32_t friend_number) {
+void ugtk_save_chatlog(CHAT *chat) {
     if (utoxGTK_open) {
         return;
     }
 
-    // We just care about sending a single uint, but we don't want to overflow a buffer
-    size_t fnum = friend_number;
     utoxGTK_open = true;
-    thread(ugtk_save_chatlog_thread, (void *)fnum); // No need to create and pass a pointer for a single u32
+    thread(ugtk_save_chatlog_thread, chat);
 }
 
 /* macro to link and test each of the gtk functions we need.
