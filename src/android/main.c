@@ -280,7 +280,7 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
     return 1;
 }
 
-void native_export_chatlog_init(uint32_t chat_number, bool is_chat)
+void native_export_chatlog_init(uint32_t chat_number, bool is_groupchat)
 {   /* Unsupported on Android */ }
 
 void flush_file(FILE *file) {

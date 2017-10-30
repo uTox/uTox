@@ -57,7 +57,7 @@ bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
 /**
  * Setup for exporting the chat log to plain text
  */
-void utox_export_chatlog_init(uint32_t chat_number, bool is_chat);
+void utox_export_chatlog_init(uint32_t chat_number, bool is_groupchat);
 
 /**
  * Export the chat log to plain text
