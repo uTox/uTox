@@ -887,11 +887,11 @@ void update_tray(void) {
 
 /* file utils */
 
-void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
+void native_export_chatlog_init(uint32_t chat_number, bool is_groupchat) {
     FRIEND *f = NULL;
     GROUPCHAT *g = NULL;
 
-    if (is_chat) {
+    if (is_groupchat) {
         g = get_group(chat_number);
         if (!g) {
             LOG_ERR("Cocoa", "Could not get group with number: %u", chat_number);
@@ -907,14 +907,14 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
 
     NSSavePanel *picker = [NSSavePanel savePanel];
     NSString *fname = [[NSString alloc]
-        initWithBytesNoCopy:(is_chat ? g->name_length : f->name_length)
-        length:(is_chat ? g->name : f->name)
+        initWithBytesNoCopy:(is_groupchat ? g->name_length : f->name_length)
+        length:(is_groupchat ? g->name : f->name)
         encoding:NSUTF8StringEncoding
         freeWhenDone:NO];
 
     picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT),
-            is_chat ? g->name_length : f->name_length,
-            is_chat ? g->name : f->name];
+            is_groupchat ? g->name_length : f->name_length,
+            is_groupchat ? g->name : f->name];
 
     picker.nameFieldStringValue = fname;
     [fname release];
@@ -927,7 +927,7 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
             LOG_ERR("Cocoa", "Could not write to file: %s", destination.path.UTF8String);
             return;
         }
-        utox_export_chatlog(is_chat ? g->id_str : f->id_str, file);
+        utox_export_chatlog(is_groupchat ? g->id_str : f->id_str, file);
     }
 }
 

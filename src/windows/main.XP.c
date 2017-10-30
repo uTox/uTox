@@ -15,11 +15,11 @@
 
 #include <io.h>
 
-void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
+void native_export_chatlog_init(uint32_t chat_number, bool is_groupchat) {
     FRIEND *f = NULL;
     GROUPCHAT *g = NULL;
 
-    if (is_chat) {
+    if (is_groupchat) {
         g = get_group(chat_number);
         if (!g) {
             LOG_ERR("WinXP", "Could not get group with number: %u", chat_number);
@@ -40,8 +40,8 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
     }
 
     snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt",
-             (int)(is_chat ? g->name_length : f->name_length),
-             is_chat ? g->name : f->name);
+             (int)(is_groupchat ? g->name_length : f->name_length),
+             is_groupchat ? g->name : f->name);
 
     wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
     utf8_to_nativestr(path, filepath, UTOX_FILE_NAME_LENGTH * 2);
@@ -66,7 +66,7 @@ void native_export_chatlog_init(uint32_t chat_number, bool is_chat) {
 
         FILE *file = utox_get_file_simple(path, UTOX_FILE_OPTS_WRITE);
         if (file) {
-            utox_export_chatlog(is_chat ? g->id_str : f->id_str, file);
+            utox_export_chatlog(is_groupchat ? g->id_str : f->id_str, file);
         } else {
             LOG_ERR("WinXP", "Opening file %s failed", path);
         }
