@@ -666,7 +666,7 @@ static PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
     return argv;
 }
 
-static void tray_icon_init(HWND parent, HICON icon) {
+void tray_icon_init(HWND parent, HICON icon) {
     NOTIFYICONDATA nid = {
         .uFlags           = NIF_MESSAGE | NIF_ICON | NIF_TIP,
         .uCallbackMessage = WM_NOTIFYICON,

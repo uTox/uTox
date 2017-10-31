@@ -110,6 +110,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
     static int mx, my;
     static bool mdown = false;
     static int mdown_x, mdown_y;
+    static uint32_t taskbar_created;
 
     if (main_window.window && window != main_window.window) {
         if (msg == WM_DESTROY) {
@@ -158,6 +159,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_CREATE: {
             LOG_INFO("Windows", "WM_CREATE");
+            taskbar_created = RegisterWindowMessage(TEXT("TaskbarCreated"));
             return false;
         }
 
@@ -502,6 +504,13 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_TOX ... WM_TOX + 128: {
             utox_message_dispatch(msg - WM_TOX, wParam >> 16, wParam, (void *)lParam);
             return false;
+        }
+
+        default: {
+            if (msg == taskbar_created) {
+                tray_icon_init(main_window.window, black_icon);
+            }
+            break;
         }
     }
 
