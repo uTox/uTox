@@ -1,5 +1,6 @@
-#include "tox.h"
-#include "native/image.h"
+#include <stdint.h>
+
+typedef struct native_image NATIVE_IMAGE;
 
 void qr_setup(const char *id_str,
               uint8_t **qr_data,

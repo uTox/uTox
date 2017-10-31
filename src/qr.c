@@ -2,6 +2,9 @@
 
 #include "debug.h"
 #include "stb.h"
+#include "tox.h"
+
+#include "native/image.h"
 
 #include <qrcodegen.h>
 #include <stdio.h>
@@ -30,10 +33,9 @@ void qr_setup(const char *id_str,
               int *qr_data_size,
               NATIVE_IMAGE **qr_image,
               int *qr_image_size) {
-    const char *tox_uri_scheme = "tox:";
-    const int tox_uri_scheme_length = 4;
+    const char tox_uri_scheme[] = "tox:";
     const uint8_t channel_number = 3;
-    const uint8_t tox_uri_length = TOX_ADDRESS_SIZE * 2 + tox_uri_scheme_length + 1;
+    const uint8_t tox_uri_length = TOX_ADDRESS_SIZE * 2 + sizeof(tox_uri_scheme);
 
     char tox_uri[tox_uri_length];
     memset(tox_uri, 0, tox_uri_length);
