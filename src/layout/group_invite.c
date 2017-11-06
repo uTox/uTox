@@ -20,8 +20,6 @@ static void draw_group_invite(int x, int y, int UNUSED(w), int UNUSED(h));
 static void button_group_invite_accept_on_mup(void);
 static void button_group_invite_reject_on_mup(void);
 
-void group_invite_draw(void);
-
 BUTTON button_group_invite_accept = {
     .bm_fill     = BM_SBUTTON,
     .button_text = { .i18nal = STR_ACCEPT },
