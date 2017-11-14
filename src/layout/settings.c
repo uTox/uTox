@@ -989,6 +989,13 @@ static void switchfxn_idle_status(void) {
 }
 
 UISWITCH switch_idle_status = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 210,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,

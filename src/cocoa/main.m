@@ -38,7 +38,7 @@ struct thread_call {
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-struct utox_self *tox_self; // reference to self from self.h
+static struct utox_self *tox_self; // reference to self from self.h
 static bool idle = false;
 
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) {

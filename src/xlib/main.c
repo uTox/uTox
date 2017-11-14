@@ -750,14 +750,11 @@ static bool XNextEventTimed(XEvent *event_return, struct timeval *tv) {
             tv->tv_sec = idle_check_period;
             tv->tv_usec = 0;
             return false;
-        } else {
-            XNextEvent(display, event_return);
-            return true;
         }
-    } else {
-        XNextEvent(display, event_return);
-        return true;
     }
+
+    XNextEvent(display, event_return);
+    return true;
 }
 
 #include "../ui/dropdown.h" // this is for dropdown.language TODO provide API

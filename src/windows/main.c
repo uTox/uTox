@@ -868,8 +868,7 @@ static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd, const c
     return true;
 }
 
-static void CALLBACK idle_handler(HWND UNUSED(hwnd), UINT UNUSED(message), UINT UNUSED(idTimer), DWORD dwTime)
-{
+static void CALLBACK idle_handler(HWND UNUSED(hwnd), UINT UNUSED(message), UINT UNUSED(idTimer), DWORD dwTime) {
     if (!settings.idle_status) {
         return;
     }
@@ -879,7 +878,7 @@ static void CALLBACK idle_handler(HWND UNUSED(hwnd), UINT UNUSED(message), UINT 
 
     GetLastInputInfo(&last_active);
 
-    if (dwTime - last_active.dwTime > (uint16_t)(settings.idle_interval * 1000 * 60)) {
+    if (dwTime - last_active.dwTime > (uint32_t)(settings.idle_interval * 1000 * 60)) {
         if (!idle && self.status == TOX_USER_STATUS_NONE) {
             LOG_NOTE("WinMain", "Changing status to away.");
 
