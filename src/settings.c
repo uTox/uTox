@@ -102,7 +102,6 @@ SETTINGS settings = {
     .use_mini_flist         = false,
     .magic_flist_enabled    = false,
 
-    // TODO: Add to save
     .idle_status            = false,
     .idle_interval          = 10,
 
@@ -204,6 +203,10 @@ static void parse_interface_section(UTOX_SAVE *config, const char* key, const ch
         config->magic_flist_enabled = STR_TO_BOOL(value);
     } else if (MATCH(NAMEOF(config->use_long_time_msg), key)) {
         config->use_long_time_msg = STR_TO_BOOL(value);
+    } else if (MATCH(NAMEOF(config->idle_status), key)) {
+        config->idle_status = STR_TO_BOOL(value);
+    } else if (MATCH(NAMEOF(config->idle_interval), key)) {
+        config->idle_interval = atoi(value);
     }
 }
 
@@ -351,6 +354,8 @@ static bool utox_save_config(UTOX_SAVE *config) {
     write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->filter), config->filter);
     write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->magic_flist_enabled), config->magic_flist_enabled);
     write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->use_long_time_msg), config->use_long_time_msg);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->idle_status), config->idle_status);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->idle_interval), config->idle_interval);
 
     // av
     write_config_value_bool(config_path, config_sections[AV_SECTION], NAMEOF(config->push_to_talk), config->push_to_talk);
@@ -439,12 +444,11 @@ UTOX_SAVE *config_load(void) {
     switch_mini_contacts.switch_on     = save->use_mini_flist;
     switch_magic_sidebar.switch_on     = save->magic_flist_enabled;
 
-    switch_idle_status.switch_on = settings.idle_status;
-    edit_idle_interval.length =
-        snprintf((char *)edit_idle_interval.data, edit_idle_interval.maxlength + 1, "%u", settings.idle_interval);
-    if (edit_idle_interval.length > edit_idle_interval.maxlength) {
-        edit_idle_interval.length = edit_idle_interval.maxlength;
-    }
+    switch_idle_status.switch_on = settings.idle_status = save->idle_status;
+    settings.idle_interval       = save->idle_interval < UINT16_MAX ? save->idle_interval : UINT16_MAX;
+    edit_idle_interval.length    = snprintf((char *)edit_idle_interval.data,
+                                            edit_idle_interval.maxlength + 1,
+                                            "%u", settings.idle_interval);
 
     switch_ipv6.switch_on             = save->enableipv6;
     switch_udp.switch_on              = !save->disableudp;
@@ -567,6 +571,10 @@ void config_save(UTOX_SAVE *save_in) {
     save->use_mini_flist                = settings.use_mini_flist;
     save->magic_flist_enabled           = settings.magic_flist_enabled;
     save->use_long_time_msg             = settings.use_long_time_msg;
+
+    save->idle_status                   = settings.idle_status;
+    save->idle_interval                 = settings.idle_interval;
+
     save->video_fps                     = settings.video_fps;
 
     save->disableudp                    = !settings.enable_udp;
