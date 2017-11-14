@@ -1494,7 +1494,21 @@ EDIT edit_add_new_device_to_self = {
 
 static void edit_idle_interval_onenter(EDIT *UNUSED(edit)) {
     edit_idle_interval.data[edit_idle_interval.length] = 0;
-    settings.idle_interval = strtol((char *)edit_idle_interval.data, NULL, 0);
+
+    char *temp;
+    uint32_t value = strtol((char *)edit_idle_interval.data, &temp, 0);
+
+    if (*temp == '\0' && value <= UINT16_MAX) {
+        settings.idle_interval = value;
+        return;
+    }
+
+    LOG_WARN("Settings", "Invalid value of idle interval: %s. It must be integer below %i.",
+             edit_idle_interval.data, UINT16_MAX);
+
+    edit_idle_interval.length = snprintf((char *)edit_idle_interval.data,
+                                         edit_idle_interval.maxlength + 1,
+                                         "%u", settings.idle_interval);
 }
 
 EDIT edit_idle_interval = {
