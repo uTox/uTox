@@ -134,8 +134,10 @@ typedef struct utox_save {
     uint8_t  video_fps;
     uint8_t force_proxy;
     uint8_t use_long_time_msg;
+    uint8_t  idle_status;
+    uint16_t idle_interval;
 
-    uint8_t  unused[51];
+    uint8_t  unused[48];
     uint8_t  proxy_ip[];
 } UTOX_SAVE;
 
