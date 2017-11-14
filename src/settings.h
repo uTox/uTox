@@ -125,6 +125,7 @@ typedef struct utox_save {
     uint16_t language;
     uint8_t  video_fps;
     uint8_t force_proxy;
+    uint8_t use_long_time_msg;
 
     uint8_t  unused[52];
     uint8_t  proxy_ip[];

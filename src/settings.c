@@ -198,6 +198,8 @@ static void parse_interface_section(UTOX_SAVE *config, const char* key, const ch
         config->filter = STR_TO_BOOL(value);
     } else if (MATCH(NAMEOF(config->magic_flist_enabled), key)) {
         config->magic_flist_enabled = STR_TO_BOOL(value);
+    } else if (MATCH(NAMEOF(config->use_long_time_msg), key)) {
+        config->use_long_time_msg = STR_TO_BOOL(value);
     }
 }
 
@@ -335,6 +337,7 @@ static bool utox_save_config(UTOX_SAVE *config) {
     write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->use_mini_flist), config->use_mini_flist);
     write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->filter), config->filter);
     write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->magic_flist_enabled), config->magic_flist_enabled);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->use_long_time_msg), config->use_long_time_msg);
 
     // av
     write_config_value_bool(config_path, config_sections[AV_SECTION], NAMEOF(config->push_to_talk), config->push_to_talk);
@@ -477,6 +480,7 @@ UTOX_SAVE *config_load(void) {
     settings.start_with_system    = save->auto_startup;
     settings.use_mini_flist       = save->use_mini_flist;
     settings.magic_flist_enabled  = save->magic_flist_enabled;
+    settings.use_long_time_msg    = save->use_long_time_msg;
 
     settings.ringtone_enabled     = save->audible_notifications_enabled;
     settings.audiofilter_enabled  = save->audio_filtering_enabled;
@@ -545,6 +549,7 @@ void config_save(UTOX_SAVE *save_in) {
     save->auto_startup                  = settings.start_with_system;
     save->use_mini_flist                = settings.use_mini_flist;
     save->magic_flist_enabled           = settings.magic_flist_enabled;
+    save->use_long_time_msg             = settings.use_long_time_msg;
 
     save->video_fps                     = (settings.video_fps == 0) ? 25 : settings.video_fps;
 
