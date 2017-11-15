@@ -12,6 +12,7 @@
 #include "../messages.h"
 #include "../self.h"
 #include "../settings.h"
+#include "../stb.h"
 #include "../text.h"
 #include "../tox.h"
 #include "../ui.h"
@@ -1033,18 +1034,26 @@ void openfileavatar(void) {
     int ret                 = [picker runModal];
 
     if (ret == NSFileHandlingPanelOKButton) {
-        NSURL *  url       = picker.URL;
-        uint32_t fsize     = 0;
-        void *   file_data = file_raw((char *)url.path.UTF8String, &fsize);
-        if (fsize > UTOX_AVATAR_MAX_DATA_LENGTH) {
-            free(file_data);
+        int width, height, bpp, size;
+        uint8_t *file_data = stbi_load((char *)picker.URL.path.UTF8String, &width, &height, &bpp, 0);
+        uint8_t *img = stbi_write_png_to_mem(file_data, 0, width, height, bpp, &size);
+        free(file_data);
+
+        if (!img) {
+            show_alert_modal(S(CANT_FIND_FILE_OR_EMPTY), SLEN(CANT_FIND_FILE_OR_EMPTY),
+                             (char *)picker.URL.path.UTF8String, sizeof((char *)picker.URL.path.UTF8String));
+            return;
+        }
+
+        if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
+            free(img);
 
             char size_str[16];
             int  len = sprint_humanread_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
 
             show_alert_modal(S(AVATAR_TOO_LARGE_MAX_SIZE_IS), SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), size_str, len);
         } else {
-            postmessage_utox(SELF_AVATAR_SET, fsize, 0, file_data);
+            postmessage_utox(SELF_AVATAR_SET, size, 0, img);
         }
     }
 }
