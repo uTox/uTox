@@ -1006,6 +1006,23 @@ void openfilesend(void) {
     }
 }
 
+void show_alert_modal(char *title_str, uint16_t title_str_length, char *message, uint16_t message_length) {
+    NSString *bytess = [[NSString alloc] initWithBytes:message   length:message_length   encoding:NSUTF8StringEncoding];
+    NSString *title  = [[NSString alloc] initWithBytes:title_str length:title_str_length encoding:NSUTF8StringEncoding];
+
+    NSString *emsg = [[NSString alloc] initWithFormat:@"%@%@", title, bytess];
+    [title release];
+    [bytess release];
+
+    NSAlert *alert    = [[NSAlert alloc] init];
+    alert.alertStyle  = NSWarningAlertStyle;
+    alert.messageText = emsg;
+
+    [emsg release];
+    [alert runModal];
+    [alert release];
+}
+
 void openfileavatar(void) {
     NSOpenPanel *picker = [NSOpenPanel openPanel];
 
@@ -1025,21 +1042,7 @@ void openfileavatar(void) {
             char size_str[16];
             int  len = sprint_humanread_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
 
-            NSString *bytess = [[NSString alloc] initWithBytes:size_str length:len encoding:NSUTF8StringEncoding];
-            NSString *title  = [[NSString alloc] initWithBytes:S(AVATAR_TOO_LARGE_MAX_SIZE_IS)
-                                                       length:SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS)
-                                                     encoding:NSUTF8StringEncoding];
-
-            NSString *emsg = [[NSString alloc] initWithFormat:@"%@%@", title, bytess];
-            [title release];
-            [bytess release];
-
-            NSAlert *alert    = [[NSAlert alloc] init];
-            alert.alertStyle  = NSWarningAlertStyle;
-            alert.messageText = emsg;
-            [emsg release];
-            [alert runModal];
-            [alert release];
+            show_alert_modal(S(AVATAR_TOO_LARGE_MAX_SIZE_IS), SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), size_str, len);
         } else {
             postmessage_utox(SELF_AVATAR_SET, fsize, 0, file_data);
         }
