@@ -300,6 +300,7 @@ set(LIBRARIES ${LIBRARIES} ${LIBSODIUM_LIBRARIES})
 
 include_directories(SYSTEM third-party/stb)
 include_directories(SYSTEM third-party/minini/dev)
+include_directories(SYSTEM third-party/qrcodegen/c)
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -357,6 +358,7 @@ add_executable(utox ${GUI_TYPE}
     src/main.c
     src/messages.c
     src/notify.c
+    src/qr.c
     src/screen_grab.c
     src/self.c
     src/settings.c
@@ -372,6 +374,7 @@ add_executable(utox ${GUI_TYPE}
     src/utox.c
     src/window.c
     third-party/minini/dev/minIni.c
+    third-party/qrcodegen/c/qrcodegen.c
 
     ${WINDOWS_ICON}
     ${APPLE_FILES}

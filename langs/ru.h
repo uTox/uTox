@@ -503,6 +503,18 @@ msgstr("Сворачивать вместо закрытия")
 msgid(START_IN_TRAY)
 msgstr("Запускать свёрнутым")
 
+msgid(SHOW_QR)
+msgstr("Показать QR")
+
+msgid(HIDE_QR)
+msgstr("Скрыть QR")
+
+msgid(SAVE_QR)
+msgstr("Сохранить QR")
+
+msgid(COPY_TOX_ID)
+msgstr("Копировать как текст")
+
 msgid(COPY)
 msgstr("Копировать")
 

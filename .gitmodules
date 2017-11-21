@@ -4,3 +4,6 @@
 [submodule "third-party/minini"]
 	path = third-party/minini
 	url = https://github.com/compuphase/minIni.git
+[submodule "third-party/qrcodegen"]
+	path = third-party/qrcodegen
+	url = https://github.com/nayuki/QR-Code-generator.git

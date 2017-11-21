@@ -2,12 +2,16 @@
 
 #include "avatar.h"
 #include "debug.h"
+#include "qr.h"
 #include "tox.h"
 
 #include "ui/edit.h"
 #include "layout/settings.h"
+#include "native/filesys.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void init_self(Tox *tox) {
     /* Set local info for self */
@@ -19,6 +23,8 @@ void init_self(Tox *tox) {
     id_to_string(self.id_str, self.id_binary);
     self.id_str_length = TOX_ADDRESS_SIZE * 2;
     LOG_TRACE("Self INIT", "Tox ID: %.*s" , (int)self.id_str_length, self.id_str);
+
+    qr_setup(self.id_str, &self.qr_data, &self.qr_data_size, &self.qr_image, &self.qr_image_size);
 
     /* Get nospam */
     self.nospam = tox_self_get_nospam(tox);

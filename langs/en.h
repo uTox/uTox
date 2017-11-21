@@ -585,6 +585,18 @@ msgstr("Close To Tray")
 msgid(START_IN_TRAY)
 msgstr("Start In Tray")
 
+msgid(SHOW_QR)
+msgstr("Show QR")
+
+msgid(HIDE_QR)
+msgstr("Hide QR")
+
+msgid(SAVE_QR)
+msgstr("Save QR")
+
+msgid(COPY_TOX_ID)
+msgstr("Copy as text")
+
 msgid(COPY)
 msgstr("Copy")
 
