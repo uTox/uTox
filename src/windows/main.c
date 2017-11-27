@@ -291,8 +291,9 @@ void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {
 }
 
 void copy(int value) {
-    const uint16_t max_size = INT16_MAX + 1;
+    const uint32_t max_size = UINT16_MAX + 1;
     char data[max_size]; //! TODO: De-hardcode this value.
+    memset(data, 0, sizeof(data));
     int len = 0;
 
     if (edit_active()) {
