@@ -1330,6 +1330,7 @@ static void edit_name_onenter(EDIT *edit) {
     char *   data   = edit->data;
     uint16_t length = edit->length;
 
+    memset(self.name, 0, length);
     memcpy(self.name, data, length);
     self.name_length = length;
     update_tray();
@@ -1350,6 +1351,7 @@ static void edit_status_msg_onenter(EDIT *edit) {
 
     if (length) {
         length = (length <= TOX_MAX_STATUS_MESSAGE_LENGTH) ? length : TOX_MAX_STATUS_MESSAGE_LENGTH;
+        memset(self.statusmsg, 0, length);
         memcpy(self.statusmsg, data, length);
         self.statusmsg_length = length;
     } else {
