@@ -7,12 +7,28 @@
 #include "../debug.h"
 #include "../macros.h"
 #include "../self.h"
+#include "../text.h"
 #include "../ui.h"
 
 #include "../native/notify.h"
 #include "../native/window.h"
 
 #include <windowsx.h>
+
+/**
+ * A null-terminated string that specifies a title for a balloon notification.
+ * This title appears in a larger font immediately above the text.
+ * It can have a maximum of 64 characters, including the terminating null character.
+ * https://msdn.microsoft.com/en-us/library/windows/desktop/bb773352(v=vs.85).aspx
+ */
+static const uint16_t MAX_TITLE_LENGTH = 64 - 1;
+
+/**
+ * A null-terminated string that specifies the text to display in a balloon notification.
+ * It can have a maximum of 256 characters, including the terminating null character.
+ * https://msdn.microsoft.com/en-us/library/windows/desktop/bb773352(v=vs.85).aspx
+ */
+static const uint16_t MAX_MSG_LENGTH = 256 - 1;
 
 bool have_focus = false;
 
@@ -38,12 +54,20 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
         .dwInfoFlags = 0,
     };
 
-    utf8tonative(title, nid.szInfoTitle, title_length > sizeof(nid.szInfoTitle) / sizeof(*nid.szInfoTitle) - 1 ?
-                                             sizeof(nid.szInfoTitle) / sizeof(*nid.szInfoTitle) - 1 :
-                                             title_length);
-    utf8tonative(msg, nid.szInfo, msg_length > sizeof(nid.szInfo) / sizeof(*nid.szInfo) - 1 ?
-                                      sizeof(nid.szInfo) / sizeof(*nid.szInfo) - 1 :
-                                      msg_length);
+    uint16_t msg_len = 0;
+    while (msg_len < msg_length)
+    {
+        uint8_t char_length = utf8_len(&msg[msg_len]);
+        msg_len += char_length;
+
+        if (msg_len >= MAX_MSG_LENGTH) {
+            msg_len -= char_length;
+            break;
+        }
+    }
+
+    utf8tonative(title, nid.szInfoTitle, title_length > MAX_TITLE_LENGTH ? MAX_TITLE_LENGTH : title_length);
+    utf8tonative(msg, nid.szInfo, msg_len);
 
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
