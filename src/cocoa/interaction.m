@@ -1030,13 +1030,13 @@ void openfilesend(void) {
     }
 }
 
-void show_alert_modal(char *title_str, uint16_t title_str_length, char *message, uint16_t message_length) {
-    NSString *bytess = [[NSString alloc] initWithBytes:message   length:message_length   encoding:NSUTF8StringEncoding];
-    NSString *title  = [[NSString alloc] initWithBytes:title_str length:title_str_length encoding:NSUTF8StringEncoding];
+void show_messagebox(const char *caption, uint16_t caption_length, const char *message, uint16_t message_length) {
+    NSString *message_native = [[NSString alloc] initWithBytes:message length:message_length encoding:NSUTF8StringEncoding];
+    NSString *caption_native = [[NSString alloc] initWithBytes:caption length:caption_length encoding:NSUTF8StringEncoding];
 
-    NSString *emsg = [[NSString alloc] initWithFormat:@"%@%@", title, bytess];
-    [title release];
-    [bytess release];
+    NSString *emsg = [[NSString alloc] initWithFormat:@"%@%@", caption_native, message_native];
+    [caption_native release];
+    [message_native release];
 
     NSAlert *alert    = [[NSAlert alloc] init];
     alert.alertStyle  = NSWarningAlertStyle;
@@ -1063,8 +1063,8 @@ void openfileavatar(void) {
         free(file_data);
 
         if (!img) {
-            show_alert_modal(S(CANT_FIND_FILE_OR_EMPTY), SLEN(CANT_FIND_FILE_OR_EMPTY),
-                             (char *)picker.URL.path.UTF8String, sizeof((char *)picker.URL.path.UTF8String));
+            show_messagebox(S(CANT_FIND_FILE_OR_EMPTY), SLEN(CANT_FIND_FILE_OR_EMPTY),
+                            (char *)picker.URL.path.UTF8String, sizeof((char *)picker.URL.path.UTF8String));
             return;
         }
 
@@ -1074,7 +1074,7 @@ void openfileavatar(void) {
             char size_str[16];
             int  len = sprint_humanread_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
 
-            show_alert_modal(S(AVATAR_TOO_LARGE_MAX_SIZE_IS), SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), size_str, len);
+            show_messagebox(S(AVATAR_TOO_LARGE_MAX_SIZE_IS), SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), size_str, len);
         } else {
             postmessage_utox(SELF_AVATAR_SET, size, 0, img);
         }
