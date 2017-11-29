@@ -534,6 +534,9 @@ msgstr("Hide password field")
 msgid(HIDE_UI_PASSWORD_TOOLTIP)
 msgstr("Click to hide profile password field.")
 
+msgid(PASSWORD_TOO_SHORT)
+msgstr("Password must be at least 4 characters long")
+
 msgid(LOCK)
 msgstr("Lock")
 

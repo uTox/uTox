@@ -11,6 +11,7 @@
 #include "../av/video.h"
 
 #include "../native/clipboard.h"
+#include "../native/dialog.h"
 #include "../native/filesys.h"
 #include "../native/keyboard.h"
 #include "../native/notify.h"
@@ -632,6 +633,10 @@ static void button_lock_uTox_on_mup(void) {
         panel_profile_password.disabled = false;
         panel_settings_master.disabled  = true;
         tox_settingschanged();
+    } else {
+        show_messagebox(NULL, 0, S(PASSWORD_TOO_SHORT), SLEN(PASSWORD_TOO_SHORT));
+        memset(edit_profile_password.data, 0, edit_profile_password.maxlength);
+        edit_profile_password.length = 0;
     }
     button_show_password_settings.disabled = false;
     button_show_password_settings.nodraw = false;

@@ -452,6 +452,9 @@ msgstr("Скрыть поле пароля")
 msgid(HIDE_UI_PASSWORD_TOOLTIP)
 msgstr("Скрыть поле пароля профиля")
 
+msgid(PASSWORD_TOO_SHORT)
+msgstr("Пароль должен быть не менее 4 символов")
+
 msgid(LOCK)
 msgstr("Заблокировать")
 
