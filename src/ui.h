@@ -195,7 +195,7 @@ double ui_scale;
 #define LIST_Y2 86
 #define LIST_BUTTON_Y -26
 #define MESSAGES_SPACING 4
-#define MESSAGES_X 110
+#define MESSAGES_X 94
 #define TIME_WIDTH 45
 #define TIME_WIDTH_LONG 60
 #define NAME_OFFSET 14
