@@ -282,7 +282,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
                 uint8_t     tmp[TOX_MAX_NAME_LENGTH];
                 size_t      len  = tox_conference_peer_get_name_size(tox, gid, i, NULL);
                 tox_conference_peer_get_name(tox, gid, i, tmp, NULL);
-                GROUP_PEER *peer = calloc(1, len * sizeof(void *) + sizeof(*peer));
+                GROUP_PEER *peer = calloc(1, sizeof(*peer) + len + 1);
                 if (!peer) {
                     LOG_FATAL_ERR(EXIT_MALLOC, "Group", "Toxcore is very broken, but we couldn't calloc here.");
                 }
