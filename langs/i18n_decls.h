@@ -32,6 +32,7 @@ typedef enum {
     LANG_PT,
     LANG_EO,
     LANG_HR,
+    LANG_ET,
 
     NUM_LANGS // add langs before this line
 } UTOX_LANG;

@@ -213,4 +213,12 @@ LANG_WINDOWS_ID(0x041A)
 #include "../langs/hr.h"
 #undef _LANG_ID
 
+//"ESTONIAN" "eesti"
+#define _LANG_ID LANG_ET
+LANG_POSIX_LOCALE("et_EE")
+LANG_WINDOWS_ID(0x0425)
+#include "../langs/en.h" //fallback to English for untranslated things
+#include "../langs/et.h"
+#undef _LANG_ID
+
 #endif
