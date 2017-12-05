@@ -551,17 +551,6 @@ void update_tray(void) {
     length = snprintf(tip, length, "%.*s : %.*s",
                       self.name_length, self.name,
                       self.statusmsg_length, self.statusmsg);
-    uint16_t msg_len = 0;
-    while (msg_len < length)
-    {
-        uint8_t char_length = utf8_len(&tip[msg_len]);
-        msg_len += char_length;
-
-        if (msg_len >= MAX_TIP_LENGTH) {
-            msg_len -= char_length;
-            break;
-        }
-    }
 
     NOTIFYICONDATAW nid = {
         .uFlags = NIF_TIP,
@@ -569,7 +558,9 @@ void update_tray(void) {
         .cbSize = sizeof(nid),
     };
 
+    uint16_t msg_len = safe_shrink(tip, length, MAX_TIP_LENGTH);
     utf8_to_nativestr(tip, nid.szTip, msg_len);
+
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 

@@ -44,4 +44,15 @@ void to_hex(char *out, uint8_t *in, int size);
 /* returns non-zero if substring is found */
 bool strstr_case(const char *a, const char *b);
 
+/**
+ * @brief Shrink UTF-8 string down to provided length
+ * without splitting last UTF-8 multi-bytes character.
+ *
+ * @param string UTF-8 string to shrink.
+ * @param string_length Length of UTF-8 string.
+ * @param shrink_length Desirable length of shrinked string.
+ * @return shrinked length.
+ */
+uint16_t safe_shrink(const char *string, uint16_t string_length, uint16_t shrink_length);
+
 #endif
