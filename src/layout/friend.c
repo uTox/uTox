@@ -761,23 +761,18 @@ EDIT edit_chat_msg_friend = {
 
 /* Button to send chat message */
 static void button_chat_send_friend_on_mup(void) {
-    FRIEND *f = flist_get_friend();
-    if (f && f->online) {
-        // TODO clear the chat bar with a /slash command
-        e_chat_msg_onenter(&edit_chat_msg_friend);
-        // reset focus to the chat window on send to prevent segfault. May break on android.
-        edit_setfocus(&edit_chat_msg_friend);
-    }
+    // TODO clear the chat bar with a /slash command
+    e_chat_msg_onenter(&edit_chat_msg_friend);
+    // reset focus to the chat window on send to prevent segfault. May break on android.
+    edit_setfocus(&edit_chat_msg_friend);
 }
 
 static void button_chat_send_friend_update(BUTTON *b) {
     FRIEND *f = flist_get_friend();
     if (f) {
         if (f->online) {
-            b->disabled = false;
             button_setcolors_success(b);
         } else {
-            b->disabled = true;
             button_setcolors_disabled(b);
         }
     }
