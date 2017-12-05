@@ -92,6 +92,18 @@ void openfilesend(void) {
     SetCurrentDirectoryW(dir);
 }
 
+void show_messagebox(const char *caption, uint16_t caption_length, const char *message, uint16_t message_length) {
+    wchar_t message_native[message_length];
+    memset(message_native, 0, message_length);
+    utf8_to_nativestr(message, message_native, message_length * 2);
+
+    wchar_t caption_native[caption_length];
+    memset(caption_native, 0, caption_length);
+    utf8_to_nativestr(caption, caption_native, caption_length * 2);
+
+    MessageBoxW(NULL, message ? message_native : NULL, caption ? caption_native : NULL, MB_ICONWARNING);
+}
+
 void openfileavatar(void) {
     char *filepath = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!filepath) {

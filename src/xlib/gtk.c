@@ -215,6 +215,21 @@ static void ugtk_openavatarthread(void *UNUSED(args)) {
     utoxGTK_open = false;
 }
 
+void show_messagebox(const char *UNUSED(caption), uint16_t UNUSED(caption_length),
+                     const char *message, uint16_t UNUSED(message_length)) {
+    utoxGTK_open = true;
+
+    void *dialog = utoxGTK_message_dialog_new(NULL, 0, 1, 1, message);
+    utoxGTK_dialog_run(dialog);
+    utoxGTK_widget_destroy(dialog);
+
+    while (utoxGTK_events_pending()) {
+        utoxGTK_main_iteration();
+    }
+
+    utoxGTK_open = false;
+}
+
 static void ugtk_savethread(void *args) {
     FILE_TRANSFER *file = args;
 
