@@ -44,6 +44,14 @@
 #include <io.h>
 #include <libgen.h>
 
+/**
+ * A null-terminated string that specifies the text for a standard tooltip.
+ * For Windows 2000 and later, szTip can have a maximum of 128 characters,
+ * including the terminating null character.
+ * https://msdn.microsoft.com/en-us/library/windows/desktop/bb773352(v=vs.85).aspx
+ */
+static const uint8_t MAX_TIP_LENGTH = 128 - 1;
+
 bool flashing = false;
 bool hidden = false;
 
@@ -547,14 +555,14 @@ void redraw(void) {
  * sets struct .cbSize, and resets the tibtab to native self.name;
  */
 void update_tray(void) {
-    // FIXME: this is likely to over/under-run
-    char *tip = calloc(1, 128); // 128 is the max length of nid.szTip
-    if (tip == NULL) {
-        LOG_TRACE("update_trip", " Could not allocate memory." );
-        return;
-    }
+    uint16_t length = self.name_length + sizeof(" : ") + self.statusmsg_length;
 
-    uint32_t tip_length = MIN(snprintf(tip, 127, "%s : %s", self.name, self.statusmsg), 127);
+    char tip[length];
+    memset(tip, 0, length);
+
+    length = snprintf(tip, length, "%.*s : %.*s",
+                      self.name_length, self.name,
+                      self.statusmsg_length, self.statusmsg);
 
     NOTIFYICONDATAW nid = {
         .uFlags = NIF_TIP,
@@ -562,11 +570,10 @@ void update_tray(void) {
         .cbSize = sizeof(nid),
     };
 
-    utf8_to_nativestr((char *)tip, nid.szTip, tip_length);
+    uint16_t msg_len = safe_shrink(tip, length, MAX_TIP_LENGTH);
+    utf8_to_nativestr(tip, nid.szTip, msg_len);
 
     Shell_NotifyIconW(NIM_MODIFY, &nid);
-
-    free(tip);
 }
 
 void force_redraw(void) {

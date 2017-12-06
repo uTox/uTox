@@ -294,3 +294,22 @@ bool strstr_case(const char *a, const char *b) {
 
     return 0;
 }
+
+uint16_t safe_shrink(const char *string, uint16_t string_length, uint16_t shrink_length) {
+    if (!string) {
+        return 0;
+    }
+
+    uint16_t length = 0;
+    while (length < string_length) {
+        uint8_t char_length = utf8_len(&string[length]);
+        length += char_length;
+
+        if (length >= shrink_length) {
+            length -= char_length;
+            break;
+        }
+    }
+
+    return length;
+}
