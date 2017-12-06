@@ -1,10 +1,11 @@
 #include "group_invite.h"
+
+#include "debug.h"
 #include "groups.h"
 #include "utox.h"
 
 #include <stdlib.h>
 #include <string.h>
-
 #include <tox/toxav.h>
 
 #define MAX_GROUP_INVITES 16
@@ -24,10 +25,17 @@ static uint8_t find_free_slot(void) {
             return i;
         }
     }
+
+    LOG_ERR("Groupchat invite", "Could not find free slot.");
     return UINT8_MAX;
 }
 
 static void group_invite_free(const uint8_t invite_id) {
+    if (invite_id >= MAX_GROUP_INVITES) {
+        LOG_ERR("Groupchat invite", "Invite number (%u) is out of bounds.", invite_id);
+        return;
+    }
+
     free(invites[invite_id]->cookie);
     free(invites[invite_id]);
     invites[invite_id] = NULL;
@@ -61,6 +69,7 @@ uint8_t group_invite_new(const uint32_t friend_number,
 
     struct group_invite *invite = calloc(1, sizeof(struct group_invite));
     if (!invite) {
+        LOG_ERR("Groupchat invite", "Could not allocate memory for groupchat invite.");
         return UINT8_MAX;
     }
 
@@ -68,6 +77,13 @@ uint8_t group_invite_new(const uint32_t friend_number,
     invite->length = cookie_length;
     invite->is_av_group = is_av_group;
     invite->cookie = calloc(cookie_length, sizeof(uint8_t));
+
+    if (!invite->cookie) {
+        LOG_ERR("Groupchat invite", "Could not allocate memory for invite cookie.");
+        free(invite);
+        return UINT8_MAX;
+    }
+
     memcpy(invite->cookie, cookie, cookie_length * sizeof(uint8_t));
 
     invites[invite_id] = invite;
@@ -81,6 +97,11 @@ void callback_av_group_audio(void *tox, int groupnumber, int peernumber, const i
                              void *userdata);
 
 bool group_invite_accept(Tox *tox, const uint8_t invite_id) {
+    if (invite_id >= MAX_GROUP_INVITES) {
+        LOG_ERR("Groupchat invite", "Invite number (%u) is out of bounds.", invite_id);
+        return false;
+    }
+
     uint32_t group_id = UINT32_MAX;
 
     if (invites[invite_id]->is_av_group) {
@@ -99,6 +120,7 @@ bool group_invite_accept(Tox *tox, const uint8_t invite_id) {
     }
 
     if (group_id == UINT32_MAX) {
+        LOG_ERR("Groupchat invite", "Could not join group.");
         group_invite_free(invite_id);
         return false;
     }
@@ -121,5 +143,10 @@ void group_invite_reject(const uint8_t invite_id) {
 }
 
 uint32_t group_invite_get_friend_id(const uint8_t invite_id) {
+    if (invite_id >= MAX_GROUP_INVITES) {
+        LOG_ERR("Groupchat invite", "Invite number (%u) is out of bounds.", invite_id);
+        return UINT32_MAX;
+    }
+
     return invites[invite_id]->friend_number;
 }
