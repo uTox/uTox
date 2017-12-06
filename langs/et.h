@@ -168,7 +168,7 @@ msgstr("Ekspordi vestluslogi teksti failina")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Ühine helikõnega")
 
 msgid(GROUP_CREATE_TEXT)
@@ -177,11 +177,8 @@ msgstr("Tee tekstipõhine grupikõne")
 msgid(GROUP_CREATE_VOICE)
 msgstr("Tee grupikõne koos heliga")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Tee grupikõne")
-
-msgid(REMOVE_GROUP)
-msgstr("Eemalda grupp")
 
 msgid(LEAVE_GROUP)
 msgstr("Lahku grupist")
@@ -466,9 +463,6 @@ msgstr("Eemalda")
 
 msgid(REMOVE_FRIEND)
 msgstr("Eemalda sõber")
-
-msgid(LEAVE)
-msgstr("Lahku")
 
 msgid(CTOPIC)
 msgstr("Muuda teemat")
