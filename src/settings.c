@@ -102,7 +102,7 @@ SETTINGS settings = {
     .use_mini_flist         = false,
     .magic_flist_enabled    = false,
 
-    .video_fps              = 25,
+    .video_fps              = DEFAULT_FPS,
 
     // Notifications / Alerts
     .ringtone_enabled       = true,
@@ -213,7 +213,8 @@ static void parse_av_section(UTOX_SAVE *config, const char* key, const char* val
     } else if (MATCH(NAMEOF(config->audio_device_out), key)) {
         config->audio_device_out = atoi(value);
     } else if (MATCH(NAMEOF(config->video_fps), key)) {
-        config->video_fps = atoi(value);
+        int value_int = atoi(value);
+        config->video_fps = value_int < 0 ? 0 : value_int;
     }
 }
 
@@ -500,11 +501,11 @@ UTOX_SAVE *config_load(void) {
     switch_auto_update.switch_on  = save->auto_update;
     settings.update_to_develop    = save->update_to_develop;
     settings.send_version         = save->send_version;
+    settings.video_fps = save->video_fps && save->video_fps != 0 ? save->video_fps : DEFAULT_FPS;
 
-    settings.video_fps = save->video_fps ? save->video_fps : 25;
+    edit_video_fps.length = snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength,
+                                     "%u", settings.video_fps);
 
-    edit_video_fps.length =
-        snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1, "%u", save->video_fps);
     if (edit_video_fps.length > edit_video_fps.maxlength) {
         edit_video_fps.length = edit_video_fps.maxlength;
     }
@@ -550,8 +551,7 @@ void config_save(UTOX_SAVE *save_in) {
     save->use_mini_flist                = settings.use_mini_flist;
     save->magic_flist_enabled           = settings.magic_flist_enabled;
     save->use_long_time_msg             = settings.use_long_time_msg;
-
-    save->video_fps                     = (settings.video_fps == 0) ? 25 : settings.video_fps;
+    save->video_fps                     = settings.video_fps;
 
     save->disableudp                    = !settings.enable_udp;
     save->enableipv6                    = settings.enable_ipv6;
