@@ -10,6 +10,8 @@ typedef struct utox_save UTOX_SAVE;
 #include <stdint.h>
 #include <stdbool.h>
 
+#define DEFAULT_FPS 25
+
 extern uint16_t loaded_audio_in_device, loaded_audio_out_device;
 
 typedef struct utox_settings {
@@ -75,7 +77,7 @@ typedef struct utox_settings {
     uint32_t window_baseline;
 
     bool    window_maximized;
-    uint8_t video_fps;
+    uint16_t video_fps;
 } SETTINGS;
 
 extern SETTINGS settings;
@@ -123,7 +125,7 @@ typedef struct utox_save {
     uint8_t zero_3              : 8;
 
     uint16_t language;
-    uint8_t  video_fps;
+    uint16_t video_fps;
     uint8_t force_proxy;
     uint8_t use_long_time_msg;
 
