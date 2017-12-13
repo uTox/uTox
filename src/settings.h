@@ -127,7 +127,7 @@ typedef struct utox_save {
     uint8_t force_proxy;
     uint8_t use_long_time_msg;
 
-    uint8_t  unused[52];
+    uint8_t  unused[51];
     uint8_t  proxy_ip[];
 } UTOX_SAVE;
 
