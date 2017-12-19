@@ -85,8 +85,7 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
     if (attrs.width != width && attrs.height != height){
         new_data = malloc(attrs.width * attrs.height * 4);
         if (!new_data) {
-            LOG_DEBUG("Video", "Could not allocate memory for scaled image.");
-            return;
+            LOG_FATAL_ERR(EXIT_MALLOC, "Video", "Could not allocate memory for scaled image.");
         }
 
         scale_rgbx_image(img_data, width, height, new_data, attrs.width, attrs.height);
