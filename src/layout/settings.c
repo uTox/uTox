@@ -857,6 +857,13 @@ BUTTON button_export_chatlog = {
 };
 
 BUTTON button_export_chatlog_group = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 10,
+        .y      = 168,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_export_chatlog_group_on_mup,
@@ -1321,6 +1328,13 @@ static UTOX_I18N_STR notifydrops[] = {
 };
 
 DROPDOWN dropdown_notify_groupchats = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 10,
+        .y      = 138,
+        .width  = 100,
+        .height = 24
+    },
     .ondisplay = simple_dropdown_ondisplay,
     .onselect  = dropdown_notify_groupchats_onselect,
     .dropcount = COUNTOF(notifydrops),
