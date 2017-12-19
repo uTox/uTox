@@ -1293,6 +1293,13 @@ static UTOX_I18N_STR notifydrops[] = {
 };
 
 DROPDOWN dropdown_notify_groupchats = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 10,
+        .y      = 138,
+        .width  = 100,
+        .height = 24
+    },
     .ondisplay = simple_dropdown_ondisplay,
     .onselect  = dropdown_notify_groupchats_onselect,
     .dropcount = COUNTOF(notifydrops),
