@@ -40,6 +40,11 @@ uint16_t find_video_windows(Window w)
 
 
 void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
+    if (!img_data) {
+        LOG_DEBUG("Video", "Received a null video frame. Skipping...");
+        return;
+    }
+
     Window *win = &video_win[id];
     if (id == UINT16_MAX) {
         // Preview window
@@ -76,8 +81,13 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
     };
 
     /* scale image if needed */
-    uint8_t *new_data = malloc(attrs.width * attrs.height * 4);
-    if (new_data && (attrs.width != width || attrs.height != height)) {
+    uint8_t *new_data = NULL;
+    if (attrs.width != width && attrs.height != height){
+        new_data = malloc(attrs.width * attrs.height * 4);
+        if (!new_data) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Video", "Could not allocate memory for scaled image.");
+        }
+
         scale_rgbx_image(img_data, width, height, new_data, attrs.width, attrs.height);
         image.data = (char *)new_data;
     }
@@ -87,7 +97,10 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
     XPutImage(display, pixmap, default_gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
     XCopyArea(display, pixmap, *win, default_gc, 0, 0, attrs.width, attrs.height, 0, 0);
     XFreePixmap(display, pixmap);
-    free(new_data);
+
+    if (new_data) {
+        free(new_data);
+    }
 }
 
 void video_begin(uint16_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
