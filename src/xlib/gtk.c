@@ -270,18 +270,19 @@ static void ugtk_savethread(void *args) {
                     utoxGTK_widget_destroy(dialog);
                     free(path);
                     continue;
-                } else {
-                    LOG_TRACE("GTK", "Unknown file write error..." );
                 }
-            } else {
-                fclose(fp);
-                /* write test passed, we're done! */
-                utoxGTK_widget_destroy(dialog);
-                utoxGTK_main_iteration();
-                utoxGTK_widget_destroy(dialog);
-                postmessage_utox(FILE_INCOMING_ACCEPT, file->friend_number, (file->file_number >> 16), path);
+                LOG_TRACE("GTK", "Unknown file write error..." );
+                free(path);
                 break;
             }
+
+            fclose(fp);
+            /* write test passed, we're done! */
+            utoxGTK_widget_destroy(dialog);
+            utoxGTK_main_iteration();
+            utoxGTK_widget_destroy(dialog);
+            postmessage_utox(FILE_INCOMING_ACCEPT, file->friend_number, (file->file_number >> 16), path);
+            break;
         } else if (result == GTK_RESPONSE_CANCEL) {
             LOG_TRACE("GTK", "Aborting in progress file..." );
         }

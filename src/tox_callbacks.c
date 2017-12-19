@@ -203,6 +203,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
     GROUPCHAT *g = get_group(gid);
     if (!g) {
         LOG_ERR("Tox Callbacks", "Invalid group");
+        return;
     }
 
     switch (change) {

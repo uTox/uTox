@@ -137,6 +137,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
                 m->data = realloc(m->data, (m->number + 10) * sizeof(void *));
                 m->extra += 10;
             } else {
+                m->number = 0;
                 m->data = calloc(20, sizeof(void *));
                 m->extra = 20;
             }
@@ -1771,7 +1772,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 
     pthread_mutex_lock(&messages_lock);
 
-    memset(m, 0, sizeof(*m) * COUNTOF(m));
+    memset(m, 0, sizeof(*m));
 
     m->data = calloc(20, sizeof(void *));
     if (!m->data) {
