@@ -43,7 +43,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-5
+            - gcc
             - mingw-w64
             - gcc-mingw-w64
             - mingw-w64-common
@@ -63,7 +63,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-5
+            - gcc
             - mingw-w64
             - gcc-mingw-w64
             - mingw-w64-common
