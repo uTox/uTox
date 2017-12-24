@@ -1,6 +1,6 @@
 /******************************************************************************
- *** German i18l Strings                                                    ***
- ******************************************************************************/
+***         German i18l Strings                                             ***
+******************************************************************************/
 msgid(LANG_NATIVE_NAME)
 msgstr("Deutsch")
 
@@ -8,9 +8,9 @@ msgid(LANG_ENGLISH_NAME)
 msgstr("GERMAN")
 
 
-/******************************************************************************
- *** UNSORTED STRINGS                                                       ***
- ******************************************************************************/
+/*******************************************************************************
+***         UNSORTED STRINGS                                                 ***
+*******************************************************************************/
 msgid(REQ_SENT)
 msgstr("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, sobald er deine Anfrage akzeptiert hat.")
 
@@ -64,8 +64,8 @@ msgstr("Markiere den Bereich des Bildschirms, der gesendet werden soll.")
 
 
 /******************************************************************************
- *** File Transfer Strings                                                  ***
- ******************************************************************************/
+*** File Transfer Strings                                                  ***
+******************************************************************************/
 msgid(TRANSFER_NEW)
 msgstr("Neue Dateiübertragung")
 
@@ -85,9 +85,9 @@ msgid(TRANSFER_COMPLETE)
 msgstr("Dateiübertragung abgeschlossen")
 
 
-/******************************************************************************
- *** Keyboard and Mouse Cursor Strings                                      ***
- ******************************************************************************/
+/*****************************************************************************
+*** Keyboard and Mouse Cursor Strings                                      ***
+*****************************************************************************/
 msgid(CURSOR_CLICK_LEFT)
 msgstr("Linksklick")
 
@@ -95,9 +95,9 @@ msgid(CURSOR_CLICK_RIGHT)
 msgstr("Rechtsklick")
 
 
-/******************************************************************************
- *** Audio / Video Call Strings                                             ***
- ******************************************************************************/
+/*****************************************************************************
+*** Audio / Video Call Strings                                             ***
+*****************************************************************************/
 msgid(CALL_START_AUDIO)
 msgstr("Anruf beginnen")
 
@@ -126,9 +126,9 @@ msgid(CALL_VIDEO_SHOW_INLINE)
 msgstr("Video inline zeigen")
 
 
-/******************************************************************************
- *** Friend & Friend Settings Strings                                       ***
- ******************************************************************************/
+/*****************************************************************************
+*** Friend & Friend Settings Strings                                       ***
+*****************************************************************************/
 msgid(FRIEND_ALIAS)
 msgstr("Alias setzen")
 
@@ -142,9 +142,9 @@ msgid(FRIEND_EXPORT_CHATLOG)
 msgstr("Chatverlauf als Text exportieren")
 
 
-/******************************************************************************
- *** Group Strings                                                          ***
- ******************************************************************************/
+/*****************************************************************************
+*** Group Strings                                                          ***
+*****************************************************************************/
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Audiochat beitreten")
 
@@ -164,9 +164,9 @@ msgid(LEAVE_GROUP)
 msgstr("Gruppe verlassen")
 
 
-/******************************************************************************
- *** Group Settings                                                         ***
- ******************************************************************************/
+/*****************************************************************************
+*** Group Settings                                                         ***
+*****************************************************************************/
 msgid(GROUPCHAT_SETTINGS)
 msgstr("Gruppenchat-Einstellungen")
 
@@ -185,9 +185,9 @@ msgstr("Aus")
 msgid(GROUP_TOPIC)
 msgstr("Thema der Gruppe festlegen")
 
-/******************************************************************************
- *** Settings / Profile Strings                                             ***
- ******************************************************************************/
+/*****************************************************************************
+*** Settings / Profile Strings                                             ***
+*****************************************************************************/
 msgid(PROFILE_BUTTON)
 msgstr("Profil")
 
@@ -221,24 +221,24 @@ msgstr("Es ist nicht möglich verlorene Passwörter wiederherzustellen.")
 
 
 
-/***     	Profile                                                         ***/
+/***        Profile                                                         ***/
 
-/***     	Devices                                                       ***/
+/***        Devices                                                         ***/
 msgid(DEVICES_ADD_NEW)
 msgstr("Neues Gerät hinzufügen")
 
 msgid(DEVICES_NUMBER)
 msgstr("Anzahl der verknüpften Geräte")
-/*** 		Network                                                         ***/
+/***        Network                                                         ***/
 
-/***    User Interface                                                  ***/
+/***        User Interface                                                  ***/
 
-/***		Audio/Video                                                     ***/
+/***        Audio/Video                                                     ***/
 
 
-/******************************************************************************
- *** UNSORTED STRINGS                                                       ***
- ******************************************************************************/
+/*****************************************************************************
+*** UNSORTED STRINGS                                                       ***
+*****************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Neuen Kontakt hinzufügen")
 
@@ -315,7 +315,7 @@ msgid(USER_INTERFACE)
 msgstr("Oberfläche") // "Benutzeroberfläche" doesn't fit into tab header (Settings)
 
 msgid(UTOX_SETTINGS)
-msgstr("Einstellungen") // "uTox Einstellungen" would overlap with version (Settings)
+msgstr("Einstellungen") //  "uTox Einstellungen" would overlap with version (Settings)
 
 msgid(NETWORK_SETTINGS)
 msgstr("Netzwerkeinstellungen")
