@@ -271,27 +271,7 @@ if(ENABLE_FILTERAUDIO)
     add_cflag("-DAUDIO_FILTERING=1")
 endif()
 
-if(TOXCORE_STATIC)
-    find_package(libtox REQUIRED COMPONENTS
-        toxencryptsave
-        toxav
-        toxcore
-        toxgroup
-        toxmessenger
-        toxfriends
-        toxdht
-        toxnetcrypto
-        toxcrypto
-        toxnetwork
-    )
-else()
-    find_package(libtox REQUIRED COMPONENTS
-        toxencryptsave
-        toxav
-        toxcore
-    )
-endif()
-
+find_package(libtox REQUIRED)
 include_directories(${LIBTOX_INCLUDE_DIRS})
 
 find_package(libsodium REQUIRED)
