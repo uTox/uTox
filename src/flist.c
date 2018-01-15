@@ -175,7 +175,6 @@ static void drawitem(ITEM *i, int x, int y, int w) {
                 if (w > 200) {
                     flist_draw_status_icon(status, w - SCALE(15), y + box_height / 2, f->unread_msg);
                 }
-
             }
             break;
         }
