@@ -44,11 +44,16 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
     // create temporary bitmap we'll combine the alpha and colors on
     uint32_t *out_pixel;
     HBITMAP   temp = CreateDIBSection(curr->mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out_pixel, NULL, 0);
-    if (temp == NULL) {
+    if (temp == NULL && out_pixel == NULL) { //if CreateDIBSection fails both temp and out_pixel should be NULL
+        LOG_DEBUG("Drawing", "Could not create temporary bitmap.");
         return;
     }
 
-    SelectObject(curr->mem_DC, temp);
+    HGDIOBJ ret = SelectObject(curr->mem_DC, temp);
+    if (ret == NULL) {
+        LOG_DEBUG("Drawing", "Could not select temporary bitmap.");
+        return;
+    }
 
     // create pixels for the drawable bitmap based on the alpha value of
     // each pixel in the alpha bitmap and the color given by 'color',
