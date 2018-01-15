@@ -44,6 +44,10 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
     // create temporary bitmap we'll combine the alpha and colors on
     uint32_t *out_pixel;
     HBITMAP   temp = CreateDIBSection(curr->mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out_pixel, NULL, 0);
+    if (temp == NULL) {
+        return;
+    }
+
     SelectObject(curr->mem_DC, temp);
 
     // create pixels for the drawable bitmap based on the alpha value of
