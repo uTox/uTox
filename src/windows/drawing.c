@@ -12,9 +12,9 @@
 
 UTOX_WINDOW *curr = NULL;
 
-const int max_bitmaps = BM_ENDMARKER + 1;
+#define MAX_BITMAPS BM_ENDMARKER + 1;
 
-void *bitmap[max_bitmaps];
+void *bitmap[MAX_BITMAPS];
 
 BLENDFUNCTION blend_function = {
     .BlendOp             = AC_SRC_OVER,
@@ -24,7 +24,7 @@ BLENDFUNCTION blend_function = {
 };
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
-    if (bm > max_bitmaps) {
+    if (bm > MAX_BITMAPS) {
         LOG_DEBUG("Drawing", "Index out of bounds.");
         return;
     }
