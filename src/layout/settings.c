@@ -698,7 +698,6 @@ static void button_show_nospam_on_mup(void) {
     update_show_password_button_text();
 }
 
-#include "../chrono.h"
 #include "sidebar.h"
 static void button_copyid_on_mup(void) {
     edit_setfocus(&edit_toxid);
