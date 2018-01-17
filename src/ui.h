@@ -178,6 +178,9 @@ double ui_scale;
 #define SIDEBAR_BUTTON_WIDTH 30
 #define SIDEBAR_BUTTON_HEIGHT 30
 
+#define SIDEBAR_COLLAPSED_SIZE 50
+#define SIDEBAR_EXPANDED_SIZE 230
+
 /* Main box/Chat box size settings */
 #define CHAT_BOX_TOP -52 /* size of the bottom message box */
 #define MAIN_TOP_FRAME_THIN 30

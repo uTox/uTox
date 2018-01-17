@@ -48,8 +48,6 @@ static bool background_mdown(PANEL *UNUSED(p)) {
 }
 
 static bool background_mdbl(PANEL *UNUSED(p), bool UNUSED(triclick)) {
-    int step = 0;
-
     if (!sidebar_chrono) {
         LOG_INFO("UI", "Sidebar chrono is being initialized.");
         sidebar_chrono = calloc(1, sizeof(CHRONO_INFO));
@@ -66,11 +64,12 @@ static bool background_mdbl(PANEL *UNUSED(p), bool UNUSED(triclick)) {
         }
     }
 
-    if (panel_side_bar.width == 50) {
-        *sidebar_chrono->target = 230;
+    int step = 0;
+    if (panel_side_bar.width == SIDEBAR_COLLAPSED_SIZE) {
+        *sidebar_chrono->target = SIDEBAR_EXPANDED_SIZE;
         step = 1;
     } else {
-        *sidebar_chrono->target = 50;
+        *sidebar_chrono->target = SIDEBAR_COLLAPSED_SIZE;
         step = -1;
     }
 

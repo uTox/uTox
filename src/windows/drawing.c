@@ -14,7 +14,7 @@ UTOX_WINDOW *curr = NULL;
 
 #define MAX_BITMAPS BM_ENDMARKER + 1;
 
-void *bitmap[MAX_BITMAPS];
+void *bitmap[MAX_BITMAPS] = {0};
 
 BLENDFUNCTION blend_function = {
     .BlendOp             = AC_SRC_OVER,
@@ -24,7 +24,7 @@ BLENDFUNCTION blend_function = {
 };
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
-    if (bm > MAX_BITMAPS) {
+    if (bm >= MAX_BITMAPS) {
         LOG_DEBUG("Drawing", "Index out of bounds.");
         return;
     }
@@ -50,7 +50,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
 
 
     // create temporary bitmap we'll combine the alpha and colors on
-    uint32_t *out_pixel;
+    uint32_t *out_pixel = NULL;
     HBITMAP   temp = CreateDIBSection(curr->mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out_pixel, NULL, 0);
     if (temp == NULL && out_pixel == NULL) { //if CreateDIBSection fails both temp and out_pixel should be NULL
         LOG_DEBUG("Drawing", "Could not create temporary bitmap.");
