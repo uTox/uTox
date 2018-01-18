@@ -17,10 +17,10 @@
  * UI and Toxcore Limits
  *********************************************************/
 
-#if TOX_VERSION_IS_API_COMPATIBLE(0, 1, 0)
+#if TOX_VERSION_IS_API_COMPATIBLE(0, 2, 0)
 // YAY!!
 #else
-  #error "Unable to compile uTox with this Toxcore version. uTox expects v0.1.*!"
+  #error "Unable to compile uTox with this Toxcore version. uTox expects v0.2.*!"
 #endif
 
 #define MAIN_WIDTH 750
