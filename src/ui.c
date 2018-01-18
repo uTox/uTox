@@ -67,10 +67,12 @@ static bool background_mdbl(PANEL *UNUSED(p), bool UNUSED(triclick)) {
     int step = 0;
     if (panel_side_bar.width == SIDEBAR_COLLAPSED_SIZE) {
         button_settings.nodraw = false;
+        edit_add_new_friend_id.nodraw = false;
         *sidebar_chrono->target = SIDEBAR_EXPANDED_SIZE;
         step = 1;
     } else {
         button_settings.nodraw = true;
+        edit_add_new_friend_id.nodraw = true;
         *sidebar_chrono->target = SIDEBAR_COLLAPSED_SIZE;
         step = -1;
     }

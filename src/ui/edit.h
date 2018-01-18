@@ -22,7 +22,7 @@ typedef struct edit EDIT;
 struct edit {
     PANEL panel;
 
-    bool multiline, mouseover, noborder, readonly, select_completely, vcentered, password;
+    bool multiline, mouseover, noborder, readonly, select_completely, vcentered, password, nodraw;
 
     uint16_t mouseover_char, length, maxlength;
     uint16_t width, height;
