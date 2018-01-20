@@ -3,6 +3,11 @@
 #include "../debug.h"
 
 void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
+    if (!img_data) {
+        LOG_DEBUG("Windows Video", "Received a null frame. Skipping...");
+        return;
+    }
+
     HWND *hwin;
     if (id >= UINT16_MAX) {
         hwin = &preview_hwnd;

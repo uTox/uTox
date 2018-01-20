@@ -488,6 +488,11 @@ uint16_t native_video_detect(void) {
 @end
 
 void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
+    if (!img_data) {
+        LOG_DEBUG("Video", "Receieved a null frame. Skipping...");
+        return;
+    }
+
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     NSWindow *        win    = [utoxapp ironcladWindowForID:id];
     uToxIroncladView *view   = win.contentView;
