@@ -109,7 +109,7 @@ panel_side_bar = {
     .type = PANEL_NONE,
     .disabled = 0,
     .drawfunc = draw_background_sidebar,
-    .width = 230,
+    .width = SIDEBAR_COLLAPSED_SIZE,
     .child = (PANEL*[]) {
         &panel_self,
         &panel_quick_buttons,
