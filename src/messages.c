@@ -241,6 +241,11 @@ uint32_t message_add_group(MESSAGES *m, MSG_HEADER *msg) {
 
 uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not allocate memory for a message.");
+        return UINT32_MAX;
+    }
+
     time(&msg->time);
     msg->our_msg  = auth;
     msg->msg_type = MSG_TYPE_TEXT;
@@ -249,6 +254,10 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
     msg->via.txt.length = length;
 
     FRIEND *f = get_friend(m->id);
+    if (!f) {
+        LOG_DEBUG("Messages", "Could not get friend with id: %u", m->id);
+        return UINT32_MAX;
+    }
 
     if (auth) {
         msg->via.txt.author_length = self.name_length;
@@ -280,15 +289,28 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
 
 uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        LOG_DEBUG("Messages", "Could not get message header.");
+        return UINT32_MAX;
+    }
 
     time(&msg->time);
     msg->our_msg  = auth;
     msg->msg_type = MSG_TYPE_ACTION_TEXT;
 
     msg->via.action.msg = calloc(1, length);
+    if (!msg->via.action.msg) {
+        LOG_DEBUG("Messages", "Could not allocate memory for message.");
+        return UINT32_MAX;
+    }
+
     msg->via.action.length = length;
 
     FRIEND *f = get_friend(m->id);
+    if (!f) {
+        LOG_DEBUG("Messages", "Could not get friend with number: %u", m->id);
+        return UINT32_MAX;
+    }
 
     if (auth) {
         msg->via.txt.author_length = self.name_length;
@@ -343,6 +365,11 @@ uint32_t message_add_type_image(MESSAGES *m, bool auth, NATIVE_IMAGE *img, uint1
     }
 
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        LOG_DEBUG("Messages", "Could not allocate memory for message header");
+        return UINT32_MAX;
+    }
+
     time(&msg->time);
     msg->our_msg  = auth;
     msg->msg_type = MSG_TYPE_IMAGE;
@@ -362,6 +389,10 @@ MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incomi
                                 const uint8_t *name, size_t name_size, size_t target_size, size_t current_size)
 {
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        LOG_DEBUG("Messages", "Could not allocate memory for message header");
+        return NULL;
+    }
 
     time(&msg->time);
     msg->our_msg     = !incoming;
@@ -384,6 +415,10 @@ MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incomi
         msg->via.ft.path = NULL;
     } else { // It's a file
         msg->via.ft.path = calloc(1, UTOX_FILE_NAME_LENGTH);
+        if (!msg->via.ft.path) {
+            LOG_DEBUG("Messages", "Could not allocate memory for file path.");
+            return NULL;
+        }
     }
 
     message_add(m, msg);
