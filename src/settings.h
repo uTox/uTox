@@ -77,7 +77,7 @@ typedef struct utox_settings {
     uint32_t window_baseline;
 
     bool    window_maximized;
-    uint16_t video_fps;
+    uint8_t video_fps;
 } SETTINGS;
 
 extern SETTINGS settings;
@@ -125,7 +125,7 @@ typedef struct utox_save {
     uint8_t zero_3              : 8;
 
     uint16_t language;
-    uint16_t video_fps;
+    uint8_t video_fps;
     uint8_t force_proxy;
     uint8_t use_long_time_msg;
 
