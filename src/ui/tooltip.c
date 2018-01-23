@@ -34,6 +34,11 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     if (*x + *w >= (int)settings.window_width) {
         *x -= *w;
     }
+
+    // Draw only within window
+    if (*x < 0) {
+        *x = 0;
+    }
 }
 
 volatile bool kill_thread;
