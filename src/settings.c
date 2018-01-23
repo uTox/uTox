@@ -213,8 +213,16 @@ static void parse_av_section(UTOX_SAVE *config, const char* key, const char* val
     } else if (MATCH(NAMEOF(config->audio_device_out), key)) {
         config->audio_device_out = atoi(value);
     } else if (MATCH(NAMEOF(config->video_fps), key)) {
-        int value_int = atoi(value);
-        config->video_fps = value_int < 0 ? 0 : value_int;
+        char *temp;
+        uint16_t value_fps = strtol((char *)value, &temp, 0);
+
+        if (*temp == '\0' && value_fps >= 1 && value_fps <= UINT8_MAX) {
+            settings.video_fps = value_fps;
+            return;
+        }
+
+        LOG_WARN("Settings", "Fps value (%s) is invalid. It must be integer in range of [1,%u].",
+             value, UINT8_MAX);
     }
 }
 

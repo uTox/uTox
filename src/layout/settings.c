@@ -1168,15 +1168,15 @@ static void edit_video_fps_onlosefocus(EDIT *UNUSED(edit)) {
     edit_video_fps.data[edit_video_fps.length] = 0;
 
     char *temp;
-    uint32_t value = strtol((char *)edit_video_fps.data, &temp, 0);
+    uint16_t value = strtol((char *)edit_video_fps.data, &temp, 0);
 
-    if (*temp == '\0' && value >= 1 && value <= UINT16_MAX) {
+    if (*temp == '\0' && value >= 1 && value <= UINT8_MAX) {
         settings.video_fps = value;
         return;
     }
 
     LOG_WARN("Settings", "Fps value (%s) is invalid. It must be integer in range of [1,%u].",
-             edit_video_fps.data, UINT16_MAX);
+             edit_video_fps.data, UINT8_MAX);
 
     settings.video_fps = DEFAULT_FPS;
     edit_video_fps.length = snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength,
@@ -1302,7 +1302,7 @@ static char edit_name_data[128],
             edit_status_msg_data[128],
             edit_proxy_ip_data[256],
             edit_proxy_port_data[8],
-            edit_video_fps_data[sizeof(uint16_t) + 1],
+            edit_video_fps_data[sizeof(uint8_t) + 1],
             edit_profile_password_data[65535],
             edit_nospam_data[(sizeof(uint32_t) * 2) + 1] = { 0 };
 #ifdef ENABLE_MULTIDEVICE
