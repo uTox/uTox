@@ -4,6 +4,7 @@
 #include "main.h"
 #include "window.h"
 
+#include "../debug.h"
 #include "../text.h"
 #include "../ui.h"
 
@@ -41,6 +42,11 @@ void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_
 }
 
 void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
+    if (!curr->visual) {
+        LOG_ERR("Xlib drawing", "Could not draw inline image");
+        return;
+    }
+
     const uint8_t *rgba_data = img_data;
 
     // we don't need to free this, that's done by XDestroyImage()
