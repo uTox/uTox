@@ -289,19 +289,24 @@ void utox_video_thread(void *args) {
                         LOG_TRACE("uToxVideo", "sending video frame to friend %lu" , i);
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
-                        toxav_video_send_frame(av, get_friend(i)->number, utox_video_frame.w, utox_video_frame.h,
+
+                        FRIEND *f = get_friend(i);
+                        if (!f) {
+                            LOG_DEBUG("uToxVideo", "Could not get friend to send him video frame %lu", i);
+                            continue;
+                        }
+
+                        toxav_video_send_frame(av, f->number, utox_video_frame.w, utox_video_frame.h,
                                                utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, &error);
                         // LOG_TRACE("uToxVideo", "Sent video frame to friend %u" , i);
                         if (error) {
                             if (error == TOXAV_ERR_SEND_FRAME_SYNC) {
                                 LOG_ERR("uToxVideo", "Vid Frame sync error: w=%u h=%u", utox_video_frame.w, utox_video_frame.h);
                             } else if (error == TOXAV_ERR_SEND_FRAME_PAYLOAD_TYPE_DISABLED) {
-                                LOG_ERR("uToxVideo",
-                                    "ToxAV disagrees with our AV state for friend %lu, self %u, friend %u",
-                                        i, get_friend(i)->call_state_self, get_friend(i)->call_state_friend);
+                                LOG_ERR("uToxVideo", "ToxAV disagrees with our AV state for friend %lu, self %u, friend %u",
+                                        i, f->call_state_self, f->call_state_friend);
                             } else {
-                                LOG_ERR("uToxVideo", "toxav_send_video error friend: %i error: %u",
-                                        get_friend(i)->number, error);
+                                LOG_ERR("uToxVideo", "toxav_send_video error friend: %i error: %u", f->number, error);
                             }
                         } else {
                             if (active_video_count >= UTOX_MAX_CALLS) {

@@ -77,6 +77,10 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
 
                 case UTOXAV_INCOMING_CALL_ANSWER: {
                     FRIEND *f = get_friend(msg->param1);
+                    if (!f) {
+                        LOG_ERR("uToxAV", "Could not to get friend when INCOMING_CALL_ANSWER %u", msg->param1);
+                        break;
+                    }
                     f->call_started = time(NULL);
                     message_add_type_notice(&f->msg, S(CALL_STARTED), SLEN(CALL_STARTED), true);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
@@ -98,6 +102,10 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
                 case UTOXAV_OUTGOING_CALL_PENDING: {
                     call_count++;                    postmessage_audio(UTOXAUDIO_PLAY_RINGTONE, msg->param1, msg->param2, NULL);
                     FRIEND *f          = get_friend(msg->param1);
+                    if (!f) {
+                        LOG_ERR("uToxAV", "Could not to get friend when OUTGOING_CALL_PENDING %u", msg->param1);
+                        break;
+                    }
                     f->call_state_self = (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A);
                     if (msg->param2) {
                         utox_video_start(0);
@@ -108,6 +116,10 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
 
                 case UTOXAV_OUTGOING_CALL_ACCEPTED: {
                     FRIEND *f = get_friend(msg->param1);
+                    if (!f) {
+                        LOG_ERR("uToxAV", "Could not to get friend when OUTGOING_CALL_ACCEPTED %u", msg->param1);
+                        break;
+                    }
                     f->call_started = time(NULL);
                     message_add_type_notice(&f->msg, S(CALL_STARTED), SLEN(CALL_STARTED), true);
 
@@ -131,7 +143,7 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
                         utox_video_stop(false);
                     }
 
-                    if (f->call_started != 0) {
+                    if (f && f->call_started != 0) {
                         char notice_msg[64];
                         int duration = difftime(time(NULL), f->call_started);
                         int length = snprintf(notice_msg, 64, "%s: %02u:%02u:%02u",
@@ -475,7 +487,12 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
 static void utox_audio_friend_accepted(ToxAV *av, uint32_t friend_number, uint32_t state) {
     /* First accepted call back */
     LOG_NOTE("uToxAV", "Friend accepted call" );
-    get_friend(friend_number)->call_state_friend = state;
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("uToxAV", "Unable to get friend when A/V call accepted %u", friend_number);
+        return;
+    }
+    f->call_state_friend = state;
     if (SELF_SEND_VIDEO(friend_number) && !FRIEND_ACCEPTING_VIDEO(friend_number)) {
         utox_av_local_call_control(av, friend_number, TOXAV_CALL_CONTROL_HIDE_VIDEO);
     }
@@ -486,6 +503,10 @@ static void utox_audio_friend_accepted(ToxAV *av, uint32_t friend_number, uint32
 /** respond to a Audio Video state change call back from toxav */
 static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uint32_t state, void *UNUSED(userdata)) {
     FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("uToxAV", "Unable to get friend when A/V state changed %u", friend_number);
+        return;
+    }
     if (state == 1) {
         // handle error
         LOG_ERR("uToxAV", "Change state with an error, this should never happen. Please send bug report!");
@@ -499,14 +520,14 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
         utox_audio_friend_accepted(av, friend_number, state);
     }
 
-    if (get_friend(friend_number)->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_SENDING_A)) {
+    if (f->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_SENDING_A)) {
         if (state & TOXAV_FRIEND_CALL_STATE_SENDING_A) {
             LOG_INFO("uToxAV", "Friend %u is now sending audio." , friend_number);
         } else {
             LOG_INFO("uToxAV", "Friend %u is no longer sending audio." , friend_number);
         }
     }
-    if (get_friend(friend_number)->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_SENDING_V)) {
+    if (f->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_SENDING_V)) {
         if (state & TOXAV_FRIEND_CALL_STATE_SENDING_V) {
             LOG_INFO("uToxAV", "Friend %u is now sending video." , friend_number);
         } else {
@@ -514,14 +535,14 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
             flist_reselect_current();
         }
     }
-    if (get_friend(friend_number)->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A)) {
+    if (f->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A)) {
         if (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) {
             LOG_INFO("uToxAV", "Friend %u is now accepting audio." , friend_number);
         } else {
             LOG_INFO("uToxAV", "Friend %u is no longer accepting audio." , friend_number);
         }
     }
-    if (get_friend(friend_number)->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
+    if (f->call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
         if (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V) {
             LOG_INFO("uToxAV", "Friend %u is now accepting video." , friend_number);
         } else {
@@ -529,7 +550,7 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
         }
     }
 
-    get_friend(friend_number)->call_state_friend = state;
+    f->call_state_friend = state;
 }
 
 static void utox_incoming_rate_change(ToxAV *AV, uint32_t f_num, uint32_t UNUSED(a_bitrate), uint32_t v_bitrate, void *UNUSED(ud)) {
