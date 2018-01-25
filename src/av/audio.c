@@ -871,7 +871,7 @@ void utox_audio_thread(void *args) {
                             FRIEND *f = get_friend(i);
                             if (!f) {
                                 LOG_ERR("uToxAV", "Unable to get friend when sending audio frame %u", i);
-                                break;
+                                continue;
                             }
                             toxav_audio_send_frame(av, f->number, (const int16_t *)buf, perframe,
                                                    UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, &error);
