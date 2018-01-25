@@ -292,7 +292,7 @@ void utox_video_thread(void *args) {
 
                         FRIEND *f = get_friend(i);
                         if (!f) {
-                            LOG_DEBUG("uToxVideo", "Could not get friend to send him video frame %lu", i);
+                            LOG_ERR("uToxVideo", "Could not get friend to send him video frame %lu", i);
                             continue;
                         }
 
