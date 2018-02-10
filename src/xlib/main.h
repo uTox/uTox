@@ -57,12 +57,12 @@ void *libgtk;
 
 struct {
     int  len;
-    char data[65536]; // TODO: De-hardcode this value.
+    char data[UINT16_MAX]; // TODO: De-hardcode this value.
 } clipboard;
 
 struct {
     int  len;
-    char data[65536]; // TODO: De-hardcode this value.
+    char data[UINT16_MAX]; // TODO: De-hardcode this value.
 } primary;
 
 struct {

@@ -737,7 +737,7 @@ static inline void select_right_to_char(char c) {
 @end
 
 // FIXME: asda
-static char clip_data[65536];
+static char clip_data[UINT16_MAX];
 
 void setselection(char *data, uint16_t length) {}
 
