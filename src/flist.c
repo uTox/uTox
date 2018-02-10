@@ -1274,6 +1274,10 @@ bool flist_mright(void *UNUSED(n)) {
                 break;
             }
 
+            case ITEM_GROUP_INVITE: {
+                break;
+            }
+
             default: {
                 LOG_ERR("F-List", "MRIGHT on a flist entry that shouldn't exist!");
                 break;
