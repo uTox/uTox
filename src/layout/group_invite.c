@@ -21,6 +21,13 @@ static void button_group_invite_accept_on_mup(void);
 static void button_group_invite_reject_on_mup(void);
 
 BUTTON button_group_invite_accept = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -MAIN_TOP,
+        .y      = -80,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT
+    },
     .bm_fill     = BM_SBUTTON,
     .button_text = { .i18nal = STR_ACCEPT },
     .on_mup      = button_group_invite_accept_on_mup,
@@ -28,6 +35,13 @@ BUTTON button_group_invite_accept = {
 };
 
 BUTTON button_group_invite_reject = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 10,
+        .y      = -80,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT
+    },
     .bm_fill     = BM_SBUTTON,
     .button_text = { .i18nal = STR_IGNORE },
     .on_mup      = button_group_invite_reject_on_mup,
@@ -82,9 +96,4 @@ static void draw_group_invite(int x, int y, int UNUSED(w), int UNUSED(h)) {
                              UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
 
     drawtext(x + SCALE(10), y + SCALE(70), invite_text, invite_length);
-}
-
-void group_invite_draw(void) {
-    CREATE_BUTTON(group_invite_accept, -MAIN_TOP, -80, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(group_invite_reject, 10, -80, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 }

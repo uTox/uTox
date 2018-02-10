@@ -10,7 +10,6 @@
 #include "layout/create.h"
 #include "layout/friend.h"
 #include "layout/group.h"
-#include "layout/group_invite.h"
 #include "layout/notify.h"
 #include "layout/settings.h"
 #include "layout/sidebar.h"
@@ -339,8 +338,6 @@ void ui_rescale(uint8_t scale) {
     /* Confirm deletion */
     CREATE_BUTTON(confirm_deletion, 10, MAIN_TOP + 40, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
     CREATE_BUTTON(deny_deletion,    110, MAIN_TOP + 40, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
-
-    group_invite_draw();
 
     setscale();
 }
