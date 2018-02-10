@@ -184,7 +184,8 @@ static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid,
 
 static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid, TOX_CONFERENCE_STATE_CHANGE change,
                                            void *UNUSED(userdata)) {
-    LOG_ERR("Group callback", "gid %u pid %u change %u", gid, pid, change);
+    LOG_DEBUG("Group callback", "gid %u pid %u change %u", gid, pid, change);
+
     GROUPCHAT *g = get_group(gid);
     if (!g) {
         LOG_ERR("Tox Callbacks", "Invalid group");
