@@ -19,7 +19,7 @@ fi
 cd libvpx
 git rev-parse HEAD > libvpx.sha
 if ! ([ -f "$CACHE_DIR/libvpx.sha" ] && diff "$CACHE_DIR/libvpx.sha" libvpx.sha); then
-  ./configure --prefix="$CACHE_DIR/usr" --enable-shared
+  ./configure --prefix="$CACHE_DIR/usr"
   make -j`sysctl -n hw.ncpu`
   make install
   mv libvpx.sha "$CACHE_DIR/libvpx.sha"
