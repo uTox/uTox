@@ -32,7 +32,7 @@ matrix:
   fast_finish: true
   include:
     - os: linux
-      env: BUILD=linux
+      env: BUILD=linux TOXCORE_REPO_BRANCH="v0.1.4"
       compiler: clang
 
     - os: linux
@@ -52,7 +52,7 @@ matrix:
             - libopenal-dev
             - libopenal-data
             - libopenal1
-      env: BUILD=windows TOXCORE_REPO_BRANCH="master"
+      env: BUILD=windows TOXCORE_REPO_BRANCH="v0.1.4"
       compiler: x86_64-w64-mingw32-gcc
 
     - os: linux
@@ -72,20 +72,12 @@ matrix:
             - libopenal-dev
             - libopenal-data
             - libopenal1
-      env: BUILD=windows_legacy
+      env: BUILD=windows_legacy TOXCORE_REPO_BRANCH="v0.1.4"
       compiler: i686-w64-mingw32-gcc
 
     - os: osx
       compiler: clang
       env: BUILD=osx TOXCORE_REPO_BRANCH="v0.1.4"
-
-    # We don't support old toxcore yet/anymore
-    # - os: linux
-    #   env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
-    #   compiler: gcc
-    # - os: linux
-    #   env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
-    #   compiler: clang
 
 git:
   depth: 5
