@@ -43,6 +43,7 @@ enum {
 };
 
 #define UTOX_DEFAULT_BITRATE_A 32
+#define UTOX_MIN_BITRATE_AUDIO UTOX_DEFAULT_BITRATE_A //TODO: Find out what the minimum bit rate should be
 #define UTOX_DEFAULT_FRAME_A 20
 #define UTOX_DEFAULT_SAMPLE_RATE_A 48000
 #define UTOX_DEFAULT_AUDIO_CHANNELS 1
