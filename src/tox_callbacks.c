@@ -230,88 +230,6 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
             break;
         }
 
-#if TOX_VERSION_IS_API_COMPATIBLE(0, 1, 0)
-        case TOX_CONFERENCE_STATE_CHANGE_PEER_JOIN: {
-            LOG_DEBUG("Group", "Add (%u, %u)" , gid, pid);
-
-            if (g->peer) {
-                g->peer = realloc(g->peer, sizeof(void *) * (g->peer_count + 2));
-            } else {
-                g->peer = calloc(g->peer_count + 2, sizeof(void *));
-            }
-            bool is_us = 0;
-            if (tox_conference_peer_number_is_ours(tox, gid, pid, 0)) {
-                g->our_peer_number = pid;
-                is_us              = 1;
-            }
-
-            uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
-            tox_conference_peer_get_public_key(tox, gid, pid, pkey, NULL);
-            uint64_t pkey_to_number = 0;
-            int      key_i          = 0;
-            for (; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
-                pkey_to_number += pkey[key_i];
-            }
-            srand(pkey_to_number);
-            uint32_t name_color = 0;
-            name_color          = RGB(rand(), rand(), rand());
-
-            group_peer_add(g, pid, is_us, name_color);
-
-            postmessage_utox(GROUP_PEER_ADD, gid, pid, NULL);
-            break;
-        }
-
-        case TOX_CONFERENCE_STATE_CHANGE_PEER_EXIT: {
-            LOG_DEBUG("Group", "Peer Quit (%u, %u)" , gid, pid);
-            group_add_message(g, pid, (const uint8_t *)"<- has Quit!", 12, MSG_TYPE_NOTICE);
-
-            pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
-
-            group_reset_peerlist(g);
-
-            uint32_t number_peers = tox_conference_peer_count(tox, gid, NULL);
-
-            g->peer = calloc(number_peers, sizeof(void *));
-
-            if (!g->peer) {
-                LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks", "Group:\tToxcore is very broken, but we couldn't alloc here.");
-            }
-
-            /* I'm about to break some uTox style here, because I'm expecting
-             * the API to change soon, and I just can't when it's this broken */
-            for (uint32_t i = 0; i < number_peers; ++i) {
-                uint8_t     tmp[TOX_MAX_NAME_LENGTH];
-                size_t      len  = tox_conference_peer_get_name_size(tox, gid, i, NULL);
-                tox_conference_peer_get_name(tox, gid, i, tmp, NULL);
-                GROUP_PEER *peer = calloc(1, sizeof(*peer) + len + 1);
-                if (!peer) {
-                    LOG_FATAL_ERR(EXIT_MALLOC, "Group", "Toxcore is very broken, but we couldn't calloc here.");
-                }
-                /* name and id number (it's worthless, but it's needed */
-                memcpy(peer->name, tmp, len);
-                peer->name_length = len;
-                peer->id          = i;
-                /* get static random color */
-                uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
-                tox_conference_peer_get_public_key(tox, gid, i, pkey, NULL);
-                uint64_t pkey_to_number = 0;
-                for (int key_i = 0; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
-                    pkey_to_number += pkey[key_i];
-                }
-                /* uTox doesnt' really use this for too much so lets fuck with the random seed.
-                 * If you know crypto, and cringe, I know me too... you can blame @irungentoo */
-                srand(pkey_to_number);
-                peer->name_color = RGB(rand(), rand(), rand());
-                g->peer[i]       = peer;
-            }
-            g->peer_count = number_peers;
-
-            postmessage_utox(GROUP_PEER_DEL, gid, pid, NULL);
-            pthread_mutex_unlock(&messages_lock); /* make sure that messages has posted before we continue */
-            break;
-        }
-#else
         case TOX_CONFERENCE_STATE_CHANGE_LIST_CHANGED: {
             uint32_t number_peers = tox_conference_peer_count(tox, g->number, NULL);
 
@@ -352,7 +270,6 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
             postmessage_utox(GROUP_PEER_CHANGE, g->number, pid, NULL);
             break;
         }
-#endif
     }
 }
 

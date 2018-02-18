@@ -619,31 +619,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             break;
         }
-        case GROUP_PEER_DEL: {
-            GROUPCHAT *g = get_group(param1);
-            if (!g) {
-                return;
-            }
-
-            if (g->av_group) {
-                g->last_recv_audio[param2]        = g->last_recv_audio[g->peer_count];
-                g->last_recv_audio[g->peer_count] = 0;
-                group_av_peer_remove(g, param2);
-                g->source[param2] = g->source[g->peer_count];
-            }
-
-            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
-            if (g->topic_length >= sizeof(g->topic)) {
-                g->topic_length = sizeof(g->topic) - 1;
-            }
-
-            redraw();
-
-            break;
-        }
 
         case GROUP_PEER_CHANGE:
-        case GROUP_PEER_ADD:
         case GROUP_PEER_NAME: {
             GROUPCHAT *g = get_group(param1);
             if (!g) {
