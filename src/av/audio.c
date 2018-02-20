@@ -919,7 +919,7 @@ void utox_audio_thread(void *args) {
     LOG_TRACE("uTox Audio", "Clean thread exit!");
 }
 
-void callback_av_group_audio(void *UNUSED(tox), int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
+void callback_av_group_audio(void *UNUSED(tox), uint32_t groupnumber, uint32_t peernumber, const int16_t *pcm, unsigned int samples,
                              uint8_t channels, unsigned int sample_rate, void *UNUSED(userdata))
 {
     GROUPCHAT *g = get_group(groupnumber);
