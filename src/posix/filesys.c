@@ -12,17 +12,22 @@
 #include <string.h>
 #include <sys/stat.h>
 
-bool native_create_dir_tree(const uint8_t *path) {
-    size_t size = strlen((const char *)path);
-    if (size <= 2) {
+bool native_create_dir_tree(const char *path) {
+    size_t size = strlen(path);
+    if (size < 2) { // memory bounds check
         return false;
     }
 
-    uint8_t *buff = calloc(1, size);
+    char *buff = calloc(1, size);
+    if (!buff) {
+        LOG_ERR("Filesys", "Unable to allocate memory for buffer.");
+        return false;
+    }
+
     for (size_t i = 1; i < size; ++i) { // i = 1 to skip root '/'
         if (path[i] == '/') {
-            memcpy(buff, path, i+1);
-            if (native_create_dir(buff) == false) {
+            memcpy(buff, path, i + 1);
+            if (!native_create_dir(buff)) {
                 free(buff);
                 return false;
             }
@@ -53,7 +58,7 @@ char *native_get_filepath(const char *name) {
         return NULL;
     }
 
-    if (native_create_dir_tree((unsigned char *)path) == false) {
+    if (!native_create_dir_tree(path)) {
         free(path);
         return NULL;
     }
