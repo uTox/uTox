@@ -27,7 +27,7 @@ bool native_create_dir_tree(const char *path) {
     for (size_t i = 1; i < size; ++i) { // i = 1 to skip root '/'
         if (path[i] == '/') {
             memcpy(buff, path, i + 1);
-            if (!native_create_dir(buff)) {
+            if (!native_create_dir((uint8_t *)buff)) {
                 free(buff);
                 return false;
             }
