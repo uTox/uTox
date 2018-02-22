@@ -1062,7 +1062,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             group_peer_add(get_group(g_num), 0, 1, name_color);
             group_peer_name_change(get_group(g_num), 0, (uint8_t *)self.name, self.name_length);
-            postmessage_utox(GROUP_PEER_CHANGE, g_num, 0, NULL);
+            postmessage_utox(GROUP_PEER_ADD, g_num, 0, NULL);
 
             save_needed = true;
             break;

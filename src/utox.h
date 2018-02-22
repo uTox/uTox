@@ -61,6 +61,8 @@ typedef enum utox_msg_id {
     /* Group interactions, commented out for the new groupchats (coming soon maybe?) */
     GROUP_ADD,
     GROUP_MESSAGE,
+    GROUP_PEER_ADD,
+    GROUP_PEER_DEL,
     GROUP_PEER_NAME,
     GROUP_PEER_CHANGE,
     GROUP_TOPIC,
