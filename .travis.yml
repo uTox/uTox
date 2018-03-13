@@ -30,7 +30,7 @@ matrix:
   fast_finish: true
   include:
     - os: linux
-      env: BUILD=linux TOXCORE_REPO_BRANCH="v0.1.4"
+      env: BUILD=linux
       compiler: clang
 
     - os: linux
@@ -70,7 +70,7 @@ matrix:
             - libopenal-dev
             - libopenal-data
             - libopenal1
-      env: BUILD=windows_legacy TOXCORE_REPO_BRANCH="v0.1.4"
+      env: BUILD=windows_legacy
       compiler: i686-w64-mingw32-gcc
 
     - os: osx
