@@ -23,7 +23,7 @@ msgid(REQ_SELF_ID)
 msgstr("エラー: Tox IDは自身のIDです")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("エラー: Tox IDは既にフレンドリストの中です")
+msgstr("エラー: そのユーザーは既にフレンドです")
 
 msgid(REQ_UNKNOWN)
 msgstr("エラー: 不明")
@@ -74,10 +74,6 @@ msgstr("通話を開始しました")
 msgid(ADDFRIENDS)
 msgstr("フレンド追加")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(TOXID)
-//msgstr("Tox ID")
-
 msgid(MESSAGE)
 msgstr("メッセージ")
 
@@ -123,14 +119,6 @@ msgstr("言語")
 msgid(NETWORK)
 msgstr("ネットワーク")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IPV6)
-//msgstr("IPv6:")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(UDP)
-//msgstr("UDP:")
-
 msgid(PROXY)
 msgstr("プロキシ (SOCKS 5)")
 
@@ -138,11 +126,10 @@ msgid(WARNING)
 msgstr("ネットワークやプロキシの設定を変えるとToxネットワークの接続が切断されます")
 
 msgid(SAVE_CHAT_HISTORY)
-msgstr("ロギング")
+msgstr("ログを保存")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IS_TYPING)
-//msgstr("is typing...")
+msgid(IS_TYPING)
+msgstr("入力中...")
 
 msgid(COPY)
 msgstr("コピー")
@@ -160,7 +147,7 @@ msgid(DELETE)
 msgstr("削除")
 
 msgid(SELECTALL)
-msgstr("すべてを選択")
+msgstr("すべて選択")
 
 msgid(REMOVE)
 msgstr("削除")
@@ -207,29 +194,26 @@ msgstr("キャンセルしました")
 //msgid(FILTER_ALL)
 //msgstr("All")
 
-//TODO: Localize or remove.
-//msgid(FILTER_ONLINE)
-//msgstr("Online")
 
-//TODO: Localize or remove.
-//msgid(PROXY_DISABLED)
-//msgstr("Disabled")
+msgid(FILTER_ONLINE)
+msgstr("オンライン")
 
-//TODO: Localize or remove.
-//msgid(PROXY_FALLBACK)
-//msgstr("Fallback")
+
+msgid(PROXY_DISABLED)
+msgstr("無効")
+
+msgid(PROXY_FALLBACK)
+msgstr("代替プロキシ")
 
 //TODO: Localize or remove.
 //msgid(PROXY_ALWAYS_USE)
 //msgstr("Always use")
 
-//TODO: Localize or remove.
-//msgid(NO)
-//msgstr("No")
+msgid(NO)
+msgstr("いいえ")
 
-//TODO: Localize or remove.
-//msgid(YES)
-//msgstr("Yes")
+msgid(YES)
+msgstr("はい")
 
 //TODO: Localize or remove.
 //msgid(VIDEO_IN_NONE)
@@ -239,17 +223,15 @@ msgstr("キャンセルしました")
 //msgid(VIDEO_IN_DESKTOP)
 //msgstr("Desktop")
 
-//TODO: Localize or remove.
-//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-//msgstr("Please accept this friend request.")
+msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+msgstr("私とフレンドになりましょう！")
 
 //TODO: Localize or remove.
 //msgid(PROXY_EDIT_HINT_IP)
 //msgstr("IP")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_PORT)
-//msgstr("Port")
+msgid(PROXY_EDIT_HINT_PORT)
+msgstr("ポート")
 
 //TODO: Localize or remove.
 //msgid(AUDIO_IN_DEFAULT_LOOPBACK)
