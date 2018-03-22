@@ -1,0 +1,48 @@
+version: 'utox-cygwin-{build}'
+clone_depth: 1
+environment:
+    CYG_CACHE: C:\cygwin64\var\cache\setup
+cache:
+    - '%CYG_CACHE%'
+install:
+    - git submodule init && git submodule update && mkdir libs\windows-x64 && cd libs\windows-x64
+
+    # install deps
+    - C:\cygwin64\setup-x86_64.exe -qgnNdO -l %CYG_CACHE% -R c:\cygwin64 -s http://cygwin.mirror.constant.com -P cmake,make,mingw64-x86_64-gcc-core
+
+    # toxcore
+    - if not exist %CYG_CACHE%\toxcore.zip curl -L https://build.tox.chat/view/libtoxcore/job/libtoxcore-toktok_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libtoxcore-toktok_build_windows_x86-64_static_release.zip -o %CYG_CACHE%\toxcore.zip
+    - unzip -o %CYG_CACHE%\toxcore.zip
+
+    # openal
+    - if not exist %CYG_CACHE%\openal.zip curl -L  https://build.tox.chat/view/libopenal/job/libopenal_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libopenal_build_windows_x86-64_static_release.zip -o %CYG_CACHE%\openal.zip
+    - unzip -o %CYG_CACHE%\openal.zip
+
+    # sodium
+    - if not exist %CYG_CACHE%\sodium.zip curl -L https://build.tox.chat/view/libsodium/job/libsodium_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libsodium_build_windows_x86-64_static_release.zip -o %CYG_CACHE%\sodium.zip
+    - unzip -o %CYG_CACHE%\sodium.zip
+
+    # vpx
+    - if not exist %CYG_CACHE%\vpx.zip curl -L https://build.tox.chat/view/libvpx/job/libvpx_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libvpx_build_windows_x86-64_static_release.zip -o %CYG_CACHE%\vpx.zip
+    - unzip -o %CYG_CACHE%\vpx.zip
+
+    # opus
+    - if not exist %CYG_CACHE%\opus.zip curl -L https://build.tox.chat/view/libopus/job/libopus_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libopus_build_windows_x86-64_static_release.zip -o %CYG_CACHE%\opus.zip
+    - unzip -o %CYG_CACHE%\opus.zip
+
+    # filter_audio
+    - if not exist %CYG_CACHE%\filter_audio.zip curl -L https://build.tox.chat/view/libfilteraudio/job/libfilteraudio_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libfilteraudio.zip -o %CYG_CACHE%\filter_audio.zip
+    - unzip -o %CYG_CACHE%\filter_audio.zip
+
+build_script:
+    - C:\Cygwin64\bin\bash -e -l -c "cd C:/projects/utox ; mkdir build ; cd build ; cmake -DCMAKE_TOOLCHAIN_FILE=C:/projects/utox/cmake/toolchain-win64.cmake -DTOXCORE_STATIC=ON .. ; make"
+    - copy C:\projects\utox\build\utox.exe C:\projects\utox\uTox.exe
+
+artifacts:
+  - name: uTox.exe
+    path: uTox.exe
+
+# branches:
+  # only:
+  # - master
+  # - develop
