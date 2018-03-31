@@ -35,7 +35,7 @@ install:
     - unzip -o %CYG_CACHE%\filter_audio.zip
 
 build_script:
-    - C:\Cygwin64\bin\bash -e -l -c "cd C:/projects/utox ; mkdir build ; cd build ; cmake -DCMAKE_TOOLCHAIN_FILE=C:/projects/utox/cmake/toolchain-win64.cmake -DTOXCORE_STATIC=ON .. ; make"
+    - C:\Cygwin64\bin\bash -e -l -c "cd C:/projects/utox ; extra/common/set-nightly-build-warning.sh ; mkdir build ; cd build ; cmake -DCMAKE_TOOLCHAIN_FILE=C:/projects/utox/cmake/toolchain-win64.cmake -DTOXCORE_STATIC=ON .. ; make"
     - copy C:\projects\utox\build\utox.exe C:\projects\utox\uTox.exe
 
 artifacts:
