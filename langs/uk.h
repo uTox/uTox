@@ -504,7 +504,7 @@ msgid(STATUS_BUSY)
 msgstr("Зайнятий")
 
 msgid(STATUS_OFFLINE)
-msgstr("Offline")
+msgstr("Поза мережею")
 
 /*
  * Leave %.*s. They are variables
