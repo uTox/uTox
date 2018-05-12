@@ -42,7 +42,7 @@ artifacts:
   - name: uTox.exe
     path: uTox.exe
 
-# branches:
-  # only:
-  # - master
-  # - develop
+branches:
+  only:
+  - master
+  - develop
