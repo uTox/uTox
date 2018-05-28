@@ -100,7 +100,7 @@ If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In f
 
 uTox will compile on OpenBSD although not everything works.
 
-First install the dependencies:
+First install the [dependencies](DEPENDENCIES.md#OpenBSD):
 
 ```bash
 sudo pkg_add -Iv opus libvpx openal
@@ -131,7 +131,7 @@ sudo make install
 
 ### FreeBSD
 
-Install the dependencies:
+Install the [dependencies](DEPENDENCIES.md#FreeBSD):
 
 ```bash
 sudo pkg install libv4l v4l_compat openal-soft libvpx opus
@@ -163,16 +163,7 @@ sudo make install
 
 You will need a working Cygwin environment or Unix desktop to compile windows.
 
-Dependencies can be downloaded from [here](https://build.tox.chat/). Make sure you grab the right bit version.
-
-|   Name       | Required |
-|--------------|----------|
-| cmake >= 3.2 |   yes    |
-| filter_audio |   no     |
-| libvpx       |   yes    |
-| openal       |   yes    |
-| opus         |   yes    |
-| toxcore      |   yes    |
+Before compiling please make sure you have all of the [dependencies](DEPENDENCIES.md#Windows). Dependencies can be downloaded from [here](https://build.tox.chat/). Make sure you grab the right bit version.
 
 ### Cygwin setup
 
