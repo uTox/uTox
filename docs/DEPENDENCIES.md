@@ -28,6 +28,7 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | v4l          | yes                   |
 | xext         | yes                   |
 | xrender      | yes                   |
+| libsodium    | yes                   |
 
 <a name="freebsd"></a>
 ## FreeBSD
@@ -48,6 +49,7 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | toxcore      | yes                   |
 | xrender      | yes                   |
 | xext         | yes                   |
+| libsodium    | yes                   |
 
 <a name="openbsd"></a>
 ## OpenBSD
@@ -66,18 +68,20 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | toxcore      | yes                   |
 | xrender      | yes                   |
 | xext         | yes                   |
+| libsodium    | yes                   |
 
 <a name="windows"></a>
 ## Windows
 
-|   Name       | Required |
+| Name         | Required |
 |--------------|----------|
-| cmake >= 3.2 |   yes    |
-| filter_audio |   no     |
-| libvpx       |   yes    |
-| openal       |   yes    |
-| opus         |   yes    |
-| toxcore      |   yes    |
+| cmake >= 3.2 | yes      |
+| filter_audio | no       |
+| libvpx       | yes      |
+| openal       | yes      |
+| opus         | yes      |
+| toxcore      | yes      |
+| libsodium    | yes      |
 
 <a name="osx"></a>
 ## OSX
@@ -91,3 +95,4 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | opus         | yes                   |
 | toxcore      | yes                   |
 | check        | no (needed for tests) |
+| libsodium    | yes                   |
