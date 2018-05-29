@@ -185,7 +185,6 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
                 }
 
                 case UTOXAV_START_AUDIO: {
-                    call_count++;
                     if (msg->param1) { /* Start audio preview */
                         call_count++;
                         LOG_TRACE("uToxAV", "Starting Audio Preview" );
