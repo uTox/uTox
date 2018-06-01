@@ -109,7 +109,7 @@ panel_side_bar = {
     .type = PANEL_NONE,
     .disabled = 0,
     .drawfunc = draw_background_sidebar,
-    .width = 230,
+    .width = SIDEBAR_COLLAPSED_SIZE,
     .child = (PANEL*[]) {
         &panel_self,
         &panel_quick_buttons,
@@ -142,6 +142,11 @@ panel_quick_buttons = {
 },
 /* The friends and group was called list */
 panel_flist = {
+    .x      = 0,
+    .y      = 70,
+    .width  = 230,
+    .height = ROSTER_BOTTOM,
+
     .type     = PANEL_NONE,
     .disabled = 0,
     .child    = (PANEL*[]) {

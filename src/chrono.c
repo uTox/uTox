@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "macros.h"
 
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -16,15 +17,19 @@ static void chrono_thread(void *args) {
 
     CHRONO_INFO *info = args;
     chrono_thread_init = true;
-    while (info->ptr != info->target) {
-        info->ptr += info->step;
-        yieldcpu(info->interval_ms);
+
+    while (*info->ptr != *info->target) {
+        *info->ptr += info->step;
+        chrono_callback(info->interval_ms, info->sleep_callback, info->sleep_cb_data);
     }
+
     chrono_thread_init = false;
 
     if (info->callback) {
         info->callback(info->cb_data);
     }
+
+    info->finished = true;
 
     LOG_INFO("Chrono", "Thread exited cleanly");
 }
@@ -46,7 +51,7 @@ bool chrono_end(CHRONO_INFO *info) {
         return false;
     }
 
-    (*info).finished = true;
+    info->finished = true;
 
     while (chrono_thread_init) { //wait for thread to die
         yieldcpu(1);
@@ -57,5 +62,8 @@ bool chrono_end(CHRONO_INFO *info) {
 
 void chrono_callback(uint32_t ms, void func(void *), void *funcargs) {
     yieldcpu(ms);
-    func(funcargs);
+
+    if (func) {
+        func(funcargs);
+    }
 }

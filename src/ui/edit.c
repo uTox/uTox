@@ -45,6 +45,10 @@ static void setactive(EDIT *edit) {
 }
 
 void edit_draw(EDIT *edit, int x, int y, int width, int height) {
+    if (edit->nodraw) {
+        return;
+    }
+
     if (width - SCALE(8) - SCALE(SCROLL_WIDTH) < 0) { // why?
         return;
     }

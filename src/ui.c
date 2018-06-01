@@ -1,5 +1,6 @@
 #include "ui.h"
 
+#include "chrono.h"
 #include "flist.h"
 #include "inline_video.h"
 #include "macros.h"
@@ -28,6 +29,10 @@
 #include "ui/text.h"
 #include "ui/tooltip.h"
 
+#include <stdlib.h>
+
+static CHRONO_INFO *sidebar_chrono = NULL;
+
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
     return;
@@ -40,6 +45,47 @@ static bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int
 
 static bool background_mdown(PANEL *UNUSED(p)) {
     return false;
+}
+
+static bool background_mdbl(PANEL *UNUSED(p), bool UNUSED(triclick)) {
+    if (!sidebar_chrono) {
+        LOG_INFO("UI", "Sidebar chrono is being initialized.");
+        sidebar_chrono = calloc(1, sizeof(CHRONO_INFO));
+        if (!sidebar_chrono) {
+            LOG_ERR("UI", "Could not allocate memory for chrono info.");
+            return false;
+        }
+        sidebar_chrono->target = malloc(sizeof(int));
+        if (!sidebar_chrono->target) {
+            LOG_ERR("UI", "Could not allocate memory for target.");
+            free(sidebar_chrono);
+            sidebar_chrono = NULL;
+            return false;
+        }
+    }
+
+    int step = 0;
+    if (panel_side_bar.width == SIDEBAR_COLLAPSED_SIZE) {
+        button_settings.nodraw = false;
+        edit_add_new_friend_id.nodraw = false;
+        *sidebar_chrono->target = SIDEBAR_EXPANDED_SIZE;
+        step = 1;
+    } else {
+        button_settings.nodraw = true;
+        edit_add_new_friend_id.nodraw = true;
+        *sidebar_chrono->target = SIDEBAR_COLLAPSED_SIZE;
+        step = -1;
+    }
+
+    sidebar_chrono->ptr = &panel_side_bar.width;
+    sidebar_chrono->step = step;
+    sidebar_chrono->interval_ms = 1;
+    sidebar_chrono->sleep_callback = force_redraw;
+    sidebar_chrono->sleep_cb_data = NULL;
+
+    chrono_start(sidebar_chrono);
+
+    return true;
 }
 
 static bool background_mright(PANEL *UNUSED(p)) {
@@ -102,11 +148,6 @@ static void sidepanel_FLIST(void) {
     scrollbar_flist.panel.y      = 0;
     // scrollbar_flist.panel.width  = 230; // TODO remove?
     scrollbar_flist.panel.height = -1;
-
-    panel_flist.x      = 0;
-    panel_flist.y      = 70;
-    panel_flist.width  = 230; // TODO remove?
-    panel_flist.height = ROSTER_BOTTOM;
 
 
     CREATE_BUTTON(filter_friends, SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_TOP, SIDEBAR_FILTER_FRIENDS_WIDTH,
@@ -368,14 +409,14 @@ MAKE_FUNC(bool, mleave);
  * change the relative
  *
  * if w/h <0 use parent panel width (maybe?)    */
-#define FIX_XY_CORDS_FOR_SUBPANELS()                                       \
-    {                                                                      \
-        int relx = (p->x < 0) ? width + SCALE(p->x) : SCALE(p->x);                       \
-        int rely = (p->y < 0) ? height + SCALE(p->y) : SCALE(p->y);                      \
-        x += relx;                                                         \
-        y += rely;                                                         \
-        width  = (p->width <= 0) ? width + SCALE(p->width) - relx : SCALE(p->width);     \
-        height = (p->height <= 0) ? height + SCALE(p->height) - rely : SCALE(p->height); \
+#define FIX_XY_CORDS_FOR_SUBPANELS() \
+    { \
+        int relx = (p->x < 0) ? width + SCALE(p->x) : SCALE(p->x); \
+        int rely = (p->y < 0) ? height + SCALE(p->y) : SCALE(p->y); \
+        x += relx; \
+        y += rely; \
+        width  = (p->width <= 0) ? width + SCALE(p->width) - relx : MIN(width, SCALE(p->width)); \
+        height = (p->height <= 0) ? height + SCALE(p->height) - rely : MIN(height, SCALE(p->height)); \
     }
 
 static void panel_update(PANEL *p, int x, int y, int width, int height) {
@@ -442,7 +483,7 @@ void ui_size(int width, int height) {
     tooltip_reset();
 
     panel_side_bar.disabled = false;
-    panel_main.x = panel_flist.width;
+    panel_main.x = 50;
 
     if (settings.magic_flist_enabled) {
         if (width <= panel_flist.width * 2 || height > width) {
@@ -599,10 +640,24 @@ void panel_mdown(PANEL *p) {
 
 bool panel_dclick(PANEL *p, bool triclick) {
     bool draw = false;
-    if (p->type == PANEL_EDIT) {
-        draw = edit_dclick((EDIT *)p, triclick);
-    } else if (p->type == PANEL_MESSAGES) {
-        draw = messages_dclick(p, triclick);
+    switch (p->type) {
+        case PANEL_NONE: {
+            draw = background_mdbl(p, triclick);
+            break;
+        }
+        case PANEL_EDIT: {
+            draw = edit_dclick((EDIT *)p, triclick);
+            break;
+        }
+        case PANEL_MESSAGES: {
+            draw = messages_dclick(p, triclick);
+            break;
+        }
+        default: {
+            // Not every panel gets a double click event.
+            // TODO this is a bug.
+            break;
+        }
     }
 
     PANEL **pp = p->child;

@@ -12,7 +12,9 @@
 
 UTOX_WINDOW *curr = NULL;
 
-void *bitmap[BM_ENDMARKER + 1];
+#define MAX_BITMAPS BM_ENDMARKER + 1;
+
+void *bitmap[MAX_BITMAPS] = {0};
 
 BLENDFUNCTION blend_function = {
     .BlendOp             = AC_SRC_OVER,
@@ -22,7 +24,13 @@ BLENDFUNCTION blend_function = {
 };
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
+    if (bm >= MAX_BITMAPS) {
+        LOG_DEBUG("Drawing", "Index out of bounds.");
+        return;
+    }
+
     if (!bitmap[bm]) {
+        LOG_DEBUG("Drawing", "Selected bitmap is NULL.");
         return;
     }
 
@@ -42,9 +50,19 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
 
 
     // create temporary bitmap we'll combine the alpha and colors on
-    uint32_t *out_pixel;
+    uint32_t *out_pixel = NULL;
     HBITMAP   temp = CreateDIBSection(curr->mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out_pixel, NULL, 0);
-    SelectObject(curr->mem_DC, temp);
+    if (temp == NULL && out_pixel == NULL) { //if CreateDIBSection fails both temp and out_pixel should be NULL
+        LOG_DEBUG("Drawing", "Could not create temporary bitmap.");
+        return;
+    }
+
+    HGDIOBJ ret = SelectObject(curr->mem_DC, temp);
+    if (ret == NULL) {
+        LOG_DEBUG("Drawing", "Could not select temporary bitmap.");
+        SelectObject(curr->mem_DC, curr->draw_BM);
+        return;
+    }
 
     // create pixels for the drawable bitmap based on the alpha value of
     // each pixel in the alpha bitmap and the color given by 'color',
