@@ -875,34 +875,6 @@ BUTTON button_show_nospam = {
     .on_mup       = button_show_nospam_on_mup,
 };
 
-static void switch_set_colors(UISWITCH *s) {
-    if (s->switch_on) {
-        s->bg_color    = COLOR_BTN_SUCCESS_BKGRND;
-        s->sw_color    = COLOR_BTN_SUCCESS_TEXT;
-        s->press_color = COLOR_BTN_SUCCESS_BKGRND_HOVER;
-        s->hover_color = COLOR_BTN_SUCCESS_BKGRND_HOVER;
-    } else {
-        s->bg_color    = COLOR_BTN_DISABLED_BKGRND;
-        s->sw_color    = COLOR_BTN_DISABLED_FORGRND;
-        s->hover_color = COLOR_BTN_DISABLED_BKGRND_HOVER;
-        s->press_color = COLOR_BTN_DISABLED_BKGRND_HOVER;
-    }
-}
-
-static void switch_set_size(UISWITCH *s) {
-    s->toggle_w   = BM_SWITCH_TOGGLE_WIDTH;
-    s->toggle_h   = BM_SWITCH_TOGGLE_HEIGHT;
-    s->icon_off_w = BM_FB_WIDTH;
-    s->icon_off_h = BM_FB_HEIGHT;
-    s->icon_on_w  = BM_FB_WIDTH;
-    s->icon_on_h  = BM_FB_HEIGHT;
-}
-
-static void switch_update(UISWITCH *s) {
-    switch_set_colors(s);
-    switch_set_size(s);
-}
-
 static void switchfxn_logging(void) {
     settings.logging_enabled = !settings.logging_enabled;
 }
