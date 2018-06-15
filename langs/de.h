@@ -148,6 +148,9 @@ msgstr("Chatverlauf als Text exportieren")
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Audiochat beitreten")
 
+msgid(GROUP_CREATE_WITH_AUDIO)
+msgstr("Aktiviere Audio")
+
 msgid(GROUP_CREATE_TEXT)
 msgstr("Text-Gruppenchat erstellen")
 
