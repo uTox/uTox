@@ -347,10 +347,10 @@ msgid(GROUP_CREATE_WITH_AUDIO)
 msgstr("Enable Audio")
 
 msgid(GROUP_CREATE_TEXT)
-msgstr("Create a text group chat")
+msgstr("Create a text-chat group")
 
 msgid(GROUP_CREATE_VOICE)
-msgstr("Create a group chat with voice")
+msgstr("Create a voice-chat group")
 
 msgid(CREATEGROUPCHAT)
 msgstr("Create Groupchat")
@@ -586,10 +586,10 @@ msgid(NETWORK)
 msgstr("Network")
 
 msgid(IPV6)
-msgstr("IPv6:")
+msgstr("IPv6")
 
 msgid(UDP)
-msgstr("UDP:")
+msgstr("UDP")
 
 msgid(PROXY)
 msgstr("Proxy (SOCKS 5)")
@@ -619,13 +619,13 @@ msgid(START_IN_TRAY)
 msgstr("Start In Tray")
 
 msgid(SHOW_QR)
-msgstr("Show QR")
+msgstr("Show QR code")
 
 msgid(HIDE_QR)
-msgstr("Hide QR")
+msgstr("Hide QR code")
 
 msgid(SAVE_QR)
-msgstr("Save QR")
+msgstr("Save QR code")
 
 msgid(COPY_TOX_ID)
 msgstr("Copy as text")
@@ -826,7 +826,7 @@ msgid(CONTACT_SEARCH_ADD_HINT)
 msgstr("Search/Add Friends")
 
 msgid(PROXY_EDIT_HINT_IP)
-msgstr("IP")
+msgstr("IP address")
 
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Port")
