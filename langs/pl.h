@@ -184,6 +184,9 @@ msgstr("Eksportuj historię czatu znajomego do tekstu")
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Dołącz do grupowej rozmowy audio")
 
+msgid(GROUP_CREATE_WITH_AUDIO)
+msgstr("Włącz głos audio")
+
 msgid(GROUP_CREATE_TEXT)
 msgstr("Utwórz grupę tekstową")
 
