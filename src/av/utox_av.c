@@ -173,7 +173,6 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
                 }
 
                 case UTOXAV_START_AUDIO: {
-                    call_count++;
                     if (msg->param1) { /* Start audio preview */
                         call_count++;
                         LOG_TRACE("uToxAV", "Starting Audio Preview" );
@@ -202,7 +201,7 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
                     } else {
                         utox_video_start(0);
                         TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
-                        toxav_bit_rate_set(av, msg->param1, UTOX_DEFAULT_BITRATE_V, 0, &bitrate_err);
+                        toxav_video_set_bit_rate(av, msg->param1, UTOX_DEFAULT_BITRATE_V, &bitrate_err);
                     }
                     break;
                 }
@@ -213,7 +212,7 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
                     } else {
                         utox_video_stop(0);
                         TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
-                        toxav_bit_rate_set(av, msg->param1, -1, 0, &bitrate_err);
+                        toxav_video_set_bit_rate(av, msg->param1, -1, &bitrate_err);
                     }
                     postmessage_utox(AV_CLOSE_WINDOW, msg->param1, 0, NULL);
                     break;
@@ -384,14 +383,14 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
 
     switch (control) {
         case TOXAV_CALL_CONTROL_HIDE_VIDEO: {
-            toxav_bit_rate_set(av, friend_number, -1, 0, &bitrate_err);
+            toxav_video_set_bit_rate(av, friend_number, 0, &bitrate_err);
             postmessage_utoxav(UTOXAV_STOP_VIDEO, friend_number, 0, NULL);
             f->call_state_self &= (0xFF ^ TOXAV_FRIEND_CALL_STATE_SENDING_V);
             break;
         }
 
         case TOXAV_CALL_CONTROL_SHOW_VIDEO: {
-            toxav_bit_rate_set(av, friend_number, -1, UTOX_DEFAULT_BITRATE_V, &bitrate_err);
+            toxav_video_set_bit_rate(av, friend_number, UTOX_DEFAULT_BITRATE_V, &bitrate_err);
             postmessage_utoxav(UTOXAV_START_VIDEO, friend_number, 0, NULL);
             f->call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V;
             break;
@@ -532,20 +531,33 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     get_friend(friend_number)->call_state_friend = state;
 }
 
-static void utox_incoming_rate_change(ToxAV *AV, uint32_t f_num, uint32_t UNUSED(a_bitrate), uint32_t v_bitrate, void *UNUSED(ud)) {
+static void utox_incoming_video_rate_change(ToxAV *AV, uint32_t f_num, uint32_t v_bitrate, void *UNUSED(ud)) {
     /* Just accept what toxav wants the bitrate to be... */
     if (v_bitrate > (uint32_t)UTOX_MIN_BITRATE_VIDEO) {
         TOXAV_ERR_BIT_RATE_SET error = 0;
-        toxav_bit_rate_set(AV, f_num, -1, v_bitrate, &error);
+        toxav_video_set_bit_rate(AV, f_num, v_bitrate, &error);
         if (error) {
             LOG_ERR("ToxAV", "Setting new Video bitrate has failed with error #%u" , error);
         } else {
-            LOG_NOTE("uToxAV", "\tVideo bitrate changed to %u" , v_bitrate);
+            LOG_NOTE("uToxAV", "Video bitrate changed to %u" , v_bitrate);
         }
     } else {
-        LOG_NOTE("uToxAV", "\tVideo bitrate unchanged %u is less than %u" , v_bitrate, UTOX_MIN_BITRATE_VIDEO);
+        LOG_NOTE("uToxAV", "Video bitrate unchanged %u is less than %u" , v_bitrate, UTOX_MIN_BITRATE_VIDEO);
     }
-    return;
+}
+
+static void utox_incoming_audio_rate_change(ToxAV *AV, uint32_t friend_number, uint32_t audio_bitrate, void *UNUSED(userdata)){
+    if (audio_bitrate > (uint32_t)UTOX_MIN_BITRATE_VIDEO) {
+        TOXAV_ERR_BIT_RATE_SET error = 0;
+        toxav_video_set_bit_rate(AV, friend_number, audio_bitrate, &error);
+        if (error) {
+            LOG_ERR("ToxAV", "Setting new audio bitrate has failed with error #%u" , error);
+        } else {
+            LOG_NOTE("uToxAV", "Audio bitrate changed to %u" , audio_bitrate);
+        }
+    } else {
+        LOG_NOTE("uToxAV", "Audio bitrate unchanged %u is less than %u" , audio_bitrate, UTOX_MIN_BITRATE_AUDIO);
+    }
 }
 
 void set_av_callbacks(ToxAV *av) {
@@ -558,5 +570,6 @@ void set_av_callbacks(ToxAV *av) {
     toxav_callback_video_receive_frame(av, &utox_av_incoming_frame_v, NULL);
 
     /* Data type change callbacks. */
-    toxav_callback_bit_rate_status(av, &utox_incoming_rate_change, NULL);
+    toxav_callback_video_bit_rate(av, &utox_incoming_video_rate_change, NULL);
+    toxav_callback_audio_bit_rate(av, &utox_incoming_audio_rate_change, NULL);
 }

@@ -462,6 +462,8 @@ static void page_close(ITEM *i) {
         }
 
         case ITEM_GROUP_CREATE: {
+            panel_chat.disabled  = true;
+            panel_group_create.disabled = true;
             break;
         }
 
@@ -554,11 +556,12 @@ static void page_open(ITEM *i) {
             edit_chat_msg_group.history_cur    = g->edit_history_cur;
             edit_chat_msg_group.history_length = g->edit_history_length;
 
-            panel_chat.disabled           = 0;
-            panel_group.disabled          = 0;
-            panel_group_chat.disabled     = 0;
-            panel_group_video.disabled    = 1;
-            panel_group_settings.disabled = 1;
+            panel_chat.disabled           = false;
+            panel_group.disabled          = false;
+            panel_group_chat.disabled     = false;
+            panel_group_video.disabled    = true;
+            panel_group_settings.disabled = true;
+            panel_group_create.disabled   = true;
             break;
         }
 
@@ -586,6 +589,8 @@ static void page_open(ITEM *i) {
         }
 
         case ITEM_GROUP_CREATE: {
+            panel_chat.disabled         = false;
+            panel_group_create.disabled = false;
             // postmessage_toxcore(TOX_GROUP_CREATE, 0, 0, NULL);
             break;
         }
@@ -1168,7 +1173,6 @@ static void contextmenu_list_onselect(uint8_t i) {
                 contextmenu_friend(i);
                 return;
             }
-
             case ITEM_GROUP: {
                 panel_group_chat.disabled = false;
                 GROUPCHAT *g = get_group(right_mouse_item->id_number);
@@ -1199,16 +1203,6 @@ static void contextmenu_list_onselect(uint8_t i) {
                 }
                 return;
             }
-
-            case ITEM_GROUP_CREATE: {
-                if (i) {
-                    postmessage_toxcore(TOX_GROUP_CREATE, 0, 1, NULL);
-                } else {
-                    postmessage_toxcore(TOX_GROUP_CREATE, 0, 0, NULL);
-                }
-                return;
-            }
-
             default: {
                 LOG_TRACE("F-List", "blerg" );
                 return;
@@ -1265,7 +1259,6 @@ bool flist_mright(void *UNUSED(n)) {
             }
 
             case ITEM_GROUP_CREATE: {
-                contextmenu_new(COUNTOF(menu_create_group), menu_create_group, contextmenu_list_onselect);
                 break;
             }
 

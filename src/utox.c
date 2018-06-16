@@ -650,8 +650,13 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             break;
         }
+
         case GROUP_PEER_ADD:
-        case GROUP_PEER_NAME: {
+        case GROUP_PEER_NAME:
+        case GROUP_PEER_CHANGE: {
+            /* param1: group number
+             * param2: peer number
+             */
             GROUPCHAT *g = get_group(param1);
             if (!g) {
                 return;

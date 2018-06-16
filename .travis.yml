@@ -27,8 +27,6 @@ cache:
     - $HOME/cache
 
 matrix:
-  # allow_failures:
-  #   - os: osx
   fast_finish: true
   include:
     - os: linux
@@ -52,7 +50,7 @@ matrix:
             - libopenal-dev
             - libopenal-data
             - libopenal1
-      env: BUILD=windows TOXCORE_REPO_BRANCH="master"
+      env: BUILD=windows
       compiler: x86_64-w64-mingw32-gcc
 
     - os: linux
@@ -77,15 +75,7 @@ matrix:
 
     - os: osx
       compiler: clang
-      env: BUILD=osx TOXCORE_REPO_BRANCH="v0.1.4"
-
-    # We don't support old toxcore yet/anymore
-    # - os: linux
-    #   env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
-    #   compiler: gcc
-    # - os: linux
-    #   env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
-    #   compiler: clang
+      env: BUILD=osx
 
 git:
   depth: 5

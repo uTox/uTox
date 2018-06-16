@@ -57,7 +57,6 @@ build:linux:muslc:
       - cache/
   variables:
     TOXCORE_REPO: "TokTok/c-toxcore"
-    TOXCORE_REPO_BRANCH: "v0.1.4"
     GL_BUILD: "linMUSL"
   before_script:
     - apk add freetype-dev

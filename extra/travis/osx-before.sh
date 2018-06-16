@@ -19,7 +19,7 @@ fi
 cd libvpx
 git rev-parse HEAD > libvpx.sha
 if ! ([ -f "$CACHE_DIR/libvpx.sha" ] && diff "$CACHE_DIR/libvpx.sha" libvpx.sha); then
-  ./configure --prefix="$CACHE_DIR/usr" --enable-shared
+  ./configure --prefix="$CACHE_DIR/usr"
   make -j`sysctl -n hw.ncpu`
   make install
   mv libvpx.sha "$CACHE_DIR/libvpx.sha"
@@ -35,7 +35,7 @@ cd toxcore
 git rev-parse HEAD > toxcore.sha
 if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.sha); then
   mkdir _build
-  cmake -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH="$CACHE_DIR/usr"
+  cmake -DENABLE_SHARED=OFF -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH="$CACHE_DIR/usr"
   make -C_build -j`sysctl -n hw.ncpu`
   make -C_build install
   mv toxcore.sha "$CACHE_DIR/toxcore.sha"

@@ -15,7 +15,6 @@
 #include "av/audio.h"
 #include "av/utox_av.h"
 
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -148,12 +147,10 @@ void utox_set_callbacks_friends(Tox *tox) {
 }
 
 static void callback_group_invite(Tox *UNUSED(tox), uint32_t friend_number, TOX_CONFERENCE_TYPE type,
-                                  const uint8_t *cookie, size_t length, void *UNUSED(userdata))
-{
+                                  const uint8_t *cookie, size_t length, void *UNUSED(userdata)) {
     const uint8_t request_id = group_invite_new(friend_number,
                                                 cookie, length,
                                                 type == TOX_CONFERENCE_TYPE_AV);
-
     if (request_id == UINT8_MAX) {
         return;
     }
@@ -182,120 +179,82 @@ static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid,
     postmessage_utox(GROUP_MESSAGE, gid, pid, NULL);
 }
 
-static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid, TOX_CONFERENCE_STATE_CHANGE change,
-                                           void *UNUSED(userdata)) {
-    LOG_DEBUG("Group callback", "gid %u pid %u change %u", gid, pid, change);
+static void callback_group_peer_name_change(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, const uint8_t *name, size_t length, void *UNUSED(userdata)){
+
+    LOG_DEBUG("Tox Callbacks", "Group:\tPeer name change (%u, %u)" , gid, pid);
 
     GROUPCHAT *g = get_group(gid);
     if (!g) {
-        LOG_ERR("Tox Callbacks", "Invalid group");
+        LOG_ERR("Tox Callbacks", "Could not get groupchat: %u", gid);
         return;
     }
 
-    switch (change) {
-        case TOX_CONFERENCE_STATE_CHANGE_PEER_JOIN: {
-            LOG_DEBUG("Group", "Add (%u, %u)" , gid, pid);
-
-            if (g->peer) {
-                g->peer = realloc(g->peer, sizeof(void *) * (g->peer_count + 2));
-            } else {
-                g->peer = calloc(g->peer_count + 2, sizeof(void *));
-            }
-            bool is_us = 0;
-            if (tox_conference_peer_number_is_ours(tox, gid, pid, 0)) {
-                g->our_peer_number = pid;
-                is_us              = 1;
-            }
-
-            uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
-            tox_conference_peer_get_public_key(tox, gid, pid, pkey, NULL);
-            uint64_t pkey_to_number = 0;
-            int      key_i          = 0;
-            for (; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
-                pkey_to_number += pkey[key_i];
-            }
-            srand(pkey_to_number);
-            uint32_t name_color = RGB(rand(), rand(), rand());
-
-            group_peer_add(g, pid, is_us, name_color);
-
-            postmessage_utox(GROUP_PEER_ADD, gid, pid, NULL);
-            break;
+    if (g->peer) {
+        if (!g->peer[pid]) {
+            LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant peer!" );
+            return;
         }
-
-        case TOX_CONFERENCE_STATE_CHANGE_PEER_NAME_CHANGE: {
-            LOG_DEBUG("Tox Callbacks", "Group:\tPeer name change (%u, %u)" , gid, pid);
-
-            if (g->peer) {
-                if (!g->peer[pid]) {
-                    LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant peer!" );
-                    break;
-                }
-            } else {
-                // TODO can't happen
-                LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant Group!" );
-            }
-
-            uint8_t name[TOX_MAX_NAME_LENGTH];
-            size_t len = tox_conference_peer_get_name_size(tox, gid, pid, NULL);
-            tox_conference_peer_get_name(tox, gid, pid, name, NULL);
-            len = utf8_validate(name, len);
-            group_peer_name_change(g, pid, name, len);
-
-            postmessage_utox(GROUP_PEER_NAME, gid, pid, NULL);
-            break;
-        }
-
-        case TOX_CONFERENCE_STATE_CHANGE_PEER_EXIT: {
-            LOG_DEBUG("Group", "Peer Quit (%u, %u)" , gid, pid);
-            group_add_message(g, pid, (const uint8_t *)S(GROUP_MESSAGE_QUIT), SLEN(GROUP_MESSAGE_QUIT), MSG_TYPE_NOTICE);
-
-            pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
-
-            group_reset_peerlist(g);
-
-            uint32_t number_peers = tox_conference_peer_count(tox, gid, NULL);
-
-            g->peer = calloc(number_peers, sizeof(void *));
-
-            if (!g->peer) {
-                LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks", "Group:\tToxcore is very broken, but we couldn't alloc here.");
-            }
-
-            /* I'm about to break some uTox style here, because I'm expecting
-             * the API to change soon, and I just can't when it's this broken */
-            for (uint32_t i = 0; i < number_peers; ++i) {
-                uint8_t     tmp[TOX_MAX_NAME_LENGTH];
-                size_t      len  = tox_conference_peer_get_name_size(tox, gid, i, NULL);
-                tox_conference_peer_get_name(tox, gid, i, tmp, NULL);
-                GROUP_PEER *peer = calloc(1, sizeof(*peer) + len + 1);
-                if (!peer) {
-                    LOG_FATAL_ERR(EXIT_MALLOC, "Group", "Toxcore is very broken, but we couldn't calloc here.");
-                }
-                /* name and id number (it's worthless, but it's needed */
-                memcpy(peer->name, tmp, len);
-                peer->name_length = len;
-                peer->id          = i;
-                /* get static random color */
-                uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
-                tox_conference_peer_get_public_key(tox, gid, i, pkey, NULL);
-                uint64_t pkey_to_number = 0;
-                for (int key_i = 0; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
-                    pkey_to_number += pkey[key_i];
-                }
-                /* uTox doesnt' really use this for too much so lets fuck with the random seed.
-                 * If you know crypto, and cringe, I know me too... you can blame @irungentoo */
-                srand(pkey_to_number);
-                peer->name_color = RGB(rand(), rand(), rand());
-                g->peer[i]       = peer;
-            }
-            g->peer_count = number_peers;
-
-            postmessage_utox(GROUP_PEER_DEL, gid, pid, NULL);
-            pthread_mutex_unlock(&messages_lock); /* make sure that messages has posted before we continue */
-            break;
-        }
+    } else {
+        // TODO can't happen
+        LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant Group!" );
     }
+
+    length = utf8_validate(name, length);
+    group_peer_name_change(g, pid, name, length);
+
+    postmessage_utox(GROUP_PEER_NAME, gid, pid, NULL);
+}
+
+static void callback_group_peer_list_changed(Tox *tox, uint32_t gid, void *UNUSED(userdata)){
+    GROUPCHAT *g = get_group(gid);
+    if (!g) {
+        LOG_ERR("Tox Callbacks", "Could not get group: %u", gid);
+        return;
+    }
+
+    pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
+
+    group_reset_peerlist(g);
+
+    uint32_t number_peers = tox_conference_peer_count(tox, gid, NULL);
+
+    g->peer = calloc(number_peers, sizeof(void *));
+
+    if (!g->peer) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks", "Group:\tToxcore is very broken, but we couldn't alloc here.");
+    }
+
+    /* I'm about to break some uTox style here, because I'm expecting
+     * the API to change soon, and I just can't when it's this broken */
+    for (uint32_t i = 0; i < number_peers; ++i) {
+        uint8_t     tmp[TOX_MAX_NAME_LENGTH];
+        size_t      len  = tox_conference_peer_get_name_size(tox, gid, i, NULL);
+        tox_conference_peer_get_name(tox, gid, i, tmp, NULL);
+        GROUP_PEER *peer = calloc(1, sizeof(*peer) + len + 1);
+        if (!peer) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Group", "Toxcore is very broken, but we couldn't calloc here.");
+        }
+        /* name and id number (it's worthless, but it's needed */
+        memcpy(peer->name, tmp, len);
+        peer->name_length = len;
+        peer->id          = i;
+        /* get static random color */
+        uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
+        tox_conference_peer_get_public_key(tox, gid, i, pkey, NULL);
+        uint64_t pkey_to_number = 0;
+        for (int key_i = 0; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
+            pkey_to_number += pkey[key_i];
+        }
+        /* uTox doesnt' really use this for too much so lets fuck with the random seed.
+         * If you know crypto, and cringe, I know me too... you can blame @irungentoo */
+        srand(pkey_to_number);
+        peer->name_color = RGB(rand(), rand(), rand());
+        g->peer[i]       = peer;
+    }
+    g->peer_count = number_peers;
+
+    postmessage_utox(GROUP_PEER_CHANGE, gid, 0, NULL);
+    pthread_mutex_unlock(&messages_lock); /* make sure that messages has posted before we continue */
 }
 
 static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, const uint8_t *title, size_t length,
@@ -317,8 +276,9 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
 void utox_set_callbacks_groups(Tox *tox) {
     tox_callback_conference_invite(tox, callback_group_invite);
     tox_callback_conference_message(tox, callback_group_message);
-    tox_callback_conference_namelist_change(tox, callback_group_namelist_change);
+    tox_callback_conference_peer_name(tox, callback_group_peer_name_change);
     tox_callback_conference_title(tox, callback_group_topic);
+    tox_callback_conference_peer_list_changed(tox, callback_group_peer_list_changed);
 }
 
 #ifdef ENABLE_MULTIDEVICE
