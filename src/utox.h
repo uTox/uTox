@@ -64,6 +64,7 @@ typedef enum utox_msg_id {
     GROUP_PEER_ADD,
     GROUP_PEER_DEL,
     GROUP_PEER_NAME,
+    GROUP_PEER_CHANGE,
     GROUP_TOPIC,
     GROUP_AUDIO_START,
     GROUP_AUDIO_END,

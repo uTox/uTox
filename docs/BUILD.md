@@ -5,6 +5,17 @@ probably help you out.
 
 If you're looking for it to "just work" you're going to want [these instructions](INSTALL.md).
 
+## Instructions
+
+- [Unix Like](#unix-like)
+  * [Linux](#linux)
+  * [Ubuntu](#ubuntu)
+  * [OpenBSD](#openbsd)
+  * [FreeBSD](#freebsd)
+- [Windows](#windows)
+- [macOS](#macos)
+- [Android](#android)
+
 ## Unix Like
 
 ### Linux
@@ -40,8 +51,10 @@ For the build to pass you need to install the following from sources: [filteraud
 
 For base emoji ids support you need: [base_emoji](https://github.com/irungentoo/base_emoji)
 
-## Ubuntu
-### Tested on Ubuntu 15.10
+### Ubuntu
+
+Tested on Ubuntu 16.04
+
 ```bash
 sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libopus-dev libvpx-dev pkg-config libfontconfig1-dev libdbus-1-dev libv4l-dev libxrender-dev libopenal-dev libxext-dev cmake
 
@@ -83,7 +96,7 @@ Have fun!
 
 If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In fact, you can just create a new project from the existing sources and everything should work fine.
 
-## OpenBSD
+### OpenBSD
 
 uTox will compile on OpenBSD although not everything works.
 
@@ -116,7 +129,7 @@ make
 sudo make install
 ```
 
-## FreeBSD
+### FreeBSD
 
 Install the dependencies:
 

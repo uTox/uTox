@@ -89,6 +89,7 @@ panel_chat = {
     .disabled = 1,
     .child = (PANEL*[]) {
         &panel_group,
+        &panel_group_create,
         &panel_friend,
         &panel_friend_request,
         NULL

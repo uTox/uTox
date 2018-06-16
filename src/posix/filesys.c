@@ -12,6 +12,32 @@
 #include <string.h>
 #include <sys/stat.h>
 
+bool native_create_dir_tree(const char *path) {
+    size_t size = strlen(path);
+    if (size < 2) { // memory bounds check
+        return false;
+    }
+
+    char *buff = calloc(1, size);
+    if (!buff) {
+        LOG_ERR("Filesys", "Unable to allocate memory for buffer.");
+        return false;
+    }
+
+    for (size_t i = 1; i < size; ++i) { // i = 1 to skip root '/'
+        if (path[i] == '/') {
+            memcpy(buff, path, i + 1);
+            if (!native_create_dir((uint8_t *)buff)) {
+                free(buff);
+                return false;
+            }
+        }
+    }
+    free(buff);
+    return true;
+}
+
+// native get "valid" file path
 char *native_get_filepath(const char *name) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
 
@@ -32,6 +58,12 @@ char *native_get_filepath(const char *name) {
         return NULL;
     }
 
+    if (!native_create_dir_tree(path)) {
+        free(path);
+        return NULL;
+    }
+
+    // add file name
     snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
 
     return path;
@@ -42,7 +74,7 @@ bool native_create_dir(const uint8_t *filepath) {
     if (status == 0 || errno == EEXIST) {
         return true;
     }
-
+    LOG_WARN("Filesys", "Unable to create directory %s. Error: %d", filepath, errno);
     return false;
 }
 
@@ -116,6 +148,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
     }
 
     if (opts & UTOX_FILE_OPTS_MKDIR) {
+        // remove file name from path
         uint8_t push;
         uint8_t *p = path + strlen((char *)path);
         while (*--p != '/');

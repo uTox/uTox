@@ -69,7 +69,7 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
 
 void set_av_callbacks(ToxAV *av);
 
-void callback_av_group_audio(void *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
+void callback_av_group_audio(void *tox, uint32_t groupnumber, uint32_t peernumber, const int16_t *pcm, unsigned int samples,
                                     uint8_t channels, unsigned int sample_rate, void *userdata);
 
 void group_av_peer_add(GROUPCHAT *g, int peernumber);

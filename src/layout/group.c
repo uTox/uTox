@@ -1,5 +1,7 @@
 #include "group.h"
 
+#include "create.h"
+
 #include "../commands.h"
 #include "../debug.h"
 #include "../flist.h"
@@ -16,6 +18,7 @@
 #include "../ui/panel.h"
 #include "../ui/scrollable.h"
 #include "../ui/svg.h"
+#include "../ui/switch.h"
 
 #include <stddef.h>
 #include <stdio.h>
@@ -89,6 +92,26 @@ static void draw_group_settings(int x, int y, int UNUSED(width), int UNUSED(heig
     drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(70), GROUP_NOTIFICATIONS);
 }
 
+static void draw_group_create(int x, int y, int UNUSED(width), int UNUSED(height)) {
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+
+    drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 10), CREATEGROUPCHAT);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(MAIN_TOP + 40), GROUP_CREATE_WITH_AUDIO);
+}
+
+static void button_create_group_on_mup(void) {
+    postmessage_toxcore(TOX_GROUP_CREATE, 0, switch_group_type.switch_on, NULL);
+}
+
+static void switchfxn_group_type(void) {
+    if (switch_group_type.switch_on) {
+        maybe_i18nal_string_set_i18nal(&button_create_group.button_text, STR_GROUP_CREATE_VOICE);
+    } else {
+        maybe_i18nal_string_set_i18nal(&button_create_group.button_text, STR_GROUP_CREATE_TEXT);
+    }
+}
+
 PANEL
 panel_group = {
     .type = PANEL_NONE,
@@ -100,40 +123,50 @@ panel_group = {
         NULL
     }
 },
-    panel_group_chat = {
-        .type = PANEL_NONE,
-        .disabled = 0,
-        .drawfunc = draw_group,
-        .child = (PANEL*[]) {
-            (PANEL*)&scrollbar_group,
-            (PANEL*)&edit_chat_msg_group, // this needs to be one of the first, to get events before the others
-            (PANEL*)&messages_group,
-            (PANEL*)&button_group_audio,
-            (PANEL*)&button_chat_send_group,
-            NULL
-        }
-    },
-    panel_group_video = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .child = (PANEL*[]) {
-            NULL
-        }
-    },
-    panel_group_settings = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = draw_group_settings,
-        .child = (PANEL*[]) {
-            (PANEL*)&edit_group_topic,
-            (PANEL*)&dropdown_notify_groupchats,
-            NULL
-        }
-    },
-    messages_group = {
-        .type = PANEL_MESSAGES,
-        .content_scroll = &scrollbar_group,
-    };
+panel_group_create = {
+    .type = PANEL_NONE,
+    .disabled = true,
+    .drawfunc = draw_group_create,
+    .child = (PANEL*[]) {
+        (PANEL*)&button_create_group,
+        (PANEL*)&switch_group_type,
+        NULL
+    }
+},
+panel_group_chat = {
+    .type = PANEL_NONE,
+    .disabled = 0,
+    .drawfunc = draw_group,
+    .child = (PANEL*[]) {
+        (PANEL*)&scrollbar_group,
+        (PANEL*)&edit_chat_msg_group, // this needs to be one of the first, to get events before the others
+        (PANEL*)&messages_group,
+        (PANEL*)&button_group_audio,
+        (PANEL*)&button_chat_send_group,
+        NULL
+    }
+},
+panel_group_video = {
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .child = (PANEL*[]) {
+        NULL
+    }
+},
+panel_group_settings = {
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .drawfunc = draw_group_settings,
+    .child = (PANEL*[]) {
+        (PANEL*)&edit_group_topic,
+        (PANEL*)&dropdown_notify_groupchats,
+        NULL
+    }
+},
+messages_group = {
+    .type = PANEL_MESSAGES,
+    .content_scroll = &scrollbar_group,
+};
 
 static void button_group_audio_on_mup(void) {
     GROUPCHAT *g = flist_get_groupchat();
@@ -540,4 +573,36 @@ BUTTON button_chat_send_group = {
     .update         = button_chat_send_group_update,
     .tooltip_text   = {.i18nal = STR_SENDMESSAGE },
     .nodraw         = false
+};
+
+BUTTON button_create_group = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 10,
+        .y      = MAIN_TOP + 67,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT
+    },
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_create_group_on_mup,
+    .disabled     = false,
+    .button_text  = {.i18nal = STR_GROUP_CREATE_TEXT },
+};
+
+UISWITCH switch_group_type = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = MAIN_TOP + 35,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT
+    },
+    .style_outer    = BM_SWITCH,
+    .style_toggle   = BM_SWITCH_TOGGLE,
+    .style_icon_off = BM_NO,
+    .style_icon_on  = BM_YES,
+    .update         = switch_update,
+    .on_mup         = switchfxn_group_type,
+    .tooltip_text   = {.i18nal = STR_GROUP_CREATE_VOICE },
 };

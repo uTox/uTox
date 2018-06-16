@@ -150,37 +150,6 @@ void config_osdefaults(UTOX_SAVE *r) {
     r->window_height = DEFAULT_HEIGHT;
 }
 
-void ensure_directory_r(char *path, int perm) {
-    if ((strcmp(path, "/") == 0) || (strcmp(path, ".") == 0))
-        return;
-
-    struct stat finfo;
-    if (stat(path, &finfo) != 0) {
-        if (errno != ENOENT) {
-            printf("stat(%s): %s", path, strerror(errno));
-            abort();
-        }
-    } else {
-        return; // already exists
-    }
-
-    const char *parent = dirname(path);
-    if (!parent)
-        abort();
-
-    char *parent_copy = strdup(parent);
-    if (!parent_copy)
-        abort();
-
-    ensure_directory_r(parent_copy, perm);
-    free(parent_copy);
-
-    if (mkdir(path, perm) != 0 && errno != EEXIST) {
-        LOG_ERR("Native", "ensure_directory_r(%s): %s", path, strerror(errno));
-        abort();
-    }
-}
-
 bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 

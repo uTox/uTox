@@ -7,11 +7,11 @@ project(uTox LANGUAGES C)
 #####################
 
 set(PROJECT_VERSION_MAJOR "0")
-set(PROJECT_VERSION_MINOR "16")
-set(PROJECT_VERSION_PATCH "1")
+set(PROJECT_VERSION_MINOR "17")
+set(PROJECT_VERSION_PATCH "0")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
-set(PROJECT_COPYRIGHT "Copyleft 2017 uTox contributors. Some rights reserved.")
+set(PROJECT_COPYRIGHT "Copyleft 2018 uTox contributors. Some rights reserved.")
 
 execute_process(COMMAND date +%Y OUTPUT_VARIABLE BUILD_YEAR OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND date +%B OUTPUT_VARIABLE BUILD_MONTH OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -271,27 +271,7 @@ if(ENABLE_FILTERAUDIO)
     add_cflag("-DAUDIO_FILTERING=1")
 endif()
 
-if(TOXCORE_STATIC)
-    find_package(libtox REQUIRED COMPONENTS
-        toxencryptsave
-        toxav
-        toxcore
-        toxgroup
-        toxmessenger
-        toxfriends
-        toxdht
-        toxnetcrypto
-        toxcrypto
-        toxnetwork
-    )
-else()
-    find_package(libtox REQUIRED COMPONENTS
-        toxencryptsave
-        toxav
-        toxcore
-    )
-endif()
-
+find_package(libtox REQUIRED)
 include_directories(${LIBTOX_INCLUDE_DIRS})
 
 find_package(libsodium REQUIRED)

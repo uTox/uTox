@@ -105,7 +105,7 @@ SETTINGS settings = {
     .idle_status            = false,
     .idle_interval          = 10,
 
-    .video_fps              = 25,
+    .video_fps              = DEFAULT_FPS,
 
     // Notifications / Alerts
     .ringtone_enabled       = true,
@@ -220,7 +220,16 @@ static void parse_av_section(UTOX_SAVE *config, const char* key, const char* val
     } else if (MATCH(NAMEOF(config->audio_device_out), key)) {
         config->audio_device_out = atoi(value);
     } else if (MATCH(NAMEOF(config->video_fps), key)) {
-        config->video_fps = atoi(value);
+        char *temp;
+        uint16_t value_fps = strtol((char *)value, &temp, 0);
+
+        if (*temp == '\0' && value_fps >= 1 && value_fps <= UINT8_MAX) {
+            settings.video_fps = value_fps;
+            return;
+        }
+
+        LOG_WARN("Settings", "Fps value (%s) is invalid. It must be integer in range of [1,%u].",
+             value, UINT8_MAX);
     }
 }
 
@@ -515,11 +524,11 @@ UTOX_SAVE *config_load(void) {
     switch_auto_update.switch_on  = save->auto_update;
     settings.update_to_develop    = save->update_to_develop;
     settings.send_version         = save->send_version;
+    settings.video_fps = save->video_fps && save->video_fps != 0 ? save->video_fps : DEFAULT_FPS;
 
-    settings.video_fps = save->video_fps ? save->video_fps : 25;
+    edit_video_fps.length = snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength,
+                                     "%u", settings.video_fps);
 
-    edit_video_fps.length =
-        snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1, "%u", save->video_fps);
     if (edit_video_fps.length > edit_video_fps.maxlength) {
         edit_video_fps.length = edit_video_fps.maxlength;
     }
@@ -568,7 +577,7 @@ void config_save(UTOX_SAVE *save_in) {
     save->idle_status                   = settings.idle_status;
     save->idle_interval                 = settings.idle_interval;
 
-    save->video_fps                     = (settings.video_fps == 0) ? 25 : settings.video_fps;
+    save->video_fps                     = settings.video_fps;
 
     save->disableudp                    = !settings.enable_udp;
     save->enableipv6                    = settings.enable_ipv6;

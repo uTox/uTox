@@ -879,34 +879,6 @@ BUTTON button_show_nospam = {
     .on_mup       = button_show_nospam_on_mup,
 };
 
-static void switch_set_colors(UISWITCH *s) {
-    if (s->switch_on) {
-        s->bg_color    = COLOR_BTN_SUCCESS_BKGRND;
-        s->sw_color    = COLOR_BTN_SUCCESS_TEXT;
-        s->press_color = COLOR_BTN_SUCCESS_BKGRND_HOVER;
-        s->hover_color = COLOR_BTN_SUCCESS_BKGRND_HOVER;
-    } else {
-        s->bg_color    = COLOR_BTN_DISABLED_BKGRND;
-        s->sw_color    = COLOR_BTN_DISABLED_FORGRND;
-        s->hover_color = COLOR_BTN_DISABLED_BKGRND_HOVER;
-        s->press_color = COLOR_BTN_DISABLED_BKGRND_HOVER;
-    }
-}
-
-static void switch_set_size(UISWITCH *s) {
-    s->toggle_w   = BM_SWITCH_TOGGLE_WIDTH;
-    s->toggle_h   = BM_SWITCH_TOGGLE_HEIGHT;
-    s->icon_off_w = BM_FB_WIDTH;
-    s->icon_off_h = BM_FB_HEIGHT;
-    s->icon_on_w  = BM_FB_WIDTH;
-    s->icon_on_h  = BM_FB_HEIGHT;
-}
-
-static void switch_update(UISWITCH *s) {
-    switch_set_colors(s);
-    switch_set_size(s);
-}
-
 static void switchfxn_logging(void) {
     settings.logging_enabled = !settings.logging_enabled;
 }
@@ -1218,14 +1190,21 @@ static void dropdown_audio_out_onselect(uint16_t i, const DROPDOWN *dm) {
 
 static void edit_video_fps_onlosefocus(EDIT *UNUSED(edit)) {
     edit_video_fps.data[edit_video_fps.length] = 0;
-    long tmp = strtol((char *)edit_video_fps.data, NULL, 0);
-    if (tmp <= 0) {
-        settings.video_fps = 25;
-        edit_video_fps.length =
-            snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1, "25");
-    } else {
-        settings.video_fps = tmp;
+
+    char *temp;
+    uint16_t value = strtol((char *)edit_video_fps.data, &temp, 0);
+
+    if (*temp == '\0' && value >= 1 && value <= UINT8_MAX) {
+        settings.video_fps = value;
+        return;
     }
+
+    LOG_WARN("Settings", "Fps value (%s) is invalid. It must be integer in range of [1,%u].",
+             edit_video_fps.data, UINT8_MAX);
+
+    settings.video_fps = DEFAULT_FPS;
+    edit_video_fps.length = snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength,
+                                     "%u", DEFAULT_FPS);
 }
 
 #include "../screen_grab.h"
@@ -1347,7 +1326,7 @@ static char edit_name_data[128],
             edit_status_msg_data[128],
             edit_proxy_ip_data[256],
             edit_proxy_port_data[8],
-            edit_video_fps_data[8],
+            edit_video_fps_data[sizeof(uint8_t) + 1],
             edit_profile_password_data[65535],
             edit_idle_interval_data[UINT16_MAX],
             edit_nospam_data[(sizeof(uint32_t) * 2) + 1] = { 0 };
