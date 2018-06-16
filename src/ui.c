@@ -133,8 +133,6 @@ static void settings_PROFILE(void) {
 static void settings_UI(void) {
     panel_settings_ui.y            = 32;
 
-    CREATE_DROPDOWN(language, 10, 30, 24, -10);
-
     CREATE_DROPDOWN(theme, 10, 85, 24, 120);
 
     CREATE_DROPDOWN(dpi,   150, 85, 24, 200);
