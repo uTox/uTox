@@ -31,7 +31,7 @@ BUTTON button_group_invite_accept = {
     .bm_fill     = BM_SBUTTON,
     .button_text = { .i18nal = STR_ACCEPT },
     .on_mup      = button_group_invite_accept_on_mup,
-    .update      = button_setcolors_success,
+    .update      = button_setcolors_success, // TODO: OPTIMIZE
 };
 
 BUTTON button_group_invite_reject = {
@@ -45,7 +45,7 @@ BUTTON button_group_invite_reject = {
     .bm_fill     = BM_SBUTTON,
     .button_text = { .i18nal = STR_IGNORE },
     .on_mup      = button_group_invite_reject_on_mup,
-    .update      = button_setcolors_danger,
+    .update      = button_setcolors_danger, // TODO: OPTIMIZE
 };
 
 PANEL panel_group_invite = {
