@@ -1249,6 +1249,13 @@ DROPDOWN dropdown_dpi = {
 };
 
 DROPDOWN dropdown_language = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 10,
+        .y      = 30,
+        .width  = -10,
+        .height = 24
+    },
     .ondisplay = dropdown_language_ondisplay,
     .onselect  = dropdown_language_onselect,
     .dropcount = NUM_LANGS,
