@@ -128,22 +128,22 @@ static void settings_PROFILE(void) {
 
     CREATE_EDIT(toxid, 10, 140, -10, 24);
     CREATE_BUTTON(copyid, 66, 117, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
-
-    CREATE_DROPDOWN(language, 10, 195, 24, -10);
 }
 
 static void settings_UI(void) {
     panel_settings_ui.y            = 32;
 
-    CREATE_DROPDOWN(theme, 10, 30, 24, 120);
+    CREATE_DROPDOWN(language, 10, 30, 24, -10);
 
-    CREATE_DROPDOWN(dpi,   150, 30, 24, 200);
+    CREATE_DROPDOWN(theme, 10, 85, 24, 120);
 
-    CREATE_SWITCH(save_chat_history, 10, 60,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(close_to_tray,     10, 90,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(start_in_tray,     10, 120, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(auto_startup,      10, 150, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(mini_contacts,     10, 180, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_DROPDOWN(dpi,   150, 85, 24, 200);
+
+    CREATE_SWITCH(save_chat_history, 10, 115,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(close_to_tray,     10, 145,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(start_in_tray,     10, 175, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(auto_startup,      10, 205, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(mini_contacts,     10, 235, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
 }
 
 static void settings_AV(void) {
