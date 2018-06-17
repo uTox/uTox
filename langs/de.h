@@ -148,6 +148,9 @@ msgstr("Chatverlauf als Text exportieren")
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Audiochat beitreten")
 
+msgid(GROUP_CREATE_WITH_AUDIO)
+msgstr("Aktiviere Audio")
+
 msgid(GROUP_CREATE_TEXT)
 msgstr("Text-Gruppenchat erstellen")
 
@@ -496,6 +499,9 @@ msgstr("Bitte füge mich deiner Kontaktliste hinzu.")
 
 msgid(CONTACT_SEARCH_ADD_HINT)
 msgstr("Freunde suchen/hinzufügen")
+
+msgid(PROXY_EDIT_HINT_IP)
+msgstr("IP Adresse")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Videovorschau")
