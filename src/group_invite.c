@@ -92,7 +92,7 @@ uint8_t group_invite_new(const uint32_t friend_number,
 }
 
 // Yeah, this is ugly and hacky, but to be fair, I only moved it here from tox_callbacks.c.
-void callback_av_group_audio(void *tox, int groupnumber, int peernumber, const int16_t *pcm,
+void callback_av_group_audio(void *tox, uint32_t groupnumber, uint32_t peernumber, const int16_t *pcm,
                              unsigned int samples, uint8_t channels, unsigned int sample_rate,
                              void *userdata);
 
