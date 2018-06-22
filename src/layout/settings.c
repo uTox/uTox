@@ -148,7 +148,6 @@ static void draw_settings_text_profile(int x, int y, int UNUSED(w), int UNUSED(h
     drawstr(x + SCALE(10), y + SCALE(10), NAME);
     drawstr(x + SCALE(10), y + SCALE(65), STATUSMESSAGE);
     drawstr(x + SCALE(10), y + SCALE(120), TOXID);
-    drawstr(x + SCALE(10), y + SCALE(175), LANGUAGE);
 
     if (self.qr_image && !button_qr.disabled) {
         // Enlarge original QR for better recognition
@@ -158,7 +157,7 @@ static void draw_settings_text_profile(int x, int y, int UNUSED(w), int UNUSED(h
         button_qr.panel.width = button_qr.panel.height = UN_SCALE(self.qr_image_size * image_scale);
 
         image_set_scale(self.qr_image, image_scale);
-        draw_image(self.qr_image, x + SCALE(10), y + SCALE(230), image_size, image_size, 0, 0);
+        draw_image(self.qr_image, x + SCALE(10), y + SCALE(175), image_size, image_size, 0, 0);
         image_set_scale(self.qr_image, 1.0);
     }
 }
@@ -203,15 +202,16 @@ static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
 static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(150), y + SCALE(10),  DPI);
-    drawstr(x + SCALE(10),  y + SCALE(10),  THEME);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(65),  SAVE_CHAT_HISTORY);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(95),  CLOSE_TO_TRAY);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(125), START_IN_TRAY);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(155), AUTO_STARTUP);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
+    drawstr(x + SCALE(10), y + SCALE(10), LANGUAGE);
+    drawstr(x + SCALE(150), y + SCALE(65),  DPI);
+    drawstr(x + SCALE(10),  y + SCALE(65),  THEME);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(120),  SAVE_CHAT_HISTORY);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(150),  CLOSE_TO_TRAY);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(180), START_IN_TRAY);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(210), AUTO_STARTUP);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(240), SETTINGS_UI_MINI_ROSTER);
     #if PLATFORM_ANDROID
-        drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(215), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
+        drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(270), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
     #endif
 }
 
@@ -383,7 +383,6 @@ panel_settings_master = {
             (PANEL*)&edit_toxid,
             (PANEL*)&button_copyid,
             (PANEL*)&button_show_qr,
-            (PANEL*)&dropdown_language,
             (PANEL*)&button_qr,
             NULL
         }
@@ -402,6 +401,7 @@ panel_settings_master = {
         .disabled = 1,
         .content_scroll = &scrollbar_settings,
         .child = (PANEL*[]) {
+            (PANEL*)&dropdown_language,
             (PANEL*)&dropdown_dpi,
             (PANEL*)&dropdown_theme,
             (PANEL*)&switch_save_chat_history,
@@ -1256,6 +1256,13 @@ DROPDOWN dropdown_dpi = {
 };
 
 DROPDOWN dropdown_language = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 10,
+        .y      = 30,
+        .width  = -10,
+        .height = 24
+    },
     .ondisplay = dropdown_language_ondisplay,
     .onselect  = dropdown_language_onselect,
     .dropcount = NUM_LANGS,
