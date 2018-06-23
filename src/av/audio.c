@@ -867,7 +867,7 @@ void utox_audio_thread(void *args) {
                         if (UTOX_SEND_AUDIO(i)) {
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;
-                            // LOG_TRACE("uTox Audio", "Sending audio frame!" );
+                            LOG_TRACE("uTox Audio", "Sending audio frame to %u", i);
                             toxav_audio_send_frame(av, get_friend(i)->number, (const int16_t *)buf, perframe,
                                                    UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, &error);
                             if (error) {

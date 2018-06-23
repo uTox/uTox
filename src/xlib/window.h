@@ -22,10 +22,6 @@ int     def_screen_num;
 Window  root_window;
 Visual  *default_visual;
 
-
-// TODO move
-UTOX_WINDOW *curr;
-
 int default_depth;
 
 struct native_window {

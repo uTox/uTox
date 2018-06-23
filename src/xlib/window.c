@@ -6,6 +6,7 @@
 #include "../debug.h"
 #include "../macros.h"
 
+#include "../native/drawing.h"
 #include "../native/thread.h"
 #include "../native/time.h"
 
@@ -138,6 +139,10 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **UNUSED
     Atom a_pid  = XInternAtom(display, "_NET_WM_PID", 0);
     uint pid = getpid();
     XChangeProperty(display, main_window.window, a_pid, XA_CARDINAL, 32, PropModeReplace, (uint8_t *)&pid, 1);
+
+    // TODO, this alone might look hacky, but we should actually be assoiating a visual with a window,
+    // and not using the default visual globally like we are. This fix is OOS for this feature.
+    main_window.visual = DefaultVisual(display, def_screen_num);
 
     native_window_set_target(&main_window);
 
@@ -286,10 +291,5 @@ void native_window_create_screen_select() {
 }
 
 bool native_window_set_target(UTOX_WINDOW *new_win) {
-    if (new_win == curr) {
-        return false;
-    }
-
-    curr = new_win;
-    return true;
+    return draw_set_target(new_win);
 }

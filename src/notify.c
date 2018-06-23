@@ -5,7 +5,7 @@
 
 #include "layout/notify.h"
 
-#include "native/window.h"
+#include "native/drawing.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -41,7 +41,7 @@ UTOX_WINDOW *notify_new(NOTIFY_TYPE type) {
 
     UTOX_WINDOW *w = window_create_notify(x, y, notify_w, notify_h, panel);
 
-    native_window_set_target(w);
+    draw_set_target(w);
 
     return w;
 }

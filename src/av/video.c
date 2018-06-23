@@ -9,6 +9,7 @@
 #include "../settings.h"
 #include "../tox.h"
 #include "../utox.h"
+#include "../inline_video.h"
 
 #include "../native/thread.h"
 #include "../native/video.h"
@@ -269,19 +270,18 @@ void utox_video_thread(void *args) {
             const int r = native_video_getframe(utox_video_frame.y, utox_video_frame.u, utox_video_frame.v,
                                                 utox_video_frame.w, utox_video_frame.h);
             if (r == 1) {
-                if (settings.video_preview) {
-                    /* Make a copy of the video frame for uTox to display */
-                    UTOX_FRAME_PKG *frame = malloc(sizeof(UTOX_FRAME_PKG));
-                    frame->w              = utox_video_frame.w;
-                    frame->h              = utox_video_frame.h;
-                    frame->img            = malloc(utox_video_frame.w * utox_video_frame.h * 4);
+                UTOX_FRAME_PKG *frame = malloc(sizeof(UTOX_FRAME_PKG));
+                LOG_MALLOC_ERR(frame, "uToxVideo", "Unable to malloc for UTOX_FRAME_PKG");
 
-                    yuv420tobgr(utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u,
-                                utox_video_frame.v, utox_video_frame.w, (utox_video_frame.w / 2),
-                                (utox_video_frame.w / 2), frame->img);
+                frame->w    = utox_video_frame.w;
+                frame->h    = utox_video_frame.h;
+                frame->size = utox_video_frame.w * utox_video_frame.h * 4;
+                frame->img  = malloc(frame->size);
+                LOG_MALLOC_ERR(frame->img, "uToxVideo", "Unable to malloc for UTOX_FRAME_PKG");
 
-                    postmessage_utox(AV_VIDEO_FRAME, UINT16_MAX, 1, (void *)frame);
-                }
+                yuv420tobgr(utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u,
+                            utox_video_frame.v, utox_video_frame.w, (utox_video_frame.w / 2),
+                            (utox_video_frame.w / 2), frame->img);
 
                 size_t active_video_count = 0;
                 for (size_t i = 0; i < self.friend_list_count; i++) {
@@ -311,6 +311,17 @@ void utox_video_thread(void *args) {
                         }
                     }
                 }
+
+                inline_set_frame_self(frame);
+                if (settings.video_preview) {
+                    /* Make a copy of the video frame for uTox to display */
+                    postmessage_utox(AV_VIDEO_FRAME, UINT16_MAX, 1, (void *)frame);
+                } else {
+                    free(frame->img);
+                    free(frame);
+                }
+
+
             } else if (r == -1) {
                 LOG_ERR("uToxVideo", "Err... something really bad happened trying to get this frame, I'm just going "
                             "to plots now!");
