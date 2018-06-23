@@ -640,7 +640,7 @@ void utox_audio_thread(void *args) {
                 }
                 case UTOXAUDIO_START_FRIEND: {
                     FRIEND *f = get_friend(m->param1);
-                    if (!f->audio_dest) {
+                    if (f && !f->audio_dest) {
                         audio_source_init(&f->audio_dest);
                     }
                     audio_out_device_open();
@@ -649,7 +649,7 @@ void utox_audio_thread(void *args) {
                 }
                 case UTOXAUDIO_STOP_FRIEND: {
                     FRIEND *f = get_friend(m->param1);
-                    if (f->audio_dest) {
+                    if (f && f->audio_dest) {
                         audio_source_raze(&f->audio_dest);
                         f->audio_dest = 0;
                     }
@@ -868,7 +868,12 @@ void utox_audio_thread(void *args) {
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // LOG_TRACE("uTox Audio", "Sending audio frame!" );
-                            toxav_audio_send_frame(av, get_friend(i)->number, (const int16_t *)buf, perframe,
+                            FRIEND *f = get_friend(i);
+                            if (!f) {
+                                LOG_ERR("uToxAV", "Unable to get friend when sending audio frame %u", i);
+                                continue;
+                            }
+                            toxav_audio_send_frame(av, f->number, (const int16_t *)buf, perframe,
                                                    UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, &error);
                             if (error) {
                                 LOG_TRACE("uTox Audio", "toxav_send_audio error friend == %lu, error ==  %i" , i, error);
