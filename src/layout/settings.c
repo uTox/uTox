@@ -1396,7 +1396,7 @@ EDIT edit_proxy_port = {
 
 EDIT edit_video_fps = {
     .data = edit_video_fps_data,
-    .maxlength = sizeof edit_video_fps - 1,
+    .maxlength = sizeof edit_video_fps_data - 1,
     .onlosefocus = edit_video_fps_onlosefocus,
     /* .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_PORT }, */
 };
