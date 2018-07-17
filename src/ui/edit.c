@@ -619,11 +619,12 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
             }
 
             case KEY_END: {
-                if (edit->length == 0) {
+                uint16_t p = edit_sel.p2;
+
+                if (p == edit->length) {
                     break;
                 }
 
-                uint16_t p = edit_sel.p2;
                 if (flags & EMOD_CTRL) {
                     p = edit->length;
                 } else {
