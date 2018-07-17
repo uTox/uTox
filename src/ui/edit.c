@@ -623,24 +623,14 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                     break;
                 }
 
+                uint16_t p = edit_sel.p2;
                 if (flags & EMOD_CTRL) {
-                    edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit->length;
-                    edit_sel.length                            = 0;
-                    break;
-                }
-
-                uint32_t p = edit_sel.p2;
-                while (p != edit->length && edit->data[p] != '\n') {
-                    p++;
-                }
-                --p;
-
-                do {
-                    if (p == edit->length) {
-                        break;
+                    p = edit->length;
+                } else {
+                    while (p != edit->length && edit->data[p] != '\n') {
+                        p++;
                     }
-                    p += utf8_len(&edit->data[p]);
-                } while ((flags & EMOD_CTRL) && edit->data[p] != '\n');
+                }
 
                 if (flags & EMOD_SHIFT) {
                     edit_sel.p2 = p;
