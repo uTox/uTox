@@ -232,15 +232,17 @@ bool edit_dclick(EDIT *edit, bool triclick) {
         edit->mouseover_char = edit->length;
     }
 
-    char c = triclick ? '\n' : ' ';
-
     uint16_t i = edit->mouseover_char;
-    while (i != 0 && edit->data[i - 1] != c) {
+    while (i != 0 && edit->data[i - 1] != '\n'
+           /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
+           && (!triclick ? (edit->data[i - 1] != ' ') : 1)) {
         i -= utf8_unlen(edit->data + i);
     }
     edit_sel.start = edit_sel.p1 = i;
     i                            = edit->mouseover_char;
-    while (i != edit->length && edit->data[i] != c) {
+    while (i != edit->length && edit->data[i] != '\n'
+           /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
+           && (!triclick ? (edit->data[i] != ' ') : 1)) {
         i += utf8_len(edit->data + i);
     }
     edit_sel.p2     = i;

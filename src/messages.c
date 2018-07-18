@@ -1503,15 +1503,17 @@ bool messages_dclick(PANEL *panel, bool triclick) {
             case MSG_TYPE_ACTION_TEXT: {
                 m->sel_start_msg = m->sel_end_msg = m->cursor_over_msg;
 
-                const char c = triclick ? '\n' : ' ';
-
                 uint16_t i = m->cursor_over_position;
-                while (i != 0 && msg->via.txt.msg[i - 1] != c) {
+                while (i != 0 && msg->via.txt.msg[i - 1] != '\n'
+                       /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
+                       && (!triclick ? (msg->via.txt.msg[i - 1] != ' ') : 1)) {
                     i -= utf8_unlen(msg->via.txt.msg + i);
                 }
                 m->sel_start_position = i;
                 i = m->cursor_over_position;
-                while (i != msg->via.txt.length && msg->via.txt.msg[i] != c) {
+                while (i != msg->via.txt.length && msg->via.txt.msg[i] != '\n'
+                       /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
+                       && (!triclick ? (msg->via.txt.msg[i] != ' ') : 1)) {
                     i += utf8_len(msg->via.txt.msg + i);
                 }
                 m->sel_end_position = i;
