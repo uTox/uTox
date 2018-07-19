@@ -645,6 +645,9 @@ msgstr("Cut")
 msgid(PASTE)
 msgstr("Paste")
 
+msgid(PASTE_AS_QUOTE)
+msgstr("Paste as quote")
+
 msgid(DELETE)
 msgstr("Delete")
 

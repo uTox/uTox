@@ -440,8 +440,8 @@ bool doevent(XEvent event) {
             if (edit_active()) {
                 if (ev->state & ControlMask) {
                     switch (sym) {
-                        case 'v':
-                        case 'V': paste(); return true;
+                        case 'v': paste(); return true;
+                        case 'V': paste_as_quote(); return true;
                         case 'c':
                         case 'C':
                         case XK_Insert: copy(0); return true;

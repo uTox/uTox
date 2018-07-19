@@ -404,6 +404,9 @@ msgstr("Ausschneiden")
 msgid(PASTE)
 msgstr("Einfügen")
 
+msgid(PASTE_AS_QUOTE)
+msgstr("Einfügen als Zitat")
+
 msgid(DELETE)
 msgstr("Löschen")
 

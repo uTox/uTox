@@ -319,6 +319,11 @@ void paste(void) {
     }
 }
 
+void paste_as_quote(void) {
+	LOG_INFO("XLIB", "paste_as_quote()");
+	return;
+}
+
 void pastebestformat(const Atom atoms[], size_t len, Atom selection) {
     XSetErrorHandler(hold_x11s_hand);
     const Atom supported[] = { XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING };

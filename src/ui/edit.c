@@ -257,8 +257,9 @@ static void contextmenu_edit_onselect(uint8_t i) {
             break;
         case 1: copy(0); break;
         case 2: paste(); break;
-        case 3: edit_char(KEY_DEL, 1, 0); break;
-        case 4:
+        case 3: paste_as_quote(); break;
+        case 4: edit_char(KEY_DEL, 1, 0); break;
+        case 5:
             /* Send a ctrl + a to the active edit */
             edit_char('A', 1, 4);
             break;
@@ -266,7 +267,7 @@ static void contextmenu_edit_onselect(uint8_t i) {
 }
 
 bool edit_mright(EDIT *edit) {
-    static UTOX_I18N_STR menu_edit[] = { STR_CUT, STR_COPY, STR_PASTE, STR_DELETE, STR_SELECTALL };
+    static UTOX_I18N_STR menu_edit[] = { STR_CUT, STR_COPY, STR_PASTE, STR_PASTE_AS_QUOTE, STR_DELETE, STR_SELECTALL };
     if (edit->mouseover_char > edit->length) {
         edit->mouseover_char = edit->length;
     }
