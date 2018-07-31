@@ -47,10 +47,13 @@ msgstr(
  ******************************************************************************/
 
 msgid(REQ_SENT)
-msgstr("Wysłano zaproszenie do znajomych. Znajomy/a stanie się dostępny po jego przyjęciu")
+msgstr("Wysłano zaproszenie do znajomego. Znajomy stanie się dostępny po jego przyjęciu")
 
 msgid(REQ_INVALID_ID)
 msgstr("Błąd: Nieprawidłowy Tox ID")
+
+msgid(REQ_ADDED_NO_FREQ_SENT)
+msgstr("Uwaga: Dodano znajomego, ale zaproszenie nie zostało wysłane (brakuje nospam)")
 
 msgid(REQ_EMPTY_ID)
 msgstr("Błąd: Nie podano Tox ID")
@@ -62,7 +65,7 @@ msgid(REQ_NO_MSG)
 msgstr("Błąd: Pusta wiadomość")
 
 msgid(REQ_SELF_ID)
-msgstr("Błąd: Podany Tox ID jest twoim Tox ID")
+msgstr("Błąd: Próba dodania własnego Tox ID")
 
 msgid(REQ_ALREADY_FRIENDS)
 msgstr("Błąd: Podany Tox ID jest już na liście znajomych")
@@ -154,6 +157,8 @@ msgstr("Dzwonienie")
 msgid(CALL_STARTED)
 msgstr("Rozmowa rozpoczęta")
 
+msgid(CALL_ENDED)
+msgstr("Rozmowa zakończona")
 
 msgid(CALL_FRIEND_HAD_ENDED_CALL)
 msgstr(" zakończył rozmowę!")
@@ -175,7 +180,7 @@ msgid(FRIEND_AUTOACCEPT)
 msgstr("Akceptuj pliki przychodzące bez potwierdzenia")
 
 msgid(FRIEND_EXPORT_CHATLOG)
-msgstr("Eksportuj historię czatu znajomego do tekstu")
+msgstr("Eksportuj historię czatu znajomego do pliku tekstowego")
 
 
 /******************************************************************************
@@ -183,6 +188,9 @@ msgstr("Eksportuj historię czatu znajomego do tekstu")
  ******************************************************************************/
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Dołącz do grupowej rozmowy audio")
+
+msgid(GROUP_CREATE_WITH_AUDIO)
+msgstr("Włącz głos audio")
 
 msgid(GROUP_CREATE_TEXT)
 msgstr("Utwórz grupę tekstową")
@@ -219,7 +227,7 @@ msgid(GROUP_NOTIFICATIONS_OFF)
 msgstr("Wyłączone")
 
 msgid(GROUP_TOPIC)
-msgstr("Ustaw temat grup")
+msgstr("Ustaw temat grupy")
 
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
@@ -237,8 +245,14 @@ msgstr("Interfejs użytkownika")
 msgid(AUDIO_VIDEO_BUTTON)
 msgstr("Audio i Wideo")
 
+msgid(ADVANCED_BUTTON)
+msgstr("Zaawansowane")
 
+msgid(NOTIFICATIONS_BUTTON)
+msgstr("Powiadomienia")
 
+msgid(AUTO_UPDATE)
+msgstr("Automatycznie aktualizuj uTox")
 
 msgid(PROFILE_SETTINGS)
 msgstr("Ustawienia profilu")
@@ -291,7 +305,7 @@ msgid(ADD)
 msgstr("Dodaj")
 
 msgid(FRIENDREQUEST)
-msgstr("Prośba o dodanie do znajomych")
+msgstr("Zaproszenie do znajomych")
 
 msgid(USERSETTINGS)
 msgstr("Ustawienia profilu")
@@ -321,19 +335,22 @@ msgid(VIDEOINPUTDEVICE)
 msgstr("Urządzenie wejściowe wideo")
 
 msgid(PUSH_TO_TALK)
-msgstr("Naciśnij aby mówić")
-
-msgid(STATUS)
-msgstr("Status")
+msgstr("Naciśnij i mów")
 
 msgid(STATUS_ONLINE)
-msgstr("Online")
+msgstr("Dostępny")
 
 msgid(STATUS_AWAY)
 msgstr("Zaraz wracam")
 
 msgid(STATUS_BUSY)
 msgstr("Zajęty")
+
+msgid(STATUS_OFFLINE)
+msgstr("Niedostępny")
+
+msgid(STATUS_MESSAGE)
+msgstr("uTox %.*s zmienił status na %s.")
 
 msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Użyj małej listy kontaktów")
@@ -363,7 +380,19 @@ msgid(LOCK_UTOX)
 msgstr("Rozłącza z siecią Tox i blokuje ten profil.")
 
 msgid(SHOW_UI_PASSWORD)
+msgstr("Wyświetl pole hasła")
+
+msgid(SHOW_UI_PASSWORD_TOOLTIP)
 msgstr("Kliknij, aby wyświetlić pole hasła profilu. Zmiany zostaną wprowadzone natychmiastowo!")
+
+msgid(HIDE_UI_PASSWORD)
+msgstr("Schowaj pole hasła")
+
+msgid(HIDE_UI_PASSWORD_TOOLTIP)
+msgstr("Kliknij, aby schować pole hasła.")
+
+msgid(PASSWORD_TOO_SHORT)
+msgstr("Hasło musi mieć co najmniej 4 znaki")
 
 msgid(LOCK)
 msgstr("Zablokuj")
@@ -371,11 +400,8 @@ msgstr("Zablokuj")
 msgid(AUDIO_VIDEO)
 msgstr("Audio/Wideo")
 
-msgid(DPI)
-msgstr("DPI")
-
 msgid(SAVELOCATION)
-msgstr("Lokalizacja zapisywania")
+msgstr("Ścieżka zapisywania danych")
 
 msgid(LANGUAGE)
 msgstr("Język")
@@ -383,8 +409,11 @@ msgstr("Język")
 msgid(NETWORK)
 msgstr("Sieć")
 
+msgid(PROXY_FORCE)
+msgstr("Wymuszaj użycie proxy")
+
 msgid(WARNING)
-msgstr("Zmiana ustawień sieci/proxy na chwilę rozłączy cię z siecią Tox")
+msgstr("Zmiana ustawień sieci/proxy na chwilę rozłączy Cię z siecią Tox")
 
 msgid(SAVE_CHAT_HISTORY)
 msgstr("Zapisuj historię")
@@ -403,6 +432,18 @@ msgstr("Zamknij do zasobnika")
 
 msgid(START_IN_TRAY)
 msgstr("Uruchom w zasobniku")
+
+msgid(SHOW_QR)
+msgstr("Wyświetl kod QR")
+
+msgid(HIDE_QR)
+msgstr("Schowaj kod QR")
+
+msgid(SAVE_QR)
+msgstr("Zapisz kod QR")
+
+msgid(COPY_TOX_ID)
+msgstr("Kopiuj jako tekst")
 
 msgid(COPY)
 msgstr("Kopiuj")
@@ -600,10 +641,7 @@ msgid(CONTACT_SEARCH_ADD_HINT)
 msgstr("Szukaj/dodaj znajomych")
 
 msgid(PROXY_EDIT_HINT_IP)
-msgstr("IP")
-
-msgid(PROXY_EDIT_HINT_PORT)
-msgstr("Port")
+msgstr("Adres IP")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Podgląd wideo")
@@ -648,4 +686,34 @@ msgid(THEME_CUSTOM)
 msgstr("Własny (zobacz dokumentację)")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
-msgstr("Wyślij powiadomienie gdy piszę")
+msgstr("Wysyłaj powiadomienia gdy piszę")
+
+msgid(STATUS_NOTIFICATIONS)
+msgstr("Powiadomienia o zmianach statusu")
+
+msgid(RANDOMIZE_NOSPAM)
+msgstr("Losuj Nospam")
+
+msgid(REVERT_NOSPAM)
+msgstr("Przywróć Nospam")
+
+msgid(NOSPAM_WARNING)
+msgstr("Zmiana Twojego nospam spowoduje, że Twoje Tox ID przestanie działać. uTox nie aktualizuje ID na serwerach nazw.")
+
+msgid(BLOCK_FRIEND_REQUESTS)
+msgstr("Blokuj zaproszenia do znajomych")
+
+msgid(SHOW_NOSPAM)
+msgstr("Pokaż ustawienia nospam")
+
+msgid(HIDE_NOSPAM)
+msgstr("Schowaj ustawienia nospam")
+
+msgid(DELETE_FRIEND)
+msgstr("Usuń znajomego")
+
+msgid(DELETE_MESSAGE)
+msgstr("Jesteś pewien, że chcesz skasować ")
+
+msgid(KEEP)
+msgstr("Zatrzymaj")
