@@ -612,7 +612,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
             case KEY_HOME: {
                 uint16_t p = edit_sel.p2;
 
-                if (p == 0) {
+                if (p == 0 && !edit_sel.length) {
                     break;
                 }
 
@@ -628,9 +628,6 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                     edit_sel.p2 = p;
                     updatesel();
                 } else {
-                    if (edit_sel.length) {
-                        p = edit_sel.start;
-                    }
                     edit_sel.p1     = p;
                     edit_sel.p2     = p;
                     edit_sel.start  = p;
@@ -642,7 +639,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
             case KEY_END: {
                 uint16_t p = edit_sel.p2;
 
-                if (p == edit->length) {
+                if (p == edit->length && !edit_sel.length) {
                     break;
                 }
 
@@ -658,9 +655,6 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                     edit_sel.p2 = p;
                     updatesel();
                 } else {
-                    if (edit_sel.length) {
-                        p = edit_sel.start + edit_sel.length;
-                    }
                     edit_sel.p1     = p;
                     edit_sel.p2     = p;
                     edit_sel.start  = p;
