@@ -7,32 +7,32 @@ typedef struct sized_string STRING;
 
 typedef enum {
     LANG_EN,
-    LANG_BG,
-    LANG_DE,
-    LANG_ES,
-    LANG_FR,
-    LANG_HI, // 5
-    LANG_JA,
-    LANG_IT,
-    LANG_LV,
-    LANG_NL,
-    LANG_NO, // 10
-    LANG_BR,
-    LANG_PL,
-    LANG_RO,
-    LANG_RU,
-    LANG_TR, // 15
-    LANG_UK,
-    LANG_CN,
-    LANG_TW,
     LANG_CS,
     LANG_DK,
-    LANG_SV,
-    LANG_HU,
-    LANG_PT,
-    LANG_EO,
-    LANG_HR,
+    LANG_DE,
     LANG_ET,
+    LANG_ES, // 5
+    LANG_EO,
+    LANG_FR,
+    LANG_HI,
+    LANG_HR,
+    LANG_IT, // 10
+    LANG_LV,
+    LANG_HU,
+    LANG_NL,
+    LANG_NO,
+    LANG_PL, // 15
+    LANG_PT,
+    LANG_BR,
+    LANG_RO,
+    LANG_SV,
+    LANG_TR, // 20
+    LANG_BG,
+    LANG_RU,
+    LANG_UK,
+    LANG_JA,
+    LANG_CN, // 25
+    LANG_TW,
 
     NUM_LANGS // add langs before this line
 } UTOX_LANG;
