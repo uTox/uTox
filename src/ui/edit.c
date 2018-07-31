@@ -649,7 +649,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                 if (flags & EMOD_CTRL) {
                     p = edit->length;
                 } else {
-                    while (p != edit->length && edit->data[p] != '\n') {
+                    while (edit->data[p] != '\n' && p != edit->length) {
                         p++;
                     }
                 }
