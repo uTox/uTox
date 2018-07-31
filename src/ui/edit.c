@@ -608,13 +608,32 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
             }
 
             case KEY_HOME: {
-                if (flags & EMOD_SHIFT) {
-                    edit_sel.p2     = 0;
-                    edit_sel.start  = 0;
-                    edit_sel.length = edit_sel.p1;
+                uint16_t p = edit_sel.p2;
+
+                if (p == 0) {
                     break;
                 }
-                edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit_sel.length = 0;
+
+                if (flags & EMOD_CTRL) {
+                    p = 0;
+                } else {
+                    while (p != 0 && edit->data[p - 1] != '\n') {
+                        --p;
+                    }
+                }
+
+                if (flags & EMOD_SHIFT) {
+                    edit_sel.p2 = p;
+                    updatesel();
+                } else {
+                    if (edit_sel.length) {
+                        p = edit_sel.start;
+                    }
+                    edit_sel.p1     = p;
+                    edit_sel.p2     = p;
+                    edit_sel.start  = p;
+                    edit_sel.length = 0;
+                }
                 break;
             }
 
