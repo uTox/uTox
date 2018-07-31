@@ -60,3 +60,4 @@ GitLab | IRC | Email | Fingerprint
 @robinlinden | robinli | dev@robinlinden.eu | `B700 8FF1 2C07 9BF6 E6EA 19D1 601A 604B 7E60 5776`
 @dkmoz | dkmoz | dkmoz@airmail.cc | `E28E 7252 B1E7 FCFE D358  CF8E 3763 B3A7 93AA FA0F`
 @redmanmale | redmanmale | redmanmale@gmail.com | `BCEE 99DC A339 ABF9 CC36  428D 61A9 B9AF D2E5 3885`
+@ | avoidr | avoidr@firemail.cc | `A251 56FC 7AFB 5C03 65A0  407E 6F5D D1C5 371D E665`
