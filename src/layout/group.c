@@ -42,7 +42,7 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(x + SCALE(60), settings.window_width - SCALE(64), SCALE(2), g->name, g->name_length);
+    drawtextrange(x + SCALE(60), settings.window_width - SCALE(64), SCALE(2), g->group_name, g->group_name_length);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_STATUS);
@@ -92,16 +92,56 @@ static void draw_group_settings(int x, int y, int UNUSED(width), int UNUSED(heig
     drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(70), GROUP_NOTIFICATIONS);
 }
 
+static void draw_group_password(int x, int y, int width, int height) {
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+}
+
 static void draw_group_create(int x, int y, int UNUSED(width), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
     drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 10), CREATEGROUPCHAT);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(MAIN_TOP + 40), GROUP_CREATE_WITH_AUDIO);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(MAIN_TOP + 40), PRIVATE_GROUP);
+    drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 60), GROUP_NAME);
+    //drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(MAIN_TOP + 40), GROUP_CREATE_WITH_AUDIO);
 }
 
+UISWITCH switch_privacy_type = {
+    .panel = {
+        .type = PANEL_SWITCH,
+        .x = 10,
+        .y = MAIN_TOP + 35,
+        .width = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+
+    },
+    .style_outer    = BM_SWITCH,
+    .style_toggle   = BM_SWITCH_TOGGLE,
+    .style_icon_off = BM_NO,
+    .style_icon_on  = BM_YES,
+    .switch_on      = true, //private group by default
+    .update         = switch_update,
+    .tooltip_text   = { .i18nal = STR_GROUP_PRIVACY_TYPE },
+};
+
+static char e_group_name_data[TOX_GROUP_MAX_GROUP_NAME_LENGTH];
+EDIT edit_group_name = {
+    .panel = {
+        .type = PANEL_EDIT,
+        .x = 10,
+        .y = MAIN_TOP + 80,
+        .width = -10,
+        .height = 24,
+    },
+    .data      = e_group_name_data,
+    .maxlength = sizeof(e_group_name_data) - 1,
+    .noborder  = false,
+    .empty_str = { .plain = STRING_INIT("") },
+};
+
 static void button_create_group_on_mup(void) {
-    postmessage_toxcore(TOX_GROUP_CREATE, 0, switch_group_type.switch_on, NULL);
+    postmessage_toxcore(TOX_GROUP_CREATE, switch_privacy_type.switch_on, switch_group_type.switch_on, e_group_name_data);
 }
 
 static void switchfxn_group_type(void) {
@@ -111,6 +151,41 @@ static void switchfxn_group_type(void) {
         maybe_i18nal_string_set_i18nal(&button_create_group.button_text, STR_GROUP_CREATE_TEXT);
     }
 }
+
+static char e_group_password_data[TOX_GROUP_MAX_PASSWORD_SIZE];
+EDIT edit_group_password = {
+    .panel = {
+        .type = PANEL_EDIT,
+        .x = 10,
+        .y = MAIN_TOP + 80,
+        .width = -10,
+        .height = 24,
+    },
+    .password = true,
+    .data      = e_group_password_data,
+    .maxlength = sizeof(e_group_password_data) - 1,
+    .noborder  = false,
+    .empty_str = { .plain = STRING_INIT("") },
+};
+
+static void button_submit_password_on_mup(void) {
+
+}
+
+BUTTON button_submit_password = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 10,
+        .y      = MAIN_TOP + 10,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT
+    },
+    .bm_fill      = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = button_submit_password_on_mup,
+    .disabled     = false,
+    .button_text  = {.i18nal = STR_GROUP_CREATE_TEXT },
+};
 
 PANEL
 panel_group = {
@@ -128,8 +203,10 @@ panel_group_create = {
     .disabled = true,
     .drawfunc = draw_group_create,
     .child = (PANEL*[]) {
+        (PANEL*)&edit_group_name,
+        (PANEL*)&switch_privacy_type,
+        //(PANEL*)&switch_group_type,
         (PANEL*)&button_create_group,
-        (PANEL*)&switch_group_type,
         NULL
     }
 },
@@ -161,6 +238,16 @@ panel_group_settings = {
         (PANEL*)&edit_group_topic,
         (PANEL*)&dropdown_notify_groupchats,
         NULL
+    }
+},
+panel_group_password = {
+    .type = PANEL_NONE,
+    .disabled = true,
+    .drawfunc = draw_group_password,
+    .child = (PANEL*[]) {
+        (PANEL*)&edit_group_password,
+        (PANEL*)&button_submit_password,
+        NULL,
     }
 },
 messages_group = {
@@ -383,8 +470,8 @@ static void e_chat_msg_ontab(EDIT *edit) {
                 }
 
                 text[6] = ' ';
-                memcpy(text + 7, g->name, g->name_length);
-                edit->length = g->name_length + 7;
+                memcpy(text + 7, g->group_name, g->group_name_length);
+                edit->length = g->group_name_length + 7;
                 edit_setcursorpos(edit, edit->length);
 
                 return;
@@ -579,7 +666,7 @@ BUTTON button_create_group = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      = 10,
-        .y      = MAIN_TOP + 67,
+        .y      = MAIN_TOP + 110,
         .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT
     },
@@ -594,7 +681,7 @@ UISWITCH switch_group_type = {
     .panel = {
         .type   = PANEL_SWITCH,
         .x      = 10,
-        .y      = MAIN_TOP + 35,
+        .y      = MAIN_TOP + 55,
         .width  = _BM_SWITCH_WIDTH,
         .height = _BM_SWITCH_HEIGHT
     },

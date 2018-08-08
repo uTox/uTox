@@ -361,6 +361,17 @@ msgstr("Remove Group")
 msgid(LEAVE_GROUP)
 msgstr("Leave Group")
 
+msgid(PUBLIC_GROUP)
+msgstr("Public groupchat")
+
+msgid(PRIVATE_GROUP)
+msgstr("Private groupchat")
+
+msgid(GROUP_PRIVACY_TYPE)
+msgstr("Public or private group")
+
+msgid(GROUP_NAME)
+msgstr("Groupchat name")
 
 /******************************************************************************
  *** Group Settings                                                         ***

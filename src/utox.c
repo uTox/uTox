@@ -673,12 +673,12 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 return;
             }
 
-            if (param2 > sizeof(g->name)) {
-                memcpy(g->name, data, sizeof(g->name));
-                g->name_length = sizeof(g->name);
+            if (param2 > sizeof(g->group_name)) {
+                memcpy(g->group_name, data, sizeof(g->group_name));
+                g->group_name_length = sizeof(g->group_name);
             } else {
-                memcpy(g->name, data, param2);
-                g->name_length = param2;
+                memcpy(g->group_name, data, param2);
+                g->group_name_length = param2;
             }
 
             free(data);

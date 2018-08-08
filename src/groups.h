@@ -3,6 +3,8 @@
 
 #include "messages.h"
 
+#include <tox/tox.h>
+
 typedef unsigned int ALuint;
 typedef struct edit_change EDIT_CHANGE;
 
@@ -23,6 +25,9 @@ typedef struct group_peer {
 } GROUP_PEER;
 
 typedef struct groupchat {
+    char group_name[128];
+    size_t group_name_length;
+
     uint16_t number;
     uint32_t our_peer_number;
 
@@ -39,8 +44,7 @@ typedef struct groupchat {
 
     GNOTIFY_TYPE notify;
 
-    char     name[128];
-    uint16_t name_length;
+    Group_Chat_Self_Peer_Info *self_info;
 
     char     topic[256]; /* TODO magic numbers */
     uint16_t topic_length;
@@ -57,7 +61,7 @@ typedef struct groupchat {
 } GROUPCHAT;
 
 /* Initialize a new groupchat */
-void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group);
+void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group, Group_Chat_Self_Peer_Info *self_info);
 
 // Returns the message number on success, returns UINT32_MAX on failure.
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type);
@@ -93,6 +97,6 @@ void raze_groups(void);
 void init_groups(void);
 
 /**/
-bool group_create(uint32_t group_number, bool av_group);
+bool group_create(uint32_t group_number, bool av_group, Group_Chat_Self_Peer_Info *self_info);
 
 #endif

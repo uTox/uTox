@@ -196,7 +196,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
                 }
             }
 
-            flist_draw_name(i, name_x, name_y, width, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
+            flist_draw_name(i, name_x, name_y, width, g->group_name, g->topic, g->group_name_length, g->topic_length, color_overide, color);
 
             flist_draw_status_icon(0, SCALE(width - 15), y + box_height / 2, g->unread_msg);
             break;
@@ -1064,7 +1064,7 @@ static void flist_init_group_settings_page(void) {
     panel_group_video.disabled    = true;
     panel_group_settings.disabled = false;
 
-    edit_setstr(&edit_group_topic, g->name, g->name_length);
+    edit_setstr(&edit_group_topic, g->group_name, g->group_name_length);
 
     dropdown_notify_groupchats.over = dropdown_notify_groupchats.selected = g->notify;
 }
@@ -1129,9 +1129,9 @@ static void contextmenu_list_onselect(uint8_t i) {
                         show_page(right_mouse_item);
                     }
 
-                    char str[g->name_length + 7];
+                    char str[g->group_name_length + 7];
                     strcpy(str, "/topic ");
-                    memcpy(str + 7, g->name, g->name_length);
+                    memcpy(str + 7, g->group_name, g->group_name_length);
                     edit_setfocus(&edit_chat_msg_group);
                     edit_paste(str, sizeof(str), 0);
                 } else if (i == 2 && g->av_group) {

@@ -149,28 +149,31 @@ void utox_set_callbacks_friends(Tox *tox) {
 void callback_av_group_audio(void *tox, uint32_t groupnumber, uint32_t peernumber, const int16_t *pcm, unsigned int samples,
                              uint8_t channels, unsigned int sample_rate, void *userdata);
 
-static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE type, const uint8_t *data, size_t length,
-                                  void *UNUSED(userdata))
+static void callback_group_invite(Tox *tox, uint32_t fid, const uint8_t *invite_data, size_t length,
+                                  const uint8_t *group_name, size_t group_name_length, void *UNUSED(userdata))
 {
-    LOG_NOTE("Tox Callbacks", "Group Invite (friend %i || type %u)", fid, type);
+    LOG_NOTE("Tox Callbacks", "Group Invite (friend %i)", fid);
 
-    uint32_t gid = UINT32_MAX;
-    if (type == TOX_CONFERENCE_TYPE_TEXT) {
-        gid = tox_conference_join(tox, fid, data, length, NULL);
-    } else if (type == TOX_CONFERENCE_TYPE_AV) {
-        gid = toxav_join_av_groupchat(tox, fid, data, length, callback_av_group_audio, NULL);
-    }
-
-    if (gid == UINT32_MAX) {
-        LOG_ERR("Tox Callbacks", "Could not join group with type: %u", type);
+    Group_Chat_Self_Peer_Info *self_info = tox_group_self_peer_info_new(NULL);
+    if (!self_info) {
         return;
     }
 
+    // TODO: Show the user a prompt for them to enter a password
+    TOX_ERR_GROUP_INVITE_ACCEPT err;
+    uint32_t gid = tox_group_invite_accept(tox, fid, invite_data, length, NULL, 0, self_info, &err);
+
+    if (gid == UINT32_MAX) {
+        LOG_ERR("Tox Callbacks", "Could not join group with type");
+        return;
+    }
+
+    // TODO: Fix this when group calls are possible again
     GROUPCHAT *g = get_group(gid);
     if (!g) {
-        group_create(gid, type == TOX_CONFERENCE_TYPE_AV ? true : false);
+        group_create(gid, false, self_info);
     } else {
-        group_init(g, gid, type == TOX_CONFERENCE_TYPE_AV ? true : false);
+        group_init(g, gid, false, self_info);
     }
 
     LOG_NOTE("Tox Callbacks", "auto join successful group number %u", gid);
@@ -291,12 +294,16 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
     LOG_TRACE("Tox Callbacks", "Group Title (%u, %u): %.*s" , gid, pid, (int)length, title);
 }
 
+static void callback_group_join_fail(Tox *tox, uint32_t group_number, TOX_GROUP_JOIN_FAIL type, void *userdata){
+    //TODO: Tell the user the join failed
+}
+
 void utox_set_callbacks_groups(Tox *tox) {
-    tox_callback_conference_invite(tox, callback_group_invite);
-    tox_callback_conference_message(tox, callback_group_message);
-    tox_callback_conference_peer_name(tox, callback_group_peer_name_change);
-    tox_callback_conference_title(tox, callback_group_topic);
-    tox_callback_conference_peer_list_changed(tox, callback_group_peer_list_changed);
+    tox_callback_group_invite(tox, callback_group_invite, NULL);
+    tox_callback_group_message(tox, callback_group_message, NULL);
+    tox_callback_group_peer_name(tox, callback_group_peer_name_change, NULL);
+    tox_callback_group_topic(tox, callback_group_topic, NULL);
+    tox_callback_group_join_fail(tox, callback_group_join_fail, NULL);
 }
 
 #ifdef ENABLE_MULTIDEVICE
