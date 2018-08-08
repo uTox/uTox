@@ -21,10 +21,12 @@ typedef struct dropdown DROPDOWN;
 extern DROPDOWN dropdown_notify_groupchats;
 
 typedef struct uiswitch UISWITCH;
-extern UISWITCH switch_group_type;
+extern UISWITCH switch_group_type,
+                switch_privacy_type;
 
 typedef struct edit EDIT;
 extern EDIT edit_chat_msg_group,
-            edit_group_topic;
+            edit_group_topic,
+            edit_group_name;
 
 #endif // LAYOUT_GROUP_H

@@ -887,8 +887,10 @@ void utox_audio_thread(void *args) {
                         }
                     }
 
+                    // Temporarily disabled due to new groupchats not supporting audio calls
+                    #if 0
                     Tox *tox = toxav_get_tox(av);
-                    uint32_t num_chats = tox_conference_get_chatlist_size(tox);
+                    uint32_t num_chats = tox_group_get_number_groups(tox);
 
                     if (num_chats) {
                         for (size_t i = 0 ; i < num_chats; ++i) {
@@ -899,6 +901,7 @@ void utox_audio_thread(void *args) {
                             }
                         }
                     }
+                    #endif
                 }
             }
         }
