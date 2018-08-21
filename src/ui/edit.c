@@ -679,31 +679,19 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                 break;
             }
 
-            case 'z':
-            case 'Z': {
-                if (!(flags & EMOD_SHIFT)) {
-                    uint16_t p = edit_undo(edit);
-                    if (p != UINT16_MAX) {
-                        edit_sel.p1     = p;
-                        edit_sel.p2     = p;
-                        edit_sel.start  = p;
-                        edit_sel.length = 0;
-                        modified        = true;
-                    }
-                    break;
-                } else {
-                    uint16_t p = edit_redo(edit);
-                    if (p != UINT16_MAX) {
-                        edit_sel.p1     = p;
-                        edit_sel.p2     = p;
-                        edit_sel.start  = p;
-                        edit_sel.length = 0;
-                        modified        = false;
-                    }
-                    break;
+            case 'z': {
+                uint16_t p = edit_undo(edit);
+                if (p != UINT16_MAX) {
+                    edit_sel.p1     = p;
+                    edit_sel.p2     = p;
+                    edit_sel.start  = p;
+                    edit_sel.length = 0;
+                    modified        = true;
                 }
+                break;
             }
 
+            case 'Z':
             case 'y':
             case 'Y': {
                 uint16_t p = edit_redo(edit);
