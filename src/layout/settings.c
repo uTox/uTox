@@ -1168,7 +1168,7 @@ static void edit_video_fps_onlosefocus(EDIT *UNUSED(edit)) {
     edit_video_fps.data[edit_video_fps.length] = '\0';
 
     char *temp;
-    uint16_t value = strtol((char *)edit_video_fps.data, &temp, 0);
+    uint16_t value = strtol((char *)edit_video_fps.data, &temp, 10);
 
     if (*temp == '\0' && value >= 1 && value <= UINT8_MAX) {
         settings.video_fps = value;
