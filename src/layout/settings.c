@@ -1165,7 +1165,7 @@ static void dropdown_audio_out_onselect(uint16_t i, const DROPDOWN *dm) {
 }
 
 static void edit_video_fps_onlosefocus(EDIT *UNUSED(edit)) {
-    edit_video_fps.data[edit_video_fps.length] = 0;
+    edit_video_fps.data[edit_video_fps.length] = '\0';
 
     char *temp;
     uint16_t value = strtol((char *)edit_video_fps.data, &temp, 0);
@@ -1175,12 +1175,13 @@ static void edit_video_fps_onlosefocus(EDIT *UNUSED(edit)) {
         return;
     }
 
-    LOG_WARN("Settings", "Fps value (%s) is invalid. It must be integer in range of [1,%u].",
-             edit_video_fps.data, UINT8_MAX);
+    LOG_WARN("Settings", "FPS value (%s) is invalid. It must be integer in range of [1,%u]. Setting default value (%u).",
+             edit_video_fps.data, UINT8_MAX, DEFAULT_FPS);
 
     settings.video_fps = DEFAULT_FPS;
-    edit_video_fps.length = snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength,
+    edit_video_fps.length = snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1,
                                      "%u", DEFAULT_FPS);
+    edit_video_fps.length = strlen((char *)edit_video_fps.data);
 }
 
 #include "../screen_grab.h"
@@ -1309,7 +1310,7 @@ static char edit_name_data[128],
             edit_status_msg_data[128],
             edit_proxy_ip_data[256],
             edit_proxy_port_data[8],
-            edit_video_fps_data[sizeof(uint8_t) + 1],
+            edit_video_fps_data[3 + 1], /* range is [1-255] */
             edit_profile_password_data[65535],
             edit_nospam_data[(sizeof(uint32_t) * 2) + 1] = { 0 };
 #ifdef ENABLE_MULTIDEVICE

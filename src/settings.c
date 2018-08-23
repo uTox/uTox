@@ -509,14 +509,11 @@ UTOX_SAVE *config_load(void) {
     switch_auto_update.switch_on  = save->auto_update;
     settings.update_to_develop    = save->update_to_develop;
     settings.send_version         = save->send_version;
-    settings.video_fps = save->video_fps && save->video_fps != 0 ? save->video_fps : DEFAULT_FPS;
+    settings.video_fps = save->video_fps != 0 ? save->video_fps : DEFAULT_FPS;
 
-    edit_video_fps.length = snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength,
+    edit_video_fps.length = snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1,
                                      "%u", settings.video_fps);
-
-    if (edit_video_fps.length > edit_video_fps.maxlength) {
-        edit_video_fps.length = edit_video_fps.maxlength;
-    }
+    edit_video_fps.length = strlen((char *)edit_video_fps.data);
 
     // TODO: Don't clobber (and start saving) commandline flags.
 
