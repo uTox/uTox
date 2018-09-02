@@ -513,7 +513,7 @@ UTOX_SAVE *config_load(void) {
 
     edit_video_fps.length = snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1,
                                      "%u", settings.video_fps);
-    edit_video_fps.length = strlen((char *)edit_video_fps.data);
+    edit_video_fps.length = strnlen((char *)edit_video_fps.data, edit_video_fps.maxlength);
 
     // TODO: Don't clobber (and start saving) commandline flags.
 

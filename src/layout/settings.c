@@ -1181,7 +1181,7 @@ static void edit_video_fps_onlosefocus(EDIT *UNUSED(edit)) {
     settings.video_fps = DEFAULT_FPS;
     edit_video_fps.length = snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1,
                                      "%u", DEFAULT_FPS);
-    edit_video_fps.length = strlen((char *)edit_video_fps.data);
+    edit_video_fps.length = strnlen((char *)edit_video_fps.data, edit_video_fps.maxlength);
 }
 
 #include "../screen_grab.h"
