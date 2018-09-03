@@ -742,7 +742,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
         edit_redraw();
     } else if (!edit->readonly) {
         uint8_t len = unicode_to_utf8_len(ch);
-        if (edit->length - edit_sel.length + len <= edit->maxlength) {
+        if (edit->length - edit_sel.length + len < edit->data_size) {
             char *p = edit->data + edit_sel.start;
 
             if (edit_sel.length) {
@@ -792,7 +792,7 @@ void edit_paste(char *data, int length, bool select) {
 
     length = utf8_validate((uint8_t *)data, length);
 
-    const int maxlen = active_edit->maxlength - active_edit->length + edit_sel.length;
+    const int maxlen = (active_edit->data_size - 1) - active_edit->length + edit_sel.length;
     int newlen = 0, i = 0;
     while (i < length) {
         const uint8_t len = utf8_len(data + i);
@@ -878,8 +878,11 @@ EDIT *edit_get_active(void) {
 }
 
 void edit_setstr(EDIT *edit, char *str, uint16_t length) {
-    if (length >= edit->maxlength) {
-        length = edit->maxlength;
+	uint16_t maxlength;
+
+	maxlength = edit->data_size - 1;
+    if (length >= maxlength) {
+        length = maxlength;
     }
 
     edit->length = length;

@@ -635,7 +635,7 @@ static void button_lock_uTox_on_mup(void) {
         tox_settingschanged();
     } else {
         show_messagebox(NULL, 0, S(PASSWORD_TOO_SHORT), SLEN(PASSWORD_TOO_SHORT));
-        memset(edit_profile_password.data, 0, edit_profile_password.maxlength);
+        memset(edit_profile_password.data, '\0', edit_profile_password.data_size);
         edit_profile_password.length = 0;
     }
     button_show_password_settings.disabled = false;
@@ -1179,9 +1179,9 @@ static void edit_video_fps_onlosefocus(EDIT *UNUSED(edit)) {
              edit_video_fps.data, UINT8_MAX, DEFAULT_FPS);
 
     settings.video_fps = DEFAULT_FPS;
-    snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1,
+    snprintf((char *)edit_video_fps.data, edit_video_fps.data_size,
              "%u", DEFAULT_FPS);
-    edit_video_fps.length = strnlen((char *)edit_video_fps.data, edit_video_fps.maxlength);
+    edit_video_fps.length = strnlen((char *)edit_video_fps.data, edit_video_fps.data_size - 1);
 }
 
 #include "../screen_grab.h"
@@ -1331,7 +1331,7 @@ static void edit_name_onenter(EDIT *edit) {
 
 EDIT edit_name = {
     .data        = edit_name_data,
-    .maxlength   = sizeof edit_name_data - 1,
+    .data_size   = sizeof edit_name_data,
     .onenter     = edit_name_onenter,
     .onlosefocus = edit_name_onenter,
 };
@@ -1355,7 +1355,7 @@ static void edit_status_msg_onenter(EDIT *edit) {
 
 EDIT edit_status_msg = {
     .data        = edit_status_msg_data,
-    .maxlength   = sizeof edit_status_msg_data - 1,
+    .data_size   = sizeof edit_status_msg_data,
     .onenter     = edit_status_msg_onenter,
     .onlosefocus = edit_status_msg_onenter,
 };
@@ -1382,7 +1382,7 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
 
 EDIT edit_proxy_ip = {
     .data        = edit_proxy_ip_data,
-    .maxlength   = sizeof edit_proxy_ip_data - 1,
+    .data_size   = sizeof edit_proxy_ip_data,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_IP },
     /* TODO .ontab = change to proxy port field */
@@ -1390,14 +1390,14 @@ EDIT edit_proxy_ip = {
 
 EDIT edit_proxy_port = {
     .data        = edit_proxy_port_data,
-    .maxlength   = sizeof edit_proxy_port_data - 1,
+    .data_size   = sizeof edit_proxy_port_data,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_PORT },
 };
 
 EDIT edit_video_fps = {
-    .data = edit_video_fps_data,
-    .maxlength = sizeof edit_video_fps_data - 1,
+    .data        = edit_video_fps_data,
+    .data_size   = sizeof edit_video_fps_data,
     .onlosefocus = edit_video_fps_onlosefocus,
     /* .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_PORT }, */
 };
@@ -1409,7 +1409,7 @@ static void edit_profile_password_update(EDIT *UNUSED(edit)) {
 }
 
 EDIT edit_profile_password = {
-    .maxlength = sizeof(edit_profile_password) - 1,
+    .data_size = sizeof edit_profile_password_data,
     .data      = edit_profile_password_data,
     // .onchange    = edit_profile_password_update,
     .onlosefocus = edit_profile_password_update,
@@ -1439,7 +1439,7 @@ static void edit_change_nospam_onenter(EDIT *edit) {
 }
 
 EDIT edit_nospam = {
-    .maxlength    = sizeof(edit_nospam_data),
+    .data_size    = sizeof edit_nospam_data,
     .data         = edit_nospam_data,
     .noborder     = false,
     .onenter      = edit_change_nospam_onenter,
@@ -1456,6 +1456,6 @@ static void edit_add_new_device_to_self_onenter(EDIT *UNUSED(edit)) {
 
 EDIT edit_add_new_device_to_self = {
     .data      = edit_add_new_device_to_self_data,
-    .maxlength = sizeof edit_add_new_device_to_self_data - 1,
+    .data_size = sizeof edit_add_new_device_to_self_data,
     .onenter   = edit_add_new_device_to_self_onenter,
 };
