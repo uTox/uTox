@@ -34,3 +34,9 @@ void init_self(Tox *tox) {
 
     avatar_init_self();
 }
+
+void self_create_group_info(Group_Chat_Self_Peer_Info *self_info) {
+    self_info->nick = (const uint8_t *)self.name;
+    self_info->nick_length = self.name_length;
+    self_info->user_status = self.status;
+}

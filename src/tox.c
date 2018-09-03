@@ -1039,20 +1039,26 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 break;
             }
 
+            self_create_group_info(self_info); //populate the self_info structure
+
             TOX_ERR_GROUP_NEW error = 0;
             uint32_t g_num = tox_group_new(tox, param1, data, strlen(data), self_info, &error);
-            if (g_num != UINT32_MAX) {
-                GROUPCHAT *g = get_group(g_num);
-                if (!g) {
-                    if (!group_create(g_num, param2, self_info)) {
-                        LOG_ERR("Toxcore", "Failed creating group %u", g_num);
-                        break;
-                    }
-                } else {
-                    group_init(g, g_num, param2, self_info);
-                }
-                postmessage_utox(GROUP_ADD, g_num, param2, NULL);
+            if (g_num == UINT32_MAX) {
+                LOG_ERR("Tox", "Failed to create a groupchat. Error number: %u", error);
+                break;
             }
+
+            GROUPCHAT *g = get_group(g_num);
+            if (!g) {
+                if (!group_create(g_num, param2, self_info)) {
+                    LOG_ERR("Toxcore", "Failed creating group %u", g_num);
+                    break;
+                }
+            } else {
+                group_init(g, g_num, param2, self_info);
+            }
+
+            postmessage_utox(GROUP_ADD, g_num, param2, NULL);
 
             uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
             tox_group_peer_get_public_key(tox, g_num, 0, pkey, NULL);
