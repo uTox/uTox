@@ -1,5 +1,6 @@
 #include "text.h"
 
+#include "debug.h"
 #include "macros.h"
 
 #include <ctype.h>
@@ -74,19 +75,8 @@ uint8_t utf8_len_read(const char *data, uint32_t *ch) {
         return 4;
     }
 
-    if (!(a & 4)) {
-        *ch = ((data[0] & 0x3) << 24) | ((data[1] & 0x3F) << 18) | ((data[2] & 0x3F) << 12) | ((data[3] & 0x3F) << 6)
-              | (data[4] & 0x3F);
-        return 5;
-    }
-
-    if (!(a & 2)) {
-        *ch = ((data[0] & 0x1) << 30) | ((data[1] & 0x3F) << 24) | ((data[2] & 0x3F) << 18) | ((data[3] & 0x3F) << 12)
-              | ((data[4] & 0x3F) << 6) | (data[5] & 0x3F);
-        return 6;
-    }
-
     // unreachable
+    LOG_WARN("Text", "utf8_len_read() reached the unreachable; someone is passing invalid UTF-8 characters.");
     return 0;
 }
 
