@@ -15,7 +15,10 @@ int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes);
  *  returns -1 if the size of the character is greater than len or if the character is invalid
  */
 uint8_t utf8_len(const char *data);
-/* read the character into ch */
+
+/* reads a UTF8-character from `data` into `ch`
+ * returns the length of the UTF8-character written into `ch`
+ */
 uint8_t utf8_len_read(const char *data, uint32_t *ch);
 /* backwards length */
 uint8_t utf8_unlen(char *data);
