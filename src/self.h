@@ -44,4 +44,6 @@ extern struct utox_self {
 
 void init_self(Tox *tox);
 
+void self_create_group_info(Group_Chat_Self_Peer_Info *self_info);
+
 #endif
