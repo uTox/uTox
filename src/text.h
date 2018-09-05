@@ -18,6 +18,7 @@ uint8_t utf8_len(const char *data);
 
 /* reads a UTF8-character from `data` into `ch`
  * returns the length of the UTF8-character written into `ch`
+ * returns 0 on invalid UTF8-character
  */
 uint8_t utf8_len_read(const char *data, uint32_t *ch);
 /* backwards length */
