@@ -37,19 +37,9 @@ int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
 }
 
 uint8_t utf8_len(const char *data) {
-    if (!(*data & 0x80)) {
-        return 1;
-    }
+    uint32_t unused;
 
-    uint8_t bytes = 1, i;
-    for (i = 6; i != 0xFF; i--) {
-        if (!((*data >> i) & 1)) {
-            break;
-        }
-        bytes++;
-    }
-    // no validation, instead validate all utf8 when recieved
-    return bytes;
+    return utf8_len_read(data, &unused);
 }
 
 uint8_t utf8_len_read(const char *data, uint32_t *ch) {

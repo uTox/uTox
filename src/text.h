@@ -10,14 +10,13 @@
  */
 int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes);
 
-/** length of a utf-8 character
- *  returns the size of the character in bytes
- *  returns -1 if the size of the character is greater than len or if the character is invalid
+/* returns the length of the UTF8-character pointed to by `data`
+ * returns 0 on invalid UTF8-character
  */
 uint8_t utf8_len(const char *data);
 
 /* reads a UTF8-character from `data` into `ch`
- * returns the length of the UTF8-character written into `ch`
+ * returns the length of the UTF8-character pointed to by `data`
  * returns 0 on invalid UTF8-character
  */
 uint8_t utf8_len_read(const char *data, uint32_t *ch);
