@@ -238,7 +238,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         }
 
         peer = new_peer;
-        peer->name_length = utf8_validate(name, length);
+        peer->name_length = utf8_strnlen((char *)name, length);
         memcpy(peer->name, name, length);
         g->peer[peer_id] = peer;
 
@@ -256,7 +256,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
     }
 
     peer = new_peer;
-    peer->name_length = utf8_validate(name, length);
+    peer->name_length = utf8_strnlen((char *)name, length);
     memcpy(peer->name, name, length);
     g->peer[peer_id] = peer;
 

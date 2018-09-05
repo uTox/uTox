@@ -81,15 +81,15 @@ uint8_t utf8_unlen(char *data) {
     return len;
 }
 
-int utf8_validate(const uint8_t *data, int maxlen) {
-    int len, n;
+size_t utf8_strnlen(const char *str, size_t maxlen) {
+    size_t len, n;
 
     len = 0;
     while (1) {
-        if ('\0' == data[len])
+        if ('\0' == str[len])
             break;
 
-        n = utf8_len((char *)data + len);
+        n = utf8_len(str + len);
         if (!n || len + n > maxlen)
             break;
 

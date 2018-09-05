@@ -1,6 +1,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 
+#include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -28,7 +29,7 @@ uint8_t utf8_unlen(char *data);
  * or by the first invalid UTF8-character,
  * or by '\0', whichever comes first.
  */
-int utf8_validate(const uint8_t *data, int maxlen);
+size_t utf8_strnlen(const char *str, size_t maxlen);
 
 uint8_t unicode_to_utf8_len(uint32_t ch);
 void unicode_to_utf8(uint32_t ch, char *dst);
