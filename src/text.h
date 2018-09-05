@@ -23,10 +23,12 @@ uint8_t utf8_len_read(const char *data, uint32_t *ch);
 /* backwards length */
 uint8_t utf8_unlen(char *data);
 
-/* remove invalid characters from utf8 string
- * returns the new length after invalid characters have been removed
+/* returns the length in bytes of a string of valid UTF8-characters
+ * The returned length is limited by `maxlen`,
+ * or by the first invalid UTF8-character,
+ * or by '\0', whichever comes first.
  */
-int utf8_validate(const uint8_t *data, int len);
+int utf8_validate(const uint8_t *data, int maxlen);
 
 uint8_t unicode_to_utf8_len(uint32_t ch);
 void unicode_to_utf8(uint32_t ch, char *dst);
