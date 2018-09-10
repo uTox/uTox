@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.2)
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6 CACHE STRING "Minimum OS X deployment version")
 project(uTox LANGUAGES C)
 
 #####################
@@ -31,6 +30,7 @@ if(WIN32)
     set(WINDOWS TRUE)
 elseif(APPLE)
     if(CMAKE_SYSTEM_NAME MATCHES ".*MacOS.*")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6 CACHE STRING "Minimum OS X deployment version")
         set(MACOSX TRUE)
     endif()
 elseif(UNIX)
@@ -103,12 +103,10 @@ if(WINDOWS AND NOT CROSS_COMPILING)
         # Helping Cygwin out again..
         set(WIN64 TRUE)
     endif()
-elseif(FREEBSD)
-    include(cmake/toolchain-freebsd.cmake)
-elseif(OPENBSD OR NETBSD)
-    include(cmake/toolchain-openbsd.cmake)
 elseif(APPLE)
     include(cmake/macOS.cmake)
+elseif(FREEBSD)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/lib" CACHE STRING "" FORCE)
 endif()
 
 
@@ -303,6 +301,9 @@ elseif(APPLE)
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
 elseif(UNIX)
+    find_package(X11 REQUIRED)
+    include_directories(${X11_INCLUDE_DIR})
+
     add_subdirectory(src/xlib)
 
     if(LINUX)

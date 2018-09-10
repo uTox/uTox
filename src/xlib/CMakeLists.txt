@@ -52,8 +52,6 @@ message("Found Freetype version ${FREETYPE_VERSION_STRING}")
 message("Freetype include: ${FREETYPE_INCLUDE_DIRS}")
 message("Freetype library: ${FREETYPE_LIBRARIES}")
 
-find_package(X11 REQUIRED)
-
 message("X include:         ${X11_INCLUDE_DIR}")
 message("X library:         ${X11_LIBRARIES}")
 message("Xrender include:   ${X11_Xrender_INCLUDE_PATH}")
@@ -73,6 +71,7 @@ target_link_libraries(utoxNATIVE
         ${X11_Xrender_LIB}
         fontconfig
         ${FREETYPE_LIBRARIES}
+        ${DBUS_LIBRARIES}
         )
 
 if(LINUX OR NETBSD)
@@ -84,7 +83,6 @@ endif()
 if(LINUX)
     target_link_libraries(utoxNATIVE
         dl
-        ${DBUS_LIBRARIES}
         )
 endif()
 
