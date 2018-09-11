@@ -130,7 +130,7 @@ doas make install
 Install the [dependencies](DEPENDENCIES.md#freebsd):
 
 ```bash
-sudo pkg install libv4l v4l_compat openal-soft libvpx opus toxcore
+sudo pkg install libv4l v4l_compat openal-soft libvpx opus toxcore gcc
 ```
 
 Optionally install D-Bus, GTK+3 and filteraudio:
@@ -145,7 +145,7 @@ git clone --recursive git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
-cmake ..
+env CC=gcc cmake ..
 make
 sudo make install
 ```
