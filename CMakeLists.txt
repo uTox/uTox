@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.2)
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6 CACHE STRING "Minimum OS X deployment version")
 project(uTox LANGUAGES C)
 
 #####################
@@ -31,13 +30,12 @@ if(WIN32)
     set(WINDOWS TRUE)
 elseif(APPLE)
     if(CMAKE_SYSTEM_NAME MATCHES ".*MacOS.*")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6 CACHE STRING "Minimum OS X deployment version")
         set(MACOSX TRUE)
     endif()
 elseif(UNIX)
     if(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
         set(LINUX TRUE)
-    elseif(CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*")
-        set(OPENBSD TRUE)
     elseif(CMAKE_SYSTEM_NAME MATCHES "kNetBSD.*|NetBSD.*")
         set(NETBSD TRUE)
     elseif(CMAKE_SYSTEM_NAME MATCHES "kFreeBSD.*|FreeBSD")
@@ -85,7 +83,7 @@ endif()
 option(UTOX_STATIC        "Link uTox statically"                                 ${STATIC_DEFAULT} )
 option(TOXCORE_STATIC     "Build uTox with the static version of Toxcore"        ${STATIC_DEFAULT} )
 option(ENABLE_ASAN        "Enable Address Sanitizer on debug builds"               ${ASAN_DEFAULT} )
-option(ENABLE_TESTS       "Whether to build test binaries (currently linux only)"               OFF)
+option(ENABLE_TESTS       "Whether to build test binaries (currently Unix-like OSes only)"      ON )
 option(ENABLE_WERROR      "Error on Warning, whether to put -Werror flag to the compiler"       OFF)
 option(ENABLE_FILTERAUDIO "Enable Filter Audio"                                                 ON )
 option(ENABLE_AUTOUPDATE  "Enable Auto-updater"                                                 OFF)
@@ -103,10 +101,6 @@ if(WINDOWS AND NOT CROSS_COMPILING)
         # Helping Cygwin out again..
         set(WIN64 TRUE)
     endif()
-elseif(FREEBSD)
-    include(cmake/toolchain-freebsd.cmake)
-elseif(OPENBSD OR NETBSD)
-    include(cmake/toolchain-openbsd.cmake)
 elseif(APPLE)
     include(cmake/macOS.cmake)
 endif()
@@ -223,6 +217,10 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os")
     set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Oz -s")
 
+    if(FREEBSD)
+        set(LIBRARIES ${LIBRARIES} "cxxrt")
+    endif()
+
     if(NOT ENABLE_ASAN)
         if(NOT APPLE)
             add_cflag("-fsanitize=safe-stack")
@@ -273,10 +271,15 @@ endif()
 
 find_package(libtox REQUIRED)
 include_directories(${LIBTOX_INCLUDE_DIRS})
+set(LIBRARIES ${LIBRARIES} ${LIBTOX_LIBRARIES})
 
 find_package(libsodium REQUIRED)
 include_directories(${LIBSODIUM_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBSODIUM_LIBRARIES})
+
+find_package(libvpx REQUIRED)
+include_directories(${LIBVPX_INCLUDE_DIRS})
+set(LIBRARIES ${LIBRARIES} ${LIBVPX_LIBRARIES})
 
 include_directories(SYSTEM third-party/stb)
 include_directories(SYSTEM third-party/minini/dev)
@@ -303,6 +306,9 @@ elseif(APPLE)
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
 elseif(UNIX)
+    find_package(X11 REQUIRED)
+    include_directories(${X11_INCLUDE_DIR})
+
     add_subdirectory(src/xlib)
 
     if(LINUX)
@@ -364,9 +370,7 @@ target_link_libraries(utox
     utoxAV
     utoxNATIVE
     utoxUI
-    ${LIBTOX_LIBRARIES}
     ${LIBRARIES}
-    vpx
     pthread
     m
 )
@@ -402,7 +406,7 @@ include(CPack)
 
 if(ENABLE_TESTS)
   if(UNIX)
-    # Tests currently only run on Linux and macOS.
+    # Tests currently only run on Unix-like OSes.
     enable_testing()
     add_subdirectory(tests)
   endif()
@@ -423,9 +427,12 @@ message("- Auto Updater:            ${ENABLE_AUTOUPDATE}")
 message("- uTox Static:             ${UTOX_STATIC}")
 message("- Toxcore Static:          ${TOXCORE_STATIC}")
 message("-- Platform Options --------------")
-message("- Windows Legacy:          ${WIN_XP_LEGACY}")
-message("- Enable DBus:             ${ENABLE_DBUS}")
-message("- Enable Tests             ${ENABLE_TESTS}")
+if(WINDOWS)
+    message("- Windows Legacy:          ${WIN_XP_LEGACY}")
+else()
+    message("- Enable DBus:             ${ENABLE_DBUS}")
+    message("- Enable Tests             ${ENABLE_TESTS}")
+endif()
 
 message("* CMake system is '${CMAKE_SYSTEM_NAME}'")
 message("* CMake build type is '${CMAKE_BUILD_TYPE}'")

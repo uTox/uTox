@@ -5,8 +5,8 @@ Before trying to compile uTox make sure you have all of the required dependencie
 ## Operating Systems
 
 - [Linux](#linux)
-- [FreeBSD](#freebsd)
-- [OpenBSD](#openbsd)
+- [FreeBSD and DragonFlyBSD](#freebsd-and-dragonflybsd)
+- [OpenBSD and NetBSD](#openbsd-and-netbsd)
 - [Windows](#windows)
 - [OSX](#osx)
 
@@ -30,8 +30,8 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | xrender      | yes                   |
 | libsodium    | yes                   |
 
-<a name="freebsd"></a>
-## FreeBSD
+<a name="freebsd-and-dragonflybsd"></a>
+## FreeBSD and DragonFlyBSD
 
 | Name         | Required              |
 |--------------|-----------------------|
@@ -51,8 +51,8 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | xext         | yes                   |
 | libsodium    | yes                   |
 
-<a name="openbsd"></a>
-## OpenBSD
+<a name="openbsd-and-netbsd"></a>
+## OpenBSD and NetBSD
 
 | Name         | Required              |
 |--------------|-----------------------|
@@ -69,6 +69,7 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | xrender      | yes                   |
 | xext         | yes                   |
 | libsodium    | yes                   |
+| libv4l       | yes                   |
 
 <a name="windows"></a>
 ## Windows

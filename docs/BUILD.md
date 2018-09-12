@@ -11,7 +11,8 @@ If you're looking for it to "just work" you're going to want [these instructions
   * [Linux](#linux)
   * [Ubuntu](#ubuntu)
   * [OpenBSD](#openbsd)
-  * [FreeBSD](#freebsd)
+  * [FreeBSD and DragonFlyBSD](#freebsd-and-dragonflybsd)
+  * [NetBSD](#netbsd)
 - [Windows](#windows)
 - [macOS](#macos)
 - [Android](#android)
@@ -100,23 +101,41 @@ If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In f
 
 ### OpenBSD
 
-uTox will compile on OpenBSD although not everything works.
-
-First install the [dependencies](DEPENDENCIES.md#openbsd):
+First install the [dependencies](DEPENDENCIES.md#openbsd-and-netbsd):
 
 ```bash
-sudo pkg_add -Iv opus libvpx openal
+doas pkg_add openal cmake libv4l toxcore git check
 ```
 
-You will have to compile toxcore from source:
+Optionally install D-Bus and GTK+3:
+```bash
+doas pkg_add dbus gtk+3
+```
+
+Now compile uTox:
 
 ```bash
-git clone git://github.com/TokTok/c-toxcore.git
-cd c-toxcore
-cmake .
-make
-sudo make install
-cd ..
+git clone --recursive git://github.com/uTox/uTox.git
+cd uTox/
+mkdir build
+cd build
+cmake ..
+make -j `sysctl -n hw.ncpu`
+make test
+doas make install
+```
+
+### FreeBSD and DragonFlyBSD
+
+Install the [dependencies](DEPENDENCIES.md#freebsd-and-dragonflybsd):
+
+```bash
+sudo pkg install libv4l v4l_compat openal-soft toxcore git check
+```
+
+Optionally install D-Bus, GTK+3 and filteraudio:
+```bash
+sudo pkg install dbus libfilteraudio gtk3
 ```
 
 Now compile uTox:
@@ -128,29 +147,24 @@ mkdir build
 cd build
 cmake ..
 make
+make test
 sudo make install
 ```
 
-### FreeBSD
+### NetBSD
 
-Install the [dependencies](DEPENDENCIES.md#freebsd):
-
-```bash
-sudo pkg install libv4l v4l_compat openal-soft libvpx opus
-```
-
-You will have to compile toxcore from source:
+Install the [dependencies](DEPENDENCIES.md#openbsd-and-netbsd):
 
 ```bash
-git clone git://github.com/TokTok/c-toxcore.git
-cd c-toxcore
-cmake .
-make
-sudo make install
-cd ..
+sudo pkgin install openal-soft cmake libv4l toxcore git check
 ```
+
+Optionally install D-Bus and GTK+3:
+```base
+sudo pkgin install dbus gtk3
+```
+
 Now compile uTox:
-
 ```bash
 git clone --recursive git://github.com/uTox/uTox.git
 cd uTox/
@@ -158,6 +172,7 @@ mkdir build
 cd build
 cmake ..
 make
+make test
 sudo make install
 ```
 

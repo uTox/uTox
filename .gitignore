@@ -24,6 +24,7 @@ cache/*
 # editor files
 *.swp
 *~
+*.orig
 GPATH
 GRTAGS
 GTAGS
