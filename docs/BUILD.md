@@ -100,23 +100,15 @@ If you're looking for a good IDE, Netbeans is very easy to set up for uTox. In f
 
 ### OpenBSD
 
-uTox will compile on OpenBSD although not everything works.
-
 First install the [dependencies](DEPENDENCIES.md#openbsd):
 
 ```bash
-sudo pkg_add -Iv opus libvpx openal
+doas pkg_add openal cmake libv4l toxcore
 ```
 
-You will have to compile toxcore from source:
-
+Optionally install D-Bus and GTK+3:
 ```bash
-git clone git://github.com/TokTok/c-toxcore.git
-cd c-toxcore
-cmake .
-make
-sudo make install
-cd ..
+doas pkg_add dbus gtk+3
 ```
 
 Now compile uTox:
@@ -127,8 +119,8 @@ cd uTox/
 mkdir build
 cd build
 cmake ..
-make
-sudo make install
+make -j `sysctl -n hw.ncpu`
+doas make install
 ```
 
 ### FreeBSD
@@ -136,19 +128,14 @@ sudo make install
 Install the [dependencies](DEPENDENCIES.md#freebsd):
 
 ```bash
-sudo pkg install libv4l v4l_compat openal-soft libvpx opus
+sudo pkg install libv4l v4l_compat openal-soft toxcore
 ```
 
-You will have to compile toxcore from source:
-
+Optionally install D-Bus, GTK+3 and filteraudio:
 ```bash
-git clone git://github.com/TokTok/c-toxcore.git
-cd c-toxcore
-cmake .
-make
-sudo make install
-cd ..
+sudo pkg install dbus libfilteraudio gtk3
 ```
+
 Now compile uTox:
 
 ```bash
