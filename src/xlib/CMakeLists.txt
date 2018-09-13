@@ -52,12 +52,20 @@ message("Found Freetype version ${FREETYPE_VERSION_STRING}")
 message("Freetype include: ${FREETYPE_INCLUDE_DIRS}")
 message("Freetype library: ${FREETYPE_LIBRARIES}")
 
-find_package(X11 REQUIRED)
+find_package(libfontconfig REQUIRED)
+include_directories("${LIBFONTCONFIG_INCLUDE_DIRS}")
+message("FontConfig include: ${LIBFONTCONFIG_INCLUDE_DIRS}")
+message("FontConfig library: ${LIBFONTCONFIG_LIBRARIES}")
 
 message("X include:         ${X11_INCLUDE_DIR}")
 message("X library:         ${X11_LIBRARIES}")
 message("Xrender include:   ${X11_Xrender_INCLUDE_PATH}")
 message("Xrender library:   ${X11_Xrender_LIB}")
+
+find_package(libv4lconvert REQUIRED)
+include_directories("${LIBV4LCONVERT_INCLUDE_DIRS}")
+message("V4Lconvert include: ${LIBV4LCONVERT_INCLUDE_DIRS}")
+message("V4Lconvert library: ${LIBV4LCONVERT_LIBRARIES}")
 
 if(ENABLE_DBUS AND DBUS_LIBRARIES)
     message("DBus include:  ${DBUS_INCLUDE_DIRS}")
@@ -68,11 +76,12 @@ endif()
 
 target_link_libraries(utoxNATIVE
         icon
-        v4lconvert
+        ${LIBV4LCONVERT_LIBRARIES}
+        ${LIBFONTCONFIG_LIBRARIES}
         ${X11_LIBRARIES}
         ${X11_Xrender_LIB}
-        fontconfig
         ${FREETYPE_LIBRARIES}
+        ${DBUS_LIBRARIES}
         )
 
 if(LINUX OR NETBSD)
@@ -84,7 +93,6 @@ endif()
 if(LINUX)
     target_link_libraries(utoxNATIVE
         dl
-        ${DBUS_LIBRARIES}
         )
 endif()
 
