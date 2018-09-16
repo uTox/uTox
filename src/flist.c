@@ -922,34 +922,35 @@ void flist_reload_contacts(void) {
 }
 
 FRIEND *flist_get_friend(void) {
-    if (flist_get_type() == ITEM_FRIEND) {
-        return get_friend(selected_item->id_number);
+    if (flist_get_type() != ITEM_FRIEND) {
+        return NULL;
     }
-    return NULL;
+
+    return get_friend(selected_item->id_number);
 }
 
 FREQUEST *flist_get_frequest(void) {
-    if (flist_get_type() == ITEM_FREQUEST) {
-        return get_frequest(selected_item->id_number);
+    if (flist_get_type() != ITEM_FREQUEST) {
+        return NULL;
     }
 
-    return NULL;
+    return get_frequest(selected_item->id_number);
 }
 
 GROUPCHAT *flist_get_groupchat(void) {
-    if (flist_get_type() == ITEM_GROUP) {
-        return get_group(selected_item->id_number);
+    if (flist_get_type() != ITEM_GROUP) {
+        return NULL;
     }
 
-    return NULL;
+    return get_group(selected_item->id_number);
 }
 
 uint8_t flist_get_group_invite_id(void) {
-    if (flist_get_type() == ITEM_GROUP_INVITE) {
-        return selected_item->id_number;
+    if (flist_get_type() != ITEM_GROUP_INVITE) {
+        return UINT8_MAX;
     }
 
-    return UINT8_MAX;
+    return selected_item->id_number;
 }
 
 ITEM_TYPE flist_get_type(void) {
