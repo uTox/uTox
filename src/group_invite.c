@@ -102,8 +102,7 @@ bool group_invite_accept(Tox *tox, const uint8_t invite_id) {
         return false;
     }
 
-    uint32_t group_id = UINT32_MAX;
-
+    uint32_t group_id;
     if (invites[invite_id]->is_av_group) {
         group_id = toxav_join_av_groupchat(tox,
                                            invites[invite_id]->friend_number,
@@ -118,7 +117,6 @@ bool group_invite_accept(Tox *tox, const uint8_t invite_id) {
                                        invites[invite_id]->length,
                                        NULL);
     }
-
     if (group_id == UINT32_MAX) {
         LOG_ERR("Groupchat invite", "Could not join group.");
         group_invite_free(invite_id);
