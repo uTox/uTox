@@ -56,16 +56,18 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
         GROUP_PEER *peer = g->peer[i];
 
         if (peer && peer->name_length) {
-            uint8_t text_length = peer->name_length + 2;
-            char buf[text_length];
+            uint8_t text_length;
+            uint8_t text_size = peer->name_length + 2 + 1;
+            char text[text_size];
 
             if (i < g->peer_count - 1) {
-                text_length = snprintf((char *)buf, text_length, "%.*s, ", (int)peer->name_length, peer->name);
+                snprintf(text, text_size, "%.*s, ", (int)peer->name_length, peer->name);
             } else {
-                text_length = snprintf((char *)buf, text_length, "%.*s", (int)peer->name_length, peer->name);
+                snprintf(text, text_size, "%.*s",   (int)peer->name_length, peer->name);
             }
+            text_length = strnlen(text, text_size - 1);
 
-            unsigned w = textwidth(buf, text_length);
+            unsigned w = textwidth(text, text_length);
             if (peer->name_color) {
                 setcolor(peer->name_color);
             } else {
@@ -82,7 +84,7 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
                 }
             }
 
-            drawtext(k, SCALE(pos_y * 2), buf, text_length);
+            drawtext(k, SCALE(pos_y * 2), text, text_length);
 
             k += w;
         }

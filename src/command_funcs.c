@@ -56,11 +56,13 @@ bool slash_invite(void *object, char *arg, int UNUSED(arg_length)) {
     FRIEND *f = find_friend_by_name((uint8_t *)arg);
 
     if (f != NULL && f->online) {
-        size_t msg_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_MESSAGE_INVITE);
+        size_t msg_length;
+        size_t msg_size = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_MESSAGE_INVITE) + 1;
+        uint8_t msg[msg_size];
 
-        uint8_t msg[msg_length];
-        msg_length = snprintf((char *)msg, msg_length, S(GROUP_MESSAGE_INVITE),
-                              UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+        snprintf((char *)msg, msg_size, S(GROUP_MESSAGE_INVITE),
+                 UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+        msg_length = strnlen((char *)msg, msg_size - 1);
 
         group_add_message(g, 0, msg, msg_length, MSG_TYPE_NOTICE);
         postmessage_toxcore(TOX_GROUP_SEND_INVITE, g->number, f->number, NULL);

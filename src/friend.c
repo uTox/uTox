@@ -398,9 +398,13 @@ void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uin
 }
 
 void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
-    size_t title_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(FRIEND_MESSAGE_NEW);
-    char title[title_length];
-    title_length = snprintf(title, title_length, S(FRIEND_MESSAGE_NEW), UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    size_t title_length;
+    size_t title_size = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(FRIEND_MESSAGE_NEW) + 1;
+    char title[title_size];
+
+    snprintf(title, title_size, S(FRIEND_MESSAGE_NEW),
+             UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    title_length = strnlen(title, title_size - 1);
 
     postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
     notify(title, title_length, msg, msg_length, f, false);

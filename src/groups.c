@@ -223,12 +223,15 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
     }
 
     if (peer->name_length) {
-        size_t size = peer->name_length + SLEN(GROUP_MESSAGE_CHANGE_NAME);
-        char msg[size];
-        size = snprintf(msg, size, S(GROUP_MESSAGE_CHANGE_NAME), peer->name_length, peer->name);
+        size_t msg_length;
+        size_t msg_size = peer->name_length + SLEN(GROUP_MESSAGE_CHANGE_NAME) + 1;
+        char msg[msg_size];
+
+        snprintf(msg, msg_size, S(GROUP_MESSAGE_CHANGE_NAME),
+                 peer->name_length, peer->name);
+        msg_length = strnlen(msg, msg_size - 1);
 
         GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
-
         if (!new_peer) {
             free(peer);
             LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "couldn't realloc for group peer name!");
@@ -240,7 +243,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         g->peer[peer_id] = peer;
 
         pthread_mutex_unlock(&messages_lock);
-        group_add_message(g, peer_id, (uint8_t *)msg, size, MSG_TYPE_NOTICE);
+        group_add_message(g, peer_id, (uint8_t *)msg, msg_length, MSG_TYPE_NOTICE);
         return;
     }
 
@@ -340,9 +343,12 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
         return;
     }
 
-    size_t title_length = g->name_length + SLEN(GROUP_MESSAGE_NEW);
-    char title[title_length];
-    title_length = snprintf(title, title_length, S(GROUP_MESSAGE_NEW), g->name_length, g->name);
+    size_t title_length;
+    size_t title_size = g->name_length + SLEN(GROUP_MESSAGE_NEW) + 1;
+    char title[title_size];
+
+    snprintf(title, title_size, S(GROUP_MESSAGE_NEW), g->name_length, g->name);
+    title_length = strnlen(title, title_size - 1);
 
     notify(title, title_length, msg, msg_length, g, true);
 

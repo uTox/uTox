@@ -232,9 +232,12 @@ static void drawitem(ITEM *i, int x, int y, int width) {
             drawalpha(group_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       selected_item == i ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
 
-            size_t msg_length = SLEN(GROUP_INVITE) + 4;
-            char msg[msg_length];
-            msg_length = snprintf(msg, msg_length, "%s #%u", S(GROUP_INVITE), i->id_number);
+            size_t msg_length;
+            size_t msg_size = SLEN(GROUP_INVITE) + 2 + 10 + 1; // 10 == strlen(2 ^ (sizeof i->id_number * 8))
+            char msg[msg_size];
+
+            snprintf(msg, msg_size, "%s #%u", S(GROUP_INVITE), i->id_number);
+            msg_length = strnlen(msg, msg_size - 1);
 
             flist_draw_name(i, name_x, name_y, width, msg, NULL, msg_length, 0, 0, 0);
             break;
@@ -1314,11 +1317,13 @@ bool flist_mup(void *UNUSED(n)) {
                     GROUPCHAT *g = get_group(nitem->id_number);
 
                     if (f->online) {
-                        size_t msg_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_MESSAGE_INVITE);
+                        size_t msg_length;
+                        size_t msg_size = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_MESSAGE_INVITE) + 1;
+                        uint8_t msg[msg_size];
 
-                        uint8_t msg[msg_length];
-                        msg_length = snprintf((char *)msg, msg_length, S(GROUP_MESSAGE_INVITE),
-                                              UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+                        snprintf((char *)msg, msg_size, S(GROUP_MESSAGE_INVITE),
+                                 UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+                        msg_length = strnlen((char *)msg, msg_size - 1);
 
                         group_add_message(g, 0, msg, msg_length, MSG_TYPE_NOTICE);
                         postmessage_toxcore(TOX_GROUP_SEND_INVITE, g->number, f->number, NULL);

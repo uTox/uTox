@@ -16,6 +16,8 @@
 #include "../ui/svg.h"
 #include "../ui/text.h"
 
+#include <string.h>
+
 static void draw_group_invite(int x, int y, int UNUSED(w), int UNUSED(h));
 static void button_group_invite_accept_on_mup(void);
 static void button_group_invite_reject_on_mup(void);
@@ -83,17 +85,28 @@ static void draw_group_invite(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    size_t label_length = SLEN(GROUP_INVITE) + 4;
-    char invite_label[label_length];
-    label_length = snprintf(invite_label, label_length, "%s #%u", S(GROUP_INVITE), invite_id);
-    drawtext(x + SCALE(10), SCALE(20), invite_label, label_length);
+    {
+        size_t label_length;
+        size_t label_size = SLEN(GROUP_INVITE) + 2 + 3 + 1;
+        char invite_label[label_size];
+
+        snprintf(invite_label, label_size, "%s #%u", S(GROUP_INVITE), invite_id);
+        label_length = strnlen(invite_label, label_size - 1);
+
+        drawtext(x + SCALE(10), SCALE(20), invite_label, label_length);
+    }
 
     setfont(FONT_TEXT);
 
-    size_t invite_length = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_INVITE_FRIEND);
-    char invite_text[invite_length];
-    invite_length = snprintf(invite_text, invite_length, S(GROUP_INVITE_FRIEND),
-                             UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    {
+        size_t invite_length;
+        size_t invite_size = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_INVITE_FRIEND) + 1;
+        char invite_text[invite_size];
 
-    drawtext(x + SCALE(10), y + SCALE(70), invite_text, invite_length);
+        snprintf(invite_text, invite_size, S(GROUP_INVITE_FRIEND),
+                 UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+        invite_length = strnlen(invite_text, invite_size - 1);
+
+        drawtext(x + SCALE(10), y + SCALE(70), invite_text, invite_length);
+    }
 }
