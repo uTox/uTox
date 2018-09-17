@@ -177,6 +177,9 @@ msgstr("Akceptuj pliki przychodzące bez potwierdzenia")
 msgid(FRIEND_EXPORT_CHATLOG)
 msgstr("Eksportuj historię czatu znajomego do tekstu")
 
+msgid(FRIEND_MESSAGE_NEW)
+msgstr("uTox: nowa wiadomość od %.*s")
+
 
 /******************************************************************************
  *** Group Strings                                                          ***
@@ -195,6 +198,30 @@ msgstr("Utwórz grupę")
 
 msgid(LEAVE_GROUP)
 msgstr("Opuść grupę")
+
+msgid(GROUP_STATUS)
+msgstr("%u osób w grupie")
+
+msgid(GROUP_INVITE)
+msgstr("Zaproszenie do grupy")
+
+msgid(GROUP_INVITE_FRIEND)
+msgstr("%.*s zaprasza Cię do grupy")
+
+msgid(GROUP_MESSAGE_INVITE)
+msgstr("<- zaprosił %.*s")
+
+msgid(GROUP_MESSAGE_JOIN)
+msgstr("<- dołączył do grupy")
+
+msgid(GROUP_MESSAGE_CHANGE_NAME)
+msgstr("<- zmienił nick z %.*s")
+
+msgid(GROUP_MESSAGE_QUIT)
+msgstr("<- opuścił grupę")
+
+msgid(GROUP_MESSAGE_NEW)
+msgstr("uTox: nowa wiadomość w %.*s")
 
 
 /******************************************************************************
