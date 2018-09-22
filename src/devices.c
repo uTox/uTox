@@ -136,13 +136,14 @@ void devices_update_ui(void) {
                   .height = BM_SBUTTON_HEIGHT,
               };
 
-        edit->panel  = p_edit;
-        edit->length = TOX_PUBLIC_KEY_SIZE * 2, edit->maxlength = TOX_PUBLIC_KEY_SIZE * 2,
+        edit->panel     = p_edit;
+        edit->length    = TOX_PUBLIC_KEY_SIZE * 2,
+        edit->data_size = TOX_PUBLIC_KEY_SIZE * 2,
         edit->data = devices[i].pubkey_hex, edit->readonly = 1, edit->noborder = 0, edit->select_completely = 1,
 
-        dele->panel  = b_delete;
-        dele->bm_fill     = BM_SBUTTON;
-        dele->update = button_setcolors_success, dele->on_mup = delete_this_device,
+        dele->panel   = b_delete;
+        dele->bm_fill = BM_SBUTTON;
+        dele->update  = button_setcolors_success, dele->on_mup = delete_this_device,
         dele->button_text.i18nal = STR_DELETE;
 
         panel_settings_devices.child[(i * 2) + 2] = (void *)edit;

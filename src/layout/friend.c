@@ -599,8 +599,9 @@ static void edit_add_new_contact(EDIT *UNUSED(edit)) {
 
 static char e_friend_pubkey_str[TOX_PUBLIC_KEY_SIZE * 2];
 EDIT edit_friend_pubkey = {
+    // .length == .data_size, because .data is not \0-terminated
     .length            = sizeof e_friend_pubkey_str,
-    .maxlength         = sizeof e_friend_pubkey_str,
+    .data_size         = sizeof e_friend_pubkey_str,
     .data              = e_friend_pubkey_str,
     .readonly          = true,
     .noborder          = false,
@@ -622,7 +623,7 @@ static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
 
 static char e_friend_alias_str[128];
 EDIT edit_friend_alias = {
-    .maxlength   = sizeof e_friend_alias_str - 1,
+    .data_size   = sizeof e_friend_alias_str,
     .data        = e_friend_alias_str,
     .onenter     = edit_friend_alias_onenter,
     .onlosefocus = edit_friend_alias_onenter,
@@ -633,7 +634,7 @@ EDIT edit_friend_alias = {
 
 static char e_add_new_friend_id_data[TOX_ADDRESS_SIZE * 4];
 EDIT edit_add_new_friend_id = {
-    .maxlength = sizeof e_add_new_friend_id_data - 1,
+    .data_size = sizeof e_add_new_friend_id_data,
     .data      = e_add_new_friend_id_data,
     .onenter   = edit_add_new_contact,
 };
@@ -649,7 +650,7 @@ EDIT edit_add_new_friend_msg = {
     .multiline = 1,
     .scroll    = &e_add_new_friend_msg_scroll,
     .data      = e_add_new_friend_msg_data,
-    .maxlength = sizeof e_add_new_friend_msg_data - 1,
+    .data_size = sizeof e_add_new_friend_msg_data,
     .empty_str = {.i18nal = STR_DEFAULT_FRIEND_REQUEST_MESSAGE },
 };
 
@@ -724,7 +725,7 @@ SCROLLABLE e_chat_msg_friend_scroll = {
 static char e_chat_msg_friend_data[65535];
 EDIT edit_chat_msg_friend = {
     .data        = e_chat_msg_friend_data,
-    .maxlength   = sizeof e_chat_msg_friend_data - 1,
+    .data_size   = sizeof e_chat_msg_friend_data,
     .multiline   = true,
     .onenter     = e_chat_msg_onenter,
     .onchange    = e_chat_msg_onchange,

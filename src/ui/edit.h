@@ -24,7 +24,7 @@ struct edit {
 
     bool multiline, mouseover, noborder, readonly, select_completely, vcentered, password;
 
-    uint16_t mouseover_char, length, maxlength;
+    uint16_t mouseover_char, length;
     uint16_t width, height;
 
     uint16_t      history_cur, history_length;
@@ -32,6 +32,7 @@ struct edit {
 
     SCROLLABLE *scroll;
     char *      data;
+    size_t      data_size;
 
     MAYBE_I18NAL_STRING empty_str;
     UI_ELEMENT_STYLE    style;

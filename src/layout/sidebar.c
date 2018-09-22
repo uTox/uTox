@@ -204,7 +204,7 @@ static void e_search_onenter(EDIT *edit) {
 static char e_search_data[1024];
 EDIT edit_search = {
     .data      = e_search_data,
-    .maxlength = sizeof e_search_data - 1,
+    .data_size = sizeof e_search_data,
     .onchange  = e_search_onchange,
     .onenter   = e_search_onenter,
     .style     = AUXILIARY_STYLE,

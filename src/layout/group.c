@@ -321,7 +321,7 @@ static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int directio
 static void nick_completion_replace(EDIT *edit, char *nick, uint32_t size) {
     char *   text      = edit->data;
     uint16_t length    = edit->length;
-    uint16_t maxlength = edit->maxlength;
+    uint16_t maxlength = edit->data_size - 1;
 
     int offset;
 
@@ -516,7 +516,7 @@ SCROLLABLE e_chat_msg_group_scroll = {
 static char e_chat_msg_group_data[65535];
 EDIT edit_chat_msg_group = {
     .multiline   = true,
-    .maxlength   = sizeof e_chat_msg_group_data - 1,
+    .data_size   = sizeof e_chat_msg_group_data,
     .data        = e_chat_msg_group_data,
     .onenter     = e_group_msg_onenter,
     .ontab       = e_chat_msg_ontab,
@@ -544,7 +544,7 @@ static void e_group_topic_onenter(EDIT *edit) {
 static char e_group_topic_data[1024];
 EDIT edit_group_topic = {
     .data           = e_group_topic_data,
-    .maxlength      = sizeof e_group_topic_data - 1,
+    .data_size      = sizeof e_group_topic_data,
     .onenter        = e_group_topic_onenter,
     .onlosefocus    = e_group_topic_onenter,
     .noborder       = false,

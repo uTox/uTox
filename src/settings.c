@@ -475,11 +475,10 @@ UTOX_SAVE *config_load(void) {
     strcpy((char *)edit_proxy_ip.data, (char *)save->proxy_ip);
 
     if (save->proxy_port) {
-        edit_proxy_port.length =
-            snprintf((char *)edit_proxy_port.data, edit_proxy_port.maxlength + 1, "%u", save->proxy_port);
-        if (edit_proxy_port.length >= edit_proxy_port.maxlength + 1) {
-            edit_proxy_port.length = edit_proxy_port.maxlength;
-        }
+        snprintf((char *)edit_proxy_port.data, edit_proxy_port.data_size,
+                 "%u", save->proxy_port);
+        edit_proxy_port.length = strnlen((char *)edit_proxy_port.data,
+                                         edit_proxy_port.data_size - 1);
     }
 
     /* UX settings */
@@ -511,9 +510,10 @@ UTOX_SAVE *config_load(void) {
     settings.send_version         = save->send_version;
     settings.video_fps = save->video_fps != 0 ? save->video_fps : DEFAULT_FPS;
 
-    snprintf((char *)edit_video_fps.data, edit_video_fps.maxlength + 1,
+    snprintf((char *)edit_video_fps.data, edit_video_fps.data_size,
              "%u", settings.video_fps);
-    edit_video_fps.length = strnlen((char *)edit_video_fps.data, edit_video_fps.maxlength);
+    edit_video_fps.length = strnlen((char *)edit_video_fps.data,
+                                    edit_video_fps.data_size - 1);
 
     // TODO: Don't clobber (and start saving) commandline flags.
 
