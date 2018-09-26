@@ -259,14 +259,13 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
     } tm_prev = { .tm_mday = 1};
 
     while (fread(&header, sizeof(header), 1, file) == 1) {
-
         tm_curr = localtime(&header.time);
 
-        char buffer[128];
         if (tm_curr->tm_year > tm_prev.tm_year
             || (tm_curr->tm_year == tm_prev.tm_year && tm_curr->tm_mon > tm_prev.tm_mon)
             || (tm_curr->tm_year == tm_prev.tm_year && tm_curr->tm_mon == tm_prev.tm_mon && tm_curr->tm_mday > tm_prev.tm_mday))
         {
+            char buffer[128];
             size_t len = strftime(buffer, 128,  "Day has changed to %A %B %d %Y\n", tm_curr);
             fwrite(buffer, len, 1, dest_file);
         }
