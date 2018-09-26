@@ -499,28 +499,30 @@ bool messages_read_from_log(uint32_t friend_number) {
     }
 
     MSG_HEADER **data = utox_load_chatlog(f->id_str, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
-
-    if (data) {
-        MSG_HEADER **p = data;
-        MSG_HEADER *msg;
-        while (actual_count--) {
-            msg = *p++;
-            if (msg) {
-                time_t last = 0;
-                if (msg_add_day_notice(&f->msg, last, msg->time)) {
-                    last = msg->time;
-                }
-
-                message_add(&f->msg, msg);
-            }
+    if (!data) {
+        if (actual_count > 0) {
+            LOG_ERR("Messages", "uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
         }
-        free(data);
-        return true;
-    } else if (actual_count > 0) {
-        LOG_ERR("Messages", "uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
+        return false;
     }
 
-    return false;
+    MSG_HEADER **p = data;
+    MSG_HEADER *msg;
+    while (actual_count--) {
+        msg = *p++;
+        if (!msg) {
+            continue;
+        }
+
+        time_t last = 0;
+        if (msg_add_day_notice(&f->msg, last, msg->time)) {
+            last = msg->time;
+        }
+        message_add(&f->msg, msg);
+    }
+
+    free(data);
+    return true;
 }
 
 void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
