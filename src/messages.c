@@ -239,6 +239,7 @@ uint32_t message_add_group(MESSAGES *m, MSG_HEADER *msg) {
     return message_add(m, msg);
 }
 
+/* TODO This function and message_add_type_action() are essentially pasta. */
 uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
@@ -249,12 +250,17 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
     msg->our_msg  = auth;
     msg->msg_type = MSG_TYPE_TEXT;
 
-    msg->via.txt.msg    = calloc(1, length);
     msg->via.txt.length = length;
+    msg->via.txt.msg    = calloc(1, length);
+    if (!msg->via.txt.msg) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not allocate memory for message.");
+    }
 
     FRIEND *f = get_friend(m->id);
     if (!f) {
         LOG_DEBUG("Messages", "Could not get friend with id: %u", m->id);
+        free(msg->via.txt.msg);
+        free(msg);
         return UINT32_MAX;
     }
 
