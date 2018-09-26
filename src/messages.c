@@ -241,28 +241,27 @@ uint32_t message_add_group(MESSAGES *m, MSG_HEADER *msg) {
 
 /* TODO This function and message_add_type_action() are essentially pasta. */
 uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
+    FRIEND *f = get_friend(m->id);
+    if (!f) {
+        LOG_DEBUG("Messages", "Could not get friend with id: %u", m->id);
+        return UINT32_MAX;
+    }
+
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not allocate memory for a message.");
     }
-
-    time(&msg->time);
-    msg->our_msg  = auth;
-    msg->msg_type = MSG_TYPE_TEXT;
 
     msg->via.txt.length = length;
     msg->via.txt.msg    = calloc(1, length);
     if (!msg->via.txt.msg) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not allocate memory for message.");
     }
+    memcpy(msg->via.txt.msg, msgtxt, length);
 
-    FRIEND *f = get_friend(m->id);
-    if (!f) {
-        LOG_DEBUG("Messages", "Could not get friend with id: %u", m->id);
-        free(msg->via.txt.msg);
-        free(msg);
-        return UINT32_MAX;
-    }
+    time(&msg->time);
+    msg->our_msg  = auth;
+    msg->msg_type = MSG_TYPE_TEXT;
 
     if (auth) {
         msg->via.txt.author_length = self.name_length;
@@ -273,8 +272,6 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
     } else {
         msg->via.txt.author_length = f->name_length;
     }
-
-    memcpy(msg->via.txt.msg, msgtxt, length);
 
     if (m->data && m->number) {
         MSG_HEADER *day_msg = m->data[m->number ? m->number - 1 : 0];
@@ -293,28 +290,27 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
 }
 
 uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
+    FRIEND *f = get_friend(m->id);
+    if (!f) {
+        LOG_DEBUG("Messages", "Could not get friend with number: %u", m->id);
+        return UINT32_MAX;
+    }
+
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not get the message header.");
     }
-
-    time(&msg->time);
-    msg->our_msg  = auth;
-    msg->msg_type = MSG_TYPE_ACTION_TEXT;
 
     msg->via.action.length = length;
     msg->via.action.msg = calloc(1, length);
     if (!msg->via.action.msg) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not allocate memory for message.");
     }
+    memcpy(msg->via.action.msg, msgtxt, length);
 
-    FRIEND *f = get_friend(m->id);
-    if (!f) {
-        LOG_DEBUG("Messages", "Could not get friend with number: %u", m->id);
-        free(msg->via.action.msg);
-        free(msg);
-        return UINT32_MAX;
-    }
+    time(&msg->time);
+    msg->our_msg  = auth;
+    msg->msg_type = MSG_TYPE_ACTION_TEXT;
 
     if (auth) {
         msg->via.txt.author_length = self.name_length;
@@ -325,8 +321,6 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
     } else {
         msg->via.txt.author_length = f->name_length;
     }
-
-    memcpy(msg->via.action.msg, msgtxt, length);
 
     if (log) {
         message_log_to_disk(m, msg);
