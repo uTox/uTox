@@ -302,16 +302,17 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
     msg->our_msg  = auth;
     msg->msg_type = MSG_TYPE_ACTION_TEXT;
 
+    msg->via.action.length = length;
     msg->via.action.msg = calloc(1, length);
     if (!msg->via.action.msg) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not allocate memory for message.");
     }
 
-    msg->via.action.length = length;
-
     FRIEND *f = get_friend(m->id);
     if (!f) {
         LOG_DEBUG("Messages", "Could not get friend with number: %u", m->id);
+        free(msg->via.action.msg);
+        free(msg);
         return UINT32_MAX;
     }
 
