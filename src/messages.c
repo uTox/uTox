@@ -527,13 +527,13 @@ bool messages_read_from_log(uint32_t friend_number) {
 
     MSG_HEADER **p = data;
     MSG_HEADER *msg;
+    time_t last = 0;
     while (actual_count--) {
         msg = *p++;
         if (!msg) {
             continue;
         }
 
-        time_t last = 0;
         if (msg_add_day_notice(&f->msg, last, msg->time)) {
             last = msg->time;
         }
