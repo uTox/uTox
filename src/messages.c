@@ -210,39 +210,39 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
     ltime_day  = msg_time->tm_mday;
     msg_time   = localtime(&next);
 
-    /* TODO invert logic */
-    if (ltime_year < msg_time->tm_year
-        || (ltime_year == msg_time->tm_year && ltime_mon < msg_time->tm_mon)
-        || (ltime_year == msg_time->tm_year && ltime_mon == msg_time->tm_mon && ltime_day < msg_time->tm_mday))
+    if (ltime_year >= msg_time->tm_year
+        && (ltime_year != msg_time->tm_year || ltime_mon >= msg_time->tm_mon)
+        && (ltime_year != msg_time->tm_year || ltime_mon != msg_time->tm_mon || ltime_day >= msg_time->tm_mday))
     {
-        MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
-        if (!msg) {
-            LOG_ERR("Messages", "Couldn't allocate memory for day notice.");
-            return false;
-        }
-
-        time(&msg->time);
-        msg->our_msg       = 0;
-        msg->msg_type      = MSG_TYPE_NOTICE_DAY_CHANGE;
-
-        msg->via.notice_day.msg    = calloc(1, 256);
-        if (!msg->via.notice_day.msg) {
-            LOG_ERR("Messages", "Couldn't allocate memory for day notice.");
-            return false;
-        }
-        msg->via.notice_day.length = strftime((char *)msg->via.notice_day.msg, 256,
-                                              "Day has changed to %A %B %d %Y", msg_time);
-        if (0 == msg->via.notice_day.length) {
-            LOG_ERR("Messages", "Couldn't compose day notice message.");
-            free(msg->via.notice_day.msg);
-            free(msg);
-            return false;
-        }
-
-        message_add(m, msg);
-        return true;
+        return false;
     }
-    return false;
+
+    MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        LOG_ERR("Messages", "Couldn't allocate memory for day notice.");
+        return false;
+    }
+
+    time(&msg->time);
+    msg->our_msg       = 0;
+    msg->msg_type      = MSG_TYPE_NOTICE_DAY_CHANGE;
+
+    msg->via.notice_day.msg    = calloc(1, 256);
+    if (!msg->via.notice_day.msg) {
+        LOG_ERR("Messages", "Couldn't allocate memory for day notice.");
+        return false;
+    }
+    msg->via.notice_day.length = strftime((char *)msg->via.notice_day.msg, 256,
+            "Day has changed to %A %B %d %Y", msg_time);
+    if (0 == msg->via.notice_day.length) {
+        LOG_ERR("Messages", "Couldn't compose day notice message.");
+        free(msg->via.notice_day.msg);
+        free(msg);
+        return false;
+    }
+
+    message_add(m, msg);
+    return true;
 }
 
 /* TODO leaving this here is a little hacky, but it was the fastest way
@@ -596,56 +596,62 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
     pthread_mutex_lock(&messages_lock);
 
     uint32_t start = m->number;
-
-    /* TODO reduce nesting */
     while (start--) {
-        if (m->data[start]) {
-            MSG_HEADER *msg = m->data[start];
-            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-                if (msg->receipt == receipt_number) {
-                    msg->receipt = -1;
-                    time(&msg->receipt_time);
-
-                    LOG_FILE_MSG_HEADER header;
-                    memset(&header, 0, sizeof(header));
-
-                    header.log_version   = LOGFILE_SAVE_VERSION;
-                    header.time          = msg->time;
-                    header.author_length = msg->via.txt.author_length;
-                    header.msg_length    = msg->via.txt.length;
-                    header.author        = 1;
-                    header.receipt       = 1;
-                    header.msg_type      = msg->msg_type;
-
-                    size_t length = sizeof(header);
-                    uint8_t *data = calloc(1, length); /* TODO check retval */
-                    memcpy(data, &header, length);
-
-                    char *hex = get_friend(m->id)->id_str;
-                    if (msg->disk_offset) {
-                        LOG_TRACE("Messages", "Updating message -> disk_offset is %lu" , msg->disk_offset);
-                        utox_update_chatlog(hex, msg->disk_offset, data, length);
-                    } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
-                        /* This could get messy if receipt is 1, msg position is 0, and the offset is actually wrong,
-                         * But I couldn't come up with any other way to verify the rare case of a bad offset
-                         * start <= 1 to offset for the day change notification                                    */
-                        LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , msg->disk_offset);
-                        utox_update_chatlog(hex, msg->disk_offset, data, length);
-                    } else {
-                        LOG_ERR("Messages",
-                                "Messages:\tUnable to update this message...\n"
-                                "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
-                                msg->disk_offset, m->number, receipt_number);
-                    }
-                    free(data);
-
-                    postmessage_utox(FRIEND_MESSAGE_UPDATE, 0, 0, NULL); /* Used to redraw the screen */
-                    pthread_mutex_unlock(&messages_lock);
-                    return;
-                }
-            }
+        if (!m->data[start]) {
+            continue;
         }
+
+        MSG_HEADER *msg = m->data[start];
+        if (msg->msg_type != MSG_TYPE_TEXT &&
+            msg->msg_type != MSG_TYPE_ACTION_TEXT) {
+            continue;
+        }
+
+        if (msg->receipt != receipt_number) {
+            continue;
+        }
+
+        msg->receipt = -1;
+        time(&msg->receipt_time);
+
+        LOG_FILE_MSG_HEADER header;
+        memset(&header, 0, sizeof(header));
+
+        header.log_version   = LOGFILE_SAVE_VERSION;
+        header.time          = msg->time;
+        header.author_length = msg->via.txt.author_length;
+        header.msg_length    = msg->via.txt.length;
+        header.author        = 1;
+        header.receipt       = 1;
+        header.msg_type      = msg->msg_type;
+
+        size_t length = sizeof(header);
+        uint8_t *data = calloc(1, length); /* TODO check retval */
+        memcpy(data, &header, length);
+
+        char *hex = get_friend(m->id)->id_str;
+        if (msg->disk_offset) {
+            LOG_TRACE("Messages", "Updating message -> disk_offset is %lu" , msg->disk_offset);
+            utox_update_chatlog(hex, msg->disk_offset, data, length);
+        } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
+            /* This could get messy if receipt is 1, msg position is 0, and the offset is actually wrong,
+             * But I couldn't come up with any other way to verify the rare case of a bad offset
+             * start <= 1 to offset for the day change notification                                    */
+            LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , msg->disk_offset);
+            utox_update_chatlog(hex, msg->disk_offset, data, length);
+        } else {
+            LOG_ERR("Messages",
+                    "Messages:\tUnable to update this message...\n"
+                    "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
+                    msg->disk_offset, m->number, receipt_number);
+        }
+        free(data);
+
+        postmessage_utox(FRIEND_MESSAGE_UPDATE, 0, 0, NULL); /* Used to redraw the screen */
+        pthread_mutex_unlock(&messages_lock);
+        return;
     }
+
     LOG_ERR("Messages", "Received a receipt for a message we don't have a record of. %u" , receipt_number);
     pthread_mutex_unlock(&messages_lock);
 }
@@ -1506,57 +1512,57 @@ bool messages_dclick(PANEL *panel, bool triclick) {
         return true;
     }
 
-    /* TODO kys */
-    if (m->cursor_over_msg != UINT32_MAX) {
-        MSG_HEADER *msg = m->data[m->cursor_over_msg];
+    if (m->cursor_over_msg == UINT32_MAX) {
+        return false;
+    }
 
-        switch (msg->msg_type) {
-            case MSG_TYPE_NULL: {
-                LOG_ERR("Messages", "Invalid message type in messages_dclick.");
-                return false;
+    MSG_HEADER *msg = m->data[m->cursor_over_msg];
+    switch (msg->msg_type) {
+        case MSG_TYPE_NULL: {
+            LOG_ERR("Messages", "Invalid message type in messages_dclick.");
+            return false;
+        }
+
+        case MSG_TYPE_FILE:
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE: {
+            return false;
+        }
+
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT: {
+            m->sel_start_msg = m->sel_end_msg = m->cursor_over_msg;
+
+            uint16_t i = m->cursor_over_position;
+            while (i != 0 && msg->via.txt.msg[i - 1] != '\n'
+                   /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
+                   && (!triclick ? (msg->via.txt.msg[i - 1] != ' ') : 1)) {
+                i -= utf8_unlen(msg->via.txt.msg + i);
             }
-
-            case MSG_TYPE_FILE:
-            case MSG_TYPE_NOTICE:
-            case MSG_TYPE_NOTICE_DAY_CHANGE: {
-                return false;
+            m->sel_start_position = i;
+            i = m->cursor_over_position;
+            while (i != msg->via.txt.length && msg->via.txt.msg[i] != '\n'
+                   /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
+                   && (!triclick ? (msg->via.txt.msg[i] != ' ') : 1)) {
+                i += utf8_len(msg->via.txt.msg + i);
             }
+            m->sel_end_position = i;
 
-            case MSG_TYPE_TEXT:
-            case MSG_TYPE_ACTION_TEXT: {
-                m->sel_start_msg = m->sel_end_msg = m->cursor_over_msg;
+            uint32_t diff = m->sel_end_position - m->sel_start_position;
+            setselection(msg->via.txt.msg + m->sel_start_position, diff);
 
-                uint16_t i = m->cursor_over_position;
-                while (i != 0 && msg->via.txt.msg[i - 1] != '\n'
-                       /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
-                       && (!triclick ? (msg->via.txt.msg[i - 1] != ' ') : 1)) {
-                    i -= utf8_unlen(msg->via.txt.msg + i);
+            return true;
+        }
+
+        case MSG_TYPE_IMAGE: {
+            if (m->cursor_over_position) {
+                if (msg->via.img.zoom) {
+                    msg->via.img.zoom = 0;
+                    message_updateheight(m, msg);
                 }
-                m->sel_start_position = i;
-                i = m->cursor_over_position;
-                while (i != msg->via.txt.length && msg->via.txt.msg[i] != '\n'
-                       /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
-                       && (!triclick ? (msg->via.txt.msg[i] != ' ') : 1)) {
-                    i += utf8_len(msg->via.txt.msg + i);
-                }
-                m->sel_end_position = i;
-
-                uint32_t diff = m->sel_end_position - m->sel_start_position;
-                setselection(msg->via.txt.msg + m->sel_start_position, diff);
-
-                return true;
             }
 
-            case MSG_TYPE_IMAGE: {
-                if (m->cursor_over_position) {
-                    if (msg->via.img.zoom) {
-                        msg->via.img.zoom = 0;
-                        message_updateheight(m, msg);
-                    }
-                }
-
-                return true;
-            }
+            return true;
         }
     }
 

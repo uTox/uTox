@@ -745,31 +745,33 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
         edit_redraw();
     } else if (!edit->readonly) {
         uint8_t len = unicode_to_utf8_len(ch);
-        if (edit->length - edit_sel.length + len < edit->data_size) {
-            char *p = edit->data + edit_sel.start;
+        char *p = edit->data + edit_sel.start;
 
-            if (edit_sel.length) {
-                edit_do(edit, edit_sel.start, edit_sel.length, 1);
-            }
-
-            memmove(p + len, p + edit_sel.length, edit->length - (edit_sel.start + edit_sel.length));
-            edit->length -= edit_sel.length;
-            unicode_to_utf8(ch, edit->data + edit_sel.start);
-            edit->length += len;
-
-            edit_do(edit, edit_sel.start, len, 0);
-
-            edit_sel.start += len;
-            edit_sel.p1     = edit_sel.start;
-            edit_sel.p2     = edit_sel.p1;
-            edit_sel.length = 0;
-
-            if (edit->onchange) {
-                edit->onchange(edit);
-            }
-
-            edit_redraw();
+        if (edit->length - edit_sel.length + len >= edit->data_size) {
+            return;
         }
+
+        if (edit_sel.length) {
+            edit_do(edit, edit_sel.start, edit_sel.length, 1);
+        }
+
+        memmove(p + len, p + edit_sel.length, edit->length - (edit_sel.start + edit_sel.length));
+        edit->length -= edit_sel.length;
+        unicode_to_utf8(ch, edit->data + edit_sel.start);
+        edit->length += len;
+
+        edit_do(edit, edit_sel.start, len, 0);
+
+        edit_sel.start += len;
+        edit_sel.p1     = edit_sel.start;
+        edit_sel.p2     = edit_sel.p1;
+        edit_sel.length = 0;
+
+        if (edit->onchange) {
+            edit->onchange(edit);
+        }
+
+        edit_redraw();
     }
 }
 
