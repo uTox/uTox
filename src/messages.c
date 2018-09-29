@@ -626,7 +626,11 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
         header.msg_type      = msg->msg_type;
 
         size_t length = sizeof(header);
-        uint8_t *data = calloc(1, length); /* TODO check retval */
+        uint8_t *data = calloc(1, length);
+        if (!data) {
+            LOG_ERR("Messages", "Couldn't allocate memory for message.");
+            continue;
+        }
         memcpy(data, &header, length);
 
         char *hex = get_friend(m->id)->id_str;
@@ -652,7 +656,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
         return;
     }
 
-    LOG_ERR("Messages", "Received a receipt for a message we don't have a record of. %u" , receipt_number);
+    LOG_ERR("Messages", "Received a receipt for a message we don't have a record of. %u", receipt_number);
     pthread_mutex_unlock(&messages_lock);
 }
 
@@ -1638,11 +1642,15 @@ bool messages_mup(PANEL *panel) {
 
     if (m->selecting_text) {
         const uint32_t max_selection_size = UINT16_MAX + 1;
-        char *sel = calloc(1, max_selection_size); /* TODO check retval */
-        setselection(sel, messages_selection(panel, sel, max_selection_size, 0));
-        free(sel);
+        char *sel = calloc(1, max_selection_size);
+        if (!sel) {
+            LOG_ERR("Messages", "Couldn't allocate memory for selection.");
+        } else {
+            setselection(sel, messages_selection(panel, sel, max_selection_size, 0));
+            free(sel);
 
-        m->selecting_text = 0;
+            m->selecting_text = 0;
+        }
     }
 
     m->cursor_down_msg = UINT32_MAX;
