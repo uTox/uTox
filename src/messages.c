@@ -219,8 +219,7 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
 
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
-        LOG_ERR("Messages", "Couldn't allocate memory for day notice.");
-        return false;
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for day notice.");
     }
 
     time(&msg->time);
@@ -229,11 +228,10 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
 
     msg->via.notice_day.msg    = calloc(1, 256);
     if (!msg->via.notice_day.msg) {
-        LOG_ERR("Messages", "Couldn't allocate memory for day notice.");
-        return false;
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for day notice.");
     }
     msg->via.notice_day.length = strftime((char *)msg->via.notice_day.msg, 256,
-            "Day has changed to %A %B %d %Y", msg_time);
+                                   "Day has changed to %A %B %d %Y", msg_time);
     if (0 == msg->via.notice_day.length) {
         LOG_ERR("Messages", "Couldn't compose day notice message.");
         free(msg->via.notice_day.msg);
@@ -348,16 +346,13 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
 uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log) {
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
-        LOG_ERR("Messages", "Couldn't allocate memory for notice.");
-        return UINT32_MAX;
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for notice.");
     }
 
     msg->via.notice.length = length;
     msg->via.notice.msg = calloc(1, length);
     if (!msg->via.notice.msg) {
-        LOG_ERR("Messages", "Couldn't allocate memory for notice.");
-        free(msg);
-        return UINT32_MAX;
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for notice.");
     }
     memcpy(msg->via.notice.msg, msgtxt, length);
 
@@ -626,7 +621,10 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
         header.msg_type      = msg->msg_type;
 
         size_t length = sizeof(header);
-        uint8_t *data = calloc(1, length); /* TODO check retval */
+        uint8_t *data = calloc(1, length);
+        if (!data) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for message.");
+        }
         memcpy(data, &header, length);
 
         char *hex = get_friend(m->id)->id_str;
@@ -652,7 +650,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
         return;
     }
 
-    LOG_ERR("Messages", "Received a receipt for a message we don't have a record of. %u" , receipt_number);
+    LOG_ERR("Messages", "Received a receipt for a message we don't have a record of. %u", receipt_number);
     pthread_mutex_unlock(&messages_lock);
 }
 
@@ -1638,7 +1636,10 @@ bool messages_mup(PANEL *panel) {
 
     if (m->selecting_text) {
         const uint32_t max_selection_size = UINT16_MAX + 1;
-        char *sel = calloc(1, max_selection_size); /* TODO check retval */
+        char *sel = calloc(1, max_selection_size);
+        if (!sel) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for selection.");
+        }
         setselection(sel, messages_selection(panel, sel, max_selection_size, 0));
         free(sel);
 
