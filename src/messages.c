@@ -253,7 +253,7 @@ uint32_t message_add_group(MESSAGES *m, MSG_HEADER *msg) {
 uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
     FRIEND *f = get_friend(m->id);
     if (!f) {
-        LOG_DEBUG("Messages", "Could not get friend with id: %u", m->id);
+        LOG_ERR("Messages", "Could not get friend with id: %u", m->id);
         return UINT32_MAX;
     }
 
@@ -302,7 +302,7 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
 uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
     FRIEND *f = get_friend(m->id);
     if (!f) {
-        LOG_DEBUG("Messages", "Could not get friend with number: %u", m->id);
+        LOG_ERR("Messages", "Could not get friend with number: %u", m->id);
         return UINT32_MAX;
     }
 
