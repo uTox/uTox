@@ -4,7 +4,7 @@ The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
 [**TokTok Site**](http://toktok.github.io/) **|** [**Installing**](docs/INSTALL.md) **|** [**Changelog**](CHANGELOG.md) **|** [**Compiling**](docs/BUILD.md) **|** [**Toxcore Spec**](https://toktok.github.io/spec)
 
-You shouldn't have to choose a new client for every device: So µTox works everywhere! On every major system **Windows**, **macOS**, **Linux**, and even **Android**.
+You shouldn't have to choose a new client for every device: So µTox works everywhere! On every major system **Windows**, **macOS**, **Linux**, **Android**, **FreeBSD**, **NetBSD**, **OpenBSD**, and even **DragonFlyBSD**.
 
 ## Downloads
 - **Windows**
