@@ -266,42 +266,45 @@ static int load_toxcore_save(struct Tox_Options *options) {
     uint8_t *raw_data = utox_data_load_tox(&raw_length);
 
     /* Check if we're loading a saved profile */
-    if (raw_data && raw_length) {
-        if (tox_is_data_encrypted(raw_data)) {
-            size_t   cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
-            uint8_t *clear_data       = calloc(1, cleartext_length);
-            settings.save_encryption   = 1;
-            LOG_INFO("Toxcore", "Using encrypted data, trying password: ");
-
-            UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
-            if (decrypt_err) {
-                if (decrypt_err == UTOX_ENC_ERR_LENGTH) {
-                    LOG_WARN("Toxcore", "Password too short!\r");
-                } else if (decrypt_err == UTOX_ENC_ERR_BAD_PASS) {
-                    LOG_ERR("Toxcore", "Couldn't decrypt, wrong password?\r");
-                } else {
-                    LOG_ERR("Toxcore", "Unknown error, please file a bug report!" );
-                }
-                return -1;
-            }
-
-            if (clear_data && cleartext_length) {
-                options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
-                options->savedata_data   = clear_data;
-                options->savedata_length = cleartext_length;
-
-                return 0;
-            }
-        } else {
-            LOG_INFO("Toxcore", "Using unencrypted save file");
-            options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
-            options->savedata_data   = raw_data;
-            options->savedata_length = raw_length;
-            return 0;
-        }
+    if (!raw_data || !raw_length) {
+        // No save file at all, create new profile!
+        return -2;
     }
-    /* No save file at all, create new profile! */
-    return -2;
+
+    if (!tox_is_data_encrypted(raw_data)) {
+        LOG_INFO("Toxcore", "Using unencrypted save file");
+        options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
+        options->savedata_data   = raw_data;
+        options->savedata_length = raw_length;
+        return 0;
+    }
+
+    size_t   cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
+    uint8_t *clear_data       = calloc(1, cleartext_length);
+    settings.save_encryption   = 1;
+    LOG_INFO("Toxcore", "Using encrypted data, trying password: ");
+
+    UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
+    if (decrypt_err) {
+        if (decrypt_err == UTOX_ENC_ERR_LENGTH) {
+            LOG_WARN("Toxcore", "Password too short!\r");
+        } else if (decrypt_err == UTOX_ENC_ERR_BAD_PASS) {
+            LOG_ERR("Toxcore", "Couldn't decrypt, wrong password?\r");
+        } else {
+            LOG_ERR("Toxcore", "Unknown error, please file a bug report!" );
+        }
+        return -1;
+    }
+
+    if (!clear_data || !cleartext_length) {
+        return -1;
+    }
+
+    options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
+    options->savedata_data   = clear_data;
+    options->savedata_length = cleartext_length;
+
+    return 0;
 }
 
 static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL level, const char *file, uint32_t line,
