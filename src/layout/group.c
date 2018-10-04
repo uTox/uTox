@@ -88,8 +88,8 @@ static void draw_group_settings(int x, int y, int UNUSED(width), int UNUSED(heig
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(10), GROUP_TOPIC);
-    drawstr(x + SCALE(10), y + MAIN_TOP + SCALE(70), GROUP_NOTIFICATIONS);
+    drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 10), GROUP_TOPIC);
+    drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 60), GROUP_NOTIFICATIONS);
 }
 
 static void draw_group_create(int x, int y, int UNUSED(width), int UNUSED(height)) {
@@ -543,6 +543,13 @@ static void e_group_topic_onenter(EDIT *edit) {
 
 static char e_group_topic_data[1024];
 EDIT edit_group_topic = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      = 10,
+        .y      = 88,
+        .width  = -10,
+        .height = 24
+    },
     .data           = e_group_topic_data,
     .data_size      = sizeof e_group_topic_data,
     .onenter        = e_group_topic_onenter,

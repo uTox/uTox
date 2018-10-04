@@ -299,15 +299,12 @@ void ui_rescale(uint8_t scale) {
     CREATE_BUTTON(accept_friend, -60, -80, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     /* Friend Settings Page */
-    CREATE_BUTTON(export_chatlog, 10, 208, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(export_chatlog, 10, 205, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(friend_pubkey,          10, 88, -10, 24);
     CREATE_EDIT(friend_alias,           10, 138, -10, 24);
 
     CREATE_SWITCH(friend_autoaccept_ft, 10, 168, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-
-    /* Group Settings */
-    CREATE_EDIT(group_topic, 10, 95, -10, 24);
 
     /* Friend / Group Page  */
     CREATE_BUTTON(call_decline, -186, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);

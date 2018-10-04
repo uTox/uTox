@@ -7,6 +7,7 @@
 #include "../file_transfers.h"
 #include "../filesys.h"
 #include "../friend.h"
+#include "../groups.h"
 #include "../settings.h"
 #include "../tox.h"
 
@@ -128,23 +129,46 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
-void native_export_chatlog_init(uint32_t friend_number) {
+void native_export_chatlog_init(uint32_t chat_number, bool is_groupchat) {
     if (libgtk) {
-        ugtk_save_chatlog(friend_number);
-    } else {
-        char name[TOX_MAX_NAME_LENGTH + sizeof(".txt")];
-        FRIEND *f = get_friend(friend_number);
-        if (!f) {
-            LOG_ERR("Filesys", "Could not get friend with number: %u", friend_number);
+        CHAT *chat = calloc(1, sizeof(CHAT));
+        if (!chat) {
+            LOG_ERR("Native", "Could not allocate memory for chat.");
             return;
         }
-        snprintf((char *)name, sizeof(name), "%.*s.txt", (int)f->name_length,
-                 f->name);
 
-        FILE *file = fopen((char *)name, "wb");
-        if (file) {
-            utox_export_chatlog(get_friend(friend_number)->id_str, file);
+        chat->chat_number  = chat_number;
+        chat->is_groupchat = is_groupchat;
+
+        ugtk_save_chatlog(chat);
+        return;
+    }
+
+    FRIEND *f = NULL;
+    GROUPCHAT *g = NULL;
+
+    if (is_groupchat) {
+        g = get_group(chat_number);
+        if (!g) {
+            LOG_ERR("Filesys", "Could not get group with number: %u", chat_number);
+            return;
         }
+    } else {
+        f = get_friend(chat_number);
+        if (!f) {
+            LOG_ERR("Filesys", "Could not get friend with number: %u", chat_number);
+            return;
+        }
+    }
+
+    char name[TOX_MAX_NAME_LENGTH + sizeof(".txt")];
+    snprintf((char *)name, sizeof(name), "%.*s.txt",
+         (int)(is_groupchat ? g->name_length : f->name_length),
+         is_groupchat ? g->name : f->name);
+
+    FILE *file = fopen((char *)name, "wb");
+    if (file) {
+        utox_export_chatlog(is_groupchat ? g->id_str : f->id_str, file);
     }
 }
 

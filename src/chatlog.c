@@ -239,8 +239,8 @@ bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
     return utox_remove_file((uint8_t*)name, sizeof(name));
 }
 
-void utox_export_chatlog_init(uint32_t friend_number) {
-    native_export_chatlog_init(friend_number);
+void utox_export_chatlog_init(uint32_t chat_number, bool is_groupchat) {
+    native_export_chatlog_init(chat_number, is_groupchat);
 }
 
 void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
