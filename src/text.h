@@ -11,16 +11,17 @@
  */
 int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes);
 
-/* returns the length of the UTF8-character pointed to by `data`
+/* returns the length of the UTF8-character pointed to by `str`
  * returns 0 on invalid UTF8-character
  */
-uint8_t utf8_len(const char *data);
+uint8_t utf8_len(const char *str);
 
-/* reads a UTF8-character from `data` into `ch`
- * returns the length of the UTF8-character pointed to by `data`
+/* reads a UTF8-character from `str` into `ch`
+ * returns the length of the UTF8-character pointed to by `str`
  * returns 0 on invalid UTF8-character
  */
-uint8_t utf8_len_read(const char *data, uint32_t *ch);
+uint8_t utf8_len_read(const char *str, uint32_t *ch);
+
 /* backwards length */
 uint8_t utf8_unlen(char *data);
 

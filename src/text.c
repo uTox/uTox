@@ -36,32 +36,32 @@ int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
     return r;
 }
 
-uint8_t utf8_len(const char *data) {
+uint8_t utf8_len(const char *str) {
     uint32_t unused;
 
-    return utf8_len_read(data, &unused);
+    return utf8_len_read(str, &unused);
 }
 
-uint8_t utf8_len_read(const char *data, uint32_t *ch) {
-    char a = data[0];
+uint8_t utf8_len_read(const char *str, uint32_t *ch) {
+    char a = str[0];
 
     if (!(a & 0x80)) { /* not a multi-byte character */
-        *ch = data[0];
+        *ch = str[0];
         return 1;
     }
 
     if (!(a & 0x20)) { /* 110xxxxx */
-        *ch = ((data[0] & 0x1F) << 6) | (data[1] & 0x3F);
+        *ch = ((str[0] & 0x1F) << 6) | (str[1] & 0x3F);
         return 2;
     }
 
     if (!(a & 0x10)) { /* 1110xxxx */
-        *ch = ((data[0] & 0xF) << 12) | ((data[1] & 0x3F) << 6) | (data[2] & 0x3F);
+        *ch = ((str[0] & 0xF) << 12) | ((str[1] & 0x3F) << 6) | (str[2] & 0x3F);
         return 3;
     }
 
     if (!(a & 0x08)) { /* 11110xxx */
-        *ch = ((data[0] & 0x7) << 18) | ((data[1] & 0x3F) << 12) | ((data[2] & 0x3F) << 6) | (data[3] & 0x3F);
+        *ch = ((str[0] & 0x7) << 18) | ((str[1] & 0x3F) << 12) | ((str[2] & 0x3F) << 6) | (str[3] & 0x3F);
         return 4;
     }
 
