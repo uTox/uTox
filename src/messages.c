@@ -210,27 +210,37 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
     ltime_day  = msg_time->tm_mday;
     msg_time   = localtime(&next);
 
-    if (ltime_year < msg_time->tm_year
-        || (ltime_year == msg_time->tm_year && ltime_mon < msg_time->tm_mon)
-        || (ltime_year == msg_time->tm_year && ltime_mon == msg_time->tm_mon && ltime_day < msg_time->tm_mday))
+    if (ltime_year >= msg_time->tm_year
+        && (ltime_year != msg_time->tm_year || ltime_mon >= msg_time->tm_mon)
+        && (ltime_year != msg_time->tm_year || ltime_mon != msg_time->tm_mon || ltime_day >= msg_time->tm_mday))
     {
-        MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
-        if (!msg) {
-            LOG_ERR("Messages", "Couldn't allocate memory for day notice.");
-            return false;
-        }
-
-        time(&msg->time);
-        msg->our_msg       = 0;
-        msg->msg_type      = MSG_TYPE_NOTICE_DAY_CHANGE;
-
-        msg->via.notice_day.msg    = calloc(1, 256);
-        msg->via.notice_day.length = strftime((char *)msg->via.notice_day.msg, 256, "Day has changed to %A %B %d %Y", msg_time);
-
-        message_add(m, msg);
-        return true;
+        return false;
     }
-    return false;
+
+    MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for day notice.");
+    }
+
+    time(&msg->time);
+    msg->our_msg       = 0;
+    msg->msg_type      = MSG_TYPE_NOTICE_DAY_CHANGE;
+
+    msg->via.notice_day.msg    = calloc(1, 256);
+    if (!msg->via.notice_day.msg) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for day notice.");
+    }
+    msg->via.notice_day.length = strftime((char *)msg->via.notice_day.msg, 256,
+                                   "Day has changed to %A %B %d %Y", msg_time);
+    if (0 == msg->via.notice_day.length) {
+        LOG_ERR("Messages", "Couldn't compose day notice message.");
+        free(msg->via.notice_day.msg);
+        free(msg);
+        return false;
+    }
+
+    message_add(m, msg);
+    return true;
 }
 
 /* TODO leaving this here is a little hacky, but it was the fastest way
@@ -239,24 +249,29 @@ uint32_t message_add_group(MESSAGES *m, MSG_HEADER *msg) {
     return message_add(m, msg);
 }
 
+/* TODO This function and message_add_type_action() are essentially pasta. */
 uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
+    FRIEND *f = get_friend(m->id);
+    if (!f) {
+        LOG_ERR("Messages", "Could not get friend with id: %u", m->id);
+        return UINT32_MAX;
+    }
+
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not allocate memory for a message.");
     }
 
+    msg->via.txt.length = length;
+    msg->via.txt.msg    = calloc(1, length);
+    if (!msg->via.txt.msg) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not allocate memory for message.");
+    }
+    memcpy(msg->via.txt.msg, msgtxt, length);
+
     time(&msg->time);
     msg->our_msg  = auth;
     msg->msg_type = MSG_TYPE_TEXT;
-
-    msg->via.txt.msg    = calloc(1, length);
-    msg->via.txt.length = length;
-
-    FRIEND *f = get_friend(m->id);
-    if (!f) {
-        LOG_DEBUG("Messages", "Could not get friend with id: %u", m->id);
-        return UINT32_MAX;
-    }
 
     if (auth) {
         msg->via.txt.author_length = self.name_length;
@@ -267,8 +282,6 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
     } else {
         msg->via.txt.author_length = f->name_length;
     }
-
-    memcpy(msg->via.txt.msg, msgtxt, length);
 
     if (m->data && m->number) {
         MSG_HEADER *day_msg = m->data[m->number ? m->number - 1 : 0];
@@ -287,27 +300,27 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint1
 }
 
 uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
+    FRIEND *f = get_friend(m->id);
+    if (!f) {
+        LOG_ERR("Messages", "Could not get friend with number: %u", m->id);
+        return UINT32_MAX;
+    }
+
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not get the message header.");
     }
 
-    time(&msg->time);
-    msg->our_msg  = auth;
-    msg->msg_type = MSG_TYPE_ACTION_TEXT;
-
+    msg->via.action.length = length;
     msg->via.action.msg = calloc(1, length);
     if (!msg->via.action.msg) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not allocate memory for message.");
     }
+    memcpy(msg->via.action.msg, msgtxt, length);
 
-    msg->via.action.length = length;
-
-    FRIEND *f = get_friend(m->id);
-    if (!f) {
-        LOG_DEBUG("Messages", "Could not get friend with number: %u", m->id);
-        return UINT32_MAX;
-    }
+    time(&msg->time);
+    msg->our_msg  = auth;
+    msg->msg_type = MSG_TYPE_ACTION_TEXT;
 
     if (auth) {
         msg->via.txt.author_length = self.name_length;
@@ -318,8 +331,6 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
     } else {
         msg->via.txt.author_length = f->name_length;
     }
-
-    memcpy(msg->via.action.msg, msgtxt, length);
 
     if (log) {
         message_log_to_disk(m, msg);
@@ -335,19 +346,21 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
 uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log) {
     MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
     if (!msg) {
-        LOG_ERR("Messages", "Couldn't allocate memory for notice.");
-        return UINT32_MAX;
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for notice.");
     }
+
+    msg->via.notice.length = length;
+    msg->via.notice.msg = calloc(1, length);
+    if (!msg->via.notice.msg) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for notice.");
+    }
+    memcpy(msg->via.notice.msg, msgtxt, length);
 
     time(&msg->time);
     msg->our_msg       = 0;
     msg->msg_type      = MSG_TYPE_NOTICE;
     msg->via.txt.author_length = self.name_length;
     msg->receipt_time  = time(NULL);
-
-    msg->via.notice.length = length;
-    msg->via.notice.msg = calloc(1, length);
-    memcpy(msg->via.notice.msg, msgtxt, length);
 
     if (log) {
         message_log_to_disk(m, msg);
@@ -404,6 +417,9 @@ MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incomi
 
     msg->via.ft.name_length = name_size;
     msg->via.ft.name = calloc(1, name_size + 1);
+    if (!msg->via.ft.name) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Could not allocate memory for the file name.");
+    }
     memcpy(msg->via.ft.name, name, msg->via.ft.name_length);
 
     if (image) {
@@ -431,7 +447,6 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
     }
 
     FRIEND *f = get_friend(m->id);
-
     if (!f) {
         LOG_ERR("Messages", "Could not get friend with number: %u", m->id);
         return false;
@@ -467,7 +482,6 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
             header.msg_type      = msg->msg_type;
 
             size_t length = sizeof(header) + msg->via.txt.length + author_length + 1; /* extra \n char*/
-
             uint8_t *data = calloc(1, length);
             if (!data) {
                 LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Can't calloc for chat logging data. size:%lu", length);
@@ -499,29 +513,30 @@ bool messages_read_from_log(uint32_t friend_number) {
     }
 
     MSG_HEADER **data = utox_load_chatlog(f->id_str, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
-
-    time_t last = 0;
-
-    if (data) {
-        MSG_HEADER **p = data;
-        MSG_HEADER *msg;
-        while (actual_count--) {
-            msg = *p++;
-            if (msg) {
-                if (msg_add_day_notice(&f->msg, last, msg->time)) {
-                    last = msg->time;
-                }
-
-                message_add(&f->msg, msg);
-            }
+    if (!data) {
+        if (actual_count > 0) {
+            LOG_ERR("Messages", "uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
         }
-        free(data);
-        return true;
-    } else if (actual_count > 0) {
-        LOG_ERR("Messages", "uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
+        return false;
     }
 
-    return false;
+    MSG_HEADER **p = data;
+    MSG_HEADER *msg;
+    time_t last = 0;
+    while (actual_count--) {
+        msg = *p++;
+        if (!msg) {
+            continue;
+        }
+
+        if (msg_add_day_notice(&f->msg, last, msg->time)) {
+            last = msg->time;
+        }
+        message_add(&f->msg, msg);
+    }
+
+    free(data);
+    return true;
 }
 
 void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
@@ -576,55 +591,66 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
     pthread_mutex_lock(&messages_lock);
 
     uint32_t start = m->number;
-
     while (start--) {
-        if (m->data[start]) {
-            MSG_HEADER *msg = m->data[start];
-            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-                if (msg->receipt == receipt_number) {
-                    msg->receipt = -1;
-                    time(&msg->receipt_time);
-
-                    LOG_FILE_MSG_HEADER header;
-                    memset(&header, 0, sizeof(header));
-
-                    header.log_version   = LOGFILE_SAVE_VERSION;
-                    header.time          = msg->time;
-                    header.author_length = msg->via.txt.author_length;
-                    header.msg_length    = msg->via.txt.length;
-                    header.author        = 1;
-                    header.receipt       = 1;
-                    header.msg_type      = msg->msg_type;
-
-                    size_t length = sizeof(header);
-                    uint8_t *data = calloc(1, length);
-                    memcpy(data, &header, sizeof(header));
-
-                    char *hex = get_friend(m->id)->id_str;
-                    if (msg->disk_offset) {
-                        LOG_TRACE("Messages", "Updating message -> disk_offset is %lu" , msg->disk_offset);
-                        utox_update_chatlog(hex, msg->disk_offset, data, length);
-                    } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
-                        /* This could get messy if receipt is 1 msg position is 0 and the offset is actually wrong,
-                         * But I couldn't come up with any other way to verify the rare case of a bad offset
-                         * start <= 1 to offset for the day change notification                                    */
-                        LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , msg->disk_offset);
-                        utox_update_chatlog(hex, msg->disk_offset, data, length);
-                    } else {
-                        LOG_ERR("Messages", "Messages:\tUnable to update this message...\n"
-                                    "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
-                                    msg->disk_offset, m->number, receipt_number);
-                    }
-                    free(data);
-
-                    postmessage_utox(FRIEND_MESSAGE_UPDATE, 0, 0, NULL); /* Used to redraw the screen */
-                    pthread_mutex_unlock(&messages_lock);
-                    return;
-                }
-            }
+        if (!m->data[start]) {
+            continue;
         }
+
+        MSG_HEADER *msg = m->data[start];
+        if (msg->msg_type != MSG_TYPE_TEXT &&
+            msg->msg_type != MSG_TYPE_ACTION_TEXT) {
+            continue;
+        }
+
+        if (msg->receipt != receipt_number) {
+            continue;
+        }
+
+        msg->receipt = -1;
+        time(&msg->receipt_time);
+
+        LOG_FILE_MSG_HEADER header;
+        memset(&header, 0, sizeof(header));
+
+        header.log_version   = LOGFILE_SAVE_VERSION;
+        header.time          = msg->time;
+        header.author_length = msg->via.txt.author_length;
+        header.msg_length    = msg->via.txt.length;
+        header.author        = 1;
+        header.receipt       = 1;
+        header.msg_type      = msg->msg_type;
+
+        size_t length = sizeof(header);
+        uint8_t *data = calloc(1, length);
+        if (!data) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for message.");
+        }
+        memcpy(data, &header, length);
+
+        char *hex = get_friend(m->id)->id_str;
+        if (msg->disk_offset) {
+            LOG_TRACE("Messages", "Updating message -> disk_offset is %lu" , msg->disk_offset);
+            utox_update_chatlog(hex, msg->disk_offset, data, length);
+        } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
+            /* This could get messy if receipt is 1, msg position is 0, and the offset is actually wrong,
+             * But I couldn't come up with any other way to verify the rare case of a bad offset
+             * start <= 1 to offset for the day change notification                                    */
+            LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , msg->disk_offset);
+            utox_update_chatlog(hex, msg->disk_offset, data, length);
+        } else {
+            LOG_ERR("Messages",
+                    "Messages:\tUnable to update this message...\n"
+                    "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
+                    msg->disk_offset, m->number, receipt_number);
+        }
+        free(data);
+
+        postmessage_utox(FRIEND_MESSAGE_UPDATE, 0, 0, NULL); /* Used to redraw the screen */
+        pthread_mutex_unlock(&messages_lock);
+        return;
     }
-    LOG_ERR("Messages", "Received a receipt for a message we don't have a record of. %u" , receipt_number);
+
+    LOG_ERR("Messages", "Received a receipt for a message we don't have a record of. %u", receipt_number);
     pthread_mutex_unlock(&messages_lock);
 }
 
@@ -1484,56 +1510,57 @@ bool messages_dclick(PANEL *panel, bool triclick) {
         return true;
     }
 
-    if (m->cursor_over_msg != UINT32_MAX) {
-        MSG_HEADER *msg = m->data[m->cursor_over_msg];
+    if (m->cursor_over_msg == UINT32_MAX) {
+        return false;
+    }
 
-        switch (msg->msg_type) {
-            case MSG_TYPE_NULL: {
-                LOG_ERR("Messages", "Invalid message type in messages_dclick.");
-                return false;
+    MSG_HEADER *msg = m->data[m->cursor_over_msg];
+    switch (msg->msg_type) {
+        case MSG_TYPE_NULL: {
+            LOG_ERR("Messages", "Invalid message type in messages_dclick.");
+            return false;
+        }
+
+        case MSG_TYPE_FILE:
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE: {
+            return false;
+        }
+
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT: {
+            m->sel_start_msg = m->sel_end_msg = m->cursor_over_msg;
+
+            uint16_t i = m->cursor_over_position;
+            while (i != 0 && msg->via.txt.msg[i - 1] != '\n'
+                   /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
+                   && (!triclick ? (msg->via.txt.msg[i - 1] != ' ') : 1)) {
+                i -= utf8_unlen(msg->via.txt.msg + i);
             }
-
-            case MSG_TYPE_FILE:
-            case MSG_TYPE_NOTICE:
-            case MSG_TYPE_NOTICE_DAY_CHANGE: {
-                return false;
+            m->sel_start_position = i;
+            i = m->cursor_over_position;
+            while (i != msg->via.txt.length && msg->via.txt.msg[i] != '\n'
+                   /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
+                   && (!triclick ? (msg->via.txt.msg[i] != ' ') : 1)) {
+                i += utf8_len(msg->via.txt.msg + i);
             }
+            m->sel_end_position = i;
 
-            case MSG_TYPE_TEXT:
-            case MSG_TYPE_ACTION_TEXT: {
-                m->sel_start_msg = m->sel_end_msg = m->cursor_over_msg;
+            uint32_t diff = m->sel_end_position - m->sel_start_position;
+            setselection(msg->via.txt.msg + m->sel_start_position, diff);
 
-                uint16_t i = m->cursor_over_position;
-                while (i != 0 && msg->via.txt.msg[i - 1] != '\n'
-                       /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
-                       && (!triclick ? (msg->via.txt.msg[i - 1] != ' ') : 1)) {
-                    i -= utf8_unlen(msg->via.txt.msg + i);
+            return true;
+        }
+
+        case MSG_TYPE_IMAGE: {
+            if (m->cursor_over_position) {
+                if (msg->via.img.zoom) {
+                    msg->via.img.zoom = 0;
+                    message_updateheight(m, msg);
                 }
-                m->sel_start_position = i;
-                i = m->cursor_over_position;
-                while (i != msg->via.txt.length && msg->via.txt.msg[i] != '\n'
-                       /*  If it's a dclick, also set ' ' as boundary, else do nothing. */
-                       && (!triclick ? (msg->via.txt.msg[i] != ' ') : 1)) {
-                    i += utf8_len(msg->via.txt.msg + i);
-                }
-                m->sel_end_position = i;
-
-                uint32_t diff = m->sel_end_position - m->sel_start_position;
-                setselection(msg->via.txt.msg + m->sel_start_position, diff);
-
-                return true;
             }
 
-            case MSG_TYPE_IMAGE: {
-                if (m->cursor_over_position) {
-                    if (msg->via.img.zoom) {
-                        msg->via.img.zoom = 0;
-                        message_updateheight(m, msg);
-                    }
-                }
-
-                return true;
-            }
+            return true;
         }
     }
 
@@ -1546,6 +1573,7 @@ static void contextmenu_messages_onselect(uint8_t i) {
 
 bool messages_mright(PANEL *panel) {
     const MESSAGES *m = panel->object;
+
     if (m->cursor_over_msg == UINT32_MAX) {
         return false;
     }
@@ -1590,10 +1618,12 @@ bool messages_mup(PANEL *panel) {
     if (m->cursor_over_msg != UINT32_MAX) {
         MSG_HEADER *msg = m->data[m->cursor_over_msg];
         if (msg->msg_type == MSG_TYPE_TEXT) {
-            if (m->cursor_over_uri != UINT32_MAX && m->cursor_down_uri == m->cursor_over_uri
+            if (m->cursor_over_uri != UINT32_MAX
+                && m->cursor_down_uri == m->cursor_over_uri
                 && m->cursor_over_position >= m->cursor_over_uri
                 && m->cursor_over_position <= m->cursor_over_uri + m->urllen - 1 /* - 1 Don't open on white space */
-                && !m->selecting_text) {
+                && !m->selecting_text)
+            {
                 LOG_TRACE("Messages", "mup dURI %u, oURI %u" , m->cursor_down_uri, m->cursor_over_uri);
                 char url[m->urllen + 1];
                 memcpy(url, msg->via.txt.msg + m->cursor_over_uri, m->urllen * sizeof(char));
@@ -1607,6 +1637,9 @@ bool messages_mup(PANEL *panel) {
     if (m->selecting_text) {
         const uint32_t max_selection_size = UINT16_MAX + 1;
         char *sel = calloc(1, max_selection_size);
+        if (!sel) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for selection.");
+        }
         setselection(sel, messages_selection(panel, sel, max_selection_size, 0));
         free(sel);
 
@@ -1750,11 +1783,9 @@ void messages_updateheight(MESSAGES *m, int width) {
     setfont(FONT_TEXT);
 
     uint32_t height = 0;
-
     for (uint32_t i = 0; i < m->number; ++i) {
         height += message_setheight(m, (void *)m->data[i]);
     }
-
     m->panel.content_scroll->content_height = m->height = height;
 }
 
@@ -1805,13 +1836,12 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
 
     memset(m, 0, sizeof(*m));
 
-    m->data = calloc(20, sizeof(void *));
+    m->id    = friend_number;
+    m->extra = 20;
+    m->data  = calloc(20, sizeof(void *));
     if (!m->data) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
     }
-
-    m->extra = 20;
-    m->id    = friend_number;
 
     pthread_mutex_unlock(&messages_lock);
 }
@@ -1871,9 +1901,9 @@ void messages_clear_all(MESSAGES *m) {
     m->data   = NULL;
     m->number = 0;
     m->extra  = 0;
+    m->height = 0;
 
     m->sel_start_msg = m->sel_end_msg = m->sel_start_position = m->sel_end_position = 0;
 
-    m->height = 0;
     pthread_mutex_unlock(&messages_lock);
 }
