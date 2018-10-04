@@ -65,8 +65,7 @@ uint8_t utf8_len_read(const char *str, uint32_t *ch) {
         return 4;
     }
 
-    // unreachable
-    LOG_WARN("Text", "utf8_len_read() reached the unreachable; someone is passing invalid UTF-8 characters.");
+    LOG_WARN("Text", "utf8_len_read() came across an invalid UTF-8 character. This should probably have not happened.");
     return 0;
 }
 
@@ -85,7 +84,7 @@ size_t utf8_strnlen(const char *str, size_t maxlen) {
     size_t len, n;
 
     len = 0;
-    while (1) {
+    while (len < maxlen) {
         if ('\0' == str[len])
             break;
 
