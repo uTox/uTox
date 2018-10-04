@@ -797,7 +797,7 @@ BUTTON button_qr = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      = 10,
-        .y      = 230,
+        .y      = 175,
         .disabled = true,
     },
     .nodraw   = true,
