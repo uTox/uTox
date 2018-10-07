@@ -42,3 +42,4 @@ if(ENABLE_AUTOUPDATE)
 endif()
 
 make_test(chrono)
+make_test(unicode)
