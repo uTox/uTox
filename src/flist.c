@@ -431,6 +431,8 @@ static void page_close(ITEM *i) {
                 panel_nospam_settings.disabled = true;
 
                 button_settings.disabled = false;
+
+                reset_settings_controls();
             }
             break;
         }

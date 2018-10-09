@@ -520,6 +520,29 @@ BUTTON button_settings = {
     .tooltip_text = {.i18nal = STR_USERSETTINGS },
 };
 
+static void close_dropdowns(PANEL *p) {
+    if (!p->child) {
+        return;
+    }
+
+    PANEL* ch;
+    for (int i = 0; (ch = p->child[i]); ++i)
+    {
+        PANEL_TYPE type = (PANEL_TYPE)ch->type;
+        if (type == PANEL_DROPDOWN) {
+            dropdown_close((DROPDOWN*)&ch);
+        } else if (type == PANEL_NONE) {
+            close_dropdowns(ch);
+        }
+    }
+}
+
+void reset_settings_controls(void) {
+    update_show_nospam_button_text();
+    update_show_password_button_text();
+    close_dropdowns(&panel_settings_master);
+}
+
 static void disable_all_setting_sub(void) {
     flist_selectsettings();
     panel_settings_profile.disabled         = true;
@@ -528,8 +551,7 @@ static void disable_all_setting_sub(void) {
     panel_settings_av.disabled              = true;
     panel_settings_notifications.disabled   = true;
     panel_settings_adv.disabled             = true;
-    update_show_nospam_button_text();
-    update_show_password_button_text();
+    reset_settings_controls();
 }
 
 static void button_settings_sub_profile_on_mup(void) {
