@@ -447,7 +447,7 @@ UTOX_SAVE *config_load(void) {
     switch_idle_status.switch_on = settings.idle_status = save->idle_status;
     settings.idle_interval       = save->idle_interval < UINT16_MAX ? save->idle_interval : UINT16_MAX;
     edit_idle_interval.length    = snprintf((char *)edit_idle_interval.data,
-                                            edit_idle_interval.maxlength + 1,
+                                            edit_idle_interval.data_size,
                                             "%u", settings.idle_interval);
 
     switch_ipv6.switch_on             = save->enableipv6;

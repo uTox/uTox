@@ -1337,7 +1337,7 @@ static char edit_name_data[128],
             edit_proxy_port_data[8],
             edit_video_fps_data[3 + 1], /* range is [1-255] */
             edit_profile_password_data[65535],
-            edit_idle_interval_data[UINT16_MAX],
+            edit_idle_interval_data[5 + 1], /* range is [1-65535] */
             edit_nospam_data[(sizeof(uint32_t) * 2) + 1] = { 0 };
 
 #ifdef ENABLE_MULTIDEVICE
@@ -1502,13 +1502,13 @@ static void edit_idle_interval_onenter(EDIT *UNUSED(edit)) {
              edit_idle_interval.data, UINT16_MAX);
 
     edit_idle_interval.length = snprintf((char *)edit_idle_interval.data,
-                                         edit_idle_interval.maxlength + 1,
+                                         edit_idle_interval.data_size,
                                          "%u", settings.idle_interval);
 }
 
 EDIT edit_idle_interval = {
     .data        = edit_idle_interval_data,
-    .maxlength   = 5, // because max number is 65535
+    .data_size   = sizeof edit_idle_interval_data,
     .onlosefocus = edit_idle_interval_onenter,
     .onenter     = edit_idle_interval_onenter,
 };
