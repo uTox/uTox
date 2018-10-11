@@ -56,7 +56,7 @@ For base emoji ids support you need: [base_emoji](https://github.com/irungentoo/
 
 ### Ubuntu
 
-Tested on Ubuntu 16.04
+Tested on Ubuntu 18.04
 
 ```bash
 sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libopus-dev libvpx-dev pkg-config libfontconfig1-dev libdbus-1-dev libv4l-dev libxrender-dev libopenal-dev libxext-dev cmake
@@ -198,6 +198,7 @@ cd /cygdrive/c
 mkdir projects
 cd projects/
 git clone --recursive git://github.com/uTox/uTox.git
+cd uTox/
 mkdir libs
 cd libs/
 mkdir windows-x64
