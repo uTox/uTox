@@ -47,4 +47,3 @@ i686-w64-mingw32-ranlib $CACHE_DIR/usr/lib/libfilteraudio.a
 unset CC
 
 cp $CACHE_DIR/usr/lib/libOpenAL32.a $CACHE_DIR/usr/lib/libopenal.a || true
-# sudo curl https://cmdline.org/travis/32/shell32.a > $CACHE_DIR/usr/lib/libshell32.a

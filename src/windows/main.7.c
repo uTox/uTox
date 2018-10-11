@@ -99,6 +99,11 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     wchar_t *autoaccept_folder = NULL;
 
+#if defined(__MINGW32__) && __MINGW32_MAJOR_VERSION == 3 && __MINGW32_MINOR_VERSION == 11
+    // mingw forgot to include SHGetKnownFolderPath in this version.
+    autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH * sizeof(wchar_t));
+    utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path) * 2);
+#else
     if (settings.portable_mode) {
         autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH * sizeof(wchar_t));
         utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path) * 2);
@@ -107,15 +112,20 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
         LOG_ERR("Windows7", "Unable to get auto accept file folder!");
         return;
     }
+#endif
 
     wchar_t subpath[UTOX_FILE_NAME_LENGTH] = { 0 };
     swprintf(subpath, UTOX_FILE_NAME_LENGTH, L"%ls%ls", autoaccept_folder, L"\\Tox_Auto_Accept");
 
+#if defined(__MINGW32__) && __MINGW32_MAJOR_VERSION == 3 && __MINGW32_MINOR_VERSION == 11
+    free(autoaccept_folder);
+#else
     if (settings.portable_mode) {
         free(autoaccept_folder);
     } else {
         CoTaskMemFree(autoaccept_folder);
     }
+#endif
 
     CreateDirectoryW(subpath, NULL);
 
