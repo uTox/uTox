@@ -578,6 +578,13 @@ BUTTON button_send_screenshot = {
 };
 
 BUTTON button_accept_friend = {
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = -140,
+        .y = -80,
+        .width = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill         = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update      = button_setcolors_success,
@@ -585,6 +592,13 @@ BUTTON button_accept_friend = {
 };
 
 BUTTON button_ignore_friend = {
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = -80,
+        .y = -80,
+        .width = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill     = BM_SBUTTON,
     .button_text = {.i18nal = STR_IGNORE},
     .update     = button_setcolors_danger,
