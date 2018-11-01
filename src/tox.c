@@ -185,8 +185,11 @@ static void write_save(Tox *tox) {
     size_t clear_length     = tox_get_savedata_size(tox);
     size_t encrypted_length = clear_length + TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
 
-    uint8_t clear_data[clear_length];
-    uint8_t encrypted_data[encrypted_length];
+    uint8_t *clear_data = calloc(1, clear_length);
+    uint8_t *encrypted_data = calloc(1, encrypted_length);
+    if (!clear_data || !encrypted_data) {
+        LOG_FATAL_ERR(EXIT_FAILURE, "Toxcore", "Could not allocate memory for savedata.\n");
+    }
 
     tox_get_savedata(tox, clear_data);
 
@@ -205,6 +208,9 @@ static void write_save(Tox *tox) {
             LOG_TRACE("Toxcore", "Encrypted save data written" );
         }
     }
+
+    free(encrypted_data);
+    free(clear_data);
 }
 
 void tox_settingschanged(void) {
