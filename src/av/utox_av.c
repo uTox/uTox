@@ -35,6 +35,10 @@ void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *dat
     toxav_thread_msg = 1;
 }
 
+bool get_toxav_thread_msg() {
+    return toxav_thread_msg;
+}
+
 void utox_av_ctrl_thread(void *UNUSED(args)) {
     ToxAV *av = NULL;
 
@@ -45,31 +49,44 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
     volatile bool     audio_in   = 0;
     // volatile bool video_on  = 0;
 
-    while (1) {
+    bool flag = true;
+    while (flag) {
         if (toxav_thread_msg) {
             TOX_MSG *msg = &toxav_msg;
-            if (msg->msg == UTOXAV_KILL) {
-                break;
-            } else if (msg->msg == UTOXAV_NEW_TOX_INSTANCE) {
-                if (av) { /* toxcore restart */
-                    toxav_kill(av);
-                    postmessage_audio(UTOXAUDIO_NEW_AV_INSTANCE, 0, 0, msg->data);
-                    postmessage_video(UTOXVIDEO_NEW_AV_INSTANCE, 0, 0, msg->data);
-                } else {
-                    thread(utox_audio_thread, msg->data);
-                    thread(utox_video_thread, msg->data);
-                }
-
-                av = msg->data;
-                set_av_callbacks(av);
-            }
 
             if (!utox_audio_thread_init || !utox_video_thread_init) {
                 yieldcpu(10);
             }
 
             switch (msg->msg) {
-                case UTOXAV_INCOMING_CALL_PENDING: {
+                case UTOXAV_KILL: {
+                    flag = false;
+                    break;
+                }
+
+                case UTOXAV_NEW_TOX_INSTANCE: {
+                    if (av == NULL && msg->data == NULL) {
+                        continue;
+                    } else if (av == NULL && msg->data != NULL) {
+                        thread(utox_audio_thread, msg->data);
+                        thread(utox_video_thread, msg->data);
+                        set_av_callbacks(msg->data);
+                    } else if (av != NULL && msg->data == NULL) {
+                        toxav_kill(av);
+                        postmessage_audio(UTOXAUDIO_KILL, 0, 0, NULL);
+                        postmessage_video(UTOXVIDEO_KILL, 0, 0, NULL);
+                    } else if (av != NULL && msg->data != NULL) {
+                        toxav_kill(av);
+                        postmessage_audio(UTOXAUDIO_NEW_AV_INSTANCE, 0, 0, msg->data);
+                        postmessage_video(UTOXVIDEO_NEW_AV_INSTANCE, 0, 0, msg->data);
+                        set_av_callbacks(msg->data);
+                    }
+
+                    av = msg->data;
+                    break;
+                }
+
+			    case UTOXAV_INCOMING_CALL_PENDING: {
                     call_count++;
                     postmessage_audio(UTOXAUDIO_PLAY_RINGTONE, msg->param1, msg->param2, NULL);
                     break;

@@ -567,6 +567,10 @@ void toxcore_thread(void *UNUSED(args)) {
         write_save(tox);
         edit_setstr(&edit_profile_password, (char *)"", 0);
 
+		postmessage_utoxav(UTOXAV_NEW_TOX_INSTANCE, 0, 0, NULL);
+		while (get_toxav_thread_msg())
+			yieldcpu(1);
+		
         // Stop toxcore.
         LOG_TRACE("Toxcore", "tox thread ending");
         tox_kill(tox);

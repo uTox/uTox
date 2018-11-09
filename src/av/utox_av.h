@@ -75,4 +75,6 @@ void callback_av_group_audio(void *tox, uint32_t groupnumber, uint32_t peernumbe
 void group_av_peer_add(GROUPCHAT *g, int peernumber);
 void group_av_peer_remove(GROUPCHAT *g, int peernumber);
 
+bool get_toxav_thread_msg();
+
 #endif
