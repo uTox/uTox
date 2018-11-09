@@ -402,8 +402,13 @@ static int init_toxcore(Tox **tox) {
 
         // reset proxy options as well as GUI and settings
         topt.proxy_type = TOX_PROXY_TYPE_NONE;
-        settings.use_proxy = settings.force_proxy = 0;
-        switch_proxy.switch_on = 0;
+        settings.use_proxy = false;
+        switch_proxy.switch_on = false;
+
+        settings.force_proxy = false;
+        switch_proxy_force.switch_on      = false;
+        switch_proxy_force.panel.disabled = true;
+        switch_udp.panel.disabled         = false;
 
         *tox = tox_new(&topt, &tox_new_err);
 
