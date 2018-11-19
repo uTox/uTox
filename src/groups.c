@@ -46,7 +46,6 @@ static GROUPCHAT *group_make(uint32_t group_number) {
 
         group = tmp;
         self.groups_list_size++;
-        self.groups_list_count++;
     }
 
     memset(&group[group_number], 0, sizeof(GROUPCHAT));
@@ -91,9 +90,7 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     g->notify   = settings.group_notifications;
     g->av_group = av_group;
     pthread_mutex_unlock(&messages_lock);
-
-    flist_add_group(g);
-    flist_select_last();
+    self.groups_list_count++;
 }
 
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
@@ -315,8 +312,8 @@ void raze_groups(void) {
     group = NULL;
 }
 
-void init_groups(void) {
-    self.groups_list_size = 0;
+void init_groups(Tox *tox) {
+    self.groups_list_size = tox_conference_get_chatlist_size(tox);
 
     if (self.groups_list_size == 0) {
         return;
@@ -328,8 +325,11 @@ void init_groups(void) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not allocate memory for groupchat array with size of: %u", self.groups_list_size);
     }
 
+    uint32_t groups[self.groups_list_size];
+    tox_conference_get_chatlist(tox, groups);
+
     for (size_t i = 0; i < self.groups_list_size; i++) {
-        group_create(i, false); //TODO: figure out if groupchats are text or audio
+        group_create(groups[i], false); //TODO: figure out if groupchats are text or audio
     }
     LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
 }
