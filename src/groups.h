@@ -3,6 +3,8 @@
 
 #include "messages.h"
 
+#include <tox/tox.h>
+
 typedef unsigned int ALuint;
 typedef struct edit_change EDIT_CHANGE;
 
@@ -90,7 +92,7 @@ void raze_groups(void);
  * Initalize the groupchats array
  * This function should only be called once at startup after tox and the self struct have been setup
  */
-void init_groups(void);
+void init_groups(Tox *tox);
 
 /**/
 bool group_create(uint32_t group_number, bool av_group);
