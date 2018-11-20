@@ -1116,16 +1116,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * param2: message length
              * data: message
              */
-            GROUPCHAT *g = get_group(param1);
-            if (!g) {
-                break;
-            }
-
-            if (!g->connected) {
-                LOG_ERR("Toxcore", "Not connected to the groupchat.");
-                break;
-            }
-
             TOX_MESSAGE_TYPE type;
             type = (msg == TOX_GROUP_SEND_ACTION ? TOX_MESSAGE_TYPE_ACTION : TOX_MESSAGE_TYPE_NORMAL);
 
