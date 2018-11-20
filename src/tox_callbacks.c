@@ -294,6 +294,7 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
 void callback_group_connected(Tox *UNUSED(tox), uint32_t gid, void *UNUSED(userdata)){
     GROUPCHAT *g = get_group(gid);
     if (!g) {
+        LOG_ERR("Tox Callbacks", "Toxcore says were connected to a non-existant groupchat %u.", gid);
         return;
     }
 
