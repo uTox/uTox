@@ -291,12 +291,24 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
     LOG_TRACE("Tox Callbacks", "Group Title (%u, %u): %.*s" , gid, pid, (int)length, title);
 }
 
+void callback_group_connected(Tox *UNUSED(tox), uint32_t gid, void *UNUSED(userdata)){
+    GROUPCHAT *g = get_group(gid);
+    if (!g) {
+        return;
+    }
+
+    g->connected = true;
+
+    LOG_TRACE("Tox Callbacks", "Connected to groupchat %u.", gid);
+}
+
 void utox_set_callbacks_groups(Tox *tox) {
     tox_callback_conference_invite(tox, callback_group_invite);
     tox_callback_conference_message(tox, callback_group_message);
     tox_callback_conference_peer_name(tox, callback_group_peer_name_change);
     tox_callback_conference_title(tox, callback_group_topic);
     tox_callback_conference_peer_list_changed(tox, callback_group_peer_list_changed);
+    tox_callback_conference_connected(tox, callback_group_connected);
 }
 
 #ifdef ENABLE_MULTIDEVICE
