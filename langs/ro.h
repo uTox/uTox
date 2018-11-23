@@ -167,9 +167,6 @@ msgstr("Selectare tot")
 msgid(REMOVE)
 msgstr("Eliminare")
 
-msgid(LEAVE)
-msgstr("Plecare")
-
 msgid(ACCEPT)
 msgstr("Acceptare")
 

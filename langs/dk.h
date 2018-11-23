@@ -166,9 +166,6 @@ msgstr("Vælg alle")
 msgid(REMOVE)
 msgstr("Fjern")
 
-msgid(LEAVE)
-msgstr("Forlad")
-
 msgid(ACCEPT)
 msgstr("Accepter")
 

@@ -336,12 +336,15 @@ msgstr("Accept incoming file transfers without confirmation")
 msgid(FRIEND_EXPORT_CHATLOG)
 msgstr("Export Chatlog as plain text")
 
+msgid(FRIEND_MESSAGE_NEW)
+msgstr("uTox: new message from %.*s")
+
 
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
-msgstr("Join audio chat")
+msgid(GROUP_JOIN_AUDIO)
+msgstr("Join audio groupchat")
 
 msgid(GROUP_CREATE_WITH_AUDIO)
 msgstr("Enable Audio")
@@ -352,14 +355,35 @@ msgstr("Create a text-chat group")
 msgid(GROUP_CREATE_VOICE)
 msgstr("Create a voice-chat group")
 
-msgid(CREATEGROUPCHAT)
-msgstr("Create Groupchat")
-
-msgid(REMOVE_GROUP)
-msgstr("Remove Group")
+msgid(GROUP_CREATE)
+msgstr("Create groupchat")
 
 msgid(LEAVE_GROUP)
-msgstr("Leave Group")
+msgstr("Leave groupchat")
+
+msgid(GROUP_STATUS)
+msgstr("%u users in groupchat")
+
+msgid(GROUP_INVITE)
+msgstr("Groupchat invite")
+
+msgid(GROUP_INVITE_FRIEND)
+msgstr("%.*s invites you to the groupchat")
+
+msgid(GROUP_MESSAGE_INVITE)
+msgstr("<- invited %.*s")
+
+msgid(GROUP_MESSAGE_JOIN)
+msgstr("<- has joined")
+
+msgid(GROUP_MESSAGE_CHANGE_NAME)
+msgstr("<- has changed name from %.*s")
+
+msgid(GROUP_MESSAGE_QUIT)
+msgstr("<- has quit")
+
+msgid(GROUP_MESSAGE_NEW)
+msgstr("uTox: new message in %.*s")
 
 
 /******************************************************************************
@@ -369,7 +393,7 @@ msgid(GROUPCHAT_SETTINGS)
 msgstr("Groupchat Settings")
 
 msgid(GROUP_NOTIFICATIONS)
-msgstr("Group Notifications")
+msgstr("Groupchat Notifications")
 
 msgid(GROUP_NOTIFICATIONS_ON)
 msgstr("On")
@@ -381,7 +405,7 @@ msgid(GROUP_NOTIFICATIONS_OFF)
 msgstr("Off")
 
 msgid(GROUP_TOPIC)
-msgstr("Set Group's Topic")
+msgstr("Groupchat Topic")
 
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
@@ -656,9 +680,6 @@ msgstr("Remove")
 
 msgid(REMOVE_FRIEND)
 msgstr("Remove Friend")
-
-msgid(LEAVE)
-msgstr("Leave")
 
 msgid(CTOPIC)
 msgstr("Change Topic")

@@ -76,7 +76,7 @@ msgstr("文件傳送取消")
 msgid(TRANSFER_COMPLETE)
 msgstr("文件傳送完成")
 
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("參加語音聊天")
 
 msgid(CALL_START_AUDIO)
@@ -127,7 +127,7 @@ msgstr("切換是否過濾離線好友")
 msgid(ADD)
 msgstr("添加")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("創建一個群聊")
 
 msgid(FRIENDREQUEST)
@@ -276,12 +276,6 @@ msgstr("移除")
 
 msgid(REMOVE_FRIEND)
 msgstr("移除好友")
-
-msgid(REMOVE_GROUP)
-msgstr("移除群組")
-
-msgid(LEAVE)
-msgstr("離開")
 
 msgid(LEAVE_GROUP)
 msgstr("離開群組")

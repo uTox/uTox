@@ -184,7 +184,7 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
 }
 
 void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
-    group_add_message(g, peer_id, (uint8_t *)"<- has Quit!", 12, MSG_TYPE_NOTICE);
+    group_add_message(g, peer_id, (const uint8_t *)S(GROUP_MESSAGE_QUIT), SLEN(GROUP_MESSAGE_QUIT), MSG_TYPE_NOTICE);
 
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
 
@@ -223,15 +223,15 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
     }
 
     if (peer->name_length) {
-        char old[TOX_MAX_NAME_LENGTH];
-        char msg[TOX_MAX_NAME_LENGTH];
+        size_t msg_length;
+        size_t msg_size = peer->name_length + SLEN(GROUP_MESSAGE_CHANGE_NAME) + 1;
+        char msg[msg_size];
 
-        memcpy(old, peer->name, peer->name_length);
-        size_t size = snprintf(msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s",
-                               peer->name_length, old);
+        snprintf(msg, msg_size, S(GROUP_MESSAGE_CHANGE_NAME),
+                 peer->name_length, peer->name);
+        msg_length = strnlen(msg, msg_size - 1);
 
         GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
-
         if (!new_peer) {
             free(peer);
             LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "couldn't realloc for group peer name!");
@@ -243,7 +243,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         g->peer[peer_id] = peer;
 
         pthread_mutex_unlock(&messages_lock);
-        group_add_message(g, peer_id, (uint8_t *)msg, size, MSG_TYPE_NOTICE);
+        group_add_message(g, peer_id, (uint8_t *)msg, msg_length, MSG_TYPE_NOTICE);
         return;
     }
 
@@ -261,7 +261,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
     g->peer[peer_id] = peer;
 
     pthread_mutex_unlock(&messages_lock);
-    group_add_message(g, peer_id, (uint8_t *)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
+    group_add_message(g, peer_id, (const uint8_t *)S(GROUP_MESSAGE_JOIN), SLEN(GROUP_MESSAGE_JOIN), MSG_TYPE_NOTICE);
 }
 
 void group_reset_peerlist(GROUPCHAT *g) {
@@ -334,7 +334,6 @@ void init_groups(void) {
     LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
 }
 
-
 void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
     if (g->notify == GNOTIFY_NEVER) {
         return;
@@ -344,11 +343,14 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
         return;
     }
 
-    char title[g->name_length + 25];
+    size_t title_length;
+    size_t title_size = g->name_length + SLEN(GROUP_MESSAGE_NEW) + 1;
+    char title[title_size];
 
-    size_t title_length = snprintf(title, g->name_length + 25, "uTox new message in %.*s", g->name_length, g->name);
+    snprintf(title, title_size, S(GROUP_MESSAGE_NEW), g->name_length, g->name);
+    title_length = strnlen(title, title_size - 1);
 
-    notify(title, title_length, msg, msg_length, g, 1);
+    notify(title, title_length, msg, msg_length, g, true);
 
     if (flist_get_groupchat() != g) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);

@@ -56,10 +56,18 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
         GROUP_PEER *peer = g->peer[i];
 
         if (peer && peer->name_length) {
-            char buf[TOX_MAX_NAME_LENGTH];
-            int  text_length = snprintf((char *)buf, TOX_MAX_NAME_LENGTH, "%.*s, ", (int)peer->name_length, peer->name);
+            uint8_t text_length;
+            uint8_t text_size = peer->name_length + 2 + 1;
+            char text[text_size];
 
-            unsigned w = textwidth(buf, text_length);
+            if (i < g->peer_count - 1) {
+                snprintf(text, text_size, "%.*s, ", (int)peer->name_length, peer->name);
+            } else {
+                snprintf(text, text_size, "%.*s",   (int)peer->name_length, peer->name);
+            }
+            text_length = strnlen(text, text_size - 1);
+
+            unsigned w = textwidth(text, text_length);
             if (peer->name_color) {
                 setcolor(peer->name_color);
             } else {
@@ -76,7 +84,7 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
                 }
             }
 
-            drawtext(k, SCALE(pos_y * 2), buf, text_length);
+            drawtext(k, SCALE(pos_y * 2), text, text_length);
 
             k += w;
         }
@@ -96,7 +104,7 @@ static void draw_group_create(int x, int y, int UNUSED(width), int UNUSED(height
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 10), CREATEGROUPCHAT);
+    drawstr(x + SCALE(10), y + SCALE(MAIN_TOP + 10), GROUP_CREATE);
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(MAIN_TOP + 40), GROUP_CREATE_WITH_AUDIO);
 }
 
@@ -211,7 +219,7 @@ BUTTON button_group_audio = {
     .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_group_audio_on_mup,
     .update       = button_group_audio_update,
-    .tooltip_text = {.i18nal = STR_GROUPCHAT_JOIN_AUDIO },
+    .tooltip_text = {.i18nal = STR_GROUP_JOIN_AUDIO },
 };
 
 

@@ -73,7 +73,7 @@ msgstr("Dosiera transigo nuligita")
 msgid(TRANSFER_COMPLETE)
 msgstr("Dosiera transigo kompletigita")
 
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Aliĝi al voĉa babilejo")
 
 msgid(CALL_START_AUDIO)
@@ -124,7 +124,7 @@ msgstr("Baskuligi filtradon de eksterretaj kontaktoj.")
 msgid(ADD)
 msgstr("Aldoni")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Krei Grupbabilejo")
 
 msgid(FRIENDREQUEST)
@@ -264,12 +264,6 @@ msgstr("Forigi")
 
 msgid(REMOVE_FRIEND)
 msgstr("Forigi amikon")
-
-msgid(REMOVE_GROUP)
-msgstr("Forigi grupon")
-
-msgid(LEAVE)
-msgstr("Eliri")
 
 msgid(LEAVE_GROUP)
 msgstr("Eliri grupon")

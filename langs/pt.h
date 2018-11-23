@@ -97,7 +97,7 @@ msgstr("Mensagem")
 msgid(ADD)
 msgstr("Adicionar")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Criar Conversa de Grupo")
 
 msgid(FRIENDREQUEST)
@@ -192,9 +192,6 @@ msgstr("Selecionar Tudo")
 
 msgid(REMOVE)
 msgstr("Remover")
-
-msgid(LEAVE)
-msgstr("Sair")
 
 msgid(CTOPIC)
 msgstr("Mudar topico")

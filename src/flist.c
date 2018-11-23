@@ -4,6 +4,7 @@
 
 #include "avatar.h"
 #include "friend.h"
+#include "group_invite.h"
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
@@ -26,6 +27,7 @@
 #include "layout/background.h"
 #include "layout/friend.h"
 #include "layout/group.h"
+#include "layout/group_invite.h"
 #include "layout/settings.h"
 #include "layout/sidebar.h"
 
@@ -162,8 +164,8 @@ static void drawitem(ITEM *i, int x, int y, int width) {
 
             // draw avatar or default image
             if (friend_has_avatar(f)) {
-                draw_avatar_image(f->avatar->img, avatar_x, avatar_y, f->avatar->width, f->avatar->height,
-                                  default_w, default_w);
+                draw_avatar_image(f->avatar->img, avatar_x, avatar_y, f->avatar->width,
+                                  f->avatar->height, default_w, default_w);
             } else {
                 drawalpha(contact_bitmap, avatar_x, avatar_y, default_w, default_w,
                           (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
@@ -179,7 +181,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
         case ITEM_GROUP: {
             GROUPCHAT *g = get_group(i->id_number);
             drawalpha(group_bitmap, avatar_x, avatar_y, default_w, default_w,
-                      (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+                      selected_item == i ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
 
             bool color_overide = false;
             uint32_t color = 0;
@@ -199,7 +201,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
 
             flist_draw_name(i, name_x, name_y, width, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
 
-            flist_draw_status_icon(0, SCALE(width - 15), y + box_height / 2, g->unread_msg);
+            flist_draw_status_icon(0, width - SCALE(15), y + box_height / 2, g->unread_msg);
             break;
         }
 
@@ -222,8 +224,23 @@ static void drawitem(ITEM *i, int x, int y, int width) {
         case ITEM_GROUP_CREATE: {
             drawalpha(group_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            flist_draw_name(i, name_x, name_y, width, S(CREATEGROUPCHAT), NULL, SLEN(CREATEGROUPCHAT),
-                            0, 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            flist_draw_name(i, name_x, name_y, width, S(GROUP_CREATE), S(CURSOR_CLICK_RIGHT), SLEN(GROUP_CREATE),
+                            SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            break;
+        }
+
+        case ITEM_GROUP_INVITE: {
+            drawalpha(group_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
+                      selected_item == i ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+
+            size_t msg_length;
+            size_t msg_size = SLEN(GROUP_INVITE) + 2 + 10 + 1; // 10 == strlen(2 ^ (sizeof i->id_number * 8))
+            char msg[msg_size];
+
+            snprintf(msg, msg_size, "%s #%u", S(GROUP_INVITE), i->id_number);
+            msg_length = strnlen(msg, msg_size - 1);
+
+            flist_draw_name(i, name_x, name_y, width, msg, NULL, msg_length, 0, 0, 0);
             break;
         }
 
@@ -426,6 +443,12 @@ static void page_close(ITEM *i) {
             break;
         }
 
+        case ITEM_GROUP_INVITE: {
+            panel_chat.disabled         = true;
+            panel_group_invite.disabled = true;
+            break;
+        }
+
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
                 panel_splash_page.disabled = true;
@@ -552,6 +575,12 @@ static void page_open(ITEM *i) {
             break;
         }
 
+        case ITEM_GROUP_INVITE: {
+            panel_chat.disabled         = false;
+            panel_group_invite.disabled = false;
+            break;
+        }
+
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
                 button_settings.disabled       = 1;
@@ -665,6 +694,12 @@ void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
     }
 }
 
+void flist_add_group_request(uint8_t request_id) {
+    ITEM *i = newitem();
+    i->item = ITEM_GROUP_INVITE;
+    i->id_number = request_id;
+}
+
 void flist_add_group(GROUPCHAT *g) {
     ITEM *i = newitem();
     if (!i) {
@@ -719,6 +754,10 @@ static void deleteitem(ITEM *i) {
             break;
         }
 
+        case ITEM_GROUP_INVITE: {
+            break;
+        }
+
         case ITEM_FREQUEST: {
             friend_request_free(i->id_number);
             break;
@@ -745,12 +784,20 @@ static void deleteitem(ITEM *i) {
 void flist_delete_sitem(void) {
     if (selected_item >= item && selected_item < item + COUNTOF(item)) {
         deleteitem(selected_item);
+
+        if (itemcount > 1) {
+            flist_select_last();
+        }
     }
 }
 
 void flist_delete_rmouse_item(void) {
     if (right_mouse_item >= item && right_mouse_item < item + COUNTOF(item)) {
         deleteitem(right_mouse_item);
+
+        if (itemcount > 1) {
+            flist_select_last();
+        }
     }
 }
 
@@ -837,6 +884,7 @@ static void push_selected(void) {
         }
         case ITEM_FREQUEST:
         case ITEM_GROUP:
+        case ITEM_GROUP_INVITE:
         case ITEM_GROUP_CREATE: {
             return;
         }
@@ -872,6 +920,7 @@ static void pop_selected(void) {
 
         case ITEM_FREQUEST:
         case ITEM_GROUP:
+        case ITEM_GROUP_INVITE:
         case ITEM_GROUP_CREATE: {
             show_page(&item_settings);
             return;
@@ -895,26 +944,35 @@ void flist_reload_contacts(void) {
 }
 
 FRIEND *flist_get_friend(void) {
-    if (flist_get_type() == ITEM_FRIEND) {
-        return get_friend(selected_item->id_number);
+    if (flist_get_type() != ITEM_FRIEND) {
+        return NULL;
     }
-    return NULL;
+
+    return get_friend(selected_item->id_number);
 }
 
 FREQUEST *flist_get_frequest(void) {
-    if (flist_get_type() == ITEM_FREQUEST) {
-        return get_frequest(selected_item->id_number);
+    if (flist_get_type() != ITEM_FREQUEST) {
+        return NULL;
     }
 
-    return NULL;
+    return get_frequest(selected_item->id_number);
 }
 
 GROUPCHAT *flist_get_groupchat(void) {
-    if (flist_get_type() == ITEM_GROUP) {
-        return get_group(selected_item->id_number);
+    if (flist_get_type() != ITEM_GROUP) {
+        return NULL;
     }
 
-    return NULL;
+    return get_group(selected_item->id_number);
+}
+
+uint8_t flist_get_group_invite_id(void) {
+    if (flist_get_type() != ITEM_GROUP_INVITE) {
+        return UINT8_MAX;
+    }
+
+    return selected_item->id_number;
 }
 
 ITEM_TYPE flist_get_type(void) {
@@ -1194,11 +1252,11 @@ bool flist_mright(void *UNUSED(n)) {
             };
 
     static UTOX_I18N_STR menu_group_unmuted[] = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_MUTE,
-                                                  STR_REMOVE_GROUP };
+                                                  STR_LEAVE_GROUP };
     static UTOX_I18N_STR menu_group_muted[] = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_UNMUTE,
-                                                STR_REMOVE_GROUP };
+                                                STR_LEAVE_GROUP };
 
-    static UTOX_I18N_STR menu_group[]        = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP };
+    static UTOX_I18N_STR menu_group[]        = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_LEAVE_GROUP };
     static UTOX_I18N_STR menu_request[]      = { STR_REQ_ACCEPT, STR_REQ_DECLINE };
 
     if (mouseover_item) {
@@ -1231,6 +1289,10 @@ bool flist_mright(void *UNUSED(n)) {
 
             case ITEM_FREQUEST: {
                 contextmenu_new(COUNTOF(menu_request), menu_request, contextmenu_list_onselect);
+                break;
+            }
+
+            case ITEM_GROUP_INVITE: {
                 break;
             }
 
@@ -1276,7 +1338,17 @@ bool flist_mup(void *UNUSED(n)) {
                 if (nitem->item == ITEM_GROUP) {
                     FRIEND *f = get_friend(selected_item->id_number);
                     GROUPCHAT *g = get_group(nitem->id_number);
+
                     if (f->online) {
+                        size_t msg_length;
+                        size_t msg_size = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(GROUP_MESSAGE_INVITE) + 1;
+                        uint8_t msg[msg_size];
+
+                        snprintf((char *)msg, msg_size, S(GROUP_MESSAGE_INVITE),
+                                 UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+                        msg_length = strnlen((char *)msg, msg_size - 1);
+
+                        group_add_message(g, 0, msg, msg_length, MSG_TYPE_NOTICE);
                         postmessage_toxcore(TOX_GROUP_SEND_INVITE, g->number, f->number, NULL);
                     }
                 }

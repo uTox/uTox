@@ -165,7 +165,7 @@ msgstr("Exportera chattlog i klartext")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Gå med i audio chatt")
 
 msgid(GROUP_CREATE_TEXT)
@@ -174,11 +174,8 @@ msgstr("Skapa en text gruppchat")
 msgid(GROUP_CREATE_VOICE)
 msgstr("Skapa en gruppchat med ljud")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Skapa Gruppchat")
-
-msgid(REMOVE_GROUP)
-msgstr("Ta Bort Grupp")
 
 msgid(LEAVE_GROUP)
 msgstr("Lämna Grupp")
@@ -449,9 +446,6 @@ msgstr("Tabort")
 
 msgid(REMOVE_FRIEND)
 msgstr("Ta bort vänn")
-
-msgid(LEAVE)
-msgstr("Leave")
 
 msgid(CTOPIC)
 msgstr("Ändra tema")

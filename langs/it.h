@@ -94,7 +94,7 @@ msgstr("Messaggio")
 msgid(ADD)
 msgstr("Aggiungi")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Crea chat di gruppo")
 
 msgid(FRIENDREQUEST)
@@ -198,12 +198,6 @@ msgstr("Rimuovi")
 
 msgid(REMOVE_FRIEND)
 msgstr("Rimuovi contatto")
-
-msgid(REMOVE_GROUP)
-msgstr("Rimuovi gruppo")
-
-msgid(LEAVE)
-msgstr("Abbandona")
 
 msgid(LEAVE_GROUP)
 msgstr("Abbandona gruppo")

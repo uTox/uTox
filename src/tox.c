@@ -4,6 +4,7 @@
 #include "file_transfers.h"
 #include "flist.h"
 #include "friend.h"
+#include "group_invite.h"
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
@@ -18,9 +19,9 @@
 #include "av/utox_av.h"
 #include "av/video.h"
 
-
-#include "ui/edit.h"     // FIXME the toxcore thread shouldn't be interacting directly with the UI
-#include "ui/switch.h"   // FIXME the toxcore thread shouldn't be interacting directly with the UI
+// FIXME the toxcore thread shouldn't be interacting directly with the UI
+#include "ui/edit.h"
+#include "ui/switch.h"
 #include "ui/dropdown.h"
 
 #include "layout/background.h"
@@ -1076,9 +1077,13 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             save_needed = true;
             break;
         }
+
         case TOX_GROUP_JOIN: {
+            const uint8_t group_invite_id = param1;
+            group_invite_accept(tox, group_invite_id);
             break;
         }
+
         case TOX_GROUP_PART: {
             /* param1: group #
              */

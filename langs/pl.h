@@ -182,11 +182,14 @@ msgstr("Akceptuj pliki przychodzące bez potwierdzenia")
 msgid(FRIEND_EXPORT_CHATLOG)
 msgstr("Eksportuj historię czatu znajomego do pliku tekstowego")
 
+msgid(FRIEND_MESSAGE_NEW)
+msgstr("uTox: nowa wiadomość od %.*s")
+
 
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Dołącz do grupowej rozmowy audio")
 
 msgid(GROUP_CREATE_WITH_AUDIO)
@@ -198,14 +201,35 @@ msgstr("Utwórz grupę tekstową")
 msgid(GROUP_CREATE_VOICE)
 msgstr("Utwórz grupę z rozmową głosową")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Utwórz grupę")
-
-msgid(REMOVE_GROUP)
-msgstr("Usuń grupę")
 
 msgid(LEAVE_GROUP)
 msgstr("Opuść grupę")
+
+msgid(GROUP_STATUS)
+msgstr("%u osób w grupie")
+
+msgid(GROUP_INVITE)
+msgstr("Zaproszenie do grupy")
+
+msgid(GROUP_INVITE_FRIEND)
+msgstr("%.*s zaprasza Cię do grupy")
+
+msgid(GROUP_MESSAGE_INVITE)
+msgstr("<- zaprosił %.*s")
+
+msgid(GROUP_MESSAGE_JOIN)
+msgstr("<- dołączył do grupy")
+
+msgid(GROUP_MESSAGE_CHANGE_NAME)
+msgstr("<- zmienił nick z %.*s")
+
+msgid(GROUP_MESSAGE_QUIT)
+msgstr("<- opuścił grupę")
+
+msgid(GROUP_MESSAGE_NEW)
+msgstr("uTox: nowa wiadomość w %.*s")
 
 
 /******************************************************************************
@@ -471,9 +495,6 @@ msgstr("Usuń")
 
 msgid(REMOVE_FRIEND)
 msgstr("Usuń znajomego")
-
-msgid(LEAVE)
-msgstr("Opuść")
 
 msgid(CTOPIC)
 msgstr("Zmień temat")

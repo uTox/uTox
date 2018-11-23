@@ -338,7 +338,7 @@ msgstr("Зберегти історію чату як текст")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_JOIN_AUDIO)
 msgstr("Приєднатися до аудіо чату")
 
 msgid(GROUP_CREATE_TEXT)
@@ -347,11 +347,8 @@ msgstr("Створити текстовий чат")
 msgid(GROUP_CREATE_VOICE)
 msgstr("Створити голосовий чат")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Створити чат")
-
-msgid(REMOVE_GROUP)
-msgstr("Видалити чат")
 
 msgid(LEAVE_GROUP)
 msgstr("Вийти з чату")
@@ -651,9 +648,6 @@ msgstr("Видалити")
 
 msgid(REMOVE_FRIEND)
 msgstr("Видалити друга")
-
-msgid(LEAVE)
-msgstr("Вийти")
 
 msgid(CTOPIC)
 msgstr("Змінити тему")

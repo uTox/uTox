@@ -91,7 +91,7 @@ msgstr("Melding")
 msgid(ADD)
 msgstr("Legg til")
 
-msgid(CREATEGROUPCHAT)
+msgid(GROUP_CREATE)
 msgstr("Lag Gruppesamtale")
 
 msgid(FRIENDREQUEST)
@@ -174,9 +174,6 @@ msgstr("Velg alle")
 
 msgid(REMOVE)
 msgstr("Fjern")
-
-msgid(LEAVE)
-msgstr("Forlat")
 
 msgid(CTOPIC)
 msgstr("Endre tittel")

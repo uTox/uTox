@@ -16,6 +16,7 @@
 #include "ui/dropdown.h"
 #include "ui/edit.h"
 #include "ui/tooltip.h"
+#include "ui.h"
 
 #include "layout/friend.h"
 #include "layout/settings.h"
@@ -605,6 +606,14 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             redraw();
             break;
         }
+
+        case GROUP_INCOMING_REQUEST: {
+            const uint8_t request_id = param1;
+            flist_add_group_request(request_id);
+            redraw();
+            break;
+        }
+
         case GROUP_MESSAGE: {
             GROUPCHAT *g = get_group(param1);
             if (!g) {
@@ -615,7 +624,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             if (selected != g) {
                 g->unread_msg = true;
             }
-            redraw(); // ui_drawmain();
+            redraw();
 
             break;
         }
@@ -632,10 +641,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 g->source[param2] = g->source[g->peer_count];
             }
 
-            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
-            if (g->topic_length >= sizeof(g->topic)) {
-                g->topic_length = sizeof(g->topic) - 1;
-            }
+            size_t topic_size = sizeof(g->topic);
+            snprintf((char *)g->topic, topic_size, S(GROUP_STATUS), g->peer_count);
+            g->topic_length = strnlen(g->topic, topic_size - 1);
 
             redraw();
 
@@ -653,10 +661,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 return;
             }
 
-            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
-            if (g->topic_length >= sizeof(g->topic)) {
-                g->topic_length = sizeof(g->topic) - 1;
-            }
+            size_t topic_size = sizeof(g->topic);
+            snprintf((char *)g->topic, topic_size, S(GROUP_STATUS), g->peer_count);
+            g->topic_length = strnlen(g->topic, topic_size - 1);
 
             GROUPCHAT *selected = flist_get_groupchat();
             if (selected != g) {

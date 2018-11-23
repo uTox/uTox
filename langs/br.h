@@ -160,9 +160,6 @@ msgstr("Selecionar tudo")
 msgid(REMOVE)
 msgstr("Remover")
 
-msgid(LEAVE)
-msgstr("Sair")
-
 msgid(ACCEPT)
 msgstr("Aceitar")
 
