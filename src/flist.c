@@ -45,7 +45,8 @@ extern bool unity_running;
 static ITEM item_add, item_settings, item_transfer;
 
 // full list of friends and group chats
-static ITEM     item[1024]; /* TODO MAGIC NUMBER*/
+#define MAX_ITEMS 1024 /* TODO MAGIC NUMBER*/
+static ITEM     item[MAX_ITEMS];
 static uint32_t itemcount;
 
 static uint32_t shown_list[1024]; // list of chats actually shown in the GUI after filtering
@@ -274,7 +275,13 @@ void flist_update_shown_list(void) {
 }
 
 static ITEM *newitem(void) {
-    ITEM *i = &item[itemcount - 1];
+    unsigned int index = itemcount - 1;
+    if (index >= MAX_ITEMS) {
+        LOG_ERR("flsit", "Index out bounds. Too many items have been created.");
+        return NULL;
+    }
+
+    ITEM *i = &item[index];
     item[itemcount].item = ITEM_GROUP_CREATE;
     item[itemcount].id_number = UINT32_MAX;
     itemcount++;
@@ -617,6 +624,11 @@ void flist_start(void) {
 
 void flist_add_friend(FRIEND *f, const char *msg, const int msg_length) {
     ITEM *i = newitem();
+    if (!i) {
+        LOG_ERR("Flist", "Failed to create an item in the friend list for a friend.");
+        return;
+    }
+
     i->item = ITEM_FRIEND;
     i->id_number = f->number;
 
@@ -655,12 +667,22 @@ void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
 
 void flist_add_group(GROUPCHAT *g) {
     ITEM *i = newitem();
+    if (!i) {
+        LOG_ERR("Flist", "Failed to create an item in the friend list for a groupchat.");
+        return;
+    }
+
     i->item = ITEM_GROUP;
     i->id_number = g->number;
 }
 
 void flist_add_frequest(FREQUEST *r) {
     ITEM *i = newitem();
+    if (!i) {
+        LOG_ERR("Flist", "Failed to create an item in the friend list for a friend request.");
+        return;
+    }
+
     i->item = ITEM_FREQUEST;
     i->id_number = r->number;
 }
