@@ -98,8 +98,8 @@ void init_ptt(void) {
 #include <dev/misc/evdev/input.h>
 #endif
 
+static bool check_ptt(void) {
 #if defined(__linux__) || defined(__DragonFly__) || defined(__FreeBSD__)
-static bool linux_check_ptt(void) {
     /* First, we try for direct access to the keyboard. */
     int ptt_key = KEY_LEFTCTRL; // TODO allow user to change this...
     if (ptt_keyboard_handle) {
@@ -119,6 +119,7 @@ static bool linux_check_ptt(void) {
             return false;
         }
     }
+#endif
     /* Okay nope, lets' fallback to xinput... *pouts*
      * Fall back to Querying the X for the current keymap. */
     ptt_key       = XKeysymToKeycode(display, XK_Control_L);
@@ -139,11 +140,6 @@ static bool linux_check_ptt(void) {
                 "keyboard.\nDisable push to talk to suppress this message.\n");
     return false;
 }
-#else
-static bool bsd_check_ptt(void) {
-    return false;
-}
-#endif
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
@@ -151,11 +147,7 @@ bool check_ptt_key(void) {
         return true; /* If push to talk is disabled, return true. */
     }
 
-#if defined(__linux__) || defined(__DragonFly__) || defined(__FreeBSD__)
-    return linux_check_ptt();
-#else
-    return bsd_check_ptt();
-#endif
+    return check_ptt();
 }
 
 void exit_ptt(void) {
