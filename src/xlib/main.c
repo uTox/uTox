@@ -92,15 +92,18 @@ void init_ptt(void) {
 
 
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__DragonFly__)
 #include <linux/input.h>
-#elif defined(__DragonFly__) || defined(__FreeBSD__)
-#include <dev/misc/evdev/input.h>
+#define HAVE_EVDEV
+#elif defined(__FreeBSD__)
+#include <dev/evdev/input.h>
+#define HAVE_EVDEV
 #endif
 
-#if defined(__linux__) || defined(__DragonFly__) || defined(__FreeBSD__)
-static bool linux_check_ptt(void) {
-    /* First, we try for direct access to the keyboard. */
+static bool ppt_keyboard_handle_unknown = false;
+
+static bool ppt_keyboard_handle(void) {
+#ifdef HAVE_EVDEV
     int ptt_key = KEY_LEFTCTRL; // TODO allow user to change this...
     if (ptt_keyboard_handle) {
         /* Nice! we have direct access to the keyboard! */
@@ -116,12 +119,27 @@ static bool linux_check_ptt(void) {
             return true;
         } else {
             LOG_TRACE("XLIB", "PTT key is up" );
+            ppt_keyboard_handle_unknown = false;
             return false;
         }
     }
+#endif
+
+    ppt_keyboard_handle_unknown = true;
+    return false;
+}
+
+static bool check_ptt(void) {
+    /* First, we try for direct access to the keyboard. */
+    if (ppt_keyboard_handle()) {
+        return true;
+    } else if (!ppt_keyboard_handle_unknown) {
+        return false;
+    }
+
     /* Okay nope, lets' fallback to xinput... *pouts*
      * Fall back to Querying the X for the current keymap. */
-    ptt_key       = XKeysymToKeycode(display, XK_Control_L);
+    int ptt_key   = XKeysymToKeycode(display, XK_Control_L); // TODO allow user to change this...
     char keys[32] = { 0 };
     /* We need our own connection, so that we don't block the main display... No idea why... */
     if (ptt_display) {
@@ -139,11 +157,6 @@ static bool linux_check_ptt(void) {
                 "keyboard.\nDisable push to talk to suppress this message.\n");
     return false;
 }
-#else
-static bool bsd_check_ptt(void) {
-    return false;
-}
-#endif
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
@@ -151,11 +164,7 @@ bool check_ptt_key(void) {
         return true; /* If push to talk is disabled, return true. */
     }
 
-#if defined(__linux__) || defined(__DragonFly__) || defined(__FreeBSD__)
-    return linux_check_ptt();
-#else
-    return bsd_check_ptt();
-#endif
+    return check_ptt();
 }
 
 void exit_ptt(void) {
