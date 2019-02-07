@@ -40,6 +40,8 @@ elseif(UNIX)
         set(NETBSD TRUE)
     elseif(CMAKE_SYSTEM_NAME MATCHES "kFreeBSD.*|FreeBSD")
         set(FREEBSD TRUE)
+    elseif(CMAKE_SYSTEM_NAME MATCHES "kDragonFly.*|DragonFly")
+        set(DRAGONFLY TRUE)
     endif()
 endif()
 
@@ -308,6 +310,10 @@ elseif(APPLE)
 elseif(UNIX)
     find_package(X11 REQUIRED)
     include_directories(${X11_INCLUDE_DIR})
+
+    if(DRAGONFLY)
+        include_directories("/usr/include/compat")
+    endif()
 
     add_subdirectory(src/xlib)
 
