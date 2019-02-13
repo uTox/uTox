@@ -29,6 +29,7 @@ static void convert_qr_to_rgb(const uint8_t *qrcode, uint8_t size, uint8_t *pixe
 }
 
 
+
 void qr_setup(const char *id_str,
               uint8_t **qr_data,
               int *qr_data_size,
@@ -40,22 +41,30 @@ void qr_setup(const char *id_str,
     char *tox_uri;
 
     //+5 to allow room for 'tox:' plus terminator
-    len=strlen(id_str) + 5;
-    tox_uri=(char *) calloc(len, sizeof(char));
+    len = strlen(id_str) + 5;
+    tox_uri = (char *) calloc(len, sizeof(char));
+
+    if (tox_uri == NULL) {
+      LOG_ERR("QR", "Unable to allocate memory.");
+      exit(1);
+    }
+
     snprintf(tox_uri, len, "tox:%s", id_str);
 
     if (generate_qr(tox_uri, qrcode)) {
-    *qr_image_size = qrcodegen_getSize(qrcode);
-    uint8_t pixels[*qr_image_size * *qr_image_size * channel_number];
-    memset(pixels, 0, *qr_image_size * *qr_image_size * channel_number);
-    convert_qr_to_rgb(qrcode, *qr_image_size, pixels);
+      *qr_image_size = qrcodegen_getSize(qrcode);
+      uint8_t pixels[*qr_image_size * *qr_image_size * channel_number];
+      memset(pixels, 0, *qr_image_size * *qr_image_size * channel_number);
+      convert_qr_to_rgb(qrcode, *qr_image_size, pixels);
 
-    *qr_data = stbi_write_png_to_mem(pixels, 0, *qr_image_size, *qr_image_size, channel_number, qr_data_size);
+      *qr_data = stbi_write_png_to_mem(pixels, 0, *qr_image_size, *qr_image_size, channel_number, qr_data_size);
 
-    uint16_t native_size = *qr_image_size;
-    *qr_image = utox_image_to_native(*qr_data, *qr_data_size, &native_size, &native_size, false);
+      uint16_t native_size = *qr_image_size;
+      *qr_image = utox_image_to_native(*qr_data, *qr_data_size, &native_size, &native_size, false);
     }
-    else LOG_ERR("QR", "Unable to generate QR code from Tox URI.");
+    else {
+      LOG_ERR("QR", "Unable to generate QR code from Tox URI.");
+    }
 
     free(tox_uri);
 }
