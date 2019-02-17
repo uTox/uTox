@@ -32,10 +32,10 @@ msgid(REQ_SENT)
 msgstr("Vänskapsbegäran skickad. Din vän kommer att visas som online efter att din begäran har accepterats.")
 
 msgid(REQ_INVALID_ID)
-msgstr("Fel: Ogiltigt Tox ID")
+msgstr("Fel: Ogiltigt Tox-ID")
 
 msgid(REQ_EMPTY_ID)
-msgstr("Fel: Inget Tox ID angivet")
+msgstr("Fel: Inget Tox-ID angivet")
 
 msgid(REQ_LONG_MSG)
 msgstr("Fel: Meddelandet är för långt")
@@ -44,19 +44,19 @@ msgid(REQ_NO_MSG)
 msgstr("Fel: Tomt meddelande")
 
 msgid(REQ_SELF_ID)
-msgstr("Fel: Du har angett ditt egna Tox ID")
+msgstr("Fel: Du har angett ditt egna Tox-ID")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Fel: Tox ID är redan i din vänlista")
+msgstr("Fel: Tox-ID är redan i din vänlista")
 
 msgid(REQ_UNKNOWN)
 msgstr("Fel: Okänt")
 
 msgid(REQ_BAD_CHECKSUM)
-msgstr("Fel: Ogiltigt Tox ID (inkorrekt checksumma)")
+msgstr("Fel: Ogiltigt Tox-ID (inkorrekt checksumma)")
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Fel: Ogiltigt Tox ID (inkorrekt nospamvärde)")
+msgstr("Fel: Ogiltigt Tox-ID (inkorrekt nospamvärde)")
 
 msgid(REQ_NO_MEMORY)
 msgstr("Fel: Inget minne")
@@ -150,48 +150,48 @@ msgstr("Visa video inline")
  *** Friend & Friend Settings Strings                                       ***
  ******************************************************************************/
 msgid(FRIEND_ALIAS)
-msgstr("Sätt Vännens Alias")
+msgstr("Sätt vännens alias")
 
 msgid(FRIEND_PUBLIC_KEY)
-msgstr("Vännens Publika Nyckel")
+msgstr("Vännens publika nyckel")
 
 msgid(FRIEND_AUTOACCEPT)
 msgstr("Acceptera inkommande filöverföringar utan bekräftelse")
 
 msgid(FRIEND_EXPORT_CHATLOG)
-msgstr("Exportera chattlog i klartext")
+msgstr("Exportera chattlogg i klartext")
 
 
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
 msgid(GROUPCHAT_JOIN_AUDIO)
-msgstr("Gå med i audio chatt")
+msgstr("Gå med i ljudchatt")
 
 msgid(GROUP_CREATE_TEXT)
-msgstr("Skapa en text gruppchat")
+msgstr("Skapa en textgruppchatt")
 
 msgid(GROUP_CREATE_VOICE)
-msgstr("Skapa en gruppchat med ljud")
+msgstr("Skapa en gruppchatt med ljud")
 
 msgid(CREATEGROUPCHAT)
-msgstr("Skapa Gruppchat")
+msgstr("Skapa gruppchatt")
 
 msgid(REMOVE_GROUP)
-msgstr("Ta Bort Grupp")
+msgstr("Ta bort grupp")
 
 msgid(LEAVE_GROUP)
-msgstr("Lämna Grupp")
+msgstr("Lämna grupp")
 
 
 /******************************************************************************
  *** Group Settings                                                         ***
  ******************************************************************************/
 msgid(GROUPCHAT_SETTINGS)
-msgstr("Gruppchat Inställningar")
+msgstr("Inställningar för Gruppchatt")
 
 msgid(GROUP_NOTIFICATIONS)
-msgstr("Grupp Notifieringar")
+msgstr("Gruppnotifieringar")
 
 msgid(GROUP_NOTIFICATIONS_ON)
 msgstr("På")
@@ -203,7 +203,7 @@ msgid(GROUP_NOTIFICATIONS_OFF)
 msgstr("Av")
 
 msgid(GROUP_TOPIC)
-msgstr("Ställ Gruppens Tema")
+msgstr("Ställ in gruppens tema")
 
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
@@ -218,22 +218,22 @@ msgid(USER_INTERFACE_BUTTON)
 msgstr("Gränssnitt")
 
 msgid(AUDIO_VIDEO_BUTTON)
-msgstr("Audio & Video")
+msgstr("Ljud & video")
 
 msgid(ADVANCED_BUTTON)
-msgstr("Advancerat")
+msgstr("Avancerat")
 
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Notifieringar")
 
 msgid(AUTO_UPDATE)
-msgstr("Uppdatera µTox Automatiskt")
+msgstr("Uppdatera µTox automatiskt")
 
 msgid(PROFILE_SETTINGS)
-msgstr("Profil Inställningar")
+msgstr("Profilinställningar")
 
 msgid(PROFILE_PW_WARNING)
-msgstr("WARNING: µTox kommer automatiskt börja kryptera med detta lösenord.")
+msgstr("VARNING: µTox kommer automatiskt börja kryptera med detta lösenord.")
 
 msgid(PROFILE_PW_NO_RECOVER)
 msgstr("Det går ej att återställa ett borttappat lösenord.")
@@ -262,10 +262,10 @@ msgstr("Antal länkade apparater")
  *** FIXME:                                                                 ***
  ******************************************************************************/
 msgid(ADDFRIENDS)
-msgstr("Lägg till vänn")
+msgstr("Lägg till vän")
 
 msgid(TOXID)
-msgstr("Tox ID")
+msgstr("Tox-ID")
 
 msgid(MESSAGE)
 msgstr("Meddelande")
@@ -277,7 +277,7 @@ msgid(FILTER_ALL)
 msgstr("Alla")
 
 msgid(FILTER_CONTACT_TOGGLE)
-msgstr("Toggla filtering av offline kontakter.")
+msgstr("Växla filtrering av frånkopplade kontakter.")
 
 msgid(ADD)
 msgstr("Lägg till")
@@ -289,7 +289,7 @@ msgid(USERSETTINGS)
 msgstr("Användarinställning")
 
 msgid(FRIEND_SETTINGS)
-msgstr("Vänninställningar")
+msgstr("Väninställningar")
 
 msgid(NAME)
 msgstr("Namn")
@@ -331,7 +331,7 @@ msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Kompakt kontaktlista")
 
 msgid(SETTINGS_UI_AUTO_HIDE_SIDEBAR)
-msgstr("Autogöm sidofältet")
+msgstr("Dölj sidofältet automatiskt")
 
 msgid(NOT_CONNECTED)
 msgstr("Ej ansluten")
@@ -349,7 +349,7 @@ msgid(USER_INTERFACE)
 msgstr("Gränssnitt")
 
 msgid(UTOX_SETTINGS)
-msgstr("uToxinställningar")
+msgstr("Inställningar för uTox")
 
 msgid(NETWORK_SETTINGS)
 msgstr("Nätverksinställningar")
@@ -376,7 +376,7 @@ msgid(LOCK)
 msgstr("Lås")
 
 msgid(AUDIO_VIDEO)
-msgstr("Audio/Video")
+msgstr("Ljud/Video")
 
 msgid(DPI)
 msgstr("DPI")
@@ -433,25 +433,25 @@ msgid(COPY_WITH_NAMES)
 msgstr("Kopiera (inklusive namn)")
 
 msgid(CUT)
-msgstr("Klipp")
+msgstr("Klipp ut")
 
 msgid(PASTE)
-msgstr("Klistra")
+msgstr("Klistra in")
 
 msgid(DELETE)
-msgstr("Tabort")
+msgstr("Ta bort")
 
 msgid(SELECTALL)
 msgstr("Välj alla")
 
 msgid(REMOVE)
-msgstr("Tabort")
+msgstr("Ta bort")
 
 msgid(REMOVE_FRIEND)
-msgstr("Ta bort vänn")
+msgstr("Ta bort vän")
 
 msgid(LEAVE)
-msgstr("Leave")
+msgstr("Lämna")
 
 msgid(CTOPIC)
 msgstr("Ändra tema")
@@ -472,7 +472,7 @@ msgid(SENDMESSAGE)
 msgstr("Skicka meddelande")
 
 msgid(SENDSCREENSHOT)
-msgstr("Skicka screenshot")
+msgstr("Skicka skärmdump")
 
 msgid(CLICKTOSAVE)
 msgstr("Klicka för att spara")
@@ -574,7 +574,7 @@ msgid(DPI_HUGE)
 msgstr("Enorm (250%)")
 
 msgid(PROXY_DISABLED)
-msgstr("Deaktiverad")
+msgstr("Inaktiverad")
 
 msgid(PROXY_FALLBACK)
 msgstr("Fallback")
@@ -607,7 +607,7 @@ msgid(VIDEO_IN_DESKTOP)
 msgstr("Skrivbord")
 
 msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-msgstr("Standard Loopback")
+msgstr("Standard loopback")
 
 // msgid(AUDIO_IN_ANDROID) Not needed
 // msgstr("OpenSL Input")
@@ -682,7 +682,7 @@ msgid(STATUS_NOTIFICATIONS)
 msgstr("Statusnotifieringar")
 
 msgid(RANDOMIZE_NOSPAM)
-msgstr("Randomisera Nospam")
+msgstr("Slumpmässig Nospam")
 
 // msgid(NOSPAM) Not needed
 // msgstr("Nospam")
@@ -691,19 +691,19 @@ msgid(REVERT_NOSPAM)
 msgstr("Återställ Nospam")
 
 msgid(NOSPAM_WARNING)
-msgstr("Ändrar du ditt nospam slutar ditt gamla Tox ID att fungera. uTox uppdaterar inte ditt ID på namnservrar.")
+msgstr("Ändrar du ditt nospam slutar ditt gamla Tox-ID att fungera. uTox uppdaterar inte ditt ID på namnservrar.")
 
 msgid(BLOCK_FRIEND_REQUESTS)
 msgstr("Blockera inkommande vänskapsbegäran")
 
 msgid(SHOW_NOSPAM)
-msgstr("Visa Nospaminställningar")
+msgstr("Visa Nospam-inställningar")
 
 msgid(HIDE_NOSPAM)
-msgstr("Dölj Nospaminställningar")
+msgstr("Dölj Nospam-inställningar")
 
 msgid(DELETE_FRIEND)
-msgstr("Ta bort vänn")
+msgstr("Ta bort vän")
 
 msgid(DELETE_MESSAGE)
 msgstr("Är du säker på att du vill ta bort ")
