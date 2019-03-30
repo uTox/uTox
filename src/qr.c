@@ -28,33 +28,44 @@ static void convert_qr_to_rgb(const uint8_t *qrcode, uint8_t size, uint8_t *pixe
     }
 }
 
+
+
 void qr_setup(const char *id_str,
               uint8_t **qr_data,
               int *qr_data_size,
               NATIVE_IMAGE **qr_image,
               int *qr_image_size) {
-    const char tox_uri_scheme[] = "tox:";
     const uint8_t channel_number = 3;
-    const uint8_t tox_uri_length = TOX_ADDRESS_SIZE * 2 + sizeof(tox_uri_scheme);
-
-    char tox_uri[tox_uri_length];
-    memset(tox_uri, 0, tox_uri_length);
-    strcat(tox_uri, tox_uri_scheme);
-    strcat(tox_uri, id_str);
-
     uint8_t qrcode[qrcodegen_BUFFER_LEN_MAX] = { 0 };
-    if (!generate_qr(tox_uri, qrcode)) {
-        LOG_ERR("QR", "Unable to generate QR code from Tox URI.");
-        return;
+    int len;
+    char *tox_uri;
+
+    //+5 to allow room for 'tox:' plus terminator
+    len = strlen(id_str) + 5;
+    tox_uri = (char *) calloc(len, sizeof(char));
+
+    if (tox_uri == NULL) {
+      LOG_ERR("QR", "Unable to allocate memory.");
+      exit(1);
     }
 
-    *qr_image_size = qrcodegen_getSize(qrcode);
-    uint8_t pixels[*qr_image_size * *qr_image_size * channel_number];
-    memset(pixels, 0, *qr_image_size * *qr_image_size * channel_number);
-    convert_qr_to_rgb(qrcode, *qr_image_size, pixels);
+    snprintf(tox_uri, len, "tox:%s", id_str);
 
-    *qr_data = stbi_write_png_to_mem(pixels, 0, *qr_image_size, *qr_image_size, channel_number, qr_data_size);
+    if (generate_qr(tox_uri, qrcode)) {
+      *qr_image_size = qrcodegen_getSize(qrcode);
+      uint8_t pixels[*qr_image_size * *qr_image_size * channel_number];
+      memset(pixels, 0, *qr_image_size * *qr_image_size * channel_number);
+      convert_qr_to_rgb(qrcode, *qr_image_size, pixels);
 
-    uint16_t native_size = *qr_image_size;
-    *qr_image = utox_image_to_native(*qr_data, *qr_data_size, &native_size, &native_size, false);
+      *qr_data = stbi_write_png_to_mem(pixels, 0, *qr_image_size, *qr_image_size, channel_number, qr_data_size);
+
+      uint16_t native_size = *qr_image_size;
+      *qr_image = utox_image_to_native(*qr_data, *qr_data_size, &native_size, &native_size, false);
+    }
+    else {
+      LOG_ERR("QR", "Unable to generate QR code from Tox URI.");
+    }
+
+    free(tox_uri);
 }
+
