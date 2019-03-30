@@ -608,9 +608,24 @@ void flist_start(void) {
 
     ITEM *i = item;
     for (uint32_t num = 0; num < self.friend_list_count; ++num) {
-        FRIEND *f    = get_friend(num);
+        const FRIEND *f = get_friend(num);
+        if (!f) {
+            continue;
+        }
+
         i->item      = ITEM_FRIEND;
         i->id_number = f->number;
+        i++;
+    }
+
+    for (uint32_t num = 0; num < self.groups_list_count; num++) {
+        const GROUPCHAT *g = get_group(num);
+        if (!g) {
+            continue;
+        }
+
+        i->item = ITEM_GROUP;
+        i->id_number = g->number;
         i++;
     }
 

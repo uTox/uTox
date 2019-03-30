@@ -602,6 +602,15 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         /* Group chat functions */
         case GROUP_ADD: {
+            /* param1: group number
+               param2: whether its an av call or not */
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
+
+            flist_add_group(g);
+            flist_select_last();
             redraw();
             break;
         }
