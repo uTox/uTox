@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "stb.h"
 #include "tox.h"
+#include "friend.h"
 
 #include "native/image.h"
 
@@ -11,13 +12,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-static bool generate_qr(const char *text, uint8_t *qrcode) {
+static bool generate_qr(const char *text, uint8_t *qrcode)
+{
     uint8_t temp_buffer[qrcodegen_BUFFER_LEN_MAX];
-    return qrcodegen_encodeText(text, temp_buffer, qrcode, qrcodegen_Ecc_MEDIUM,
-        qrcodegen_VERSION_MIN, qrcodegen_VERSION_MAX, qrcodegen_Mask_AUTO, true);
+    return qrcodegen_encodeText(text, temp_buffer, qrcode, qrcodegen_Ecc_MEDIUM, qrcodegen_VERSION_MIN,
+        qrcodegen_VERSION_MAX, qrcodegen_Mask_AUTO, true);
 }
 
-static void convert_qr_to_rgb(const uint8_t *qrcode, uint8_t size, uint8_t *pixels) {
+static void convert_qr_to_rgb(const uint8_t *qrcode, uint8_t size, uint8_t *pixels)
+{
     uint16_t i = 0;
     for (uint8_t y = 0; y < size; y++) {
         for (uint8_t x = 0; x < size; x++) {
@@ -29,27 +32,20 @@ static void convert_qr_to_rgb(const uint8_t *qrcode, uint8_t size, uint8_t *pixe
 }
 
 
-
-void qr_setup(const char *id_str,
-              uint8_t **qr_data,
-              int *qr_data_size,
-              NATIVE_IMAGE **qr_image,
-              int *qr_image_size) {
+void qr_setup(const char *id_str, uint8_t **qr_data, int *qr_data_size, NATIVE_IMAGE **qr_image, int *qr_image_size)
+{
     const uint8_t channel_number = 3;
     uint8_t qrcode[qrcodegen_BUFFER_LEN_MAX] = { 0 };
-    int len;
-    char *tox_uri;
 
-    //+5 to allow room for 'tox:' plus terminator
-    len = strlen(id_str) + 5;
-    tox_uri = (char *) calloc(len, sizeof(char));
+    // +5 to allow room for 'tox:' plus terminator
+    char *tox_uri = calloc(TOX_FRIEND_ID_STR_SIZE + 5, sizeof(char));
 
     if (tox_uri == NULL) {
       LOG_ERR("QR", "Unable to allocate memory.");
       exit(1);
     }
 
-    snprintf(tox_uri, len, "tox:%s", id_str);
+    snprintf(tox_uri, TOX_FRIEND_ID_STR_SIZE + 5, "tox:%.*s", TOX_FRIEND_ID_STR_SIZE, id_str);
 
     if (generate_qr(tox_uri, qrcode)) {
       *qr_image_size = qrcodegen_getSize(qrcode);

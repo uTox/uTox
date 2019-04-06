@@ -52,9 +52,11 @@ typedef struct friend_meta_data_old {
 } FRIEND_META_DATA_OLD;
 
 
+
+#define TOX_FRIEND_ID_STR_SIZE TOX_PUBLIC_KEY_SIZE * 2
 typedef struct utox_friend {
     uint8_t id_bin[TOX_PUBLIC_KEY_SIZE];
-    char    id_str[TOX_PUBLIC_KEY_SIZE * 2];
+    char    id_str[TOX_FRIEND_ID_STR_SIZE];
     uint8_t number;
 
     char *name;
