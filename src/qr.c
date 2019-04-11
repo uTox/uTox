@@ -38,12 +38,10 @@ void qr_setup(const char *id_str, uint8_t **qr_data, int *qr_data_size, NATIVE_I
 
     // +5 to allow room for 'tox:' plus terminator
     char *tox_uri = calloc(TOX_ADDRESS_STR_SIZE + 5, sizeof(char));
-
-    if (tox_uri == NULL) {
+    if (!tox_uri) {
         LOG_ERR("QR", "Unable to allocate memory.");
-        exit(1);
+        return;
     }
-
     snprintf(tox_uri, TOX_ADDRESS_STR_SIZE + 5, "tox:%.*s", (unsigned int) TOX_ADDRESS_STR_SIZE, id_str);
 
     if (!generate_qr(tox_uri, qrcode)) {
