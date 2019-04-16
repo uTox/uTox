@@ -43,12 +43,14 @@ static void send_message(Display *dpy, /* display */
 }
 
 struct native_window tray_window = {
-    ._.x = 0,
-    ._.y = 0,
-    ._.w = 128u,
-    ._.h = 128u,
-    ._.next = NULL,
-    ._.panel = NULL,
+    ._ = {
+        .x = 0,
+        .y = 0,
+        .w = 128u,
+        .h = 128u,
+        .next = NULL,
+        .panel = NULL,
+    },
     .window = 0,
     .gc     = 0,
     .visual = NULL,
