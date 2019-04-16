@@ -35,6 +35,7 @@ bool dropdown_mright(DROPDOWN *b);
 bool dropdown_mwheel(DROPDOWN *b, int height, double d, bool smooth);
 bool dropdown_mup(DROPDOWN *b);
 bool dropdown_mleave(DROPDOWN *b);
+bool dropdown_close(DROPDOWN *b);
 
 STRING *simple_dropdown_ondisplay(uint16_t, const DROPDOWN *);
 

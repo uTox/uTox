@@ -92,4 +92,6 @@ extern EDIT /* Profile */
             /* MDevice */
             edit_add_new_device_to_self;
 
+void reset_settings_controls(void);
+
 #endif // LAYOUT_SETTINGS_H
