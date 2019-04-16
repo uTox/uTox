@@ -560,10 +560,11 @@ void theme_load(const THEME loadtheme) {
         }
     }
 
-    status_color[0] = COLOR_STATUS_ONLINE;
-    status_color[1] = COLOR_STATUS_AWAY;
-    status_color[2] = COLOR_STATUS_BUSY;
+    status_color[0] = COLOR_STATUS_BUSY;
+    status_color[1] = COLOR_STATUS_ONLINE;
+    status_color[2] = COLOR_STATUS_AWAY;
     status_color[3] = COLOR_STATUS_BUSY;
+    status_color[4] = COLOR_STATUS_BUSY;
 }
 
 uint32_t *find_colour_pointer(char *color) {

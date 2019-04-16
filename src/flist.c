@@ -108,10 +108,12 @@ static void flist_draw_name(ITEM *i, int x, int y, int width, char *name, char *
     }
 }
 
-static void flist_draw_status_icon(uint8_t status, int x, int y, bool notify) {
+static void flist_draw_status_icon(USER_STATUS status, int x, int y, bool notify) {
     y -= BM_STATUS_WIDTH / 2;
     x -= BM_STATUS_WIDTH / 2;
-    drawalpha(BM_ONLINE + status, x, y, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+
+    drawalpha(status == USER_STATUS_OFFLINE ? BM_OFFLINE : status,
+              x, y, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 
     if (notify) {
         y += BM_STATUS_WIDTH / 2;
@@ -158,7 +160,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
     switch (i->item) {
         case ITEM_FRIEND: {
             FRIEND *f = get_friend(i->id_number);
-            uint8_t status = f->online ? f->status : 3;
+            USER_STATUS status = f->online ? f->status : USER_STATUS_OFFLINE;
 
             // draw avatar or default image
             if (friend_has_avatar(f)) {

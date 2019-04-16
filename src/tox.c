@@ -169,7 +169,7 @@ void tox_after_load(Tox *tox) {
     tox_self_get_name(tox, (uint8_t *)self.name);
     self.statusmsg_length = tox_self_get_status_message_size(tox);
     tox_self_get_status_message(tox, (uint8_t *)self.statusmsg);
-    self.status = tox_self_get_status(tox);
+    self.status = user_status_to_utox(tox_self_get_status(tox));
 }
 
 static void load_defaults(Tox *tox) {

@@ -72,8 +72,8 @@ extern bool unity_running;
 #endif
 static void button_status_on_mup(void) {
     self.status++;
-    if (self.status == 3) { // TODO typedef enum
-        self.status = 0;
+    if (self.status >= USER_STATUS_INVALID) {
+        self.status = USER_STATUS_AVAILABLE;
     }
 
     #ifdef UNITY
@@ -82,7 +82,7 @@ static void button_status_on_mup(void) {
     }
     #endif
 
-    postmessage_toxcore(TOX_SELF_SET_STATE, self.status, 0, NULL);
+    postmessage_toxcore(TOX_SELF_SET_STATE, user_status_to_tox(self.status), 0, NULL);
 }
 
 static void contextmenu_avatar_onselect(uint8_t i) {

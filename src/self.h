@@ -6,11 +6,19 @@
 
 typedef struct avatar AVATAR;
 
+typedef enum {
+    USER_STATUS_OFFLINE,
+    USER_STATUS_AVAILABLE,
+    USER_STATUS_AWAY_IDLE,
+    USER_STATUS_DO_NOT_DISTURB,
+    USER_STATUS_INVALID
+} USER_STATUS;
+
 struct utox_self {
-    uint8_t status;
-    char    name[TOX_MAX_NAME_LENGTH];
-    char    statusmsg[TOX_MAX_STATUS_MESSAGE_LENGTH];
-    size_t  name_length, statusmsg_length;
+    USER_STATUS status;
+    char        name[TOX_MAX_NAME_LENGTH];
+    char        statusmsg[TOX_MAX_STATUS_MESSAGE_LENGTH];
+    size_t      name_length, statusmsg_length;
 
     size_t friend_list_count;
     size_t friend_list_size;
@@ -42,5 +50,8 @@ struct utox_self {
 } self;
 
 void init_self(Tox *tox);
+
+TOX_USER_STATUS user_status_to_tox(USER_STATUS utox_user_status);
+USER_STATUS user_status_to_utox(TOX_USER_STATUS tox_user_status);
 
 #endif

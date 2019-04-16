@@ -420,16 +420,16 @@ msgid(STATUS)
 msgstr("Статус")
 
 msgid(STATUS_ONLINE)
-msgstr("в сети")
+msgstr("В сети")
 
 msgid(STATUS_AWAY)
-msgstr("не на месте")
+msgstr("Не на месте")
 
 msgid(STATUS_BUSY)
-msgstr("занят(а)")
+msgstr("Не беспокоить")
 
 msgid(STATUS_OFFLINE)
-msgstr("не в сети")
+msgstr("Не в сети")
 
 msgid(STATUS_MESSAGE)
 msgstr("uTox %.*s теперь %s.")
