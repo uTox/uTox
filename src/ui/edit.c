@@ -747,7 +747,8 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
         uint8_t len = unicode_to_utf8_len(ch);
         char *p = edit->data + edit_sel.start;
 
-        if (edit->length - edit_sel.length + len >= edit->data_size) {
+        const size_t selection_size = edit->length - edit_sel.length + len;
+        if (selection_size >= edit->data_size) {
             return;
         }
 
