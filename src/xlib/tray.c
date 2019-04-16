@@ -54,6 +54,7 @@ struct native_window tray_window = {
     .visual = NULL,
     .drawbuf = 0,
     .renderpic = 0,
+    .colorpic = 0,
     .pictformat = NULL,
 };
 

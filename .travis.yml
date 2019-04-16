@@ -42,7 +42,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-7
+            - gcc-8
             - cmake
             - check
             - yasm
@@ -52,7 +52,7 @@ matrix:
             - libopenal-data
             - libopenal1
             - libv4l-dev
-            - libfreetype6
+            - libfreetype
             - libfreetype6-dev
             - libx11-dev
             - xorg
