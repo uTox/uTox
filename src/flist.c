@@ -1182,9 +1182,16 @@ static void contextmenu_list_onselect(uint8_t i) {
                 return;
             }
             case ITEM_FREQUEST: {
+                FREQUEST *req = get_frequest(right_mouse_item->id_number);
+                if (!req) {
+                    LOG_ERR("F-List", "Could not get friend request number: %u", right_mouse_item->id_number);
+                    return;
+                }
+
                 if (i == 0) {
-                    FREQUEST *req = get_frequest(right_mouse_item->id_number);
                     postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
+                } else {
+                    flist_delete_rmouse_item();
                 }
                 return;
             }
