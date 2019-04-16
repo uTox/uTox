@@ -19,6 +19,6 @@ void create_tray_icon(void);
 
 void destroy_tray_icon(void);
 
-bool tray_window_event(XEvent event);
+bool tray_window_event(XEvent *event);
 
 #endif

@@ -50,6 +50,8 @@ struct native_window main_window;
 struct native_window popup_window;
 struct native_window scr_grab_window;
 
+struct native_window tray_pop;
+
 void window_set_focus(UTOX_WINDOW *win);
 
 #endif

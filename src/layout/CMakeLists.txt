@@ -8,4 +8,5 @@ add_library(utoxLAYOUT STATIC
     sidebar.c
     userbadge.c
     background.c
+    tray.c
     )

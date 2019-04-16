@@ -73,7 +73,7 @@ struct {
 
 Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format);
 
-bool doevent(XEvent event);
+bool doevent(XEvent *event);
 
 void togglehide(void);
 
