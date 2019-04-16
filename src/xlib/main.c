@@ -701,10 +701,16 @@ int main(int argc, char *argv[]) {
     int8_t should_launch_at_startup;
     int8_t set_show_window;
     bool   skip_updater;
+    bool allow_root;
     parse_args(argc, argv,
                &skip_updater,
                &should_launch_at_startup,
-               &set_show_window);
+               &set_show_window,
+               &allow_root);
+
+    if (getuid() == 0 && !allow_root){
+        LOG_FATAL_ERR(EXIT_FAILURE, "XLIB MAIN", "You can't run uTox as root unless --allow-root is set.");
+    }
 
     // We need to parse_args before calling utox_init()
     utox_init();

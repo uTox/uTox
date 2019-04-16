@@ -886,7 +886,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     int8_t should_launch_at_startup, set_show_window;
     bool   skip_updater;
-    parse_args(argc, argv, &skip_updater, &should_launch_at_startup, &set_show_window);
+    parse_args(argc, argv, &skip_updater, &should_launch_at_startup, &set_show_window, NULL);
     GlobalFree(argv);
 
     char instance_id[MAX_PATH];

@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 struct thread_call {
     void *(*func)(void *);
@@ -484,6 +485,7 @@ int main(int argc, char const *argv[]) {
     int8_t should_launch_at_startup;
     int8_t set_show_window;
     bool   skip_updater;
+    bool   allow_root;
 
     utox_init();
 
@@ -493,7 +495,12 @@ int main(int argc, char const *argv[]) {
     parse_args(argc, argv,
                &skip_updater,
                &should_launch_at_startup,
-               &set_show_window);
+               &set_show_window,
+               &allow_root);
+
+    if (getuid() == 0 && !allow_root) {
+        LOG_FATAL_ERR(EXIT_FAILURE, "NATIVE", "You can't run uTox as root unless --allow-root is set.");
+    }
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         LOG_TRACE("NATIVE", "Start on boot not supported on this OS!" );
