@@ -52,7 +52,7 @@ matrix:
             - libopenal-data
             - libopenal1
             - libv4l-dev
-            - libfreetype
+            - libfreetype6
             - libfreetype6-dev
             - libx11-dev
             - xorg
