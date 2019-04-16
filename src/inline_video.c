@@ -60,7 +60,7 @@ bool inline_set_frame_self(UTOX_FRAME_PKG *frame) {
     }
 
     if (!preview_frame) {
-        preview_frame = calloc(1, sizeof *preview_frame);
+        preview_frame = calloc(1, sizeof (*preview_frame));
         if (!preview_frame) {
             LOG_FATAL_ERR(EXIT_MALLOC,"Inline Image", "Unable to calloc for our preview");
         }
@@ -83,7 +83,7 @@ bool inline_set_frame_friend(UTOX_FRAME_PKG *frame) {
     if (!current_frame) {
         current_frame = calloc(1, sizeof *current_frame);
         if (!current_frame) {
-            LOG_FATAL_ERR(EXIT_MALLOC,"Inline Image", "Unable to calloc for our preview");
+            LOG_FATAL_ERR(EXIT_MALLOC,"Inline Image", "Unable to calloc for our preview.");
         }
     }
 

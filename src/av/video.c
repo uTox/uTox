@@ -271,11 +271,18 @@ void utox_video_thread(void *args) {
                                                 utox_video_frame.w, utox_video_frame.h);
             if (r == 1) {
                 UTOX_FRAME_PKG *frame = malloc(sizeof(UTOX_FRAME_PKG));
+                if (!frame) {
+                    LOG_FATAL_ERR(EXIT_MALLOC, "av_video", "Unable to alloc for the frame.");
+                }
 
                 frame->w    = utox_video_frame.w;
                 frame->h    = utox_video_frame.h;
                 frame->size = utox_video_frame.w * utox_video_frame.h * 4;
                 frame->img  = malloc(frame->size);
+
+                if (!frame->img) {
+                    LOG_FATAL_ERR(EXIT_MALLOC, "av_video", "Unable to alloc for the frame->img.");
+                }
 
                 yuv420tobgr(utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u,
                             utox_video_frame.v, utox_video_frame.w, (utox_video_frame.w / 2),
