@@ -202,16 +202,19 @@ static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
 static void draw_settings_text_ui(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), y + SCALE(10), LANGUAGE);
-    drawstr(x + SCALE(150), y + SCALE(65),  DPI);
-    drawstr(x + SCALE(10),  y + SCALE(65),  THEME);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(120),  SAVE_CHAT_HISTORY);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(150),  CLOSE_TO_TRAY);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(180), START_IN_TRAY);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(210), AUTO_STARTUP);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(240), SETTINGS_UI_MINI_ROSTER);
+
+    drawstr(x + SCALE(10),  y + SCALE(10), LANGUAGE);
+    drawstr(x + SCALE(150), y + SCALE(65), DPI);
+    drawstr(x + SCALE(10),  y + SCALE(65), THEME);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(120), SAVE_CHAT_HISTORY);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(150), CLOSE_TO_TRAY);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(180), START_IN_TRAY);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(210), AUTO_STARTUP);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(240), SETTINGS_UI_MINI_ROSTER);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH,  y + SCALE(270), SETTINGS_IDLE_STATUS);
+    drawstr(x + SCALE(80) + BM_SWITCH_WIDTH + UTOX_STR_WIDTH(SETTINGS_IDLE_STATUS), y + SCALE(270), SETTINGS_IDLE_STATUS_END);
     #if PLATFORM_ANDROID
-        drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(270), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(300), SETTINGS_UI_AUTO_HIDE_SIDEBAR);
     #endif
 }
 
@@ -409,8 +412,10 @@ panel_settings_master = {
             (PANEL*)&switch_start_in_tray,
             (PANEL*)&switch_auto_startup,
             (PANEL*)&switch_mini_contacts,
+            (PANEL*)&switch_idle_status,
+            (PANEL*)&edit_idle_interval,
             #if PLATFORM_ANDROID
-                (PANEL*)&switch_magic_sidebar,
+            (PANEL*)&switch_magic_sidebar,
             #endif
             NULL
         }
@@ -952,6 +957,26 @@ UISWITCH switch_mini_contacts = {
     .tooltip_text   = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER },
 };
 
+static void switchfxn_idle_status(void) {
+    settings.idle_status = !settings.idle_status;
+}
+
+UISWITCH switch_idle_status = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 210,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT
+    },
+    .style_outer    = BM_SWITCH,
+    .style_toggle   = BM_SWITCH_TOGGLE,
+    .style_icon_off = BM_NO,
+    .style_icon_on  = BM_YES,
+    .update         = switch_update,
+    .on_mup         = switchfxn_idle_status,
+    .tooltip_text   = {.i18nal = STR_SETTINGS_IDLE_STATUS_TOOLTIP },
+};
 
 static void switchfxn_magic_sidebar(void) {
     settings.magic_flist_enabled = !settings.magic_flist_enabled;
@@ -1319,7 +1344,9 @@ static char edit_name_data[128],
             edit_proxy_port_data[8],
             edit_video_fps_data[3 + 1], /* range is [1-255] */
             edit_profile_password_data[65535],
+            edit_idle_interval_data[5 + 1], /* range is [1-65535] */
             edit_nospam_data[(sizeof(uint32_t) * 2) + 1] = { 0 };
+
 #ifdef ENABLE_MULTIDEVICE
 static char edit_add_self_device_data[TOX_ADDRESS_SIZE * 4];
 #endif
@@ -1465,4 +1492,30 @@ EDIT edit_add_new_device_to_self = {
     .data      = edit_add_new_device_to_self_data,
     .data_size = sizeof edit_add_new_device_to_self_data,
     .onenter   = edit_add_new_device_to_self_onenter,
+};
+
+static void edit_idle_interval_onenter(EDIT *UNUSED(edit)) {
+    edit_idle_interval.data[edit_idle_interval.length] = 0;
+
+    char *temp;
+    uint32_t value = strtol((char *)edit_idle_interval.data, &temp, 0);
+
+    if (*temp == '\0' && value <= UINT16_MAX) {
+        settings.idle_interval = value;
+        return;
+    }
+
+    LOG_WARN("Settings", "Invalid value of idle interval: %s. It must be integer below %i.",
+             edit_idle_interval.data, UINT16_MAX);
+
+    edit_idle_interval.length = snprintf((char *)edit_idle_interval.data,
+                                         edit_idle_interval.data_size,
+                                         "%u", settings.idle_interval);
+}
+
+EDIT edit_idle_interval = {
+    .data        = edit_idle_interval_data,
+    .data_size   = sizeof edit_idle_interval_data,
+    .onlosefocus = edit_idle_interval_onenter,
+    .onenter     = edit_idle_interval_onenter,
 };

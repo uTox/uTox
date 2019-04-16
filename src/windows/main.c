@@ -52,6 +52,8 @@
  */
 static const uint8_t MAX_TIP_LENGTH = 128 - 1;
 
+static bool idle = false;
+
 bool flashing = false;
 bool hidden = false;
 
@@ -866,6 +868,39 @@ static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd, const c
     return true;
 }
 
+static void CALLBACK idle_handler(HWND UNUSED(hwnd), UINT UNUSED(message), UINT UNUSED(idTimer), DWORD dwTime) {
+    if (!settings.idle_status) {
+        return;
+    }
+
+    LASTINPUTINFO last_active;
+    last_active.cbSize = sizeof(last_active);
+
+    GetLastInputInfo(&last_active);
+
+    if (dwTime - last_active.dwTime > (uint32_t)(settings.idle_interval * 1000 * 60)) {
+        if (!idle && self.status == TOX_USER_STATUS_NONE) {
+            LOG_NOTE("WinMain", "Changing status to away.");
+
+            self.status = TOX_USER_STATUS_AWAY;
+            postmessage_toxcore(TOX_SELF_SET_STATE, self.status, 0, NULL);
+            redraw();
+        }
+
+        idle = true;
+    } else {
+        if (idle && self.status == TOX_USER_STATUS_AWAY) {
+            LOG_NOTE("WinMain", "Changing status to online.");
+
+            self.status = TOX_USER_STATUS_NONE;
+            postmessage_toxcore(TOX_SELF_SET_STATE, self.status, 0, NULL);
+            redraw();
+        }
+
+        idle = false;
+    }
+}
+
 /** client main()
  *
  * Main thread
@@ -998,6 +1033,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
             settings.start_in_tray = true;
         }
     }
+
+    SetTimer(main_window.window, rand(), idle_check_period * 1000, (TIMERPROC)idle_handler);
 
     if (settings.start_in_tray) {
         ShowWindow(main_window.window, SW_HIDE);

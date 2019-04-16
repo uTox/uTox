@@ -281,6 +281,11 @@ find_package(libvpx REQUIRED)
 include_directories(${LIBVPX_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBVPX_LIBRARIES})
 
+if(UNIX AND NOT APPLE)
+    include_directories(${X11_INCLUDE_DIR})
+    set(LIBRARIES ${LIBRARIES} Xss)
+endif()
+
 include_directories(SYSTEM third-party/stb)
 include_directories(SYSTEM third-party/minini/dev)
 include_directories(SYSTEM third-party/qrcodegen/c)

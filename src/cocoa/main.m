@@ -5,6 +5,7 @@
 #include "../filesys.h"
 #include "../flist.h"
 #include "../main.h"
+#include "../self.h"
 #include "../settings.h"
 #include "../theme.h"
 #include "../tox.h"
@@ -36,6 +37,9 @@ struct thread_call {
 
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
+
+static struct utox_self *tox_self; // reference to self from self.h
+static bool idle = false;
 
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) {
     return img != NULL && img->image != nil;
@@ -315,6 +319,42 @@ void launch_at_startup(bool should) {
     id local_event_listener;
 }
 
+- (void)idle_handler {
+
+    if (!settings.idle_status) {
+        return;
+    }
+
+    // idle_time in seconds
+    double idle_time = CGEventSourceSecondsSinceLastEventType(
+                                   kCGEventSourceStateCombinedSessionState,
+                                   kCGAnyInputEventType);
+
+    LOG_TRACE("Cocoa Main", "Idle for %f seconds", idle_time);
+
+    if (idle_time > settings.idle_interval * 60) {
+        if (!idle && tox_self->status == TOX_USER_STATUS_NONE) {
+            LOG_NOTE("Cocoa Main", "Changing status to away.");
+
+            tox_self->status = TOX_USER_STATUS_AWAY;
+            postmessage_toxcore(TOX_SELF_SET_STATE, tox_self->status, 0, NULL);
+            redraw();
+        }
+
+        idle = true;
+    } else {
+        if (idle && tox_self->status == TOX_USER_STATUS_AWAY) {
+            LOG_NOTE("Cocoa Main", "Changing status to online.");
+
+            tox_self->status = TOX_USER_STATUS_NONE;
+            postmessage_toxcore(TOX_SELF_SET_STATE, tox_self->status, 0, NULL);
+            redraw();
+        }
+
+        idle = false;
+    }
+}
+
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
     [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self
                                                        andSelector:@selector(handleAppleEvent:withReplyEvent:)
@@ -389,6 +429,12 @@ void launch_at_startup(bool should) {
 
                             [self.utox_window makeFirstResponder:self.utox_window.contentView];
                             [self.utox_window makeKeyAndOrderFront:self];
+
+    [NSTimer scheduledTimerWithTimeInterval:idle_check_period // run idle_handler() approx. every idle_check_period seconds
+        target:self
+        selector:@selector(idle_handler)
+        userInfo:nil
+        repeats:YES];
 }
 
 - (NSMenu *)applicationDockMenu:(NSApplication *)sender {
@@ -483,7 +529,8 @@ void launch_at_startup(bool should) {
 int main(int argc, char const *argv[]) {
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   skip_updater;
+    bool skip_updater;
+    tox_self = &self;
 
     utox_init();
 
