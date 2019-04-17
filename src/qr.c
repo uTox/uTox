@@ -35,18 +35,12 @@ void qr_setup(const char *id_str, uint8_t **qr_data, int *qr_data_size, NATIVE_I
 {
     const uint8_t channel_number = 3;
     uint8_t qrcode[qrcodegen_BUFFER_LEN_MAX] = { 0 };
+    char tox_uri[TOX_FRIEND_ID_STR_SIZE + 4 + 1]; /* + "tox:" + \0 */
 
-    // +5 to allow room for 'tox:' plus terminator
-    char *tox_uri = calloc(TOX_FRIEND_ID_STR_SIZE + 5, sizeof(char));
-    if (!tox_uri) {
-        LOG_ERR("QR", "Unable to allocate memory.");
-        return;
-    }
-    snprintf(tox_uri, TOX_FRIEND_ID_STR_SIZE + 5, "tox:%.*s", TOX_FRIEND_ID_STR_SIZE, id_str);
+    snprintf(tox_uri, sizeof(tox_uri), "tox:%.*s", TOX_FRIEND_ID_STR_SIZE, id_str);
 
     if (!generate_qr(tox_uri, qrcode)) {
         LOG_ERR("QR", "Unable to generate QR code from Tox URI.");
-        free(tox_uri);
         return;
     }
 
@@ -59,6 +53,4 @@ void qr_setup(const char *id_str, uint8_t **qr_data, int *qr_data_size, NATIVE_I
 
     uint16_t native_size = *qr_image_size;
     *qr_image = utox_image_to_native(*qr_data, *qr_data_size, &native_size, &native_size, false);
-
-    free(tox_uri);
 }
