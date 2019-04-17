@@ -35,9 +35,9 @@ void qr_setup(const char *id_str, uint8_t **qr_data, int *qr_data_size, NATIVE_I
 {
     const uint8_t channel_number = 3;
     uint8_t qrcode[qrcodegen_BUFFER_LEN_MAX] = { 0 };
-    char tox_uri[TOX_FRIEND_ID_STR_SIZE + 4 + 1]; /* + "tox:" + \0 */
+    char tox_uri[(TOX_ADDRESS_SIZE * 2) + 4 + 1]; /* + "tox:" + \0 */
 
-    snprintf(tox_uri, sizeof(tox_uri), "tox:%.*s", TOX_FRIEND_ID_STR_SIZE, id_str);
+    snprintf(tox_uri, sizeof(tox_uri), "tox:%.*s", TOX_ADDRESS_SIZE * 2, id_str);
 
     if (!generate_qr(tox_uri, qrcode)) {
         LOG_ERR("QR", "Unable to generate QR code from Tox URI.");
