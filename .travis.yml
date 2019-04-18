@@ -21,7 +21,6 @@ addons:
       - mingw-w64-i686-dev
       - binutils-mingw-w64
       - gcc-mingw-w64
-
 cache:
   directories:
     - $HOME/cache
@@ -72,6 +71,8 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - cmake
+            - cmake-data
             - gcc
             - mingw-w64
             - gcc-mingw-w64
