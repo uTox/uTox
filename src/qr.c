@@ -3,7 +3,7 @@
 #include "debug.h"
 #include "stb.h"
 #include "tox.h"
-#include "friend.h"
+#include "self.h"
 
 #include "native/image.h"
 
@@ -38,14 +38,14 @@ void qr_setup(const char *id_str, uint8_t **qr_data, int *qr_data_size, NATIVE_I
     uint8_t qrcode[qrcodegen_BUFFER_LEN_MAX] = { 0 };
 
     // +5 to allow room for 'tox:' plus terminator
-    char *tox_uri = calloc(TOX_FRIEND_ID_STR_SIZE + 5, sizeof(char));
+    char *tox_uri = calloc(TOX_ADDRESS_STR_SIZE + 5, sizeof(char));
 
     if (tox_uri == NULL) {
       LOG_ERR("QR", "Unable to allocate memory.");
       exit(1);
     }
 
-    snprintf(tox_uri, TOX_FRIEND_ID_STR_SIZE + 5, "tox:%.*s", TOX_FRIEND_ID_STR_SIZE, id_str);
+    snprintf(tox_uri, TOX_ADDRESS_STR_SIZE + 5, "tox:%.*s", (unsigned int) TOX_ADDRESS_STR_SIZE, id_str);
 
     if (generate_qr(tox_uri, qrcode)) {
       *qr_image_size = qrcodegen_getSize(qrcode);

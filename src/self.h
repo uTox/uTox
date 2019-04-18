@@ -6,6 +6,7 @@
 
 typedef struct avatar AVATAR;
 
+#define TOX_ADDRESS_STR_SIZE TOX_ADDRESS_SIZE * 2
 struct utox_self {
     uint8_t status;
     char    name[TOX_MAX_NAME_LENGTH];
