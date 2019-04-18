@@ -4,12 +4,12 @@
 
 #include <time.h>
 
-START_TEST (test_updater_current)
-{
-    uint32_t v = updater_check(UTOX_VERSION_NUMBER);
-    ck_assert_msg(v == UTOX_VERSION_NUMBER, "Updater version mismatch :< %u and %u", v, UTOX_VERSION_NUMBER);
-}
-END_TEST
+// START_TEST (test_updater_current)
+// {
+//     uint32_t v = updater_check(UTOX_VERSION_NUMBER);
+//     ck_assert_msg(v == UTOX_VERSION_NUMBER, "Updater version mismatch :< %u and %u", v, UTOX_VERSION_NUMBER);
+// }
+// END_TEST
 
 START_TEST (test_updater_newer)
 {
@@ -42,7 +42,7 @@ static Suite *suite(void)
 {
     Suite *s = suite_create("uTox Updater");
 
-    MK_TEST_CASE(updater_current);
+    // MK_TEST_CASE(updater_current);
     MK_TEST_CASE(updater_newer);
     MK_TEST_CASE(updater_older);
 
