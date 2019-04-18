@@ -485,6 +485,9 @@ msgstr("Zeigen")
 msgid(HIDE)
 msgstr("Verstecken")
 
+msgid(EXIT)
+msgstr("Beenden")
+
 msgid(VIDEO_IN_NONE)
 msgstr("keines")
 
