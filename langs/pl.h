@@ -623,7 +623,7 @@ msgid(HIDE)
 msgstr("Ukryj")
 
 msgid(EXIT)
-msgid("Zakończ")
+msgstr("Zakończ")
 
 msgid(VIDEO_IN_NONE)
 msgstr("Brak")
