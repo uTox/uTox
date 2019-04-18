@@ -6,7 +6,7 @@ language: c
 addons:
   apt:
     sources:
-       - george-edison55-precise-backports # cmake 3.2.3
+       # - george-edison55-precise-backports # cmake 3.2.3
     packages:
       - cmake
       - cmake-data
@@ -17,8 +17,8 @@ addons:
       - libopenal-data
       - libopenal1
       - libv4l-dev
-      - mingw-w64
-      - mingw-w64-dev
+      - mingw-w64-x86-64-dev
+      - mingw-w64-i686-dev
       - binutils-mingw-w64
       - gcc-mingw-w64
 
@@ -28,15 +28,19 @@ cache:
 
 matrix:
   fast_finish: true
+  allow_failures:
+    - env: BUILD=windows_legacy
   include:
-    - os: linux
+    - name: "Linux CLANG"
+      os: linux
       env: BUILD=linux
       compiler: clang
 
-    - os: linux
+    - name: "Linux GCC"
+      os: linux
       env: BUILD=linux CMAKE_EXTRA_ARGS="-DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2 -DFREETYPE_LIBRARIES=/usr/lib/libfreetype.so"
       sudo: required
-      dist: trusty
+      dist: xenial
       addons:
         apt:
           sources:
@@ -59,9 +63,10 @@ matrix:
             - xvfb
       compiler: gcc
 
-    - os: linux
+    - name: "Window X-Comp x64"
+      os: linux
       sudo: required
-      dist: trusty
+      dist: xenial
       addons:
         apt:
           sources:
@@ -79,9 +84,11 @@ matrix:
       env: BUILD=windows
       compiler: x86_64-w64-mingw32-gcc
 
-    - os: linux
+
+    - name: "Windows X-Comp WinXP"
+      os: linux
       sudo: required
-      dist: trusty
+      dist: xenial
       addons:
         apt:
           sources:
@@ -102,6 +109,13 @@ matrix:
     - os: osx
       compiler: clang
       env: BUILD=osx
+    # We don't support old toxcore yet/anymore
+    # - os: linux
+    #   env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
+    #   compiler: gcc
+    # - os: linux
+    #   env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
+    #   compiler: clang
 
 git:
   depth: 5
