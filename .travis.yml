@@ -1,4 +1,4 @@
-dist: precise
+dist: xenial
 sudo: false
 
 language: c
