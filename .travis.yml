@@ -34,6 +34,32 @@ matrix:
       compiler: clang
 
     - os: linux
+      env: BUILD=linux CMAKE_EXTRA_ARGS="-DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2 -DFREETYPE_LIBRARIES=/usr/lib/libfreetype.so"
+      sudo: required
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-8
+            - cmake
+            - check
+            - yasm
+            - binutils
+            - libdbus-1-dev
+            - libopenal-dev
+            - libopenal-data
+            - libopenal1
+            - libv4l-dev
+            - libfreetype6
+            - libfreetype6-dev
+            - libx11-dev
+            - xorg
+            - xvfb
+      compiler: gcc
+
+    - os: linux
       sudo: required
       dist: trusty
       addons:
