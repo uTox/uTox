@@ -70,10 +70,8 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
     }
 
-    g->name_length = snprintf((char *)g->name, sizeof(g->name), "Groupchat #%u", group_number);
-    if (g->name_length >= sizeof(g->name)) {
-        g->name_length = sizeof(g->name) - 1;
-    }
+    snprintf((char *)g->name, sizeof(g->name), "Groupchat #%u", group_number);
+    g->name_length = strnlen(g->name, sizeof(g->name) - 1);
 
     g->topic_length = sizeof("Drag friends to invite them") - 1;
     memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);

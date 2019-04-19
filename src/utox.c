@@ -641,10 +641,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 g->source[param2] = g->source[g->peer_count];
             }
 
-            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
-            if (g->topic_length >= sizeof(g->topic)) {
-                g->topic_length = sizeof(g->topic) - 1;
-            }
+            snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
+            g->topic_length = strnlen(g->topic, sizeof(g->topic) - 1);
 
             redraw();
 
@@ -662,10 +660,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 return;
             }
 
-            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
-            if (g->topic_length >= sizeof(g->topic)) {
-                g->topic_length = sizeof(g->topic) - 1;
-            }
+            snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
+            g->topic_length = strnlen(g->topic, sizeof(g->topic) - 1);
 
             GROUPCHAT *selected = flist_get_groupchat();
             if (selected != g) {

@@ -662,16 +662,13 @@ static void messages_draw_timestamp(int x, int y, const time_t *time) {
 
 
     if (settings.use_long_time_msg) {
-        len = snprintf(timestr, sizeof(timestr), "%.2u:%.2u:%.2u", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
+        snprintf(timestr, sizeof(timestr), "%.2u:%.2u:%.2u", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
         x -= textwidth("24:60:00", sizeof "24:60:00" - 1);
     } else {
-        len = snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
+        snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
         x -= textwidth("24:60", sizeof "24:60" - 1);
     }
-
-    if (len >= sizeof(timestr)) {
-        len = sizeof(timestr) - 1;
-    }
+    len = strnlen(timestr, sizeof(timestr) - 1);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_MISC);
