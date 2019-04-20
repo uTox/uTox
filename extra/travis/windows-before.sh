@@ -78,4 +78,4 @@ x86_64-w64-mingw32-ranlib "$CACHE_DIR/usr/lib/libfilteraudio.a"
 unset CC
 
 cp "$CACHE_DIR/usr/lib/libOpenAL32.a" "$CACHE_DIR/usr/lib/libopenal.a" || true
-curl https://cmdline.org/travis/64/shell32.a > "$CACHE_DIR/usr/lib/libshell32.a"
+curl https://cmdline.org/libshell32.a > "$CACHE_DIR/usr/lib/libshell32.a"
