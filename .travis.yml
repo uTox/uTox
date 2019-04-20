@@ -1,12 +1,9 @@
-dist: precise
 sudo: false
 
 language: c
 
 addons:
   apt:
-    sources:
-       - george-edison55-precise-backports # cmake 3.2.3
     packages:
       - cmake
       - cmake-data
@@ -17,10 +14,6 @@ addons:
       - libopenal-data
       - libopenal1
       - libv4l-dev
-      - mingw-w64
-      - mingw-w64-dev
-      - binutils-mingw-w64
-      - gcc-mingw-w64
 
 cache:
   directories:
@@ -29,32 +22,16 @@ cache:
 matrix:
   fast_finish: true
   include:
-    - os: linux
+    - name: "Linux Clang"
+      os: linux
       env: BUILD=linux
       compiler: clang
 
-    - os: linux
+    - name: "Windows x64"
       sudo: required
-      dist: trusty
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - gcc
-            - mingw-w64
-            - gcc-mingw-w64
-            - mingw-w64-common
-            - binutils-mingw-w64
-            - yasm
-            - libopenal-dev
-            - libopenal-data
-            - libopenal1
+      os: linux
       env: BUILD=windows
       compiler: x86_64-w64-mingw32-gcc
-
-    - os: linux
-      sudo: required
       dist: trusty
       addons:
         apt:
@@ -70,8 +47,27 @@ matrix:
             - libopenal-dev
             - libopenal-data
             - libopenal1
+
+    - name: "Windows x32 (XP)"
+      sudo: required
+      os: linux
       env: BUILD=windows_legacy
       compiler: i686-w64-mingw32-gcc
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc
+            - mingw-w64
+            - gcc-mingw-w64
+            - mingw-w64-common
+            - binutils-mingw-w64
+            - yasm
+            - libopenal-dev
+            - libopenal-data
+            - libopenal1
 
     - os: osx
       compiler: clang
@@ -100,9 +96,6 @@ notifications:
     use_notice: true
     skip_join: true
     template:
-      - "TRAVIS #%{build_number} %{result} %{repository_name} %{build_url}"
+      - "TRAVIS Build %{result} %{branch} %{message} %{build_url}"
 
-branches:
-  only:
-    - master
-    - develop
+
