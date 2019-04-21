@@ -525,12 +525,12 @@ static void close_dropdowns(PANEL *p) {
         return;
     }
 
-    PANEL* ch;
+    PANEL *ch;
     for (int i = 0; (ch = p->child[i]); ++i)
     {
-        PANEL_TYPE type = (PANEL_TYPE)ch->type;
+        PANEL_TYPE type = ch->type;
         if (type == PANEL_DROPDOWN) {
-            dropdown_close((DROPDOWN*)&ch);
+            dropdown_close((DROPDOWN*)ch);
         } else if (type == PANEL_NONE) {
             close_dropdowns(ch);
         }
