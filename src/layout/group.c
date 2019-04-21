@@ -57,9 +57,13 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
 
         if (peer && peer->name_length) {
             char buf[TOX_MAX_NAME_LENGTH];
-            int  text_length = snprintf((char *)buf, TOX_MAX_NAME_LENGTH, "%.*s, ", (int)peer->name_length, peer->name);
+            int  buf_len;
 
-            unsigned w = textwidth(buf, text_length);
+            snprintf((char *)buf, sizeof(buf), "%.*s, ",
+                     (int)peer->name_length, peer->name);
+            buf_len = strnlen(buf, sizeof(buf) - 1);
+
+            unsigned w = textwidth(buf, buf_len);
             if (peer->name_color) {
                 setcolor(peer->name_color);
             } else {
@@ -76,7 +80,7 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
                 }
             }
 
-            drawtext(k, SCALE(pos_y * 2), buf, text_length);
+            drawtext(k, SCALE(pos_y * 2), buf, buf_len);
 
             k += w;
         }
