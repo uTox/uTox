@@ -305,13 +305,19 @@ void utox_friend_list_init(Tox *tox) {
 
 void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     if (f->name && f->name_length) {
-        size_t size = sizeof(" is now known as ") + f->name_length + length;
+        char *p;
+        size_t p_size = sizeof(" is now known as ") + f->name_length + length;
+        size_t p_len;
 
-        char *p = calloc(1, size);
-        size = snprintf(p, size, "%.*s is now known as %.*s", (int)f->name_length, f->name, (int)length, name);
+        p = calloc(1, p_size);
+        if (!p) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not allocate space for name change message.");
+        }
+        snprintf(p, p_size, "%.*s is now known as %.*s", (int)f->name_length, f->name, (int)length, name);
+        p_len = strnlen(p, p_size - 1);
 
         if (length != f->name_length || memcmp(f->name, name, (length < f->name_length ? length : f->name_length))) {
-            message_add_type_notice(&f->msg, p, size, 1);
+            message_add_type_notice(&f->msg, p, p_len, 1);
         }
 
         free(f->name);
@@ -398,10 +404,12 @@ void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uin
 }
 
 void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
-    char title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
+    char title[sizeof("uTox new message from ") + UTOX_FRIEND_NAME_LENGTH(f)];
+    size_t title_length;
 
-    size_t title_length = snprintf((char *)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s",
-                                   (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    snprintf((char *)title, sizeof(title), "uTox new message from %.*s",
+             (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    title_length = strnlen(title, sizeof(title) - 1);
 
     postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
     notify(title, title_length, msg, msg_length, f, 0);
@@ -566,10 +574,12 @@ void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char
         return;
     }
 
-    const int size = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(STATUS_MESSAGE) + strlen(state);
-    char title[size];
-    size_t  title_length = snprintf(title, size, S(STATUS_MESSAGE),
-                                   (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
+    char title[UTOX_FRIEND_NAME_LENGTH(f) + SLEN(STATUS_MESSAGE) + strlen(state)];
+    size_t title_length;
+
+    snprintf(title, sizeof(title), S(STATUS_MESSAGE),
+             (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
+    title_length = strnlen(title, sizeof(title) - 1);
 
     notify(title, title_length, (char *)msg, msg_length, f, 0);
 
