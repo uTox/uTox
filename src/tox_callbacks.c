@@ -69,6 +69,11 @@ static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *
                                  void *UNUSED(userdata)) {
     length     = utf8_validate(newname, length);
     void *data = malloc(length);
+    if (!data) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks",
+                      "Could not alloc for name change callback (%uB)", length);
+    }
+
     memcpy(data, newname, length);
     postmessage_utox(FRIEND_NAME, fid, length, data);
     LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tName:\t%.*s", fid, (int)length, newname);
@@ -78,6 +83,11 @@ static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_
                                     void *UNUSED(userdata)) {
     length     = utf8_validate(newstatus, length);
     void *data = malloc(length);
+    if (!data) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks",
+                      "Could not alloc for name change callback (%uB)", length);
+    }
+
     memcpy(data, newstatus, length);
     postmessage_utox(FRIEND_STATUS_MESSAGE, fid, length, data);
     LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tStatus Message:\t%.*s", fid, (int)length, newstatus);
@@ -237,7 +247,6 @@ static void callback_group_peer_list_changed(Tox *tox, uint32_t gid, void *UNUSE
     uint32_t number_peers = tox_conference_peer_count(tox, gid, NULL);
 
     g->peer = calloc(number_peers, sizeof(void *));
-
     if (!g->peer) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks", "Group:\tToxcore is very broken, but we couldn't alloc here.");
     }
