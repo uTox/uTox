@@ -291,7 +291,6 @@ static int config_parser(const char* section, const char* key, const char* value
 
 static UTOX_SAVE *utox_load_config(void) {
     UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + proxy_address_size + 1);
-
     if (!save) {
         LOG_ERR("Settings", "Unable to calloc for UTOX_SAVE.");
         return NULL;
@@ -379,7 +378,6 @@ static bool utox_save_config(UTOX_SAVE *config) {
 
 static UTOX_SAVE *init_default_settings(void) {
     UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE));
-
     if (!save) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Settings", "Unable to malloc for default settings.");
     }
@@ -534,6 +532,10 @@ UTOX_SAVE *config_load(void) {
 // TODO refactor to match order in main.h
 void config_save(UTOX_SAVE *save_in) {
     UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + proxy_address_size);
+    if (!save) {
+        LOG_ERR("Settings", "Could not allocate memory to save settings");
+        return;
+    }
 
     /* Copy the data from the in data to protect the calloc */
     save->window_x                      = save_in->window_x;
