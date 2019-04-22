@@ -298,6 +298,10 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     ++ft->name_length;
 
     ft->name = calloc(1, ft->name_length + 1);
+    if (!ft->name) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "FileTransfer", "Could not alloc for file name (%uB)",
+                      ft->name_length + 1);
+    }
     snprintf((char *)ft->name, ft->name_length + 1, "%s", p);
 
     ft->via.file = NULL;
@@ -585,6 +589,9 @@ static void utox_complete_file(FILE_TRANSFER *file) {
 void ft_friend_online(Tox *tox, uint32_t friend_number) {
     for (uint16_t i = 0; i < MAX_FILE_TRANSFERS; i++) {
         FILE_TRANSFER *file = calloc(1, sizeof(FILE_TRANSFER));
+        if (!file) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "FileTransfer", "Could not alloc file transfer struct");
+        }
         file->friend_number = friend_number;
         file->file_number   = i;
         file->incoming      = false;
@@ -905,6 +912,10 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     ft->incoming      = true;
     tox_file_get_file_id(tox, friend_number, file_number, ft->data_hash, NULL);
     ft->name = calloc(1, name_length + 1);
+    if (!ft->name) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "FileTransfer", "Could not allocate space for file name (%uB)",
+                      name_length + 1);
+    }
     snprintf((char *)ft->name, name_length + 1, "%.*s", (int)name_length, name);
     ft->name_length = name_length;
 
