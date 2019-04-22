@@ -18,7 +18,6 @@ static bool realloc_devices_list(uint16_t new_size) {
     }
 
     UTOX_DEVICE *tmp = realloc(devices, sizeof(UTOX_DEVICE) * new_size);
-
     if (!tmp) {
         LOG_ERR("Devices", "couldn't realloc for new_size %u" , new_size);
         return 0;
@@ -37,7 +36,7 @@ void utox_devices_init(void) {
     devices               = calloc(self.device_list_count, sizeof(UTOX_DEVICE));
     self.device_list_size = self.device_list_count;
 
-    if (devices == NULL) {
+    if (!devices) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Unable to init base devices, *devices is null");
     }
 };
@@ -81,6 +80,12 @@ static void devices_self_add_submit(uint8_t *name, size_t length, uint8_t id[TOX
     }
 
     uint8_t *data = malloc(length * sizeof(uint8_t) + sizeof(id[0]) * TOX_ADDRESS_SIZE);
+    if (!data) {
+        LOG_ERR("Devices", "Could not alloc space (%uB) for new device (%.s)",
+                length * sizeof(uint8_t) + sizeof(id[0]) * TOX_ADDRESS_SIZE,
+                length, name);
+        return;
+    }
 
     memcpy(data, id, TOX_ADDRESS_SIZE);
     memcpy(data + TOX_ADDRESS_SIZE, name, length * sizeof(uint8_t));
@@ -95,6 +100,7 @@ void devices_update_list(void) {}
 void devices_update_ui(void) {
     if (!devices) {
         panel_settings_devices.child    = calloc(3, sizeof(void *));
+        if (!panel_settings_devices.child) { LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Could not alloc memory"); }
         panel_settings_devices.child[0] = (void *)&button_add_new_device_to_self;
         panel_settings_devices.child[1] = (void *)&edit_add_new_device_to_self;
         panel_settings_devices.child[2] = NULL;
@@ -103,11 +109,13 @@ void devices_update_ui(void) {
 
     if (!panel_settings_devices.child) {
         panel_settings_devices.child    = calloc(3 + self.device_list_count * 2, sizeof(void *));
+        if (!panel_settings_devices.child) { LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Could not alloc memory"); }
         panel_settings_devices.child[0] = (void *)&button_add_new_device_to_self;
         panel_settings_devices.child[1] = (void *)&edit_add_new_device_to_self;
     } else {
         panel_settings_devices.child =
             realloc(panel_settings_devices.child, (3 + self.device_list_count * 2) * sizeof(void *));
+        if (!panel_settings_devices.child) { LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Could not alloc memory"); }
     }
 
     uint16_t i;
@@ -115,7 +123,7 @@ void devices_update_ui(void) {
         EDIT *  edit = calloc(1, sizeof(EDIT));
         BUTTON *dele = calloc(1, sizeof(BUTTON));
 
-        if (!edit) {
+        if (!edit || !dele) {
             LOG_FATAL_ERR(EXIT_MALLOC, "Devices", "Can't malloc for an extra device");
         }
 
