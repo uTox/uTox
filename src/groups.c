@@ -68,6 +68,10 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
+        if (!g->peer) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not alloc for group peers (%uB)",
+                          UTOX_MAX_GROUP_PEERS * sizeof(GROUP_PEER *));
+        }
     }
 
     g->name_length = snprintf((char *)g->name, sizeof(g->name), "Groupchat #%u", group_number);
@@ -155,6 +159,10 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
+        if (!g->peer) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not alloc for group peers (%uB)",
+                          UTOX_MAX_GROUP_PEERS * sizeof(GROUP_PEER *));
+        }
         LOG_NOTE("Groupchat", "Needed to calloc peers for this group chat. (%u)" , peer_id);
     }
 
@@ -228,7 +236,6 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
                                peer->name_length, old);
 
         GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
-
         if (!new_peer) {
             free(peer);
             LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "couldn't realloc for group peer name!");
@@ -246,7 +253,6 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
 
     /* Hopefully, they just joined, because that's the UX message we're going with! */
     GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
-
     if (!new_peer) {
         free(peer);
         LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "Unable to realloc for group peer who just joined.");
