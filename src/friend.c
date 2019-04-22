@@ -260,6 +260,9 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     // Get and set the status message
     size = tox_friend_get_status_message_size(tox, friend_number, 0);
     f->status_message = calloc(1, size);
+    if (!f->status_message) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not alloc for status message (%uB)", size);
+    }
 
     tox_friend_get_status_message(tox, friend_number, (uint8_t *)f->status_message, 0);
     f->status_length = size;
@@ -269,6 +272,9 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     f->status = tox_friend_get_status(tox, friend_number, NULL);
 
     f->avatar = calloc(1, sizeof(AVATAR));
+    if (!f->avatar) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not alloc for avatar");
+    }
     avatar_init(f->id_str, f->avatar);
 
     MESSAGES *m = &f->msg;
@@ -308,6 +314,9 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
         size_t size = sizeof(" is now known as ") + f->name_length + length;
 
         char *p = calloc(1, size);
+        if (!p) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not alloc space for name change message (%uB)", size);
+        }
         size = snprintf(p, size, "%.*s is now known as %.*s", (int)f->name_length, f->name, (int)length, name);
 
         if (length != f->name_length || memcmp(f->name, name, (length < f->name_length ? length : f->name_length))) {
@@ -327,8 +336,11 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
         memcpy(f->name, name, length);
         f->name_length = length;
     }
+    if (!f->name) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not alloc space for friend name");
+    }
 
-    f->name[f->name_length] = 0;
+    f->name[f->name_length] = '\0';
 
     if (!f->alias_length) {
         if (flist_get_type()== ITEM_FRIEND) {
@@ -475,7 +487,6 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     } else if (length_cleaned == TOX_PUBLIC_KEY_SIZE * 2) {
         string_to_id(id, (char*)name_cleaned);
         uint8_t *data = calloc(sizeof(uint8_t), TOX_PUBLIC_KEY_SIZE);
-
         if (!data) {
             LOG_ERR("Calloc", "Memory allocation failed!");
             return;
