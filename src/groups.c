@@ -350,10 +350,9 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
     }
 
     char title[g->name_length + 25];
-    size_t title_length;
 
     snprintf(title, sizeof(title), "uTox new message in %.*s", g->name_length, g->name);
-    title_length = strnlen(title, sizeof(title) - 1);
+    size_t title_length = strnlen(title, sizeof(title) - 1);
     notify(title, title_length, msg, msg_length, g, 1);
 
     if (flist_get_groupchat() != g) {

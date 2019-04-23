@@ -176,10 +176,9 @@ static void draw_settings_text_devices(int x, int y, int UNUSED(w), int UNUSED(h
     drawstr(x + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
 
     char   str[10];
-    size_t str_len;
 
     snprintf(str, sizeof(str), "%zu", self.device_list_count);
-    str_len = strnlen(str, sizeof(str) - 1);
+    size_t str_len = strnlen(str, sizeof(str) - 1);
 
     drawtext(x + SCALE(10), y + SCALE(75), str, str_len);
 }
