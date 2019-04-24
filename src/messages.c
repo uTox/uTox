@@ -833,7 +833,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
 
     snprintf(ft_text, sizeof(ft_text), "%.*s ", (int)file->name_length, file->name);
     ft_text_length = strnlen(ft_text, sizeof(ft_text) - 1);
-    ft_text_length += sprint_humanread_bytes(ft_text, sizeof(ft_text) - ft_text_length, file->size);
+    ft_text_length += sprint_humanread_bytes(ft_text + ft_text_length, sizeof(ft_text) - ft_text_length, file->size);
 
     setfont(FONT_MISC);
     setcolor(COLOR_BKGRND_MAIN);
