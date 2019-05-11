@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define QR_BORDER_SIZE 4 /* unit: QR modules */
+
 static bool generate_qr(const char *text, uint8_t *qrcode)
 {
     uint8_t temp_buffer[qrcodegen_BUFFER_LEN_MAX];
@@ -21,13 +23,16 @@ static bool generate_qr(const char *text, uint8_t *qrcode)
 
 static void convert_qr_to_rgb(const uint8_t *qrcode, uint8_t size, uint8_t *pixels)
 {
-    uint16_t i = 0;
-    for (uint8_t y = 0; y < size; y++) {
-        for (uint8_t x = 0; x < size; x++) {
+    /* skip first border on y and x axis */
+    uint16_t i = ((QR_BORDER_SIZE * size) + QR_BORDER_SIZE) * 3;
+    for (uint8_t y = 0; y < qrcodegen_getSize(qrcode); y++) {
+        for (uint8_t x = 0; x < qrcodegen_getSize(qrcode); x++) {
             bool black = qrcodegen_getModule(qrcode, x, y);
             pixels[i] = pixels[i + 1] = pixels[i + 2] = black ? 0x00 : 0xFF;
             i += 3;
         }
+        /* skip border until end of line and border on start of next line */
+        i += (QR_BORDER_SIZE * 2) * 3;
     }
 }
 
@@ -45,8 +50,9 @@ void qr_setup(const char *id_str, uint8_t **qr_data, int *qr_data_size, NATIVE_I
     }
 
     *qr_image_size = qrcodegen_getSize(qrcode);
+    *qr_image_size += QR_BORDER_SIZE * 2; /* add border on both sides */
     uint8_t pixels[*qr_image_size * *qr_image_size * channel_number];
-    memset(pixels, 0, *qr_image_size * *qr_image_size * channel_number);
+    memset(pixels, 0xFF, sizeof(pixels)); /* make it all white */
     convert_qr_to_rgb(qrcode, *qr_image_size, pixels);
 
     *qr_data = stbi_write_png_to_mem(pixels, 0, *qr_image_size, *qr_image_size, channel_number, qr_data_size);
