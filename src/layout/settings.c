@@ -782,6 +782,7 @@ static void button_videopreview_on_mup(void) {
         postmessage_utoxav(UTOXAV_START_VIDEO, UINT16_MAX, 1, NULL);
     } else {
         LOG_ERR("Button", "Video_width = 0, can't preview\n");
+        return;
     }
     settings.video_preview = !settings.video_preview;
 }
