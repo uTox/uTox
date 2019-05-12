@@ -28,7 +28,7 @@ static bool     video_active         = false;
 
 static utox_av_video_frame utox_video_frame;
 
-static bool video_device_status = true;
+static bool video_device_status = false;
 
 static vpx_image_t input;
 
@@ -142,7 +142,10 @@ bool utox_video_change_device(uint16_t device_number) {
 
     video_device_current = device_number;
 
-    video_device_init(video_device[device_number]);
+    if (!video_device_init(video_device[device_number])) {
+        pthread_mutex_unlock(&video_thread_lock);
+        return false;
+    }
 
     if (_was_active) {
         LOG_TRACE("uToxVideo", "Trying to restart video with new device..." );
@@ -160,7 +163,9 @@ bool utox_video_change_device(uint16_t device_number) {
         return true;
     } else {
         /* Just grab the new frame size */
-        close_video_device(video_device[video_device_current]);
+        if (video_device_status) {
+            close_video_device(video_device[video_device_current]);
+        }
     }
     pthread_mutex_unlock(&video_thread_lock);
     return false;
