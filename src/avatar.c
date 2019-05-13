@@ -9,6 +9,7 @@
 #include "native/image.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /* frees the image of an avatar, does nothing if image is NULL */
 static void avatar_free_image(AVATAR *avatar) {
@@ -75,8 +76,8 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
 bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]) {
     char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
 
-    int name_len = snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-                            "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, hexid);
+    snprintf(name, sizeof(name), "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, hexid);
+    int name_len = strnlen(name, sizeof(name) - 1);
 
     return utox_remove_file((uint8_t *)name, name_len);
 }

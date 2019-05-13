@@ -39,10 +39,15 @@ static void draw_settings_header(int x, int y, int w, int UNUSED(height)) {
 #ifdef GIT_VERSION
     setfont(FONT_TEXT);
     char ver_string[64];
-    int  count = snprintf(ver_string, 64, "Toxcore v%u.%u.%u",
-                            tox_version_major(), tox_version_minor(), tox_version_patch());
-    drawtextwidth_right(x + w - textwidth(ver_string, count) , textwidth(ver_string, count), SCALE(10),
-                        ver_string, count);
+    int  ver_string_len;
+
+    snprintf(ver_string, sizeof(ver_string), "Toxcore v%u.%u.%u",
+             tox_version_major(), tox_version_minor(), tox_version_patch());
+    ver_string_len = strnlen(ver_string_len, sizeof(ver_string) - 1);
+
+    drawtextwidth_right(x + w - textwidth(ver_string, ver_string_len),
+                        textwidth(ver_string, ver_string_len), SCALE(10),
+                        ver_string, ver_string_len);
 
     setfont(FONT_SELF_NAME); // x adjustment depends on the font type being set first
     x += SCALE(25) + UTOX_STR_WIDTH(UTOX_SETTINGS);
@@ -171,9 +176,11 @@ static void draw_settings_text_devices(int x, int y, int UNUSED(w), int UNUSED(h
     drawstr(x + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
 
     char   str[10];
-    size_t strlen = snprintf(str, 10, "%zu", self.device_list_count);
 
-    drawtext(x + SCALE(10), y + SCALE(75), str, strlen);
+    snprintf(str, sizeof(str), "%zu", self.device_list_count);
+    size_t str_len = strnlen(str, sizeof(str) - 1);
+
+    drawtext(x + SCALE(10), y + SCALE(75), str, str_len);
 }
 
 static void draw_settings_text_password(int x, int y, int UNUSED(w), int UNUSED(h)) {

@@ -662,16 +662,13 @@ static void messages_draw_timestamp(int x, int y, const time_t *time) {
 
 
     if (settings.use_long_time_msg) {
-        len = snprintf(timestr, sizeof(timestr), "%.2u:%.2u:%.2u", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
+        snprintf(timestr, sizeof(timestr), "%.2u:%.2u:%.2u", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
         x -= textwidth("24:60:00", sizeof "24:60:00" - 1);
     } else {
-        len = snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
+        snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
         x -= textwidth("24:60", sizeof "24:60" - 1);
     }
-
-    if (len >= sizeof(timestr)) {
-        len = sizeof(timestr) - 1;
-    }
+    len = strnlen(timestr, sizeof(timestr) - 1);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_MISC);
@@ -831,12 +828,12 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
         file_percent = 1.0;
     }
 
-    int max = file->name_length + 128;
-    char ft_text[max];
-    char *text = ft_text;
+    char ft_text[file->name_length + 128];
+    size_t ft_text_length;
 
-    text += snprintf(text, max, "%.*s ", (int)file->name_length, file->name);
-    text += sprint_humanread_bytes(text, text - ft_text, file->size);
+    snprintf(ft_text, sizeof(ft_text), "%.*s ", (int)file->name_length, file->name);
+    ft_text_length = strnlen(ft_text, sizeof(ft_text) - 1);
+    ft_text_length += sprint_humanread_bytes(ft_text + ft_text_length, sizeof(ft_text) - ft_text_length, file->size);
 
     setfont(FONT_MISC);
     setcolor(COLOR_BKGRND_MAIN);
@@ -929,11 +926,13 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
             DRAW_FT_PAUSE_BTN();
 
             char speed[32] = {0};
-            char *p = speed + sprint_humanread_bytes(speed, 32, file->speed);
-            p += snprintf(p, speed - p, "/s %lus",
-                               file->speed ? (file->size - file->progress) / file->speed : 0);
-            DRAW_FT_TEXT_RIGHT(speed, p - speed);
+            size_t speed_len;
+            speed_len = sprint_humanread_bytes(speed, sizeof(speed), file->speed);
+            snprintf(speed + speed_len, sizeof(speed) - speed_len, "/s %lus",
+                     file->speed ? (file->size - file->progress) / file->speed : 0);
+            speed_len = strnlen(speed, sizeof(speed) - 1);
 
+            DRAW_FT_TEXT_RIGHT(speed, speed_len);
             DRAW_FT_PROG(COLOR_BTN_INPROGRESS_FORGRND);
             break;
         }
@@ -963,7 +962,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
     }
 
     setfont(FONT_TEXT);
-    drawtextrange(dx + SCALE(10), wbound - SCALE(10), y + SCALE(6), ft_text, text - ft_text);
+    drawtextrange(dx + SCALE(10), wbound - SCALE(10), y + SCALE(6), ft_text, ft_text_length);
 }
 
 /* This is a bit hacky, and likely would benifit from being moved to a whole new section including seperating

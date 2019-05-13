@@ -17,6 +17,7 @@
 #include "../native/thread.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 bool utox_av_ctrl_init = false;
 
@@ -146,10 +147,13 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
                     if (f && f->call_started != 0) {
                         char notice_msg[64];
                         int duration = difftime(time(NULL), f->call_started);
-                        int length = snprintf(notice_msg, 64, "%s: %02u:%02u:%02u",
-                                S(CALL_ENDED), duration / 3600, (duration / 60) % 60, duration % 60);
-                        if (length < 64) {
-                            message_add_type_notice(&f->msg, notice_msg, length, true);
+
+                        snprintf(notice_msg, sizeof(notice_msg), "%s: %02u:%02u:%02u",
+                                 S(CALL_ENDED), duration / 3600, (duration / 60) % 60, duration % 60);
+                        int notice_msg_len = strnlen(notice_msg, sizeof(notice_msg) - 1);
+
+                        if (notice_msg_len < 64) {
+                            message_add_type_notice(&f->msg, notice_msg, notice_msg_len, true);
                         }
                         f->call_started = 0;
                     }

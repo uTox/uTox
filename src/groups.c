@@ -74,10 +74,8 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
         }
     }
 
-    g->name_length = snprintf((char *)g->name, sizeof(g->name), "Groupchat #%u", group_number);
-    if (g->name_length >= sizeof(g->name)) {
-        g->name_length = sizeof(g->name) - 1;
-    }
+    snprintf((char *)g->name, sizeof(g->name), "Groupchat #%u", group_number);
+    g->name_length = strnlen(g->name, sizeof(g->name) - 1);
 
     g->topic_length = sizeof("Drag friends to invite them") - 1;
     memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
@@ -232,8 +230,8 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         char msg[TOX_MAX_NAME_LENGTH];
 
         memcpy(old, peer->name, peer->name_length);
-        size_t size = snprintf(msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s",
-                               peer->name_length, old);
+        snprintf(msg, sizeof(msg), "<- has changed their name from %.*s",
+                 peer->name_length, old);
 
         GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
         if (!new_peer) {
@@ -247,7 +245,8 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         g->peer[peer_id] = peer;
 
         pthread_mutex_unlock(&messages_lock);
-        group_add_message(g, peer_id, (uint8_t *)msg, size, MSG_TYPE_NOTICE);
+        size_t msg_length = strnlen(msg, sizeof(msg) - 1);
+        group_add_message(g, peer_id, (uint8_t *)msg, msg_length, MSG_TYPE_NOTICE);
         return;
     }
 
@@ -352,8 +351,8 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
 
     char title[g->name_length + 25];
 
-    size_t title_length = snprintf(title, g->name_length + 25, "uTox new message in %.*s", g->name_length, g->name);
-
+    snprintf(title, sizeof(title), "uTox new message in %.*s", g->name_length, g->name);
+    size_t title_length = strnlen(title, sizeof(title) - 1);
     notify(title, title_length, msg, msg_length, g, 1);
 
     if (flist_get_groupchat() != g) {
