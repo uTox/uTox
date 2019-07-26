@@ -274,18 +274,21 @@ void flist_update_shown_list(void) {
     flist_re_scale();
 }
 
+/* returns address of item at current index and appends the group create entry */
 static ITEM *newitem(void) {
-    unsigned int index = itemcount - 1;
-    if (index >= MAX_ITEMS) {
-        LOG_ERR("flsit", "Index out bounds. Too many items have been created.");
+    if (itemcount >= MAX_ITEMS) {
+        LOG_ERR("flist", "Too many items have been created.");
         return NULL;
     }
 
+    unsigned int index = itemcount - 1;
     ITEM *i = &item[index];
     item[itemcount].item = ITEM_GROUP_CREATE;
     item[itemcount].id_number = UINT32_MAX;
     itemcount++;
+
     flist_update_shown_list();
+
     return i;
 }
 
