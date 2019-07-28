@@ -45,12 +45,12 @@ extern bool unity_running;
 static ITEM item_add, item_settings, item_transfer;
 
 // full list of friends and group chats
-#define MAX_ITEMS 1024 /* TODO MAGIC NUMBER*/
-static ITEM     item[MAX_ITEMS];
+static ITEM    *item;
 static uint32_t itemcount;
 
-static uint32_t shown_list[1024]; // list of chats actually shown in the GUI after filtering
-                                  // (actually indices pointing to chats in the chats array)
+// list of chats actually shown in the GUI after filtering
+// (actually indices pointing to chats in the chats array)
+static uint32_t *shown_list;
 static uint32_t showncount;
 
 // search and filter stuff
@@ -276,15 +276,21 @@ void flist_update_shown_list(void) {
 
 /* returns address of item at current index and appends the group create entry */
 static ITEM *newitem(void) {
-    if (itemcount >= MAX_ITEMS) {
-        LOG_ERR("flist", "Too many items have been created.");
+    item = realloc(item, (itemcount + 1) * sizeof(ITEM));
+    if (!item) {
+        LOG_ERR("flist", "Not enough memory to allocate for another item, currently.");
+        return NULL;
+    }
+    shown_list = realloc(shown_list, (itemcount + 1) * sizeof(uint32_t));
+    if (!shown_list) {
+        LOG_ERR("flist", "Not enough memory to allocate for another item, currently.");
         return NULL;
     }
 
     unsigned int index = itemcount - 1;
     ITEM *i = &item[index];
-    item[itemcount].type = ITEM_GROUP_CREATE;
-    item[itemcount].id_number = UINT32_MAX;
+    item[index + 1].type = ITEM_GROUP_CREATE;
+    item[index + 1].id_number = UINT32_MAX;
     itemcount++;
 
     flist_update_shown_list();
@@ -611,6 +617,17 @@ void flist_start(void) {
     item_add.type      = ITEM_ADD;
     item_settings.type = ITEM_SETTINGS;
 
+    itemcount = self.friend_list_count + self.groups_list_count;
+    itemcount += 1; /* for ITEM_GROUP_CREATE */
+
+    shown_list = malloc(itemcount * sizeof(uint32_t));
+    if (!shown_list) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Could not allocate memory for friend list.");
+    }
+    item = malloc(itemcount * sizeof(ITEM));
+    if (!item) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Could not allocate memory for friend list.");
+    }
     ITEM *i = item;
     for (uint32_t num = 0; num < self.friend_list_count; ++num) {
         const FRIEND *f = get_friend(num);
@@ -634,9 +651,8 @@ void flist_start(void) {
         i++;
     }
 
-    itemcount = i - item;
-
-    newitem(); /* Called alone will create the group bar */
+    i->type = ITEM_GROUP_CREATE;
+    i->id_number = UINT32_MAX;
 
     search_string = NULL;
     flist_update_shown_list();
@@ -711,6 +727,7 @@ void group_av_peer_remove(GROUPCHAT *g, int peernumber);
 
 // FIXME removing multiple items without moving the mouse causes asan neg-size-param error on memmove!
 static void deleteitem(ITEM *i) {
+    uint32_t countof_item = itemcount;
     right_mouse_item = NULL;
 
     if (i == selected_item) {
@@ -754,7 +771,7 @@ static void deleteitem(ITEM *i) {
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
 
-    if (i != selected_item && selected_item > i && selected_item >= item && selected_item < item + COUNTOF(item)) {
+    if (i != selected_item && selected_item > i && selected_item >= item && selected_item < item + countof_item) {
         selected_item--;
     }
 
@@ -763,13 +780,13 @@ static void deleteitem(ITEM *i) {
 }
 
 void flist_delete_sitem(void) {
-    if (selected_item >= item && selected_item < item + COUNTOF(item)) {
+    if (selected_item >= item && selected_item < item + itemcount) {
         deleteitem(selected_item);
     }
 }
 
 void flist_delete_rmouse_item(void) {
-    if (right_mouse_item >= item && right_mouse_item < item + COUNTOF(item)) {
+    if (right_mouse_item >= item && right_mouse_item < item + itemcount) {
         deleteitem(right_mouse_item);
     }
 }
@@ -796,10 +813,11 @@ void flist_freeall(void) {
                 break;
             }
         }
-        i->type = ITEM_NONE;
     }
     itemcount  = 0;
     showncount = 0;
+    free(item);
+    free(shown_list);
 }
 
 void flist_selectchat(int index) {
