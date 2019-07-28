@@ -37,7 +37,7 @@ typedef enum {
 } ITEM_TYPE;
 
 typedef struct {
-    ITEM_TYPE item;
+    ITEM_TYPE type;
     uint32_t id_number;
 } ITEM;
 
