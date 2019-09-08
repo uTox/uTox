@@ -3,7 +3,7 @@
 µTox \- Lightweight Tox client
 
 .SH SYNOPSIS
-usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn|solarized-light|solarized-dark>] [--set=<start-on-boot|show-window|hide-window>]
+usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn|solarized-light|solarized-dark>] [--set=<start-on-boot|show-window|hide-window>] [--allow-root]
    or: utox --version
    or: utox --help
 
@@ -27,6 +27,9 @@ Choose a color scheme. Possible options are \fIdefault\fP, \fIdark\fP,
 
 .IP "\fB\-p\fP or \fB\-\-portable\fP"
 Run in portable mode. All data will be saved to the tox folder in the current working directory, see FILES for more details.
+
+.IP "\fB\-\-allow\-root\fP"
+Allow running µTox as root. Default is to refuse.
 
 .IP "\fB\-s\fP \fI<OPTION>\fP or \fB\-\-set \fP\fI<OPTION>\fP"
 Set an option. The available options are "start-on-boot", "show-window" and "hide-window".
