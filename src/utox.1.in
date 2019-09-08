@@ -31,7 +31,7 @@ Run in portable mode. All data will be saved to the tox folder in the current wo
 .IP "\fB\-s\fP \fI<OPTION>\fP or \fB\-\-set \fP\fI<OPTION>\fP"
 Set an option. The available options are "start-on-boot", "show-window" and "hide-window".
 
-.IP "\fB\-s\fP \fI<OPTION>\fP or \fB\-\-set \fP\fI<OPTION>\fP"
+.IP "\fB\-u\fP \fI<OPTION>\fP or \fB\-\-unset \fP\fI<OPTION>\fP"
 Unset an option. The available option is "start-on-boot".
 
 .IP "\fB\-v\fP or \fB\-\-verbose\fP"
