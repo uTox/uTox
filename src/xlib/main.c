@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 
 bool hidden = false;
 
@@ -226,6 +227,7 @@ void openurl(char *str) {
         execlp(cmd, cmd, str, (char *)0);
         exit(127);
     }
+    waitpid(-1, NULL, WNOHANG); /* reap last child */
 }
 
 void openfilesend(void) {
