@@ -128,8 +128,7 @@ bool utox_video_change_device(uint16_t device_number) {
             }
         }
         LOG_TRACE("uToxVideo", "Disabled Video device (none)" );
-        pthread_mutex_unlock(&video_thread_lock);
-        return false;
+        goto mutex_unlock;
     }
 
     if (video_active) {
@@ -143,30 +142,31 @@ bool utox_video_change_device(uint16_t device_number) {
     video_device_current = device_number;
 
     if (!video_device_init(video_device[device_number])) {
-        pthread_mutex_unlock(&video_thread_lock);
-        return false;
+        goto mutex_unlock;
     }
 
-    if (_was_active) {
-        LOG_TRACE("uToxVideo", "Trying to restart video with new device..." );
-        if (!video_device_start()) {
-            LOG_ERR("uToxVideo", "Error, unable to start new device...");
-            if (settings.video_preview) {
-                settings.video_preview = false;
-                postmessage_utox(AV_CLOSE_WINDOW, 0, 0, NULL);
-            }
-
-            pthread_mutex_unlock(&video_thread_lock);
-            return false;
-        }
-        pthread_mutex_unlock(&video_thread_lock);
-        return true;
-    } else {
+    if (!_was_active) {
         /* Just grab the new frame size */
         if (video_device_status) {
             close_video_device(video_device[video_device_current]);
         }
+        goto mutex_unlock;
     }
+
+    LOG_TRACE("uToxVideo", "Trying to restart video with new device..." );
+    if (!video_device_start()) {
+        LOG_ERR("uToxVideo", "Error, unable to start new device...");
+        if (settings.video_preview) {
+            settings.video_preview = false;
+            postmessage_utox(AV_CLOSE_WINDOW, 0, 0, NULL);
+        }
+        goto mutex_unlock;
+    }
+
+    pthread_mutex_unlock(&video_thread_lock);
+    return true;
+
+    mutex_unlock:
     pthread_mutex_unlock(&video_thread_lock);
     return false;
 }
