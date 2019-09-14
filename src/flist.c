@@ -284,14 +284,13 @@ static ITEM *newitem(void) {
     }
 
     unsigned int index = itemcount - 1;
-    ITEM *i = &item[index];
     item[index + 1].type = ITEM_GROUP_CREATE;
     item[index + 1].id_number = UINT32_MAX;
     itemcount++;
 
     flist_update_shown_list();
 
-    return i;
+    return &item[index];
 }
 
 // return item that the user is mousing over
