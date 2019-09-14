@@ -279,8 +279,7 @@ static ITEM *newitem(void) {
     item       = realloc(item, (itemcount + 1) * sizeof(ITEM));
     shown_list = realloc(shown_list, (itemcount + 1) * sizeof(uint32_t));
     if (!item || !shown_list) {
-        LOG_ERR("flist", "Not enough memory to allocate for another item, currently.");
-        return NULL;
+        LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Could not allocate memory for friend list.");
     }
 
     unsigned int index = itemcount - 1;
@@ -615,8 +614,8 @@ void flist_start(void) {
     itemcount = self.friend_list_count + self.groups_list_count;
     itemcount += 1; /* for ITEM_GROUP_CREATE */
 
-    item       = malloc(itemcount * sizeof(ITEM));
-    shown_list = malloc(itemcount * sizeof(uint32_t));
+    item       = calloc(itemcount, sizeof(ITEM));
+    shown_list = calloc(itemcount, sizeof(uint32_t));
     if (!item || !shown_list) {
         LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Could not allocate memory for friend list.");
     }
