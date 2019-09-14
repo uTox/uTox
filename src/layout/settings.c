@@ -43,7 +43,7 @@ static void draw_settings_header(int x, int y, int w, int UNUSED(height)) {
 
     snprintf(ver_string, sizeof(ver_string), "Toxcore v%u.%u.%u",
              tox_version_major(), tox_version_minor(), tox_version_patch());
-    ver_string_len = strnlen(ver_string_len, sizeof(ver_string) - 1);
+    ver_string_len = strnlen(ver_string, sizeof(ver_string) - 1);
 
     drawtextwidth_right(x + w - textwidth(ver_string, ver_string_len),
                         textwidth(ver_string, ver_string_len), SCALE(10),
