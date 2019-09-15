@@ -45,12 +45,12 @@ extern bool unity_running;
 static ITEM item_add, item_settings, item_transfer;
 
 // full list of friends and group chats
-#define MAX_ITEMS 1024 /* TODO MAGIC NUMBER*/
-static ITEM     item[MAX_ITEMS];
+static ITEM    *item;
 static uint32_t itemcount;
 
-static uint32_t shown_list[1024]; // list of chats actually shown in the GUI after filtering
-                                  // (actually indices pointing to chats in the chats array)
+// list of chats actually shown in the GUI after filtering
+// (actually indices pointing to chats in the chats array)
+static uint32_t *shown_list;
 static uint32_t showncount;
 
 // search and filter stuff
@@ -155,7 +155,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
         contact_bitmap  = BM_CONTACT;
     }
 
-    switch (i->item) {
+    switch (i->type) {
         case ITEM_FRIEND: {
             FRIEND *f = get_friend(i->id_number);
             uint8_t status = f->online ? f->status : 3;
@@ -260,7 +260,7 @@ void flist_update_shown_list(void) {
     uint32_t j; // index in shown_list array
     for (uint32_t i = j = 0; i < itemcount; i++) {
         ITEM  *it = &item[i];
-        if (it->item == ITEM_FRIEND) {
+        if (it->type == ITEM_FRIEND) {
             FRIEND *f = get_friend(it->id_number);
             if ((!filter || f->online) && friend_matches_search_string(f, search_string)) {
                 shown_list[j++] = i;
@@ -274,19 +274,22 @@ void flist_update_shown_list(void) {
     flist_re_scale();
 }
 
+/* returns address of item at current index and appends the group create entry */
 static ITEM *newitem(void) {
-    unsigned int index = itemcount - 1;
-    if (index >= MAX_ITEMS) {
-        LOG_ERR("flsit", "Index out bounds. Too many items have been created.");
-        return NULL;
+    item       = realloc(item, (itemcount + 1) * sizeof(ITEM));
+    shown_list = realloc(shown_list, (itemcount + 1) * sizeof(uint32_t));
+    if (!item || !shown_list) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Could not allocate memory for friend list.");
     }
 
-    ITEM *i = &item[index];
-    item[itemcount].item = ITEM_GROUP_CREATE;
-    item[itemcount].id_number = UINT32_MAX;
+    unsigned int index = itemcount - 1;
+    item[index + 1].type = ITEM_GROUP_CREATE;
+    item[index + 1].id_number = UINT32_MAX;
     itemcount++;
+
     flist_update_shown_list();
-    return i;
+
+    return &item[index];
 }
 
 // return item that the user is mousing over
@@ -336,8 +339,8 @@ static void change_tab(int offset) {
     /* Pg-Up/Dn broke on the create group icon,
      * remoing this if seems to work but I don't know what it was doing here
      * so I commented it incase it breaks stuff...  */
-    // if (selected_item->item == ITEM_FRIEND ||
-    // selected_item->item == ITEM_GROUP) {
+    // if (selected_item->type == ITEM_FRIEND ||
+    // selected_item->type == ITEM_GROUP) {
     unsigned int index = find_item_shown_index(selected_item);
     if (index != INT_MAX) {
         // flist_selectchat will check if out of bounds
@@ -358,7 +361,7 @@ void flist_next_tab(void) {
  * maybe to ui.c ? */
 static int  current_width; // I know, but I'm in a hurry, so I'll fix this later
 static void page_close(ITEM *i) {
-    switch (i->item) {
+    switch (i->type) {
         case ITEM_FRIEND: {
             FRIEND *f = get_friend(i->id_number);
 
@@ -463,7 +466,7 @@ static void page_close(ITEM *i) {
 }
 
 static void page_open(ITEM *i) {
-    switch (i->item) {
+    switch (i->type) {
         case ITEM_FREQUEST: {
             panel_chat.disabled           = false;
             panel_friend_request.disabled = false;
@@ -586,8 +589,8 @@ static void page_open(ITEM *i) {
 
 static void show_page(ITEM *i) {
     // TODO!!
-    // panel_item[selected_item->item - 1].disabled = 1;
-    // panel_item[i->item - 1].disabled = 0;
+    // panel_item[selected_item->type - 1].disabled = 1;
+    // panel_item[i->type - 1].disabled = 0;
     edit_resetfocus();
 
     /* First things first, we need to deselect and store the old data. */
@@ -605,9 +608,17 @@ void flist_start(void) {
     selected_item            = &item_settings;
     button_settings.disabled = true;
 
-    item_add.item      = ITEM_ADD;
-    item_settings.item = ITEM_SETTINGS;
+    item_add.type      = ITEM_ADD;
+    item_settings.type = ITEM_SETTINGS;
 
+    itemcount = self.friend_list_count + self.groups_list_count;
+    itemcount += 1; /* for ITEM_GROUP_CREATE */
+
+    item       = calloc(itemcount, sizeof(ITEM));
+    shown_list = calloc(itemcount, sizeof(uint32_t));
+    if (!item || !shown_list) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Could not allocate memory for friend list.");
+    }
     ITEM *i = item;
     for (uint32_t num = 0; num < self.friend_list_count; ++num) {
         const FRIEND *f = get_friend(num);
@@ -615,7 +626,7 @@ void flist_start(void) {
             continue;
         }
 
-        i->item      = ITEM_FRIEND;
+        i->type      = ITEM_FRIEND;
         i->id_number = f->number;
         i++;
     }
@@ -626,14 +637,13 @@ void flist_start(void) {
             continue;
         }
 
-        i->item = ITEM_GROUP;
+        i->type = ITEM_GROUP;
         i->id_number = g->number;
         i++;
     }
 
-    itemcount = i - item;
-
-    newitem(); /* Called alone will create the group bar */
+    i->type = ITEM_GROUP_CREATE;
+    i->id_number = UINT32_MAX;
 
     search_string = NULL;
     flist_update_shown_list();
@@ -646,7 +656,7 @@ void flist_add_friend(FRIEND *f, const char *msg, const int msg_length) {
         return;
     }
 
-    i->item = ITEM_FRIEND;
+    i->type = ITEM_FRIEND;
     i->id_number = f->number;
 
     if (msg_length > 0) {
@@ -656,13 +666,13 @@ void flist_add_friend(FRIEND *f, const char *msg, const int msg_length) {
 
 void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
     for (uint32_t i = 0; i < itemcount; ++i) {
-        if (item[i].item == ITEM_FREQUEST && item[i].id_number == req->number) {
+        if (item[i].type == ITEM_FREQUEST && item[i].id_number == req->number) {
             LOG_INFO("FList", "Friend found and accepted.");
-            item[i].item = ITEM_FRIEND;
+            item[i].type = ITEM_FRIEND;
             item[i].id_number = f->number;
 
             if (&item[i] == selected_item) {
-                // panel_item[selected_item->item - 1].disabled = 1;
+                // panel_item[selected_item->type - 1].disabled = 1;
                 // panel_item[ITEM_FRIEND - 1].disabled = 0;
 
                 messages_friend.object                                = &f->msg;
@@ -689,7 +699,7 @@ void flist_add_group(GROUPCHAT *g) {
         return;
     }
 
-    i->item = ITEM_GROUP;
+    i->type = ITEM_GROUP;
     i->id_number = g->number;
 }
 
@@ -700,7 +710,7 @@ void flist_add_frequest(FREQUEST *r) {
         return;
     }
 
-    i->item = ITEM_FREQUEST;
+    i->type = ITEM_FREQUEST;
     i->id_number = r->number;
 }
 
@@ -708,6 +718,7 @@ void group_av_peer_remove(GROUPCHAT *g, int peernumber);
 
 // FIXME removing multiple items without moving the mouse causes asan neg-size-param error on memmove!
 static void deleteitem(ITEM *i) {
+    uint32_t countof_item = itemcount;
     right_mouse_item = NULL;
 
     if (i == selected_item) {
@@ -722,7 +733,7 @@ static void deleteitem(ITEM *i) {
         }
     }
 
-    switch (i->item) {
+    switch (i->type) {
         case ITEM_FRIEND: {
             FRIEND *f = get_friend(i->id_number);
             postmessage_toxcore(TOX_FRIEND_DELETE, f->number, 0, f);
@@ -751,7 +762,7 @@ static void deleteitem(ITEM *i) {
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
 
-    if (i != selected_item && selected_item > i && selected_item >= item && selected_item < item + COUNTOF(item)) {
+    if (i != selected_item && selected_item > i && selected_item >= item && selected_item < item + countof_item) {
         selected_item--;
     }
 
@@ -760,20 +771,20 @@ static void deleteitem(ITEM *i) {
 }
 
 void flist_delete_sitem(void) {
-    if (selected_item >= item && selected_item < item + COUNTOF(item)) {
+    if (selected_item >= item && selected_item < item + itemcount) {
         deleteitem(selected_item);
     }
 }
 
 void flist_delete_rmouse_item(void) {
-    if (right_mouse_item >= item && right_mouse_item < item + COUNTOF(item)) {
+    if (right_mouse_item >= item && right_mouse_item < item + itemcount) {
         deleteitem(right_mouse_item);
     }
 }
 
 void flist_freeall(void) {
     for (ITEM *i = item; i != item + itemcount; i++) {
-        switch (i->item) {
+        switch (i->type) {
             case ITEM_FRIEND: {
                 friend_free(get_friend(i->id_number));
                 break;
@@ -793,10 +804,11 @@ void flist_freeall(void) {
                 break;
             }
         }
-        i->item = ITEM_NONE;
     }
     itemcount  = 0;
     showncount = 0;
+    free(item);
+    free(shown_list);
 }
 
 void flist_selectchat(int index) {
@@ -831,7 +843,7 @@ static struct {
 } push_pop;
 
 static void push_selected(void) {
-    push_pop.type = selected_item->item;
+    push_pop.type = selected_item->type;
 
     switch (push_pop.type) {
         case ITEM_NONE:
@@ -875,7 +887,7 @@ static void pop_selected(void) {
 
         case ITEM_FRIEND: {
             for (uint16_t i = 0; i < itemcount; ++i) {
-                if (item[i].item == ITEM_FRIEND) {
+                if (item[i].type == ITEM_FRIEND) {
                     FRIEND *f = get_friend(item[i].id_number);
                     if (memcmp(push_pop.data, &f->id_bin, TOX_PUBLIC_KEY_SIZE) == 0) {
                         show_page(&item[i]);
@@ -935,7 +947,7 @@ GROUPCHAT *flist_get_groupchat(void) {
 }
 
 ITEM_TYPE flist_get_type(void) {
-    return selected_item->item;
+    return selected_item->type;
 }
 
 /**
@@ -1153,7 +1165,7 @@ static void contextmenu_friend(FLIST_CONTEXT_MENU rcase) {
 
 static void contextmenu_list_onselect(uint8_t i) {
     if (right_mouse_item) {
-        switch (right_mouse_item->item) {
+        switch (right_mouse_item->type) {
             case ITEM_FRIEND: {
                 contextmenu_friend(i);
                 return;
@@ -1227,7 +1239,7 @@ bool flist_mright(void *UNUSED(n)) {
 
     if (mouseover_item) {
         right_mouse_item = mouseover_item;
-        switch (mouseover_item->item) {
+        switch (mouseover_item->type) {
             case ITEM_FRIEND: {
                 contextmenu_new(COUNTOF(menu_friend), menu_friend, contextmenu_list_onselect);
                 show_page(mouseover_item);
@@ -1288,8 +1300,8 @@ bool flist_mup(void *UNUSED(n)) {
 
     if (selected_item_mousedown && abs(selected_item_dy) >= 5) {
         if (nitem && find_item_shown_index(nitem) != INT_MAX) {
-            if (selected_item->item == ITEM_FRIEND) {
-                if (nitem->item == ITEM_FRIEND) {
+            if (selected_item->type == ITEM_FRIEND) {
+                if (nitem->type == ITEM_FRIEND) {
                     ITEM temp      = *selected_item;
                     *selected_item = *nitem;
                     *nitem         = temp;
@@ -1297,7 +1309,7 @@ bool flist_mup(void *UNUSED(n)) {
                     selected_item = nitem;
                 }
 
-                if (nitem->item == ITEM_GROUP) {
+                if (nitem->type == ITEM_GROUP) {
                     FRIEND *f = get_friend(selected_item->id_number);
                     GROUPCHAT *g = get_group(nitem->id_number);
                     if (f->online) {
@@ -1306,8 +1318,8 @@ bool flist_mup(void *UNUSED(n)) {
                 }
             }
 
-            if (selected_item->item == ITEM_GROUP) {
-                if (nitem->item == ITEM_FRIEND || nitem->item == ITEM_GROUP) {
+            if (selected_item->type == ITEM_GROUP) {
+                if (nitem->type == ITEM_FRIEND || nitem->type == ITEM_GROUP) {
                     ITEM temp      = *selected_item;
                     *selected_item = *nitem;
                     *nitem         = temp;
