@@ -93,10 +93,8 @@ void init_ptt(void) {
 
 
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__DragonFly__) || defined(__FreeBSD__)
 #include <linux/input.h>
-#elif defined(__DragonFly__) || defined(__FreeBSD__)
-#include <dev/misc/evdev/input.h>
 #endif
 
 #if defined(__linux__) || defined(__DragonFly__) || defined(__FreeBSD__)
