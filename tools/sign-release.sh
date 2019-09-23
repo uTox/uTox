@@ -2,7 +2,7 @@
 # set -e
 TAG=$(git describe --abbrev=0 --tags)
 USER=${USER:-$(git config --get user.name)}
-VERSION=${TAG/v/}
+VERSION=${TAG#v}
 
 echo "Going to verify and sign releases."
 echo ""
