@@ -103,7 +103,7 @@ bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_
  */
 bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]);
 
-/* Helper function to intialize the users avatar */
+/* Helper function to initialize the users avatar */
 bool avatar_init_self(void);
 
 /* Moves the avatar to its new name */

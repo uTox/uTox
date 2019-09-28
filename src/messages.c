@@ -965,10 +965,10 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
     drawtextrange(dx + SCALE(10), wbound - SCALE(10), y + SCALE(6), ft_text, ft_text_length);
 }
 
-/* This is a bit hacky, and likely would benifit from being moved to a whole new section including seperating
+/* This is a bit hacky, and likely would benefit from being moved to a whole new section including separating
  * group messages/functions from friend messages and functions from inside ui.c.
  *
- * Idealy group and friend messages wouldn't even need to know about eachother.   */
+ * Idealy group and friend messages wouldn't even need to know about each other.   */
 static int messages_draw_group(MESSAGES *m, MSG_HEADER *msg, uint32_t curr_msg_i, int x, int y, int width, int height) {
     uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
     if ((m->sel_start_msg > curr_msg_i && m->sel_end_msg > curr_msg_i)
@@ -1801,7 +1801,7 @@ bool messages_char(uint32_t ch) {
     }
 
     switch (ch) {
-        // TODO: probabaly need to fix this section :< m->panel.content scroll is likely to be wrong.
+        // TODO: probably need to fix this section :< m->panel.content scroll is likely to be wrong.
         case KEY_PAGEUP: {
             SCROLLABLE *scroll = m->panel.content_scroll;
             scroll->d -= 0.25; // TODO: Change to a full chat-screen height.

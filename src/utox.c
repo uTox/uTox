@@ -521,7 +521,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         case FRIEND_REMOVE: {
             FRIEND *f = data;
-            // commented out incase you have multiple clients in the same data dir
+            // commented out in case you have multiple clients in the same data dir
             // and remove one as friend from the other
             //   (it would remove his avatar locally too otherwise)
             // char cid[TOX_PUBLIC_KEY_SIZE * 2];

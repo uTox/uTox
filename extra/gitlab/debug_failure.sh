@@ -5,7 +5,7 @@ set -eux
 . ./extra/gitlab/env.sh
 
 echo "======================================================"
-echo "== DEBUGING FAILURE "
+echo "== DEBUGGING FAILURE "
 echo "======================================================"
 echo ""
 

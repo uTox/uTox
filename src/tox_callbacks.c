@@ -219,12 +219,12 @@ static void callback_group_peer_name_change(Tox *UNUSED(tox), uint32_t gid, uint
 
     if (g->peer) {
         if (!g->peer[pid]) {
-            LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant peer!" );
+            LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existent peer!" );
             return;
         }
     } else {
         // TODO can't happen
-        LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant Group!" );
+        LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existent Group!" );
     }
 
     length = utf8_validate(name, length);
@@ -303,7 +303,7 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
 void callback_group_connected(Tox *UNUSED(tox), uint32_t gid, void *UNUSED(userdata)){
     GROUPCHAT *g = get_group(gid);
     if (!g) {
-        LOG_ERR("Tox Callbacks", "Toxcore says were connected to a non-existant groupchat %u.", gid);
+        LOG_ERR("Tox Callbacks", "Toxcore says were connected to a non-existent groupchat %u.", gid);
         return;
     }
 
