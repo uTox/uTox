@@ -79,7 +79,7 @@ void do_tox_url(uint8_t *url_string, int len) {
     LOG_TRACE("Commands", "Command: %.*s" , len, url_string);
 
     //! lacks max length checks, writes to inputs even on failure, no notice of failure
-    // doesnt reset unset inputs
+    // doesn't reset unset inputs
 
     // slashes are removed later
     if (len > 4 && memcmp(url_string, "tox:", 4) == 0) {

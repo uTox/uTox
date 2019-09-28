@@ -338,7 +338,7 @@ void flist_search(char *str) {
 static void change_tab(int offset) {
     /* Pg-Up/Dn broke on the create group icon,
      * remoing this if seems to work but I don't know what it was doing here
-     * so I commented it incase it breaks stuff...  */
+     * so I commented it in case it breaks stuff...  */
     // if (selected_item->type == ITEM_FRIEND ||
     // selected_item->type == ITEM_GROUP) {
     unsigned int index = find_item_shown_index(selected_item);

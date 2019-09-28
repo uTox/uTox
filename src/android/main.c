@@ -169,7 +169,7 @@ FILE *native_get_file_simple(const char *path, UTOX_FILE_OPTS opts) {
 
     if (!fp && opts & UTOX_FILE_OPTS_READ && opts & UTOX_FILE_OPTS_WRITE) {
         LOG_WARN("Android Native", "Unable to simple open, falling back to fd" );
-        // read wont create a file if it doesn't' already exist. If we're allowed to write, lets try
+        // read won't create a file if it doesn't already exist. If we're allowed to write, let's try
         // to create the file, then reopen it.
         int fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         fp = fdopen(fd, mode);

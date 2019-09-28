@@ -489,7 +489,7 @@ uint16_t native_video_detect(void) {
 
 void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     if (!img_data) {
-        LOG_DEBUG("Video", "Receieved a null frame. Skipping...");
+        LOG_DEBUG("Video", "Received a null frame. Skipping...");
         return;
     }
 

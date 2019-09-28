@@ -73,7 +73,7 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
 
     /* I was getting some errors before, and made this change, but I'm not convinced
      * these can't be moved to the stack. I'd rather not XAlloc but it works now so
-     * in true Linux fashion DONT TOUCH ANYTING THAT WORKS! */
+     * in true Linux fashion DON'T TOUCH ANYTHING THAT WORKS! */
     /*  Allocate memory for xlib... */
     XSizeHints *size_hints  = XAllocSizeHints();
     XWMHints   *wm_hints    = XAllocWMHints();

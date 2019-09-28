@@ -140,7 +140,7 @@ dev_tool:windows:
     - echo "Pulling headers"
     - echo "Pulling libs from build:windows"
     - echo "zipping folder"
-    - echo "archving stuff :D"
+    - echo "archiving stuff :D"
   only:
     - master
     - tags

@@ -90,7 +90,7 @@ GROUPCHAT *get_group(uint32_t group_number);
 void raze_groups(void);
 
 /*
- * Initalize the groupchats array
+ * Initialize the groupchats array
  * This function should only be called once at startup after tox and the self struct have been setup
  */
 void init_groups(Tox *tox);

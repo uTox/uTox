@@ -441,7 +441,7 @@ enum {
 
 void edit_char(uint32_t ch, bool control, uint8_t flags) {
     if (!active_edit) {
-        LOG_ERR("UI Edit", "Stopped you from crashing becase no edit was active or something.");
+        LOG_ERR("UI Edit", "Stopped you from crashing because no edit was active or something.");
         return;
     }
 
