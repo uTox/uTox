@@ -27,7 +27,7 @@
 static FRIEND *friend = NULL;
 
 FRIEND *get_friend(uint32_t friend_number) {
-    if (friend_number >= self.friend_list_size) { //friend doesnt exist if true
+    if (friend_number >= self.friend_list_size) { //friend doesn't exist if true
         LOG_WARN("Friend", "Friend number (%u) out of bounds.", friend_number);
         return NULL;
     }
@@ -58,7 +58,7 @@ static FREQUEST *frequests = NULL;
 static uint16_t frequest_list_size = 0;
 
 FREQUEST *get_frequest(uint16_t frequest_number) {
-    if (frequest_number >= frequest_list_size) { //frequest doesnt exist if true
+    if (frequest_number >= frequest_list_size) { //frequest doesn't exist if true
         LOG_ERR("Friend", "Request number out of bounds.");
         return NULL;
     }
@@ -306,7 +306,7 @@ void utox_friend_list_init(Tox *tox) {
     for (uint32_t i = 0; i < self.friend_list_size; ++i) {
         utox_friend_init(tox, i);
     }
-    LOG_INFO("Friend", "Friendlist sucessfully initialized with %u friends.", self.friend_list_size);
+    LOG_INFO("Friend", "Friendlist successfully initialized with %u friends.", self.friend_list_size);
 }
 
 void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
