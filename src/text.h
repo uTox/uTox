@@ -1,6 +1,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 
+#include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -10,20 +11,26 @@
  */
 int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes);
 
-/** length of a utf-8 character
- *  returns the size of the character in bytes
- *  returns -1 if the size of the character is greater than len or if the character is invalid
+/* returns the length of the UTF8-character pointed to by `str`
+ * returns 0 on invalid UTF8-character
  */
-uint8_t utf8_len(const char *data);
-/* read the character into ch */
-uint8_t utf8_len_read(const char *data, uint32_t *ch);
+uint8_t utf8_len(const char *str);
+
+/* reads a UTF8-character from `str` into `ch`
+ * returns the length of the UTF8-character pointed to by `str`
+ * returns 0 on invalid UTF8-character
+ */
+uint8_t utf8_len_read(const char *str, uint32_t *ch);
+
 /* backwards length */
 uint8_t utf8_unlen(char *data);
 
-/* remove invalid characters from utf8 string
- * returns the new length after invalid characters have been removed
+/* returns the length in bytes of a string of valid UTF8-characters
+ * The returned length is limited by `maxlen`,
+ * or by the first invalid UTF8-character,
+ * or by '\0', whichever comes first.
  */
-int utf8_validate(const uint8_t *data, int len);
+size_t utf8_strnlen(const char *str, size_t maxlen);
 
 uint8_t unicode_to_utf8_len(uint32_t ch);
 void unicode_to_utf8(uint32_t ch, char *dst);

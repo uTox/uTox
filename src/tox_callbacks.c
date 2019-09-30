@@ -27,7 +27,7 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
         return;
     }
 
-    length = utf8_validate(msg, length);
+    length = utf8_strnlen((char *)msg, length);
 
     uint16_t r_number = friend_request_new(id, msg, length);
 
@@ -67,7 +67,7 @@ static void callback_friend_message(Tox *UNUSED(tox), uint32_t friend_number, TO
 
 static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length,
                                  void *UNUSED(userdata)) {
-    length     = utf8_validate(newname, length);
+    length     = utf8_strnlen((char *)newname, length);
     void *data = malloc(length);
     if (!data) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks",
@@ -81,7 +81,7 @@ static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *
 
 static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newstatus, size_t length,
                                     void *UNUSED(userdata)) {
-    length     = utf8_validate(newstatus, length);
+    length     = utf8_strnlen((char *)newstatus, length);
     void *data = malloc(length);
     if (!data) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks",
@@ -227,7 +227,7 @@ static void callback_group_peer_name_change(Tox *UNUSED(tox), uint32_t gid, uint
         LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant Group!" );
     }
 
-    length = utf8_validate(name, length);
+    length = utf8_strnlen((char *)name, length);
     group_peer_name_change(g, pid, name, length);
 
     postmessage_utox(GROUP_PEER_NAME, gid, pid, NULL);
@@ -286,7 +286,7 @@ static void callback_group_peer_list_changed(Tox *tox, uint32_t gid, void *UNUSE
 
 static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, const uint8_t *title, size_t length,
                                  void *UNUSED(userdata)) {
-    length = utf8_validate(title, length);
+    length = utf8_strnlen((char *)title, length);
     if (!length)
         return;
 

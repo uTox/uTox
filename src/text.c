@@ -1,5 +1,6 @@
 #include "text.h"
 
+#include "debug.h"
 #include "macros.h"
 
 #include <ctype.h>
@@ -37,57 +38,36 @@ int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
     return r;
 }
 
-uint8_t utf8_len(const char *data) {
-    if (!(*data & 0x80)) {
-        return 1;
-    }
+uint8_t utf8_len(const char *str) {
+    uint32_t unused;
 
-    uint8_t bytes = 1, i;
-    for (i = 6; i != 0xFF; i--) {
-        if (!((*data >> i) & 1)) {
-            break;
-        }
-        bytes++;
-    }
-    // no validation, instead validate all utf8 when recieved
-    return bytes;
+    return utf8_len_read(str, &unused);
 }
 
-uint8_t utf8_len_read(const char *data, uint32_t *ch) {
-    uint8_t a = data[0];
-    if (!(a & 0x80)) {
-        *ch = data[0];
+uint8_t utf8_len_read(const char *str, uint32_t *ch) {
+    char a = str[0];
+
+    if (!(a & 0x80)) { /* not a multi-byte character */
+        *ch = str[0];
         return 1;
     }
 
-    if (!(a & 0x20)) {
-        *ch = ((data[0] & 0x1F) << 6) | (data[1] & 0x3F);
+    if (!(a & 0x20)) { /* 110xxxxx */
+        *ch = ((str[0] & 0x1F) << 6) | (str[1] & 0x3F);
         return 2;
     }
 
-    if (!(a & 0x10)) {
-        *ch = ((data[0] & 0xF) << 12) | ((data[1] & 0x3F) << 6) | (data[2] & 0x3F);
+    if (!(a & 0x10)) { /* 1110xxxx */
+        *ch = ((str[0] & 0xF) << 12) | ((str[1] & 0x3F) << 6) | (str[2] & 0x3F);
         return 3;
     }
 
-    if (!(a & 8)) {
-        *ch = ((data[0] & 0x7) << 18) | ((data[1] & 0x3F) << 12) | ((data[2] & 0x3F) << 6) | (data[3] & 0x3F);
+    if (!(a & 0x08)) { /* 11110xxx */
+        *ch = ((str[0] & 0x7) << 18) | ((str[1] & 0x3F) << 12) | ((str[2] & 0x3F) << 6) | (str[3] & 0x3F);
         return 4;
     }
 
-    if (!(a & 4)) {
-        *ch = ((data[0] & 0x3) << 24) | ((data[1] & 0x3F) << 18) | ((data[2] & 0x3F) << 12) | ((data[3] & 0x3F) << 6)
-              | (data[4] & 0x3F);
-        return 5;
-    }
-
-    if (!(a & 2)) {
-        *ch = ((data[0] & 0x1) << 30) | ((data[1] & 0x3F) << 24) | ((data[2] & 0x3F) << 18) | ((data[3] & 0x3F) << 12)
-              | ((data[4] & 0x3F) << 6) | (data[5] & 0x3F);
-        return 6;
-    }
-
-    // never happen
+    LOG_WARN("Text", "utf8_len_read() came across an invalid UTF-8 character. This should probably have not happened.");
     return 0;
 }
 
@@ -102,48 +82,22 @@ uint8_t utf8_unlen(char *data) {
     return len;
 }
 
-/* I've had some issues with this function in the past when it's given malformed data.
- * irungentoo has previouslly said, it'll never fail when given a valid utf-8 string, however the
- * utf8 standard says that applications are required to handle and correctlly respond to malformed
- * strings as they have been used in the past to create security expliots. This function is known to
- * enter an endless state, or segv on bad strings. Either way, that's bad and needs to be fixed.
- * TODO(grayhatter) TODO(anyone) */
-int utf8_validate(const uint8_t *data, int len) {
-    // stops when an invalid character is reached
-    const uint8_t *a = data, *end = data + len;
-    while (a != end) {
-        if (!(*a & 0x80)) {
-            a++;
-            continue;
-        }
+size_t utf8_strnlen(const char *str, size_t maxlen) {
+    size_t len, n;
 
-        uint8_t bytes = 1, i;
-        for (i = 6; i != 0xFF; i--) {
-            if (!((*a >> i) & 1)) {
-                break;
-            }
-            bytes++;
-        }
-
-        if (bytes == 1 || bytes == 8) {
+    len = 0;
+    while (len < maxlen) {
+        if ('\0' == str[len])
             break;
-        }
 
-        // Validate the utf8
-        if (a + bytes > end) {
+        n = utf8_len(str + len);
+        if (!n || len + n > maxlen)
             break;
-        }
 
-        for (i = 1; i < bytes; i++) {
-            if (!(a[i] & 0x80) || (a[i] & 0x40)) {
-                return a - data;
-            }
-        }
-
-        a += bytes;
+        len += n;
     }
 
-    return a - data;
+    return len;
 }
 
 uint8_t unicode_to_utf8_len(uint32_t ch) {

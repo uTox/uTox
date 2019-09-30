@@ -193,7 +193,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
                 break;
             }
 
-            msg->via.txt.length = utf8_validate((uint8_t *)msg->via.txt.msg, msg->via.txt.length);
+            msg->via.txt.length = utf8_strnlen(msg->via.txt.msg, msg->via.txt.length);
             *data++ = msg;
             --count;
             ++actual_count;
