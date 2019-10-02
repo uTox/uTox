@@ -62,7 +62,7 @@ HRESULT __stdcall dnd_DragLeave(IDropTarget *UNUSED(lpMyObj)) {
 HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObject,
                            DWORD UNUSED(grfKeyState), POINTL UNUSED(pt), DWORD *pdwEffect) {
     *pdwEffect = DROPEFFECT_COPY;
-    LOG_NOTE("DnD", "Droppped!" );
+    LOG_NOTE("DnD", "Dropped!" );
 
     if (!flist_get_friend()) {
         return S_OK;

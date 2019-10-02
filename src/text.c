@@ -49,7 +49,7 @@ uint8_t utf8_len(const char *data) {
         }
         bytes++;
     }
-    // no validation, instead validate all utf8 when recieved
+    // no validation, instead validate all utf8 when received
     return bytes;
 }
 

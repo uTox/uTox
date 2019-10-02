@@ -76,7 +76,7 @@ static Suite *suite(void)
 {
     Suite *s = suite_create("Chrono");
 
-    //MK_TEST_CASE(chrono_finished); // reenable when the finished field of the chrono info struct is used
+    //MK_TEST_CASE(chrono_finished); // re-enable when the finished field of the chrono info struct is used
     MK_TEST_CASE(chrono_target);
     MK_TEST_CASE(chrono_callback)
 

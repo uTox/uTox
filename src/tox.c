@@ -583,8 +583,8 @@ void toxcore_thread(void *UNUSED(args)) {
  * There are two main threads, the tox worker thread, that interacts with Toxcore, and receives the callbacks. The other
  * is the 'uTox' thread that interacts with the user, (rather sends information to the GUI.) The tox thread and the uTox
  * thread may interact with each other, as you see fit. However the Toxcore thread has child threads that are a bit
- * temperamental. The ToxAV thread is a child of the Toxcore thread, and therefor will ideally only be called by the tox
- * thread. The ToxAV thread also has two children of it's own, an audio and a video thread. Both a & v threads should
+ * temperamental. The ToxAV thread is a child of the Toxcore thread, and therefore will ideally only be called by the tox
+ * thread. The ToxAV thread also has two children of its own, an audio and a video thread. Both a & v threads should
  * only be called by the ToxAV thread to avoid deadlocks.
  */
 static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2,

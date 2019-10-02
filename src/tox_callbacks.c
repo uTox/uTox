@@ -219,12 +219,12 @@ static void callback_group_peer_name_change(Tox *UNUSED(tox), uint32_t gid, uint
 
     if (g->peer) {
         if (!g->peer[pid]) {
-            LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant peer!" );
+            LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't set a name, for non-existent peer!" );
             return;
         }
     } else {
         // TODO can't happen
-        LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant Group!" );
+        LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't set a name, for non-existent Group!" );
     }
 
     length = utf8_validate(name, length);
@@ -272,7 +272,7 @@ static void callback_group_peer_list_changed(Tox *tox, uint32_t gid, void *UNUSE
         for (int key_i = 0; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
             pkey_to_number += pkey[key_i];
         }
-        /* uTox doesnt' really use this for too much so lets fuck with the random seed.
+        /* uTox doesnt' really use this for too much so let's fuck with the random seed.
          * If you know crypto, and cringe, I know me too... you can blame @irungentoo */
         srand(pkey_to_number);
         peer->name_color = RGB(rand(), rand(), rand());
@@ -303,7 +303,7 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
 void callback_group_connected(Tox *UNUSED(tox), uint32_t gid, void *UNUSED(userdata)){
     GROUPCHAT *g = get_group(gid);
     if (!g) {
-        LOG_ERR("Tox Callbacks", "Toxcore says were connected to a non-existant groupchat %u.", gid);
+        LOG_ERR("Tox Callbacks", "Toxcore says we're connected to a non-existent groupchat %u.", gid);
         return;
     }
 

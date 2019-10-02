@@ -29,7 +29,6 @@ static SLObjectItf                   recorderObject = NULL;
 static SLRecordItf                   recorderRecord;
 static SLAndroidSimpleBufferQueueItf recorderBufferQueue;
 
-// dont change this
 #define FRAMES (960 * 3)
 
 static short recbuf[960 * 2];

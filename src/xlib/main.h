@@ -52,7 +52,7 @@ XImage *screen_image;
 
 extern int utox_v4l_fd;
 
-/* dynamiclly load libgtk */
+/* dynamically load libgtk */
 void *libgtk;
 
 struct {

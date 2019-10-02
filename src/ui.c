@@ -90,7 +90,7 @@ bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
  *                                                                     *
  **********************************************************************/
 static void sidepanel_USERBADGE(void) {
-    // Converting DEFINES to magic becaues this will be moved to layout/
+    // Converting DEFINES to magic because this will be moved to layout/
     // and will then get a different format/selection
     CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, 40, 40);
     CREATE_BUTTON(name, SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - 2);
@@ -337,7 +337,7 @@ void ui_rescale(uint8_t scale) {
 }
 
 /* Use the preprocessor to build function prototypes for all user interactions
- * These are functions that are (must be) defined elsewehere. The preprocessor in this case creates the prototypes that
+ * These are functions that are (must be) defined elsewhere. The preprocessor in this case creates the prototypes that
  * will then be used by panel_draw_core to call the correct function
 */
 #define MAKE_FUNC(ret, x, ...)                                                                                          \

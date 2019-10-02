@@ -118,7 +118,7 @@ static bool linux_check_ptt(void) {
             return false;
         }
     }
-    /* Okay nope, lets' fallback to xinput... *pouts*
+    /* Okay nope, let's fallback to xinput... *pouts*
      * Fall back to Querying the X for the current keymap. */
     ptt_key       = XKeysymToKeycode(display, XK_Control_L);
     char keys[32] = { 0 };
@@ -382,7 +382,7 @@ void formaturilist(char *out, const char *in, size_t len) {
     // out[len - removed - 1] = '\n';
 }
 
-// TODO(robinli): Go over this function and see if either len or size are removeable.
+// TODO(robinli): Go over this function and see if either len or size are removable.
 void pastedata(void *data, Atom type, size_t len, bool select) {
 
     size_t size = len;
@@ -517,7 +517,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
 
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        LOG_ERR("utox_image_to_native", "Could mot allocate memory for image." );
+        LOG_ERR("utox_image_to_native", "Could not allocate memory for image." );
         return NULL;
     }
     image->rgb   = rgb;
@@ -576,7 +576,7 @@ void setscale(void) {
 
     if (settings.window_width > (uint32_t)SCALE(MAIN_WIDTH) &&
         settings.window_height > (uint32_t)SCALE(MAIN_HEIGHT)) {
-        /* wont get a resize event, call this manually */
+        /* won't get a resize event, call this manually */
         ui_size(settings.window_width, settings.window_height);
     }
 }

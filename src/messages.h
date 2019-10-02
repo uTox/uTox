@@ -17,9 +17,9 @@ typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_TEXT,
     MSG_TYPE_ACTION_TEXT,
     MSG_TYPE_NOTICE,
-    MSG_TYPE_NOTICE_DAY_CHANGE, // Seperated so I can localize this later!
+    MSG_TYPE_NOTICE_DAY_CHANGE, // Separated so I can localize this later!
     /* MSG_TEXT should end here */
-    // MSG_TYPE_OTHER, // Unused, expect to seperate MSG_TEXT type
+    // MSG_TYPE_OTHER, // Unused, expect to separate MSG_TEXT type
     MSG_TYPE_IMAGE,
     // MSG_TYPE_IMAGE_HISTORY,
     MSG_TYPE_FILE,

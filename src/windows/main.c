@@ -621,7 +621,7 @@ void loadfonts() {
     font[FONT_SELF_NAME] = CreateFontIndirect(&lf);
     lf.lfHeight          = (SCALE(-20) - 1) / 2;
     font[FONT_MISC]      = CreateFontIndirect(&lf);
-    /*lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
+    /*lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts don't antialias
     font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
     lf.lfHeight = F(11);
     font[FONT_MSG] = CreateFontIndirect(&lf);
