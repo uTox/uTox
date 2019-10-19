@@ -62,6 +62,7 @@ enum {
     FONT_SELF_NAME,
     FONT_STATUS,
     FONT_LIST_NAME,
+    FONT_MONO,
     FONT_MISC,
 
     FONT_END,

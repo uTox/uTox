@@ -414,6 +414,9 @@ void loadfonts(void) {
     //           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
     // font_open(&font[FONT_MSG_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(10.0),
     // FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
+    font_open(&font[FONT_MONO], FC_FAMILY, FcTypeString, "Monospace", FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
+              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN,
+              FC_SPACING, FcTypeInteger, FC_MONO, NULL);
     font_open(&font[FONT_MISC], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(10.0),
               FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
     // font_open(&font[FONT_MSG_LINK], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(11.0),

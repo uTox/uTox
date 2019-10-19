@@ -5,6 +5,7 @@
 
 #include "../text.h"
 #include "../theme.h"
+#include "../ui.h"
 
 #include <limits.h>
 #include <string.h>
@@ -84,6 +85,7 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
     uint32_t c1, c2;
 
     bool greentext = 0, link = 0, draw = y + lineheight >= top;
+    bool code = 0;
     int  xc = x;
 
     const char *a_mark = data, *b_mark = a_mark, *end = a_mark + length;
@@ -117,9 +119,14 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
                     }
                 }
             }
+
+            if (*a_mark == '`') {
+                code = 1;
+                setfont(FONT_MONO);
+            }
         }
 
-        if (a_mark == end || *a_mark == ' ' || *a_mark == '\n') {
+        if (a_mark == end || *a_mark == ' ' || *a_mark == '\n' || *a_mark == '`') {
             int count = a_mark - b_mark, w = textwidth(b_mark, count);
             while (x + w > right) {
                 if (multiline && x == xc) {
@@ -180,6 +187,11 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
                 draw = (y + lineheight >= top && y < bottom);
                 b_mark += utf8_len(b_mark);
                 x = xc;
+            }
+
+            if (code && (*a_mark == '`' || *a_mark == '\n' || a_mark == end)) {
+                setfont(FONT_TEXT);
+                code = 0;
             }
         }
         a_mark += utf8_len(a_mark);
