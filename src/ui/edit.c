@@ -111,25 +111,22 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
     }
 
     bool is_active = (edit == active_edit);
+    char star[edit->length];
+    star[0] = 0;
     if (edit->password) {
         /* Generate the stars for this password */
-        char star[edit->length];
         memset(star, '*', edit->length);
-        utox_draw_text_multiline_within_box(x + SCALE(4), yy + SCALE(top_offset * 2),
-                                                x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0),
-                                                y, y + height, font_small_lineheight, star,
-                                                edit->length, is_active ? edit_sel.start : UINT16_MAX,
-                                                is_active ? edit_sel.length : UINT16_MAX,
-                                                is_active ? edit_sel.mark_start : 0,
-                                                is_active ? edit_sel.mark_length : 0, edit->multiline);
-    } else {
-        utox_draw_text_multiline_within_box(x + SCALE(4), yy + SCALE(top_offset * 2),
-                                    x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0),
-                                    y, y + height, font_small_lineheight, edit->data,
-                                    edit->length, is_active ? edit_sel.start : UINT16_MAX,
-                                    is_active ? edit_sel.length : UINT16_MAX, is_active ? edit_sel.mark_start : 0,
-                                    is_active ? edit_sel.mark_length : 0, edit->multiline);
     }
+    utox_draw_text_multiline_within_box(
+            x + SCALE(4), yy + SCALE(top_offset * 2),
+            x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0),
+            y, y + height, font_small_lineheight,
+            star[0] ? star : edit->data, edit->length,
+            is_active ? edit_sel.start : UINT16_MAX,
+            is_active ? edit_sel.length : UINT16_MAX,
+            is_active ? edit_sel.mark_start : 0,
+            is_active ? edit_sel.mark_length : 0,
+            edit->multiline);
 
     if (edit->multiline) {
         popclip();
