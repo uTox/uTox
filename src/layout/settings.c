@@ -517,6 +517,13 @@ static void update_show_password_button_text(void) {
 }
 
 BUTTON button_settings = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = SIDEBAR_BUTTON_LEFT,
+        .y      = ROSTER_BOTTOM,
+        .width  = SIDEBAR_BUTTON_WIDTH,
+        .height = SIDEBAR_BUTTON_HEIGHT,
+    },
     .bm_icon          = BM_SETTINGS,
     .icon_w       = _BM_ADD_WIDTH,
     .icon_h       = _BM_ADD_WIDTH,
@@ -801,6 +808,13 @@ static void button_show_qr_update(BUTTON *b) {
 }
 
 BUTTON button_copyid = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  66,
+        .y      = 117,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill  = BM_SBUTTON,
     .update   = button_setcolors_success,
     .on_mup   = button_copyid_on_mup,
@@ -856,6 +870,13 @@ BUTTON button_videopreview = {
 };
 
 BUTTON button_lock_uTox = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  10,
+        .y      = 295,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_lock_uTox_on_mup,
@@ -864,6 +885,13 @@ BUTTON button_lock_uTox = {
 };
 
 BUTTON button_show_password_settings = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  10,
+        .y      = 207,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_show_password_settings_on_mup,
@@ -872,6 +900,13 @@ BUTTON button_show_password_settings = {
 };
 
 BUTTON button_export_chatlog = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  10,
+        .y      = 208,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_export_chatlog_on_mup,
@@ -881,6 +916,13 @@ BUTTON button_export_chatlog = {
 };
 
 BUTTON button_change_nospam = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  10,
+        .y      = 295,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_change_nospam_on_mup,
@@ -963,6 +1005,13 @@ static void switchfxn_auto_update(void) {
 static void switchfxn_block_friend_requests(void) { settings.block_friend_requests = !settings.block_friend_requests; }
 
 UISWITCH switch_save_chat_history = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 115,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -973,6 +1022,13 @@ UISWITCH switch_save_chat_history = {
 };
 
 UISWITCH switch_mini_contacts = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 235,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1005,6 +1061,13 @@ UISWITCH switch_magic_sidebar = {
 };
 
 UISWITCH switch_ipv6 = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 27,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1015,6 +1078,13 @@ UISWITCH switch_ipv6 = {
 };
 
 UISWITCH switch_udp = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 57,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1025,6 +1095,13 @@ UISWITCH switch_udp = {
 };
 
 UISWITCH switch_close_to_tray = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 145,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1035,6 +1112,13 @@ UISWITCH switch_close_to_tray = {
 };
 
 UISWITCH switch_start_in_tray = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 175,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1045,6 +1129,13 @@ UISWITCH switch_start_in_tray = {
 };
 
 UISWITCH switch_auto_startup = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 205,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1055,6 +1146,13 @@ UISWITCH switch_auto_startup = {
 };
 
 UISWITCH switch_typing_notes = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 70,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1065,6 +1163,13 @@ UISWITCH switch_typing_notes = {
 };
 
 UISWITCH switch_audible_notifications = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 10,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1075,6 +1180,13 @@ UISWITCH switch_audible_notifications = {
 };
 
 UISWITCH switch_push_to_talk = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 10,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1095,6 +1207,13 @@ UISWITCH switch_audio_filtering = {
 };
 
 UISWITCH switch_status_notifications = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 40,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1105,6 +1224,13 @@ UISWITCH switch_status_notifications = {
 };
 
 UISWITCH switch_auto_update = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 147,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1115,6 +1241,13 @@ UISWITCH switch_auto_update = {
 };
 
 UISWITCH switch_block_friend_requests = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 177,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1163,6 +1296,13 @@ static void switchfxn_proxy_force(void) {
 }
 
 UISWITCH switch_proxy = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 87,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1173,6 +1313,13 @@ UISWITCH switch_proxy = {
 };
 
 UISWITCH switch_proxy_force = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 117,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1280,6 +1427,13 @@ DROPDOWN dropdown_video = {
 };
 
 DROPDOWN dropdown_dpi = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 150,
+        .y      =  85,
+        .width  = 200,
+        .height =  24,
+    },
     .ondisplay = simple_dropdown_ondisplay,
     .onselect  = dropdown_dpi_onselect,
     .dropcount = COUNTOF(dpidrops),
@@ -1312,6 +1466,13 @@ static UTOX_I18N_STR themedrops[] = {
 };
 
 DROPDOWN dropdown_theme = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      =  10,
+        .y      =  85,
+        .width  = 120,
+        .height =  24,
+    },
     .ondisplay = simple_dropdown_ondisplay,
     .onselect  = dropdown_theme_onselect,
     .dropcount = COUNTOF(themedrops),
@@ -1337,6 +1498,13 @@ DROPDOWN dropdown_notify_groupchats = {
 };
 
 DROPDOWN dropdown_global_group_notifications = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      =  10,
+        .y      = 125,
+        .width  = 100,
+        .height =  24,
+    },
     .ondisplay = simple_dropdown_ondisplay,
     .onselect  = dropdown_global_group_notifications_onselect,
     .dropcount = COUNTOF(notifydrops),
@@ -1367,6 +1535,13 @@ static void edit_name_onenter(EDIT *edit) {
 }
 
 EDIT edit_name = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  30,
+        .width  = -10,
+        .height =  24,
+    },
     .data        = edit_name_data,
     .data_size   = sizeof edit_name_data,
     .onenter     = edit_name_onenter,
@@ -1391,6 +1566,13 @@ static void edit_status_msg_onenter(EDIT *edit) {
 }
 
 EDIT edit_status_msg = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  85,
+        .width  = -10,
+        .height =  24,
+    },
     .data        = edit_status_msg_data,
     .data_size   = sizeof edit_status_msg_data,
     .onenter     = edit_status_msg_onenter,
@@ -1418,6 +1600,13 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
 }
 
 EDIT edit_proxy_ip = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      = 230,
+        .y      =  87,
+        .width  = 120,
+        .height =  24,
+    },
     .data        = edit_proxy_ip_data,
     .data_size   = sizeof edit_proxy_ip_data,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
@@ -1426,6 +1615,13 @@ EDIT edit_proxy_ip = {
 };
 
 EDIT edit_proxy_port = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      = 360,
+        .y      =  87,
+        .width  =  60,
+        .height =  24,
+    },
     .data        = edit_proxy_port_data,
     .data_size   = sizeof edit_proxy_port_data,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
@@ -1446,6 +1642,13 @@ static void edit_profile_password_update(EDIT *UNUSED(edit)) {
 }
 
 EDIT edit_profile_password = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  85,
+        .width  = -10,
+        .height =  24,
+    },
     .data_size = sizeof edit_profile_password_data,
     .data      = edit_profile_password_data,
     // .onchange    = edit_profile_password_update,
@@ -1454,6 +1657,13 @@ EDIT edit_profile_password = {
 };
 
 EDIT edit_toxid = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      = 140,
+        .width  = -10,
+        .height =  24,
+    },
     .length = TOX_ADDRESS_SIZE * 2,
     .data = self.id_str,
     .readonly = 1,
@@ -1476,6 +1686,13 @@ static void edit_change_nospam_onenter(EDIT *edit) {
 }
 
 EDIT edit_nospam = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      = 265,
+        .width  = -10,
+        .height =  24,
+    },
     .data_size    = sizeof edit_nospam_data,
     .data         = edit_nospam_data,
     .noborder     = false,

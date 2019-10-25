@@ -92,10 +92,6 @@ bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
 static void sidepanel_USERBADGE(void) {
     // Converting DEFINES to magic because this will be moved to layout/
     // and will then get a different format/selection
-    CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, 40, 40);
-    CREATE_BUTTON(name, SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - 2);
-    CREATE_BUTTON(status_msg, SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_TOP, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_HEIGHT - 2);
-    CREATE_BUTTON(usr_state, 200, 10, 25, 45);
 }
 
 static void sidepanel_FLIST(void) {
@@ -109,12 +105,6 @@ static void sidepanel_FLIST(void) {
     panel_flist.height = ROSTER_BOTTOM;
 
 
-    CREATE_BUTTON(filter_friends, SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_TOP, SIDEBAR_FILTER_FRIENDS_WIDTH,
-                  SIDEBAR_FILTER_FRIENDS_HEIGHT);
-    CREATE_EDIT(search, SIDEBAR_SEARCH_LEFT, SIDEBAR_SEARCH_TOP, SIDEBAR_SEARCH_WIDTH, SIDEBAR_SEARCH_HEIGHT);
-
-    CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
-    CREATE_BUTTON(add_new_contact, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
     button_add_new_contact.panel.disabled = true;
 }
 
@@ -122,32 +112,16 @@ static void sidepanel_FLIST(void) {
 static void settings_PROFILE(void) {
     panel_settings_profile.y = 32;
 
-    CREATE_EDIT(name, 10, 30, -10, 24);
-
-    CREATE_EDIT(status_msg, 10, 85, -10, 24);
-
-    CREATE_EDIT(toxid, 10, 140, -10, 24);
-    CREATE_BUTTON(copyid, 66, 117, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 }
 
 static void settings_UI(void) {
     panel_settings_ui.y            = 32;
 
-    CREATE_DROPDOWN(theme, 10, 85, 24, 120);
-
-    CREATE_DROPDOWN(dpi,   150, 85, 24, 200);
-
-    CREATE_SWITCH(save_chat_history, 10, 115,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(close_to_tray,     10, 145,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(start_in_tray,     10, 175, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(auto_startup,      10, 205, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(mini_contacts,     10, 235, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
 }
 
 static void settings_AV(void) {
     panel_settings_av.y = 32;
 
-    CREATE_SWITCH(push_to_talk, 10, 10, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
 
     #ifndef AUDIO_FILTERING
         const uint16_t start_draw_y = 30;
@@ -172,39 +146,19 @@ static void settings_AV(void) {
 static void settings_NOTIFY(void) {
     panel_settings_notifications.y = 32;
 
-    CREATE_SWITCH(audible_notifications,        10,  10, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(status_notifications,         10,  40, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(typing_notes,                 10,  70, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_DROPDOWN(global_group_notifications, 10, 125,               24,               100);
 }
 
 static void settings_ADV(void) {
     panel_settings_adv.y = 32;
 
-    CREATE_SWITCH(ipv6, 10, 27, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(udp,  10, 57, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-
-    CREATE_SWITCH(proxy,       10, 87,  _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_EDIT(proxy_ip,      230, 87, 120, 24);
-    CREATE_EDIT(proxy_port,    360, 87, 60,  24);
-    CREATE_SWITCH(proxy_force, 10, 117, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-
-    CREATE_SWITCH(auto_update,           10, 147, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(block_friend_requests, 10, 177, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-
-    CREATE_BUTTON(show_password_settings, 10,  207, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     const int show_nospam_x = 30 + UN_SCALE(MAX(UTOX_STR_WIDTH(SHOW_UI_PASSWORD), UTOX_STR_WIDTH(HIDE_UI_PASSWORD)));
     CREATE_BUTTON(show_nospam, show_nospam_x, 207, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
-    CREATE_EDIT(nospam,           10,  265, -10, 24);
-    CREATE_BUTTON(change_nospam,  10,  295, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     const int revert_nospam_x = 30 + UN_SCALE(UTOX_STR_WIDTH(RANDOMIZE_NOSPAM));
     CREATE_BUTTON(revert_nospam, revert_nospam_x, 295, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
-    CREATE_EDIT(profile_password, 10,  85, -10, 24);
-    CREATE_BUTTON(lock_uTox,      10,  295, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 }
 
 void ui_set_scale(uint8_t scale) {
@@ -293,45 +247,12 @@ void ui_rescale(uint8_t scale) {
     CREATE_EDIT(add_new_device_to_self, 10, 27, 0 - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH, 24);
 
 
-    /* Friend Add Page */
-    CREATE_BUTTON(send_friend_request, -10 - _BM_SBUTTON_WIDTH, MAIN_TOP + 168, _BM_SBUTTON_WIDTH,
-                  _BM_SBUTTON_HEIGHT);
-
-    /* Friend Settings Page */
-    CREATE_BUTTON(export_chatlog, 10, 208, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
-
-    CREATE_EDIT(friend_pubkey,          10, 88, -10, 24);
-    CREATE_EDIT(friend_alias,           10, 138, -10, 24);
-
-    CREATE_SWITCH(friend_autoaccept_ft, 10, 168, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-
-    /* Friend / Group Page  */
-    CREATE_BUTTON(call_decline, -186, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(call_audio,   -124, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(call_video,    -62, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(group_audio,   -62, 10, _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
-
-    CREATE_BUTTON(send_file,         6, -46, _BM_CHAT_BUTTON_WIDTH, _BM_CHAT_BUTTON_HEIGHT);
-    CREATE_BUTTON(send_screenshot,   8 + _BM_CHAT_BUTTON_WIDTH, -46, _BM_CHAT_BUTTON_WIDTH, _BM_CHAT_BUTTON_HEIGHT);
-
-    CREATE_BUTTON(chat_send_friend, -6 - _BM_CHAT_SEND_WIDTH, -46, _BM_CHAT_SEND_WIDTH, _BM_CHAT_SEND_HEIGHT);
-    CREATE_BUTTON(chat_send_group,  -6 - _BM_CHAT_SEND_WIDTH, -46, _BM_CHAT_SEND_WIDTH, _BM_CHAT_SEND_HEIGHT);
 
     setfont(FONT_TEXT);
 
-    // Add friend panel
-    CREATE_EDIT(add_new_friend_id, 10, 28 + MAIN_TOP, -10, 24);
-    CREATE_EDIT(add_new_friend_msg, 10, 76 + MAIN_TOP, -10, 84);
-
-    /* Message entry box for friends and groups */
-    CREATE_EDIT(chat_msg_friend, 10 + _BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
-                -46, -64, 40); /* text is 8 high. 8 * 2.5 = 20. */
 
     CREATE_EDIT(chat_msg_group, 6, -46, -10 - BM_CHAT_SEND_WIDTH, 40);
 
-    /* Confirm deletion */
-    CREATE_BUTTON(confirm_deletion, 10, MAIN_TOP + 40, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(deny_deletion,    110, MAIN_TOP + 40, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
     setscale();
 }

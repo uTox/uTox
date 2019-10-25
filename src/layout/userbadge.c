@@ -99,18 +99,46 @@ static void button_avatar_onright(void) {
 }
 
 BUTTON button_avatar = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = SIDEBAR_AVATAR_LEFT,
+        .y      = SIDEBAR_AVATAR_TOP,
+        .width  = 40,
+        .height = 40,
+    },
     .nodraw = true, .on_mup = button_avatar_on_mup, .onright = button_avatar_onright,
 };
 
 BUTTON button_name = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = SIDEBAR_NAME_LEFT,
+        .y      = SIDEBAR_NAME_TOP,
+        .width  = SIDEBAR_NAME_WIDTH,
+        .height = SIDEBAR_NAME_HEIGHT - 2,
+    },
     .nodraw = true, .on_mup = button_name_on_mup,
 };
 
 BUTTON button_status_msg = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = SIDEBAR_STATUSMSG_LEFT,
+        .y      = SIDEBAR_STATUSMSG_TOP,
+        .width  = SIDEBAR_STATUSMSG_WIDTH,
+        .height = SIDEBAR_STATUSMSG_HEIGHT - 2,
+    },
     .nodraw = true, .on_mup = button_statusmsg_on_mup,
 };
 
 BUTTON button_usr_state = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 200,
+        .y      = 10,
+        .width  = 25,
+        .height = 45,
+    },
     .nodraw = true,
     .on_mup = button_status_on_mup,
     .tooltip_text = {
@@ -124,8 +152,14 @@ static void button_filter_friends_on_mup(void) {
     flist_set_filter(!flist_get_filter());
 }
 BUTTON button_filter_friends = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = SIDEBAR_FILTER_FRIENDS_LEFT,
+        .y      = SIDEBAR_FILTER_FRIENDS_TOP,
+        .width  = SIDEBAR_FILTER_FRIENDS_WIDTH,
+        .height = SIDEBAR_FILTER_FRIENDS_HEIGHT,
+    },
     .nodraw = true,
     .on_mup = button_filter_friends_on_mup,
     .tooltip_text = {.i18nal = STR_FILTER_CONTACT_TOGGLE },
 };
-

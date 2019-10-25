@@ -454,6 +454,13 @@ static void button_menu_update(BUTTON *b) {
 }
 
 BUTTON button_add_new_contact = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = SIDEBAR_BUTTON_LEFT,
+        .y      = ROSTER_BOTTOM,
+        .width  = SIDEBAR_BUTTON_WIDTH,
+        .height = SIDEBAR_BUTTON_HEIGHT,
+    },
     .bm_icon      = BM_ADD,
     .icon_w       = _BM_ADD_WIDTH,
     .icon_h       = _BM_ADD_WIDTH,
@@ -465,6 +472,13 @@ BUTTON button_add_new_contact = {
 };
 
 BUTTON button_send_friend_request = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -10 - _BM_SBUTTON_WIDTH,
+        .y      = MAIN_TOP + 168,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill         = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update      = button_setcolors_success,
@@ -473,6 +487,13 @@ BUTTON button_send_friend_request = {
 };
 
 BUTTON button_call_decline = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -186,
+        .y      =   10,
+        .width  = _BM_LBUTTON_WIDTH,
+        .height = _BM_LBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_LBUTTON,
     .bm_icon      = BM_DECLINE,
     .icon_w       = _BM_LBICON_WIDTH,
@@ -485,6 +506,13 @@ BUTTON button_call_decline = {
 };
 
 BUTTON button_call_audio = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -124,
+        .y      =   10,
+        .width  = _BM_LBUTTON_WIDTH,
+        .height = _BM_LBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_LBUTTON,
     .bm_icon      = BM_CALL,
     .icon_w       = _BM_LBICON_WIDTH,
@@ -495,6 +523,13 @@ BUTTON button_call_audio = {
 };
 
 BUTTON button_call_video = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -62,
+        .y      =  10,
+        .width  = _BM_LBUTTON_WIDTH,
+        .height = _BM_LBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_LBUTTON,
     .bm_icon      = BM_VIDEO,
     .icon_w       = _BM_LBICON_WIDTH,
@@ -533,6 +568,13 @@ static void button_send_file_update(BUTTON *b) {
 }
 
 BUTTON button_send_file = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =   6,
+        .y      = -46,
+        .width  = _BM_CHAT_BUTTON_WIDTH,
+        .height = _BM_CHAT_BUTTON_HEIGHT,
+    },
     .bm_fill      = BM_CHAT_BUTTON_LEFT,
     .bm_icon      = BM_FILE,
     .icon_w       = _BM_FILE_WIDTH,
@@ -568,6 +610,13 @@ static void button_send_screenshot_update(BUTTON *b) {
 }
 
 BUTTON button_send_screenshot = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =   8 + _BM_CHAT_BUTTON_WIDTH,
+        .y      = -46,
+        .width  = _BM_CHAT_BUTTON_WIDTH,
+        .height = _BM_CHAT_BUTTON_HEIGHT,
+    },
     .bm_fill      = BM_CHAT_BUTTON_RIGHT,
     .bm_icon      = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
     .icon_w       = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
@@ -616,6 +665,13 @@ static void switchfxn_autoaccept_ft(void) {
 #include "../ui/switch.h"
 
 UISWITCH switch_friend_autoaccept_ft = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 168,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -632,6 +688,13 @@ static void edit_add_new_contact(EDIT *UNUSED(edit)) {
 
 static char e_friend_pubkey_str[TOX_PUBLIC_KEY_SIZE * 2];
 EDIT edit_friend_pubkey = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  88,
+        .width  = -10,
+        .height =  24,
+    },
     // .length == .data_size, because .data is not \0-terminated
     .length            = sizeof e_friend_pubkey_str,
     .data_size         = sizeof e_friend_pubkey_str,
@@ -656,6 +719,13 @@ static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
 
 static char e_friend_alias_str[128];
 EDIT edit_friend_alias = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      = 138,
+        .width  = -10,
+        .height =  24,
+    },
     .data_size   = sizeof e_friend_alias_str,
     .data        = e_friend_alias_str,
     .onenter     = edit_friend_alias_onenter,
@@ -667,6 +737,13 @@ EDIT edit_friend_alias = {
 
 static char e_add_new_friend_id_data[TOX_ADDRESS_SIZE * 4];
 EDIT edit_add_new_friend_id = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  28 + MAIN_TOP,
+        .width  = -10,
+        .height =  24,
+    },
     .data_size = sizeof e_add_new_friend_id_data,
     .data      = e_add_new_friend_id_data,
     .onenter   = edit_add_new_contact,
@@ -680,6 +757,13 @@ SCROLLABLE e_add_new_friend_msg_scroll = {
 
 static char e_add_new_friend_msg_data[1024];
 EDIT edit_add_new_friend_msg = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  76 + MAIN_TOP,
+        .width  = -10,
+        .height =  84,
+    },
     .multiline = 1,
     .scroll    = &e_add_new_friend_msg_scroll,
     .data      = e_add_new_friend_msg_data,
@@ -757,6 +841,13 @@ SCROLLABLE e_chat_msg_friend_scroll = {
 
 static char e_chat_msg_friend_data[65535];
 EDIT edit_chat_msg_friend = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10 + _BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button */
+        .y      = -46,
+        .width  = -64,
+        .height =  40, /* text is 8 high. 8 * 2.5 = 20. */
+    },
     .data        = e_chat_msg_friend_data,
     .data_size   = sizeof e_chat_msg_friend_data,
     .multiline   = true,
@@ -785,6 +876,13 @@ static void button_chat_send_friend_update(BUTTON *b) {
 }
 
 BUTTON button_chat_send_friend = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  -6 - _BM_CHAT_SEND_WIDTH,
+        .y      = -46,
+        .width  = _BM_CHAT_SEND_WIDTH,
+        .height = _BM_CHAT_SEND_HEIGHT,
+    },
     .bm_fill      = BM_CHAT_SEND,
     .bm_icon      = BM_CHAT_SEND_OVERLAY,
     .icon_w       = _BM_CHAT_SEND_OVERLAY_WIDTH,
@@ -804,6 +902,13 @@ static void button_deny_deletion_on_mup(void) {
 }
 
 BUTTON button_confirm_deletion = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 10,
+        .y      = MAIN_TOP + 40,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_danger,
     .tooltip_text = {.i18nal = STR_DELETE},
@@ -812,6 +917,13 @@ BUTTON button_confirm_deletion = {
 };
 
 BUTTON button_deny_deletion = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 110,
+        .y      = MAIN_TOP + 40,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .tooltip_text = {.i18nal = STR_KEEP},

@@ -208,6 +208,13 @@ static void button_group_audio_update(BUTTON *b) {
 }
 
 BUTTON button_group_audio = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -62,
+        .y      =  10,
+        .width  = _BM_LBUTTON_WIDTH,
+        .height = _BM_LBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_LBUTTON,
     .bm_icon      = BM_CALL,
     .icon_w       = _BM_LBICON_WIDTH,
@@ -575,6 +582,13 @@ static void button_chat_send_group_update(BUTTON *b) {
 }
 
 BUTTON button_chat_send_group = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  -6 - _BM_CHAT_SEND_WIDTH,
+        .y      = -46,
+        .width  = _BM_CHAT_SEND_WIDTH,
+        .height = _BM_CHAT_SEND_HEIGHT,
+    },
     .bm_fill        = BM_CHAT_SEND,
     .bm_icon        = BM_CHAT_SEND_OVERLAY,
     .icon_w         = _BM_CHAT_SEND_OVERLAY_WIDTH,
