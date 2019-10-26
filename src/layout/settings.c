@@ -1534,6 +1534,14 @@ static void edit_name_onenter(EDIT *edit) {
     postmessage_toxcore(TOX_SELF_SET_NAME, length, 0, self.name);
 }
 
+static void edit_name_ontab() {
+    edit_setfocus(&edit_status_msg);
+}
+
+static void edit_name_onshifttab() {
+    edit_setfocus(&edit_toxid);
+}
+
 EDIT edit_name = {
     .panel = {
         .type   = PANEL_EDIT,
@@ -1546,6 +1554,8 @@ EDIT edit_name = {
     .data_size   = sizeof edit_name_data,
     .onenter     = edit_name_onenter,
     .onlosefocus = edit_name_onenter,
+    .ontab       = edit_name_ontab,
+    .onshifttab  = edit_name_onshifttab,
 };
 
 static void edit_status_msg_onenter(EDIT *edit) {
@@ -1565,6 +1575,14 @@ static void edit_status_msg_onenter(EDIT *edit) {
     postmessage_toxcore(TOX_SELF_SET_STATUS, length, 0, self.statusmsg); //!
 }
 
+static void edit_status_msg_ontab() {
+    edit_setfocus(&edit_toxid);
+}
+
+static void edit_status_msg_onshifttab() {
+    edit_setfocus(&edit_name);
+}
+
 EDIT edit_status_msg = {
     .panel = {
         .type   = PANEL_EDIT,
@@ -1577,6 +1595,8 @@ EDIT edit_status_msg = {
     .data_size   = sizeof edit_status_msg_data,
     .onenter     = edit_status_msg_onenter,
     .onlosefocus = edit_status_msg_onenter,
+    .ontab       = edit_status_msg_ontab,
+    .onshifttab  = edit_status_msg_onshifttab,
 };
 
 
@@ -1599,6 +1619,10 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
     }
 }
 
+static void edit_proxy_ip_ontab() {
+    edit_setfocus(&edit_proxy_port);
+}
+
 EDIT edit_proxy_ip = {
     .panel = {
         .type   = PANEL_EDIT,
@@ -1609,10 +1633,15 @@ EDIT edit_proxy_ip = {
     },
     .data        = edit_proxy_ip_data,
     .data_size   = sizeof edit_proxy_ip_data,
-    .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_IP },
-    /* TODO .ontab = change to proxy port field */
+    .onlosefocus = edit_proxy_ip_port_onlosefocus,
+    .ontab       = edit_proxy_ip_ontab,
+    .onshifttab  = edit_proxy_ip_ontab,
 };
+
+static void edit_proxy_port_ontab() {
+    edit_setfocus(&edit_proxy_ip);
+}
 
 EDIT edit_proxy_port = {
     .panel = {
@@ -1624,8 +1653,10 @@ EDIT edit_proxy_port = {
     },
     .data        = edit_proxy_port_data,
     .data_size   = sizeof edit_proxy_port_data,
-    .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_PORT },
+    .onlosefocus = edit_proxy_ip_port_onlosefocus,
+    .ontab       = edit_proxy_port_ontab,
+    .onshifttab  = edit_proxy_port_ontab,
 };
 
 EDIT edit_video_fps = {
@@ -1656,6 +1687,14 @@ EDIT edit_profile_password = {
     .password    = 1,
 };
 
+static void edit_toxid_ontab() {
+    edit_setfocus(&edit_name);
+}
+
+static void edit_toxid_onshifttab() {
+    edit_setfocus(&edit_status_msg);
+}
+
 EDIT edit_toxid = {
     .panel = {
         .type   = PANEL_EDIT,
@@ -1669,6 +1708,8 @@ EDIT edit_toxid = {
     .readonly = 1,
     .noborder = 0,
     .select_completely = 1,
+    .ontab      = edit_toxid_ontab,
+    .onshifttab = edit_toxid_onshifttab,
 };
 
 static void edit_change_nospam_onenter(EDIT *edit) {
