@@ -69,6 +69,7 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
         return NULL;
     }
     // "Because FUCK your use of sane coding strategies" -Xlib... probably...
+    free(title_name);
 
 
     /* I was getting some errors before, and made this change, but I'm not convinced
@@ -107,6 +108,10 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
     class_hints->res_class  = "uTox";
 
     XSetWMProperties(display, window->window, &native_window_name, NULL, NULL, 0, size_hints, wm_hints, class_hints);
+    XFree(native_window_name.value);
+    XFree(size_hints);
+    XFree(wm_hints);
+    XFree(class_hints);
 
 
     window->_.x = x;
