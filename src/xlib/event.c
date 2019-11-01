@@ -438,6 +438,23 @@ bool doevent(XEvent *event) {
             }
 
             if (!edit_active()) {
+                if (messages_char(sym)) {
+                    redraw();
+                    break;
+                }
+
+                if (ev->state & 4) {
+                    if (sym == 'c' || sym == 'C') {
+                        if (flist_get_friend()) {
+                            clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
+                            setclipboard();
+                        } else if (flist_get_groupchat()) {
+                            clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
+                            setclipboard();
+                        }
+                        break;
+                    }
+                }
                 /* Focus message input field if ctrl and ctrl+c aren't pressed,
                  * to make sure you can still copy text from the chat log */
                 if (sym != XK_Control_L
@@ -509,25 +526,6 @@ bool doevent(XEvent *event) {
                     edit_char(key, (ev->state & 4) != 0, ev->state);
                 } else {
                     edit_char(sym, 1, ev->state);
-                }
-
-                break;
-            }
-
-            if (messages_char(sym)) {
-                redraw();
-            }
-
-            if (ev->state & 4) {
-                if (sym == 'c' || sym == 'C') {
-                    if (flist_get_friend()) {
-                        clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
-                        setclipboard();
-                    } else if (flist_get_groupchat()) {
-                        clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
-                        setclipboard();
-                    }
-                    break;
                 }
             }
 
