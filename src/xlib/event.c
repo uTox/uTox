@@ -455,11 +455,9 @@ bool doevent(XEvent *event) {
                         break;
                     }
                 }
-                /* Focus message input field if ctrl and ctrl+c aren't pressed,
+                /* Focus message input field if ctrl isn't pressed,
                  * to make sure you can still copy text from the chat log */
-                if (sym != XK_Control_L
-                    && !(ev->state & ControlMask && sym == 'c'))
-                {
+                if (sym != XK_Control_L) {
                     edit_setfocus(&edit_chat_msg_friend);
                     edit_char(KEY_END, 1, 0);
                 }
