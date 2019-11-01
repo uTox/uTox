@@ -415,26 +415,22 @@ bool doevent(XEvent *event) {
             if (ev->state & ControlMask) {
                 if ((sym == XK_Tab && (ev->state & ShiftMask)) || sym == XK_Page_Up) {
                     flist_previous_tab();
-                    redraw();
-                    break;
                 } else if (sym == XK_Tab || sym == XK_Page_Down) {
                     flist_next_tab();
-                    redraw();
-                    break;
                 }
+                redraw();
+                break;
             }
 
 
             if (ev->state & ControlMask || ev->state & Mod1Mask) { // Mod1Mask == alt
                 if (sym >= XK_1 && sym <= XK_9) {
                     flist_selectchat(sym - XK_1);
-                    redraw();
-                    break;
                 } else if (sym == XK_0) {
                     flist_selectchat(9);
-                    redraw();
-                    break;
                 }
+                redraw();
+                break;
             }
 
             if (!edit_active()) {
@@ -447,11 +443,10 @@ bool doevent(XEvent *event) {
                     if (sym == 'c' || sym == 'C') {
                         if (flist_get_friend()) {
                             clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
-                            setclipboard();
                         } else if (flist_get_groupchat()) {
                             clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
-                            setclipboard();
                         }
+                        setclipboard();
                         break;
                     }
                 }
