@@ -463,6 +463,12 @@ bool doevent(XEvent *event) {
                 }
             }
 
+            if (sym == XK_Escape) {
+                edit_resetfocus();
+                redraw();
+                break;
+            }
+
             if (ev->state & ControlMask) {
                 switch (sym) {
                     case 'v':
