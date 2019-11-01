@@ -463,73 +463,75 @@ bool doevent(XEvent *event) {
                 }
             }
 
-            if (sym == XK_Escape) {
-                edit_resetfocus();
-                redraw();
-                break;
-            }
-
-            if (ev->state & ControlMask) {
-                switch (sym) {
-                    case 'v':
-                    case 'V': paste(); return true;
-                    case 'c':
-                    case 'C':
-                    case XK_Insert: copy(0); return true;
-                    case 'x':
-                    case 'X':
-                        copy(0);
-                        edit_char(KEY_DEL, 1, 0);
-                        return true;
-                    case 'w':
-                    case 'W':
-                        /* Sent ctrl + backspace to active edit */
-                        edit_char(KEY_BACK, 1, 4);
-                        return true;
+            if (edit_active()) {
+                if (sym == XK_Escape) {
+                    edit_resetfocus();
+                    redraw();
+                    break;
                 }
-            }
 
-            if (ev->state & ShiftMask) {
-                switch (sym) {
-                    case XK_Insert: paste(); return true;
-                    case XK_Delete:
-                        copy(0);
-                        edit_char(KEY_DEL, 1, 0);
-                        return true;
+                if (ev->state & ControlMask) {
+                    switch (sym) {
+                        case 'v':
+                        case 'V': paste(); return true;
+                        case 'c':
+                        case 'C':
+                        case XK_Insert: copy(0); return true;
+                        case 'x':
+                        case 'X':
+                            copy(0);
+                            edit_char(KEY_DEL, 1, 0);
+                            return true;
+                        case 'w':
+                        case 'W':
+                            /* Sent ctrl + backspace to active edit */
+                            edit_char(KEY_BACK, 1, 4);
+                            return true;
+                    }
                 }
-            }
 
-            if (sym == XK_KP_Enter) {
-                sym = XK_Return;
-            }
+                if (ev->state & ShiftMask) {
+                    switch (sym) {
+                        case XK_Insert: paste(); return true;
+                        case XK_Delete:
+                            copy(0);
+                            edit_char(KEY_DEL, 1, 0);
+                            return true;
+                    }
+                }
 
-            if (sym == XK_Return && (ev->state & 1)) {
-                edit_char('\n', 0, 0);
-                break;
-            }
+                if (sym == XK_KP_Enter) {
+                    sym = XK_Return;
+                }
 
-            if (sym == XK_KP_Space) {
-                sym = XK_space;
-            }
+                if (sym == XK_Return && (ev->state & 1)) {
+                    edit_char('\n', 0, 0);
+                    break;
+                }
 
-            if (sym >= XK_KP_Home && sym <= XK_KP_Begin) {
-                sym -= 0x45;
-            }
+                if (sym == XK_KP_Space) {
+                    sym = XK_space;
+                }
 
-            if (sym >= XK_KP_Multiply && sym <= XK_KP_Equal) {
-                sym -= 0xFF80;
-            }
+                if (sym >= XK_KP_Home && sym <= XK_KP_Begin) {
+                    sym -= 0x45;
+                }
 
-            if (!sym) {
-                int i;
-                for (i = 0; i < len; i++)
-                    edit_char(buffer[i], (ev->state & 4) != 0, ev->state);
-            }
-            uint32_t key = keysym2ucs(sym);
-            if (key != ~0u) {
-                edit_char(key, (ev->state & 4) != 0, ev->state);
-            } else {
-                edit_char(sym, 1, ev->state);
+                if (sym >= XK_KP_Multiply && sym <= XK_KP_Equal) {
+                    sym -= 0xFF80;
+                }
+
+                if (!sym) {
+                    int i;
+                    for (i = 0; i < len; i++)
+                        edit_char(buffer[i], (ev->state & 4) != 0, ev->state);
+                }
+                uint32_t key = keysym2ucs(sym);
+                if (key != ~0u) {
+                    edit_char(key, (ev->state & 4) != 0, ev->state);
+                } else {
+                    edit_char(sym, 1, ev->state);
+                }
             }
 
             break;
