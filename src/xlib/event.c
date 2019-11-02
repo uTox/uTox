@@ -421,6 +421,14 @@ bool doevent(XEvent *event) {
                     flist_next_tab();
                     redraw();
                     break;
+                } else if (sym == XK_Home) {
+                    flist_first_tab();
+                    redraw();
+                    break;
+                } else if (sym == XK_End) {
+                    flist_last_tab();
+                    redraw();
+                    break;
                 }
             }
 
