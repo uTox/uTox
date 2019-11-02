@@ -437,7 +437,38 @@ bool doevent(XEvent *event) {
                 }
             }
 
+            if (!edit_active()) {
+                if (messages_char(sym)) {
+                    redraw();
+                    break;
+                }
+
+                if (ev->state & ControlMask) {
+                    if (sym == 'c' || sym == 'C') {
+                        if (flist_get_friend()) {
+                            clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
+                        } else if (flist_get_groupchat()) {
+                            clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
+                        }
+                        setclipboard();
+                        break;
+                    }
+                }
+                /* Focus message input field if ctrl isn't pressed,
+                 * to make sure you can still copy text from the chat log */
+                if (sym != XK_Control_L) {
+                    edit_setfocus(&edit_chat_msg_friend);
+                    edit_char(KEY_END, 1, 0);
+                }
+            }
+
             if (edit_active()) {
+                if (sym == XK_Escape) {
+                    edit_resetfocus();
+                    redraw();
+                    break;
+                }
+
                 if (ev->state & ControlMask) {
                     switch (sym) {
                         case 'v':
@@ -472,7 +503,7 @@ bool doevent(XEvent *event) {
                     sym = XK_Return;
                 }
 
-                if (sym == XK_Return && (ev->state & 1)) {
+                if (sym == XK_Return && (ev->state & ShiftMask)) {
                     edit_char('\n', 0, 0);
                     break;
                 }
@@ -492,32 +523,13 @@ bool doevent(XEvent *event) {
                 if (!sym) {
                     int i;
                     for (i = 0; i < len; i++)
-                        edit_char(buffer[i], (ev->state & 4) != 0, ev->state);
+                        edit_char(buffer[i], (ev->state & ControlMask) != 0, ev->state);
                 }
                 uint32_t key = keysym2ucs(sym);
                 if (key != ~0u) {
-                    edit_char(key, (ev->state & 4) != 0, ev->state);
+                    edit_char(key, (ev->state & ControlMask) != 0, ev->state);
                 } else {
                     edit_char(sym, 1, ev->state);
-                }
-
-                break;
-            }
-
-            if (messages_char(sym)) {
-                redraw();
-            }
-
-            if (ev->state & 4) {
-                if (sym == 'c' || sym == 'C') {
-                    if (flist_get_friend()) {
-                        clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
-                        setclipboard();
-                    } else if (flist_get_groupchat()) {
-                        clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
-                        setclipboard();
-                    }
-                    break;
                 }
             }
 
