@@ -1821,6 +1821,16 @@ bool messages_char(uint32_t ch) {
 
             return true;
         }
+
+        case KEY_HOME: {
+            m->panel.content_scroll->d = 0.0;
+            return true;
+        }
+
+        case KEY_END: {
+            m->panel.content_scroll->d = 1.0;
+            return true;
+        }
     }
 
     return false;
