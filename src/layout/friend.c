@@ -735,6 +735,10 @@ EDIT edit_friend_alias = {
 
 
 
+static void edit_add_new_friend_id_ontab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_add_new_friend_msg);
+}
+
 static char e_add_new_friend_id_data[TOX_ADDRESS_SIZE * 4];
 EDIT edit_add_new_friend_id = {
     .panel = {
@@ -747,6 +751,8 @@ EDIT edit_add_new_friend_id = {
     .data_size = sizeof e_add_new_friend_id_data,
     .data      = e_add_new_friend_id_data,
     .onenter   = edit_add_new_contact,
+    .ontab      = edit_add_new_friend_id_ontab,
+    .onshifttab = edit_add_new_friend_id_ontab,
 };
 
 SCROLLABLE e_add_new_friend_msg_scroll = {
@@ -754,6 +760,10 @@ SCROLLABLE e_add_new_friend_msg_scroll = {
     .d     = 1.0,
     .color = C_SCROLL,
 };
+
+static void edit_add_new_friend_msg_ontab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_add_new_friend_id);
+}
 
 static char e_add_new_friend_msg_data[1024];
 EDIT edit_add_new_friend_msg = {
@@ -769,6 +779,8 @@ EDIT edit_add_new_friend_msg = {
     .data      = e_add_new_friend_msg_data,
     .data_size = sizeof e_add_new_friend_msg_data,
     .empty_str = {.i18nal = STR_DEFAULT_FRIEND_REQUEST_MESSAGE },
+    .ontab      = edit_add_new_friend_msg_ontab,
+    .onshifttab = edit_add_new_friend_msg_ontab,
 };
 
 #include "../commands.h"
