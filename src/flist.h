@@ -12,6 +12,10 @@ typedef struct utox_friend_request FREQUEST;
 void flist_previous_tab(void);
 void flist_next_tab(void);
 
+/* switch to first or last shown item in list */
+void flist_first_tab(void);
+void flist_last_tab(void);
+
 // update the shown list, should be called whenever something relevant to the filters is done
 // (like changing name, going online, etc.)
 void flist_update_shown_list(void);
