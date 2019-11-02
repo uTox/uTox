@@ -443,7 +443,7 @@ bool doevent(XEvent *event) {
                     break;
                 }
 
-                if (ev->state & 4) {
+                if (ev->state & ControlMask) {
                     if (sym == 'c' || sym == 'C') {
                         if (flist_get_friend()) {
                             clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
@@ -503,7 +503,7 @@ bool doevent(XEvent *event) {
                     sym = XK_Return;
                 }
 
-                if (sym == XK_Return && (ev->state & 1)) {
+                if (sym == XK_Return && (ev->state & ShiftMask)) {
                     edit_char('\n', 0, 0);
                     break;
                 }
@@ -523,11 +523,11 @@ bool doevent(XEvent *event) {
                 if (!sym) {
                     int i;
                     for (i = 0; i < len; i++)
-                        edit_char(buffer[i], (ev->state & 4) != 0, ev->state);
+                        edit_char(buffer[i], (ev->state & ControlMask) != 0, ev->state);
                 }
                 uint32_t key = keysym2ucs(sym);
                 if (key != ~0u) {
-                    edit_char(key, (ev->state & 4) != 0, ev->state);
+                    edit_char(key, (ev->state & ControlMask) != 0, ev->state);
                 } else {
                     edit_char(sym, 1, ev->state);
                 }
