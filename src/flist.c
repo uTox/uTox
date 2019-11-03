@@ -362,6 +362,11 @@ void flist_first_tab(void) {
 }
 
 void flist_last_tab(void) {
+    if (showncount < 2) {
+        /* No friends and groups in the list, nothing to do */
+        return;
+    }
+
     flist_selectchat(showncount - 2);
 }
 
