@@ -357,6 +357,19 @@ void flist_next_tab(void) {
     change_tab(1);
 }
 
+void flist_first_tab(void) {
+    flist_selectchat(0);
+}
+
+void flist_last_tab(void) {
+    if (showncount < 2) {
+        /* No friends and groups in the list, nothing to do */
+        return;
+    }
+
+    flist_selectchat(showncount - 2);
+}
+
 /* TODO: move this out of here!
  * maybe to ui.c ? */
 static int  current_width; // I know, but I'm in a hurry, so I'll fix this later
