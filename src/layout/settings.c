@@ -1534,11 +1534,11 @@ static void edit_name_onenter(EDIT *edit) {
     postmessage_toxcore(TOX_SELF_SET_NAME, length, 0, self.name);
 }
 
-static void edit_name_ontab() {
+static void edit_name_ontab(EDIT *UNUSED(edit)) {
     edit_setfocus(&edit_status_msg);
 }
 
-static void edit_name_onshifttab() {
+static void edit_name_onshifttab(EDIT *UNUSED(edit)) {
     edit_setfocus(&edit_toxid);
 }
 
@@ -1575,11 +1575,11 @@ static void edit_status_msg_onenter(EDIT *edit) {
     postmessage_toxcore(TOX_SELF_SET_STATUS, length, 0, self.statusmsg); //!
 }
 
-static void edit_status_msg_ontab() {
+static void edit_status_msg_ontab(EDIT *UNUSED(edit)) {
     edit_setfocus(&edit_toxid);
 }
 
-static void edit_status_msg_onshifttab() {
+static void edit_status_msg_onshifttab(EDIT *UNUSED(edit)) {
     edit_setfocus(&edit_name);
 }
 
@@ -1619,7 +1619,7 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
     }
 }
 
-static void edit_proxy_ip_ontab() {
+static void edit_proxy_ip_ontab(EDIT *UNUSED(edit)) {
     edit_setfocus(&edit_proxy_port);
 }
 
@@ -1639,7 +1639,7 @@ EDIT edit_proxy_ip = {
     .onshifttab  = edit_proxy_ip_ontab,
 };
 
-static void edit_proxy_port_ontab() {
+static void edit_proxy_port_ontab(EDIT *UNUSED(edit)) {
     edit_setfocus(&edit_proxy_ip);
 }
 
@@ -1687,11 +1687,11 @@ EDIT edit_profile_password = {
     .password    = 1,
 };
 
-static void edit_toxid_ontab() {
+static void edit_toxid_ontab(EDIT *UNUSED(edit)) {
     edit_setfocus(&edit_name);
 }
 
-static void edit_toxid_onshifttab() {
+static void edit_toxid_onshifttab(EDIT *UNUSED(edit)) {
     edit_setfocus(&edit_status_msg);
 }
 
