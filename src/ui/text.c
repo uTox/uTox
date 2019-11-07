@@ -373,7 +373,7 @@ uint16_t text_lineup(int width, int height, uint16_t p, uint16_t lineheight, cha
     textxy(width, p, lineheight, str, length, &x, &y);
     if (y == 0) {
         scroll->d = 0.0;
-        return p;
+        return 0;
     }
 
     y -= lineheight;
