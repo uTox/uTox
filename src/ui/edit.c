@@ -111,9 +111,12 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
     }
 
     bool is_active = (edit == active_edit);
-    char star[edit->length];
-    star[0] = 0;
-    if (edit->password) {
+    char *star = NULL;
+    if (edit->password && edit->length) {
+        star = malloc(edit->length);
+        if (!star) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "UI Edit", "Unable to malloc for password field");
+        }
         /* Generate the stars for this password */
         memset(star, '*', edit->length);
     }
@@ -121,12 +124,13 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
             x + SCALE(4), yy + SCALE(top_offset * 2),
             x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0),
             y, y + height, font_small_lineheight,
-            star[0] ? star : edit->data, edit->length,
+            star ? star : edit->data, edit->length,
             is_active ? edit_sel.start : UINT16_MAX,
             is_active ? edit_sel.length : UINT16_MAX,
             is_active ? edit_sel.mark_start : 0,
             is_active ? edit_sel.mark_length : 0,
             edit->multiline);
+    free(star);
 
     if (edit->multiline) {
         popclip();
