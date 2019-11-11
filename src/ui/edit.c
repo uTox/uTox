@@ -748,7 +748,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
         uint8_t len = unicode_to_utf8_len(ch);
         char *p = edit->data + edit_sel.start;
 
-        if (edit->length - edit_sel.length + len >= edit->data_size) {
+        if ((size_t)edit->length - edit_sel.length + len >= edit->data_size) {
             return;
         }
 
