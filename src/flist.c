@@ -253,7 +253,10 @@ void flist_re_scale(void) {
 }
 
 bool friend_matches_search_string(FRIEND *f, char *str) {
-    return !str || strstr_case(f->name, str) || (f->alias && strstr_case(f->alias, str));
+    return !str
+           || strstr_case(f->name, str)
+           || (f->alias && strstr_case(f->alias, str))
+           || strstr_case(f->id_str, str);
 }
 
 void flist_update_shown_list(void) {
