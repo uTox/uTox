@@ -265,9 +265,11 @@ void flist_update_shown_list(void) {
         ITEM  *it = &item[i];
         if (it->type == ITEM_FRIEND) {
             FRIEND *f = get_friend(it->id_number);
-            if ((!filter || f->online || f->unread_msg || it == selected_item)
-                && friend_matches_search_string(f, search_string))
-            {
+            if (search_string) {
+                if (friend_matches_search_string(f, search_string)) {
+                    shown_list[j++] = i;
+                }
+            } else if ((!filter || f->online || f->unread_msg || it == selected_item)) {
                 shown_list[j++] = i;
             }
         } else {
