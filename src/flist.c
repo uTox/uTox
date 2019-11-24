@@ -253,21 +253,26 @@ void flist_re_scale(void) {
 }
 
 bool friend_matches_search_string(FRIEND *f, char *str) {
-    return !str || strstr_case(f->name, str) || (f->alias && strstr_case(f->alias, str));
+    return !str
+           || strstr_case(f->name, str)
+           || (f->alias && strstr_case(f->alias, str))
+           || strstr_case(f->id_str, str);
 }
 
 void flist_update_shown_list(void) {
     uint32_t j; // index in shown_list array
     for (uint32_t i = j = 0; i < itemcount; i++) {
         ITEM  *it = &item[i];
-        if (it->type == ITEM_FRIEND) {
-            FRIEND *f = get_friend(it->id_number);
-            if ((!filter || f->online || f->unread_msg || it == selected_item)
-                && friend_matches_search_string(f, search_string))
-            {
+        if (it->type != ITEM_FRIEND) {
+            shown_list[j++] = i;
+            continue;
+        }
+        FRIEND *f = get_friend(it->id_number);
+        if (search_string) {
+            if (friend_matches_search_string(f, search_string)) {
                 shown_list[j++] = i;
             }
-        } else {
+        } else if ((!filter || f->online || f->unread_msg || it == selected_item)) {
             shown_list[j++] = i;
         }
     }
