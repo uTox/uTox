@@ -494,6 +494,8 @@ UTOX_SAVE *config_load(void) {
     settings.send_typing_status   = !save->no_typing_notifications;
     settings.status_notifications = save->status_notifications;
 
+    settings.window_x             = save->window_x;
+    settings.window_y             = save->window_y;
     settings.window_width         = save->window_width;
     settings.window_height        = save->window_height;
 
