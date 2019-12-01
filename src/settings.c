@@ -173,13 +173,21 @@ static void parse_interface_section(UTOX_SAVE *config, const char* key, const ch
     if (MATCH(NAMEOF(config->language), key)) {
         config->language = atoi(value);
     } else if (MATCH(NAMEOF(config->window_x), key)) {
+		fprintf(stderr, "we see a window_x line\n");
         config->window_x = atoi(value);
+		fprintf(stderr, "read window_x value: %d\n");
     } else if (MATCH(NAMEOF(config->window_y), key)) {
+		fprintf(stderr, "we see a window_y line\n");
         config->window_y = atoi(value);
+		fprintf(stderr, "read window_y value: %d\n");
     } else if (MATCH(NAMEOF(config->window_width), key)) {
+		fprintf(stderr, "we see a window_width line\n");
         config->window_width = atoi(value);
+		fprintf(stderr, "read window_width value: %d\n");
     } else if (MATCH(NAMEOF(config->window_height), key)) {
+		fprintf(stderr, "we see a window_height line\n");
         config->window_height = atoi(value);
+		fprintf(stderr, "read window_height value: %d\n");
     } else if (MATCH(NAMEOF(config->theme), key)) {
         config->theme = atoi(value);
     } else if (MATCH(NAMEOF(config->scale), key)) {

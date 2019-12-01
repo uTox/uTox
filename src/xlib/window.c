@@ -47,6 +47,8 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
         return NULL;
     }
 
+    fprintf(stderr, "x,y: %d %d\n", x, y);
+
     XSetWindowAttributes attrib = {
         .background_pixel   = WhitePixel(display, def_screen_num),
         .border_pixel       = BlackPixel(display, def_screen_num),
@@ -137,10 +139,16 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **UNUSED
 
     snprintf(title, 256, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 
+    fprintf(stderr, "x,y: %d %d\n", x, y);
+
     if (!native_window_create(&main_window, title, CWBackPixmap | CWBorderPixel | CWEventMask,
                       x, y, w, h, MAIN_WIDTH, MAIN_HEIGHT, &panel_root, false)) {
         LOG_FATAL_ERR(EXIT_FAILURE,"XLIB Wind", "Unable to create main window.");
     }
+	fprintf(stderr, "main window created\n");
+	XWindowAttributes xwa;
+	XGetWindowAttributes(display, main_window.window, &xwa);
+	fprintf(stderr, "xwa.x, xwa.y: %d %d\n", xwa.x, xwa.y);
 
     Atom a_pid  = XInternAtom(display, "_NET_WM_PID", 0);
     uint pid = getpid();

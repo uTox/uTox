@@ -739,6 +739,9 @@ int main(int argc, char *argv[]) {
 
     atom_init();
 
+    fprintf(stderr, "x,y: %d %d\n", settings.window_x, settings.window_y);
+    fprintf(stderr, "w*h: %d %d\n", settings.window_width, settings.window_height);
+
     native_window_create_main(settings.window_x, settings.window_y, settings.window_width, settings.window_height, argv, argc);
     main_window.gc = DefaultGC(display, def_screen_num);
     main_window.drawbuf = XCreatePixmap(display, main_window.window, settings.window_width, settings.window_height, default_depth);
@@ -873,8 +876,21 @@ int main(int argc, char *argv[]) {
     int          x_return, y_return;
     unsigned int width_return, height_return, i;
     XGetGeometry(display, main_window.window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
+	fprintf(stderr, "x_return, y_return: %d %d\n", x_return, y_return);
+
+    fprintf(stderr, "root_return: %d\n", root_return);
+    fprintf(stderr, "root_window: %d\n", root_window);
+    fprintf(stderr, "DefaultRootWindow(): %d\n", DefaultRootWindow(display));
+	XWindowAttributes root_xwa;
+	XGetWindowAttributes(display, root_window, &root_xwa);
+	fprintf(stderr, "root xwa.x, xwa.y: %d %d\n", root_xwa.x, root_xwa.y);
+
+	XWindowAttributes xwa;
+	XGetWindowAttributes(display, main_window.window, &xwa);
 
     XTranslateCoordinates(display, main_window.window, root_return, 0, 0, &x_return, &y_return, &child_return);
+	fprintf(stderr, "x_return, y_return: %d %d\n", x_return, y_return);
+	fprintf(stderr, "xwa.x, xwa.y: %d %d\n", xwa.x, xwa.y);
 
     UTOX_SAVE d = {
         .window_x      = x_return < 0 ? 0 : x_return,
