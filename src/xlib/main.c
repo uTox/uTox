@@ -869,12 +869,10 @@ int main(int argc, char *argv[]) {
 
     destroy_tray_icon();
 
-    Window       root_return, child_return;
+    Window       root_return;
     int          x_return, y_return;
     unsigned int width_return, height_return, i;
     XGetGeometry(display, main_window.window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
-
-    XTranslateCoordinates(display, main_window.window, root_return, 0, 0, &x_return, &y_return, &child_return);
 
     UTOX_SAVE d = {
         .window_x      = x_return < 0 ? 0 : x_return,
