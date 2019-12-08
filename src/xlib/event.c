@@ -25,6 +25,7 @@
 
 #include "../ui/draw.h" // Needed for enddraw. This should probably be changed.
 #include "../ui/edit.h"
+#include "../ui/button.h"
 
 #include "keysym2ucs.h"
 
@@ -434,6 +435,12 @@ bool doevent(XEvent *event) {
                     edit_setfocus(&edit_search);
                     redraw();
                     break;
+                } else if (sym == 'F') {
+                    if (button_filter_friends.on_mup) {
+                        button_filter_friends.on_mup();
+                        redraw();
+                        break;
+                    }
                 }
             }
 
