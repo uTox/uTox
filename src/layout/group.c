@@ -485,6 +485,7 @@ void e_group_msg_onenter(EDIT *edit) {
     edit->length      = 0;
 }
 
+#include "sidebar.h"
 static void e_chat_msg_onshifttab(EDIT *edit) {
     char *text = edit->data;
 
@@ -507,6 +508,8 @@ static void e_chat_msg_onshifttab(EDIT *edit) {
                 edit_setcursorpos(edit, completion.end);
                 completion.cursorpos = edit_getcursorpos();
             }
+        } else {
+            edit_setfocus(&edit_search);
         }
     } else {
         completion.active = 0;
