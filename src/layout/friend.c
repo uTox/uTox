@@ -845,6 +845,11 @@ static void e_chat_msg_onchange(EDIT *UNUSED(edit)) {
     }
 }
 
+#include "sidebar.h"
+static void e_chat_msg_ontab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_search);
+}
+
 SCROLLABLE e_chat_msg_friend_scroll = {
     .panel = { .type = PANEL_SCROLLABLE, },
     .d     = 1.0,
@@ -865,6 +870,8 @@ EDIT edit_chat_msg_friend = {
     .multiline   = true,
     .onenter     = e_chat_msg_onenter,
     .onchange    = e_chat_msg_onchange,
+    .ontab       = e_chat_msg_ontab,
+    .onshifttab  = e_chat_msg_ontab,
     .scroll      = &e_chat_msg_friend_scroll,
 };
 
