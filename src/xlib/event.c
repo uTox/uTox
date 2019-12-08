@@ -35,6 +35,7 @@
 #include "../layout/friend.h"
 #include "../layout/group.h"
 #include "../layout/settings.h"
+#include "../layout/sidebar.h"
 
 extern XIC xic;
 
@@ -427,6 +428,10 @@ bool doevent(XEvent *event) {
                     break;
                 } else if (sym == XK_End) {
                     flist_last_tab();
+                    redraw();
+                    break;
+                } else if (sym == 'f') {
+                    edit_setfocus(&edit_search);
                     redraw();
                     break;
                 }
