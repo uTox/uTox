@@ -910,11 +910,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     // We call utox_init after parse_args()
     utox_init();
 
-    #ifdef __WIN_LEGACY
-        LOG_WARN("WinMain", "Legacy windows build");
-    #else
-        LOG_WARN("WinMain", "Normal windows build");
-    #endif
+    LOG_WARN("WinMain", "Normal windows build");
 
     #ifdef GIT_VERSION
         LOG_NOTE("WinMain", "uTox version %s \n", GIT_VERSION);
