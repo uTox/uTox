@@ -6,13 +6,8 @@
 #define WINDOWS_MAIN_H
 #define MAIN_H
 
-/** Select the true main.c for legacy XP support.
- *  else default to xlib
- **/
-#ifndef __WIN_LEGACY
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0600
-#endif
 
 #ifndef WINVER
 #define WINVER 0x410

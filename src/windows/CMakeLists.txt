@@ -1,10 +1,5 @@
 project(utoxNATIVE LANGUAGES C)
 
-option(WIN_XP_LEGACY "Compile Legacy code for Windows XP" OFF)
-if(WIN_XP_LEGACY)
-    add_cflag("-D__WIN_LEGACY=1")
-endif()
-
 #########################################
 ## Native Icon data
 #########################################
@@ -28,9 +23,6 @@ add_library(utoxNATIVE STATIC
     video.c
     window.c
 
-    ## The following two have ifdef's for __WIN_LEGACY
-    #  We include them both here even though only one will compile with content
-    main.XP.c
     main.7.c
     )
 
