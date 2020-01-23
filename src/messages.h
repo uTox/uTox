@@ -7,7 +7,7 @@
 #include <time.h>
 #include <pthread.h>
 
-pthread_mutex_t messages_lock;
+extern pthread_mutex_t messages_lock;
 
 typedef struct native_image NATIVE_IMAGE;
 

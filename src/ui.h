@@ -49,12 +49,12 @@ enum {
     CURSOR_ZOOM_OUT,
 };
 
-struct utox_mouse {
+extern struct utox_mouse {
     int x, y;
 } mouse;
 
-uint8_t cursor;
-bool mdown;
+extern uint8_t cursor;
+extern bool mdown;
 
 enum {
     FONT_TEXT,
@@ -109,9 +109,9 @@ bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool 
 bool panel_mup(PANEL *p);
 bool panel_mleave(PANEL *p);
 
-char search_data[1024]; // TODO this is NOT where this belongs
+extern char search_data[1024]; // TODO this is NOT where this belongs
 
-double ui_scale;
+extern double ui_scale;
 
 #define SCALE(x)      ((int)(((double)x) * (ui_scale / 10.0)))
 #define SCALE_DIV(x) (((int)(((double)x) * (ui_scale / 10.0))) ?: 1)

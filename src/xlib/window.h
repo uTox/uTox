@@ -16,17 +16,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-Display *display;
-Screen  *default_screen;
-int     def_screen_num;
-Window  root_window;
-Visual  *default_visual;
+extern Display *display;
+extern Screen  *default_screen;
+extern int     def_screen_num;
+extern Window  root_window;
+extern Visual  *default_visual;
 
 
 // TODO move
-UTOX_WINDOW *curr;
+extern UTOX_WINDOW *curr;
 
-int default_depth;
+extern int default_depth;
 
 struct native_window {
     struct utox_window _; // Global struct shared across all platforms
@@ -45,12 +45,12 @@ struct native_window {
 
 };
 
-struct native_window main_window;
+extern struct native_window main_window;
 
-struct native_window popup_window;
-struct native_window scr_grab_window;
+extern struct native_window popup_window;
+extern struct native_window scr_grab_window;
 
-struct native_window tray_pop;
+extern struct native_window tray_pop;
 
 void window_set_focus(UTOX_WINDOW *win);
 
