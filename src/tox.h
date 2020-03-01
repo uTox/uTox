@@ -117,14 +117,14 @@ typedef enum {
     UTOX_TOX_THREAD_INIT_ERROR = 2,
 } UTOX_TOX_THREAD_INIT;
 
-UTOX_TOX_THREAD_INIT tox_thread_init;
+extern UTOX_TOX_THREAD_INIT tox_thread_init;
 
 /* Inter-thread communication vars. */
-TOX_MSG       tox_msg, audio_msg, toxav_msg;
-volatile bool tox_thread_msg, audio_thread_msg, video_thread_msg;
+extern TOX_MSG       tox_msg, audio_msg, toxav_msg;
+extern volatile bool tox_thread_msg, audio_thread_msg, video_thread_msg;
 
-bool tox_connected;
-char proxy_address[256]; /* Magic Number inside toxcore */
+extern bool tox_connected;
+extern char proxy_address[256]; /* Magic Number inside toxcore */
 
 void tox_after_load(Tox *tox);
 

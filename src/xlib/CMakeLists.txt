@@ -31,6 +31,7 @@ add_library(utoxNATIVE STATIC
     filesys.c
     freetype.c
     freetype.h
+    globals.c
     gtk.c
     keysym2ucs.h
     main.c
