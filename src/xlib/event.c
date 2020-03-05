@@ -25,6 +25,7 @@
 
 #include "../ui/draw.h" // Needed for enddraw. This should probably be changed.
 #include "../ui/edit.h"
+#include "../ui/button.h"
 
 #include "keysym2ucs.h"
 
@@ -35,6 +36,7 @@
 #include "../layout/friend.h"
 #include "../layout/group.h"
 #include "../layout/settings.h"
+#include "../layout/sidebar.h"
 
 extern XIC xic;
 
@@ -429,6 +431,16 @@ bool doevent(XEvent *event) {
                     flist_last_tab();
                     redraw();
                     break;
+                } else if (sym == 'f') {
+                    edit_setfocus(&edit_search);
+                    redraw();
+                    break;
+                } else if (sym == 'F') {
+                    if (button_filter_friends.on_mup) {
+                        button_filter_friends.on_mup();
+                        redraw();
+                        break;
+                    }
                 }
             }
 
