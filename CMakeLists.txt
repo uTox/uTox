@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.11)
 project(uTox LANGUAGES C)
 
 #####################
@@ -285,7 +285,6 @@ include_directories(${LIBVPX_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBVPX_LIBRARIES})
 
 include_directories(SYSTEM third-party/stb)
-include_directories(SYSTEM third-party/minini/dev)
 include_directories(SYSTEM third-party/qrcodegen/c)
 
 # Protip, you must use a different directory for each build target...
@@ -329,6 +328,7 @@ if((NOT STBI_INCLUDE_DIR) OR (NOT EXISTS ${STBI_INCLUDE_DIR}))
     set(STBI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/stb/ CACHE PATH "stbi include directory")
 endif()
 
+add_subdirectory(third-party)
 
 # include utoxLAYOUT
 add_subdirectory(src/layout)
@@ -373,7 +373,6 @@ add_executable(utox ${GUI_TYPE}
     src/updater.c
     src/utox.c
     src/window.c
-    third-party/minini/dev/minIni.c
     third-party/qrcodegen/c/qrcodegen.c
 
     ${WINDOWS_ICON}
@@ -387,6 +386,7 @@ target_link_libraries(utox
     ${LIBRARIES}
     pthread
     m
+    minIni
 )
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
