@@ -285,7 +285,6 @@ include_directories(${LIBVPX_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBVPX_LIBRARIES})
 
 include_directories(SYSTEM third-party/stb)
-include_directories(SYSTEM third-party/qrcodegen/c)
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -373,7 +372,6 @@ add_executable(utox ${GUI_TYPE}
     src/updater.c
     src/utox.c
     src/window.c
-    third-party/qrcodegen/c/qrcodegen.c
 
     ${WINDOWS_ICON}
     ${APPLE_FILES}
@@ -387,6 +385,7 @@ target_link_libraries(utox
     pthread
     m
     minIni
+    qrcodegen
 )
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
