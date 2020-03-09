@@ -8,7 +8,6 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
-#include "../stb.h"
 #include "../text.h"
 #include "../tox.h"
 #include "../ui.h"
@@ -17,6 +16,9 @@
 #include "../main.h"
 
 #include "../native/thread.h"
+
+#include <stb_image.h>
+#include <utox_stb.h>
 
 #include <dlfcn.h>
 #include <errno.h>

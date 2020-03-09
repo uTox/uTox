@@ -30,6 +30,7 @@ target_link_libraries(utoxNATIVE
     iphlpapi    ws2_32      gdi32       msimg32
     dnsapi      comdlg32    winmm       ole32
     oleaut32    strmiids    shell32     opus
+    stb
     )
 
 set(WINDOWS_ICON utox.rc)

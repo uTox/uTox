@@ -32,4 +32,5 @@ target_link_libraries(utoxNATIVE
     "-framework OpenGL"
     "-framework QuartzCore"
     -lresolv
+    stb
     )

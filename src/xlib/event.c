@@ -11,7 +11,6 @@
 #include "../notify.h"
 #include "../self.h"
 #include "../settings.h"
-#include "../stb.h"
 #include "../tox.h"
 #include "../ui.h"
 #include "../utox.h"
@@ -28,6 +27,8 @@
 #include "../ui/button.h"
 
 #include "keysym2ucs.h"
+
+#include <utox_stb.h>
 
 #include <assert.h>
 #include <stddef.h>

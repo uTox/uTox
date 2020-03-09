@@ -1,13 +1,13 @@
 #include "qr.h"
 
 #include "debug.h"
-#include "stb.h"
 #include "tox.h"
 #include "self.h"
 
 #include "native/image.h"
 
 #include <qrcodegen.h>
+#include <utox_stb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

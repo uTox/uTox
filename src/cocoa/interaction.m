@@ -12,7 +12,6 @@
 #include "../messages.h"
 #include "../self.h"
 #include "../settings.h"
-#include "../stb.h"
 #include "../text.h"
 #include "../tox.h"
 #include "../ui.h"
@@ -31,6 +30,9 @@
 #include "../layout/background.h"
 #include "../layout/friend.h"
 #include "../layout/group.h"
+
+#include <stb_image.h>
+#include <utox_stb.h>
 
 NSCursor *cursors[8];
 bool have_focus = false;
