@@ -39,7 +39,7 @@ make install
 > In that case you want to set the env variable  `ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer`  for the address sanitizer (ASAN) to show nicer stack traces.
 > See <http://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports> for more details.
 
-or if you built toxcore statically:
+or if you want to link toxcore statically:
 ```sh
 git clone --recursive git://github.com/uTox/uTox.git
 cd uTox/
