@@ -54,6 +54,15 @@ For the build to pass you need to install the following from sources: [filteraud
 
 For base emoji ids support you need: [base_emoji](https://github.com/irungentoo/base_emoji)
 
+#### musl + clang
+
+If you use clang on a musl system, you may need to disable link-time optimizations, in case you get linking errors like the following:
+```
+/bin/x86_64-unknown-linux-musl-ld: src/av/libutoxAV.a: error adding symbols: archive has no index; run ranlib to add one
+clang-9: error: linker command failed with exit code 1 (use -v to see invocation)
+```
+In that case, you need to pass `-DENABLE_LTO=OFF` to cmake.
+
 ### Ubuntu
 
 Tested on Ubuntu 18.04
