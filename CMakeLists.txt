@@ -151,9 +151,6 @@ function(add_cflag flag)
     endif()
 endfunction()
 
-# Grab environment CFLAGS.
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
-
 # Warn on non-ISO C.
 #add_cflag("-pedantic") # throws a lot of warning, quite sure we do not want this at current state.
 ## Add all warning flags we can.
