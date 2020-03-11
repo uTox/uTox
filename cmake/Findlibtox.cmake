@@ -15,10 +15,17 @@ find_path(LIBTOX_INCLUDE_DIR tox/tox.h HINTS
     ${PKG_LIBTOX_INCLUDE_DIRS}
 )
 
-find_library(LIBTOX_LIBRARY NAMES toxcore HINTS
-    ${PKG_LIBTOX_LIBDIR}
-    ${PKG_LIBTOX_LIBRARY_DIRS}
-)
+if(UTOX_STATIC OR TOXCORE_STATIC)
+    find_library(LIBTOX_LIBRARY NAMES libtoxcore.a HINTS
+        ${PKG_LIBTOX_LIBDIR}
+        ${PKG_LIBTOX_LIBRARY_DIRS}
+    )
+else()
+    find_library(LIBTOX_LIBRARY NAMES toxcore HINTS
+        ${PKG_LIBTOX_LIBDIR}
+        ${PKG_LIBTOX_LIBRARY_DIRS}
+    )
+endif()
 
 include(FindPackageHandleStandardArgs)
 # Handle the QUIETLY and REQUIRED arguments and set LIBTOX_FOUND to TRUE
