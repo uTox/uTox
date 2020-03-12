@@ -15,10 +15,17 @@ find_path(LIBSODIUM_INCLUDE_DIR sodium.h HINTS
     ${PKG_LIBSODIUM_INCLUDE_DIRS}
 )
 
-find_library(LIBSODIUM_LIBRARY NAMES sodium HINTS
-    ${PKG_LIBSODIUM_LIBDIR}
-    ${PKG_LIBSODIUM_LIBRARY_DIRS}
-)
+if(UTOX_STATIC OR STATIC_SODIUM)
+    find_library(LIBSODIUM_LIBRARY NAMES libsodium.a HINTS
+        ${PKG_LIBSODIUM_LIBDIR}
+        ${PKG_LIBSODIUM_LIBRARY_DIRS}
+    )
+else()
+    find_library(LIBSODIUM_LIBRARY NAMES sodium HINTS
+        ${PKG_LIBSODIUM_LIBDIR}
+        ${PKG_LIBSODIUM_LIBRARY_DIRS}
+    )
+endif()
 
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set LIBSODIUM_FOUND to TRUE
