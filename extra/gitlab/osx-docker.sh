@@ -88,8 +88,8 @@ ls -la $CACHE_DIR
 cmake . -DCMAKE_SYSTEM_NAME=Darwin \
         -DENABLE_ASAN=OFF \
         -DENABLE_FILTERAUDIO=OFF \
-        -DUTOX_STATIC=OFF \
-        -DTOXCORE_STATIC=ON \
+        -DSTATIC_ALL=OFF \
+        -DSTATIC_TOXCORE=ON \
         -DENABLE_TESTS=OFF \
         -DENABLE_WERROR=OFF
 make

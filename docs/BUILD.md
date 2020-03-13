@@ -45,7 +45,7 @@ git clone --recursive git://github.com/uTox/uTox.git
 cd uTox/
 mkdir build
 cd build
-cmake -DTOXCORE_STATIC=ON ..
+cmake -DSTATIC_TOXCORE=ON ..
 make
 make install
 ```
@@ -230,13 +230,13 @@ And go back to terminal (make sure you're still in `build` folder):
 
 - For 32 bit:
     ```bash
-    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake" -DTOXCORE_STATIC=ON ..
+    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake" -DSTATIC_TOXCORE=ON ..
     make
     ```
 
 - For 64 bit:
     ```bash
-    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DTOXCORE_STATIC=ON ..
+    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DSTATIC_TOXCORE=ON ..
     make
     ```
 
