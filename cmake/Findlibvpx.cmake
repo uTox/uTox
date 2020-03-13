@@ -15,10 +15,17 @@ find_path(LIBVPX_INCLUDE_DIR vpx/vpx_codec.h HINTS
     ${PKG_LIBVPX_INCLUDE_DIRS}
 )
 
-find_library(LIBVPX_LIBRARY NAMES vpx HINTS
-    ${PKG_LIBVPX_LIBDIR}
-    ${PKG_LIBVPX_LIBRARY_DIRS}
-)
+if(UTOX_STATIC OR STATIC_VPX)
+    find_library(LIBVPX_LIBRARY NAMES libvpx.a HINTS
+        ${PKG_LIBVPX_LIBDIR}
+        ${PKG_LIBVPX_LIBRARY_DIRS}
+    )
+else()
+    find_library(LIBVPX_LIBRARY NAMES vpx HINTS
+        ${PKG_LIBVPX_LIBDIR}
+        ${PKG_LIBVPX_LIBRARY_DIRS}
+    )
+endif()
 
 include(FindPackageHandleStandardArgs)
 # Handle the QUIETLY and REQUIRED arguments and set LIBVPX_FOUND to TRUE
