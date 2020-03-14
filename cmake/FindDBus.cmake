@@ -31,11 +31,19 @@
 FIND_PACKAGE(PkgConfig)
 PKG_CHECK_MODULES(PC_DBUS QUIET dbus-1)
 
-FIND_LIBRARY(DBUS_LIBRARIES
-    NAMES dbus-1
-    HINTS ${PC_DBUS_LIBDIR}
-          ${PC_DBUS_LIBRARY_DIRS}
-)
+if(STATIC_ALL OR STATIC_DBUS)
+    FIND_LIBRARY(DBUS_LIBRARIES
+        NAMES libdbus-1.a
+        HINTS ${PC_DBUS_LIBDIR}
+              ${PC_DBUS_LIBRARY_DIRS}
+    )
+else()
+    FIND_LIBRARY(DBUS_LIBRARIES
+        NAMES dbus-1
+        HINTS ${PC_DBUS_LIBDIR}
+              ${PC_DBUS_LIBRARY_DIRS}
+    )
+endif()
 
 FIND_PATH(DBUS_INCLUDE_DIR
     NAMES dbus/dbus.h
