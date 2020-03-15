@@ -15,10 +15,17 @@ find_path(LIBOPUS_INCLUDE_DIR opus/opus.h HINTS
     ${PKG_LIBOPUS_INCLUDE_DIRS}
 )
 
-find_library(LIBOPUS_LIBRARY NAMES opus HINTS
-    ${PKG_LIBOPUS_LIBDIR}
-    ${PKG_LIBOPUS_LIBRARY_DIRS}
-)
+if(STATIC_ALL OR STATIC_OPUS)
+    find_library(LIBOPUS_LIBRARY NAMES libopus.a HINTS
+        ${PKG_LIBOPUS_LIBDIR}
+        ${PKG_LIBOPUS_LIBRARY_DIRS}
+    )
+else()
+    find_library(LIBOPUS_LIBRARY NAMES opus HINTS
+        ${PKG_LIBOPUS_LIBDIR}
+        ${PKG_LIBOPUS_LIBRARY_DIRS}
+    )
+endif()
 
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set LIBOPUS_FOUND to TRUE
