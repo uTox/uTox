@@ -266,9 +266,6 @@ msgstr("Továbbiak")
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Értesítések")
 
-msgid(AUTO_UPDATE)
-msgstr("uTox automatikus frissítése")
-
 msgid(PROFILE_SETTINGS)
 msgstr("Profilbeállítások")
 

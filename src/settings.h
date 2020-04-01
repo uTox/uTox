@@ -27,9 +27,9 @@ typedef struct utox_settings {
 
     bool save_encryption;
 
-    bool auto_update;
-    bool update_to_develop;
-    bool send_version;
+    bool auto_update;       /* Unused, included for compatibility */
+    bool update_to_develop; /* Unused, included for compatibility */
+    bool send_version;      /* Unused, included for compatibility */
 
     bool force_proxy;
     bool enable_udp;
@@ -118,9 +118,9 @@ typedef struct utox_save {
     uint32_t utox_last_version; // I don't like this here either,
     // but I'm not ready to rewrite and update this struct yet.
 
-    uint8_t auto_update         : 1;
-    uint8_t update_to_develop   : 1;
-    uint8_t send_version        : 1;
+    uint8_t auto_update         : 1; /* Unused, included for compatibility */
+    uint8_t update_to_develop   : 1; /* Unused, included for compatibility */
+    uint8_t send_version        : 1; /* Unused, included for compatibility */
     uint8_t zero_2              : 5;
     uint8_t zero_3              : 8;
 

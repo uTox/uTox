@@ -75,13 +75,7 @@ SETTINGS settings = {
     .block_friend_requests  = false,
     .save_encryption        = true,
 
-    // uTox internals
-    .auto_update        = false,
-    .update_to_develop  = false,
-    .send_version       = false,
-
     // .portable_mode               // included here to match the full struct
-
 
     // User interface settings
     .language               = LANG_EN,
@@ -440,8 +434,7 @@ UTOX_SAVE *config_load(void) {
     switch_proxy_force.switch_on      = save->force_proxy;
     switch_proxy_force.panel.disabled = !save->proxyenable;
 
-    switch_auto_startup.switch_on       = save->auto_startup;
-    switch_auto_update.switch_on        = save->auto_update;
+    switch_auto_startup.switch_on = save->auto_startup;
 
     settings.group_notifications = dropdown_global_group_notifications.selected =
         dropdown_global_group_notifications.over = save->group_notifications;
@@ -504,10 +497,6 @@ UTOX_SAVE *config_load(void) {
     loaded_audio_out_device       = save->audio_device_out;
     loaded_audio_in_device        = save->audio_device_in;
 
-    settings.auto_update          = save->auto_update;
-    switch_auto_update.switch_on  = save->auto_update;
-    settings.update_to_develop    = save->update_to_develop;
-    settings.send_version         = save->send_version;
     settings.video_fps = save->video_fps != 0 ? save->video_fps : DEFAULT_FPS;
 
     snprintf((char *)edit_video_fps.data, edit_video_fps.data_size,
@@ -577,10 +566,6 @@ void config_save(UTOX_SAVE *save_in) {
     save->utox_last_version             = settings.curr_version;
     save->group_notifications           = settings.group_notifications;
     save->status_notifications          = settings.status_notifications;
-
-    save->auto_update                   = settings.auto_update;
-    save->update_to_develop             = settings.update_to_develop;
-    save->send_version                  = settings.send_version;
 
     save->language                      = settings.language;
 

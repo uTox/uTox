@@ -6,7 +6,6 @@
 #include "../self.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../updater.h"
 
 #include "../av/video.h"
 
@@ -186,23 +185,23 @@ static void draw_settings_text_devices(int x, int y, int UNUSED(w), int UNUSED(h
 static void draw_settings_text_password(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), y + SCALE(245), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), y + SCALE(215), PROFILE_PASSWORD);
 
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(10), y + SCALE(319), PROFILE_PW_WARNING);
-    drawstr(x + SCALE(10), y + SCALE(331), PROFILE_PW_NO_RECOVER);
+    drawstr(x + SCALE(10), y + SCALE(289), PROFILE_PW_WARNING);
+    drawstr(x + SCALE(10), y + SCALE(301), PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(95), y + SCALE(248), NOSPAM_WARNING);
+    drawstr(x + SCALE(95), y + SCALE(218), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + SCALE(245), NOSPAM);
+    drawstr(x + SCALE(10), y + SCALE(215), NOSPAM);
 }
 
 // UI settings page
@@ -277,8 +276,7 @@ static void draw_settings_text_adv(int x, int y, int UNUSED(w), int UNUSED(heigh
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
     drawtext(x + SCALE(353), y + SCALE(89), ":", 1); // Little addr port separator
 
-    drawstr(x + SCALE(20)+ BM_SWITCH_WIDTH, y + SCALE(150), AUTO_UPDATE);
-    drawstr(x + SCALE(20)+ BM_SWITCH_WIDTH, y + SCALE(180), BLOCK_FRIEND_REQUESTS);
+    drawstr(x + SCALE(20)+ BM_SWITCH_WIDTH, y + SCALE(150), BLOCK_FRIEND_REQUESTS);
 }
 
 
@@ -466,7 +464,6 @@ panel_settings_master = {
             (PANEL*)&switch_proxy_force,
             (PANEL*)&switch_ipv6,
             (PANEL*)&switch_udp,
-            (PANEL*)&switch_auto_update,
             (PANEL*)&button_show_password_settings,
             &panel_profile_password_settings,
             (PANEL*)&switch_block_friend_requests,
@@ -873,7 +870,7 @@ BUTTON button_lock_uTox = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      =  10,
-        .y      = 295,
+        .y      = 265,
         .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT,
     },
@@ -888,7 +885,7 @@ BUTTON button_show_password_settings = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      =  10,
-        .y      = 207,
+        .y      = 177,
         .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT,
     },
@@ -919,7 +916,7 @@ BUTTON button_change_nospam = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      =  10,
-        .y      = 295,
+        .y      = 265,
         .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT,
     },
@@ -996,11 +993,6 @@ static void switchfxn_push_to_talk(void) {
 static void switchfxn_audio_filtering(void) { settings.audiofilter_enabled = !settings.audiofilter_enabled; }
 
 static void switchfxn_status_notifications(void) { settings.status_notifications = !settings.status_notifications; }
-
-static void switchfxn_auto_update(void) {
-    settings.auto_update = !settings.auto_update;
-    updater_start(0);
-}
 
 static void switchfxn_block_friend_requests(void) { settings.block_friend_requests = !settings.block_friend_requests; }
 
@@ -1223,28 +1215,11 @@ UISWITCH switch_status_notifications = {
     .tooltip_text   = {.i18nal = STR_STATUS_NOTIFICATIONS },
 };
 
-UISWITCH switch_auto_update = {
-    .panel = {
-        .type   = PANEL_SWITCH,
-        .x      =  10,
-        .y      = 147,
-        .width  = _BM_SWITCH_WIDTH,
-        .height = _BM_SWITCH_HEIGHT,
-    },
-    .style_outer    = BM_SWITCH,
-    .style_toggle   = BM_SWITCH_TOGGLE,
-    .style_icon_off = BM_NO,
-    .style_icon_on  = BM_YES,
-    .update         = switch_update,
-    .on_mup         = switchfxn_auto_update,
-    .tooltip_text   = {.i18nal = STR_AUTO_UPDATE }
-};
-
 UISWITCH switch_block_friend_requests = {
     .panel = {
         .type   = PANEL_SWITCH,
         .x      =  10,
-        .y      = 177,
+        .y      = 147,
         .width  = _BM_SWITCH_WIDTH,
         .height = _BM_SWITCH_HEIGHT,
     },
@@ -1676,7 +1651,7 @@ EDIT edit_profile_password = {
     .panel = {
         .type   = PANEL_EDIT,
         .x      =  10,
-        .y      =  85,
+        .y      =  55,
         .width  = -10,
         .height =  24,
     },
@@ -1730,7 +1705,7 @@ EDIT edit_nospam = {
     .panel = {
         .type   = PANEL_EDIT,
         .x      =  10,
-        .y      = 265,
+        .y      = 235,
         .width  = -10,
         .height =  24,
     },

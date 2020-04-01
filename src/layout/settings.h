@@ -61,7 +61,6 @@ extern UISWITCH /* User Interface Tab */
                 switch_udp,
                 switch_proxy,
                 switch_proxy_force,
-                switch_auto_update,
                 switch_block_friend_requests;
 
 typedef struct dropdown DROPDOWN;

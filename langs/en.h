@@ -450,9 +450,6 @@ msgstr("Advanced")
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Notifications")
 
-msgid(AUTO_UPDATE)
-msgstr("Automatically Update uTox")
-
 msgid(PROFILE_SETTINGS)
 msgstr("Profile Settings")
 

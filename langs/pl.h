@@ -251,9 +251,6 @@ msgstr("Zaawansowane")
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Powiadomienia")
 
-msgid(AUTO_UPDATE)
-msgstr("Automatycznie aktualizuj uTox")
-
 msgid(PROFILE_SETTINGS)
 msgstr("Ustawienia profilu")
 

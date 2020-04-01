@@ -145,12 +145,6 @@ test:chatlog:
     - cd build/tests/
     - ctest -VV -R test_chatlog
 
-test:updater:
-  <<: *test
-  script:
-    - cd build/tests/
-    - ctest -VV -R test_updater
-
 test:XVFB:
   stage: test
   image: alpine-tox-xvfb
