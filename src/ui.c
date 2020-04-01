@@ -162,11 +162,11 @@ static void settings_ADV(void) {
 
 
     const int show_nospam_x = 30 + UN_SCALE(MAX(UTOX_STR_WIDTH(SHOW_UI_PASSWORD), UTOX_STR_WIDTH(HIDE_UI_PASSWORD)));
-    CREATE_BUTTON(show_nospam, show_nospam_x, 207, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_nospam, show_nospam_x, 177, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
 
     const int revert_nospam_x = 30 + UN_SCALE(UTOX_STR_WIDTH(RANDOMIZE_NOSPAM));
-    CREATE_BUTTON(revert_nospam, revert_nospam_x, 295, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(revert_nospam, revert_nospam_x, 265, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
 }
 

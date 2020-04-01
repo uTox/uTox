@@ -484,7 +484,6 @@ void launch_at_startup(bool should) {
 int main(int argc, char const *argv[]) {
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   skip_updater;
     bool   allow_root;
 
     utox_init();
@@ -493,7 +492,6 @@ int main(int argc, char const *argv[]) {
     settings.window_height = DEFAULT_HEIGHT;
 
     parse_args(argc, argv,
-               &skip_updater,
                &should_launch_at_startup,
                &set_show_window,
                &allow_root);
@@ -508,10 +506,6 @@ int main(int argc, char const *argv[]) {
 
     if (set_show_window == 1 || set_show_window == -1) {
         LOG_TRACE("NATIVE", "Showing/hiding windows not supported on this OS!" );
-    }
-
-    if (skip_updater == true) {
-        LOG_TRACE("NATIVE", "Disabling the updater is not supported on this OS. Updates are managed by the app store." );
     }
 
     setlocale(LC_ALL, "");

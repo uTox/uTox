@@ -21,11 +21,6 @@ SETTINGS settings = {
     .block_friend_requests  = false,
     .save_encryption        = true,
 
-    // uTox internals
-    .auto_update        = false,
-    .update_to_develop  = false,
-    .send_version       = false,
-
     // testing always in portable mode to not touch any real tox profile!
     .portable_mode = true,
 

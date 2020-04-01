@@ -226,9 +226,6 @@ msgstr("Avancerat")
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Notifieringar")
 
-msgid(AUTO_UPDATE)
-msgstr("Uppdatera µTox automatiskt")
-
 msgid(PROFILE_SETTINGS)
 msgstr("Profilinställningar")
 

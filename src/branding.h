@@ -8,7 +8,6 @@
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
 
-// The updater relies on these version numbers, and values greater than an octet were never tested
 #define VERSION "0.17.1"
 #define VER_MAJOR 0
 #define VER_MINOR 17

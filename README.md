@@ -34,7 +34,6 @@ You shouldn't have to choose a new client for every device: So µTox works every
 - File transfers, with inline images support
 - Tox URI support (clickable Tox links)
 - Emoticons
-- Auto-updates on Windows.
 
 Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help, if you do encounter any bugs or problems please [open an issue](https://github.com/uTox/uTox/issues/new).
 

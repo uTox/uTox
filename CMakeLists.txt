@@ -91,7 +91,6 @@ option(ENABLE_ASAN        "Enable Address Sanitizer on debug builds"            
 option(ENABLE_TESTS       "Whether to build test binaries (currently Unix-like OSes only)"      ON )
 option(ENABLE_WERROR      "Error on Warning, whether to put -Werror flag to the compiler"       OFF)
 option(ENABLE_FILTERAUDIO "Enable Filter Audio"                                                 ON )
-option(ENABLE_AUTOUPDATE  "Enable Auto-updater"                                                 OFF)
 option(ENABLE_LTO         "Enable link time optimizations"                                      ON )
 
 
@@ -266,10 +265,6 @@ if(STATIC_ALL)
     endif()
 endif()
 
-if(ENABLE_AUTOUPDATE)
-    add_cflag("-DENABLE_AUTOUPDATE=1")
-endif()
-
 if(ENABLE_FILTERAUDIO)
     add_cflag("-DAUDIO_FILTERING=1")
 endif()
@@ -372,7 +367,6 @@ add_executable(utox ${GUI_TYPE}
     src/tox_callbacks.c
     src/ui.c
     src/ui_i18n.c
-    src/updater.c
     src/utox.c
     src/window.c
     third-party/minini/dev/minIni.c
@@ -440,7 +434,6 @@ message("- Add ASAN:                ${ENABLE_ASAN}")
 message("- Link-Time Optimization:  ${ENABLE_LTO}")
 message("- Error on Warning:        ${ENABLE_WERROR}")
 message("- Filter Audio:            ${ENABLE_FILTERAUDIO}")
-message("- Auto Updater:            ${ENABLE_AUTOUPDATE}")
 message("- Static uTox:             ${STATIC_ALL}")
 message("- Static Toxcore:          ${STATIC_TOXCORE}")
 message("- Static DBus:             ${STATIC_DBUS}")

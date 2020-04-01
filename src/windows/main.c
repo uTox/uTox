@@ -20,7 +20,6 @@
 #include "../theme.h"
 #include "../tox.h"
 #include "../ui.h"
-#include "../updater.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"
@@ -756,93 +755,6 @@ static void cursors_init(void) {
     cursors[CURSOR_ZOOM_OUT] = LoadCursor(NULL, IDC_SIZEALL);
 }
 
-static bool fresh_update(void) {
-    char path[UTOX_FILE_NAME_LENGTH];
-    GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
-    LOG_WARN("Win Updater", "Starting");
-    LOG_NOTE("Win Updater", "Root %s", path);
-
-    char *name_start = strstr(path, "next_uTox.exe");
-    if (!name_start) {
-        LOG_NOTE("Win Updater", "Not the updater -- %s ", path);
-        return false;
-    }
-
-    // This is the freshly downloaded exe.
-    // make a backup of the old file
-    char backup[UTOX_FILE_NAME_LENGTH];
-    strcpy(name_start, "uTox_backup.exe");
-    memcpy(backup, path, UTOX_FILE_NAME_LENGTH);
-    LOG_NOTE("Win Updater", "Backup %s", backup);
-
-    char real[UTOX_FILE_NAME_LENGTH];
-    strcpy(name_start, "uTox.exe");
-    memcpy(real, path, UTOX_FILE_NAME_LENGTH);
-    LOG_NOTE("Win Updater", "%s", real);
-    if (MoveFileEx(real, backup, MOVEFILE_REPLACE_EXISTING) == 0) {
-        // Failed
-        LOG_ERR("Win Updater", "move failed");
-        return false;
-    }
-
-    char new[UTOX_FILE_NAME_LENGTH];
-    strcpy(name_start, "next_uTox.exe");
-    memcpy(new, path, UTOX_FILE_NAME_LENGTH);
-    LOG_NOTE("Win Updater", "%s", new);
-    if (CopyFile(new, real, 0) == 0) {
-        // Failed
-        LOG_ERR("Win Updater", "copy failed");
-        return false;
-    }
-
-    LOG_ERR("Win Updater", "Launching new path %s", real);
-
-    char cmd[UTOX_FILE_NAME_LENGTH];
-    size_t next = snprintf(cmd, UTOX_FILE_NAME_LENGTH, " --skip-updater --delete-updater %s", new);
-    if (settings.portable_mode) {
-        snprintf(cmd + next, UTOX_FILE_NAME_LENGTH - next, " -p");
-    }
-    ShellExecute(NULL, "open", real, cmd, NULL, SW_SHOW);
-    DeleteFile(new);
-    return true;
-}
-
-static bool pending_update(void) {
-    LOG_WARN("Win Pending", "Starting");
-    // Check if we're the fresh version.
-    char path[UTOX_FILE_NAME_LENGTH];
-    GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
-
-    // TODO: The updater should work with the binaries we're distributing.
-    // uTox_win64.exe, uTox_win32.exe, uTox_winXP.exe on utox.io, maybe (probably) others on jenkins.
-    char *name_start = strstr(path, "uTox.exe");
-    if (!name_start) {
-        // Try lowercase too
-        name_start = strstr(path, "utox.exe");
-    }
-
-    if (name_start) {
-        char next[UTOX_FILE_NAME_LENGTH];
-        strcpy(name_start, "next_uTox.exe");
-        memcpy(next, path, UTOX_FILE_NAME_LENGTH);
-        FILE *f = fopen(next, "rb");
-        if (f) {
-            LOG_ERR("Win Pending", "Updater waiting :D");
-            fclose(f);
-            char cmd[UTOX_FILE_NAME_LENGTH] = { 0 };
-            if (settings.portable_mode) {
-                snprintf(cmd, UTOX_FILE_NAME_LENGTH, " -p");
-            }
-            ShellExecute(NULL, "open", next, cmd, NULL, SW_SHOW);
-            return true;
-        }
-        LOG_WARN("Win Pending", "No updater waiting for us");
-    }
-    LOG_WARN("Win Pending", "Bad file name -- %s ", path);
-
-    return false;
-}
-
 static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd, const char *instance_id) {
     *mutex = CreateMutex(NULL, false, instance_id);
 
@@ -885,8 +797,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     int8_t should_launch_at_startup, set_show_window;
-    bool   skip_updater;
-    parse_args(argc, argv, &skip_updater, &should_launch_at_startup, &set_show_window, NULL);
+    parse_args(argc, argv, &should_launch_at_startup, &set_show_window, NULL);
     GlobalFree(argv);
 
     char instance_id[MAX_PATH];
@@ -919,19 +830,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     HANDLE utox_mutex;
     win_init_mutex(&utox_mutex, hInstance, cmd, instance_id);
-
-    if (!skip_updater) {
-        LOG_NOTE("WinMain", "Not skipping updater");
-        if (fresh_update()) {
-            CloseHandle(utox_mutex);
-            exit(0);
-        }
-
-        if (pending_update()) {
-            CloseHandle(utox_mutex);
-            exit(0);
-        }
-    }
 
     if (should_launch_at_startup == 1) {
         launch_at_startup(1);

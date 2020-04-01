@@ -229,9 +229,6 @@ msgstr("Täpsemalt")
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Teated")
 
-msgid(AUTO_UPDATE)
-msgstr("Automaatselt uuenda uTox-i")
-
 msgid(PROFILE_SETTINGS)
 msgstr("Profiili sätted")
 

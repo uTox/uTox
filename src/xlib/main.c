@@ -18,7 +18,6 @@
 #include "../text.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../updater.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"
@@ -721,10 +720,8 @@ int main(int argc, char *argv[]) {
 
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   skip_updater;
     bool allow_root;
     parse_args(argc, argv,
-               &skip_updater,
                &should_launch_at_startup,
                &set_show_window,
                &allow_root);
@@ -739,11 +736,6 @@ int main(int argc, char *argv[]) {
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         LOG_NOTE("XLIB", "Start on boot not supported on this OS, please use your distro suggested method!\n");
-    }
-
-    if (skip_updater == true) {
-        LOG_ERR("XLIB", "Disabling the updater is not supported on this OS. "
-                        "Updates are managed by your distro's package manager.\n");
     }
 
     LOG_INFO("XLIB MAIN", "Setting theme to:\t%d", settings.theme);

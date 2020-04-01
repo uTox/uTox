@@ -324,9 +324,6 @@ msgstr("Дополнительно")
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Уведомления")
 
-msgid(AUTO_UPDATE)
-msgstr("Автоматически обновлять uTox")
-
 msgid(PROFILE_SETTINGS)
 msgstr("Настройки профиля")
 

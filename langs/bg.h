@@ -375,9 +375,6 @@ msgstr("Допълнителни")
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Известия")
 
-msgid(AUTO_UPDATE)
-msgstr("Автоматично обновяване на uTox")
-
 msgid(PROFILE_SETTINGS)
 msgstr("Настройки на профила")
 
