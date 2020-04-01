@@ -21,6 +21,21 @@
 #include <string.h>
 #include <unistd.h>
 
+Display *display;
+Screen  *default_screen;
+int     def_screen_num;
+Window  root_window;
+Visual  *default_visual;
+
+UTOX_WINDOW *curr;
+
+int default_depth;
+
+struct native_window main_window;
+struct native_window popup_window;
+struct native_window scr_grab_window;
+struct native_window tray_pop;
+
 bool native_window_init(void) {
     if ((display = XOpenDisplay(NULL)) == NULL) {
         LOG_ERR("XLIB Wind", "Cannot open display, must exit");

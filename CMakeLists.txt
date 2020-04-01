@@ -353,7 +353,6 @@ add_executable(utox ${GUI_TYPE}
     src/filesys.c
     src/flist.c
     src/friend.c
-    src/globals.c
     src/groups.c
     src/inline_video.c
     src/logging.c
@@ -368,6 +367,7 @@ add_executable(utox ${GUI_TYPE}
     src/stb.c
     src/text.c
     src/theme.c
+    src/theme_tables.c
     src/tox.c
     src/tox_callbacks.c
     src/ui.c

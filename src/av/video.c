@@ -20,6 +20,7 @@
 #include <vpx/vpx_image.h>
 
 bool utox_video_thread_init = false;
+uint16_t video_width, video_height, max_video_width, max_video_height;
 
 static void *   video_device[16]     = { NULL }; /* TODO; magic number */
 static int16_t  video_device_count   = 0;

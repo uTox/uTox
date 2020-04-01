@@ -42,7 +42,28 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-bool hidden = false;
+Atom wm_protocols, wm_delete_window;
+Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
+Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
+Atom XA_URI_LIST, XA_PNG_IMG;
+Atom XRedraw;
+
+Picture bitmap[BM_ENDMARKER];
+Cursor  cursors[8];
+
+uint8_t pointergrab;
+
+bool     _redraw;
+
+XImage *screen_image;
+
+void *libgtk;
+
+struct utox_clipboard clipboard;
+struct utox_primary primary;
+struct utox_pastebuf pastebuf;
+
+static bool hidden = false;
 
 XIC xic = NULL;
 static XSizeHints *xsh = NULL;

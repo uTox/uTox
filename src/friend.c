@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+uint8_t addfriend_status;
+
 static FRIEND *friend = NULL;
 
 FRIEND *get_friend(uint32_t friend_number) {
