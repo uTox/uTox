@@ -48,6 +48,16 @@ sudo pacman -S utox
 
 If you use Slackware you can download the slack build from here: https://slackbuilds.org/repository/14.2/network/uTox/
 
+### Other distributions
+
+uTox is available in the [Guix](https://guix.gnu.org/) package manager. Install by running:
+
+```bash
+guix install utox
+```
+
+Refer to the [Guix Manual](https://guix.gnu.org/manual/en/) on how to install and use Guix itself.
+
 ## OpenBSD
 
 Right now no one is providing binaries. You will have to compile uTox. See [instructions](BUILD.md#openbsd).
