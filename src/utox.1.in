@@ -50,6 +50,31 @@ Print a short description of available options.
 .IP "\fB\-\-version\fP"
 Print the version and exit.
 
+.SH KEYBINDINGS
+.IP "\fBCtrl+F\fP"
+Toggle friend list online status filter.
+
+.IP "\fBCtrl+f\fP"
+Focus on friend list search input field.
+
+.IP "\fBCtrl+[num], Alt+[num]\fP"
+Switch to chat [num].
+
+.IP "\fBCtrl+Pg{Up,Down}\fP"
+Move up or down in the friend list.
+
+.IP "\fBCtrl+Pg{Home,End}\fP"
+Move to first or last friend in the friend list.
+
+.IP "\fBEsc\fP"
+Unfocus message input field. When unfocused, pressing any key will focus on it again.
+
+.IP "\fBPg{Up,Down}\fP"
+Scroll chat log up or down.  This keybinding will only work when the message input field is unfocused.
+
+.IP "\fBHome, End\fP"
+Scroll to top or bottom of chat log.  This keybinding will only work when the message input field is unfocused.
+
 .SH CHAT COMMANDS
 These commands can be used in the chat window.
 .IP "\fB/alias\fP <alias>"
