@@ -90,7 +90,6 @@ Installing on windows isn't really a thing yet... you can download the nighties.
 
   - [32-bit](https://build.tox.chat/job/uTox_build_windows_x86_release/lastSuccessfulBuild/artifact/utox_windows_x86.zip)
   - [64-bit](https://build.tox.chat/job/uTox_build_windows_x86-64_release/lastSuccessfulBuild/artifact/utox_windows_x86-64.zip)
-  - Updater (delayed, ask grayhatter for it, and it'll happen)
 
 ## Android
 
