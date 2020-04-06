@@ -9,7 +9,7 @@ link_directories(${CHECK_LIBRARY_DIRS})
 function(make_test name)
     add_executable(test_${name} test_${name}.c)
     set_target_properties(test_${name} PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
-    target_link_libraries(test_${name} utox-test-mock ${CHECK_LIBRARIES})
+    target_link_libraries(test_${name} utox-test-mock ${CHECK_LIBRARIES} ${ARGN})
     add_test(NAME test_${name} COMMAND test_${name})
 endfunction()
 
@@ -38,8 +38,7 @@ target_link_libraries(utox-test-mock pthread)
 make_test(chatlog)
 
 if(ENABLE_AUTOUPDATE)
-  make_test(updater)
-      target_link_libraries(test_updater sodium)
+  make_test(updater sodium)
 endif()
 
 make_test(chrono)
