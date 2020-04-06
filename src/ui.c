@@ -28,6 +28,15 @@
 #include "ui/text.h"
 #include "ui/tooltip.h"
 
+struct utox_mouse mouse;
+
+uint8_t cursor;
+bool mdown;
+
+char search_data[1024]; // TODO this is NOT where this belongs
+
+double ui_scale;
+
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
     return;

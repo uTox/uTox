@@ -18,7 +18,6 @@
 #include "av/utox_av.h"
 #include "av/video.h"
 
-
 #include "ui/edit.h"     // FIXME the toxcore thread shouldn't be interacting directly with the UI
 #include "ui/switch.h"   // FIXME the toxcore thread shouldn't be interacting directly with the UI
 #include "ui/dropdown.h"
@@ -36,6 +35,14 @@
 #include <tox/toxencryptsave.h>
 
 #include "main.h" // utox_data_save/load, DEFAULT_NAME, DEFAULT_STATUS
+
+UTOX_TOX_THREAD_INIT tox_thread_init;
+
+TOX_MSG       tox_msg, audio_msg, toxav_msg;
+volatile bool tox_thread_msg, audio_thread_msg, video_thread_msg;
+
+bool tox_connected;
+char proxy_address[256]; /* Magic Number inside toxcore */
 
 static bool save_needed = true;
 

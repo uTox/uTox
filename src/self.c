@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct utox_self self;
+
 void init_self(Tox *tox) {
     /* Set local info for self */
     edit_setstr(&edit_name, self.name, self.name_length);

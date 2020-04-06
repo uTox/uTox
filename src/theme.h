@@ -101,7 +101,4 @@ void theme_load(const THEME loadtheme);
 
 extern uint32_t status_color[4];
 
-extern const char *COLOUR_NAME_TABLE[];
-extern uint32_t *COLOUR_POINTER_TABLE[];
-
 #endif

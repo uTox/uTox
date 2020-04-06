@@ -36,6 +36,8 @@
 
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 
+pthread_mutex_t messages_lock;
+
 /** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;
  *
