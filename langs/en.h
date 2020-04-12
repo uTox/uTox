@@ -15,13 +15,61 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the newer uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.17.1! Release name: \"Don't 🌟e at my 😬!\"")
+msgstr("You have just upgraded to version 0.17.2! Release name: 新年快乐！🐀")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.17.1")
+msgstr("Changes in v0.17.2")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
+"\n"
+"새해 복 많이 받으세요!\n"
+"Szczęśliwego nowego roku!\n"
+"Gott nytt år!\n"
+"Frohes neues Jahr!\n"
+"\n"
+"  IMPORTANT NOTE FOR WINDOWS USERS\n"
+"    Windows XP support has been discontinued.\n"
+"\n"
+"  Features:\n"
+"    Implement ctrl+F: toggle flist online status filter\n"
+"    Implement ctrl+f: focus on flist search input field\n"
+"    Search friend list also by Tox ID\n"
+"    Implement ontab and onshifttab callbacks for text fields in add friend page\n"
+"    Handle Home & End key in friend list (ctrl+Home, ctrl+End; go to first and last friend)\n"
+"    Handle Home & End key in messages panel (For going to the top and bottom of the chat log)\n"
+"    Make Esc key unfocus from text input fields (This allows to scroll the chat log without having to click into it.)\n"
+"    Focus message input field when starting to type\n"
+"    Implement ontab and onshifttab callbacks for all text fields in settings\n"
+"\n"
+"  Fixes:\n"
+"    Fix a crash when adding a friend to a group\n"
+"    Load window position from config file\n"
+"    Unbreak build with OpenAL 1.20.0 (Thanks, t6!)\n"
+"    Friend list fixes\n"
+"    Fix Up key in message input field\n"
+"    Fix memory leaks\n"
+"    Fix compilation error on GNU/kFreebsd (Thanks, yangfl!)\n"
+"    Fix typos (Thanks, yangfl!)\n"
+"    Use correct evdev header on FreeBSD (Thanks, t6!)\n"
+"\n"
+"  Development:\n"
+"    Remove auto-updater (Thanks, robinlinden & avoidr!)\n"
+"    Show value of $ENABLE_LTO in cmake output\n"
+"    Static linking fixes\n"
+"    Don't pass 2 of every flags in CFLAGS (Thanks, robinlinden!)\n"
+"    Travis: Linux: disable auto-update test\n"
+"    CMakeLists.txt: add CFLAG -fno-common\n"
+"    Make uTox gcc10-ready (-fno-common fix) (Thanks, eclipseo!)\n"
+"    Remove WinXP support\n"
+"    add tools/relnotes_to_cstring.sed\n"
+"\n"
+"  Documentation:\n"
+"    add instructions to install from Guix (Thanks, metallicmole!)\n"
+"    add keybindings to manpage (Thanks, metallicmole!)\n"
+"    docs/BUILD.md: minor rephrasing\n"
+"    docs/BUILD.md: add note about musl+clang linking issue\n"
+"\nv0.17.1\n"
 "\n  IMPORTANT NOTE FOR WINDOWS USERS\n"
 "    Autoupdates are no longer provided.\n"
 "\n"

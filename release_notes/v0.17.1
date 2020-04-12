@@ -1,0 +1,67 @@
+# 0.17.1 uTox: "Don't 🌟e at my 😬!"
+
+## IMPORTANT NOTE FOR WINDOWS USERS
+**Autoupdates are no longer provided.**
+
+## Features:
+* Add `--allow-root` option: Now you can't run uTox as root by accident (1b491cddb7871a92ea04c0f00f872a718d761ecb)
+* Add right click menu to Xlib (5f5f5705c6f28b02b068bd8da27b25cc91877221)
+* Add support for loading groupchats (049ca5637ac8abdeecfe454768bee92e2b61b7e2)
+* More *BSD support! (FreeBSD, NetBSD, OpenBSD, DragonFlyBSD) (@mazocomp)
+* Groupchat creation screen implemented
+
+## Fixes:
+* Fix a crash when changing to a video input device that fails to init (e36e4754d59c45e54ffc9479097cbb7f4b19aafb)
+* Fix a friendlist bug related to the Tox profile having no friends and groups (d81d2765cb1c9b531c44b907ae59c5a94818b4a0)
+* Don't flip video preview button status if preview fails (8f73ee2ee43cf715924d81cbf2ddb9eeef1324a7)
+* Xlib: Clean up zombies if `xdg-open` is not installed (dfc5f501b1639065bb3afa92f203cc484a31db60)
+* Add border to QR code to make it actually readable to QR code scanners (3643744d8b4b7d872c912a54ba6247607c62217a)
+* Fix file transfer text (72b7347a265ae799943506ad8fe2e2baed10415a)
+* Prevent a crash related to having too many friends (1e413079c125a75e5a6097132d7a72e14c40c48b)
+* Fix crash related to dropdowns (b0b3167f489c3d4ff3ab975385a50d9b31577768)
+* Fix ignoring friend requests (ed5588094446a59aef47679cc9d5e6a960520240)
+* Close dropdowns on changing tabs (4dd4ae0da38e9235a929b6603d6e6313afa8ea55)
+* Fix crash on startup related to QR code (@ColumPaget) (41c5044537fdbe61eb9bcc91b470c8294c9bf92c)
+* Fix group settings layout
+* Fix a crash related to Tox savedata being too large (363e4869ecee3e4785df7910a75067240a6275aa)
+* Fix two possible memory leaks (a549f11e6e980cffded07d453382aa5e8183f73d 168eb7854c5c76d0d55d2ae17a3e6608135e7b85)
+* Fix a crash related to text undo in message input field (@cyisfor) (e1371e40dce7ace27148a45e69e52e3f33a74c4b)
+* Fix a crash related to the password input field (889161656eb6894059d7780060a1d090b9403c42)
+* Fix crash related to FPS value input field (d297e0d7273f59dd5d94160b9bb25fdad1826314)
+* Fix selection bug: Selection on double-click doesn't leak into neighbouring line anymore (06f85abc916c48123b1b9890c22dafa9be34971c)
+* Fix HOME key (3833c137207f7dea2312c2e6e91071878aac41da)
+* Fix END key and make ctrl+shift+end work (6fa9df6fbf2c8e4cf9a1d2c7bc35b79d4c895818)
+* Sort languages enum by their native names alphabetically (b8d33d4bc8d83bbf2a4d917a006abb7d098c1c9c)
+* Move Language setting from "Profile" to "User Interface" tab (234f027a9f2a93596ecfd543c98131b8673b8d2d)
+* Updated translations:
+	- German (d96d309496d41c06eece682f9ae19ee79e541701 43287770b910fa77ccbbc22e5c751c690fb13943 9757f05e4cc5a264e49298582a665da9bf0f31b7)
+	- English (e2901e8aeadb3a46f27ddcdacbc856cea119d33c)
+	- Polish (96f7c029edd02616c2aebf3da8968c703816da58 542b19a707f4471e7ca0560609bc6e7ef818688b)
+	- Swedish (@jony0008) (eda5a417c3c972755e3e3f03233fe7824f6c364f 38e4ae75ff54fa6fdd7a292fdd0043734cf5ff65)
+	- Hungarian (@baloo79) (9d9f24b2877d0440fe0e5bd863fc12a5722aaea7)
+
+## Development:
+* Try to upgrade travis (b51ca8481b2676d2d0e69381bfb74301f5a56d6a)
+* Travis win64 make cmake command explicit (50028d786663cc4bc634e740d323862b98f61024)
+* Disable incorrect updater test (f42eee0801e64379f568c22140a3e41c76475666)
+* Auto 'clone' STB with cmake (5c24e49fb06966ae9fa946a69b52eefe7c65571f)
+* Make uTox reproducible (@bmwiedemann) (e5f4f710b658ddd543d0cd91cb31e9931a8aa8ee)
+* Some fixes for *BSD systems (@mazocomp) (08c4233fde30126bffb765a9942d79acfe37c90c)
+	- Enable tests by default
+	- Update build instructions and add instructions for NetBSD and DragonFlyBSD
+	- other build system fixes
+
+
+## This release of uTox was brought to you by
+
+### Regular contributors
+@baloo79, @endoffile78, @GrayHatter, @mazocomp, @redmanmale, @robinlinden
+
+### New contributors
+@bmwiedemann, @ColumPaget, @cyisfor, @jony0008
+
+### New uTox team members
+@avoidr
+
+## Do you know another language? Rather read the changelog in your language?
+Help us translate uTox!

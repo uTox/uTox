@@ -1,0 +1,60 @@
+# 0.17.2 uTox: 新年快乐！🐀
+
+*새해 복 많이 받으세요!*
+*Szczęśliwego nowego roku!*
+*Gott nytt år!*
+*Frohes neues Jahr!*
+
+## IMPORTANT NOTE FOR WINDOWS USERS
+**Windows XP support has been discontinued.**
+
+## Features:
+* Implement ctrl+F: toggle flist online status filter (b7fdac26f108f5c002ce533de320f8771ec84067)
+* Implement ctrl+f: focus on flist search input field (0b401ebfffbd79122820c90a54dc70a15552d021)
+* Search friend list also by Tox ID (ae8520884bf369b016459a80067c4c9d22977bcb)
+* Implement ontab and onshifttab callbacks for text fields in add friend page (484255364f988037c67660d05529b6f072e296b6)
+* Handle Home & End key in friend list (ctrl+Home, ctrl+End; go to first and last friend) (f1de42bbd590dc4d4511c05a548c1e4d12441795)
+* Handle Home & End key in messages panel (For going to the top and bottom of the chat log) (8f19de06b8f1c69338a23b662c75d146556741bf)
+* Make Esc key unfocus from text input fields (This allows to scroll the chat log without having to click into it.) (b227afe06a0d4f018efa08bce3c67895d5a063a9)
+* Focus message input field when starting to type (e4cc50c432c27cf39d8898ad3b916ab12b0625c3)
+* Implement ontab and onshifttab callbacks for all text fields in settings (7194761db2b6ed6d753f83354d53814ce96a8b81)
+
+## Fixes:
+* Fix a crash when adding a friend to a group (cb451de723a4b7f52fef83287b310aacb77b823c)
+* Load window position from config file (0bcfead50a2ef3009440bff9a7188cb605b91c44)
+* Unbreak build with OpenAL 1.20.0 (@t6) (b608d584d9b6aeae916dec48c2cadf2e631f91b8)
+* Friend list fixes (1504fc0157f12a77e95048db5e3ca3655e7742fd 195553d99dd40e09b612e54f79dc245f53bd6a0b 58707ee2d0b9f77592a11f1eaab7ff4e535e4e06)
+* Fix Up key in message input field (118298e31df3842457222686ea4b1f0230d82f93)
+* Fix memory leaks (8b04e6feb266973328ca3a114020784a56d15234)
+* Fix compilation error on GNU/kFreebsd (@yangfl) (bb790c5fdf766c351c2286e2d3580e73893ff005)
+* Fix typos (@yangfl) (23e9e9b3a0015090fb2d49496145afe7a32dcc3e)
+* Use correct evdev header on FreeBSD (@t6) (37271f991c590a533781b66e9036e9b66dfbbf1b)
+
+## Development:
+* Remove auto-updater (@robinlinden & @avoidr) (3d1b1df7b557b29d470f9d8af790f00159582dda)
+* Show value of $ENABLE_LTO in cmake output (fb57530bd4af4dc61e67f6097795ee2862113661)
+* Static linking fixes (02c589848f067541a0c43329a3aecd313c4ffd82 bc048af47b2d103fbdf840774e34ab6505558c0c 812ad6d0e8f48a42d65c73d49c1caf20a7a10bd5 507ea0a8a4233777271de438823b53b4f0fe6cf6 6ca51bd7fdc65f9c42a43ecbcaa74fe93003aeb6 ea876ca388f88beeffae81e4a290a7c34cb473a6)
+* Don't pass 2 of every flags in CFLAGS (@robinlinden) (4b1228dd9d9ce893e504de3bb599419f1b6416cb)
+* Travis: Linux: disable auto-update test (e5a564f559ace8e7cad88591544491ba4d324cc5)
+* CMakeLists.txt: add CFLAG -fno-common (ee15dbecb7fa42c05b7e4402abd91f8dbdf9ff2c)
+* Make uTox gcc10-ready (-fno-common fix) (@eclipseo) (c7cb563960a5336db39614d6c8727b7206311ba3)
+* Remove WinXP support (eb81ba55f522352973e7ccf05f3df28ac7392512)
+* add tools/relnotes_to_cstring.sed (bb8ce780334b1b859e6ba681ec909105e9dbfdaa)
+
+## Documentation:
+* add instructions to install from Guix (@metallicmole) (60fb4ee6be3eac5a652c56d870e28453df7d86d9)
+* add keybindings to manpage (@metallicmole) (192ed8de248bab6e1245db08b7d09b7837c5bf18)
+* docs/BUILD.md: minor rephrasing (c4d101fe87d6006787be7da8143514a45e01dc1a)
+* docs/BUILD.md: add note about musl+clang linking issue (9a8a6325719248843581d617cad1f9877303aa3d)
+
+
+## This release of uTox was brought to you by
+
+### Regular contributors
+@avoidr, @eclipseo, @robinlinden
+
+### New contributors
+@metallicmole, @t6, @yangfl
+
+## Do you know another language? Rather read the changelog in your language?
+Help us translate uTox!
