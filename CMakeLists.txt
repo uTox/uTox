@@ -279,9 +279,7 @@ find_package(libvpx REQUIRED)
 include_directories(${LIBVPX_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBVPX_LIBRARIES})
 
-include_directories(SYSTEM third-party/stb)
-include_directories(SYSTEM third-party/minini/dev)
-include_directories(SYSTEM third-party/qrcodegen/c)
+add_subdirectory(third_party)
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -316,12 +314,10 @@ elseif(UNIX)
 endif()
 
 # Acquire 3rd party headers
-find_path(STBI_INCLUDE_DIR NAMES stb_image.h stb_image_write.h PATHS third-party/stb)
+find_path(STBI_INCLUDE_DIR NAMES stb_image.h stb_image_write.h PATHS third_party/stb/stb)
 if((NOT STBI_INCLUDE_DIR) OR (NOT EXISTS ${STBI_INCLUDE_DIR}))
     message("STBI not found")
-    execute_process(COMMAND git submodule update --init -- third-party/stb WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    # set FOO_INCLUDE_DIR properly
-    set(STBI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/stb/ CACHE PATH "stbi include directory")
+    execute_process(COMMAND git submodule update --init -- third_party/stb/stb WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
 
@@ -357,7 +353,6 @@ add_executable(utox ${GUI_TYPE}
     src/self.c
     src/settings.c
     src/sized_string.h
-    src/stb.c
     src/text.c
     src/theme.c
     src/theme_tables.c
@@ -367,8 +362,6 @@ add_executable(utox ${GUI_TYPE}
     src/ui_i18n.c
     src/utox.c
     src/window.c
-    third-party/minini/dev/minIni.c
-    third-party/qrcodegen/c/qrcodegen.c
 
     ${WINDOWS_ICON}
     ${APPLE_FILES}
@@ -381,6 +374,9 @@ target_link_libraries(utox
     ${LIBRARIES}
     pthread
     m
+    stb
+    minini
+    qrcodegen
 )
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)

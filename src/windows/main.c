@@ -15,7 +15,6 @@
 #include "../main.h" // Lots of things. :(
 #include "../self.h"
 #include "../settings.h"
-#include "../stb.h"
 #include "../text.h"
 #include "../theme.h"
 #include "../tox.h"
@@ -38,6 +37,8 @@
 #include "../layout/friend.h"
 #include "../layout/group.h"
 #include "../layout/settings.h" // TODO remove, in for dropdown.lang
+
+#include "stb.h"
 
 #include <windowsx.h>
 #include <io.h>

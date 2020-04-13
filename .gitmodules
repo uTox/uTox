@@ -1,9 +1,9 @@
-[submodule "third-party/stb"]
-	path = third-party/stb
+[submodule "third_party/stb/stb"]
+	path = third_party/stb/stb
 	url = https://github.com/nothings/stb.git
-[submodule "third-party/minini"]
-	path = third-party/minini
-	url = https://github.com/compuphase/minIni.git
-[submodule "third-party/qrcodegen"]
-	path = third-party/qrcodegen
+[submodule "third_party/qrcodegen/qrcodegen"]
+	path = third_party/qrcodegen/qrcodegen
 	url = https://github.com/nayuki/QR-Code-generator.git
+[submodule "third_party/minini/minini"]
+	path = third_party/minini/minini
+	url = https://github.com/compuphase/minIni.git

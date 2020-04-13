@@ -3,10 +3,11 @@
 #include "../debug.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../stb.h"
 #include "../tox.h"
 
 #include "../av/utox_av.h"
+
+#include "stb.h"
 
 #include <windowsx.h>
 

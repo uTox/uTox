@@ -8,7 +8,6 @@
 #include "../flist.h"
 #include "../main.h"
 #include "../settings.h"
-#include "../stb.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../ui.h"
@@ -21,6 +20,8 @@
 
 #include "../native/keyboard.h"
 #include "../native/notify.h"
+
+#include "stb.h"
 
 #include <pthread.h>
 #include <stdint.h>

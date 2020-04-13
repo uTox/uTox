@@ -11,7 +11,6 @@
 #include "../notify.h"
 #include "../self.h"
 #include "../settings.h"
-#include "../stb.h"
 #include "../tox.h"
 #include "../ui.h"
 #include "../utox.h"
@@ -37,6 +36,8 @@
 #include "../layout/group.h"
 #include "../layout/settings.h"
 #include "../layout/sidebar.h"
+
+#include "stb.h"
 
 extern XIC xic;
 
