@@ -209,6 +209,7 @@ bool native_create_dir(const uint8_t *filepath) {
     switch(error) {
         case ERROR_SUCCESS:
             LOG_NOTE("WinFilesys", "Created path: `%s` - %d" , filepath, error);
+            // fallthrough
         case ERROR_FILE_EXISTS:
         case ERROR_ALREADY_EXISTS:
             return true;
