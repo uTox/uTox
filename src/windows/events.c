@@ -367,6 +367,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             mdown_y = GET_Y_LPARAM(lParam);
             // Intentional fall through to save the original mdown location.
         }
+        // fallthrough
         case WM_LBUTTONDBLCLK: {
             mdown = true;
 
