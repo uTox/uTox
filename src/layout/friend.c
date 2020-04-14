@@ -60,11 +60,11 @@ static void draw_friend(int x, int y, int w, int height) {
         // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_TEXT_HINT);
         if (f->alias) {
-            drawtextwidth_right(x, SCALE(MESSAGES_X - NAME_OFFSET - 16), typing_y, f->alias, f->alias_length);
+            drawtextwidth_right(x, SCALE(MESSAGES_X - NAME_OFFSET), typing_y, f->alias, f->alias_length);
         } else {
-            drawtextwidth_right(x, SCALE(MESSAGES_X - NAME_OFFSET - 16), typing_y, f->name, f->name_length);
+            drawtextwidth_right(x, SCALE(MESSAGES_X - NAME_OFFSET), typing_y, f->name, f->name_length);
         }
-        drawtextwidth(x + SCALE(MESSAGES_X - 18), x + w, typing_y, S(IS_TYPING), SLEN(IS_TYPING));
+        drawtextwidth(x + SCALE(MESSAGES_X), x + w, typing_y, S(IS_TYPING), SLEN(IS_TYPING));
     }
 }
 
