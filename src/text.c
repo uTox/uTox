@@ -3,6 +3,7 @@
 #include "macros.h"
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,13 +23,13 @@ int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
 
     size_t r;
 
-    r = snprintf((char *)dest, size, "%u", (uint32_t)bytes);
+    r = snprintf((char *)dest, size, "[%" PRIu64, bytes);
 
     if (r >= size) { // truncated
         r = size - 1;
     } else {
         // missing decimals
-        r += snprintf((char *)dest + r, size - r, "%s", str[i]);
+        r += snprintf((char *)dest + r, size - r, " %s]", str[i]);
         if (r >= size) { // truncated
             r = size - 1;
         }
