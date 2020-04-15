@@ -173,9 +173,7 @@ add_cflag("-Wno-misleading-indentation")
 ## Everything Else
 add_cflag("-fno-strict-aliasing")
 add_cflag("-fPIC")
-if(NOT WINDOWS) # TODO fix windows
-    add_cflag("-fno-common")
-endif()
+add_cflag("-fno-common")
 
 ## Optimization Flags
 

@@ -40,14 +40,14 @@ enum {
     MENU_MESSAGES  = 102,
 };
 
-HFONT   font[32];
-HCURSOR cursors[8];
-HICON   black_icon, unread_messages_icon;
+extern HFONT font[32];
+extern HCURSOR cursors[8];
+extern HICON black_icon, unread_messages_icon;
 
-HBRUSH  hdc_brush;
+extern HBRUSH hdc_brush;
 
-HWND    video_hwnd[128]; // todo fixme
-HWND    preview_hwnd;    // todo fixme
+extern HWND video_hwnd[128]; // todo fixme
+extern HWND preview_hwnd;    // todo fixme
 
 extern bool flashing;
 extern bool hidden;
@@ -71,7 +71,7 @@ typedef struct native_image {
 } NATIVE_IMAGE;
 
 // static char save_path[280];
-char portable_mode_save_path[MAX_PATH];
+extern char portable_mode_save_path[MAX_PATH];
 
 // WM_COMMAND
 enum {
@@ -82,8 +82,7 @@ enum {
     TRAY_STATUS_BUSY,
 };
 
-// TODO move these into os_video.c
-int  video_grab_x, video_grab_y, video_grab_w, video_grab_h;
+extern int video_grab_x, video_grab_y, video_grab_w, video_grab_h;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 /* Included in dnd.c */

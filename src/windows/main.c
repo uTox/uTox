@@ -43,6 +43,14 @@
 #include <io.h>
 #include <libgen.h>
 
+HFONT font[32];
+HCURSOR cursors[8];
+HICON black_icon, unread_messages_icon;
+HBRUSH hdc_brush;
+HWND video_hwnd[128]; // todo fixme
+HWND preview_hwnd;    // todo fixme
+char portable_mode_save_path[MAX_PATH];
+
 /**
  * A null-terminated string that specifies the text for a standard tooltip.
  * For Windows 2000 and later, szTip can have a maximum of 128 characters,
