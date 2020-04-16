@@ -1,6 +1,6 @@
 project(stb)
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} STATIC
     stb.c
 )
 
