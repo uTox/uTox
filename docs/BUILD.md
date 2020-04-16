@@ -200,7 +200,7 @@ Before compiling please make sure you have all of the [dependencies](DEPENDENCIE
   - cmake
   - gdb
 
-In case of Cygwin all following commands should be executed in Cygwin Terminal.
+All following commands should be executed in Cygwin Terminal.
 
 ```bash
 cd /cygdrive/c
@@ -230,13 +230,13 @@ And go back to terminal (make sure you're still in `build` folder):
 
 - For 32 bit:
     ```bash
-    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake" -DSTATIC_TOXCORE=ON ..
+    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake" -DSTATIC_TOXCORE=ON -DCMAKE_BUILD_TYPE=Release ..
     make
     ```
 
 - For 64 bit:
     ```bash
-    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DSTATIC_TOXCORE=ON ..
+    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DSTATIC_TOXCORE=ON -DCMAKE_BUILD_TYPE=Release ..
     make
     ```
 
