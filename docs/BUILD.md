@@ -198,7 +198,7 @@ Before compiling please make sure you have all of the [dependencies](DEPENDENCIE
   - mingw64-i686-gcc-core (x86) / mingw64-x86_64-gcc-core (x64)
   - make
   - cmake
-  - gdb
+  - gcc-g++
 
 All following commands should be executed in Cygwin Terminal.
 
