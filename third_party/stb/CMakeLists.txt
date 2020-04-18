@@ -1,6 +1,6 @@
-project(stb)
+project(stb LANGUAGES C)
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} STATIC
     stb.c
 )
 

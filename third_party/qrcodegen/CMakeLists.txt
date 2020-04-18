@@ -1,6 +1,6 @@
-project(qrcodegen)
+project(qrcodegen LANGUAGES C)
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} STATIC
     qrcodegen/c/qrcodegen.c
 )
 
