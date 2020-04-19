@@ -22,8 +22,6 @@ add_library(utoxNATIVE STATIC
     utf8.c
     video.c
     window.c
-
-    main.7.c
     )
 
 target_link_libraries(utoxNATIVE
