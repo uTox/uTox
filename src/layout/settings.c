@@ -1366,7 +1366,7 @@ static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)
 
 #include"../groups.h"
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Settings", "Could not get selected groupchat.");
         return;

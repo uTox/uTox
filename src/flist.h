@@ -70,7 +70,7 @@ void flist_reload_contacts(void);
 
 FRIEND *flist_get_sel_friend(void);
 FREQUEST *flist_get_frequest(void);
-GROUPCHAT *flist_get_groupchat(void);
+GROUPCHAT *flist_get_sel_group(void);
 ITEM_TYPE flist_get_type(void);
 
 bool try_open_tox_uri(const char *str);

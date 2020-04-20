@@ -32,7 +32,7 @@ SCROLLABLE scrollbar_group = {
 };
 
 static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Group", "Could not get selected groupchat.");
         return;
@@ -172,7 +172,7 @@ messages_group = {
 };
 
 static void button_group_audio_on_mup(void) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Group", "Could not get selected groupchat.");
         return;
@@ -188,7 +188,7 @@ static void button_group_audio_on_mup(void) {
 
 
 static void button_group_audio_update(BUTTON *b) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Group", "Could not get selected groupchat.");
         return;
@@ -275,7 +275,7 @@ static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int directio
     bool          found    = 0;
     static char * dedup[65536];      /* TODO magic numbers */
     static size_t dedup_size[65536]; /* TODO magic numbers */
-    GROUPCHAT *   g = flist_get_groupchat();
+    GROUPCHAT *   g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Group", "Could not get selected groupchat.");
         return 0;
@@ -386,7 +386,7 @@ static void e_chat_msg_ontab(EDIT *edit) {
 
         if (!completion.active) {
             if ((length == 6 && !memcmp(text, "/topic", 6)) || (length == 7 && !memcmp(text, "/topic ", 7))) {
-                GROUPCHAT *g = flist_get_groupchat();
+                GROUPCHAT *g = flist_get_sel_group();
                 if (!g) {
                     LOG_ERR("Group", "Could not get selected groupchat.");
                     return;
@@ -468,7 +468,7 @@ void e_group_msg_onenter(EDIT *edit) {
         return;
     }
 
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (g) {
         void *d = malloc(length);
         if (!d) {
@@ -536,7 +536,7 @@ EDIT edit_chat_msg_group = {
 };
 
 static void e_group_topic_onenter(EDIT *edit) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Layout Groups", "Can't set a topic when a group isn't selected!");
         return;

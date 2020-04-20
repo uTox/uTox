@@ -298,7 +298,7 @@ void copy(int value) {
         len = edit_copy((char *)clipboard.data, sizeof(clipboard.data));
     } else if (flist_get_sel_friend()) {
         len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
-    } else if (flist_get_groupchat()) {
+    } else if (flist_get_sel_group()) {
         len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), value);
     } else {
         LOG_ERR("XLIB", "Copy from Unsupported flist type.");

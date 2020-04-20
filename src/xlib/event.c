@@ -468,7 +468,7 @@ bool doevent(XEvent *event) {
                     if (sym == 'c' || sym == 'C') {
                         if (flist_get_sel_friend()) {
                             clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
-                        } else if (flist_get_groupchat()) {
+                        } else if (flist_get_sel_group()) {
                             clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
                         }
                         setclipboard();

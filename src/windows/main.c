@@ -485,7 +485,7 @@ void copy(int value) {
         data[len] = 0;
     } else if (flist_get_sel_friend()) {
         len = messages_selection(&messages_friend, data, max_size, value);
-    } else if (flist_get_groupchat()) {
+    } else if (flist_get_sel_group()) {
         len = messages_selection(&messages_group, data, max_size, value);
     } else {
         return;

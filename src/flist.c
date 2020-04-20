@@ -960,7 +960,7 @@ FREQUEST *flist_get_frequest(void) {
     return NULL;
 }
 
-GROUPCHAT *flist_get_groupchat(void) {
+GROUPCHAT *flist_get_sel_group(void) {
     if (flist_get_type() == ITEM_GROUP) {
         return get_group(selected_item->id_number);
     }

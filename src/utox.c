@@ -620,7 +620,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 return;
             }
 
-            GROUPCHAT *selected = flist_get_groupchat();
+            GROUPCHAT *selected = flist_get_sel_group();
             if (selected != g) {
                 g->unread_msg = true;
             }
@@ -663,7 +663,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
             g->topic_length = strnlen(g->topic, sizeof(g->topic) - 1);
 
-            GROUPCHAT *selected = flist_get_groupchat();
+            GROUPCHAT *selected = flist_get_sel_group();
             if (selected != g) {
                 g->unread_msg = true;
             }
