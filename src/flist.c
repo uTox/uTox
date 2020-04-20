@@ -946,14 +946,14 @@ void flist_reload_contacts(void) {
 }
 
 FRIEND *flist_get_sel_friend(void) {
-    if (flist_get_type() == ITEM_FRIEND) {
+    if (flist_get_sel_item_type() == ITEM_FRIEND) {
         return get_friend(selected_item->id_number);
     }
     return NULL;
 }
 
 FREQUEST *flist_get_sel_frequest(void) {
-    if (flist_get_type() == ITEM_FREQUEST) {
+    if (flist_get_sel_item_type() == ITEM_FREQUEST) {
         return get_frequest(selected_item->id_number);
     }
 
@@ -961,14 +961,14 @@ FREQUEST *flist_get_sel_frequest(void) {
 }
 
 GROUPCHAT *flist_get_sel_group(void) {
-    if (flist_get_type() == ITEM_GROUP) {
+    if (flist_get_sel_item_type() == ITEM_GROUP) {
         return get_group(selected_item->id_number);
     }
 
     return NULL;
 }
 
-ITEM_TYPE flist_get_type(void) {
+ITEM_TYPE flist_get_sel_item_type(void) {
     return selected_item->type;
 }
 

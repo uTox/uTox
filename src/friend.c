@@ -347,7 +347,7 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     f->name[f->name_length] = '\0';
 
     if (!f->alias_length) {
-        if (flist_get_type()== ITEM_FRIEND) {
+        if (flist_get_sel_item_type()== ITEM_FRIEND) {
             FRIEND *selected = flist_get_sel_friend();
             if (!selected) {
                 LOG_ERR("Friend", "Unable to get selected friend.");

@@ -376,7 +376,7 @@ static void e_chat_msg_ontab(EDIT *edit) {
     char *text = edit->data;
     uint16_t length = edit->length;
 
-    if (flist_get_type() == ITEM_FRIEND || flist_get_type() == ITEM_GROUP) {
+    if (flist_get_sel_item_type() == ITEM_FRIEND || flist_get_sel_item_type() == ITEM_GROUP) {
         char    nick[130];
         uint8_t nick_length;
 
@@ -488,7 +488,7 @@ void e_group_msg_onenter(EDIT *edit) {
 static void e_chat_msg_onshifttab(EDIT *edit) {
     char *text = edit->data;
 
-    if (flist_get_type() == ITEM_GROUP) {
+    if (flist_get_sel_item_type() == ITEM_GROUP) {
         char    nick[130];
         uint8_t nick_length;
 
@@ -569,7 +569,7 @@ EDIT edit_group_topic = {
 };
 
 static void button_chat_send_on_mup(void) {
-    if (flist_get_type() == ITEM_GROUP) {
+    if (flist_get_sel_item_type() == ITEM_GROUP) {
         e_group_msg_onenter(&edit_chat_msg_group);
         // reset focus to the chat window on send to prevent segfault. May break on android.
         edit_setfocus(&edit_chat_msg_group);
