@@ -69,7 +69,7 @@ void flist_dump_contacts(void);
 void flist_reload_contacts(void);
 
 FRIEND *flist_get_sel_friend(void);
-FREQUEST *flist_get_frequest(void);
+FREQUEST *flist_get_sel_frequest(void);
 GROUPCHAT *flist_get_sel_group(void);
 ITEM_TYPE flist_get_type(void);
 

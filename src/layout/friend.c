@@ -70,7 +70,7 @@ static void draw_friend(int x, int y, int w, int height) {
 
 /* Draw an invite to be a friend window */
 static void draw_friend_request(int x, int y, int w, int h) {
-    FREQUEST *req = flist_get_frequest();
+    FREQUEST *req = flist_get_sel_frequest();
     if (!req) {
         LOG_ERR("Layout Friend", "Unable to draw a friend request without a friend request.");
         return;
@@ -424,13 +424,13 @@ static void button_call_video_update(BUTTON *b) {
 }
 
 static void button_accept_friend_on_mup(void) {
-    FREQUEST *req = flist_get_frequest();
+    FREQUEST *req = flist_get_sel_frequest();
     postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
     panel_friend_request.disabled = true;
 }
 
 static void button_ignore_friend_on_mup(void){
-    FREQUEST *req = flist_get_frequest();
+    FREQUEST *req = flist_get_sel_frequest();
     if (!req) {
         LOG_ERR("Friend", "Could not get selected friend request");
         return;

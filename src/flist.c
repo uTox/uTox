@@ -952,7 +952,7 @@ FRIEND *flist_get_sel_friend(void) {
     return NULL;
 }
 
-FREQUEST *flist_get_frequest(void) {
+FREQUEST *flist_get_sel_frequest(void) {
     if (flist_get_type() == ITEM_FREQUEST) {
         return get_frequest(selected_item->id_number);
     }
