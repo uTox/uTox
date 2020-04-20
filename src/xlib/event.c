@@ -167,7 +167,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
 
                 XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grab.dn_x, grab.dn_y, grab.up_x, grab.up_y);
                 if (pointergrab == 1) {
-                    FRIEND *f = flist_get_friend();
+                    FRIEND *f = flist_get_sel_friend();
                     if (f && f->online) {
                         XImage *img = XGetImage(display, RootWindow(display, def_screen_num), grab.dn_x, grab.dn_y, grab.up_x,
                                                 grab.up_y, XAllPlanes(), ZPixmap);
@@ -466,7 +466,7 @@ bool doevent(XEvent *event) {
 
                 if (ev->state & ControlMask) {
                     if (sym == 'c' || sym == 'C') {
-                        if (flist_get_friend()) {
+                        if (flist_get_sel_friend()) {
                             clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
                         } else if (flist_get_groupchat()) {
                             clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
@@ -584,7 +584,7 @@ bool doevent(XEvent *event) {
             if (ev->property == XA_ATOM) {
                 pastebestformat((Atom *)data, len, ev->selection);
             } else if (ev->property == XdndDATA) {
-                FRIEND *f = flist_get_friend();
+                FRIEND *f = flist_get_sel_friend();
                 if (!f) {
                     LOG_ERR("Event", "Could not get selected friend.");
                     return false;

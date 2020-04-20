@@ -26,7 +26,7 @@
 
 /* Header for friend chat window */
 static void draw_friend(int x, int y, int w, int height) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.\n");
         return;
@@ -97,7 +97,7 @@ static void draw_friend_settings(int x, int y, int UNUSED(width), int UNUSED(hei
 }
 
 static void draw_friend_deletion(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -291,7 +291,7 @@ static void button_send_friend_request_on_mup(void) {
 #include "../tox.h"
 
 static void button_call_decline_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -307,7 +307,7 @@ static void button_call_decline_on_mup(void) {
 #include "../av/audio.h"
 #include "../ui/button.h"
 static void button_call_decline_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -323,7 +323,7 @@ static void button_call_decline_update(BUTTON *b) {
 }
 
 static void button_call_audio_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -348,7 +348,7 @@ static void button_call_audio_on_mup(void) {
 }
 
 static void button_call_audio_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -373,7 +373,7 @@ static void button_call_audio_update(BUTTON *b) {
 
 #include "../av/video.h"
 static void button_call_video_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -400,7 +400,7 @@ static void button_call_video_on_mup(void) {
 }
 
 static void button_call_video_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -540,7 +540,7 @@ BUTTON button_call_video = {
 };
 
 static void button_send_file_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -552,7 +552,7 @@ static void button_send_file_on_mup(void) {
 }
 
 static void button_send_file_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -587,14 +587,14 @@ BUTTON button_send_file = {
 
 #include "../screen_grab.h"
 static void button_send_screenshot_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (f != NULL && f->online) {
         utox_screen_grab_desktop(0);
     }
 }
 
 static void button_send_screenshot_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -655,7 +655,7 @@ BUTTON button_ignore_friend = {
 };
 
 static void switchfxn_autoaccept_ft(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (f) {
         f->ft_autoaccept = !f->ft_autoaccept;
         utox_write_metadata(f);
@@ -706,7 +706,7 @@ EDIT edit_friend_pubkey = {
 
 
 static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -822,7 +822,7 @@ static void e_chat_msg_onenter(EDIT *edit) {
         return;
     }
 
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (f) {
         /* Display locally */
         if (action) {
@@ -835,7 +835,7 @@ static void e_chat_msg_onenter(EDIT *edit) {
 }
 
 static void e_chat_msg_onchange(EDIT *UNUSED(edit)) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (f) {
         if (!f->online) {
             return;
@@ -877,7 +877,7 @@ static void button_chat_send_friend_on_mup(void) {
 }
 
 static void button_chat_send_friend_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (f) {
         if (f->online) {
             button_setcolors_success(b);

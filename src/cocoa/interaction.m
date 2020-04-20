@@ -804,7 +804,7 @@ void paste(void) {
 
         if (owned_ptr) {
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
-            friend_sendimage(flist_get_friend(), i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
+            friend_sendimage(flist_get_sel_friend(), i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
                              size);
         } else {
             free(i);
@@ -1011,7 +1011,7 @@ void openfilesend(void) {
 
     if (ret == NSFileHandlingPanelOKButton) {
         NSArray *urls = picker.URLs;
-        FRIEND *f = flist_get_friend();
+        FRIEND *f = flist_get_sel_friend();
         if (!f) {
             LOG_ERR("Cocoa", "Could not get friend.");
             return;

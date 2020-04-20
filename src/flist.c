@@ -945,7 +945,7 @@ void flist_reload_contacts(void) {
     pop_selected();
 }
 
-FRIEND *flist_get_friend(void) {
+FRIEND *flist_get_sel_friend(void) {
     if (flist_get_type() == ITEM_FRIEND) {
         return get_friend(selected_item->id_number);
     }

@@ -409,7 +409,7 @@ void ugtk_openfilesend(void) {
         return;
     }
 
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("GTK", "Unable to get friend from flist.");
         return;

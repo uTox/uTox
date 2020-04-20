@@ -296,7 +296,7 @@ void copy(int value) {
     int len;
     if (edit_active()) {
         len = edit_copy((char *)clipboard.data, sizeof(clipboard.data));
-    } else if (flist_get_friend()) {
+    } else if (flist_get_sel_friend()) {
         len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
     } else if (flist_get_groupchat()) {
         len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), value);
@@ -408,7 +408,7 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
 
     size_t size = len;
     if (type == XA_PNG_IMG) {
-        FRIEND *f = flist_get_friend();
+        FRIEND *f = flist_get_sel_friend();
         if (!f) {
             LOG_ERR("XLIB", "Can't paste data to missing friend.");
             return;
@@ -430,7 +430,7 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
             friend_sendimage(f, native_image, width, height, png_image, size);
         }
     } else if (type == XA_URI_LIST) {
-        FRIEND *f = flist_get_friend();
+        FRIEND *f = flist_get_sel_friend();
         if (!f) {
             LOG_ERR("XLIB", "Can't paste data to missing friend.");
             return;

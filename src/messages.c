@@ -197,7 +197,7 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
             m->panel.content_scroll->content_height = m->height;
         }
     } else {
-        const FRIEND *friend = flist_get_friend();
+        const FRIEND *friend = flist_get_sel_friend();
         if (friend && friend == get_friend(m->id)) {
             m->panel.content_scroll->content_height = m->height;
         }
@@ -1799,7 +1799,7 @@ void messages_updateheight(MESSAGES *m, int width) {
 bool messages_char(uint32_t ch) {
     MESSAGES *m;
 
-    if (flist_get_friend()) {
+    if (flist_get_sel_friend()) {
         m = messages_friend.object;
     } else if (flist_get_groupchat()) {
         m = messages_group.object;

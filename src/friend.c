@@ -348,7 +348,7 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
 
     if (!f->alias_length) {
         if (flist_get_type()== ITEM_FRIEND) {
-            FRIEND *selected = flist_get_friend();
+            FRIEND *selected = flist_get_sel_friend();
             if (!selected) {
                 LOG_ERR("Friend", "Unable to get selected friend.");
                 return;
@@ -423,11 +423,11 @@ void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
     postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
     notify(title, title_length, msg, msg_length, f, 0);
 
-    if (flist_get_friend() != f) {
+    if (flist_get_sel_friend() != f) {
         f->unread_msg = true;
     }
 
-    if (flist_get_friend() != f || !have_focus) {
+    if (flist_get_sel_friend() != f || !have_focus) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }
 }

@@ -689,7 +689,7 @@ static void button_show_password_settings_on_mup(void) {
 #include "../flist.h"
 #include "../friend.h"
 static void button_export_chatlog_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Settings", "Could not get selected friend.");
         return;
