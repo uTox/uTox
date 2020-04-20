@@ -27,21 +27,17 @@
 #include "../native/filesys.h"
 #include "../native/notify.h"
 #include "../native/os.h"
-#include "../native/window.h"
 
 #include "../ui/draw.h"
-#include "../ui/dropdown.h"
 #include "../ui/edit.h"
 #include "../ui/svg.h"
 
 #include "../layout/background.h" // TODO do we want to remove this?
 #include "../layout/friend.h"
 #include "../layout/group.h"
-#include "../layout/settings.h" // TODO remove, in for dropdown.lang
 
 #include "stb.h"
 
-#include <windowsx.h>
 #include <io.h>
 #include <libgen.h>
 
