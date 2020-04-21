@@ -58,16 +58,16 @@ static const char *config_sections[UNKNOWN_SECTION + 1] = {
 
 SETTINGS settings = {
     // .last_version                // included here to match the full struct
-    .curr_version = UTOX_VERSION_NUMBER,
+    .utox_last_version = UTOX_VERSION_NUMBER,
     .next_version = UTOX_VERSION_NUMBER,
 
     .show_splash = false,
 
     // Low level settings (network, profile, portable-mode)
-    .enable_udp     = true,
-    .enable_ipv6    = true,
+    .disableudp     = false,
+    .enableipv6    = true,
 
-    .use_proxy      = false,
+    .proxyenable      = false,
     .force_proxy    = false,
     .proxy_port     = 0,
 
@@ -79,11 +79,11 @@ SETTINGS settings = {
 
     // User interface settings
     .language               = LANG_EN,
-    .audiofilter_enabled    = true,
+    .audio_filtering_enabled    = true,
     .push_to_talk           = false,
     .audio_preview          = false,
     .video_preview          = false,
-    .send_typing_status     = false,
+    .no_typing_notifications     = true,
     // .inline_video                // included here to match the full struct
     .use_long_time_msg      = true,
     .accept_inline_images   = true,
@@ -92,14 +92,14 @@ SETTINGS settings = {
     .logging_enabled        = true,
     .close_to_tray          = false,
     .start_in_tray          = false,
-    .start_with_system      = false,
+    .auto_startup      = false,
     .use_mini_flist         = false,
     .magic_flist_enabled    = false,
 
     .video_fps              = DEFAULT_FPS,
 
     // Notifications / Alerts
-    .ringtone_enabled       = true,
+    .audible_notifications_enabled       = true,
     .status_notifications   = true,
     .group_notifications    = GNOTIFY_ALWAYS,
 
@@ -445,9 +445,9 @@ UTOX_SAVE *config_load(void) {
     flist_set_filter(save->filter); /* roster list filtering */
 
     /* Network settings */
-    settings.enable_ipv6 = save->enableipv6;
-    settings.enable_udp  = !save->disableudp;
-    settings.use_proxy   = !!save->proxyenable;
+    settings.enableipv6 = save->enableipv6;
+    settings.disableudp  = save->disableudp;
+    settings.proxyenable   = save->proxyenable != 0;
     settings.proxy_port  = save->proxy_port;
     settings.force_proxy = save->force_proxy;
 
@@ -470,16 +470,16 @@ UTOX_SAVE *config_load(void) {
     settings.logging_enabled      = save->logging_enabled;
     settings.close_to_tray        = save->close_to_tray;
     settings.start_in_tray        = save->start_in_tray;
-    settings.start_with_system    = save->auto_startup;
+    settings.auto_startup         = save->auto_startup;
     settings.use_mini_flist       = save->use_mini_flist;
     settings.magic_flist_enabled  = save->magic_flist_enabled;
     settings.use_long_time_msg    = save->use_long_time_msg;
 
-    settings.ringtone_enabled     = save->audible_notifications_enabled;
-    settings.audiofilter_enabled  = save->audio_filtering_enabled;
+    settings.audible_notifications_enabled = save->audible_notifications_enabled;
+    settings.audio_filtering_enabled       = save->audio_filtering_enabled;
 
-    settings.send_typing_status   = !save->no_typing_notifications;
-    settings.status_notifications = save->status_notifications;
+    settings.no_typing_notifications = save->no_typing_notifications;
+    settings.status_notifications    = save->status_notifications;
 
     settings.window_x             = save->window_x;
     settings.window_y             = save->window_y;
@@ -531,23 +531,23 @@ void config_save(UTOX_SAVE *save_in) {
     save->save_version                  = UTOX_SAVE_VERSION;
     save->scale                         = ui_scale;
     save->proxyenable                   = switch_proxy.switch_on;
-    save->audible_notifications_enabled = settings.ringtone_enabled;
-    save->audio_filtering_enabled       = settings.audiofilter_enabled;
+    save->audible_notifications_enabled = settings.audible_notifications_enabled;
+    save->audio_filtering_enabled       = settings.audio_filtering_enabled;
     save->push_to_talk                  = settings.push_to_talk;
 
     /* UX Settings */
     save->logging_enabled               = settings.logging_enabled;
     save->close_to_tray                 = settings.close_to_tray;
     save->start_in_tray                 = settings.start_in_tray;
-    save->auto_startup                  = settings.start_with_system;
+    save->auto_startup                  = settings.auto_startup;
     save->use_mini_flist                = settings.use_mini_flist;
     save->magic_flist_enabled           = settings.magic_flist_enabled;
     save->use_long_time_msg             = settings.use_long_time_msg;
     save->video_fps                     = settings.video_fps;
 
-    save->disableudp                    = !settings.enable_udp;
-    save->enableipv6                    = settings.enable_ipv6;
-    save->no_typing_notifications       = !settings.send_typing_status;
+    save->disableudp                    = settings.disableudp;
+    save->enableipv6                    = settings.enableipv6;
+    save->no_typing_notifications       = settings.no_typing_notifications;
 
     save->filter                        = flist_get_filter();
     save->proxy_port                    = settings.proxy_port;
@@ -557,7 +557,7 @@ void config_save(UTOX_SAVE *save_in) {
     save->audio_device_out              = dropdown_audio_out.selected;
     save->theme                         = settings.theme;
 
-    save->utox_last_version             = settings.curr_version;
+    save->utox_last_version             = settings.utox_last_version;
     save->group_notifications           = settings.group_notifications;
     save->status_notifications          = settings.status_notifications;
 
