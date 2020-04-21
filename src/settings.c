@@ -391,12 +391,6 @@ static UTOX_SAVE *init_default_settings(void) {
 UTOX_SAVE *config_load(void) {
     UTOX_SAVE *save = utox_load_config();
 
-    // TODO: Remove this in ~0.18.0 release
-    if (!save) {
-        LOG_NOTE("Settings", "Unable to load uTox settings from %s. Trying old %s.", config_file_name, config_file_name_old);
-        save = utox_data_load_utox();
-    }
-
     if (!save) {
         LOG_ERR("Settings", "Unable to load uTox settings. Use defaults.");
         save = init_default_settings();
@@ -578,32 +572,4 @@ void config_save(UTOX_SAVE *save_in) {
     }
 
     free(save);
-}
-
-// TODO: Remove this in ~0.18.0 release
-UTOX_SAVE *utox_data_load_utox(void) {
-    size_t size = 0;
-    FILE *fp = utox_get_file(config_file_name_old, &size, UTOX_FILE_OPTS_READ);
-
-    if (!fp) {
-        LOG_ERR("Settings", "Unable to open %s.", config_file_name_old);
-        return NULL;
-    }
-
-    UTOX_SAVE *save = calloc(1, size + 1);
-    if (!save) {
-        LOG_ERR("Settings", "Unable to malloc for %s.", config_file_name_old);
-        fclose(fp);
-        return NULL;
-    }
-
-    if (fread(save, size, 1, fp) != 1) {
-        LOG_ERR("Settings", "Could not read save file %s", config_file_name_old);
-        fclose(fp);
-        free(save);
-        return NULL;
-    }
-
-    fclose(fp);
-    return save;
 }

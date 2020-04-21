@@ -143,20 +143,4 @@ UTOX_SAVE *config_load(void);
  */
 void config_save(UTOX_SAVE *save_in);
 
-
-/**
- * Saves the settings for uTox
- *
- * Returns a bool indicating if it succeeded or not
- */
-bool utox_data_save_utox(UTOX_SAVE *data, size_t length);
-
-/**
- * Loads uTox settings
- *
- * Returns a memory pointer of *size, the caller needs to free this
- * Returns NULL on failure
- */
-UTOX_SAVE *utox_data_load_utox(void);
-
 #endif
