@@ -352,7 +352,7 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
             LOG_ERR("Friend", "Unable to get selected friend.");
             return;
         }
-        if (selected && f->number == selected->number) {
+        if (f->number == selected->number) {
             maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
         }
     }
