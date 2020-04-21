@@ -266,7 +266,7 @@ void utox_init(void) {
 
     /* Called by the native main for every platform after loading utox setting,
      * before showing/drawing any windows. */
-    if (settings.curr_version != settings.last_version) {
+    if (settings.utox_last_version != settings.last_version) {
         settings.show_splash = true;
     }
 

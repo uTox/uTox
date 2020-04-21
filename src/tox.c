@@ -347,8 +347,8 @@ static int init_toxcore(Tox **tox) {
 
     tox_options_set_log_callback(&topt, log_callback);
 
-    tox_options_set_ipv6_enabled(&topt, settings.enable_ipv6);
-    tox_options_set_udp_enabled(&topt, settings.enable_udp);
+    tox_options_set_ipv6_enabled(&topt, settings.enableipv6);
+    tox_options_set_udp_enabled(&topt, !settings.disableudp);
 
     tox_options_set_proxy_type(&topt, TOX_PROXY_TYPE_NONE);
     tox_options_set_proxy_host(&topt, proxy_address);
@@ -384,7 +384,7 @@ static int init_toxcore(Tox **tox) {
     }
     postmessage_utox(REDRAW, 0, 0, NULL);
 
-    if (settings.use_proxy) {
+    if (settings.proxyenable) {
         topt.proxy_type = TOX_PROXY_TYPE_SOCKS5;
     }
 
@@ -409,7 +409,7 @@ static int init_toxcore(Tox **tox) {
 
         // reset proxy options as well as GUI and settings
         topt.proxy_type = TOX_PROXY_TYPE_NONE;
-        settings.use_proxy = settings.force_proxy = 0;
+        settings.proxyenable = settings.force_proxy = 0;
         switch_proxy.switch_on = 0;
 
         *tox = tox_new(&topt, &tox_new_err);
@@ -419,7 +419,7 @@ static int init_toxcore(Tox **tox) {
 
             // reset IPv6 options as well as GUI and settings
             topt.ipv6_enabled = 0;
-            switch_ipv6.switch_on = settings.enable_ipv6 = 0;
+            switch_ipv6.switch_on = settings.enableipv6 = 0;
 
             *tox = tox_new(&topt, &tox_new_err);
 
@@ -436,7 +436,7 @@ static int init_toxcore(Tox **tox) {
     set_callbacks(*tox);
 
     /* Connect to bootstrapped nodes in "tox_bootstrap.h" */
-    toxcore_bootstrap(*tox, settings.enable_ipv6);
+    toxcore_bootstrap(*tox, settings.enableipv6);
 
     if (save_status == -2) {
         LOG_NOTE("Toxcore", "No save file, using defaults" );
@@ -534,7 +534,7 @@ void toxcore_thread(void *UNUSED(args)) {
             if (time - last_connection >= (uint64_t)10 * 1000 * 1000 * 1000) {
                 last_connection = time;
                 if (!connected) {
-                    toxcore_bootstrap(tox, settings.enable_ipv6);
+                    toxcore_bootstrap(tox, settings.enableipv6);
                 }
 
                 // save every 1000.
@@ -560,7 +560,7 @@ void toxcore_thread(void *UNUSED(args)) {
                 typing_state.sent = (msg->msg == TOX_SEND_MESSAGE || msg->msg == TOX_SEND_ACTION);
             }
 
-            if (settings.send_typing_status) {
+            if (!settings.no_typing_notifications) {
                 // Thread active transfers and check if friend is typing
                 utox_thread_work_for_typing_notifications(tox, time);
             }

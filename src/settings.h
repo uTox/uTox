@@ -17,7 +17,7 @@ extern uint16_t loaded_audio_in_device, loaded_audio_out_device;
 typedef struct utox_settings {
     // uTox versions settings
     uint32_t last_version;
-    uint32_t curr_version;
+    uint32_t utox_last_version;
     uint32_t next_version;
 
     bool     show_splash;
@@ -32,21 +32,21 @@ typedef struct utox_settings {
     bool send_version;      /* Unused, included for compatibility */
 
     bool force_proxy;
-    bool enable_udp;
-    bool enable_ipv6;
+    bool disableudp;
+    bool enableipv6;
 
     bool block_friend_requests;
 
-    bool use_proxy;
+    bool proxyenable;
     uint16_t proxy_port;
 
     // User interface settings
     UTOX_LANG language;
-    bool audiofilter_enabled;
+    bool audio_filtering_enabled;
     bool push_to_talk;
     bool audio_preview;
     bool video_preview;
-    bool send_typing_status;
+    bool no_typing_notifications;
     bool inline_video;
     bool use_long_time_msg;
     bool accept_inline_images;
@@ -55,12 +55,12 @@ typedef struct utox_settings {
     bool logging_enabled;
     bool close_to_tray;
     bool start_in_tray;
-    bool start_with_system;
+    bool auto_startup;
     bool use_mini_flist;
     bool magic_flist_enabled;
 
     // Notifications / Alerts
-    bool    ringtone_enabled;
+    bool    audible_notifications_enabled;
     bool    status_notifications;
     uint8_t group_notifications;
 
