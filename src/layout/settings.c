@@ -689,7 +689,7 @@ static void button_show_password_settings_on_mup(void) {
 #include "../flist.h"
 #include "../friend.h"
 static void button_export_chatlog_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Settings", "Could not get selected friend.");
         return;
@@ -1366,7 +1366,7 @@ static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)
 
 #include"../groups.h"
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Settings", "Could not get selected groupchat.");
         return;

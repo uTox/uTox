@@ -235,7 +235,7 @@ void openfilesend(void) {
     };
 
     if (GetOpenFileNameW(&ofn)) {
-        FRIEND *f = flist_get_friend();
+        FRIEND *f = flist_get_sel_friend();
         if (!f) {
             LOG_ERR("Windows", "Unable to get friend for file send msg.");
             return;
@@ -483,9 +483,9 @@ void copy(int value) {
     if (edit_active()) {
         len = edit_copy(data, max_size - 1);
         data[len] = 0;
-    } else if (flist_get_friend()) {
+    } else if (flist_get_sel_friend()) {
         len = messages_selection(&messages_friend, data, max_size, value);
-    } else if (flist_get_groupchat()) {
+    } else if (flist_get_sel_group()) {
         len = messages_selection(&messages_group, data, max_size, value);
     } else {
         return;
@@ -563,7 +563,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     free(bits);
 
     NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(flist_get_friend(), image, width, height, out, size);
+    friend_sendimage(flist_get_sel_friend(), image, width, height, out, size);
 }
 
 void paste(void) {
@@ -571,8 +571,8 @@ void paste(void) {
     HANDLE h = GetClipboardData(CF_UNICODETEXT);
     if (!h) {
         h = GetClipboardData(CF_BITMAP);
-        if (h && flist_get_friend()) {
-            FRIEND *f = flist_get_friend();
+        if (h && flist_get_sel_friend()) {
+            FRIEND *f = flist_get_sel_friend();
             if (!f->online) {
                 return;
             }
