@@ -187,18 +187,15 @@ sudo make install
 
 ## Windows
 
-You will need a working Cygwin environment or Unix desktop to compile windows.
+Tested on Windows 10.
 
-Before compiling please make sure you have all of the [dependencies](DEPENDENCIES.md#windows). Dependencies can be downloaded from [here](https://build.tox.chat/). Make sure you grab the right bit version.
-
-### Cygwin setup
+You will need a working Cygwin environment.
 
 - Download Cygwin ([x86](https://cygwin.com/setup-x86.exe)/[x64](https://cygwin.com/setup-x86_64.exe))
 - Search and select exactly these packages in Devel category:
   - mingw64-i686-gcc-core (x86) / mingw64-x86_64-gcc-core (x64)
   - make
   - cmake
-  - gdb
 
 All following commands should be executed in Cygwin Terminal.
 
@@ -210,13 +207,17 @@ git clone --recursive git://github.com/uTox/uTox.git
 cd uTox/
 mkdir libs
 cd libs/
-mkdir windows-x64
+```
+
+`mkdir windows-x32` or `mkdir windows-x64`
+
+```
 cd ../uTox/
 mkdir build
 cd build
 ```
 
-Download .zip files and place them into `windows-x64` folder.
+Download .zip files and place them into `windows-x32` or `windows-x64` folder.
 Extract here with your archiver and merge when it'll ask for replacement:
 
 - toxcore ([x86](https://build.tox.chat/view/libtoxcore/job/libtoxcore-toktok_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libtoxcore-toktok_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libtoxcore/job/libtoxcore-toktok_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libtoxcore-toktok_build_windows_x86-64_static_release.zip))
@@ -228,13 +229,13 @@ Extract here with your archiver and merge when it'll ask for replacement:
 
 And go back to terminal (make sure you're still in `build` folder):
 
-- For 32 bit:
+- For x86:
     ```bash
     cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake" -DSTATIC_TOXCORE=ON -DCMAKE_BUILD_TYPE=Release ..
     make
     ```
 
-- For 64 bit:
+- For x64:
     ```bash
     cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DSTATIC_TOXCORE=ON -DCMAKE_BUILD_TYPE=Release ..
     make
