@@ -45,8 +45,6 @@ typedef struct groupchat {
 
     GNOTIFY_TYPE notify;
 
-    Group_Chat_Self_Peer_Info *self_info;
-
     char     topic[256]; /* TODO magic numbers */
     uint16_t topic_length;
 
@@ -62,7 +60,7 @@ typedef struct groupchat {
 } GROUPCHAT;
 
 /* Initialize a new groupchat */
-void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group, Group_Chat_Self_Peer_Info *self_info);
+void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group);
 
 // Returns the message number on success, returns UINT32_MAX on failure.
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type);
@@ -98,6 +96,6 @@ void raze_groups(void);
 void init_groups(Tox *tox);
 
 /**/
-bool group_create(uint32_t group_number, bool av_group, Group_Chat_Self_Peer_Info *self_info);
+bool group_create(uint32_t group_number, bool av_group);
 
 #endif
