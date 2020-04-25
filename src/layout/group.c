@@ -42,7 +42,7 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(x + SCALE(60), settings.window_width - SCALE(64), SCALE(2), g->group_name, g->group_name_length);
+    drawtextrange(x + SCALE(60), settings.window_width - SCALE(64), SCALE(2), g->name, g->name_length);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_STATUS);
@@ -138,7 +138,7 @@ EDIT edit_group_name = {
         .height = 24,
     },
     .data      = e_group_name_data,
-    .maxlength = sizeof(e_group_name_data) - 1,
+    .length = sizeof(e_group_name_data) - 1,
     .noborder  = false,
     .empty_str = { .plain = STRING_INIT("") },
 };
@@ -166,7 +166,7 @@ EDIT edit_group_password = {
     },
     .password = true,
     .data      = e_group_password_data,
-    .maxlength = sizeof(e_group_password_data) - 1,
+    .length = sizeof(e_group_password_data) - 1,
     .noborder  = false,
     .empty_str = { .plain = STRING_INIT("") },
 };
@@ -480,8 +480,8 @@ static void e_chat_msg_ontab(EDIT *edit) {
                 }
 
                 text[6] = ' ';
-                memcpy(text + 7, g->group_name, g->group_name_length);
-                edit->length = g->group_name_length + 7;
+                memcpy(text + 7, g->name, g->name_length);
+                edit->length = g->name_length + 7;
                 edit_setcursorpos(edit, edit->length);
 
                 return;

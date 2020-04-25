@@ -164,14 +164,9 @@ static void callback_group_invite(Tox *tox, uint32_t fid, const uint8_t *invite_
 {
     LOG_NOTE("Tox Callbacks", "Group Invite (friend %i)", fid);
 
-    Group_Chat_Self_Peer_Info *self_info = tox_group_self_peer_info_new(NULL);
-    if (!self_info) {
-        return;
-    }
-
     // TODO: Show the user a prompt for them to enter a password
     TOX_ERR_GROUP_INVITE_ACCEPT err;
-    uint32_t gid = tox_group_invite_accept(tox, fid, invite_data, length, NULL, 0, self_info, &err);
+    uint32_t gid = tox_group_invite_accept(tox, invite_data, length, NULL, 0, &err);
 
     if (gid == UINT32_MAX) {
         LOG_ERR("Tox Callbacks", "Could not join group with type");
@@ -181,9 +176,9 @@ static void callback_group_invite(Tox *tox, uint32_t fid, const uint8_t *invite_
     // TODO: Fix this when group calls are possible again
     GROUPCHAT *g = get_group(gid);
     if (!g) {
-        group_create(gid, false, self_info);
+        group_create(gid, false);
     } else {
-        group_init(g, gid, false, self_info);
+        group_init(g, gid, false);
     }
 
     LOG_NOTE("Tox Callbacks", "auto join successful group number %u", gid);

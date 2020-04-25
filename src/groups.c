@@ -74,9 +74,9 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
         }
     }
 
-    g->group_name_length = snprintf(g->group_name, sizeof(g->group_name), "Groupchat #%u", group_number);
-    if (g->group_name_length >= sizeof(g->group_name)) {
-        g->group_name_length = sizeof(g->group_name) - 1;
+    g->name_length = snprintf(g->name, sizeof(g->name), "Groupchat #%u", group_number);
+    if (g->name_length >= sizeof(g->name)) {
+        g->name_length = sizeof(g->name) - 1;
     }
 
     g->topic_length = sizeof("Drag friends to invite them") - 1;
@@ -351,7 +351,7 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
         return;
     }
 
-    char title[g->group_name_length + 25];
+    char title[g->name_length + 25];
 
     snprintf(title, sizeof(title), "uTox new message in %.*s", g->name_length, g->name);
     size_t title_length = strnlen(title, sizeof(title) - 1);

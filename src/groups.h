@@ -26,8 +26,8 @@ typedef struct group_peer {
 
 typedef struct groupchat {
     bool connected;
-    char group_name[128];
-    size_t group_name_length;
+    char name[128];
+    size_t name_length;
 
     uint16_t number;
     uint32_t our_peer_number;
