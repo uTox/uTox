@@ -160,7 +160,7 @@ void callback_av_group_audio(void *tox, uint32_t groupnumber, uint32_t peernumbe
                              uint8_t channels, unsigned int sample_rate, void *userdata);
 
 static void callback_group_invite(Tox *tox, uint32_t fid, const uint8_t *invite_data, size_t length,
-                                  const uint8_t *group_name, size_t group_name_length, void *UNUSED(userdata))
+                                  void *UNUSED(userdata))
 {
     LOG_NOTE("Tox Callbacks", "Group Invite (friend %i)", fid);
 
