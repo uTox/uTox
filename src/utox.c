@@ -123,24 +123,24 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 dropdown_list_add_localized(&dropdown_audio_in, param1, data);
             }
 
-            if (loaded_audio_in_device == (uint16_t)~0 && param2) {
-                loaded_audio_in_device = (dropdown_audio_in.dropcount - 1);
+            if (settings.audio_device_in == (uint16_t)~0 && param2) {
+                settings.audio_device_in = (dropdown_audio_in.dropcount - 1);
             }
 
-            if (loaded_audio_in_device != 0 && (dropdown_audio_in.dropcount - 1) == loaded_audio_in_device) {
+            if (settings.audio_device_in != 0 && (dropdown_audio_in.dropcount - 1) == settings.audio_device_in) {
                 postmessage_utoxav(UTOXAV_SET_AUDIO_IN, 0, 0, data);
-                dropdown_audio_in.selected = loaded_audio_in_device;
-                loaded_audio_in_device     = 0;
+                dropdown_audio_in.selected = settings.audio_device_in;
+                settings.audio_device_in   = 0;
             }
             break;
         }
         case AUDIO_OUT_DEVICE: {
             dropdown_list_add_hardcoded(&dropdown_audio_out, data, data);
 
-            if (loaded_audio_out_device != 0 && (dropdown_audio_out.dropcount - 1) == loaded_audio_out_device) {
+            if (settings.audio_device_out != 0 && (dropdown_audio_out.dropcount - 1) == settings.audio_device_out) {
                 postmessage_utoxav(UTOXAV_SET_AUDIO_OUT, 0, 0, data);
-                dropdown_audio_out.selected = loaded_audio_out_device;
-                loaded_audio_out_device     = 0;
+                dropdown_audio_out.selected = settings.audio_device_out;
+                settings.audio_device_out   = 0;
             }
 
             break;
