@@ -810,13 +810,6 @@ void setscale(void) {
     svg_draw(1);
 }
 
-void config_osdefaults(UTOX_SAVE *r) {
-    r->window_x      = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
-    r->window_y      = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
-    r->window_width  = MAIN_WIDTH;
-    r->window_height = MAIN_HEIGHT;
-}
-
 /*
  * CommandLineToArgvA implementation since CommandLineToArgvA doesn't exist in win32 api
  * Limitation: nested quotation marks are not handled

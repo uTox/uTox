@@ -20,7 +20,4 @@ void setselection(char *data, uint16_t length);
 // OS X and Windows
 void launch_at_startup(bool should);
 
-// Linux, OS X, and Windows.
-void config_osdefaults(UTOX_SAVE *r);
-
 #endif

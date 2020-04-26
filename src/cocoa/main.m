@@ -35,9 +35,6 @@ struct thread_call {
     void *argp;
 };
 
-#define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
-#define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
-
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) {
     return img != NULL && img->image != nil;
 }
@@ -138,13 +135,6 @@ uint64_t get_time(void) {
     ts.tv_nsec = machtime.tv_nsec;
 
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
-}
-
-void config_osdefaults(UTOX_SAVE *r) {
-    r->window_x      = 0;
-    r->window_y      = 0;
-    r->window_width  = DEFAULT_WIDTH;
-    r->window_height = DEFAULT_HEIGHT;
 }
 
 bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) {
@@ -488,9 +478,6 @@ int main(int argc, char const *argv[]) {
 
     utox_init();
 
-    settings.window_width  = DEFAULT_WIDTH;
-    settings.window_height = DEFAULT_HEIGHT;
-
     parse_args(argc, argv,
                &should_launch_at_startup,
                &set_show_window,
@@ -511,7 +498,6 @@ int main(int argc, char const *argv[]) {
     setlocale(LC_ALL, "");
 
     /* set the width/height of the drawing region */
-
     ui_size(settings.window_width, settings.window_height);
 
     /* event loop */
