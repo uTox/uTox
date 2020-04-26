@@ -156,7 +156,7 @@ static void set_callbacks(Tox *tox) {
 
 void tox_after_load(Tox *tox) {
     utox_friend_list_init(tox);
-    init_groups(tox);
+    //init_groups(tox);
 
     #ifdef ENABLE_MULTIDEVICE
     // self.group_list_count = tox_self_get_(tox);
@@ -1048,7 +1048,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * param2: audio call or not
              * data: group name
              */
-            // TODO: readd checking if its an audio call later when it is supported
+            LOG_INFO("Tox", "Creating group (privacy: %u, audio: %u, name: %s)", param1, param2, data);
+
+            if (!data) {
+                LOG_ERR("Tox", "Tried to create group with no group name");
+                break;
+            }
+
+            // TODO: re-add checking if its an audio call later when it is supported
             TOX_ERR_GROUP_NEW error = 0;
             uint32_t g_num = tox_group_new(tox, param1, data, strlen(data), &error);
             if (g_num == UINT32_MAX) {
@@ -1141,7 +1148,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             free(data);
 
             if (error) {
-                LOG_ERR("Toxcore", "Error sending message to groupchat %u. Erorr number: %u", param1, error);
+                LOG_ERR("Toxcore", "Error sending message to groupchat %u. Error number: %u", param1, error);
             }
 
             break;

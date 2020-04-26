@@ -169,7 +169,7 @@ static void callback_group_invite(Tox *tox, uint32_t fid, const uint8_t *invite_
     uint32_t gid = tox_group_invite_accept(tox, invite_data, length, NULL, 0, &err);
 
     if (gid == UINT32_MAX) {
-        LOG_ERR("Tox Callbacks", "Could not join group with type");
+        LOG_ERR("Tox Callbacks", "Could not join group with error: %u", err);
         return;
     }
 
@@ -247,12 +247,13 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
     LOG_TRACE("Tox Callbacks", "Group Title (%u, %u): %.*s" , gid, pid, (int)length, title);
 }
 
-static void callback_group_join_fail(Tox *tox, uint32_t group_number, TOX_GROUP_JOIN_FAIL type, void *userdata) {
+static void callback_group_join_fail(Tox *tox, uint32_t group_number, TOX_GROUP_JOIN_FAIL type, void *UNUSED(userdata)) {
     //TODO: Tell the user the join failed
+    LOG_INFO("Tox Callbacks", "Join failed for group: %u fail type: %u", group_number, type);
 }
 
 static void callback_self_join(Tox *tox, uint32_t group_number, void *userdata) {
-
+    LOG_INFO("Tox Callbacks", "Joining groupchat (%u)", group_number);
 }
 
 void utox_set_callbacks_groups(Tox *tox) {

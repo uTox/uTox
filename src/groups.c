@@ -156,6 +156,11 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
 }
 
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number), uint32_t name_color) {
+    if (!g) {
+        LOG_ERR("Groupchat", "Null groupchat passed to group_peer_add!");
+        return;
+    }
+
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));

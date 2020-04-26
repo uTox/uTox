@@ -7,6 +7,7 @@ extern SCROLLABLE scrollbar_group;
 typedef struct panel PANEL;
 extern PANEL panel_group,
              panel_group_create,
+             panel_group_join,
              panel_group_chat,
              panel_group_video,
              panel_group_settings,
@@ -18,11 +19,11 @@ extern BUTTON button_group_audio,
               button_create_group;
 
 typedef struct dropdown DROPDOWN;
-extern DROPDOWN dropdown_notify_groupchats;
+extern DROPDOWN dropdown_notify_groupchats,
+                dropdown_privacy_type;
 
 typedef struct uiswitch UISWITCH;
-extern UISWITCH switch_group_type,
-                switch_privacy_type;
+extern UISWITCH switch_group_type;
 
 typedef struct edit EDIT;
 extern EDIT edit_chat_msg_group,
