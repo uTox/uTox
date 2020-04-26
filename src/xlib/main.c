@@ -12,7 +12,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
-#include "../main.h" // MAIN_WIDTH, MAIN_WIDTH, DEFAULT_SCALE, parse_args, utox_init
+#include "../main.h" // MAIN_WIDTH, MAIN_WIDTH, parse_args, utox_init
 #include "../settings.h"
 #include "../text.h"
 #include "../theme.h"
@@ -652,13 +652,6 @@ void showkeyboard(bool UNUSED(show)) {}
 void edit_will_deactivate(void) {}
 
 void update_tray(void) {}
-
-void config_osdefaults(UTOX_SAVE *r) {
-    r->window_x      = 0;
-    r->window_y      = 0;
-    r->window_width  = DEFAULT_WIDTH;
-    r->window_height = DEFAULT_HEIGHT;
-}
 
 static void atom_init(void) {
     wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);

@@ -468,9 +468,6 @@ void force_redraw(void) {
 void update_tray(void) { /* Unsupported on android */
 }
 
-void config_osdefaults(UTOX_SAVE *r) { /* Unsupported on android */
-}
-
 void utox_android_redraw_window(void) {
     if (!_redraw) {
         return;
