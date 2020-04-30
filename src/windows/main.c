@@ -1064,6 +1064,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         DispatchMessage(&msg);
     }
 
+    RECT wndrect = { 0 };
+    GetWindowRect(main_window.window, &wndrect);
+
+    settings.window_x      = wndrect.left < 0 ? 0 : wndrect.left;
+    settings.window_y      = wndrect.top < 0 ? 0 : wndrect.top;
+    settings.window_width  = (wndrect.right - wndrect.left);
+    settings.window_height = (wndrect.bottom - wndrect.top);
+
+    config_save();
+
     /* kill threads */
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);
@@ -1076,16 +1086,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     while (tox_thread_init) {
         yieldcpu(10);
     }
-
-    RECT wndrect = { 0 };
-    GetWindowRect(main_window.window, &wndrect);
-
-    settings.window_x      = wndrect.left < 0 ? 0 : wndrect.left;
-    settings.window_y      = wndrect.top < 0 ? 0 : wndrect.top;
-    settings.window_width  = (wndrect.right - wndrect.left);
-    settings.window_height = (wndrect.bottom - wndrect.top);
-
-    config_save();
 
     // TODO: This should be a non-zero value determined by a message's wParam.
     return 0;

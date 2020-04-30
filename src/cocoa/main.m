@@ -402,9 +402,6 @@ void launch_at_startup(bool should) {
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
-    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
-    postmessage_toxcore(TOX_KILL, 0, 0, NULL);
-
     // from bottom of screen
     // TODO: translate to xy from top
     settings.window_x      = self.utox_window.frame.origin.x;
@@ -413,6 +410,9 @@ void launch_at_startup(bool should) {
     settings.window_height = self.utox_window.frame.size.height;
 
     config_save();
+
+    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
+    postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
     [NSEvent removeMonitor:global_event_listener];
     [NSEvent removeMonitor:local_event_listener];

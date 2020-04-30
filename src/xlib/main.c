@@ -867,15 +867,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
-    postmessage_toxcore(TOX_KILL, 0, 0, NULL);
-
-    /* free client thread stuff */
-    if (libgtk) {
-    }
-
-    destroy_tray_icon();
-
     Window       root_return, child_return;
     int          x_return, y_return;
     unsigned int width_return, height_return, i;
@@ -889,6 +880,15 @@ int main(int argc, char *argv[]) {
     settings.window_height = height_return;
 
     config_save();
+
+    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
+    postmessage_toxcore(TOX_KILL, 0, 0, NULL);
+
+    /* free client thread stuff */
+    if (libgtk) {
+    }
+
+    destroy_tray_icon();
 
     FcFontSetSortDestroy(fs);
     freefonts();
