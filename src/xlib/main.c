@@ -883,14 +883,12 @@ int main(int argc, char *argv[]) {
 
     XTranslateCoordinates(display, main_window.window, root_return, 0, 0, &x_return, &y_return, &child_return);
 
-    UTOX_SAVE d = {
-        .window_x      = x_return < 0 ? 0 : x_return,
-        .window_y      = y_return < 0 ? 0 : y_return,
-        .window_width  = width_return,
-        .window_height = height_return,
-    };
+    settings.window_x      = x_return < 0 ? 0 : x_return;
+    settings.window_y      = y_return < 0 ? 0 : y_return;
+    settings.window_width  = width_return;
+    settings.window_height = height_return;
 
-    config_save(&d);
+    config_save();
 
     FcFontSetSortDestroy(fs);
     freefonts();
