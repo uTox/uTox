@@ -16,7 +16,8 @@
 #include "native/filesys.h"
 #include "native/keyboard.h"
 
-#include "main.h" // UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
+// UTOX_VERSION_NUMBER, MAIN_HEIGHT, MAIN_WIDTH, all save things..
+#include "main.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +26,8 @@
 #define MATCH(x, y) (strcasecmp(x, y) == 0)
 #define BOOL_TO_STR(b) b ? "true" : "false"
 #define STR_TO_BOOL(s) (strcasecmp(s, "true") == 0)
-#define NAMEOF(s) strchr((const char *)(#s), '>') == NULL ? #s : (strchr((const char *)(#s), '>') + 1)
+#define NAMEOF(s) strchr((const char *)(#s), '>') == NULL \
+    ? #s : (strchr((const char *)(#s), '>') + 1)
 
 static const char *config_file_name = "utox_save.ini";
 
@@ -60,9 +62,8 @@ SETTINGS settings = {
 
     // Low level settings (network, profile, portable-mode)
     .disableudp     = false,
-    .enableipv6    = true,
-
-    .proxyenable      = false,
+    .enableipv6     = true,
+    .proxyenable    = false,
     .force_proxy    = false,
     .proxy_port     = 0,
 
@@ -72,65 +73,68 @@ SETTINGS settings = {
 
     // User interface settings
     .language               = LANG_EN,
-    .audio_filtering_enabled    = true,
-    .push_to_talk           = false,
-    .audio_preview          = false,
-    .video_preview          = false,
-    .no_typing_notifications     = true,
-    .use_long_time_msg      = true,
-    .accept_inline_images   = true,
+
+    .audio_filtering_enabled = true,
+    .push_to_talk            = false,
+    .audio_preview           = false,
+    .video_preview           = false,
+    .no_typing_notifications = true,
+    .use_long_time_msg       = true,
+    .accept_inline_images    = true,
 
     // UX Settings
-    .logging_enabled        = true,
-    .close_to_tray          = false,
-    .start_in_tray          = false,
-    .auto_startup      = false,
-    .use_mini_flist         = false,
-    .magic_flist_enabled    = false,
-
+    .logging_enabled     = true,
+    .close_to_tray       = false,
+    .start_in_tray       = false,
+    .auto_startup        = false,
+    .use_mini_flist      = false,
+    .magic_flist_enabled = false,
 
     // Notifications / Alerts
-    .audible_notifications_enabled       = true,
-    .status_notifications   = true,
-    .group_notifications    = GNOTIFY_ALWAYS,
+    .audible_notifications_enabled = true,
+    .status_notifications          = true,
+    .group_notifications           = GNOTIFY_ALWAYS,
 
     .audio_device_out = 0,
     .audio_device_in  = 0,
     .video_fps        = DEFAULT_FPS,
 
-    .verbose = LOG_LVL_ERROR,
+    .verbose    = LOG_LVL_ERROR,
     .debug_file = NULL,
 
-    .theme                = UINT32_MAX,
-    // OS interface settings
-    .window_x             = 0,
-    .window_y             = 0,
-    .window_height        = MAIN_HEIGHT,
-    .window_width         = MAIN_WIDTH,
-    .window_baseline      = 0,
+    .theme = UINT32_MAX,
 
-    .window_maximized     = 0,
+    // OS interface settings
+    .window_x         = 0,
+    .window_y         = 0,
+    .window_height    = MAIN_HEIGHT,
+    .window_width     = MAIN_WIDTH,
+    .window_baseline  = 0,
+    .window_maximized = false,
 };
 
-static void write_config_value_int(const char *filename, const char *section, const char *key, const long value) {
+static void write_config_value_int(const char *filename, const char *section,
+                                   const char *key, const long value) {
     if (ini_putl(section, key, value, filename) != 1) {
         LOG_ERR("Settings", "Unable to save config value: %lu.", value);
     }
 }
 
-static void write_config_value_str(const char *filename, const char *section, const char *key, const char *value) {
+static void write_config_value_str(const char *filename, const char *section,
+                                   const char *key, const char *value) {
     if (ini_puts(section, key, value, filename) != 1) {
         LOG_ERR("Settings", "Unable to save config value: %s.", value);
     }
 }
 
-static void write_config_value_bool(const char *filename, const char *section, const char *key, const bool value) {
+static void write_config_value_bool(const char *filename, const char *section,
+                                    const char *key, const bool value) {
     if (ini_puts(section, key, BOOL_TO_STR(value), filename) != 1) {
         LOG_ERR("Settings", "Unable to save config value: %s.", value);
     }
 }
 
-static CONFIG_SECTION get_section(const char* section) {
+static CONFIG_SECTION get_section(const char *section) {
     if (MATCH(config_sections[GENERAL_SECTION], section)) {
         return GENERAL_SECTION;
     } else if (MATCH(config_sections[INTERFACE_SECTION], section)) {
@@ -212,8 +216,9 @@ static void parse_av_section(SETTINGS *config, const char *key,
             return;
         }
 
-        LOG_WARN("Settings", "Fps value (%s) is invalid. It must be integer in range of [1,%u].",
-             value, UINT8_MAX);
+        LOG_WARN("Settings",
+            "Fps value (%s) is invalid. It must be integer in range of [1,%u].",
+            value, UINT8_MAX);
     }
 }
 
@@ -249,10 +254,11 @@ static void parse_advanced_section(SETTINGS *config, const char *key,
     }
 }
 
-static int config_parser(const char* section, const char* key, const char* value, void* config_v) {
+static int config_parser(const char *section, const char *key,
+                         const char *value, void *config_v) {
     SETTINGS *config = (SETTINGS *)config_v;
 
-    switch(get_section(section)) {
+    switch (get_section(section)) {
         case GENERAL_SECTION: {
             parse_general_section(config, key, value);
             break;
@@ -312,48 +318,84 @@ static bool utox_save_config(void) {
     SETTINGS *config = &settings;
 
     // general
-    write_config_value_int(config_path, config_sections[GENERAL_SECTION], NAMEOF(config->save_version), config->save_version);
-    write_config_value_int(config_path, config_sections[GENERAL_SECTION], NAMEOF(config->utox_last_version), config->utox_last_version);
+    write_config_value_int(config_path, config_sections[GENERAL_SECTION],
+        NAMEOF(config->save_version), config->save_version);
+    write_config_value_int(config_path, config_sections[GENERAL_SECTION],
+        NAMEOF(config->utox_last_version), config->utox_last_version);
 
     // interface
-    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->language), config->language);
-    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->window_x), config->window_x);
-    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->window_y), config->window_y);
-    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->window_width), config->window_width);
-    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->window_height), config->window_height);
-    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->theme), config->theme);
-    write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->scale), config->scale);
-    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->logging_enabled), config->logging_enabled);
-    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->close_to_tray), config->close_to_tray);
-    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->start_in_tray), config->start_in_tray);
-    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->auto_startup), config->auto_startup);
-    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->use_mini_flist), config->use_mini_flist);
-    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->filter), config->filter);
-    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->magic_flist_enabled), config->magic_flist_enabled);
-    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->use_long_time_msg), config->use_long_time_msg);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->language), config->language);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->window_x), config->window_x);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->window_y), config->window_y);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->window_width), config->window_width);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->window_height), config->window_height);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->theme), config->theme);
+    write_config_value_int(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->scale), config->scale);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->logging_enabled), config->logging_enabled);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->close_to_tray), config->close_to_tray);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->start_in_tray), config->start_in_tray);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->auto_startup), config->auto_startup);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->use_mini_flist), config->use_mini_flist);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->filter), config->filter);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->magic_flist_enabled), config->magic_flist_enabled);
+    write_config_value_bool(config_path, config_sections[INTERFACE_SECTION],
+        NAMEOF(config->use_long_time_msg), config->use_long_time_msg);
 
     // av
-    write_config_value_bool(config_path, config_sections[AV_SECTION], NAMEOF(config->push_to_talk), config->push_to_talk);
-    write_config_value_bool(config_path, config_sections[AV_SECTION], NAMEOF(config->audio_filtering_enabled), config->audio_filtering_enabled);
-    write_config_value_int(config_path, config_sections[AV_SECTION], NAMEOF(config->audio_device_in), config->audio_device_in);
-    write_config_value_int(config_path, config_sections[AV_SECTION], NAMEOF(config->audio_device_out), config->audio_device_out);
-    write_config_value_int(config_path, config_sections[AV_SECTION], NAMEOF(config->video_fps), config->video_fps);
+    write_config_value_bool(config_path, config_sections[AV_SECTION],
+        NAMEOF(config->push_to_talk), config->push_to_talk);
+    write_config_value_bool(config_path, config_sections[AV_SECTION],
+        NAMEOF(config->audio_filtering_enabled),
+        config->audio_filtering_enabled);
+    write_config_value_int(config_path, config_sections[AV_SECTION],
+        NAMEOF(config->audio_device_in), config->audio_device_in);
+    write_config_value_int(config_path, config_sections[AV_SECTION],
+        NAMEOF(config->audio_device_out), config->audio_device_out);
+    write_config_value_int(config_path, config_sections[AV_SECTION],
+        NAMEOF(config->video_fps), config->video_fps);
     // TODO: video_input_device
 
     // notifications
-    write_config_value_bool(config_path, config_sections[NOTIFICATIONS_SECTION], NAMEOF(config->audible_notifications_enabled), config->audible_notifications_enabled);
-    write_config_value_bool(config_path, config_sections[NOTIFICATIONS_SECTION], NAMEOF(config->status_notifications), config->status_notifications);
-    write_config_value_bool(config_path, config_sections[NOTIFICATIONS_SECTION], NAMEOF(config->no_typing_notifications), config->no_typing_notifications);
-    write_config_value_int(config_path, config_sections[NOTIFICATIONS_SECTION], NAMEOF(config->group_notifications), config->group_notifications);
+    write_config_value_bool(config_path, config_sections[NOTIFICATIONS_SECTION],
+        NAMEOF(config->audible_notifications_enabled),
+        config->audible_notifications_enabled);
+    write_config_value_bool(config_path, config_sections[NOTIFICATIONS_SECTION],
+        NAMEOF(config->status_notifications), config->status_notifications);
+    write_config_value_bool(config_path, config_sections[NOTIFICATIONS_SECTION],
+        NAMEOF(config->no_typing_notifications),
+        config->no_typing_notifications);
+    write_config_value_int(config_path, config_sections[NOTIFICATIONS_SECTION],
+        NAMEOF(config->group_notifications), config->group_notifications);
 
     // advanced
-    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->enableipv6), config->enableipv6);
-    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->disableudp), config->disableudp);
-    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->proxyenable), config->proxyenable);
-    write_config_value_int(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->proxy_port), config->proxy_port);
-    write_config_value_str(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->proxy_ip), (const char *)config->proxy_ip);
-    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->force_proxy), config->force_proxy);
-    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->block_friend_requests), config->block_friend_requests);
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION],
+        NAMEOF(config->enableipv6), config->enableipv6);
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION],
+        NAMEOF(config->disableudp), config->disableudp);
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION],
+        NAMEOF(config->proxyenable), config->proxyenable);
+    write_config_value_int(config_path, config_sections[ADVANCED_SECTION],
+        NAMEOF(config->proxy_port), config->proxy_port);
+    write_config_value_str(config_path, config_sections[ADVANCED_SECTION],
+        NAMEOF(config->proxy_ip), (const char *)config->proxy_ip);
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION],
+        NAMEOF(config->force_proxy), config->force_proxy);
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION],
+        NAMEOF(config->block_friend_requests), config->block_friend_requests);
 
     free(config_path);
 
