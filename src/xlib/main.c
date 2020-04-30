@@ -867,6 +867,20 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    Window       root_return, child_return;
+    int          x_return, y_return;
+    unsigned int width_return, height_return, i;
+    XGetGeometry(display, main_window.window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
+
+    XTranslateCoordinates(display, main_window.window, root_return, 0, 0, &x_return, &y_return, &child_return);
+
+    settings.window_x      = x_return < 0 ? 0 : x_return;
+    settings.window_y      = y_return < 0 ? 0 : y_return;
+    settings.window_width  = width_return;
+    settings.window_height = height_return;
+
+    config_save();
+
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
@@ -875,22 +889,6 @@ int main(int argc, char *argv[]) {
     }
 
     destroy_tray_icon();
-
-    Window       root_return, child_return;
-    int          x_return, y_return;
-    unsigned int width_return, height_return, i;
-    XGetGeometry(display, main_window.window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
-
-    XTranslateCoordinates(display, main_window.window, root_return, 0, 0, &x_return, &y_return, &child_return);
-
-    UTOX_SAVE d = {
-        .window_x      = x_return < 0 ? 0 : x_return,
-        .window_y      = y_return < 0 ? 0 : y_return,
-        .window_width  = width_return,
-        .window_height = height_return,
-    };
-
-    config_save(&d);
 
     FcFontSetSortDestroy(fs);
     freefonts();

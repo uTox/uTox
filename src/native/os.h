@@ -1,8 +1,6 @@
 #ifndef NATIVE_OS_H
 #define NATIVE_OS_H
 
-typedef struct utox_save UTOX_SAVE;
-
 // OS-specific cleanup function for when edits are defocused. Commit IME state, etc.
 // OS X only.
 void edit_will_deactivate(void);
