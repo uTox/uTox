@@ -5,15 +5,15 @@
 
 
 SETTINGS settings = {
-    .curr_version = UTOX_VERSION_NUMBER,
+    .utox_last_version = UTOX_VERSION_NUMBER,
     // .last_version                // included here to match the full struct
     .show_splash = false,
 
     // Low level settings (network, profile, portable-mode)
-    .enable_udp     = true,
-    .enable_ipv6    = true,
+    .disableudp     = false,
+    .enableipv6     = true,
 
-    .use_proxy      = false,
+    .proxyenable    = false,
     .force_proxy    = false,
     .proxy_port     = 0,
 
@@ -26,22 +26,22 @@ SETTINGS settings = {
 
 
     // User interface settings
-    .close_to_tray          = false,
-    .logging_enabled        = true,
-    .audiofilter_enabled    = true,
-    .start_in_tray          = false,
-    .start_with_system      = false,
-    .push_to_talk           = false,
-    .audio_preview          = false,
-    .video_preview          = false,
-    .send_typing_status     = false,
-    .use_mini_flist         = false,
+    .close_to_tray           = false,
+    .logging_enabled         = true,
+    .audio_filtering_enabled = true,
+    .start_in_tray           = false,
+    .auto_startup            = false,
+    .push_to_talk            = false,
+    .audio_preview           = false,
+    .video_preview           = false,
+    .no_typing_notifications = true,
+    .use_mini_flist          = false,
     // .inline_video                // included here to match the full struct
-    .use_long_time_msg      = true,
-    .accept_inline_images   = true,
+    .use_long_time_msg       = true,
+    .accept_inline_images    = true,
 
     // Notifications / Alerts
-    .ringtone_enabled       = true,
+    .audible_notifications_enabled = true,
     .status_notifications   = true,
     .group_notifications    = 0,
 
@@ -60,32 +60,13 @@ SETTINGS settings = {
 /*
  * Loads the config file and returns a settings struct
  */
-UTOX_SAVE *config_load(void) {
+void config_load(void) {
     FAIL_FATAL("called a mocked function, this should not happen: %s", __FUNCTION__);
 }
 
 /*
  * Writes save_in to the disk
  */
-void config_save(UTOX_SAVE *save_in) {
-    FAIL_FATAL("called a mocked function, this should not happen: %s", __FUNCTION__);
-}
-
-/**
- * Saves the settings for uTox
- *
- * Returns a bool indicating if it succeeded or not
- */
-bool utox_data_save_utox(UTOX_SAVE *data, size_t length) {
-    FAIL_FATAL("called a mocked function, this should not happen: %s", __FUNCTION__);
-}
-
-/**
- * Loads uTox settings
- *
- * Returns a memory pointer of *size, the caller needs to free this
- * Returns NULL on failure
- */
-UTOX_SAVE *utox_data_load_utox(void) {
+void config_save(void) {
     FAIL_FATAL("called a mocked function, this should not happen: %s", __FUNCTION__);
 }
