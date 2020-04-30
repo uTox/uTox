@@ -18,24 +18,23 @@ typedef struct utox_settings {
     uint32_t last_version;
     uint32_t utox_last_version;
 
-    bool     show_splash;
+    bool show_splash;
 
     // Low level settings (network, profile, portable-mode)
-    bool portable_mode;
-
-    bool save_encryption;
-
-    bool force_proxy;
-    bool disableudp;
-    bool enableipv6;
-
-    bool block_friend_requests;
-
-    bool proxyenable;
+    bool     portable_mode;
+    bool     disableudp;
+    bool     enableipv6;
+    bool     proxyenable;
+    bool     force_proxy;
     uint16_t proxy_port;
+
+    // Tox level settings
+    bool block_friend_requests;
+    bool save_encryption;
 
     // User interface settings
     UTOX_LANG language;
+
     bool audio_filtering_enabled;
     bool push_to_talk;
     bool audio_preview;
@@ -64,7 +63,7 @@ typedef struct utox_settings {
     uint8_t  video_fps;
 
     LOG_LVL verbose;
-    FILE *debug_file;
+    FILE *  debug_file;
 
     uint32_t theme;
     uint8_t  scale;
