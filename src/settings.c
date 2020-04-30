@@ -315,6 +315,23 @@ static bool utox_save_config() {
         return false;
     }
 
+    char *last_slash = strrchr(config_path, '/');
+    if (!last_slash) {
+        last_slash = strrchr(config_path, '\\');
+    }
+
+    char *save_folder = strdup(config_path);
+    save_folder[last_slash - config_path + 1] = '\0';
+
+    if (!native_create_dir((uint8_t *)save_folder)) {
+        LOG_ERR("Settings", "Failed to create save folder %s.", save_folder);
+        free(save_folder);
+        free(config_path);
+        return false;
+    }
+
+    free(save_folder);
+
     SETTINGS *config = &settings;
 
     // general
