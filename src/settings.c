@@ -307,11 +307,35 @@ static bool utox_load_config(void) {
     return true;
 }
 
+static bool create_config_folder(char *config_path) {
+    char *last_slash = strrchr(config_path, '/');
+    if (!last_slash) {
+        last_slash = strrchr(config_path, '\\');
+    }
+
+    char *save_folder = strdup(config_path);
+    save_folder[last_slash - config_path + 1] = '\0';
+
+    if (!native_create_dir((uint8_t *)save_folder)) {
+        LOG_ERR("Settings", "Failed to create save folder %s.", save_folder);
+        free(save_folder);
+        return false;
+    }
+
+    free(save_folder);
+    return true;
+}
+
 static bool utox_save_config(void) {
     char *config_path = utox_get_filepath(config_file_name);
 
     if (!config_path) {
         LOG_ERR("Settings", "Unable to get %s path.", config_file_name);
+        return false;
+    }
+
+    if (!create_config_folder(config_path)) {
+        free(config_path);
         return false;
     }
 
