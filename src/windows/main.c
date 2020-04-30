@@ -1079,13 +1079,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     RECT wndrect = { 0 };
     GetWindowRect(main_window.window, &wndrect);
-    UTOX_SAVE d = {
-        .window_x      = wndrect.left < 0 ? 0 : wndrect.left,
-        .window_y      = wndrect.top < 0 ? 0 : wndrect.top,
-        .window_width  = (wndrect.right - wndrect.left),
-        .window_height = (wndrect.bottom - wndrect.top),
-    };
-    config_save(&d);
+
+    settings.window_x      = wndrect.left < 0 ? 0 : wndrect.left;
+    settings.window_y      = wndrect.top < 0 ? 0 : wndrect.top;
+    settings.window_width  = (wndrect.right - wndrect.left);
+    settings.window_height = (wndrect.bottom - wndrect.top);
+
+    config_save();
 
     // TODO: This should be a non-zero value determined by a message's wParam.
     return 0;

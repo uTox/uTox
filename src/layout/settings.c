@@ -1250,6 +1250,8 @@ static void switchfxn_proxy(void) {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
     settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
 
+    memcpy(settings.proxy_ip, proxy_address, edit_proxy_ip.length);
+
     tox_settingschanged();
 }
 
@@ -1347,6 +1349,7 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     ui_rescale(i + 5);
+    settings.scale = ui_scale;
 }
 
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {

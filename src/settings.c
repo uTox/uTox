@@ -27,11 +27,7 @@
 #define STR_TO_BOOL(s) (strcasecmp(s, "true") == 0)
 #define NAMEOF(s) strchr((const char *)(#s), '>') == NULL ? #s : (strchr((const char *)(#s), '>') + 1)
 
-uint16_t loaded_audio_out_device = 0;
-uint16_t loaded_audio_in_device  = 0;
-
-static const char *config_file_name     = "utox_save.ini";
-static const char *config_file_name_old = "utox_save";
+static const char *config_file_name = "utox_save.ini";
 
 static const uint16_t proxy_address_size = 256; // Magic number inside Toxcore.
 
@@ -57,9 +53,8 @@ static const char *config_sections[UNKNOWN_SECTION + 1] = {
 };
 
 SETTINGS settings = {
-    // .last_version                // included here to match the full struct
+    .last_version      = UTOX_VERSION_NUMBER,
     .utox_last_version = UTOX_VERSION_NUMBER,
-    .next_version = UTOX_VERSION_NUMBER,
 
     .show_splash = false,
 
@@ -75,8 +70,6 @@ SETTINGS settings = {
     .block_friend_requests  = false,
     .save_encryption        = true,
 
-    // .portable_mode               // included here to match the full struct
-
     // User interface settings
     .language               = LANG_EN,
     .audio_filtering_enabled    = true,
@@ -84,7 +77,6 @@ SETTINGS settings = {
     .audio_preview          = false,
     .video_preview          = false,
     .no_typing_notifications     = true,
-    // .inline_video                // included here to match the full struct
     .use_long_time_msg      = true,
     .accept_inline_images   = true,
 
@@ -96,12 +88,15 @@ SETTINGS settings = {
     .use_mini_flist         = false,
     .magic_flist_enabled    = false,
 
-    .video_fps              = DEFAULT_FPS,
 
     // Notifications / Alerts
     .audible_notifications_enabled       = true,
     .status_notifications   = true,
     .group_notifications    = GNOTIFY_ALWAYS,
+
+    .audio_device_out = 0,
+    .audio_device_in  = 0,
+    .video_fps        = DEFAULT_FPS,
 
     .verbose = LOG_LVL_ERROR,
     .debug_file = NULL,
@@ -151,19 +146,17 @@ static CONFIG_SECTION get_section(const char* section) {
     }
 }
 
-static void parse_general_section(UTOX_SAVE *config, const char* key, const char* value) {
+static void parse_general_section(SETTINGS *config, const char *key,
+                                  const char *value) {
     if (MATCH(NAMEOF(config->save_version), key)) {
         config->save_version = atoi(value);
     } else if (MATCH(NAMEOF(config->utox_last_version), key)) {
         config->utox_last_version = atoi(value);
-    } else if (MATCH(NAMEOF(config->send_version), key)) {
-        config->send_version = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->update_to_develop), key)) {
-        config->update_to_develop = STR_TO_BOOL(value);
     }
 }
 
-static void parse_interface_section(UTOX_SAVE *config, const char* key, const char* value) {
+static void parse_interface_section(SETTINGS *config, const char *key,
+                                    const char *value) {
     if (MATCH(NAMEOF(config->language), key)) {
         config->language = atoi(value);
     } else if (MATCH(NAMEOF(config->window_x), key)) {
@@ -175,7 +168,10 @@ static void parse_interface_section(UTOX_SAVE *config, const char* key, const ch
     } else if (MATCH(NAMEOF(config->window_height), key)) {
         config->window_height = atoi(value);
     } else if (MATCH(NAMEOF(config->theme), key)) {
-        config->theme = atoi(value);
+        // Allow users to override theme on the cmdline.
+        if (config->theme == UINT32_MAX) {
+            config->theme = atoi(value);
+        }
     } else if (MATCH(NAMEOF(config->scale), key)) {
         config->scale = atoi(value);
     } else if (MATCH(NAMEOF(config->logging_enabled), key)) {
@@ -197,7 +193,8 @@ static void parse_interface_section(UTOX_SAVE *config, const char* key, const ch
     }
 }
 
-static void parse_av_section(UTOX_SAVE *config, const char* key, const char* value) {
+static void parse_av_section(SETTINGS *config, const char *key,
+                             const char *value) {
     if (MATCH(NAMEOF(config->push_to_talk), key)) {
         config->push_to_talk = STR_TO_BOOL(value);
     } else if (MATCH(NAMEOF(config->audio_filtering_enabled), key)) {
@@ -220,7 +217,8 @@ static void parse_av_section(UTOX_SAVE *config, const char* key, const char* val
     }
 }
 
-static void parse_notifications_section(UTOX_SAVE *config, const char* key, const char* value) {
+static void parse_notifications_section(SETTINGS *config, const char *key,
+                                        const char *value) {
     if (MATCH(NAMEOF(config->audible_notifications_enabled), key)) {
         config->audible_notifications_enabled = STR_TO_BOOL(value);
     } else if (MATCH(NAMEOF(config->status_notifications), key)) {
@@ -232,7 +230,8 @@ static void parse_notifications_section(UTOX_SAVE *config, const char* key, cons
     }
 }
 
-static void parse_advanced_section(UTOX_SAVE *config, const char* key, const char* value) {
+static void parse_advanced_section(SETTINGS *config, const char *key,
+                                   const char *value) {
     if (MATCH(NAMEOF(config->enableipv6), key)) {
         config->enableipv6 = STR_TO_BOOL(value);
     } else if (MATCH(NAMEOF(config->disableudp), key)) {
@@ -245,13 +244,13 @@ static void parse_advanced_section(UTOX_SAVE *config, const char* key, const cha
         strcpy((char *)config->proxy_ip, value);
     } else if (MATCH(NAMEOF(config->force_proxy), key)) {
         config->force_proxy = STR_TO_BOOL(value);
-    } else if (MATCH(NAMEOF(config->auto_update), key)) {
-        config->auto_update = STR_TO_BOOL(value);
+    } else if (MATCH(NAMEOF(config->block_friend_requests), key)) {
+        config->block_friend_requests = STR_TO_BOOL(value);
     }
 }
 
 static int config_parser(const char* section, const char* key, const char* value, void* config_v) {
-    UTOX_SAVE *config = (UTOX_SAVE*) config_v;
+    SETTINGS *config = (SETTINGS *)config_v;
 
     switch(get_section(section)) {
         case GENERAL_SECTION: {
@@ -283,34 +282,7 @@ static int config_parser(const char* section, const char* key, const char* value
     return 1;
 }
 
-static UTOX_SAVE *utox_load_config(void) {
-    UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + proxy_address_size + 1);
-    if (!save) {
-        LOG_ERR("Settings", "Unable to calloc for UTOX_SAVE.");
-        return NULL;
-    }
-
-    char *config_path = utox_get_filepath(config_file_name);
-
-    if (!config_path) {
-        LOG_ERR("Settings", "Unable to get %s path.", config_file_name);
-        free(save);
-        return NULL;
-    }
-
-    if (!ini_browse(config_parser, save, config_path)) {
-        LOG_ERR("Settings", "Unable to parse %s.", config_file_name);
-        free(config_path);
-        free(save);
-        return NULL;
-    }
-
-    free(config_path);
-
-    return save;
-}
-
-static bool utox_save_config(UTOX_SAVE *config) {
+static bool utox_load_config(void) {
     char *config_path = utox_get_filepath(config_file_name);
 
     if (!config_path) {
@@ -318,11 +290,30 @@ static bool utox_save_config(UTOX_SAVE *config) {
         return false;
     }
 
+    if (!ini_browse(config_parser, &settings, config_path)) {
+        LOG_ERR("Settings", "Unable to parse %s.", config_file_name);
+        free(config_path);
+        return false;
+    }
+
+    free(config_path);
+
+    return true;
+}
+
+static bool utox_save_config(void) {
+    char *config_path = utox_get_filepath(config_file_name);
+
+    if (!config_path) {
+        LOG_ERR("Settings", "Unable to get %s path.", config_file_name);
+        return false;
+    }
+
+    SETTINGS *config = &settings;
+
     // general
     write_config_value_int(config_path, config_sections[GENERAL_SECTION], NAMEOF(config->save_version), config->save_version);
     write_config_value_int(config_path, config_sections[GENERAL_SECTION], NAMEOF(config->utox_last_version), config->utox_last_version);
-    write_config_value_bool(config_path, config_sections[GENERAL_SECTION], NAMEOF(config->send_version), config->send_version);
-    write_config_value_bool(config_path, config_sections[GENERAL_SECTION], NAMEOF(config->update_to_develop), config->update_to_develop);
 
     // interface
     write_config_value_int(config_path, config_sections[INTERFACE_SECTION], NAMEOF(config->language), config->language);
@@ -362,214 +353,124 @@ static bool utox_save_config(UTOX_SAVE *config) {
     write_config_value_int(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->proxy_port), config->proxy_port);
     write_config_value_str(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->proxy_ip), (const char *)config->proxy_ip);
     write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->force_proxy), config->force_proxy);
-    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->auto_update), config->auto_update);
-    // TODO: block_friend_requests
+    write_config_value_bool(config_path, config_sections[ADVANCED_SECTION], NAMEOF(config->block_friend_requests), config->block_friend_requests);
 
     free(config_path);
 
     return true;
 }
 
-static UTOX_SAVE *init_default_settings(void) {
-    UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE));
-    if (!save) {
-        LOG_FATAL_ERR(EXIT_MALLOC, "Settings", "Unable to malloc for default settings.");
-    }
-
-    save->enableipv6  = true;
-    save->disableudp  = false;
-    save->proxyenable = false;
-    save->force_proxy = false;
-
-    save->audio_filtering_enabled       = true;
-    save->audible_notifications_enabled = true;
-
-    return save;
-}
-
-// TODO refactor to match same order in main.h
-UTOX_SAVE *config_load(void) {
-    UTOX_SAVE *save = utox_load_config();
-
-    if (!save) {
-        LOG_ERR("Settings", "Unable to load uTox settings. Use defaults.");
-        save = init_default_settings();
-    }
-
-    if (save->scale > 30) {
-        save->scale = 30;
-    } else if (save->scale < 5) {
-        save->scale = 10;
-    }
-
-    if (save->window_width < MAIN_WIDTH) {
-        save->window_width = MAIN_WIDTH;
-    }
-    if (save->window_height < MAIN_HEIGHT) {
-        save->window_height = MAIN_HEIGHT;
-    }
-
-    /* UX Settings */
-
-    dropdown_language.selected = dropdown_language.over = settings.language = save->language;
-
-    dropdown_dpi.selected = dropdown_dpi.over = save->scale - 5;
-
-    switch_save_chat_history.switch_on = save->logging_enabled;
-    switch_close_to_tray.switch_on     = save->close_to_tray;
-    switch_start_in_tray.switch_on     = save->start_in_tray;
-    switch_mini_contacts.switch_on     = save->use_mini_flist;
-    switch_magic_sidebar.switch_on     = save->magic_flist_enabled;
-
-    switch_ipv6.switch_on             = save->enableipv6;
-    switch_udp.switch_on              = !save->disableudp;
-    switch_udp.panel.disabled         = save->force_proxy;
-    switch_proxy.switch_on            = save->proxyenable;
-    switch_proxy_force.switch_on      = save->force_proxy;
-    switch_proxy_force.panel.disabled = !save->proxyenable;
-
-    switch_auto_startup.switch_on = save->auto_startup;
-
-    settings.group_notifications = dropdown_global_group_notifications.selected =
-        dropdown_global_group_notifications.over = save->group_notifications;
-
-    switch_audible_notifications.switch_on = save->audible_notifications_enabled;
-    switch_audio_filtering.switch_on       = save->audio_filtering_enabled;
-    switch_push_to_talk.switch_on          = save->push_to_talk;
-    switch_status_notifications.switch_on  = save->status_notifications;
-
-    dropdown_theme.selected = dropdown_theme.over = save->theme;
-
-    switch_typing_notes.switch_on = !save->no_typing_notifications;
-
-    flist_set_filter(save->filter); /* roster list filtering */
-
-    /* Network settings */
-    settings.enableipv6 = save->enableipv6;
-    settings.disableudp  = save->disableudp;
-    settings.proxyenable   = save->proxyenable != 0;
-    settings.proxy_port  = save->proxy_port;
-    settings.force_proxy = save->force_proxy;
-
-    if (strlen((char *)save->proxy_ip) <= proxy_address_size){
-        strcpy((char *)proxy_address, (char *)save->proxy_ip);
-    }
-
-    edit_proxy_ip.length = strlen((char *)save->proxy_ip);
-
-    strcpy((char *)edit_proxy_ip.data, (char *)save->proxy_ip);
-
-    if (save->proxy_port) {
-        snprintf((char *)edit_proxy_port.data, edit_proxy_port.data_size,
-                 "%u", save->proxy_port);
-        edit_proxy_port.length = strnlen((char *)edit_proxy_port.data,
-                                         edit_proxy_port.data_size - 1);
-    }
-
-    /* UX settings */
-    settings.logging_enabled      = save->logging_enabled;
-    settings.close_to_tray        = save->close_to_tray;
-    settings.start_in_tray        = save->start_in_tray;
-    settings.auto_startup         = save->auto_startup;
-    settings.use_mini_flist       = save->use_mini_flist;
-    settings.magic_flist_enabled  = save->magic_flist_enabled;
-    settings.use_long_time_msg    = save->use_long_time_msg;
-
-    settings.audible_notifications_enabled = save->audible_notifications_enabled;
-    settings.audio_filtering_enabled       = save->audio_filtering_enabled;
-
-    settings.no_typing_notifications = save->no_typing_notifications;
-    settings.status_notifications    = save->status_notifications;
-
-    settings.window_x             = save->window_x;
-    settings.window_y             = save->window_y;
-    settings.window_width         = save->window_width;
-    settings.window_height        = save->window_height;
-
-    settings.last_version         = save->utox_last_version;
-
-    loaded_audio_out_device       = save->audio_device_out;
-    loaded_audio_in_device        = save->audio_device_in;
-
-    settings.video_fps = save->video_fps != 0 ? save->video_fps : DEFAULT_FPS;
-
-    snprintf((char *)edit_video_fps.data, edit_video_fps.data_size,
-             "%u", settings.video_fps);
-    edit_video_fps.length = strnlen((char *)edit_video_fps.data,
-                                    edit_video_fps.data_size - 1);
-
-    // TODO: Don't clobber (and start saving) commandline flags.
+static void init_default_settings(void) {
+    settings.enableipv6  = true;
+    settings.disableudp  = false;
+    settings.proxyenable = false;
+    settings.force_proxy = false;
 
     // Allow users to override theme on the cmdline.
     if (settings.theme == UINT32_MAX) {
-        settings.theme = save->theme;
+        settings.theme = 0;
     }
 
-    ui_set_scale(save->scale);
+    settings.audio_filtering_enabled       = true;
+    settings.audible_notifications_enabled = true;
+}
 
-    if (save->push_to_talk) {
+void config_load(void) {
+    bool config_loaded = utox_load_config();
+    if (!config_loaded) {
+        LOG_ERR("Settings", "Unable to load uTox settings. Use defaults.");
+        init_default_settings();
+    }
+
+    /* UX Settings */
+    dropdown_language.selected = dropdown_language.over = settings.language;
+    if (settings.window_width < MAIN_WIDTH) {
+        settings.window_width = MAIN_WIDTH;
+    }
+    if (settings.window_height < MAIN_HEIGHT) {
+        settings.window_height = MAIN_HEIGHT;
+    }
+
+    dropdown_theme.selected = dropdown_theme.over = settings.theme;
+
+    if (settings.scale > 30) {
+        settings.scale = 30;
+    } else if (settings.scale < 5) {
+        settings.scale = 10;
+    }
+    dropdown_dpi.selected = dropdown_dpi.over = settings.scale - 5;
+
+    switch_save_chat_history.switch_on = settings.logging_enabled;
+    switch_close_to_tray.switch_on = settings.close_to_tray;
+    switch_start_in_tray.switch_on = settings.start_in_tray;
+    switch_auto_startup.switch_on = settings.auto_startup;
+    switch_mini_contacts.switch_on = settings.use_mini_flist;
+    flist_set_filter(settings.filter);
+    switch_magic_sidebar.switch_on = settings.magic_flist_enabled;
+
+    /* Network settings */
+    switch_ipv6.switch_on = settings.enableipv6;
+    switch_udp.switch_on = !settings.disableudp;
+    switch_udp.panel.disabled = settings.force_proxy;
+    switch_proxy.switch_on = settings.proxyenable != 0;
+    switch_proxy_force.switch_on = settings.force_proxy;
+    switch_proxy_force.panel.disabled = settings.proxyenable == 0;
+
+    /* AV */
+    switch_push_to_talk.switch_on = settings.push_to_talk;
+    switch_audio_filtering.switch_on = settings.audio_filtering_enabled;
+    if (settings.video_fps == 0) {
+        settings.video_fps = DEFAULT_FPS;
+    }
+    snprintf((char *)edit_video_fps.data, edit_video_fps.data_size, "%u",
+        settings.video_fps);
+    edit_video_fps.length = strnlen((char *)edit_video_fps.data,
+        edit_video_fps.data_size - 1);
+
+    /* Notifications */
+    switch_audible_notifications.switch_on
+        = settings.audible_notifications_enabled;
+
+    switch_status_notifications.switch_on = settings.status_notifications;
+    switch_typing_notes.switch_on = !settings.no_typing_notifications;
+
+    settings.group_notifications = dropdown_global_group_notifications.selected
+        = dropdown_global_group_notifications.over
+        = settings.group_notifications;
+
+    /* Advanced */
+    if (strlen((char *)settings.proxy_ip) <= proxy_address_size) {
+        strcpy((char *)proxy_address, (char *)settings.proxy_ip);
+    }
+    edit_proxy_ip.length = strlen((char *)settings.proxy_ip);
+    strcpy((char *)edit_proxy_ip.data, (char *)settings.proxy_ip);
+    if (settings.proxy_port) {
+        snprintf((char *)edit_proxy_port.data, edit_proxy_port.data_size, "%u",
+            settings.proxy_port);
+        edit_proxy_port.length = strnlen((char *)edit_proxy_port.data,
+            edit_proxy_port.data_size - 1);
+    }
+
+    ui_set_scale(settings.scale);
+
+    if (settings.push_to_talk) {
         init_ptt();
     }
 
-    return save;
+    if (!config_loaded) {
+        config_save();
+    }
 }
 
-// TODO refactor to match order in main.h
-void config_save(UTOX_SAVE *save_in) {
-    UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + proxy_address_size);
-    if (!save) {
-        LOG_ERR("Settings", "Could not allocate memory to save settings");
-        return;
-    }
-
-    /* Copy the data from the in data to protect the calloc */
-    save->window_x                      = save_in->window_x;
-    save->window_y                      = save_in->window_y;
-    save->window_width                  = save_in->window_width;
-    save->window_height                 = save_in->window_height;
-
-    save->save_version                  = UTOX_SAVE_VERSION;
-    save->scale                         = ui_scale;
-    save->proxyenable                   = switch_proxy.switch_on;
-    save->audible_notifications_enabled = settings.audible_notifications_enabled;
-    save->audio_filtering_enabled       = settings.audio_filtering_enabled;
-    save->push_to_talk                  = settings.push_to_talk;
-
-    /* UX Settings */
-    save->logging_enabled               = settings.logging_enabled;
-    save->close_to_tray                 = settings.close_to_tray;
-    save->start_in_tray                 = settings.start_in_tray;
-    save->auto_startup                  = settings.auto_startup;
-    save->use_mini_flist                = settings.use_mini_flist;
-    save->magic_flist_enabled           = settings.magic_flist_enabled;
-    save->use_long_time_msg             = settings.use_long_time_msg;
-    save->video_fps                     = settings.video_fps;
-
-    save->disableudp                    = settings.disableudp;
-    save->enableipv6                    = settings.enableipv6;
-    save->no_typing_notifications       = settings.no_typing_notifications;
-
-    save->filter                        = flist_get_filter();
-    save->proxy_port                    = settings.proxy_port;
-    save->force_proxy                   = settings.force_proxy;
-
-    save->audio_device_in               = dropdown_audio_in.selected;
-    save->audio_device_out              = dropdown_audio_out.selected;
-    save->theme                         = settings.theme;
-
-    save->utox_last_version             = settings.utox_last_version;
-    save->group_notifications           = settings.group_notifications;
-    save->status_notifications          = settings.status_notifications;
-
-    save->language                      = settings.language;
-
-    memcpy(save->proxy_ip, proxy_address, proxy_address_size);
+void config_save(void) {
+    settings.save_version = UTOX_SAVE_VERSION;
+    settings.filter = !!flist_get_filter();
+    settings.audio_device_in = dropdown_audio_in.selected;
+    settings.audio_device_out = dropdown_audio_out.selected;
 
     LOG_NOTE("uTox", "Saving uTox settings.");
 
-    if (!utox_save_config(save)) {
+    if (!utox_save_config()) {
         LOG_ERR("uTox", "Unable to save uTox settings.");
     }
-
-    free(save);
 }

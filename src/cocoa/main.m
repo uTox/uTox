@@ -405,16 +405,14 @@ void launch_at_startup(bool should) {
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
-    UTOX_SAVE d = {
-        // from bottom of screen
-        // TODO: translate to xy from top
-        .window_x      = self.utox_window.frame.origin.x,
-        .window_y      = self.utox_window.frame.origin.y,
-        .window_width  = self.utox_window.frame.size.width,
-        .window_height = self.utox_window.frame.size.height,
-    };
+    // from bottom of screen
+    // TODO: translate to xy from top
+    settings.window_x      = self.utox_window.frame.origin.x;
+    settings.window_y      = self.utox_window.frame.origin.y;
+    settings.window_width  = self.utox_window.frame.size.width;
+    settings.window_height = self.utox_window.frame.size.height;
 
-    config_save(&d);
+    config_save();
 
     [NSEvent removeMonitor:global_event_listener];
     [NSEvent removeMonitor:local_event_listener];
@@ -423,7 +421,6 @@ void launch_at_startup(bool should) {
     while (tox_thread_init) {
         yieldcpu(1);
     }
-
 }
 
 - (void)soilWindowContents {
