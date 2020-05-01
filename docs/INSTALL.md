@@ -4,10 +4,19 @@ The following steps install μTox on your computron/toaster/carrier pigeon. This
 
 For any and all of the following, you'll need to have [toxcore](https://github.com/TokTok/c-toxcore) installed first.
 
-- [Unix-like](#unix-like)
-- [macOS](#macOS)
 - [Windows](#windows)
+- [Unix-like](#unix-like)
+  - [Archlinux](#archlinux)
+  - [Slackware](#slackware)
+  - [Other distributions](#other-distributions)
+- [OpenBSD](#openBSD)
+- [FreeBSD](#freeBSD)
+- [macOS](#macOS)
 - [Android](#android)
+
+## Windows
+
+Installing on Windows isn't really a thing yet... just download and run the latest version: [x64](https://github.com/uTox/uTox/releases/download/v0.17.2/utox_x86_64.exe).
 
 ## Unix-like
 
@@ -28,15 +37,17 @@ Please make sure you have all of the required [dependencies](DEPENDENCIES.md).
     sudo make install
     ```
 
-If make/install really isn't your thing, you can try some precomplied binaries.
-- [amd64](https://build.tox.chat/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
+If make/install really isn't your thing, you can try some precomplied binaries:
+
+- [x86-64](https://build.tox.chat/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
 - [i686](https://build.tox.chat/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
 
 ### Archlinux
 
-If you're lucky enough to use Archlinux, uTox is in the community repo.
- - [x86_64](https://www.archlinux.org/packages/community/x86_64/utox/)
- - [i686](https://www.archlinux.org/packages/community/i686/utox/)
+If you're lucky enough to use Archlinux, uTox is in the community repo:
+
+- [x86-64](https://www.archlinux.org/packages/community/x86_64/utox/)
+- [i686](https://www.archlinux.org/packages/community/i686/utox/)
 
 Install by running:
 
@@ -46,7 +57,7 @@ sudo pacman -S utox
 
 ### Slackware
 
-If you use Slackware you can download the slack build from here: https://slackbuilds.org/repository/14.2/network/uTox/
+If you use Slackware you can download the slack build from [here](https://slackbuilds.org/repository/14.2/network/uTox/).
 
 ### Other distributions
 
@@ -64,9 +75,7 @@ Right now no one is providing binaries. You will have to compile uTox. See [inst
 
 ## FreeBSD
 
-You can install uTox using `pkg`.
-
-Install using:
+You can install uTox using `pkg`:
 
 ```bash
 sudo pkg install utox
@@ -74,9 +83,7 @@ sudo pkg install utox
 
 ## macOS
 
-You can download the latest dmg from here: https://github.com/uTox/uTox/releases.
-
-If there is no current version you can try and [build it](BUILD.md#macOS) or ask @publicarray to provide a new build.
+If there is no current version [here](https://github.com/uTox/uTox/releases/latest) you can try to [build it](BUILD.md#macOS).
 
 Install using homebrew cask:
 
@@ -84,16 +91,7 @@ Install using homebrew cask:
 brew cask install utox
 ```
 
-## Windows
-
-Installing on windows isn't really a thing yet... you can download the nighties. They should just work.
-
-  - [32-bit](https://build.tox.chat/job/uTox_build_windows_x86_release/lastSuccessfulBuild/artifact/utox_windows_x86.zip)
-  - [64-bit](https://build.tox.chat/job/uTox_build_windows_x86-64_release/lastSuccessfulBuild/artifact/utox_windows_x86-64.zip)
 
 ## Android
 
-Install uTox from the Google Play Store or download the APK: [uTox.apk](https://build.tox.chat/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk)
-
-# Meta
-[Jenkins](https://build.tox.chat) offers automatically compiled binaries. All files below link to the last successful build.
+Install uTox from [Google Play](https://play.google.com/apps/testing/tox.client.utox) or download the [APK](https://build.tox.chat/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk).
