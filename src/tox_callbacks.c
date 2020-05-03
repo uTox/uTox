@@ -6,6 +6,7 @@
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
+#include "self.h"
 #include "settings.h"
 #include "text.h"
 #include "utox.h"
@@ -160,13 +161,13 @@ void callback_av_group_audio(void *tox, uint32_t groupnumber, uint32_t peernumbe
                              uint8_t channels, unsigned int sample_rate, void *userdata);
 
 static void callback_group_invite(Tox *tox, uint32_t fid, const uint8_t *invite_data, size_t length,
-                                  void *UNUSED(userdata))
+                                  const uint8_t *group_name, size_t group_name_length, void *UNUSED(userdata))
 {
     LOG_NOTE("Tox Callbacks", "Group Invite (friend %i)", fid);
 
     // TODO: Show the user a prompt for them to enter a password
     TOX_ERR_GROUP_INVITE_ACCEPT err;
-    uint32_t gid = tox_group_invite_accept(tox, invite_data, length, NULL, 0, &err);
+    uint32_t gid = tox_group_invite_accept(tox, fid, invite_data, length, (const uint8_t *)self.name, self.name_length, NULL, 0, &err);
 
     if (gid == UINT32_MAX) {
         LOG_ERR("Tox Callbacks", "Could not join group with error: %u", err);
@@ -257,13 +258,13 @@ static void callback_self_join(Tox *tox, uint32_t group_number, void *userdata) 
 }
 
 void utox_set_callbacks_groups(Tox *tox) {
-    tox_callback_group_invite(tox, callback_group_invite, NULL);
-    tox_callback_group_message(tox, callback_group_message, NULL);
-    tox_callback_group_peer_name(tox, callback_group_peer_name_change, NULL);
-    tox_callback_group_topic(tox, callback_group_topic, NULL);
-    tox_callback_group_join_fail(tox, callback_group_join_fail, NULL);
-    tox_callback_group_topic(tox, callback_group_topic, NULL);
-    tox_callback_group_self_join(tox, callback_self_join, NULL);
+    tox_callback_group_invite(tox, callback_group_invite);
+    tox_callback_group_message(tox, callback_group_message);
+    tox_callback_group_peer_name(tox, callback_group_peer_name_change);
+    tox_callback_group_topic(tox, callback_group_topic);
+    tox_callback_group_join_fail(tox, callback_group_join_fail);
+    tox_callback_group_topic(tox, callback_group_topic);
+    tox_callback_group_self_join(tox, callback_self_join);
 }
 
 #ifdef ENABLE_MULTIDEVICE

@@ -1057,7 +1057,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             // TODO: re-add checking if its an audio call later when it is supported
             TOX_ERR_GROUP_NEW error = 0;
-            uint32_t g_num = tox_group_new(tox, param1, data, strlen(data), &error);
+            uint32_t g_num = tox_group_new(tox, param1, (uint8_t *)data, strlen(data), (uint8_t *)self.name, self.name_length, &error);
             if (g_num == UINT32_MAX) {
                 LOG_ERR("Tox", "Failed to create a groupchat. Error number: %u", error);
                 break;
