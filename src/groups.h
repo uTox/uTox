@@ -29,6 +29,8 @@ typedef struct groupchat {
     char name[128];
     size_t name_length;
 
+    char id_str[TOX_GROUP_CHAT_ID_SIZE];
+
     uint16_t number;
     uint32_t our_peer_number;
 
@@ -60,7 +62,7 @@ typedef struct groupchat {
 } GROUPCHAT;
 
 /* Initialize a new groupchat */
-void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group);
+void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group, uint8_t id[TOX_GROUP_CHAT_ID_SIZE]);
 
 // Returns the message number on success, returns UINT32_MAX on failure.
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type);
@@ -96,6 +98,6 @@ void raze_groups(void);
 void init_groups(Tox *tox);
 
 /**/
-bool group_create(uint32_t group_number, bool av_group);
+bool group_create(uint32_t group_number, bool av_group, uint8_t id[TOX_GROUP_CHAT_ID_SIZE]);
 
 #endif

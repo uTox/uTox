@@ -70,7 +70,3 @@ bool slash_topic(void *object, char *arg, int arg_length) {
     LOG_ERR("slash_topic", " Could not allocate memory.");
     return false;
 }
-
-bool slash_id(void *object, char *arg, int arg_length) {
-    return true;
-}

@@ -174,12 +174,20 @@ static void callback_group_invite(Tox *tox, uint32_t fid, const uint8_t *invite_
         return;
     }
 
+    TOX_ERR_GROUP_STATE_QUERIES query_err;
+    uint8_t id[TOX_GROUP_CHAT_ID_SIZE];
+    tox_group_get_chat_id(tox, gid, id, &query_err);
+    if (err != TOX_ERR_GROUP_STATE_QUERIES_OK) {
+        LOG_ERR("Tox Callbacks", "Could not get id for groupchat: %u", gid);
+        return;
+    }
+
     // TODO: Fix this when group calls are possible again
     GROUPCHAT *g = get_group(gid);
     if (!g) {
-        group_create(gid, false);
+        group_create(gid, false, id);
     } else {
-        group_init(g, gid, false);
+        group_init(g, gid, false, id);
     }
 
     LOG_NOTE("Tox Callbacks", "auto join successful group number %u", gid);

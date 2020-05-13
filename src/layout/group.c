@@ -48,6 +48,7 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_STATUS);
     drawtextrange(x + SCALE(60), settings.window_width - SCALE(64), SCALE(16), g->topic, g->topic_length);
+    drawtextrange(x + SCALE(60), settings.window_width - SCALE(64), SCALE(10), g->id_str, TOX_GROUP_CHAT_ID_SIZE);
 
     uint32_t i = 0;
     unsigned k = x + SCALE(60);

@@ -23,6 +23,10 @@
 
 static GROUPCHAT *group = NULL;
 
+static void group_id_to_str(char *dest, uint8_t *src){
+    to_hex(dest, src, TOX_GROUP_CHAT_ID_SIZE);
+}
+
 GROUPCHAT *get_group(uint32_t group_number) {
     if (group_number >= self.groups_list_size) {
         LOG_ERR("get_group", " index: %u is out of bounds." , group_number);
@@ -53,18 +57,18 @@ static GROUPCHAT *group_make(uint32_t group_number) {
     return &group[group_number];
 }
 
-bool group_create(uint32_t group_number, bool av_group) {
+bool group_create(uint32_t group_number, bool av_group, uint8_t id[TOX_GROUP_CHAT_ID_SIZE]) {
     GROUPCHAT *g = group_make(group_number);
     if (!g) {
         LOG_ERR("Groupchats", "Could not get/create group %u", group_number);
         return false;
     }
 
-    group_init(g, group_number, av_group);
+    group_init(g, group_number, av_group, id);
     return true;
 }
 
-void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
+void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group, uint8_t id[TOX_GROUP_CHAT_ID_SIZE]) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
@@ -93,6 +97,9 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     g->number   = group_number;
     g->notify   = settings.group_notifications;
     g->av_group = av_group;
+
+    group_id_to_str(g->id_str, id);
+
     pthread_mutex_unlock(&messages_lock);
     self.groups_list_count++;
 }
@@ -156,11 +163,6 @@ uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *messag
 }
 
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number), uint32_t name_color) {
-    if (!g) {
-        LOG_ERR("Groupchat", "Null groupchat passed to group_peer_add!");
-        return;
-    }
-
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
@@ -324,6 +326,7 @@ void raze_groups(void) {
     group = NULL;
 }
 
+#if 0
 void init_groups(Tox *tox) {
     self.groups_list_size = tox_conference_get_chatlist_size(tox);
 
@@ -345,7 +348,7 @@ void init_groups(Tox *tox) {
     }
     LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
 }
-
+#endif
 
 void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
     if (g->notify == GNOTIFY_NEVER) {
