@@ -96,6 +96,6 @@ void raze_groups(void);
 void init_groups(Tox *tox);
 
 /**/
-bool group_create(uint32_t group_number, bool av_group);
+GROUPCHAT *group_create(uint32_t group_number, bool av_group);
 
 #endif

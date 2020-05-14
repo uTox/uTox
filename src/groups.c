@@ -53,15 +53,15 @@ static GROUPCHAT *group_make(uint32_t group_number) {
     return &group[group_number];
 }
 
-bool group_create(uint32_t group_number, bool av_group) {
+GROUPCHAT *group_create(uint32_t group_number, bool av_group) {
     GROUPCHAT *g = group_make(group_number);
     if (!g) {
         LOG_ERR("Groupchats", "Could not get/create group %u", group_number);
-        return false;
+        return NULL;
     }
 
     group_init(g, group_number, av_group);
-    return true;
+    return g;
 }
 
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {

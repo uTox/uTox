@@ -1054,18 +1054,23 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 g_num = tox_conference_new(tox, &error);
             }
 
-            if (g_num != -1) {
-                GROUPCHAT *g = get_group(g_num);
-                if (!g) {
-                    if (!group_create(g_num, param2)) {
-                        LOG_ERR("Toxcore", "Failed creating group %u", g_num);
-                        break;
-                    }
-                } else {
-                    group_init(g, g_num, param2);
-                }
-                postmessage_utox(GROUP_ADD, g_num, param2, NULL);
+            if (g_num == -1) {
+                LOG_ERR("Tox", "Failed to create groupchat.");
+                break;
             }
+
+            GROUPCHAT *g = get_group(g_num);
+            if (!g) {
+                g = group_create(g_num, param2);
+                if (!g) {
+                    LOG_ERR("Tox", "Failed creating group (number: %u type: %u)", g_num, param2);
+                    break;
+                }
+            } else {
+                group_init(g, g_num, param2);
+            }
+
+            postmessage_utox(GROUP_ADD, g_num, param2, NULL);
 
             uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
             tox_conference_peer_get_public_key(tox, g_num, 0, pkey, NULL);
@@ -1076,8 +1081,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             srand(pkey_to_number);
             uint32_t name_color = RGB(rand(), rand(), rand());
 
-            group_peer_add(get_group(g_num), 0, 1, name_color);
-            group_peer_name_change(get_group(g_num), 0, (uint8_t *)self.name, self.name_length);
+            group_peer_add(g, 0, 1, name_color);
+            group_peer_name_change(g, 0, (uint8_t *)self.name, self.name_length);
             postmessage_utox(GROUP_PEER_ADD, g_num, 0, NULL);
 
             save_needed = true;
