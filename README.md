@@ -54,7 +54,7 @@ Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or 
 GitLab | IRC | Email | Fingerprint
 --- | --- | --- | ---
 @cebe | CeBe | mail@cebe.cc | `E592 6050 AE9C 234A FF84 96FE BE4F 41DE 1DEE EED0`
-@endoffile78 | e0f/endoffile | endoffile78@yahoo.com | `7AED 9A17 0C81 E601 DA4E EE27 9043 0614 21EF 90FA`
+@endoffile78 | e0f/endoffile | endoffile78@yahoo.com | `2D8C F71C 404A 1688 5B02  1461 BF80 7C5D F95E C4E3`
 @TheGrayHatter | grayhatter | greg@grayhatter.com | `9D1D 5990 88E2 23DD 9900 7DE2 AEA1 0D4E A053 0876`
 @robinlinden | robinli | dev@robinlinden.eu | `B700 8FF1 2C07 9BF6 E6EA 19D1 601A 604B 7E60 5776`
 @dkmoz | dkmoz | dkmoz@airmail.cc | `E28E 7252 B1E7 FCFE D358  CF8E 3763 B3A7 93AA FA0F`
