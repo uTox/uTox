@@ -231,7 +231,7 @@ void parse_args(int argc, char *argv[],
                 LOG_NORM("µTox - Lightweight Tox client version %s.\n\n", VERSION);
                 LOG_NORM("The following options are available:\n");
                 LOG_NORM("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, "
-                            "dark, light, highcontrast, zenburn.\n");
+                            "dark, light, highcontrast, zenburn, solarized-light, solarized-dark.\n");
                 LOG_NORM("  -p --portable            Launch in portable mode: All data will be saved to the tox "
                             "folder in the current working directory.\n");
                 LOG_NORM("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
