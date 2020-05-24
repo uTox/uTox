@@ -1058,6 +1058,9 @@ bool flist_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
     }
 
     ITEM *i = item_hit(mx, my, height);
+    if (!i) {
+        return false;
+    }
 
     bool draw = false;
 
