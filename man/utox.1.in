@@ -3,7 +3,7 @@
 µTox \- Lightweight Tox client
 
 .SH SYNOPSIS
-usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn|solarized-light|solarized-dark>] [--set=<start-on-boot|show-window|hide-window>] [--allow-root]
+usage: utox [--portable] [--theme <THEME>] [--set=<start-on-boot|show-window|hide-window>] [--allow-root]
    or: utox --version
    or: utox --help
 
@@ -39,10 +39,13 @@ Unset an option. The available option is "start-on-boot".
 
 .IP "\fB\-v\fP or \fB\-\-verbose\fP"
 Increase debug output level. Multiple -v options increase the verbosity. The
-maximum is 3.
+maximum is 6.
 
 .IP "\fB--silent\fP"
 Set the verbosity level to 0, disable all debugging output.
+
+.IP "\fB--debug\fP \fI<FILE>\fP"
+Write all debug output to the specified file.
 
 .IP "\fB\-h\fP or \fB\-\-help\fP"
 Print a short description of available options.
@@ -121,9 +124,7 @@ Please see the list page:
 Please report bugs on
 .I https://github.com/uTox/uTox/issues
 
-The website for
+The source code for
 .B µTox
 can be found at
-.I https://utox.io/
-and source code can be found at
 .I https://github.com/uTox/uTox

@@ -198,7 +198,6 @@ void parse_args(int argc, char *argv[],
                 LOG_NORM("git version %s\n", GIT_VERSION);
                 #endif
                 exit(EXIT_SUCCESS);
-                break;
             }
 
             case 'S': {
@@ -231,7 +230,7 @@ void parse_args(int argc, char *argv[],
                 LOG_NORM("µTox - Lightweight Tox client version %s.\n\n", VERSION);
                 LOG_NORM("The following options are available:\n");
                 LOG_NORM("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, "
-                            "dark, light, highcontrast, zenburn.\n");
+                            "dark, light, highcontrast, zenburn, solarized-light, solarized-dark.\n");
                 LOG_NORM("  -p --portable            Launch in portable mode: All data will be saved to the tox "
                             "folder in the current working directory.\n");
                 LOG_NORM("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
@@ -241,12 +240,14 @@ void parse_args(int argc, char *argv[],
                 LOG_NORM("  -h --help                Shows this help text.\n");
                 LOG_NORM("  --version                Print the version and exit.\n");
                 LOG_NORM("  --silent                 Set the verbosity level to 0, disable all debugging output.\n");
-                LOG_NORM("  --debug                  Set a file for utox to log errors to.\n");
+                LOG_NORM("  --debug=<file>           Set a file for utox to log errors to.\n");
                 exit(EXIT_SUCCESS);
-                break;
             }
 
-            case '?': LOG_TRACE("uTox", "%c", (char)optopt ); break;
+            case '?': {
+                LOG_TRACE("uTox", "%c", (char)optopt);
+                exit(EXIT_FAILURE);
+            }
         }
     }
 }
