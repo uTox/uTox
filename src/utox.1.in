@@ -44,6 +44,9 @@ maximum is 3.
 .IP "\fB--silent\fP"
 Set the verbosity level to 0, disable all debugging output.
 
+.IP "\fB--debug\fP \fI<FILE>\fP"
+Write all debug output to the specified file.
+
 .IP "\fB\-h\fP or \fB\-\-help\fP"
 Print a short description of available options.
 
