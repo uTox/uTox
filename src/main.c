@@ -198,7 +198,6 @@ void parse_args(int argc, char *argv[],
                 LOG_NORM("git version %s\n", GIT_VERSION);
                 #endif
                 exit(EXIT_SUCCESS);
-                break;
             }
 
             case 'S': {
@@ -243,7 +242,6 @@ void parse_args(int argc, char *argv[],
                 LOG_NORM("  --silent                 Set the verbosity level to 0, disable all debugging output.\n");
                 LOG_NORM("  --debug                  Set a file for utox to log errors to.\n");
                 exit(EXIT_SUCCESS);
-                break;
             }
 
             case '?': {
