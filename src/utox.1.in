@@ -39,7 +39,7 @@ Unset an option. The available option is "start-on-boot".
 
 .IP "\fB\-v\fP or \fB\-\-verbose\fP"
 Increase debug output level. Multiple -v options increase the verbosity. The
-maximum is 3.
+maximum is 6.
 
 .IP "\fB--silent\fP"
 Set the verbosity level to 0, disable all debugging output.
