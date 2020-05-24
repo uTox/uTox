@@ -240,7 +240,7 @@ void parse_args(int argc, char *argv[],
                 LOG_NORM("  -h --help                Shows this help text.\n");
                 LOG_NORM("  --version                Print the version and exit.\n");
                 LOG_NORM("  --silent                 Set the verbosity level to 0, disable all debugging output.\n");
-                LOG_NORM("  --debug                  Set a file for utox to log errors to.\n");
+                LOG_NORM("  --debug=<file>           Set a file for utox to log errors to.\n");
                 exit(EXIT_SUCCESS);
             }
 
