@@ -3,7 +3,7 @@
 µTox \- Lightweight Tox client
 
 .SH SYNOPSIS
-usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn|solarized-light|solarized-dark>] [--set=<start-on-boot|show-window|hide-window>] [--allow-root]
+usage: utox [--portable] [--theme <THEME>] [--set=<start-on-boot|show-window|hide-window>] [--allow-root]
    or: utox --version
    or: utox --help
 
