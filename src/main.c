@@ -246,7 +246,10 @@ void parse_args(int argc, char *argv[],
                 break;
             }
 
-            case '?': LOG_TRACE("uTox", "%c", (char)optopt ); break;
+            case '?': {
+                LOG_TRACE("uTox", "%c", (char)optopt);
+                exit(EXIT_FAILURE);
+            }
         }
     }
 }
