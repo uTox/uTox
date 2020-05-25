@@ -6,6 +6,7 @@
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
+#include "self.h"
 #include "settings.h"
 #include "text.h"
 #include "utox.h"
@@ -159,28 +160,34 @@ void utox_set_callbacks_friends(Tox *tox) {
 void callback_av_group_audio(void *tox, uint32_t groupnumber, uint32_t peernumber, const int16_t *pcm, unsigned int samples,
                              uint8_t channels, unsigned int sample_rate, void *userdata);
 
-static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE type, const uint8_t *data, size_t length,
-                                  void *UNUSED(userdata))
+static void callback_group_invite(Tox *tox, uint32_t fid, const uint8_t *invite_data, size_t length,
+                                  const uint8_t *group_name, size_t group_name_length, void *UNUSED(userdata))
 {
-    LOG_NOTE("Tox Callbacks", "Group Invite (friend %i || type %u)", fid, type);
+    LOG_NOTE("Tox Callbacks", "Group Invite (friend %i)", fid);
 
-    uint32_t gid = UINT32_MAX;
-    if (type == TOX_CONFERENCE_TYPE_TEXT) {
-        gid = tox_conference_join(tox, fid, data, length, NULL);
-    } else if (type == TOX_CONFERENCE_TYPE_AV) {
-        gid = toxav_join_av_groupchat(tox, fid, data, length, callback_av_group_audio, NULL);
-    }
+    // TODO: Show the user a prompt for them to enter a password
+    TOX_ERR_GROUP_INVITE_ACCEPT err;
+    uint32_t gid = tox_group_invite_accept(tox, fid, invite_data, length, (const uint8_t *)self.name, self.name_length, NULL, 0, &err);
 
     if (gid == UINT32_MAX) {
-        LOG_ERR("Tox Callbacks", "Could not join group with type: %u", type);
+        LOG_ERR("Tox Callbacks", "Could not join group with error: %u", err);
         return;
     }
 
+    TOX_ERR_GROUP_STATE_QUERIES query_err;
+    uint8_t id[TOX_GROUP_CHAT_ID_SIZE];
+    tox_group_get_chat_id(tox, gid, id, &query_err);
+    if (err != TOX_ERR_GROUP_STATE_QUERIES_OK) {
+        LOG_ERR("Tox Callbacks", "Could not get id for groupchat: %u", gid);
+        return;
+    }
+
+    // TODO: Fix this when group calls are possible again
     GROUPCHAT *g = get_group(gid);
     if (!g) {
-        group_create(gid, type == TOX_CONFERENCE_TYPE_AV ? true : false);
+        group_create(gid, false, id);
     } else {
-        group_init(g, gid, type == TOX_CONFERENCE_TYPE_AV ? true : false);
+        group_init(g, gid, false, id);
     }
 
     LOG_NOTE("Tox Callbacks", "auto join successful group number %u", gid);
@@ -233,57 +240,6 @@ static void callback_group_peer_name_change(Tox *UNUSED(tox), uint32_t gid, uint
     postmessage_utox(GROUP_PEER_NAME, gid, pid, NULL);
 }
 
-static void callback_group_peer_list_changed(Tox *tox, uint32_t gid, void *UNUSED(userdata)){
-    GROUPCHAT *g = get_group(gid);
-    if (!g) {
-        LOG_ERR("Tox Callbacks", "Could not get group: %u", gid);
-        return;
-    }
-
-    pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
-
-    group_reset_peerlist(g);
-
-    uint32_t number_peers = tox_conference_peer_count(tox, gid, NULL);
-
-    g->peer = calloc(number_peers, sizeof(void *));
-    if (!g->peer) {
-        LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks", "Group:\tToxcore is very broken, but we couldn't alloc here.");
-    }
-
-    /* I'm about to break some uTox style here, because I'm expecting
-     * the API to change soon, and I just can't when it's this broken */
-    for (uint32_t i = 0; i < number_peers; ++i) {
-        uint8_t     tmp[TOX_MAX_NAME_LENGTH];
-        size_t      len  = tox_conference_peer_get_name_size(tox, gid, i, NULL);
-        tox_conference_peer_get_name(tox, gid, i, tmp, NULL);
-        GROUP_PEER *peer = calloc(1, sizeof(*peer) + len + 1);
-        if (!peer) {
-            LOG_FATAL_ERR(EXIT_MALLOC, "Group", "Toxcore is very broken, but we couldn't calloc here.");
-        }
-        /* name and id number (it's worthless, but it's needed */
-        memcpy(peer->name, tmp, len);
-        peer->name_length = len;
-        peer->id          = i;
-        /* get static random color */
-        uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
-        tox_conference_peer_get_public_key(tox, gid, i, pkey, NULL);
-        uint64_t pkey_to_number = 0;
-        for (int key_i = 0; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
-            pkey_to_number += pkey[key_i];
-        }
-        /* uTox doesnt' really use this for too much so let's fuck with the random seed.
-         * If you know crypto, and cringe, I know me too... you can blame @irungentoo */
-        srand(pkey_to_number);
-        peer->name_color = RGB(rand(), rand(), rand());
-        g->peer[i]       = peer;
-    }
-    g->peer_count = number_peers;
-
-    postmessage_utox(GROUP_PEER_CHANGE, gid, 0, NULL);
-    pthread_mutex_unlock(&messages_lock); /* make sure that messages has posted before we continue */
-}
-
 static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, const uint8_t *title, size_t length,
                                  void *UNUSED(userdata)) {
     length = utf8_validate(title, length);
@@ -300,25 +256,23 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
     LOG_TRACE("Tox Callbacks", "Group Title (%u, %u): %.*s" , gid, pid, (int)length, title);
 }
 
-void callback_group_connected(Tox *UNUSED(tox), uint32_t gid, void *UNUSED(userdata)){
-    GROUPCHAT *g = get_group(gid);
-    if (!g) {
-        LOG_ERR("Tox Callbacks", "Toxcore says we're connected to a non-existent groupchat %u.", gid);
-        return;
-    }
+static void callback_group_join_fail(Tox *tox, uint32_t group_number, TOX_GROUP_JOIN_FAIL type, void *UNUSED(userdata)) {
+    //TODO: Tell the user the join failed
+    LOG_INFO("Tox Callbacks", "Join failed for group: %u fail type: %u", group_number, type);
+}
 
-    g->connected = true;
-
-    LOG_TRACE("Tox Callbacks", "Connected to groupchat %u.", gid);
+static void callback_self_join(Tox *tox, uint32_t group_number, void *userdata) {
+    LOG_INFO("Tox Callbacks", "Joining groupchat (%u)", group_number);
 }
 
 void utox_set_callbacks_groups(Tox *tox) {
-    tox_callback_conference_invite(tox, callback_group_invite);
-    tox_callback_conference_message(tox, callback_group_message);
-    tox_callback_conference_peer_name(tox, callback_group_peer_name_change);
-    tox_callback_conference_title(tox, callback_group_topic);
-    tox_callback_conference_peer_list_changed(tox, callback_group_peer_list_changed);
-    tox_callback_conference_connected(tox, callback_group_connected);
+    tox_callback_group_invite(tox, callback_group_invite);
+    tox_callback_group_message(tox, callback_group_message);
+    tox_callback_group_peer_name(tox, callback_group_peer_name_change);
+    tox_callback_group_topic(tox, callback_group_topic);
+    tox_callback_group_join_fail(tox, callback_group_join_fail);
+    tox_callback_group_topic(tox, callback_group_topic);
+    tox_callback_group_self_join(tox, callback_self_join);
 }
 
 #ifdef ENABLE_MULTIDEVICE

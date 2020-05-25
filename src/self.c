@@ -36,3 +36,8 @@ void init_self(Tox *tox) {
 
     avatar_init_self();
 }
+
+void self_create_group_info(Tox *tox, uint32_t group_num) {
+    tox_group_self_set_name(tox, group_num, (const uint8_t *)self.name, self.name_length, NULL);
+    tox_group_self_set_status(tox, group_num, self.status, NULL);
+}

@@ -449,12 +449,26 @@ msgstr("Create a voice-chat group")
 msgid(CREATEGROUPCHAT)
 msgstr("Create Groupchat")
 
+msgid(JOIN_GROUPCHAT)
+msgstr("Join Groupchat")
+
 msgid(REMOVE_GROUP)
 msgstr("Remove Group")
 
 msgid(LEAVE_GROUP)
 msgstr("Leave Group")
 
+msgid(PUBLIC_GROUP)
+msgstr("Public groupchat")
+
+msgid(PRIVATE_GROUP)
+msgstr("Private groupchat")
+
+msgid(GROUP_PRIVACY_TYPE)
+msgstr("Privacy Type")
+
+msgid(GROUP_NAME)
+msgstr("Groupchat name")
 
 /******************************************************************************
  *** Group Settings                                                         ***

@@ -156,7 +156,7 @@ static void set_callbacks(Tox *tox) {
 
 void tox_after_load(Tox *tox) {
     utox_friend_list_init(tox);
-    init_groups(tox);
+    //init_groups(tox);
 
     #ifdef ENABLE_MULTIDEVICE
     // self.group_list_count = tox_self_get_(tox);
@@ -1044,31 +1044,52 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         TOX_GROUP_AUDIO_END,*/
 
         case TOX_GROUP_CREATE: {
-            int g_num = -1;
+            /* param1: privacy state (0: public group, 1: private group)
+             * param2: audio call or not
+             * data: group name
+             */
+            LOG_INFO("Tox", "Creating group (privacy: %u, audio: %u, name: %s)", param1, param2, data);
 
-            TOX_ERR_CONFERENCE_NEW error = 0;
-            if (param2) {
-                // TODO FIX THIS AFTER NEW GROUP API
-                g_num = toxav_add_av_groupchat(tox, callback_av_group_audio, NULL);
-            } else {
-                g_num = tox_conference_new(tox, &error);
+            if (!data) {
+                LOG_ERR("Tox", "Tried to create group with no group name");
+                break;
             }
 
-            if (g_num != -1) {
-                GROUPCHAT *g = get_group(g_num);
-                if (!g) {
-                    if (!group_create(g_num, param2)) {
-                        LOG_ERR("Toxcore", "Failed creating group %u", g_num);
-                        break;
-                    }
-                } else {
-                    group_init(g, g_num, param2);
+            // TODO: re-add checking if its an audio call later when it is supported
+            TOX_ERR_GROUP_NEW error = 0;
+            uint32_t g_num = tox_group_new(tox, param1, (uint8_t *)data, strlen(data), (uint8_t *)self.name, self.name_length, &error);
+            if (g_num == UINT32_MAX) {
+                LOG_ERR("Tox", "Failed to create a groupchat. Error number: %u", error);
+                break;
+            }
+
+            LOG_INFO("Tox", "Group chat created with group number: %u", g_num);
+
+            self_create_group_info(tox, g_num);
+
+            uint8_t id[TOX_GROUP_CHAT_ID_SIZE];
+            TOX_ERR_GROUP_STATE_QUERIES err = 0;
+            tox_group_get_chat_id(tox, g_num, id, &err);
+            if (err != TOX_ERR_GROUP_STATE_QUERIES_OK) {
+                LOG_ERR("Toxcore", "Unable to get id for groupchat: %u", g_num);
+                break;
+            }
+
+            GROUPCHAT *g = get_group(g_num);
+            if (!g) {
+                if (!group_create(g_num, param2, id)) {
+                    LOG_ERR("Toxcore", "Failed creating group %u", g_num);
+                    break;
                 }
-                postmessage_utox(GROUP_ADD, g_num, param2, NULL);
+            } else {
+                group_init(g, g_num, param2, id);
             }
+
+            postmessage_utox(GROUP_ADD, g_num, param2, NULL);
 
             uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
-            tox_conference_peer_get_public_key(tox, g_num, 0, pkey, NULL);
+            tox_group_peer_get_public_key(tox, g_num, 0, pkey, NULL);
+
             uint64_t pkey_to_number = 0;
             for (int key_i = 0; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
                 pkey_to_number += pkey[key_i];
@@ -1076,8 +1097,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             srand(pkey_to_number);
             uint32_t name_color = RGB(rand(), rand(), rand());
 
-            group_peer_add(get_group(g_num), 0, 1, name_color);
-            group_peer_name_change(get_group(g_num), 0, (uint8_t *)self.name, self.name_length);
+            group_peer_add(g, 0, 1, name_color);
+            group_peer_name_change(g, 0, (uint8_t *)self.name, self.name_length);
             postmessage_utox(GROUP_PEER_ADD, g_num, 0, NULL);
 
             save_needed = true;
@@ -1089,10 +1110,17 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         case TOX_GROUP_PART: {
             /* param1: group #
              */
-            postmessage_utoxav(UTOXAV_GROUPCALL_END, param1, param1, NULL);
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                break;
+            }
 
-            TOX_ERR_CONFERENCE_DELETE error = 0;
-            tox_conference_delete(tox, param1, &error);
+            if (g->av_group) {
+                postmessage_utoxav(UTOXAV_GROUPCALL_END, param1, param1, NULL);
+            }
+
+            TOX_ERR_GROUP_LEAVE error = 0;
+            tox_group_leave(tox, param1, NULL, 0, &error);
             save_needed = true;
             break;
         }
@@ -1100,8 +1128,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: group #
              * param2: friend #
              */
-            TOX_ERR_CONFERENCE_INVITE error = 0;
-            tox_conference_invite(tox, param2, param1, &error);
+            TOX_ERR_GROUP_INVITE_FRIEND error = 0;
+            tox_group_invite_friend(tox, param1, param2, &error);
             save_needed = true;
             break;
         }
@@ -1110,9 +1138,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * param2: topic length
              * data: topic
              */
-            TOX_ERR_CONFERENCE_TITLE error = 0;
-
-            tox_conference_set_title(tox, param1, data, param2, &error);
+            TOX_ERR_GROUP_TOPIC_SET error = 0;
+            tox_group_set_topic(tox, param1, data, param2, &error);
             postmessage_utox(GROUP_TOPIC, param1, param2, data);
             save_needed = true;
             break;
@@ -1126,12 +1153,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             TOX_MESSAGE_TYPE type;
             type = (msg == TOX_GROUP_SEND_ACTION ? TOX_MESSAGE_TYPE_ACTION : TOX_MESSAGE_TYPE_NORMAL);
 
-            TOX_ERR_CONFERENCE_SEND_MESSAGE error = 0;
-            tox_conference_send_message(tox, param1, type, data, param2, &error);
+            TOX_ERR_GROUP_SEND_MESSAGE error = 0;
+            tox_group_send_message(tox, param1, type, data, param2, &error);
             free(data);
 
             if (error) {
-                LOG_ERR("Toxcore", "Error sending groupchat message... %u" , error);
+                LOG_ERR("Toxcore", "Error sending message to groupchat %u. Error number: %u", param1, error);
             }
 
             break;

@@ -227,8 +227,16 @@ static void drawitem(ITEM *i, int x, int y, int width) {
             break;
         }
 
+        case ITEM_GROUP_JOIN: {
+            drawalpha(group_bitmap, avatar_x, y + ROSTER_AVATAR_TOP, default_w, default_w,
+                      (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            flist_draw_name(i, name_x, name_y, width, S(JOIN_GROUPCHAT), NULL, SLEN(JOIN_GROUPCHAT),
+                            0, 2, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            break;
+        }
+
         default: {
-            LOG_ERR("F-List", "Trying to draw an item that we shouldn't be drawing!");
+            LOG_ERR("F-List", "Trying to draw an item that we shouldn't be drawing! (%u)", i->type);
             break;
         }
     }
@@ -479,6 +487,12 @@ static void page_close(ITEM *i) {
             break;
         }
 
+        case ITEM_GROUP_JOIN: {
+            panel_chat.disabled = true;
+            panel_group_join.disabled = true;
+            break;
+        }
+
         case ITEM_NONE: {
             break;
         }
@@ -601,6 +615,12 @@ static void page_open(ITEM *i) {
             break;
         }
 
+        case ITEM_GROUP_JOIN: {
+            panel_chat.disabled = false;
+            panel_group_join.disabled = false;
+            break;
+        }
+
         case ITEM_NONE: {
             break;
         }
@@ -634,7 +654,7 @@ void flist_start(void) {
     item_settings.type = ITEM_SETTINGS;
 
     itemcount = self.friend_list_count + self.groups_list_count;
-    itemcount += 1; /* for ITEM_GROUP_CREATE */
+    itemcount += 1; /* for ITEM_GROUP_CREATE and ITEM_GROUP_JOIN */
 
     item       = calloc(itemcount, sizeof(ITEM));
     shown_list = calloc(itemcount, sizeof(uint32_t));
@@ -666,6 +686,9 @@ void flist_start(void) {
 
     i->type = ITEM_GROUP_CREATE;
     i->id_number = UINT32_MAX;
+
+    /* i->type = ITEM_GROUP_JOIN; */
+    /* i->id_number = UINT32_MAX; */
 
     search_string = NULL;
     flist_update_shown_list();
@@ -888,7 +911,8 @@ static void push_selected(void) {
         }
         case ITEM_FREQUEST:
         case ITEM_GROUP:
-        case ITEM_GROUP_CREATE: {
+        case ITEM_GROUP_CREATE:
+        case ITEM_GROUP_JOIN: {
             return;
         }
     }
@@ -923,7 +947,8 @@ static void pop_selected(void) {
 
         case ITEM_FREQUEST:
         case ITEM_GROUP:
-        case ITEM_GROUP_CREATE: {
+        case ITEM_GROUP_CREATE:
+        case ITEM_GROUP_JOIN: {
             show_page(&item_settings);
             return;
         }
@@ -1283,7 +1308,8 @@ bool flist_mright(void *UNUSED(n)) {
                 break;
             }
 
-            case ITEM_GROUP_CREATE: {
+            case ITEM_GROUP_CREATE:
+            case ITEM_GROUP_JOIN: {
                 break;
             }
 

@@ -38,6 +38,7 @@ typedef enum {
     ITEM_FREQUEST,
     ITEM_GROUP,
     ITEM_GROUP_CREATE,
+    ITEM_GROUP_JOIN,
 } ITEM_TYPE;
 
 typedef struct {

@@ -23,6 +23,10 @@
 
 static GROUPCHAT *group = NULL;
 
+static void group_id_to_str(char *dest, uint8_t *src){
+    to_hex(dest, src, TOX_GROUP_CHAT_ID_SIZE);
+}
+
 GROUPCHAT *get_group(uint32_t group_number) {
     if (group_number >= self.groups_list_size) {
         LOG_ERR("get_group", " index: %u is out of bounds." , group_number);
@@ -53,18 +57,18 @@ static GROUPCHAT *group_make(uint32_t group_number) {
     return &group[group_number];
 }
 
-bool group_create(uint32_t group_number, bool av_group) {
+bool group_create(uint32_t group_number, bool av_group, uint8_t id[TOX_GROUP_CHAT_ID_SIZE]) {
     GROUPCHAT *g = group_make(group_number);
     if (!g) {
         LOG_ERR("Groupchats", "Could not get/create group %u", group_number);
         return false;
     }
 
-    group_init(g, group_number, av_group);
+    group_init(g, group_number, av_group, id);
     return true;
 }
 
-void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
+void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group, uint8_t id[TOX_GROUP_CHAT_ID_SIZE]) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
@@ -74,8 +78,10 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
         }
     }
 
-    snprintf((char *)g->name, sizeof(g->name), "Groupchat #%u", group_number);
-    g->name_length = strnlen(g->name, sizeof(g->name) - 1);
+    g->name_length = snprintf(g->name, sizeof(g->name), "Groupchat #%u", group_number);
+    if (g->name_length >= sizeof(g->name)) {
+        g->name_length = sizeof(g->name) - 1;
+    }
 
     g->topic_length = sizeof("Drag friends to invite them") - 1;
     memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
@@ -91,6 +97,9 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     g->number   = group_number;
     g->notify   = settings.group_notifications;
     g->av_group = av_group;
+
+    group_id_to_str(g->id_str, id);
+
     pthread_mutex_unlock(&messages_lock);
     self.groups_list_count++;
 }
@@ -317,6 +326,7 @@ void raze_groups(void) {
     group = NULL;
 }
 
+#if 0
 void init_groups(Tox *tox) {
     self.groups_list_size = tox_conference_get_chatlist_size(tox);
 
@@ -334,11 +344,11 @@ void init_groups(Tox *tox) {
     tox_conference_get_chatlist(tox, groups);
 
     for (size_t i = 0; i < self.groups_list_size; i++) {
-        group_create(groups[i], false); //TODO: figure out if groupchats are text or audio
+        group_create(i, false); //TODO: figure out if groupchats are text or audio
     }
     LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
 }
-
+#endif
 
 void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
     if (g->notify == GNOTIFY_NEVER) {

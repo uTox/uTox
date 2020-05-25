@@ -604,6 +604,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         case GROUP_ADD: {
             /* param1: group number
                param2: whether its an av call or not */
+            LOG_INFO("uTox", "GROUP_ADD param1: %u", param1);
             GROUPCHAT *g = get_group(param1);
             if (!g) {
                 return;
@@ -655,6 +656,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             /* param1: group number
              * param2: peer number
              */
+            LOG_ERR("uTox", "Group peer received group number: %u", param1);
+
             GROUPCHAT *g = get_group(param1);
             if (!g) {
                 return;
