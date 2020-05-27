@@ -380,9 +380,12 @@ static bool utox_save_config(void) {
     // TODO: video_input_device
 
     // notifications
-    WRITE_CONFIG_VALUE_BOOL(NOTIFICATIONS_SECTION, config->audible_notifications_enabled);
-    WRITE_CONFIG_VALUE_BOOL(NOTIFICATIONS_SECTION, config->status_notifications);
-    WRITE_CONFIG_VALUE_BOOL(NOTIFICATIONS_SECTION, config->no_typing_notifications);
+    WRITE_CONFIG_VALUE_BOOL(NOTIFICATIONS_SECTION,
+        config->audible_notifications_enabled);
+    WRITE_CONFIG_VALUE_BOOL(NOTIFICATIONS_SECTION,
+        config->status_notifications);
+    WRITE_CONFIG_VALUE_BOOL(NOTIFICATIONS_SECTION,
+        config->no_typing_notifications);
     WRITE_CONFIG_VALUE_INT(NOTIFICATIONS_SECTION, config->group_notifications);
 
     // advanced
