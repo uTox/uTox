@@ -84,9 +84,9 @@ static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
  * the first \n char. We may have to do so multiple times, but once we find the
  * first valid message everything else should "work" */
 MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uint32_t count, uint32_t skip) {
-    /* Becasue every platform is different, we have to ask them to open the file for us.
+    /* Because every platform is different, we have to ask them to open the file for us.
      * However once we have it, every platform does the same thing, this should prevent issues
-     * from occuring on a single platform. */
+     * from occurring on a single platform. */
 
     size_t records_count = utox_count_chatlog(hex);
     if (skip >= records_count) {

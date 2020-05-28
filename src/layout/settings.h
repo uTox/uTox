@@ -61,7 +61,6 @@ extern UISWITCH /* User Interface Tab */
                 switch_udp,
                 switch_proxy,
                 switch_proxy_force,
-                switch_auto_update,
                 switch_block_friend_requests;
 
 typedef struct dropdown DROPDOWN;
@@ -91,5 +90,7 @@ extern EDIT /* Profile */
             edit_video_fps,
             /* MDevice */
             edit_add_new_device_to_self;
+
+void reset_settings_controls(void);
 
 #endif // LAYOUT_SETTINGS_H

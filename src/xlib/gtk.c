@@ -8,7 +8,6 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
-#include "../stb.h"
 #include "../text.h"
 #include "../tox.h"
 #include "../ui.h"
@@ -17,6 +16,8 @@
 #include "../main.h"
 
 #include "../native/thread.h"
+
+#include "stb.h"
 
 #include <dlfcn.h>
 #include <errno.h>
@@ -408,7 +409,7 @@ void ugtk_openfilesend(void) {
         return;
     }
 
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("GTK", "Unable to get friend from flist.");
         return;

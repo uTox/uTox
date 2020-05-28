@@ -203,6 +203,13 @@ static void e_search_onenter(EDIT *edit) {
 
 static char e_search_data[1024];
 EDIT edit_search = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      = SIDEBAR_SEARCH_LEFT,
+        .y      = SIDEBAR_SEARCH_TOP,
+        .width  = SIDEBAR_SEARCH_WIDTH,
+        .height = SIDEBAR_SEARCH_HEIGHT,
+    },
     .data      = e_search_data,
     .data_size = sizeof e_search_data,
     .onchange  = e_search_onchange,

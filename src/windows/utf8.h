@@ -11,7 +11,7 @@
  * This function could compromise the security of application. Use it properly.
  *
  * Accepts char pointer, native array pointer, length of input;
- * Returns: number of chars writen, or 0 on failure.
+ * Returns: number of chars written, or 0 on failure.
  *
  */
 int utf8tonative(const char *str, wchar_t *out, int length);

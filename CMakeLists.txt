@@ -7,13 +7,13 @@ project(uTox LANGUAGES C)
 
 set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "17")
-set(PROJECT_VERSION_PATCH "0")
+set(PROJECT_VERSION_PATCH "2")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
-set(PROJECT_COPYRIGHT "Copyleft 2018 uTox contributors. Some rights reserved.")
+set(PROJECT_COPYRIGHT "Copyleft 2020 uTox contributors. Some rights reserved.")
 
-execute_process(COMMAND date +%Y OUTPUT_VARIABLE BUILD_YEAR OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND date +%B OUTPUT_VARIABLE BUILD_MONTH OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(TIMESTAMP BUILD_YEAR "%Y" UTC)
+string(TIMESTAMP BUILD_MONTH "%B" UTC)
 
 ########################
 # Set helper-variables #
@@ -29,16 +29,16 @@ endif()
 if(WIN32)
     set(WINDOWS TRUE)
 elseif(APPLE)
-    if(CMAKE_SYSTEM_NAME MATCHES ".*MacOS.*")
+    if(CMAKE_SYSTEM_NAME MATCHES "MacOS")
         set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6 CACHE STRING "Minimum OS X deployment version")
         set(MACOSX TRUE)
     endif()
 elseif(UNIX)
-    if(CMAKE_SYSTEM_NAME MATCHES ".*Linux")
+    if(CMAKE_SYSTEM_NAME MATCHES "Linux")
         set(LINUX TRUE)
-    elseif(CMAKE_SYSTEM_NAME MATCHES "kNetBSD.*|NetBSD.*")
+    elseif(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
         set(NETBSD TRUE)
-    elseif(CMAKE_SYSTEM_NAME MATCHES "kFreeBSD.*|FreeBSD")
+    elseif(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
         set(FREEBSD TRUE)
     endif()
 endif()
@@ -80,13 +80,17 @@ endif()
 # Options #
 ###########
 
-option(UTOX_STATIC        "Link uTox statically"                                 ${STATIC_DEFAULT} )
-option(TOXCORE_STATIC     "Build uTox with the static version of Toxcore"        ${STATIC_DEFAULT} )
+option(STATIC_ALL         "Enable all STATIC_* options"                          ${STATIC_DEFAULT} )
+option(STATIC_TOXCORE     "Link toxcore statically"                              ${STATIC_DEFAULT} )
+option(STATIC_DBUS        "Link dbus statically"                                 ${STATIC_DEFAULT} )
+option(STATIC_FILTERAUDIO "Link filteraudio statically"                          ${STATIC_DEFAULT} )
+option(STATIC_OPUS        "Link opus statically"                                 ${STATIC_DEFAULT} )
+option(STATIC_SODIUM      "Link sodium statically"                               ${STATIC_DEFAULT} )
+option(STATIC_VPX         "Link vpx statically"                                  ${STATIC_DEFAULT} )
 option(ENABLE_ASAN        "Enable Address Sanitizer on debug builds"               ${ASAN_DEFAULT} )
 option(ENABLE_TESTS       "Whether to build test binaries (currently Unix-like OSes only)"      ON )
 option(ENABLE_WERROR      "Error on Warning, whether to put -Werror flag to the compiler"       OFF)
 option(ENABLE_FILTERAUDIO "Enable Filter Audio"                                                 ON )
-option(ENABLE_AUTOUPDATE  "Enable Auto-updater"                                                 OFF)
 option(ENABLE_LTO         "Enable link time optimizations"                                      ON )
 
 
@@ -118,8 +122,8 @@ configure_file(${uTox_SOURCE_DIR}/src/cocoa/Info.plist.in
                ${uTox_SOURCE_DIR}/src/cocoa/Info.plist)
 configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
                ${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml)
-configure_file(${uTox_SOURCE_DIR}/src/utox.1.in
-               ${uTox_SOURCE_DIR}/src/utox.1)
+configure_file(${uTox_SOURCE_DIR}/man/utox.1.in
+               ${uTox_SOURCE_DIR}/man/utox.1)
 
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     execute_process(COMMAND git describe --abbrev=8 --dirty --always --tags
@@ -151,9 +155,6 @@ function(add_cflag flag)
     endif()
 endfunction()
 
-# Grab environment CFLAGS.
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
-
 # Warn on non-ISO C.
 #add_cflag("-pedantic") # throws a lot of warning, quite sure we do not want this at current state.
 ## Add all warning flags we can.
@@ -172,6 +173,7 @@ add_cflag("-Wno-misleading-indentation")
 ## Everything Else
 add_cflag("-fno-strict-aliasing")
 add_cflag("-fPIC")
+add_cflag("-fno-common")
 
 ## Optimization Flags
 
@@ -253,16 +255,12 @@ if(ENABLE_WERROR)
     add_cflag("-Werror")
 endif()
 
-if(UTOX_STATIC)
+if(STATIC_ALL)
     if(UNIX)
         add_cflag("-Wl -Bstatic -lopus -lopenal -lfilteraudio -Bdynamic -lrt -lm -lpthread -ldl")
     else()
         add_cflag("-static")
     endif()
-endif()
-
-if(ENABLE_AUTOUPDATE)
-    add_cflag("-DENABLE_AUTOUPDATE=1")
 endif()
 
 if(ENABLE_FILTERAUDIO)
@@ -281,9 +279,7 @@ find_package(libvpx REQUIRED)
 include_directories(${LIBVPX_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${LIBVPX_LIBRARIES})
 
-include_directories(SYSTEM third-party/stb)
-include_directories(SYSTEM third-party/minini/dev)
-include_directories(SYSTEM third-party/qrcodegen/c)
+add_subdirectory(third_party)
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
@@ -317,6 +313,14 @@ elseif(UNIX)
     endif()
 endif()
 
+# Acquire 3rd party headers
+find_path(STBI_INCLUDE_DIR NAMES stb_image.h stb_image_write.h PATHS third_party/stb/stb)
+if((NOT STBI_INCLUDE_DIR) OR (NOT EXISTS ${STBI_INCLUDE_DIR}))
+    message("STBI not found")
+    execute_process(COMMAND git submodule update --init -- third_party/stb/stb WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
+
+
 # include utoxLAYOUT
 add_subdirectory(src/layout)
 # include utoxUI
@@ -349,18 +353,15 @@ add_executable(utox ${GUI_TYPE}
     src/self.c
     src/settings.c
     src/sized_string.h
-    src/stb.c
     src/text.c
     src/theme.c
+    src/theme_tables.c
     src/tox.c
     src/tox_callbacks.c
     src/ui.c
     src/ui_i18n.c
-    src/updater.c
     src/utox.c
     src/window.c
-    third-party/minini/dev/minIni.c
-    third-party/qrcodegen/c/qrcodegen.c
 
     ${WINDOWS_ICON}
     ${APPLE_FILES}
@@ -373,6 +374,9 @@ target_link_libraries(utox
     ${LIBRARIES}
     pthread
     m
+    stb
+    minini
+    qrcodegen
 )
 
 set_property(TARGET utox PROPERTY C_STANDARD 11)
@@ -383,7 +387,7 @@ if(APPLE)
     # also check that it does not depend on external libs (system libs excepted)
     install(CODE "include(BundleUtilities)
         verify_app(${CMAKE_BINARY_DIR}/utox.app)
-        if(UTOX_STATIC OR TOXCORE_STATIC)
+        if(STATIC_ALL OR STATIC_TOXCORE)
             verify_bundle_prerequisites(${CMAKE_BINARY_DIR}/utox.app RETURN_VAR INFO_VAR)
         endif()"
     )
@@ -421,18 +425,19 @@ message("Build options:")
 message("- CMake Module Path:        ${CMAKE_MODULE_PATH}")
 message("----------------------------------")
 message("- Add ASAN:                ${ENABLE_ASAN}")
+message("- Link-Time Optimization:  ${ENABLE_LTO}")
 message("- Error on Warning:        ${ENABLE_WERROR}")
 message("- Filter Audio:            ${ENABLE_FILTERAUDIO}")
-message("- Auto Updater:            ${ENABLE_AUTOUPDATE}")
-message("- uTox Static:             ${UTOX_STATIC}")
-message("- Toxcore Static:          ${TOXCORE_STATIC}")
+message("- Static uTox:             ${STATIC_ALL}")
+message("- Static Toxcore:          ${STATIC_TOXCORE}")
+message("- Static DBus:             ${STATIC_DBUS}")
+message("- Static Filteraudio:      ${STATIC_FILTERAUDIO}")
+message("- Static Opus:             ${STATIC_OPUS}")
+message("- Static Sodium:           ${STATIC_SODIUM}")
+message("- Static VPX:              ${STATIC_VPX}")
 message("-- Platform Options --------------")
-if(WINDOWS)
-    message("- Windows Legacy:          ${WIN_XP_LEGACY}")
-else()
-    message("- Enable DBus:             ${ENABLE_DBUS}")
-    message("- Enable Tests             ${ENABLE_TESTS}")
-endif()
+message("- Enable DBus:             ${ENABLE_DBUS}")
+message("- Enable Tests             ${ENABLE_TESTS}")
 
 message("* CMake system is '${CMAKE_SYSTEM_NAME}'")
 message("* CMake build type is '${CMAKE_BUILD_TYPE}'")

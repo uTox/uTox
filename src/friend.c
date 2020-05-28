@@ -24,10 +24,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+uint8_t addfriend_status;
+
 static FRIEND *friend = NULL;
 
 FRIEND *get_friend(uint32_t friend_number) {
-    if (friend_number >= self.friend_list_size) { //friend doesnt exist if true
+    if (friend_number >= self.friend_list_size) {
         LOG_WARN("Friend", "Friend number (%u) out of bounds.", friend_number);
         return NULL;
     }
@@ -58,7 +60,7 @@ static FREQUEST *frequests = NULL;
 static uint16_t frequest_list_size = 0;
 
 FREQUEST *get_frequest(uint16_t frequest_number) {
-    if (frequest_number >= frequest_list_size) { //frequest doesnt exist if true
+    if (frequest_number >= frequest_list_size) {
         LOG_ERR("Friend", "Request number out of bounds.");
         return NULL;
     }
@@ -260,6 +262,9 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     // Get and set the status message
     size = tox_friend_get_status_message_size(tox, friend_number, 0);
     f->status_message = calloc(1, size);
+    if (!f->status_message) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not alloc for status message (%uB)", size);
+    }
 
     tox_friend_get_status_message(tox, friend_number, (uint8_t *)f->status_message, 0);
     f->status_length = size;
@@ -269,6 +274,9 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     f->status = tox_friend_get_status(tox, friend_number, NULL);
 
     f->avatar = calloc(1, sizeof(AVATAR));
+    if (!f->avatar) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not alloc for avatar");
+    }
     avatar_init(f->id_str, f->avatar);
 
     MESSAGES *m = &f->msg;
@@ -300,18 +308,23 @@ void utox_friend_list_init(Tox *tox) {
     for (uint32_t i = 0; i < self.friend_list_size; ++i) {
         utox_friend_init(tox, i);
     }
-    LOG_INFO("Friend", "Friendlist sucessfully initialized with %u friends.", self.friend_list_size);
+    LOG_INFO("Friend", "Friendlist successfully initialized with %u friends.", self.friend_list_size);
 }
 
 void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     if (f->name && f->name_length) {
-        size_t size = sizeof(" is now known as ") + f->name_length + length;
+        char *p;
+        size_t p_size = sizeof(" is now known as ") + f->name_length + length;
 
-        char *p = calloc(1, size);
-        size = snprintf(p, size, "%.*s is now known as %.*s", (int)f->name_length, f->name, (int)length, name);
+        p = calloc(1, p_size);
+        if (!p) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not alloc space for name change message (%uB)", p_size);
+        }
+        snprintf(p, p_size, "%.*s is now known as %.*s", (int)f->name_length, f->name, (int)length, name);
+        size_t p_len = strnlen(p, p_size - 1);
 
         if (length != f->name_length || memcmp(f->name, name, (length < f->name_length ? length : f->name_length))) {
-            message_add_type_notice(&f->msg, p, size, 1);
+            message_add_type_notice(&f->msg, p, p_len, 1);
         }
 
         free(f->name);
@@ -327,12 +340,15 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
         memcpy(f->name, name, length);
         f->name_length = length;
     }
+    if (!f->name) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not alloc space for friend name");
+    }
 
-    f->name[f->name_length] = 0;
+    f->name[f->name_length] = '\0';
 
     if (!f->alias_length) {
-        if (flist_get_type()== ITEM_FRIEND) {
-            FRIEND *selected = flist_get_friend();
+        if (flist_get_sel_item_type()== ITEM_FRIEND) {
+            FRIEND *selected = flist_get_sel_friend();
             if (!selected) {
                 LOG_ERR("Friend", "Unable to get selected friend.");
                 return;
@@ -398,19 +414,20 @@ void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uin
 }
 
 void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
-    char title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
+    char title[sizeof("uTox new message from ") + UTOX_FRIEND_NAME_LENGTH(f)];
 
-    size_t title_length = snprintf((char *)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s",
-                                   (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    snprintf((char *)title, sizeof(title), "uTox new message from %.*s",
+             (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    size_t title_length = strnlen(title, sizeof(title) - 1);
 
     postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
     notify(title, title_length, msg, msg_length, f, 0);
 
-    if (flist_get_friend() != f) {
+    if (flist_get_sel_friend() != f) {
         f->unread_msg = true;
     }
 
-    if (flist_get_friend() != f || !have_focus) {
+    if (flist_get_sel_friend() != f || !have_focus) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }
 }
@@ -475,7 +492,6 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     } else if (length_cleaned == TOX_PUBLIC_KEY_SIZE * 2) {
         string_to_id(id, (char*)name_cleaned);
         uint8_t *data = calloc(sizeof(uint8_t), TOX_PUBLIC_KEY_SIZE);
-
         if (!data) {
             LOG_ERR("Calloc", "Memory allocation failed!");
             return;
@@ -566,10 +582,11 @@ void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char
         return;
     }
 
-    const int size = UTOX_FRIEND_NAME_LENGTH(f) + SLEN(STATUS_MESSAGE) + strlen(state);
-    char title[size];
-    size_t  title_length = snprintf(title, size, S(STATUS_MESSAGE),
-                                   (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
+    char title[UTOX_FRIEND_NAME_LENGTH(f) + SLEN(STATUS_MESSAGE) + strlen(state)];
+
+    snprintf(title, sizeof(title), S(STATUS_MESSAGE),
+             (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
+    size_t title_length = strnlen(title, sizeof(title) - 1);
 
     notify(title, title_length, (char *)msg, msg_length, f, 0);
 

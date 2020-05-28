@@ -62,9 +62,9 @@ HRESULT __stdcall dnd_DragLeave(IDropTarget *UNUSED(lpMyObj)) {
 HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObject,
                            DWORD UNUSED(grfKeyState), POINTL UNUSED(pt), DWORD *pdwEffect) {
     *pdwEffect = DROPEFFECT_COPY;
-    LOG_NOTE("DnD", "Droppped!" );
+    LOG_NOTE("DnD", "Dropped!" );
 
-    if (!flist_get_friend()) {
+    if (!flist_get_sel_friend()) {
         return S_OK;
     }
 
@@ -108,7 +108,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
             }
 
             msg->name = (uint8_t *)path;
-            postmessage_toxcore(TOX_FILE_SEND_NEW, flist_get_friend()->number, 0, msg);
+            postmessage_toxcore(TOX_FILE_SEND_NEW, flist_get_sel_friend()->number, 0, msg);
             LOG_INFO("WINDND", "File number %i sent!" , i);
         }
 

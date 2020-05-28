@@ -49,6 +49,9 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
     if (id == UINT16_MAX) {
         // Preview window
         win = &preview;
+    } else if (id >= MAX_VID_WINDOWS) {
+        LOG_TRACE("Video", "Window ID too large (>=%d)", MAX_VID_WINDOWS);
+        return;
     }
 
     if  (!*win) {
@@ -108,6 +111,9 @@ void video_begin(uint16_t id, char *name, uint16_t name_length, uint16_t width, 
     if (id == UINT16_MAX) {
         // Preview window
         win = &preview;
+    } else if (id >= MAX_VID_WINDOWS) {
+        LOG_TRACE("Video", "Window ID too large (>=%d)", MAX_VID_WINDOWS);
+        return;
     }
 
     if (*win) {
@@ -137,6 +143,9 @@ void video_end(uint16_t id) {
     if (id == UINT16_MAX) {
         // Preview window
         win = &preview;
+    } else if (id >= MAX_VID_WINDOWS) {
+        LOG_TRACE("Video", "Window ID too large (>=%d)", MAX_VID_WINDOWS);
+        return;
     }
 
     XDestroyWindow(display, *win);

@@ -4,6 +4,7 @@ add_library(utoxUI STATIC
     button.c
     contextmenu.c
     contextmenu.h
+    draw.c
     draw.h
     dropdown.c
     dropdown.h

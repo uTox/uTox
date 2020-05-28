@@ -1,5 +1,9 @@
 # Change Log
 
+## The changelog has been deprecated in favour of [release notes](release_notes/).
+
+---
+
 ## [Unreleased](https://github.com/uTox/uTox/tree/HEAD)
 
 [Full Changelog](https://github.com/uTox/uTox/compare/v0.17.0...HEAD)

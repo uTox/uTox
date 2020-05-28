@@ -92,26 +92,6 @@ build:windows:64:
       - uTox-Win64.exe
     expire_in: 6h
 
-build:windows:legacy:
-  stage: build
-  tags:
-    - mingw64
-  cache:
-    paths:
-      - cache/
-  variables:
-    TOXCORE_REPO: "TokTok/c-toxcore"
-    GL_BUILD: "winLEGACY"
-  before_script:
-    - ./extra/gitlab/windows_legacy-before.sh
-  script:
-    - ./extra/gitlab/windows_legacy-script.sh
-    - cp build_win/utox.exe uTox-Win32-LEGACY.exe
-  artifacts:
-    paths:
-      - uTox-Win32-LEGACY.exe
-    expire_in: 6h
-
 build:macos:
   stage: build
   tags:
@@ -140,7 +120,7 @@ dev_tool:windows:
     - echo "Pulling headers"
     - echo "Pulling libs from build:windows"
     - echo "zipping folder"
-    - echo "archving stuff :D"
+    - echo "archiving stuff :D"
   only:
     - master
     - tags
@@ -164,12 +144,6 @@ test:chatlog:
   script:
     - cd build/tests/
     - ctest -VV -R test_chatlog
-
-test:updater:
-  <<: *test
-  script:
-    - cd build/tests/
-    - ctest -VV -R test_updater
 
 test:XVFB:
   stage: test

@@ -1,5 +1,5 @@
 #
-# Update boostrap nodes
+# Update bootstrap nodes
 #
 # This script is used to generate src/tox_bootstrap.h by adding a list
 # of bootstrap nodes from https://nodes.tox.chat/

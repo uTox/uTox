@@ -17,19 +17,22 @@ add_library(utoxNATIVE STATIC
     )
 
 target_link_libraries(utoxNATIVE
-    "-framework AppKit"
-    "-framework ApplicationServices"
-    "-framework AVFoundation"
-    "-framework Cocoa"
-    "-framework CoreData"
-    "-framework CoreFoundation"
-    "-framework CoreGraphics"
-    "-framework CoreMedia"
-    "-framework CoreText"
-    "-framework CoreVideo"
-    "-framework Foundation"
-    "-framework OpenAL"
-    "-framework OpenGL"
-    "-framework QuartzCore"
-    -lresolv
-    )
+    PUBLIC
+        "-framework AppKit"
+        "-framework ApplicationServices"
+        "-framework AVFoundation"
+        "-framework Cocoa"
+        "-framework CoreData"
+        "-framework CoreFoundation"
+        "-framework CoreGraphics"
+        "-framework CoreMedia"
+        "-framework CoreText"
+        "-framework CoreVideo"
+        "-framework Foundation"
+        "-framework OpenAL"
+        "-framework OpenGL"
+        "-framework QuartzCore"
+        -lresolv
+    PRIVATE
+        stb
+)

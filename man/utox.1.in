@@ -3,7 +3,7 @@
 µTox \- Lightweight Tox client
 
 .SH SYNOPSIS
-usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn|solarized-light|solarized-dark>] [--set=<start-on-boot|show-window|hide-window>]
+usage: utox [--portable] [--theme <THEME>] [--set=<start-on-boot|show-window|hide-window>] [--allow-root]
    or: utox --version
    or: utox --help
 
@@ -28,24 +28,55 @@ Choose a color scheme. Possible options are \fIdefault\fP, \fIdark\fP,
 .IP "\fB\-p\fP or \fB\-\-portable\fP"
 Run in portable mode. All data will be saved to the tox folder in the current working directory, see FILES for more details.
 
+.IP "\fB\-\-allow\-root\fP"
+Allow running µTox as root. Default is to refuse.
+
 .IP "\fB\-s\fP \fI<OPTION>\fP or \fB\-\-set \fP\fI<OPTION>\fP"
 Set an option. The available options are "start-on-boot", "show-window" and "hide-window".
 
-.IP "\fB\-s\fP \fI<OPTION>\fP or \fB\-\-set \fP\fI<OPTION>\fP"
+.IP "\fB\-u\fP \fI<OPTION>\fP or \fB\-\-unset \fP\fI<OPTION>\fP"
 Unset an option. The available option is "start-on-boot".
 
 .IP "\fB\-v\fP or \fB\-\-verbose\fP"
 Increase debug output level. Multiple -v options increase the verbosity. The
-maximum is 3.
+maximum is 6.
 
 .IP "\fB--silent\fP"
 Set the verbosity level to 0, disable all debugging output.
+
+.IP "\fB--debug\fP \fI<FILE>\fP"
+Write all debug output to the specified file.
 
 .IP "\fB\-h\fP or \fB\-\-help\fP"
 Print a short description of available options.
 
 .IP "\fB\-\-version\fP"
 Print the version and exit.
+
+.SH KEYBINDINGS
+.IP "\fBCtrl+F\fP"
+Toggle friend list online status filter.
+
+.IP "\fBCtrl+f\fP"
+Focus on friend list search input field.
+
+.IP "\fBCtrl+[num], Alt+[num]\fP"
+Switch to chat [num].
+
+.IP "\fBCtrl+Pg{Up,Down}\fP"
+Move up or down in the friend list.
+
+.IP "\fBCtrl+Pg{Home,End}\fP"
+Move to first or last friend in the friend list.
+
+.IP "\fBEsc\fP"
+Unfocus message input field. When unfocused, pressing any key will focus on it again.
+
+.IP "\fBPg{Up,Down}\fP"
+Scroll chat log up or down.  This keybinding will only work when the message input field is unfocused.
+
+.IP "\fBHome, End\fP"
+Scroll to top or bottom of chat log.  This keybinding will only work when the message input field is unfocused.
 
 .SH CHAT COMMANDS
 These commands can be used in the chat window.
@@ -93,9 +124,7 @@ Please see the list page:
 Please report bugs on
 .I https://github.com/uTox/uTox/issues
 
-The website for
+The source code for
 .B µTox
 can be found at
-.I https://utox.io/
-and source code can be found at
 .I https://github.com/uTox/uTox

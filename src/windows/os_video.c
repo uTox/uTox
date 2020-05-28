@@ -26,6 +26,8 @@
 #include <amvideo.h>
 #include <windows.h>
 
+int video_grab_x, video_grab_y, video_grab_w, video_grab_h;
+
 static IGraphBuilder * pGraph;
 static IBaseFilter *   pGrabberF;
 static IMediaControl * pControl;

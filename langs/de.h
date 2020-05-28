@@ -15,10 +15,10 @@ msgid(REQ_SENT)
 msgstr("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, sobald er deine Anfrage akzeptiert hat.")
 
 msgid(REQ_INVALID_ID)
-msgstr("Fehler: Ungültige Tox ID")
+msgstr("Fehler: Ungültige Tox-ID")
 
 msgid(REQ_EMPTY_ID)
-msgstr("Fehler: Keine Tox ID angegeben")
+msgstr("Fehler: Keine Tox-ID angegeben")
 
 msgid(REQ_LONG_MSG)
 msgstr("Fehler: Nachricht ist zu lang")
@@ -27,19 +27,19 @@ msgid(REQ_NO_MSG)
 msgstr("Fehler: Leere Nachricht")
 
 msgid(REQ_SELF_ID)
-msgstr("Fehler: Tox ID ist eigene ID")
+msgstr("Fehler: Tox-ID ist eigene ID")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Fehler: Tox ID ist bereits in der Freundesliste")
+msgstr("Fehler: Tox-ID ist bereits in der Freundesliste")
 
 msgid(REQ_UNKNOWN)
 msgstr("Fehler: Unbekannt")
 
 msgid(REQ_BAD_CHECKSUM)
-msgstr("Fehler: Ungültige Tox ID (ungültige Prüfsumme)")
+msgstr("Fehler: Ungültige Tox-ID (ungültige Prüfsumme)")
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Fehler: Ungültige Tox ID (ungültiger NoSpam-Wert)")
+msgstr("Fehler: Ungültige Tox-ID (ungültiger NoSpam-Wert)")
 
 msgid(REQ_NO_MEMORY)
 msgstr("Fehler: Kein Speicher")
@@ -210,17 +210,14 @@ msgstr("Fortgeschritten")
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Benachrichtigungen")
 
-msgid(AUTO_UPDATE)
-msgstr("uTox automatisch aktualisieren")
-
 msgid(PROFILE_SETTINGS)
 msgstr("Profileinstellungen")
 
 msgid(PROFILE_PW_WARNING)
-msgstr("WARNUNG: µTox wird automatisch beginnen mit diesem Passwort zu verschlüsseln.")
+msgstr("WARNUNG: µTox wird automatisch beginnen, mit diesem Passwort zu verschlüsseln.")
 
 msgid(PROFILE_PW_NO_RECOVER)
-msgstr("Es ist nicht möglich verlorene Passwörter wiederherzustellen.")
+msgstr("Es ist nicht möglich, verlorene Passwörter wiederherzustellen.")
 
 
 
@@ -246,7 +243,7 @@ msgid(ADDFRIENDS)
 msgstr("Neuen Kontakt hinzufügen")
 
 msgid(TOXID)
-msgstr("Tox ID")
+msgstr("Tox-ID")
 
 msgid(MESSAGE)
 msgstr("Nachricht")
@@ -279,16 +276,22 @@ msgid(PREVIEW)
 msgstr("Vorschau")
 
 msgid(AUDIOINPUTDEVICE)
-msgstr("Audioeingabegerät")
+msgstr("Audio-Eingabegerät")
 
 msgid(AUDIOFILTERING)
 msgstr("Audio filtern")
 
 msgid(AUDIOOUTPUTDEVICE)
-msgstr("Audioausgabegerät")
+msgstr("Audio-Ausgabegerät")
 
 msgid(VIDEOINPUTDEVICE)
-msgstr("Videoeingabegerät")
+msgstr("Video-Eingabegerät")
+
+msgid(VIDEOFRAMERATE)
+msgstr("Bilder pro Sekunde (FPS)")
+
+msgid(PUSH_TO_TALK)
+msgstr("Push-to-Talk")
 
 msgid(STATUS_AWAY)
 msgstr("Abwesend")
@@ -297,7 +300,7 @@ msgid(STATUS_BUSY)
 msgstr("Beschäftigt")
 
 msgid(SETTINGS_UI_MINI_ROSTER)
-msgstr("Kompakte Kontaktliste verwenden")
+msgstr("kompakte Kontaktliste verwenden")
 
 msgid(SETTINGS_UI_AUTO_HIDE_SIDEBAR)
 msgstr("Seitenleiste automatisch verstecken")
@@ -306,7 +309,7 @@ msgid(NOT_CONNECTED)
 msgstr("Nicht verbunden")
 
 msgid(NOT_CONNECTED_SETTINGS)
-msgstr("Netzwerk Einstellungen anpassen")
+msgstr("Netzwerkeinstellungen anpassen")
 
 msgid(OTHERSETTINGS)
 msgstr("Andere Einstellungen")
@@ -381,13 +384,13 @@ msgid(START_IN_TRAY)
 msgstr("Im Infobereich starten")
 
 msgid(SHOW_QR)
-msgstr("QR Code anzeigen")
+msgstr("QR-Code anzeigen")
 
 msgid(HIDE_QR)
-msgstr("QR Code verstecken")
+msgstr("QR-Code verstecken")
 
 msgid(SAVE_QR)
-msgstr("QR Code speichern")
+msgstr("QR-Code speichern")
 
 msgid(COPY_TOX_ID)
 msgstr("Kopieren")
@@ -485,6 +488,9 @@ msgstr("Zeigen")
 msgid(HIDE)
 msgstr("Verstecken")
 
+msgid(EXIT)
+msgstr("Beenden")
+
 msgid(VIDEO_IN_NONE)
 msgstr("keines")
 
@@ -558,25 +564,25 @@ msgid(STATUS_NOTIFICATIONS)
 msgstr("Statusbenachrichtigungen")
 
 msgid(RANDOMIZE_NOSPAM)
-msgstr("Zufälligen Nospam setzen")
+msgstr("Zufälligen NoSpam setzen")
 
 msgid(NOSPAM)
-msgstr("Nospam")
+msgstr("NoSpam")
 
 msgid(REVERT_NOSPAM)
-msgstr("Nospam zurücksetzen")
+msgstr("NoSpam zurücksetzen")
 
 msgid(NOSPAM_WARNING)
-msgstr("Änderungen am Nospam machen die alte Tox ID ungültig. uTox wird die ID nicht auf Namensservern aktualisieren.")
+msgstr("Änderungen am NoSpam machen die alte Tox-ID ungültig. uTox wird die ID nicht auf Namensservern aktualisieren.")
 
 msgid(BLOCK_FRIEND_REQUESTS)
 msgstr("Freundschaftsanfragen blockieren")
 
 msgid(SHOW_NOSPAM)
-msgstr("Nospam Einstellungen anzeigen")
+msgstr("NoSpam-Einstellungen anzeigen")
 
 msgid(HIDE_NOSPAM)
-msgstr("Nospam Einstellungen verstecken")
+msgstr("NoSpam-Einstellungen verstecken")
 
 msgid(DELETE_FRIEND)
 msgstr("Freund löschen")

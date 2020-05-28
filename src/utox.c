@@ -521,7 +521,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         case FRIEND_REMOVE: {
             FRIEND *f = data;
-            // commented out incase you have multiple clients in the same data dir
+            // commented out in case you have multiple clients in the same data dir
             // and remove one as friend from the other
             //   (it would remove his avatar locally too otherwise)
             // char cid[TOX_PUBLIC_KEY_SIZE * 2];
@@ -602,6 +602,15 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         /* Group chat functions */
         case GROUP_ADD: {
+            /* param1: group number
+               param2: whether its an av call or not */
+            GROUPCHAT *g = get_group(param1);
+            if (!g) {
+                return;
+            }
+
+            flist_add_group(g);
+            flist_select_last();
             redraw();
             break;
         }
@@ -611,7 +620,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 return;
             }
 
-            GROUPCHAT *selected = flist_get_groupchat();
+            GROUPCHAT *selected = flist_get_sel_group();
             if (selected != g) {
                 g->unread_msg = true;
             }
@@ -632,10 +641,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 g->source[param2] = g->source[g->peer_count];
             }
 
-            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
-            if (g->topic_length >= sizeof(g->topic)) {
-                g->topic_length = sizeof(g->topic) - 1;
-            }
+            snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
+            g->topic_length = strnlen(g->topic, sizeof(g->topic) - 1);
 
             redraw();
 
@@ -653,12 +660,10 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 return;
             }
 
-            g->topic_length = snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
-            if (g->topic_length >= sizeof(g->topic)) {
-                g->topic_length = sizeof(g->topic) - 1;
-            }
+            snprintf((char *)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
+            g->topic_length = strnlen(g->topic, sizeof(g->topic) - 1);
 
-            GROUPCHAT *selected = flist_get_groupchat();
+            GROUPCHAT *selected = flist_get_sel_group();
             if (selected != g) {
                 g->unread_msg = true;
             }

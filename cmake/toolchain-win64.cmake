@@ -18,7 +18,10 @@ UNSET(CMAKE_C_FLAGS_RELWITHDEBINFO CACHE)
 
 # Windows only compiles statically.
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAL_LIBTYPE_STATIC" CACHE STRING "" FORCE)
-set(UTOX_STATIC ON CACHE STRING "" FORCE)
+set(STATIC_ALL ON CACHE STRING "" FORCE)
+
+# Fix handling large files.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FILE_OFFSET_BITS=64")
 
 # Required for line numbers in gdb on Windows.
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3" CACHE STRING "" FORCE)

@@ -74,7 +74,7 @@ sudo make install
 ### How to create a DMG for distribution
 
 ```bash
-cmake .. -DUTOX_STATIC=ON
+cmake .. -DSTATIC_ALL=ON
 make
 sudo make package
 ```

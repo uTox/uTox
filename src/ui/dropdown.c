@@ -180,12 +180,16 @@ bool dropdown_mdown(DROPDOWN *d) {
     }
 
     if (d->skip_mup) {
-        d->open         = false;
-        active_dropdown = NULL;
-        return true;
+        return dropdown_close(d);
     }
 
     return false;
+}
+
+bool dropdown_close(DROPDOWN *d) {
+    d->open = false;
+    active_dropdown = NULL;
+    return true;
 }
 
 bool dropdown_mright(DROPDOWN *UNUSED(d)) {
@@ -199,15 +203,12 @@ bool dropdown_mwheel(DROPDOWN *UNUSED(d), int UNUSED(height), double UNUSED(dlta
 bool dropdown_mup(DROPDOWN *d) {
     if (d->open) {
         if (!d->mouseover) {
-            d->open         = false;
-            active_dropdown = NULL;
-            return true;
+            return dropdown_close(d);
         }
 
         if (d->skip_mup) {
-            d->open     = false;
             d->skip_mup = false;
-            active_dropdown = NULL;
+            dropdown_close(d);
 
             if (d->over < d->dropcount) {
                 d->selected = d->over;

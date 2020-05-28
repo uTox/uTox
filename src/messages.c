@@ -36,6 +36,8 @@
 
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 
+pthread_mutex_t messages_lock;
+
 /** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;
  *
@@ -189,10 +191,16 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
 
     message_updateheight(m, msg);
 
-    if (flist_get_groupchat() && m->is_groupchat && flist_get_groupchat() == get_group(m->id)) {
-        m->panel.content_scroll->content_height = m->height;
-    } else if (flist_get_friend() && flist_get_friend()->number == get_friend(m->id)->number) {
-        m->panel.content_scroll->content_height = m->height;
+    if (m->is_groupchat) {
+        const GROUPCHAT *groupchat = flist_get_sel_group();
+        if (groupchat && groupchat == get_group(m->id)) {
+            m->panel.content_scroll->content_height = m->height;
+        }
+    } else {
+        const FRIEND *friend = flist_get_sel_friend();
+        if (friend && friend == get_friend(m->id)) {
+            m->panel.content_scroll->content_height = m->height;
+        }
     }
 
     pthread_mutex_unlock(&messages_lock);
@@ -662,16 +670,13 @@ static void messages_draw_timestamp(int x, int y, const time_t *time) {
 
 
     if (settings.use_long_time_msg) {
-        len = snprintf(timestr, sizeof(timestr), "%.2u:%.2u:%.2u", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
+        snprintf(timestr, sizeof(timestr), "%.2u:%.2u:%.2u", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
         x -= textwidth("24:60:00", sizeof "24:60:00" - 1);
     } else {
-        len = snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
+        snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
         x -= textwidth("24:60", sizeof "24:60" - 1);
     }
-
-    if (len >= sizeof(timestr)) {
-        len = sizeof(timestr) - 1;
-    }
+    len = strnlen(timestr, sizeof(timestr) - 1);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_MISC);
@@ -831,12 +836,12 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
         file_percent = 1.0;
     }
 
-    int max = file->name_length + 128;
-    char ft_text[max];
-    char *text = ft_text;
+    char ft_text[file->name_length + 128];
+    size_t ft_text_length;
 
-    text += snprintf(text, max, "%.*s ", (int)file->name_length, file->name);
-    text += sprint_humanread_bytes(text, text - ft_text, file->size);
+    snprintf(ft_text, sizeof(ft_text), "%.*s ", (int)file->name_length, file->name);
+    ft_text_length = strnlen(ft_text, sizeof(ft_text) - 1);
+    ft_text_length += sprint_humanread_bytes(ft_text + ft_text_length, sizeof(ft_text) - ft_text_length, file->size);
 
     setfont(FONT_MISC);
     setcolor(COLOR_BKGRND_MAIN);
@@ -929,11 +934,13 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
             DRAW_FT_PAUSE_BTN();
 
             char speed[32] = {0};
-            char *p = speed + sprint_humanread_bytes(speed, 32, file->speed);
-            p += snprintf(p, speed - p, "/s %lus",
-                               file->speed ? (file->size - file->progress) / file->speed : 0);
-            DRAW_FT_TEXT_RIGHT(speed, p - speed);
+            size_t speed_len;
+            speed_len = sprint_humanread_bytes(speed, sizeof(speed), file->speed);
+            snprintf(speed + speed_len, sizeof(speed) - speed_len, "/s %lus",
+                     file->speed ? (file->size - file->progress) / file->speed : 0);
+            speed_len = strnlen(speed, sizeof(speed) - 1);
 
+            DRAW_FT_TEXT_RIGHT(speed, speed_len);
             DRAW_FT_PROG(COLOR_BTN_INPROGRESS_FORGRND);
             break;
         }
@@ -963,13 +970,13 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, 
     }
 
     setfont(FONT_TEXT);
-    drawtextrange(dx + SCALE(10), wbound - SCALE(10), y + SCALE(6), ft_text, text - ft_text);
+    drawtextrange(dx + SCALE(10), wbound - SCALE(10), y + SCALE(6), ft_text, ft_text_length);
 }
 
-/* This is a bit hacky, and likely would benifit from being moved to a whole new section including seperating
+/* This is a bit hacky, and likely would benefit from being moved to a whole new section including separating
  * group messages/functions from friend messages and functions from inside ui.c.
  *
- * Idealy group and friend messages wouldn't even need to know about eachother.   */
+ * Ideally group and friend messages wouldn't even need to know about each other.   */
 static int messages_draw_group(MESSAGES *m, MSG_HEADER *msg, uint32_t curr_msg_i, int x, int y, int width, int height) {
     uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
     if ((m->sel_start_msg > curr_msg_i && m->sel_end_msg > curr_msg_i)
@@ -1792,9 +1799,9 @@ void messages_updateheight(MESSAGES *m, int width) {
 bool messages_char(uint32_t ch) {
     MESSAGES *m;
 
-    if (flist_get_friend()) {
+    if (flist_get_sel_friend()) {
         m = messages_friend.object;
-    } else if (flist_get_groupchat()) {
+    } else if (flist_get_sel_group()) {
         m = messages_group.object;
     } else {
         LOG_TRACE("Messages", "Can't type to nowhere");
@@ -1802,7 +1809,7 @@ bool messages_char(uint32_t ch) {
     }
 
     switch (ch) {
-        // TODO: probabaly need to fix this section :< m->panel.content scroll is likely to be wrong.
+        // TODO: probably need to fix this section :< m->panel.content scroll is likely to be wrong.
         case KEY_PAGEUP: {
             SCROLLABLE *scroll = m->panel.content_scroll;
             scroll->d -= 0.25; // TODO: Change to a full chat-screen height.
@@ -1820,6 +1827,16 @@ bool messages_char(uint32_t ch) {
                 scroll->d = 1.0;
             }
 
+            return true;
+        }
+
+        case KEY_HOME: {
+            m->panel.content_scroll->d = 0.0;
+            return true;
+        }
+
+        case KEY_END: {
+            m->panel.content_scroll->d = 1.0;
             return true;
         }
     }

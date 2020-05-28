@@ -12,6 +12,10 @@ typedef struct utox_friend_request FREQUEST;
 void flist_previous_tab(void);
 void flist_next_tab(void);
 
+/* switch to first or last shown item in list */
+void flist_first_tab(void);
+void flist_last_tab(void);
+
 // update the shown list, should be called whenever something relevant to the filters is done
 // (like changing name, going online, etc.)
 void flist_update_shown_list(void);
@@ -37,7 +41,7 @@ typedef enum {
 } ITEM_TYPE;
 
 typedef struct {
-    ITEM_TYPE item;
+    ITEM_TYPE type;
     uint32_t id_number;
 } ITEM;
 
@@ -64,10 +68,10 @@ void flist_select_last(void);
 void flist_dump_contacts(void);
 void flist_reload_contacts(void);
 
-FRIEND *flist_get_friend(void);
-FREQUEST *flist_get_frequest(void);
-GROUPCHAT *flist_get_groupchat(void);
-ITEM_TYPE flist_get_type(void);
+FRIEND *flist_get_sel_friend(void);
+FREQUEST *flist_get_sel_frequest(void);
+GROUPCHAT *flist_get_sel_group(void);
+ITEM_TYPE flist_get_sel_item_type(void);
 
 bool try_open_tox_uri(const char *str);
 

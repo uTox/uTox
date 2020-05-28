@@ -21,6 +21,21 @@
 #include <string.h>
 #include <unistd.h>
 
+Display *display;
+Screen  *default_screen;
+int     def_screen_num;
+Window  root_window;
+Visual  *default_visual;
+
+UTOX_WINDOW *curr;
+
+int default_depth;
+
+struct native_window main_window;
+struct native_window popup_window;
+struct native_window scr_grab_window;
+struct native_window tray_pop;
+
 bool native_window_init(void) {
     if ((display = XOpenDisplay(NULL)) == NULL) {
         LOG_ERR("XLIB Wind", "Cannot open display, must exit");
@@ -37,6 +52,7 @@ bool native_window_init(void) {
 
     return true;
 }
+
 
 static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsigned int class,
                                   int x, int y, int w, int h, int min_width, int min_height,
@@ -68,11 +84,12 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
         return NULL;
     }
     // "Because FUCK your use of sane coding strategies" -Xlib... probably...
+    free(title_name);
 
 
     /* I was getting some errors before, and made this change, but I'm not convinced
      * these can't be moved to the stack. I'd rather not XAlloc but it works now so
-     * in true Linux fashion DONT TOUCH ANYTING THAT WORKS! */
+     * in true Linux fashion DON'T TOUCH ANYTHING THAT WORKS! */
     /*  Allocate memory for xlib... */
     XSizeHints *size_hints  = XAllocSizeHints();
     XWMHints   *wm_hints    = XAllocWMHints();
@@ -106,6 +123,10 @@ static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsig
     class_hints->res_class  = "uTox";
 
     XSetWMProperties(display, window->window, &native_window_name, NULL, NULL, 0, size_hints, wm_hints, class_hints);
+    XFree(native_window_name.value);
+    XFree(size_hints);
+    XFree(wm_hints);
+    XFree(class_hints);
 
 
     window->_.x = x;
@@ -124,6 +145,7 @@ void native_window_raze(UTOX_WINDOW *window) {
         // don't do stuff
     }
 }
+
 
 UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **UNUSED(argv), int UNUSED(argc)) {
     char title[256];
@@ -144,6 +166,33 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **UNUSED
     return &main_window;
 }
 
+
+static void set_window_defaults(UTOX_WINDOW *win) {
+    const Atom a_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", 0);
+    const Atom a_util = XInternAtom(display, "_NET_WM_WINDOW_TYPE_UTILITY", 0);
+    XChangeProperty(display, win->window, a_type, XA_ATOM, 32, PropModeReplace, (uint8_t *)&a_util, 1);
+
+    Atom list[] = { wm_delete_window, };
+    XSetWMProtocols(display, win->window, list, 1);
+
+    /* create the draw buffer */
+    win->drawbuf = XCreatePixmap(display, win->window, win->_.w, win->_.h, default_depth);
+    /* catch WM_DELETE_WINDOW */
+    XSetWMProtocols(display, win->window, &wm_delete_window, 1);
+    win->gc = XCreateGC(display, root_window, 0, 0);
+
+    XWindowAttributes attr;
+    XGetWindowAttributes(display, root_window, &attr);
+    win->pictformat = XRenderFindVisualFormat(display, attr.visual);
+
+    /* Xft draw context/color */
+    win->renderpic = XRenderCreatePicture(display, win->drawbuf, win->pictformat, 0, NULL);
+
+    XRenderColor xrcolor = { 0,0,0,0 };
+    win->colorpic = XRenderCreateSolidFill(display, &xrcolor);
+}
+
+
 UTOX_WINDOW *native_window_create_video(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h)) {
     return NULL;
 }
@@ -160,6 +209,7 @@ UTOX_WINDOW *native_window_find_notify(void *window) {
 
     return NULL;
 }
+
 
 UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *panel) {
     UTOX_WINDOW *next = NULL;
@@ -191,39 +241,7 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *pane
     Atom a_util = XInternAtom(display, "_NET_WM_WINDOW_TYPE_UTILITY", 0);
     XChangeProperty(display, win->window, a_type, XA_ATOM, 32, PropModeReplace, (uint8_t *)&a_util, 1);
 
-    // Atom a_win  = XInternAtom(display, "WM_CLIENT_LEADER", 0);
-    // XChangeProperty(display, win, a_win, XA_WINDOW, 32, PropModeReplace, (uint8_t *)&master, 1);
-    // XSetTransientForHint(display, win, master);
-
-    // Atom a_role = XInternAtom(display, "WM_WINDOW_ROLE", 0);
-    // uint8_t *name = calloc(6, 1); // TODO leaks
-    // memcpy(name, "alert", 6);
-    // XChangeProperty(display, win, a_role, XA_STRING, 8, PropModeReplace, name, 5);
-
-
-    Atom list[] = {
-        wm_delete_window,
-        // XInternAtom(display, "WM_TAKE_FOCUS", 0),
-        // XInternAtom(display, "_NET_WM_PING", 0),
-        // XInternAtom(display, "_NET_WM_SYNC_REQUEST", 0),
-    };
-    XSetWMProtocols(display, win->window, list, 1);
-
-    /* create the draw buffer */
-    win->drawbuf = XCreatePixmap(display, win->window, w, h, default_depth);
-    /* catch WM_DELETE_WINDOW */
-    XSetWMProtocols(display, win->window, &wm_delete_window, 1);
-    win->gc        = XCreateGC(display, root_window, 0, 0);
-
-    XWindowAttributes attr;
-    XGetWindowAttributes(display, root_window, &attr);
-    win->pictformat = XRenderFindVisualFormat(display, attr.visual);
-
-    /* Xft draw context/color */
-    win->renderpic = XRenderCreatePicture(display, win->drawbuf, win->pictformat, 0, NULL);
-
-    XRenderColor xrcolor = { 0,0,0,0 };
-    win->colorpic = XRenderCreateSolidFill(display, &xrcolor);
+    set_window_defaults(win);
 
     XMapWindow(display, win->window);
 
@@ -235,6 +253,35 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *pane
     if (win != &popup_window){
         head->_.next = win;
     }
+
+    win->_.panel = panel;
+
+    return win;
+}
+
+
+UTOX_WINDOW *native_window_create_traypop(int x, int y, int w, int h, PANEL *panel) {
+    UTOX_WINDOW *next = NULL;
+
+    if (!tray_pop.window) {
+        next = &popup_window;
+    }
+
+    // Set the real x, as caller give x/y as root mouse locations
+    x -= w;
+
+    UTOX_WINDOW *win = native_window_create(next, "uTox Tray Popup",
+                        CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
+                        x, y, w, h, w, h, &panel_notify_generic, true);
+
+    if (!win) {
+        LOG_ERR("XLIB Wind", "XLIB_WIN:\tUnable to Alloc for a tray popup");
+        return NULL;
+    }
+
+    set_window_defaults(win);
+
+    XMapWindow(display, win->window);
 
     win->_.panel = panel;
 

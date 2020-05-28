@@ -15,18 +15,112 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the newer uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.17.0! Release name: bork bork")
+msgstr("You have just upgraded to version 0.17.2! Release name: 新年快乐！🐀")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.17.0")
+msgstr("Changes in v0.17.2")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
-"\n  IMPORTANT NOTE FOR WINDOWS USERS\n"
-"    There is currently an issue with the updater where it won't work with some .exe names.\n"
-"    To be sure that it works and autoupdates, you have to rename the .exe to \"uTox.exe\"\n"
-"    and enable it in the settings.\n"
 "\n"
+"새해 복 많이 받으세요!\n"
+"Szczęśliwego nowego roku!\n"
+"Gott nytt år!\n"
+"Frohes neues Jahr!\n"
+"\n"
+"  IMPORTANT NOTE FOR WINDOWS USERS\n"
+"    Windows XP support has been discontinued.\n"
+"\n"
+"  Features:\n"
+"    Implement ctrl+F: toggle flist online status filter\n"
+"    Implement ctrl+f: focus on flist search input field\n"
+"    Search friend list also by Tox ID\n"
+"    Implement ontab and onshifttab callbacks for text fields in add friend page\n"
+"    Handle Home & End key in friend list (ctrl+Home, ctrl+End; go to first and last friend)\n"
+"    Handle Home & End key in messages panel (For going to the top and bottom of the chat log)\n"
+"    Make Esc key unfocus from text input fields (This allows to scroll the chat log without having to click into it.)\n"
+"    Focus message input field when starting to type\n"
+"    Implement ontab and onshifttab callbacks for all text fields in settings\n"
+"\n"
+"  Fixes:\n"
+"    Fix a crash when adding a friend to a group\n"
+"    Load window position from config file\n"
+"    Unbreak build with OpenAL 1.20.0 (Thanks, t6!)\n"
+"    Friend list fixes\n"
+"    Fix Up key in message input field\n"
+"    Fix memory leaks\n"
+"    Fix compilation error on GNU/kFreebsd (Thanks, yangfl!)\n"
+"    Fix typos (Thanks, yangfl!)\n"
+"    Use correct evdev header on FreeBSD (Thanks, t6!)\n"
+"\n"
+"  Development:\n"
+"    Remove auto-updater (Thanks, robinlinden & avoidr!)\n"
+"    Show value of $ENABLE_LTO in cmake output\n"
+"    Static linking fixes\n"
+"    Don't pass 2 of every flags in CFLAGS (Thanks, robinlinden!)\n"
+"    Travis: Linux: disable auto-update test\n"
+"    CMakeLists.txt: add CFLAG -fno-common\n"
+"    Make uTox gcc10-ready (-fno-common fix) (Thanks, eclipseo!)\n"
+"    Remove WinXP support\n"
+"    add tools/relnotes_to_cstring.sed\n"
+"\n"
+"  Documentation:\n"
+"    add instructions to install from Guix (Thanks, metallicmole!)\n"
+"    add keybindings to manpage (Thanks, metallicmole!)\n"
+"    docs/BUILD.md: minor rephrasing\n"
+"    docs/BUILD.md: add note about musl+clang linking issue\n"
+"\nv0.17.1\n"
+"\n  IMPORTANT NOTE FOR WINDOWS USERS\n"
+"    Autoupdates are no longer provided.\n"
+"\n"
+"  Features:\n"
+"    Add `--allow-root` option: Now you can't run uTox as root by accident\n"
+"    Add right click menu to Xlib\n"
+"    Add support for loading groupchats\n"
+"    More *BSD support! (FreeBSD, NetBSD, OpenBSD, DragonFlyBSD) (Thanks, mazocomp!)\n"
+"    Groupchat creation screen implemented\n"
+"\n"
+"  Fixes:\n"
+"    Fix a crash when changing to a video input device that fails to init\n"
+"    Fix a friendlist bug related to the Tox profile having no friends and groups\n"
+"    Don't flip video preview button status if preview fails\n"
+"    Xlib: Clean up zombies if `xdg-open` is not installed\n"
+"    Add border to QR code to make it actually readable to QR code scanners\n"
+"    Fix file transfer text\n"
+"    Prevent a crash related to having too many friends\n"
+"    Fix crash related to dropdowns\n"
+"    Fix ignoring friend requests\n"
+"    Close dropdowns on changing tabs\n"
+"    Fix crash on startup related to QR code (Thanks, ColumPaget!)\n"
+"    Fix group settings layout\n"
+"    Fix a crash related to Tox savedata being too large\n"
+"    Fix two possible memory leaks\n"
+"    Fix a crash related to text undo in message input field (Thanks, cyisfor!)\n"
+"    Fix a crash related to the password input field\n"
+"    Fix crash related to FPS value input field\n"
+"    Fix selection bug: Selection on double-click doesn't leak into neighbouring line anymore\n"
+"    Fix HOME key\n"
+"    Fix END key and make ctrl+shift+end work\n"
+"    Sort languages enum by their native names alphabetically\n"
+"    Move Language setting from \"Profile\" to \"User Interface\" tab\n"
+"    Updated translations:\n"
+"      - German\n"
+"      - English\n"
+"      - Polish\n"
+"      - Swedish (Thanks, jony0008!)\n"
+"      - Hungarian (Thanks, baloo79!)\n"
+"\n"
+"  Development:\n"
+"    Try to upgrade travis\n"
+"    Travis win64 make cmake command explicit\n"
+"    Disable incorrect updater test\n"
+"    Auto 'clone' STB with cmake\n"
+"    Make uTox reproducible (Thanks, bmwiedemann!)\n"
+"    Some fixes for *BSD systems (Thanks, mazocomp!)\n"
+"      - Enable tests by default\n"
+"      - Update build instructions and add instructions for NetBSD and DragonFlyBSD\n"
+"      - other build system fixes\n"
+"\nv0.17.0\n"
 "  Features:\n"
 "    Toxcore 0.2.x. support!\n"
 "    Settings are now stored in a human-readable .ini file.\n"
@@ -403,9 +497,6 @@ msgstr("Advanced")
 
 msgid(NOTIFICATIONS_BUTTON)
 msgstr("Notifications")
-
-msgid(AUTO_UPDATE)
-msgstr("Automatically Update uTox")
 
 msgid(PROFILE_SETTINGS)
 msgstr("Profile Settings")
@@ -806,6 +897,9 @@ msgstr("Show")
 
 msgid(HIDE)
 msgstr("Hide")
+
+msgid(EXIT)
+msgstr("Exit")
 
 msgid(VIDEO_IN_NONE)
 msgstr("None")

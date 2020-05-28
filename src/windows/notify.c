@@ -32,7 +32,7 @@ static const uint16_t MAX_MSG_LENGTH = 256 - 1;
 
 bool have_focus = false;
 
-/** Creates a tray baloon popup with the message, and flashes the main window
+/** Creates a tray balloon popup with the message, and flashes the main window
  *
  * accepts: char *title, title length, char *msg, msg length;
  * returns void;

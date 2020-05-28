@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-int font_small_lineheight, font_msg_lineheight;
+extern int font_small_lineheight, font_msg_lineheight;
 
 void drawtext(int x, int y, const char *str, uint16_t length);
 

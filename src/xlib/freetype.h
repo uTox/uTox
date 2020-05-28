@@ -31,12 +31,12 @@ typedef struct {
     GLYPH *    glyphs[128];
 } FONT;
 
-FT_Library ftlib;
-FONT       font[16], *sfont;
-FcCharSet *charset;
-FcFontSet *fs;
+extern FT_Library ftlib;
+extern FONT       font[16], *sfont;
+extern FcCharSet *charset;
+extern FcFontSet *fs;
 
-bool ft_vert, ft_swap_blue_red;
+extern bool ft_vert, ft_swap_blue_red;
 
 Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_subpixel, bool vertical,
                      bool swap_blue_red);

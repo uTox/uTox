@@ -5,6 +5,7 @@
 #include "window.h"
 
 #include "../avatar.h"
+#include "../chatlog.h"
 #include "../commands.h"
 #include "../debug.h"
 #include "../file_transfers.h"
@@ -15,12 +16,10 @@
 #include "../main.h" // Lots of things. :(
 #include "../self.h"
 #include "../settings.h"
-#include "../stb.h"
 #include "../text.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../ui.h"
-#include "../updater.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"
@@ -28,21 +27,27 @@
 #include "../native/filesys.h"
 #include "../native/notify.h"
 #include "../native/os.h"
-#include "../native/window.h"
 
 #include "../ui/draw.h"
-#include "../ui/dropdown.h"
 #include "../ui/edit.h"
 #include "../ui/svg.h"
 
 #include "../layout/background.h" // TODO do we want to remove this?
 #include "../layout/friend.h"
 #include "../layout/group.h"
-#include "../layout/settings.h" // TODO remove, in for dropdown.lang
 
-#include <windowsx.h>
+#include "stb.h"
+
 #include <io.h>
 #include <libgen.h>
+
+HFONT font[32];
+HCURSOR cursors[8];
+HICON black_icon, unread_messages_icon;
+HBRUSH hdc_brush;
+HWND video_hwnd[128]; // todo fixme
+HWND preview_hwnd;    // todo fixme
+char portable_mode_save_path[MAX_PATH];
 
 /**
  * A null-terminated string that specifies the text for a standard tooltip.
@@ -54,6 +59,165 @@ static const uint8_t MAX_TIP_LENGTH = 128 - 1;
 
 bool flashing = false;
 bool hidden = false;
+
+void native_export_chatlog_init(uint32_t friend_number) {
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("Windows", "Could not get friend with number: %u", friend_number);
+        return;
+    }
+
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (!path) {
+        LOG_ERR("Windows", "Could not allocate memory.");
+        return;
+    }
+
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)f->name_length, f->name);
+
+    wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    utf8_to_nativestr(path, filepath, UTOX_FILE_NAME_LENGTH * 2);
+
+    OPENFILENAMEW ofn = {
+        .lStructSize = sizeof(OPENFILENAMEW),
+        .lpstrFilter = L".txt",
+        .lpstrFile   = filepath,
+        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
+        .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
+        .lpstrDefExt = L"txt",
+    };
+
+    if (GetSaveFileNameW(&ofn)) {
+        path = calloc(1, UTOX_FILE_NAME_LENGTH);
+        if (!path) {
+            LOG_ERR("Windows", "Could not allocate memory.");
+            return;
+        }
+
+        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH);
+
+        FILE *file = utox_get_file_simple(path, UTOX_FILE_OPTS_WRITE);
+        if (file) {
+            utox_export_chatlog(f->id_str, file);
+        } else {
+            LOG_ERR("Windows", "Opening file %s failed.", path);
+        }
+    } else {
+        LOG_ERR("Windows", "Unable to open file and export chatlog.");
+    }
+    free(path);
+}
+
+void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
+    if (!sanitize_filename(file->name)) {
+        LOG_ERR("Windows", "Filename is invalid and could not be sanitized.");
+        return;
+    }
+
+    wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    utf8_to_nativestr((char *)file->name, filepath, file->name_length * 2);
+
+    OPENFILENAMEW ofn = {
+        .lStructSize = sizeof(OPENFILENAMEW),
+        .lpstrFile   = filepath,
+        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
+        .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
+    };
+
+    if (GetSaveFileNameW(&ofn)) {
+        char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+        if (!path) {
+            LOG_ERR("Windows", "Could not allocate memory for path.");
+            return;
+        }
+
+        native_to_utf8str(filepath, path, UTOX_FILE_NAME_LENGTH * 2);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, num, path);
+    } else {
+        LOG_ERR("Windows", "Unable to Get save file for incoming FT.");
+    }
+}
+
+void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+    wchar_t *autoaccept_folder = NULL;
+
+    if (settings.portable_mode) {
+        autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH * sizeof(wchar_t));
+        utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path) * 2);
+    } else if (SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads,
+                                    KF_FLAG_CREATE, NULL, &autoaccept_folder) != S_OK) {
+        LOG_ERR("Windows", "Unable to get auto accept file folder.");
+        return;
+    }
+
+    wchar_t subpath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    swprintf(subpath, UTOX_FILE_NAME_LENGTH, L"%ls%ls", autoaccept_folder, L"\\Tox_Auto_Accept");
+
+    if (settings.portable_mode) {
+        free(autoaccept_folder);
+    } else {
+        CoTaskMemFree(autoaccept_folder);
+    }
+
+    CreateDirectoryW(subpath, NULL);
+
+    if (!sanitize_filename(file->name)) {
+        LOG_ERR("Windows", "Filename is invalid and could not be sanitized.");
+        return;
+    }
+
+    wchar_t filename[UTOX_FILE_NAME_LENGTH] = { 0 };
+    utf8_to_nativestr((char *)file->name, filename, file->name_length * 2);
+
+    wchar_t fullpath[UTOX_FILE_NAME_LENGTH] = { 0 };
+    swprintf(fullpath, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", subpath, filename);
+
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (!path) {
+        LOG_ERR("Windows", "Could not allocate memory for path.");
+        return;
+    }
+
+    native_to_utf8str(fullpath, path, UTOX_FILE_NAME_LENGTH);
+    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, path);
+}
+
+void launch_at_startup(bool should) {
+    const wchar_t *run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+
+    if (should) {
+        HKEY hKey;
+        if (RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey) == ERROR_SUCCESS) {
+            wchar_t path[UTOX_FILE_NAME_LENGTH * 2];
+            uint16_t path_length = GetModuleFileNameW(NULL, path + 1, UTOX_FILE_NAME_LENGTH * 2);
+            path[0] = '\"';
+            path[path_length + 1] = '\"';
+            path[path_length + 2] = '\0';
+            path_length += 2;
+
+            // 2 bytes per wchar_t
+            uint16_t ret = RegSetKeyValueW(hKey, NULL, L"uTox", REG_SZ, path, path_length * 2);
+            if (ret == ERROR_SUCCESS) {
+                LOG_INFO("Windows", "Set uTox to run at startup.");
+            } else {
+                LOG_ERR("Windows", "Unable to set Registry key for startup.");
+            }
+
+            RegCloseKey(hKey);
+        }
+    } else {
+        HKEY hKey;
+        if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
+            uint16_t ret = RegDeleteKeyValueW(hKey, NULL, L"uTox");
+            if (ret == ERROR_SUCCESS) {
+                LOG_INFO("Windows", "Set uTox to not run at startup.");
+            } else {
+                LOG_ERR("Windows", "Unable to delete Registry key for startup.");
+            }
+            RegCloseKey(hKey);
+        }
+    }
+}
 
 /** Open system file browser dialog */
 void openfilesend(void) {
@@ -71,7 +235,7 @@ void openfilesend(void) {
     };
 
     if (GetOpenFileNameW(&ofn)) {
-        FRIEND *f = flist_get_friend();
+        FRIEND *f = flist_get_sel_friend();
         if (!f) {
             LOG_ERR("Windows", "Unable to get friend for file send msg.");
             return;
@@ -85,7 +249,7 @@ void openfilesend(void) {
 
         char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
         if (!path) {
-            LOG_ERR("Windows", " Could not allocate memory for path.");
+            LOG_ERR("Windows", "Could not allocate memory for path.");
             return;
         }
 
@@ -115,7 +279,7 @@ void show_messagebox(const char *caption, uint16_t caption_length, const char *m
 void openfileavatar(void) {
     char *filepath = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!filepath) {
-        LOG_ERR("openfileavatar", "Could not allocate memory for path.");
+        LOG_ERR("Windows", "Could not allocate memory for path.");
         return;
     }
 
@@ -138,7 +302,7 @@ void openfileavatar(void) {
 
     while (1) { // loop until we have a good file or the user closed the dialog
         if (!GetOpenFileName(&ofn)) {
-            LOG_TRACE("NATIVE", "GetOpenFileName() failed when trying to grab an avatar.");
+            LOG_TRACE("Windows", "GetOpenFileName() failed when trying to grab an avatar.");
             break;
         }
 
@@ -156,8 +320,8 @@ void openfileavatar(void) {
             free(img);
             char message[1024];
             if (sizeof(message) < (unsigned)SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
-                LOG_ERR("NATIVE", "AVATAR_TOO_LARGE message is larger than allocated buffer(%llu bytes)\n",
-                      sizeof(message));
+                LOG_ERR("Windows", "AVATAR_TOO_LARGE message is larger than allocated buffer(%llu bytes)\n",
+                        sizeof(message));
                 break;
             }
 
@@ -195,8 +359,8 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
 
     if (GetSaveFileNameW(&ofn)) {
         char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
-        if (!path){
-            LOG_ERR("NATIVE", "Could not allocate memory for path." );
+        if (!path) {
+            LOG_ERR("Windows", "Could not allocate memory for path.");
             return;
         }
 
@@ -209,23 +373,23 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
 
             msg->via.ft.path = calloc(1, UTOX_FILE_NAME_LENGTH);
             if (!msg->via.ft.path) {
-                LOG_ERR("NATIVE", "Could not allocate memory for path." );
+                LOG_ERR("Windows", "Could not allocate memory for path.");
                 free(path);
                 return;
             }
 
             msg->via.ft.path = (uint8_t *)strdup(path);
             msg->via.ft.name = basename(strdup(path));
-            msg->via.ft.name_length = strlen((char *) msg->via.ft.name);
+            msg->via.ft.name_length = strlen((char *)msg->via.ft.name);
 
             msg->via.ft.inline_png = false;
         } else {
-            LOG_ERR("NATIVE", "file_save_inline_image_png:\tCouldn't open path: `%s` to save inline file.", path);
+            LOG_ERR("Windows", "file_save_inline_image_png:\tCouldn't open path: `%s` to save inline file.", path);
         }
 
         free(path);
     } else {
-        LOG_ERR("NATIVE", "GetSaveFileName() failed");
+        LOG_ERR("Windows", "GetSaveFileName() failed");
     }
 }
 
@@ -246,8 +410,8 @@ bool native_save_image_png(const char *name, const uint8_t *image, const int ima
 
     if (GetSaveFileNameW(&ofn)) {
         char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
-        if (!path){
-            LOG_ERR("NATIVE", "Could not allocate memory for path.");
+        if (!path) {
+            LOG_ERR("Windows", "Could not allocate memory for path.");
             return false;
         }
 
@@ -255,7 +419,7 @@ bool native_save_image_png(const char *name, const uint8_t *image, const int ima
 
         FILE *file = utox_get_file_simple(path, UTOX_FILE_OPTS_WRITE);
         if (!file) {
-            LOG_ERR("NATIVE", "Could not open file %s for write.", path);
+            LOG_ERR("Windows", "Could not open file %s for write.", path);
             free(path);
             return false;
         }
@@ -319,9 +483,9 @@ void copy(int value) {
     if (edit_active()) {
         len = edit_copy(data, max_size - 1);
         data[len] = 0;
-    } else if (flist_get_friend()) {
+    } else if (flist_get_sel_friend()) {
         len = messages_selection(&messages_friend, data, max_size, value);
-    } else if (flist_get_groupchat()) {
+    } else if (flist_get_sel_group()) {
         len = messages_selection(&messages_group, data, max_size, value);
     } else {
         return;
@@ -341,7 +505,7 @@ void copy(int value) {
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image = calloc(1, sizeof(NATIVE_IMAGE));
     if (!image) {
-        LOG_ERR("create_utox_image", " Could not allocate memory for image." );
+        LOG_ERR("Windows", "Could not allocate memory for image.");
         return NULL;
     }
 
@@ -399,7 +563,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     free(bits);
 
     NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(flist_get_friend(), image, width, height, out, size);
+    friend_sendimage(flist_get_sel_friend(), image, width, height, out, size);
 }
 
 void paste(void) {
@@ -407,8 +571,8 @@ void paste(void) {
     HANDLE h = GetClipboardData(CF_UNICODETEXT);
     if (!h) {
         h = GetClipboardData(CF_BITMAP);
-        if (h && flist_get_friend()) {
-            FRIEND *f = flist_get_friend();
+        if (h && flist_get_sel_friend()) {
+            FRIEND *f = flist_get_sel_friend();
             if (!f->online) {
                 return;
             }
@@ -462,7 +626,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
     // create device independent bitmap, we can write the bytes to out
     // to put them in the bitmap
     uint8_t *out;
-    HBITMAP  bmp = CreateDIBSection(main_window.mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out, NULL, 0);
+    HBITMAP bmp = CreateDIBSection(main_window.mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out, NULL, 0);
 
     // convert RGBA data to internal format
     // pre-applying the alpha if we're keeping the alpha channel,
@@ -621,7 +785,7 @@ void loadfonts() {
     font[FONT_SELF_NAME] = CreateFontIndirect(&lf);
     lf.lfHeight          = (SCALE(-20) - 1) / 2;
     font[FONT_MISC]      = CreateFontIndirect(&lf);
-    /*lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
+    /*lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts don't antialias
     font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
     lf.lfHeight = F(11);
     font[FONT_MSG] = CreateFontIndirect(&lf);
@@ -756,93 +920,6 @@ static void cursors_init(void) {
     cursors[CURSOR_ZOOM_OUT] = LoadCursor(NULL, IDC_SIZEALL);
 }
 
-static bool fresh_update(void) {
-    char path[UTOX_FILE_NAME_LENGTH];
-    GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
-    LOG_WARN("Win Updater", "Starting");
-    LOG_NOTE("Win Updater", "Root %s", path);
-
-    char *name_start = strstr(path, "next_uTox.exe");
-    if (!name_start) {
-        LOG_NOTE("Win Updater", "Not the updater -- %s ", path);
-        return false;
-    }
-
-    // This is the freshly downloaded exe.
-    // make a backup of the old file
-    char backup[UTOX_FILE_NAME_LENGTH];
-    strcpy(name_start, "uTox_backup.exe");
-    memcpy(backup, path, UTOX_FILE_NAME_LENGTH);
-    LOG_NOTE("Win Updater", "Backup %s", backup);
-
-    char real[UTOX_FILE_NAME_LENGTH];
-    strcpy(name_start, "uTox.exe");
-    memcpy(real, path, UTOX_FILE_NAME_LENGTH);
-    LOG_NOTE("Win Updater", "%s", real);
-    if (MoveFileEx(real, backup, MOVEFILE_REPLACE_EXISTING) == 0) {
-        // Failed
-        LOG_ERR("Win Updater", "move failed");
-        return false;
-    }
-
-    char new[UTOX_FILE_NAME_LENGTH];
-    strcpy(name_start, "next_uTox.exe");
-    memcpy(new, path, UTOX_FILE_NAME_LENGTH);
-    LOG_NOTE("Win Updater", "%s", new);
-    if (CopyFile(new, real, 0) == 0) {
-        // Failed
-        LOG_ERR("Win Updater", "copy failed");
-        return false;
-    }
-
-    LOG_ERR("Win Updater", "Launching new path %s", real);
-
-    char cmd[UTOX_FILE_NAME_LENGTH];
-    size_t next = snprintf(cmd, UTOX_FILE_NAME_LENGTH, " --skip-updater --delete-updater %s", new);
-    if (settings.portable_mode) {
-        snprintf(cmd + next, UTOX_FILE_NAME_LENGTH - next, " -p");
-    }
-    ShellExecute(NULL, "open", real, cmd, NULL, SW_SHOW);
-    DeleteFile(new);
-    return true;
-}
-
-static bool pending_update(void) {
-    LOG_WARN("Win Pending", "Starting");
-    // Check if we're the fresh version.
-    char path[UTOX_FILE_NAME_LENGTH];
-    GetModuleFileName(NULL, path, UTOX_FILE_NAME_LENGTH);
-
-    // TODO: The updater should work with the binaries we're distributing.
-    // uTox_win64.exe, uTox_win32.exe, uTox_winXP.exe on utox.io, maybe (probably) others on jenkins.
-    char *name_start = strstr(path, "uTox.exe");
-    if (!name_start) {
-        // Try lowercase too
-        name_start = strstr(path, "utox.exe");
-    }
-
-    if (name_start) {
-        char next[UTOX_FILE_NAME_LENGTH];
-        strcpy(name_start, "next_uTox.exe");
-        memcpy(next, path, UTOX_FILE_NAME_LENGTH);
-        FILE *f = fopen(next, "rb");
-        if (f) {
-            LOG_ERR("Win Pending", "Updater waiting :D");
-            fclose(f);
-            char cmd[UTOX_FILE_NAME_LENGTH] = { 0 };
-            if (settings.portable_mode) {
-                snprintf(cmd, UTOX_FILE_NAME_LENGTH, " -p");
-            }
-            ShellExecute(NULL, "open", next, cmd, NULL, SW_SHOW);
-            return true;
-        }
-        LOG_WARN("Win Pending", "No updater waiting for us");
-    }
-    LOG_WARN("Win Pending", "Bad file name -- %s ", path);
-
-    return false;
-}
-
 static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd, const char *instance_id) {
     *mutex = CreateMutex(NULL, false, instance_id);
 
@@ -885,8 +962,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     int8_t should_launch_at_startup, set_show_window;
-    bool   skip_updater;
-    parse_args(argc, argv, &skip_updater, &should_launch_at_startup, &set_show_window);
+    parse_args(argc, argv, &should_launch_at_startup, &set_show_window, NULL);
     GlobalFree(argv);
 
     char instance_id[MAX_PATH];
@@ -910,11 +986,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     // We call utox_init after parse_args()
     utox_init();
 
-    #ifdef __WIN_LEGACY
-        LOG_WARN("WinMain", "Legacy windows build");
-    #else
-        LOG_WARN("WinMain", "Normal windows build");
-    #endif
+    LOG_WARN("WinMain", "Normal windows build");
 
     #ifdef GIT_VERSION
         LOG_NOTE("WinMain", "uTox version %s \n", GIT_VERSION);
@@ -923,19 +995,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     HANDLE utox_mutex;
     win_init_mutex(&utox_mutex, hInstance, cmd, instance_id);
-
-    if (!skip_updater) {
-        LOG_NOTE("WinMain", "Not skipping updater");
-        if (fresh_update()) {
-            CloseHandle(utox_mutex);
-            exit(0);
-        }
-
-        if (pending_update()) {
-            CloseHandle(utox_mutex);
-            exit(0);
-        }
-    }
 
     if (should_launch_at_startup == 1) {
         launch_at_startup(1);

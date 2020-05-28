@@ -56,7 +56,7 @@ bool avatar_set_self(const uint8_t *data, size_t size);
 /* Helper function to unset the user's avatar. */
 void avatar_unset_self(void);
 
-/* Helper function to delete users avatar file. */
+/* Helper function to delete user's avatar file. */
 void avatar_delete_self(void);
 
 /* Unsets an avatar by setting its format to UTOX_AVATAR_FORMAT_NONE and freeing its image. */
@@ -103,7 +103,7 @@ bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_
  */
 bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]);
 
-/* Helper function to intialize the users avatar */
+/* Helper function to initialize the user's avatar */
 bool avatar_init_self(void);
 
 /* Moves the avatar to its new name */

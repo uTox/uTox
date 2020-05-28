@@ -50,8 +50,8 @@ bool strstr_case(const char *a, const char *b);
  *
  * @param string UTF-8 string to shrink.
  * @param string_length Length of UTF-8 string.
- * @param shrink_length Desirable length of shrinked string.
- * @return shrinked length.
+ * @param shrink_length Desirable length of shrunk string.
+ * @return shrunk length.
  */
 uint16_t safe_shrink(const char *string, uint16_t string_length, uint16_t shrink_length);
 

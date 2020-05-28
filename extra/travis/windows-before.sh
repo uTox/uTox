@@ -40,7 +40,7 @@ cd ..
 rm -rf toxcore
 
 if ! [ -d openal ]; then
-  git clone --depth=1 https://github.com/irungentoo/openal-soft-tox.git openal
+  git clone --depth=1 --branch=master https://github.com/utox/openal-soft-tox.git openal
 fi
 cd openal
 git rev-parse HEAD > openal.sha
@@ -78,4 +78,3 @@ x86_64-w64-mingw32-ranlib "$CACHE_DIR/usr/lib/libfilteraudio.a"
 unset CC
 
 cp "$CACHE_DIR/usr/lib/libOpenAL32.a" "$CACHE_DIR/usr/lib/libopenal.a" || true
-curl https://cmdline.org/travis/64/shell32.a > "$CACHE_DIR/usr/lib/libshell32.a"

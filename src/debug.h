@@ -1,12 +1,8 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#ifndef EXIT_SUCCESS // should be defined in stdlib.h
-#define EXIT_SUCCESS 0 /* Successful exit status. */
-#endif
-#ifndef EXIT_FAILURE // should be defined in stdlib.h
-#define EXIT_FAILURE 1 /* Generic failing exit status. */
-#endif
+#include <stdlib.h>
+
 #define EXIT_MALLOC  2 /* Malloc failure exit status. */
 
 /* uTox debug levels */

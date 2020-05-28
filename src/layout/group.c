@@ -32,7 +32,7 @@ SCROLLABLE scrollbar_group = {
 };
 
 static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Group", "Could not get selected groupchat.");
         return;
@@ -57,9 +57,12 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
 
         if (peer && peer->name_length) {
             char buf[TOX_MAX_NAME_LENGTH];
-            int  text_length = snprintf((char *)buf, TOX_MAX_NAME_LENGTH, "%.*s, ", (int)peer->name_length, peer->name);
 
-            unsigned w = textwidth(buf, text_length);
+            snprintf((char *)buf, sizeof(buf), "%.*s, ",
+                     (int)peer->name_length, peer->name);
+            int buf_len = strnlen(buf, sizeof(buf) - 1);
+
+            unsigned w = textwidth(buf, buf_len);
             if (peer->name_color) {
                 setcolor(peer->name_color);
             } else {
@@ -76,7 +79,7 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
                 }
             }
 
-            drawtext(k, SCALE(pos_y * 2), buf, text_length);
+            drawtext(k, SCALE(pos_y * 2), buf, buf_len);
 
             k += w;
         }
@@ -169,7 +172,7 @@ messages_group = {
 };
 
 static void button_group_audio_on_mup(void) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Group", "Could not get selected groupchat.");
         return;
@@ -185,7 +188,7 @@ static void button_group_audio_on_mup(void) {
 
 
 static void button_group_audio_update(BUTTON *b) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Group", "Could not get selected groupchat.");
         return;
@@ -205,6 +208,13 @@ static void button_group_audio_update(BUTTON *b) {
 }
 
 BUTTON button_group_audio = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -62,
+        .y      =  10,
+        .width  = _BM_LBUTTON_WIDTH,
+        .height = _BM_LBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_LBUTTON,
     .bm_icon      = BM_CALL,
     .icon_w       = _BM_LBICON_WIDTH,
@@ -265,7 +275,7 @@ static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int directio
     bool          found    = 0;
     static char * dedup[65536];      /* TODO magic numbers */
     static size_t dedup_size[65536]; /* TODO magic numbers */
-    GROUPCHAT *   g = flist_get_groupchat();
+    GROUPCHAT *   g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Group", "Could not get selected groupchat.");
         return 0;
@@ -366,7 +376,7 @@ static void e_chat_msg_ontab(EDIT *edit) {
     char *text = edit->data;
     uint16_t length = edit->length;
 
-    if (flist_get_type() == ITEM_FRIEND || flist_get_type() == ITEM_GROUP) {
+    if (flist_get_sel_item_type() == ITEM_FRIEND || flist_get_sel_item_type() == ITEM_GROUP) {
         char    nick[130];
         uint8_t nick_length;
 
@@ -376,7 +386,7 @@ static void e_chat_msg_ontab(EDIT *edit) {
 
         if (!completion.active) {
             if ((length == 6 && !memcmp(text, "/topic", 6)) || (length == 7 && !memcmp(text, "/topic ", 7))) {
-                GROUPCHAT *g = flist_get_groupchat();
+                GROUPCHAT *g = flist_get_sel_group();
                 if (!g) {
                     LOG_ERR("Group", "Could not get selected groupchat.");
                     return;
@@ -458,7 +468,7 @@ void e_group_msg_onenter(EDIT *edit) {
         return;
     }
 
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (g) {
         void *d = malloc(length);
         if (!d) {
@@ -478,7 +488,7 @@ void e_group_msg_onenter(EDIT *edit) {
 static void e_chat_msg_onshifttab(EDIT *edit) {
     char *text = edit->data;
 
-    if (flist_get_type() == ITEM_GROUP) {
+    if (flist_get_sel_item_type() == ITEM_GROUP) {
         char    nick[130];
         uint8_t nick_length;
 
@@ -526,7 +536,7 @@ EDIT edit_chat_msg_group = {
 };
 
 static void e_group_topic_onenter(EDIT *edit) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Layout Groups", "Can't set a topic when a group isn't selected!");
         return;
@@ -559,7 +569,7 @@ EDIT edit_group_topic = {
 };
 
 static void button_chat_send_on_mup(void) {
-    if (flist_get_type() == ITEM_GROUP) {
+    if (flist_get_sel_item_type() == ITEM_GROUP) {
         e_group_msg_onenter(&edit_chat_msg_group);
         // reset focus to the chat window on send to prevent segfault. May break on android.
         edit_setfocus(&edit_chat_msg_group);
@@ -572,6 +582,13 @@ static void button_chat_send_group_update(BUTTON *b) {
 }
 
 BUTTON button_chat_send_group = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  -6 - _BM_CHAT_SEND_WIDTH,
+        .y      = -46,
+        .width  = _BM_CHAT_SEND_WIDTH,
+        .height = _BM_CHAT_SEND_HEIGHT,
+    },
     .bm_fill        = BM_CHAT_SEND,
     .bm_icon        = BM_CHAT_SEND_OVERLAY,
     .icon_w         = _BM_CHAT_SEND_OVERLAY_WIDTH,

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-uint16_t video_width, video_height, max_video_width, max_video_height;
+extern uint16_t video_width, video_height, max_video_width, max_video_height;
 
 extern bool utox_video_thread_init;
 

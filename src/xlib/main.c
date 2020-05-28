@@ -14,11 +14,9 @@
 #include "../macros.h"
 #include "../main.h" // MAIN_WIDTH, MAIN_WIDTH, DEFAULT_SCALE, parse_args, utox_init
 #include "../settings.h"
-#include "../stb.h"
 #include "../text.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../updater.h"
 #include "../utox.h"
 
 #include "../av/utox_av.h"
@@ -35,13 +33,37 @@
 #include "../layout/group.h"
 #include "../layout/settings.h"
 
+#include "stb.h"
+
 #include <ctype.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 
-bool hidden = false;
+Atom wm_protocols, wm_delete_window;
+Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
+Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
+Atom XA_URI_LIST, XA_PNG_IMG;
+Atom XRedraw;
+
+Picture bitmap[BM_ENDMARKER];
+Cursor  cursors[8];
+
+uint8_t pointergrab;
+
+bool     _redraw;
+
+XImage *screen_image;
+
+void *libgtk;
+
+struct utox_clipboard clipboard;
+struct utox_primary primary;
+struct utox_pastebuf pastebuf;
+
+static bool hidden = false;
 
 XIC xic = NULL;
 static XSizeHints *xsh = NULL;
@@ -92,10 +114,8 @@ void init_ptt(void) {
 
 
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__DragonFly__) || defined(__FreeBSD__)
 #include <linux/input.h>
-#elif defined(__DragonFly__) || defined(__FreeBSD__)
-#include <dev/misc/evdev/input.h>
 #endif
 
 #if defined(__linux__) || defined(__DragonFly__) || defined(__FreeBSD__)
@@ -119,7 +139,7 @@ static bool linux_check_ptt(void) {
             return false;
         }
     }
-    /* Okay nope, lets' fallback to xinput... *pouts*
+    /* Okay nope, let's fallback to xinput... *pouts*
      * Fall back to Querying the X for the current keymap. */
     ptt_key       = XKeysymToKeycode(display, XK_Control_L);
     char keys[32] = { 0 };
@@ -226,6 +246,7 @@ void openurl(char *str) {
         execlp(cmd, cmd, str, (char *)0);
         exit(127);
     }
+    waitpid(-1, NULL, WNOHANG); /* reap last child */
 }
 
 void openfilesend(void) {
@@ -275,9 +296,9 @@ void copy(int value) {
     int len;
     if (edit_active()) {
         len = edit_copy((char *)clipboard.data, sizeof(clipboard.data));
-    } else if (flist_get_friend()) {
+    } else if (flist_get_sel_friend()) {
         len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
-    } else if (flist_get_groupchat()) {
+    } else if (flist_get_sel_group()) {
         len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), value);
     } else {
         LOG_ERR("XLIB", "Copy from Unsupported flist type.");
@@ -382,12 +403,12 @@ void formaturilist(char *out, const char *in, size_t len) {
     // out[len - removed - 1] = '\n';
 }
 
-// TODO(robinli): Go over this function and see if either len or size are removeable.
+// TODO(robinli): Go over this function and see if either len or size are removable.
 void pastedata(void *data, Atom type, size_t len, bool select) {
 
     size_t size = len;
     if (type == XA_PNG_IMG) {
-        FRIEND *f = flist_get_friend();
+        FRIEND *f = flist_get_sel_friend();
         if (!f) {
             LOG_ERR("XLIB", "Can't paste data to missing friend.");
             return;
@@ -409,7 +430,7 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
             friend_sendimage(f, native_image, width, height, png_image, size);
         }
     } else if (type == XA_URI_LIST) {
-        FRIEND *f = flist_get_friend();
+        FRIEND *f = flist_get_sel_friend();
         if (!f) {
             LOG_ERR("XLIB", "Can't paste data to missing friend.");
             return;
@@ -517,7 +538,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
 
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        LOG_ERR("utox_image_to_native", "Could mot allocate memory for image." );
+        LOG_ERR("utox_image_to_native", "Could not allocate memory for image." );
         return NULL;
     }
     image->rgb   = rgb;
@@ -576,7 +597,7 @@ void setscale(void) {
 
     if (settings.window_width > (uint32_t)SCALE(MAIN_WIDTH) &&
         settings.window_height > (uint32_t)SCALE(MAIN_HEIGHT)) {
-        /* wont get a resize event, call this manually */
+        /* won't get a resize event, call this manually */
         ui_size(settings.window_width, settings.window_height);
     }
 }
@@ -700,11 +721,15 @@ int main(int argc, char *argv[]) {
 
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool   skip_updater;
+    bool allow_root;
     parse_args(argc, argv,
-               &skip_updater,
                &should_launch_at_startup,
-               &set_show_window);
+               &set_show_window,
+               &allow_root);
+
+    if (getuid() == 0 && !allow_root){
+        LOG_FATAL_ERR(EXIT_FAILURE, "XLIB MAIN", "You can't run uTox as root unless --allow-root is set.");
+    }
 
     // We need to parse_args before calling utox_init()
     utox_init();
@@ -712,11 +737,6 @@ int main(int argc, char *argv[]) {
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         LOG_NOTE("XLIB", "Start on boot not supported on this OS, please use your distro suggested method!\n");
-    }
-
-    if (skip_updater == true) {
-        LOG_ERR("XLIB", "Disabling the updater is not supported on this OS. "
-                        "Updates are managed by your distro's package manager.\n");
     }
 
     LOG_INFO("XLIB MAIN", "Setting theme to:\t%d", settings.theme);
@@ -839,7 +859,7 @@ int main(int argc, char *argv[]) {
     while (!shutdown) {
         XEvent event;
         XNextEvent(display, &event);
-        if (!doevent(event)) {
+        if (!doevent(&event)) {
             break;
         }
 

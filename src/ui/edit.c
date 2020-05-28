@@ -111,25 +111,26 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
     }
 
     bool is_active = (edit == active_edit);
-    if (edit->password) {
+    char *star = NULL;
+    if (edit->password && edit->length) {
+        star = malloc(edit->length);
+        if (!star) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "UI Edit", "Unable to malloc for password field");
+        }
         /* Generate the stars for this password */
-        char star[edit->length];
         memset(star, '*', edit->length);
-        utox_draw_text_multiline_within_box(x + SCALE(4), yy + SCALE(top_offset * 2),
-                                                x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0),
-                                                y, y + height, font_small_lineheight, star,
-                                                edit->length, is_active ? edit_sel.start : UINT16_MAX,
-                                                is_active ? edit_sel.length : UINT16_MAX,
-                                                is_active ? edit_sel.mark_start : 0,
-                                                is_active ? edit_sel.mark_length : 0, edit->multiline);
-    } else {
-        utox_draw_text_multiline_within_box(x + SCALE(4), yy + SCALE(top_offset * 2),
-                                    x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0),
-                                    y, y + height, font_small_lineheight, edit->data,
-                                    edit->length, is_active ? edit_sel.start : UINT16_MAX,
-                                    is_active ? edit_sel.length : UINT16_MAX, is_active ? edit_sel.mark_start : 0,
-                                    is_active ? edit_sel.mark_length : 0, edit->multiline);
     }
+    utox_draw_text_multiline_within_box(
+            x + SCALE(4), yy + SCALE(top_offset * 2),
+            x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0),
+            y, y + height, font_small_lineheight,
+            star ? star : edit->data, edit->length,
+            is_active ? edit_sel.start : UINT16_MAX,
+            is_active ? edit_sel.length : UINT16_MAX,
+            is_active ? edit_sel.mark_start : 0,
+            is_active ? edit_sel.mark_length : 0,
+            edit->multiline);
+    free(star);
 
     if (edit->multiline) {
         popclip();
@@ -441,7 +442,7 @@ enum {
 
 void edit_char(uint32_t ch, bool control, uint8_t flags) {
     if (!active_edit) {
-        LOG_ERR("UI Edit", "Stopped you from crashing becase no edit was active or something.");
+        LOG_ERR("UI Edit", "Stopped you from crashing because no edit was active or something.");
         return;
     }
 
@@ -747,7 +748,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
         uint8_t len = unicode_to_utf8_len(ch);
         char *p = edit->data + edit_sel.start;
 
-        if (edit->length - edit_sel.length + len >= edit->data_size) {
+        if ((size_t)edit->length - edit_sel.length + len >= edit->data_size) {
             return;
         }
 

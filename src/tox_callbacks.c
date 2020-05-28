@@ -69,6 +69,11 @@ static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *
                                  void *UNUSED(userdata)) {
     length     = utf8_validate(newname, length);
     void *data = malloc(length);
+    if (!data) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks",
+                      "Could not alloc for name change callback (%uB)", length);
+    }
+
     memcpy(data, newname, length);
     postmessage_utox(FRIEND_NAME, fid, length, data);
     LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tName:\t%.*s", fid, (int)length, newname);
@@ -78,6 +83,11 @@ static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_
                                     void *UNUSED(userdata)) {
     length     = utf8_validate(newstatus, length);
     void *data = malloc(length);
+    if (!data) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks",
+                      "Could not alloc for name change callback (%uB)", length);
+    }
+
     memcpy(data, newstatus, length);
     postmessage_utox(FRIEND_STATUS_MESSAGE, fid, length, data);
     LOG_INFO("Tox Callbacks", "Friend\t%u\t--\tStatus Message:\t%.*s", fid, (int)length, newstatus);
@@ -209,12 +219,12 @@ static void callback_group_peer_name_change(Tox *UNUSED(tox), uint32_t gid, uint
 
     if (g->peer) {
         if (!g->peer[pid]) {
-            LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant peer!" );
+            LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't set a name, for non-existent peer!" );
             return;
         }
     } else {
         // TODO can't happen
-        LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't sent a name, for non-existant Group!" );
+        LOG_ERR("Tox Callbacks", "Tox Group:\tERROR, can't set a name, for non-existent Group!" );
     }
 
     length = utf8_validate(name, length);
@@ -237,7 +247,6 @@ static void callback_group_peer_list_changed(Tox *tox, uint32_t gid, void *UNUSE
     uint32_t number_peers = tox_conference_peer_count(tox, gid, NULL);
 
     g->peer = calloc(number_peers, sizeof(void *));
-
     if (!g->peer) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Tox Callbacks", "Group:\tToxcore is very broken, but we couldn't alloc here.");
     }
@@ -263,7 +272,7 @@ static void callback_group_peer_list_changed(Tox *tox, uint32_t gid, void *UNUSE
         for (int key_i = 0; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
             pkey_to_number += pkey[key_i];
         }
-        /* uTox doesnt' really use this for too much so lets fuck with the random seed.
+        /* uTox doesnt' really use this for too much so let's fuck with the random seed.
          * If you know crypto, and cringe, I know me too... you can blame @irungentoo */
         srand(pkey_to_number);
         peer->name_color = RGB(rand(), rand(), rand());
@@ -291,12 +300,25 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
     LOG_TRACE("Tox Callbacks", "Group Title (%u, %u): %.*s" , gid, pid, (int)length, title);
 }
 
+void callback_group_connected(Tox *UNUSED(tox), uint32_t gid, void *UNUSED(userdata)){
+    GROUPCHAT *g = get_group(gid);
+    if (!g) {
+        LOG_ERR("Tox Callbacks", "Toxcore says we're connected to a non-existent groupchat %u.", gid);
+        return;
+    }
+
+    g->connected = true;
+
+    LOG_TRACE("Tox Callbacks", "Connected to groupchat %u.", gid);
+}
+
 void utox_set_callbacks_groups(Tox *tox) {
     tox_callback_conference_invite(tox, callback_group_invite);
     tox_callback_conference_message(tox, callback_group_message);
     tox_callback_conference_peer_name(tox, callback_group_peer_name_change);
     tox_callback_conference_title(tox, callback_group_topic);
     tox_callback_conference_peer_list_changed(tox, callback_group_peer_list_changed);
+    tox_callback_conference_connected(tox, callback_group_connected);
 }
 
 #ifdef ENABLE_MULTIDEVICE

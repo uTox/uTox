@@ -26,7 +26,7 @@
 
 /* Header for friend chat window */
 static void draw_friend(int x, int y, int w, int height) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.\n");
         return;
@@ -60,17 +60,17 @@ static void draw_friend(int x, int y, int w, int height) {
         // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_TEXT_HINT);
         if (f->alias) {
-            drawtextwidth_right(x, SCALE(MESSAGES_X - NAME_OFFSET - 16), typing_y, f->alias, f->alias_length);
+            drawtextwidth_right(x, SCALE(MESSAGES_X - NAME_OFFSET), typing_y, f->alias, f->alias_length);
         } else {
-            drawtextwidth_right(x, SCALE(MESSAGES_X - NAME_OFFSET - 16), typing_y, f->name, f->name_length);
+            drawtextwidth_right(x, SCALE(MESSAGES_X - NAME_OFFSET), typing_y, f->name, f->name_length);
         }
-        drawtextwidth(x + SCALE(MESSAGES_X - 18), x + w, typing_y, S(IS_TYPING), SLEN(IS_TYPING));
+        drawtextwidth(x + SCALE(MESSAGES_X), x + w, typing_y, S(IS_TYPING), SLEN(IS_TYPING));
     }
 }
 
 /* Draw an invite to be a friend window */
 static void draw_friend_request(int x, int y, int w, int h) {
-    FREQUEST *req = flist_get_frequest();
+    FREQUEST *req = flist_get_sel_frequest();
     if (!req) {
         LOG_ERR("Layout Friend", "Unable to draw a friend request without a friend request.");
         return;
@@ -97,7 +97,7 @@ static void draw_friend_settings(int x, int y, int UNUSED(width), int UNUSED(hei
 }
 
 static void draw_friend_deletion(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -257,6 +257,7 @@ panel_friend_request = {
     .drawfunc = draw_friend_request,
     .child = (PANEL*[]) {
         (PANEL*)&button_accept_friend,
+        (PANEL*)&button_ignore_friend,
         NULL
     }
 },
@@ -290,7 +291,7 @@ static void button_send_friend_request_on_mup(void) {
 #include "../tox.h"
 
 static void button_call_decline_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -306,7 +307,7 @@ static void button_call_decline_on_mup(void) {
 #include "../av/audio.h"
 #include "../ui/button.h"
 static void button_call_decline_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -322,7 +323,7 @@ static void button_call_decline_update(BUTTON *b) {
 }
 
 static void button_call_audio_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -347,7 +348,7 @@ static void button_call_audio_on_mup(void) {
 }
 
 static void button_call_audio_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -372,7 +373,7 @@ static void button_call_audio_update(BUTTON *b) {
 
 #include "../av/video.h"
 static void button_call_video_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -399,7 +400,7 @@ static void button_call_video_on_mup(void) {
 }
 
 static void button_call_video_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -423,8 +424,19 @@ static void button_call_video_update(BUTTON *b) {
 }
 
 static void button_accept_friend_on_mup(void) {
-    FREQUEST *req = flist_get_frequest();
+    FREQUEST *req = flist_get_sel_frequest();
     postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
+    panel_friend_request.disabled = true;
+}
+
+static void button_ignore_friend_on_mup(void){
+    FREQUEST *req = flist_get_sel_frequest();
+    if (!req) {
+        LOG_ERR("Friend", "Could not get selected friend request");
+        return;
+    }
+
+    flist_delete_sitem();
     panel_friend_request.disabled = true;
 }
 
@@ -442,6 +454,13 @@ static void button_menu_update(BUTTON *b) {
 }
 
 BUTTON button_add_new_contact = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = SIDEBAR_BUTTON_LEFT,
+        .y      = ROSTER_BOTTOM,
+        .width  = SIDEBAR_BUTTON_WIDTH,
+        .height = SIDEBAR_BUTTON_HEIGHT,
+    },
     .bm_icon      = BM_ADD,
     .icon_w       = _BM_ADD_WIDTH,
     .icon_h       = _BM_ADD_WIDTH,
@@ -453,6 +472,13 @@ BUTTON button_add_new_contact = {
 };
 
 BUTTON button_send_friend_request = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -10 - _BM_SBUTTON_WIDTH,
+        .y      = MAIN_TOP + 168,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill         = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update      = button_setcolors_success,
@@ -461,6 +487,13 @@ BUTTON button_send_friend_request = {
 };
 
 BUTTON button_call_decline = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -186,
+        .y      =   10,
+        .width  = _BM_LBUTTON_WIDTH,
+        .height = _BM_LBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_LBUTTON,
     .bm_icon      = BM_DECLINE,
     .icon_w       = _BM_LBICON_WIDTH,
@@ -473,6 +506,13 @@ BUTTON button_call_decline = {
 };
 
 BUTTON button_call_audio = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -124,
+        .y      =   10,
+        .width  = _BM_LBUTTON_WIDTH,
+        .height = _BM_LBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_LBUTTON,
     .bm_icon      = BM_CALL,
     .icon_w       = _BM_LBICON_WIDTH,
@@ -483,6 +523,13 @@ BUTTON button_call_audio = {
 };
 
 BUTTON button_call_video = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = -62,
+        .y      =  10,
+        .width  = _BM_LBUTTON_WIDTH,
+        .height = _BM_LBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_LBUTTON,
     .bm_icon      = BM_VIDEO,
     .icon_w       = _BM_LBICON_WIDTH,
@@ -493,7 +540,7 @@ BUTTON button_call_video = {
 };
 
 static void button_send_file_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -505,7 +552,7 @@ static void button_send_file_on_mup(void) {
 }
 
 static void button_send_file_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -521,6 +568,13 @@ static void button_send_file_update(BUTTON *b) {
 }
 
 BUTTON button_send_file = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =   6,
+        .y      = -46,
+        .width  = _BM_CHAT_BUTTON_WIDTH,
+        .height = _BM_CHAT_BUTTON_HEIGHT,
+    },
     .bm_fill      = BM_CHAT_BUTTON_LEFT,
     .bm_icon      = BM_FILE,
     .icon_w       = _BM_FILE_WIDTH,
@@ -533,14 +587,14 @@ BUTTON button_send_file = {
 
 #include "../screen_grab.h"
 static void button_send_screenshot_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (f != NULL && f->online) {
         utox_screen_grab_desktop(0);
     }
 }
 
 static void button_send_screenshot_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -556,6 +610,13 @@ static void button_send_screenshot_update(BUTTON *b) {
 }
 
 BUTTON button_send_screenshot = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =   8 + _BM_CHAT_BUTTON_WIDTH,
+        .y      = -46,
+        .width  = _BM_CHAT_BUTTON_WIDTH,
+        .height = _BM_CHAT_BUTTON_HEIGHT,
+    },
     .bm_fill      = BM_CHAT_BUTTON_RIGHT,
     .bm_icon      = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
     .icon_w       = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
@@ -566,14 +627,35 @@ BUTTON button_send_screenshot = {
 };
 
 BUTTON button_accept_friend = {
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = -140,
+        .y = -80,
+        .width = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill         = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update      = button_setcolors_success,
     .on_mup      = button_accept_friend_on_mup,
 };
 
+BUTTON button_ignore_friend = {
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = -80,
+        .y = -80,
+        .width = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
+    .bm_fill     = BM_SBUTTON,
+    .button_text = {.i18nal = STR_IGNORE},
+    .update     = button_setcolors_danger,
+    .on_mup     = button_ignore_friend_on_mup,
+};
+
 static void switchfxn_autoaccept_ft(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (f) {
         f->ft_autoaccept = !f->ft_autoaccept;
         utox_write_metadata(f);
@@ -583,6 +665,13 @@ static void switchfxn_autoaccept_ft(void) {
 #include "../ui/switch.h"
 
 UISWITCH switch_friend_autoaccept_ft = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 168,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -599,6 +688,13 @@ static void edit_add_new_contact(EDIT *UNUSED(edit)) {
 
 static char e_friend_pubkey_str[TOX_PUBLIC_KEY_SIZE * 2];
 EDIT edit_friend_pubkey = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  88,
+        .width  = -10,
+        .height =  24,
+    },
     // .length == .data_size, because .data is not \0-terminated
     .length            = sizeof e_friend_pubkey_str,
     .data_size         = sizeof e_friend_pubkey_str,
@@ -610,7 +706,7 @@ EDIT edit_friend_pubkey = {
 
 
 static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Friend", "Could not get selected friend.");
         return;
@@ -623,6 +719,13 @@ static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
 
 static char e_friend_alias_str[128];
 EDIT edit_friend_alias = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      = 138,
+        .width  = -10,
+        .height =  24,
+    },
     .data_size   = sizeof e_friend_alias_str,
     .data        = e_friend_alias_str,
     .onenter     = edit_friend_alias_onenter,
@@ -632,11 +735,24 @@ EDIT edit_friend_alias = {
 
 
 
+static void edit_add_new_friend_id_ontab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_add_new_friend_msg);
+}
+
 static char e_add_new_friend_id_data[TOX_ADDRESS_SIZE * 4];
 EDIT edit_add_new_friend_id = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  28 + MAIN_TOP,
+        .width  = -10,
+        .height =  24,
+    },
     .data_size = sizeof e_add_new_friend_id_data,
     .data      = e_add_new_friend_id_data,
     .onenter   = edit_add_new_contact,
+    .ontab      = edit_add_new_friend_id_ontab,
+    .onshifttab = edit_add_new_friend_id_ontab,
 };
 
 SCROLLABLE e_add_new_friend_msg_scroll = {
@@ -645,13 +761,26 @@ SCROLLABLE e_add_new_friend_msg_scroll = {
     .color = C_SCROLL,
 };
 
+static void edit_add_new_friend_msg_ontab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_add_new_friend_id);
+}
+
 static char e_add_new_friend_msg_data[1024];
 EDIT edit_add_new_friend_msg = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  76 + MAIN_TOP,
+        .width  = -10,
+        .height =  84,
+    },
     .multiline = 1,
     .scroll    = &e_add_new_friend_msg_scroll,
     .data      = e_add_new_friend_msg_data,
     .data_size = sizeof e_add_new_friend_msg_data,
     .empty_str = {.i18nal = STR_DEFAULT_FRIEND_REQUEST_MESSAGE },
+    .ontab      = edit_add_new_friend_msg_ontab,
+    .onshifttab = edit_add_new_friend_msg_ontab,
 };
 
 #include "../commands.h"
@@ -693,7 +822,7 @@ static void e_chat_msg_onenter(EDIT *edit) {
         return;
     }
 
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (f) {
         /* Display locally */
         if (action) {
@@ -706,7 +835,7 @@ static void e_chat_msg_onenter(EDIT *edit) {
 }
 
 static void e_chat_msg_onchange(EDIT *UNUSED(edit)) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (f) {
         if (!f->online) {
             return;
@@ -724,6 +853,13 @@ SCROLLABLE e_chat_msg_friend_scroll = {
 
 static char e_chat_msg_friend_data[65535];
 EDIT edit_chat_msg_friend = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10 + _BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button */
+        .y      = -46,
+        .width  = -64,
+        .height =  40, /* text is 8 high. 8 * 2.5 = 20. */
+    },
     .data        = e_chat_msg_friend_data,
     .data_size   = sizeof e_chat_msg_friend_data,
     .multiline   = true,
@@ -741,7 +877,7 @@ static void button_chat_send_friend_on_mup(void) {
 }
 
 static void button_chat_send_friend_update(BUTTON *b) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (f) {
         if (f->online) {
             button_setcolors_success(b);
@@ -752,6 +888,13 @@ static void button_chat_send_friend_update(BUTTON *b) {
 }
 
 BUTTON button_chat_send_friend = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  -6 - _BM_CHAT_SEND_WIDTH,
+        .y      = -46,
+        .width  = _BM_CHAT_SEND_WIDTH,
+        .height = _BM_CHAT_SEND_HEIGHT,
+    },
     .bm_fill      = BM_CHAT_SEND,
     .bm_icon      = BM_CHAT_SEND_OVERLAY,
     .icon_w       = _BM_CHAT_SEND_OVERLAY_WIDTH,
@@ -771,6 +914,13 @@ static void button_deny_deletion_on_mup(void) {
 }
 
 BUTTON button_confirm_deletion = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 10,
+        .y      = MAIN_TOP + 40,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_danger,
     .tooltip_text = {.i18nal = STR_DELETE},
@@ -779,6 +929,13 @@ BUTTON button_confirm_deletion = {
 };
 
 BUTTON button_deny_deletion = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = 110,
+        .y      = MAIN_TOP + 40,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .tooltip_text = {.i18nal = STR_KEEP},

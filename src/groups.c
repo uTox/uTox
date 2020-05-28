@@ -46,7 +46,6 @@ static GROUPCHAT *group_make(uint32_t group_number) {
 
         group = tmp;
         self.groups_list_size++;
-        self.groups_list_count++;
     }
 
     memset(&group[group_number], 0, sizeof(GROUPCHAT));
@@ -69,12 +68,14 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
+        if (!g->peer) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not alloc for group peers (%uB)",
+                          UTOX_MAX_GROUP_PEERS * sizeof(GROUP_PEER *));
+        }
     }
 
-    g->name_length = snprintf((char *)g->name, sizeof(g->name), "Groupchat #%u", group_number);
-    if (g->name_length >= sizeof(g->name)) {
-        g->name_length = sizeof(g->name) - 1;
-    }
+    snprintf((char *)g->name, sizeof(g->name), "Groupchat #%u", group_number);
+    g->name_length = strnlen(g->name, sizeof(g->name) - 1);
 
     g->topic_length = sizeof("Drag friends to invite them") - 1;
     memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
@@ -91,9 +92,7 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     g->notify   = settings.group_notifications;
     g->av_group = av_group;
     pthread_mutex_unlock(&messages_lock);
-
-    flist_add_group(g);
-    flist_select_last();
+    self.groups_list_count++;
 }
 
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
@@ -158,6 +157,10 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number)
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
+        if (!g->peer) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not alloc for group peers (%uB)",
+                          UTOX_MAX_GROUP_PEERS * sizeof(GROUP_PEER *));
+        }
         LOG_NOTE("Groupchat", "Needed to calloc peers for this group chat. (%u)" , peer_id);
     }
 
@@ -227,11 +230,10 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         char msg[TOX_MAX_NAME_LENGTH];
 
         memcpy(old, peer->name, peer->name_length);
-        size_t size = snprintf(msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s",
-                               peer->name_length, old);
+        snprintf(msg, sizeof(msg), "<- has changed their name from %.*s",
+                 peer->name_length, old);
 
         GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
-
         if (!new_peer) {
             free(peer);
             LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "couldn't realloc for group peer name!");
@@ -243,13 +245,13 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         g->peer[peer_id] = peer;
 
         pthread_mutex_unlock(&messages_lock);
-        group_add_message(g, peer_id, (uint8_t *)msg, size, MSG_TYPE_NOTICE);
+        size_t msg_length = strnlen(msg, sizeof(msg) - 1);
+        group_add_message(g, peer_id, (uint8_t *)msg, msg_length, MSG_TYPE_NOTICE);
         return;
     }
 
     /* Hopefully, they just joined, because that's the UX message we're going with! */
     GROUP_PEER *new_peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(char) * length);
-
     if (!new_peer) {
         free(peer);
         LOG_FATAL_ERR(EXIT_MALLOC, "Groupchat", "Unable to realloc for group peer who just joined.");
@@ -315,8 +317,8 @@ void raze_groups(void) {
     group = NULL;
 }
 
-void init_groups(void) {
-    self.groups_list_size = 0;
+void init_groups(Tox *tox) {
+    self.groups_list_size = tox_conference_get_chatlist_size(tox);
 
     if (self.groups_list_size == 0) {
         return;
@@ -328,8 +330,11 @@ void init_groups(void) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not allocate memory for groupchat array with size of: %u", self.groups_list_size);
     }
 
+    uint32_t groups[self.groups_list_size];
+    tox_conference_get_chatlist(tox, groups);
+
     for (size_t i = 0; i < self.groups_list_size; i++) {
-        group_create(i, false); //TODO: figure out if groupchats are text or audio
+        group_create(groups[i], false); //TODO: figure out if groupchats are text or audio
     }
     LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
 }
@@ -346,11 +351,11 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
 
     char title[g->name_length + 25];
 
-    size_t title_length = snprintf(title, g->name_length + 25, "uTox new message in %.*s", g->name_length, g->name);
-
+    snprintf(title, sizeof(title), "uTox new message in %.*s", g->name_length, g->name);
+    size_t title_length = strnlen(title, sizeof(title) - 1);
     notify(title, title_length, msg, msg_length, g, 1);
 
-    if (flist_get_groupchat() != g) {
+    if (flist_get_sel_group() != g) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }
 }

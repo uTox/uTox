@@ -21,12 +21,13 @@ bool filter_audio_check(void) {
             return false;
         }
         LOG_INFO("Filter Audio", "filter audio on" );
-    } else if (f_a && !settings.audiofilter_enabled) { //no return is needed for this one because its already false
+    } else if (f_a && !settings.audiofilter_enabled) {
         kill_filter_audio(f_a);
         f_a = NULL;
         LOG_INFO("Filter Audio", "filter audio off" );
+        return false;
     }
-    return settings.audiofilter_enabled; //if there is no change return the current value
+    return settings.audiofilter_enabled;
 #else
     return false;
 #endif

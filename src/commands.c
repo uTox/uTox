@@ -60,7 +60,7 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
     int i = 0;
     while(commands[i].cmd){
         if (commands[i].cmd_length == cmd_length && memcmp(commands[i].cmd, *cmd, cmd_length) == 0) {
-            void* object = flist_get_friend() ? (void*)flist_get_friend() : (void*)flist_get_groupchat();
+            void* object = flist_get_sel_friend() ? (void*)flist_get_sel_friend() : (void*)flist_get_sel_group();
             bool ret = commands[i].func(object, *argument, argument_length);
             if (ret) {
                 cmd_length = -1;
@@ -79,7 +79,7 @@ void do_tox_url(uint8_t *url_string, int len) {
     LOG_TRACE("Commands", "Command: %.*s" , len, url_string);
 
     //! lacks max length checks, writes to inputs even on failure, no notice of failure
-    // doesnt reset unset inputs
+    // doesn't reset unset inputs
 
     // slashes are removed later
     if (len > 4 && memcmp(url_string, "tox:", 4) == 0) {

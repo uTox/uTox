@@ -6,7 +6,6 @@
 #include "../self.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../updater.h"
 
 #include "../av/video.h"
 
@@ -39,10 +38,15 @@ static void draw_settings_header(int x, int y, int w, int UNUSED(height)) {
 #ifdef GIT_VERSION
     setfont(FONT_TEXT);
     char ver_string[64];
-    int  count = snprintf(ver_string, 64, "Toxcore v%u.%u.%u",
-                            tox_version_major(), tox_version_minor(), tox_version_patch());
-    drawtextwidth_right(x + w - textwidth(ver_string, count) , textwidth(ver_string, count), SCALE(10),
-                        ver_string, count);
+    int  ver_string_len;
+
+    snprintf(ver_string, sizeof(ver_string), "Toxcore v%u.%u.%u",
+             tox_version_major(), tox_version_minor(), tox_version_patch());
+    ver_string_len = strnlen(ver_string, sizeof(ver_string) - 1);
+
+    drawtextwidth_right(x + w - textwidth(ver_string, ver_string_len),
+                        textwidth(ver_string, ver_string_len), SCALE(10),
+                        ver_string, ver_string_len);
 
     setfont(FONT_SELF_NAME); // x adjustment depends on the font type being set first
     x += SCALE(25) + UTOX_STR_WIDTH(UTOX_SETTINGS);
@@ -171,31 +175,33 @@ static void draw_settings_text_devices(int x, int y, int UNUSED(w), int UNUSED(h
     drawstr(x + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
 
     char   str[10];
-    size_t strlen = snprintf(str, 10, "%zu", self.device_list_count);
 
-    drawtext(x + SCALE(10), y + SCALE(75), str, strlen);
+    snprintf(str, sizeof(str), "%zu", self.device_list_count);
+    size_t str_len = strnlen(str, sizeof(str) - 1);
+
+    drawtext(x + SCALE(10), y + SCALE(75), str, str_len);
 }
 
 static void draw_settings_text_password(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), y + SCALE(245), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), y + SCALE(215), PROFILE_PASSWORD);
 
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(10), y + SCALE(319), PROFILE_PW_WARNING);
-    drawstr(x + SCALE(10), y + SCALE(331), PROFILE_PW_NO_RECOVER);
+    drawstr(x + SCALE(10), y + SCALE(289), PROFILE_PW_WARNING);
+    drawstr(x + SCALE(10), y + SCALE(301), PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(95), y + SCALE(248), NOSPAM_WARNING);
+    drawstr(x + SCALE(95), y + SCALE(218), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + SCALE(245), NOSPAM);
+    drawstr(x + SCALE(10), y + SCALE(215), NOSPAM);
 }
 
 // UI settings page
@@ -270,8 +276,7 @@ static void draw_settings_text_adv(int x, int y, int UNUSED(w), int UNUSED(heigh
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
     drawtext(x + SCALE(353), y + SCALE(89), ":", 1); // Little addr port separator
 
-    drawstr(x + SCALE(20)+ BM_SWITCH_WIDTH, y + SCALE(150), AUTO_UPDATE);
-    drawstr(x + SCALE(20)+ BM_SWITCH_WIDTH, y + SCALE(180), BLOCK_FRIEND_REQUESTS);
+    drawstr(x + SCALE(20)+ BM_SWITCH_WIDTH, y + SCALE(150), BLOCK_FRIEND_REQUESTS);
 }
 
 
@@ -459,7 +464,6 @@ panel_settings_master = {
             (PANEL*)&switch_proxy_force,
             (PANEL*)&switch_ipv6,
             (PANEL*)&switch_udp,
-            (PANEL*)&switch_auto_update,
             (PANEL*)&button_show_password_settings,
             &panel_profile_password_settings,
             (PANEL*)&switch_block_friend_requests,
@@ -510,6 +514,13 @@ static void update_show_password_button_text(void) {
 }
 
 BUTTON button_settings = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      = SIDEBAR_BUTTON_LEFT,
+        .y      = ROSTER_BOTTOM,
+        .width  = SIDEBAR_BUTTON_WIDTH,
+        .height = SIDEBAR_BUTTON_HEIGHT,
+    },
     .bm_icon          = BM_SETTINGS,
     .icon_w       = _BM_ADD_WIDTH,
     .icon_h       = _BM_ADD_WIDTH,
@@ -520,6 +531,29 @@ BUTTON button_settings = {
     .tooltip_text = {.i18nal = STR_USERSETTINGS },
 };
 
+static void close_dropdowns(PANEL *p) {
+    if (!p->child) {
+        return;
+    }
+
+    PANEL *ch;
+    for (int i = 0; (ch = p->child[i]); ++i)
+    {
+        PANEL_TYPE type = ch->type;
+        if (type == PANEL_DROPDOWN) {
+            dropdown_close((DROPDOWN*)ch);
+        } else if (type == PANEL_NONE) {
+            close_dropdowns(ch);
+        }
+    }
+}
+
+void reset_settings_controls(void) {
+    update_show_nospam_button_text();
+    update_show_password_button_text();
+    close_dropdowns(&panel_settings_master);
+}
+
 static void disable_all_setting_sub(void) {
     flist_selectsettings();
     panel_settings_profile.disabled         = true;
@@ -528,8 +562,7 @@ static void disable_all_setting_sub(void) {
     panel_settings_av.disabled              = true;
     panel_settings_notifications.disabled   = true;
     panel_settings_adv.disabled             = true;
-    update_show_nospam_button_text();
-    update_show_password_button_text();
+    reset_settings_controls();
 }
 
 static void button_settings_sub_profile_on_mup(void) {
@@ -656,7 +689,7 @@ static void button_show_password_settings_on_mup(void) {
 #include "../flist.h"
 #include "../friend.h"
 static void button_export_chatlog_on_mup(void) {
-    FRIEND *f = flist_get_friend();
+    FRIEND *f = flist_get_sel_friend();
     if (!f) {
         LOG_ERR("Settings", "Could not get selected friend.");
         return;
@@ -753,6 +786,7 @@ static void button_videopreview_on_mup(void) {
         postmessage_utoxav(UTOXAV_START_VIDEO, UINT16_MAX, 1, NULL);
     } else {
         LOG_ERR("Button", "Video_width = 0, can't preview\n");
+        return;
     }
     settings.video_preview = !settings.video_preview;
 }
@@ -771,6 +805,13 @@ static void button_show_qr_update(BUTTON *b) {
 }
 
 BUTTON button_copyid = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  66,
+        .y      = 117,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill  = BM_SBUTTON,
     .update   = button_setcolors_success,
     .on_mup   = button_copyid_on_mup,
@@ -826,6 +867,13 @@ BUTTON button_videopreview = {
 };
 
 BUTTON button_lock_uTox = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  10,
+        .y      = 265,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_lock_uTox_on_mup,
@@ -834,6 +882,13 @@ BUTTON button_lock_uTox = {
 };
 
 BUTTON button_show_password_settings = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  10,
+        .y      = 177,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_show_password_settings_on_mup,
@@ -842,6 +897,13 @@ BUTTON button_show_password_settings = {
 };
 
 BUTTON button_export_chatlog = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  10,
+        .y      = 208,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_export_chatlog_on_mup,
@@ -851,6 +913,13 @@ BUTTON button_export_chatlog = {
 };
 
 BUTTON button_change_nospam = {
+    .panel = {
+        .type   = PANEL_BUTTON,
+        .x      =  10,
+        .y      = 265,
+        .width  = _BM_SBUTTON_WIDTH,
+        .height = _BM_SBUTTON_HEIGHT,
+    },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
     .on_mup       = button_change_nospam_on_mup,
@@ -925,14 +994,16 @@ static void switchfxn_audio_filtering(void) { settings.audiofilter_enabled = !se
 
 static void switchfxn_status_notifications(void) { settings.status_notifications = !settings.status_notifications; }
 
-static void switchfxn_auto_update(void) {
-    settings.auto_update = !settings.auto_update;
-    updater_start(0);
-}
-
 static void switchfxn_block_friend_requests(void) { settings.block_friend_requests = !settings.block_friend_requests; }
 
 UISWITCH switch_save_chat_history = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 115,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -943,6 +1014,13 @@ UISWITCH switch_save_chat_history = {
 };
 
 UISWITCH switch_mini_contacts = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 235,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -975,6 +1053,13 @@ UISWITCH switch_magic_sidebar = {
 };
 
 UISWITCH switch_ipv6 = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 27,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -985,6 +1070,13 @@ UISWITCH switch_ipv6 = {
 };
 
 UISWITCH switch_udp = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 57,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -995,6 +1087,13 @@ UISWITCH switch_udp = {
 };
 
 UISWITCH switch_close_to_tray = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 145,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1005,6 +1104,13 @@ UISWITCH switch_close_to_tray = {
 };
 
 UISWITCH switch_start_in_tray = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 175,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1015,6 +1121,13 @@ UISWITCH switch_start_in_tray = {
 };
 
 UISWITCH switch_auto_startup = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 205,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1025,6 +1138,13 @@ UISWITCH switch_auto_startup = {
 };
 
 UISWITCH switch_typing_notes = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 70,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1035,6 +1155,13 @@ UISWITCH switch_typing_notes = {
 };
 
 UISWITCH switch_audible_notifications = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 10,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1045,6 +1172,13 @@ UISWITCH switch_audible_notifications = {
 };
 
 UISWITCH switch_push_to_talk = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 10,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1065,6 +1199,13 @@ UISWITCH switch_audio_filtering = {
 };
 
 UISWITCH switch_status_notifications = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 40,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1074,17 +1215,14 @@ UISWITCH switch_status_notifications = {
     .tooltip_text   = {.i18nal = STR_STATUS_NOTIFICATIONS },
 };
 
-UISWITCH switch_auto_update = {
-    .style_outer    = BM_SWITCH,
-    .style_toggle   = BM_SWITCH_TOGGLE,
-    .style_icon_off = BM_NO,
-    .style_icon_on  = BM_YES,
-    .update         = switch_update,
-    .on_mup         = switchfxn_auto_update,
-    .tooltip_text   = {.i18nal = STR_AUTO_UPDATE }
-};
-
 UISWITCH switch_block_friend_requests = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 147,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1133,6 +1271,13 @@ static void switchfxn_proxy_force(void) {
 }
 
 UISWITCH switch_proxy = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      = 10,
+        .y      = 87,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1143,6 +1288,13 @@ UISWITCH switch_proxy = {
 };
 
 UISWITCH switch_proxy_force = {
+    .panel = {
+        .type   = PANEL_SWITCH,
+        .x      =  10,
+        .y      = 117,
+        .width  = _BM_SWITCH_WIDTH,
+        .height = _BM_SWITCH_HEIGHT,
+    },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
@@ -1214,7 +1366,7 @@ static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)
 
 #include"../groups.h"
 static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
-    GROUPCHAT *g = flist_get_groupchat();
+    GROUPCHAT *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Settings", "Could not get selected groupchat.");
         return;
@@ -1250,6 +1402,13 @@ DROPDOWN dropdown_video = {
 };
 
 DROPDOWN dropdown_dpi = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 150,
+        .y      =  85,
+        .width  = 200,
+        .height =  24,
+    },
     .ondisplay = simple_dropdown_ondisplay,
     .onselect  = dropdown_dpi_onselect,
     .dropcount = COUNTOF(dpidrops),
@@ -1282,6 +1441,13 @@ static UTOX_I18N_STR themedrops[] = {
 };
 
 DROPDOWN dropdown_theme = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      =  10,
+        .y      =  85,
+        .width  = 120,
+        .height =  24,
+    },
     .ondisplay = simple_dropdown_ondisplay,
     .onselect  = dropdown_theme_onselect,
     .dropcount = COUNTOF(themedrops),
@@ -1307,6 +1473,13 @@ DROPDOWN dropdown_notify_groupchats = {
 };
 
 DROPDOWN dropdown_global_group_notifications = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      =  10,
+        .y      = 125,
+        .width  = 100,
+        .height =  24,
+    },
     .ondisplay = simple_dropdown_ondisplay,
     .onselect  = dropdown_global_group_notifications_onselect,
     .dropcount = COUNTOF(notifydrops),
@@ -1336,11 +1509,28 @@ static void edit_name_onenter(EDIT *edit) {
     postmessage_toxcore(TOX_SELF_SET_NAME, length, 0, self.name);
 }
 
+static void edit_name_ontab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_status_msg);
+}
+
+static void edit_name_onshifttab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_toxid);
+}
+
 EDIT edit_name = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  30,
+        .width  = -10,
+        .height =  24,
+    },
     .data        = edit_name_data,
     .data_size   = sizeof edit_name_data,
     .onenter     = edit_name_onenter,
     .onlosefocus = edit_name_onenter,
+    .ontab       = edit_name_ontab,
+    .onshifttab  = edit_name_onshifttab,
 };
 
 static void edit_status_msg_onenter(EDIT *edit) {
@@ -1360,11 +1550,28 @@ static void edit_status_msg_onenter(EDIT *edit) {
     postmessage_toxcore(TOX_SELF_SET_STATUS, length, 0, self.statusmsg); //!
 }
 
+static void edit_status_msg_ontab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_toxid);
+}
+
+static void edit_status_msg_onshifttab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_name);
+}
+
 EDIT edit_status_msg = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  85,
+        .width  = -10,
+        .height =  24,
+    },
     .data        = edit_status_msg_data,
     .data_size   = sizeof edit_status_msg_data,
     .onenter     = edit_status_msg_onenter,
     .onlosefocus = edit_status_msg_onenter,
+    .ontab       = edit_status_msg_ontab,
+    .onshifttab  = edit_status_msg_onshifttab,
 };
 
 
@@ -1387,19 +1594,44 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
     }
 }
 
+static void edit_proxy_ip_ontab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_proxy_port);
+}
+
 EDIT edit_proxy_ip = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      = 230,
+        .y      =  87,
+        .width  = 120,
+        .height =  24,
+    },
     .data        = edit_proxy_ip_data,
     .data_size   = sizeof edit_proxy_ip_data,
-    .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_IP },
-    /* TODO .ontab = change to proxy port field */
+    .onlosefocus = edit_proxy_ip_port_onlosefocus,
+    .ontab       = edit_proxy_ip_ontab,
+    .onshifttab  = edit_proxy_ip_ontab,
 };
 
+static void edit_proxy_port_ontab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_proxy_ip);
+}
+
 EDIT edit_proxy_port = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      = 360,
+        .y      =  87,
+        .width  =  60,
+        .height =  24,
+    },
     .data        = edit_proxy_port_data,
     .data_size   = sizeof edit_proxy_port_data,
-    .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = {.i18nal = STR_PROXY_EDIT_HINT_PORT },
+    .onlosefocus = edit_proxy_ip_port_onlosefocus,
+    .ontab       = edit_proxy_port_ontab,
+    .onshifttab  = edit_proxy_port_ontab,
 };
 
 EDIT edit_video_fps = {
@@ -1416,6 +1648,13 @@ static void edit_profile_password_update(EDIT *UNUSED(edit)) {
 }
 
 EDIT edit_profile_password = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      =  55,
+        .width  = -10,
+        .height =  24,
+    },
     .data_size = sizeof edit_profile_password_data,
     .data      = edit_profile_password_data,
     // .onchange    = edit_profile_password_update,
@@ -1423,12 +1662,29 @@ EDIT edit_profile_password = {
     .password    = 1,
 };
 
+static void edit_toxid_ontab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_name);
+}
+
+static void edit_toxid_onshifttab(EDIT *UNUSED(edit)) {
+    edit_setfocus(&edit_status_msg);
+}
+
 EDIT edit_toxid = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      = 140,
+        .width  = -10,
+        .height =  24,
+    },
     .length = TOX_ADDRESS_SIZE * 2,
     .data = self.id_str,
     .readonly = 1,
     .noborder = 0,
     .select_completely = 1,
+    .ontab      = edit_toxid_ontab,
+    .onshifttab = edit_toxid_onshifttab,
 };
 
 static void edit_change_nospam_onenter(EDIT *edit) {
@@ -1446,6 +1702,13 @@ static void edit_change_nospam_onenter(EDIT *edit) {
 }
 
 EDIT edit_nospam = {
+    .panel = {
+        .type   = PANEL_EDIT,
+        .x      =  10,
+        .y      = 235,
+        .width  = -10,
+        .height =  24,
+    },
     .data_size    = sizeof edit_nospam_data,
     .data         = edit_nospam_data,
     .noborder     = false,

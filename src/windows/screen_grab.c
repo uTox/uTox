@@ -3,10 +3,11 @@
 #include "../debug.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../stb.h"
 #include "../tox.h"
 
 #include "../av/utox_av.h"
+
+#include "stb.h"
 
 #include <windowsx.h>
 
@@ -74,7 +75,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     free(bits);
 
     NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(flist_get_friend(), image, width, height, out, size);
+    friend_sendimage(flist_get_sel_friend(), image, width, height, out, size);
 }
 
 static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -132,8 +133,8 @@ static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LP
                 DestroyWindow(window);
                 postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 1, 0, NULL);
             } else {
-                if (flist_get_friend()) {
-                    FRIEND *f = flist_get_friend();
+                if (flist_get_sel_friend()) {
+                    FRIEND *f = flist_get_sel_friend();
                     if (f->online) {
                         DestroyWindow(window);
                         HWND dwnd = GetDesktopWindow();

@@ -3,12 +3,18 @@
 #include "main.h"
 #include "window.h"
 
-
 #include "../debug.h"
 #include "../macros.h"
 #include "../ui.h"
 
 #define UTOX_FONT_XLIB "Roboto"
+
+FT_Library ftlib;
+FONT       font[16], *sfont;
+FcCharSet *charset;
+FcFontSet *fs;
+
+bool ft_vert, ft_swap_blue_red;
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);
 

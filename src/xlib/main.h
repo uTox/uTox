@@ -33,39 +33,39 @@ struct native_image {
     XID alpha;
 };
 
-Atom wm_protocols, wm_delete_window;
+extern Atom wm_protocols, wm_delete_window;
 
-Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
-Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
-Atom XA_URI_LIST, XA_PNG_IMG;
-Atom XRedraw;
+extern Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
+extern Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
+extern Atom XA_URI_LIST, XA_PNG_IMG;
+extern Atom XRedraw;
 
-Picture bitmap[BM_ENDMARKER];
-Cursor  cursors[8];
+extern Picture bitmap[BM_ENDMARKER];
+extern Cursor  cursors[8];
 
 /* Screen grab vars */
-uint8_t pointergrab;
+extern uint8_t pointergrab;
 
-bool     _redraw;
+extern bool     _redraw;
 
-XImage *screen_image;
+extern XImage *screen_image;
 
 extern int utox_v4l_fd;
 
-/* dynamiclly load libgtk */
-void *libgtk;
+/* dynamically load libgtk */
+extern void *libgtk;
 
-struct {
+extern struct utox_clipboard {
     int  len;
     char data[UINT16_MAX]; // TODO: De-hardcode this value.
 } clipboard;
 
-struct {
+extern struct utox_primary {
     int  len;
     char data[UINT16_MAX]; // TODO: De-hardcode this value.
 } primary;
 
-struct {
+extern struct utox_pastebuf {
     int   len, left;
     Atom  type;
     char *data;
@@ -73,7 +73,7 @@ struct {
 
 Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format);
 
-bool doevent(XEvent event);
+bool doevent(XEvent *event);
 
 void togglehide(void);
 

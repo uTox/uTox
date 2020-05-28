@@ -3,10 +3,13 @@
 #include "macros.h"
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+/* returns the length of the string written to `dest`
+ */
 int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
     char * str[]  = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     int    max_id = COUNTOF(str) - 1;
@@ -20,13 +23,13 @@ int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
 
     size_t r;
 
-    r = snprintf((char *)dest, size, "%u", (uint32_t)bytes);
+    r = snprintf((char *)dest, size, "[%" PRIu64, bytes);
 
     if (r >= size) { // truncated
         r = size - 1;
     } else {
         // missing decimals
-        r += snprintf((char *)dest + r, size - r, "%s", str[i]);
+        r += snprintf((char *)dest + r, size - r, " %s]", str[i]);
         if (r >= size) { // truncated
             r = size - 1;
         }
@@ -47,7 +50,7 @@ uint8_t utf8_len(const char *data) {
         }
         bytes++;
     }
-    // no validation, instead validate all utf8 when recieved
+    // no validation, instead validate all utf8 when received
     return bytes;
 }
 
