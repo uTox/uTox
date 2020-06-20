@@ -22,4 +22,3 @@
 // Defaults
 #define DEFAULT_NAME "uTox User"
 #define DEFAULT_STATUS "Toxing on uTox, from the future!"
-#define DEFAULT_SCALE 11

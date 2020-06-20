@@ -810,13 +810,6 @@ void setscale(void) {
     svg_draw(1);
 }
 
-void config_osdefaults(UTOX_SAVE *r) {
-    r->window_x      = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
-    r->window_y      = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
-    r->window_width  = MAIN_WIDTH;
-    r->window_height = MAIN_HEIGHT;
-}
-
 /*
  * CommandLineToArgvA implementation since CommandLineToArgvA doesn't exist in win32 api
  * Limitation: nested quotation marks are not handled
@@ -1071,6 +1064,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         DispatchMessage(&msg);
     }
 
+    RECT wndrect = { 0 };
+    GetWindowRect(main_window.window, &wndrect);
+
+    settings.window_x      = wndrect.left < 0 ? 0 : wndrect.left;
+    settings.window_y      = wndrect.top < 0 ? 0 : wndrect.top;
+    settings.window_width  = (wndrect.right - wndrect.left);
+    settings.window_height = (wndrect.bottom - wndrect.top);
+
+    config_save();
+
     /* kill threads */
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);
@@ -1083,16 +1086,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     while (tox_thread_init) {
         yieldcpu(10);
     }
-
-    RECT wndrect = { 0 };
-    GetWindowRect(main_window.window, &wndrect);
-    UTOX_SAVE d = {
-        .window_x      = wndrect.left < 0 ? 0 : wndrect.left,
-        .window_y      = wndrect.top < 0 ? 0 : wndrect.top,
-        .window_width  = (wndrect.right - wndrect.left),
-        .window_height = (wndrect.bottom - wndrect.top),
-    };
-    config_save(&d);
 
     // TODO: This should be a non-zero value determined by a message's wParam.
     return 0;

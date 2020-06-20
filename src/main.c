@@ -262,13 +262,13 @@ void utox_init(void) {
         settings.debug_file = stdout;
     }
 
-    UTOX_SAVE *save = config_load();
-    free(save);
+    config_load();
 
     /* Called by the native main for every platform after loading utox setting,
      * before showing/drawing any windows. */
-    if (settings.curr_version != settings.last_version) {
+    if (settings.utox_last_version != settings.last_version) {
         settings.show_splash = true;
+        settings.utox_last_version = settings.last_version;
     }
 
     // We likely want to start this on every system.

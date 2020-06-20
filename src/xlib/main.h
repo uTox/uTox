@@ -22,9 +22,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-#define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
-#define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
-
 typedef struct native_image NATIVE_IMAGE;
 struct native_image {
     // This is really a Picture, but it is just a typedef for XID, and I didn't

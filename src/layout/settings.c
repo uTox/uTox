@@ -273,7 +273,7 @@ static void draw_settings_text_adv(int x, int y, int UNUSED(w), int UNUSED(heigh
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(30),  IPV6);
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(60),  UDP);
     drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(90),  PROXY);
-    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.use_proxy = true
+    drawstr(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(120), PROXY_FORCE); // TODO draw ONLY when settings.proxyenable = true
     drawtext(x + SCALE(353), y + SCALE(89), ":", 1); // Little addr port separator
 
     drawstr(x + SCALE(20)+ BM_SWITCH_WIDTH, y + SCALE(150), BLOCK_FRIEND_REQUESTS);
@@ -954,12 +954,12 @@ static void switchfxn_mini_contacts(void) {
 }
 
 static void switchfxn_ipv6(void) {
-    settings.enable_ipv6 = !settings.enable_ipv6;
+    settings.enableipv6 = !settings.enableipv6;
     tox_settingschanged();
 }
 
 static void switchfxn_udp(void) {
-    settings.enable_udp = !settings.enable_udp;
+    settings.disableudp = !settings.disableudp;
     tox_settingschanged();
 }
 
@@ -972,15 +972,15 @@ static void switchfxn_start_in_tray(void) {
 }
 
 static void switchfxn_auto_startup(void) {
-    settings.start_with_system = !settings.start_with_system;
-    launch_at_startup(settings.start_with_system);
+    settings.auto_startup = !settings.auto_startup;
+    launch_at_startup(settings.auto_startup);
 }
 
 static void switchfxn_typing_notes(void) {
-    settings.send_typing_status = !settings.send_typing_status;
+    settings.no_typing_notifications = !settings.no_typing_notifications;
 }
 
-static void switchfxn_audible_notifications(void) { settings.ringtone_enabled = !settings.ringtone_enabled; }
+static void switchfxn_audible_notifications(void) { settings.audible_notifications_enabled = !settings.audible_notifications_enabled; }
 
 static void switchfxn_push_to_talk(void) {
     if (!settings.push_to_talk) {
@@ -990,7 +990,7 @@ static void switchfxn_push_to_talk(void) {
     }
 }
 
-static void switchfxn_audio_filtering(void) { settings.audiofilter_enabled = !settings.audiofilter_enabled; }
+static void switchfxn_audio_filtering(void) { settings.audio_filtering_enabled = !settings.audio_filtering_enabled; }
 
 static void switchfxn_status_notifications(void) { settings.status_notifications = !settings.status_notifications; }
 
@@ -1233,9 +1233,9 @@ UISWITCH switch_block_friend_requests = {
 };
 
 static void switchfxn_proxy(void) {
-    settings.use_proxy   = !settings.use_proxy;
+    settings.proxyenable   = !settings.proxyenable;
 
-    if (settings.use_proxy) {
+    if (settings.proxyenable) {
         switch_proxy_force.panel.disabled = false;
     } else {
         settings.force_proxy              = false;
@@ -1250,6 +1250,8 @@ static void switchfxn_proxy(void) {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
     settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
 
+    memcpy(settings.proxy_ip, proxy_address, edit_proxy_ip.length);
+
     tox_settingschanged();
 }
 
@@ -1258,7 +1260,7 @@ static void switchfxn_proxy_force(void) {
 
     if (settings.force_proxy) {
         switch_udp.switch_on      = false;
-        settings.enable_udp       = false;
+        settings.disableudp       = true;
         switch_udp.panel.disabled = true;
     } else {
         switch_udp.panel.disabled = false;
@@ -1347,6 +1349,7 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     ui_rescale(i + 5);
+    settings.scale = ui_scale;
 }
 
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
@@ -1589,7 +1592,7 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
     proxy_address[edit_proxy_ip.length] = 0;
 
 
-    if (settings.use_proxy) {
+    if (settings.proxyenable) {
         tox_settingschanged();
     }
 }

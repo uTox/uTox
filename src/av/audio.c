@@ -703,7 +703,7 @@ void utox_audio_thread(void *args) {
                     break;
                 }
                 case UTOXAUDIO_PLAY_RINGTONE: {
-                    if (settings.ringtone_enabled && self.status != USER_STATUS_DO_NOT_DISTURB) {
+                    if (settings.audible_notifications_enabled && self.status != USER_STATUS_DO_NOT_DISTURB) {
                         LOG_INFO("uTox Audio", "Going to start ringtone!" );
 
                         audio_out_device_open();
@@ -727,7 +727,7 @@ void utox_audio_thread(void *args) {
                     break;
                 }
                 case UTOXAUDIO_PLAY_NOTIFICATION: {
-                    if (settings.ringtone_enabled && self.status == USER_STATUS_AVAILABLE) {
+                    if (settings.audible_notifications_enabled && self.status == USER_STATUS_AVAILABLE) {
                         LOG_INFO("uTox Audio", "Going to start notification tone!" );
 
                         if (close_device_time <= time(NULL)) {
@@ -783,7 +783,7 @@ void utox_audio_thread(void *args) {
             }
         }
 
-        settings.audiofilter_enabled = filter_audio_check();
+        settings.audio_filtering_enabled = filter_audio_check();
 
         bool sleep = true;
 
@@ -811,7 +811,7 @@ void utox_audio_thread(void *args) {
 
             #ifdef AUDIO_FILTERING
             #ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
-            if (f_a && settings.audiofilter_enabled) {
+            if (f_a && settings.audio_filtering_enabled) {
                 alcGetIntegerv(audio_out_device, ALC_LOOPBACK_CAPTURE_SAMPLES, sizeof(samples), &samples);
                 if (samples >= perframe) {
                     int16_t buffer[perframe];

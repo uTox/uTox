@@ -12,7 +12,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../macros.h"
-#include "../main.h" // MAIN_WIDTH, MAIN_WIDTH, DEFAULT_SCALE, parse_args, utox_init
+#include "../main.h" // MAIN_WIDTH, MAIN_WIDTH, parse_args, utox_init
 #include "../settings.h"
 #include "../text.h"
 #include "../theme.h"
@@ -653,13 +653,6 @@ void edit_will_deactivate(void) {}
 
 void update_tray(void) {}
 
-void config_osdefaults(UTOX_SAVE *r) {
-    r->window_x      = 0;
-    r->window_y      = 0;
-    r->window_width  = DEFAULT_WIDTH;
-    r->window_height = DEFAULT_HEIGHT;
-}
-
 static void atom_init(void) {
     wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);
     wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
@@ -874,6 +867,20 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    Window       root_return, child_return;
+    int          x_return, y_return;
+    unsigned int width_return, height_return, i;
+    XGetGeometry(display, main_window.window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
+
+    XTranslateCoordinates(display, main_window.window, root_return, 0, 0, &x_return, &y_return, &child_return);
+
+    settings.window_x      = x_return < 0 ? 0 : x_return;
+    settings.window_y      = y_return < 0 ? 0 : y_return;
+    settings.window_width  = width_return;
+    settings.window_height = height_return;
+
+    config_save();
+
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
@@ -882,22 +889,6 @@ int main(int argc, char *argv[]) {
     }
 
     destroy_tray_icon();
-
-    Window       root_return, child_return;
-    int          x_return, y_return;
-    unsigned int width_return, height_return, i;
-    XGetGeometry(display, main_window.window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
-
-    XTranslateCoordinates(display, main_window.window, root_return, 0, 0, &x_return, &y_return, &child_return);
-
-    UTOX_SAVE d = {
-        .window_x      = x_return < 0 ? 0 : x_return,
-        .window_y      = y_return < 0 ? 0 : y_return,
-        .window_width  = width_return,
-        .window_height = height_return,
-    };
-
-    config_save(&d);
 
     FcFontSetSortDestroy(fs);
     freefonts();
