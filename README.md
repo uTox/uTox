@@ -1,4 +1,4 @@
-# μTox [![Build Status](https://travis-ci.org/uTox/uTox.svg?branch=develop)](https://travis-ci.org/uTox/uTox) [![Build status](https://ci.appveyor.com/api/projects/status/github/utox/utox?branch=develop&svg=true)](https://ci.appveyor.com/project/utox/utox)  [![Coverage](https://img.shields.io/badge/coverage-0.01%25-red.svg)](#) [![IRC](https://img.shields.io/badge/freenode-%23utox-brightgreen.svg)](https://webchat.freenode.net/?channels=#utox)
+# μTox [![Build Status](https://travis-ci.org/uTox/uTox.svg?branch=develop)](https://travis-ci.org/uTox/uTox) [![Build status](https://ci.appveyor.com/api/projects/status/github/utox/utox?branch=develop&svg=true)](https://ci.appveyor.com/project/utox/utox) [![IRC](https://img.shields.io/badge/freenode-%23utox-brightgreen.svg)](https://webchat.freenode.net/?channels=#utox)
 
 The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
@@ -8,15 +8,12 @@ You shouldn't have to choose a new client for every device: So µTox works every
 
 ## Downloads
 - **Windows**
-  - [32bit Version](https://build.tox.chat/view/uTox/job/uTox_build_windows_x86_debug/lastSuccessfulBuild/artifact/utox_windows_x86_debug.zip)
-  - [64bit Version](https://build.tox.chat/view/uTox/job/uTox_build_windows_x86-64_release/lastSuccessfulBuild/artifact/utox_windows_x86-64.zip)
-  - [Windows XP Version](https://build.tox.chat/job/uTox-nightly-FOR-WIN-XP_build_windows_x86_debug/lastSuccessfulBuild/artifact/utox_nightly.zip)
+  - [x64](https://github.com/uTox/uTox/releases/download/v0.17.2/utox_x86_64.exe)
 - **Linux/Posix**
   - [static x86-64](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
   - [static x86](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
 - **macOS**
-  - [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.16.1/uTox-0.16.1.dmg) (*could be out of date, check the version list below*)
-  - [Version List](https://github.com/uTox/uTox/releases)
+  - [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.16.1/uTox-0.16.1.dmg) (out of date)
 - **Android**
   - [uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox) ** uTox isn't designed to work well on Android,
     you should use [aTox](https://github.com/evilcorpltd/aTox/) instead!
