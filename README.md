@@ -25,6 +25,7 @@ Tox is a peer2peer, end-to-end encrypted, instant messaging protocol, with end-t
 - Tox URI support (clickable Tox links)
 
 Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help, if you do encounter any bugs or problems please [open an issue](https://github.com/uTox/uTox/issues/new).
+If you do not have a GitHub account, you may also send an email directly to avoidr.
 
 ## Downloads
 - **Windows**
