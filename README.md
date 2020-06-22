@@ -2,7 +2,7 @@
 
 The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
-[**Installing**](docs/INSTALL.md) **|** [**Compiling**](docs/BUILD.md) **|** [**Changelog**](CHANGELOG.md) **|** [**TokTok Site**](http://toktok.github.io/) **|** [**Toxcore Spec**](https://toktok.github.io/spec)
+[**Installing**](docs/INSTALL.md) **|** [**Compiling**](docs/BUILD.md) **|** [**Screenshots**](screenshots/INDEX.md) **|** [**Changelog**](CHANGELOG.md) **|** [**TokTok Site**](http://toktok.github.io/) **|** [**Toxcore Spec**](https://toktok.github.io/spec)
 
 Tox is a peer-to-peer, end-to-end encrypted, instant messaging protocol, with end-to-end encryption as its default and *only* mode.
 
@@ -38,19 +38,6 @@ Tox is a peer-to-peer, end-to-end encrypted, instant messaging protocol, with en
 - Emoticons
 
 Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help, if you do encounter any bugs or problems please [open an issue](https://github.com/uTox/uTox/issues/new).
-
-## Screenshots
-μTox running on Windows 10
-
-![μTox on Windows 10](images/utox-windows10.png "μTox running on Windows 10")
-
-μTox running on macOS:
-
-![μTox on macOS](images/utox-osx.png "μTox running on macOS")
-
-μTox running on Linux (Ubuntu)
-
-![μTox on Linux](images/utox-linux.png "μTox running on Linux (Ubuntu)")
 
 ## Team
 GitLab | IRC | Email | Fingerprint
