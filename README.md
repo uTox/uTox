@@ -4,7 +4,11 @@ The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
 [**TokTok Site**](http://toktok.github.io/) **|** [**Installing**](docs/INSTALL.md) **|** [**Changelog**](CHANGELOG.md) **|** [**Compiling**](docs/BUILD.md) **|** [**Toxcore Spec**](https://toktok.github.io/spec)
 
-You shouldn't have to choose a new client for every device: So µTox works everywhere! On every major system **Windows**, **macOS**, **Linux**, **Android**, **FreeBSD**, **NetBSD**, **OpenBSD**, and even **DragonFlyBSD**.
+Tox is a peer2peer, end-to-end encrypted, instant messaging protocol, with end-to-end encryption as its default and *only* mode.
+
+µTox is **cross-platform**: Primary support for Windows 7+ and Linux, secondary support for OpenBSD, FreeBSD, NetBSD, and DragonFlyBSD. MacOS is unmaintained (needs your contributions).
+
+µTox is **multi-lingual**: Complete translations for German, Russian, Swedish, Polish, Hungarian, Estonian, Ukrainian, and Bulgarian. Partial translations to many more languages.
 
 ## Downloads
 - **Windows**
