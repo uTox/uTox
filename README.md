@@ -10,19 +10,6 @@ Tox is a peer-to-peer, end-to-end encrypted, instant messaging protocol, with en
 
 µTox is **multi-lingual**: Complete translations for German, Russian, Swedish, Polish, Hungarian, Estonian, Ukrainian, and Bulgarian. Partial translations to many more languages.
 
-## Downloads
-- **Windows**
-  - [x64](https://github.com/uTox/uTox/releases/download/v0.17.2/utox_x86_64.exe)
-- **Linux/Posix**
-  - [static x86-64](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
-  - [static x86](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
-- **macOS**
-  - [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.16.1/uTox-0.16.1.dmg) (out of date)
-- **Android**
-  - [uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox) ** uTox isn't designed to work well on Android,
-    you should use [aTox](https://github.com/evilcorpltd/aTox/) instead!
-  - [Direct apk](https://build.tox.chat/view/uTox/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk) (You may need to uninstall the previous version.)
-
 ## Features
 - Avatars
 - Secure person to person conversations:
@@ -38,6 +25,19 @@ Tox is a peer-to-peer, end-to-end encrypted, instant messaging protocol, with en
 - Emoticons
 
 Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help, if you do encounter any bugs or problems please [open an issue](https://github.com/uTox/uTox/issues/new).
+
+## Downloads
+- **Windows**
+  - [x64](https://github.com/uTox/uTox/releases/download/v0.17.2/utox_x86_64.exe)
+- **Linux/Posix**
+  - [static x86-64](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
+  - [static x86](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
+- **macOS**
+  - [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.16.1/uTox-0.16.1.dmg) (out of date)
+- **Android**
+  - [uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox) ** uTox isn't designed to work well on Android,
+    you should use [aTox](https://github.com/evilcorpltd/aTox/) instead!
+  - [Direct apk](https://build.tox.chat/view/uTox/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk) (You may need to uninstall the previous version.)
 
 ## Team
 GitLab | IRC | Email | Fingerprint
