@@ -11,18 +11,18 @@ Tox is a peer2peer, end-to-end encrypted, instant messaging protocol, with end-t
 µTox is **multi-lingual**: Complete translations for German, Russian, Swedish, Polish, Hungarian, Estonian, Ukrainian, and Bulgarian. Partial translations to many more languages.
 
 ## Features
+- Themes
 - Avatars
-- Secure person to person conversations:
-  - Video (Webcam or Desktop sharing)
-  - Audio
+- 1-on-1 chats
   - Text
     - Chat History
+  - Audio
+  - Video (Webcam or Desktop sharing)
   - Screenshots
 - Group chats
-  - New API support ready.
+  - Text
 - File transfers, with inline images support
 - Tox URI support (clickable Tox links)
-- Emoticons
 
 Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help, if you do encounter any bugs or problems please [open an issue](https://github.com/uTox/uTox/issues/new).
 
