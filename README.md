@@ -2,7 +2,7 @@
 
 The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
-[**Installing**](docs/INSTALL.md) **|** [**Compiling**](docs/BUILD.md) **|** [**Screenshots**](screenshots/INDEX.md) **|** [**Changelog**](CHANGELOG.md) **|** [**TokTok Site**](http://toktok.github.io/) **|** [**Toxcore Spec**](https://toktok.github.io/spec)
+[**Installing**](docs/INSTALL.md) **|** [**Compiling**](docs/BUILD.md) **|** [**Screenshots**](screenshots/INDEX.md) **|** [**Release Notes**](release_notes/INDEX.md) **|** [**TokTok Site**](http://toktok.github.io/) **|** [**Toxcore Spec**](https://toktok.github.io/spec)
 
 Tox is a peer-to-peer, end-to-end encrypted, instant messaging protocol, with end-to-end encryption as its default and *only* mode.
 
