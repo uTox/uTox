@@ -124,7 +124,6 @@ extern TOX_MSG       tox_msg, audio_msg, toxav_msg;
 extern volatile bool tox_thread_msg, audio_thread_msg, video_thread_msg;
 
 extern bool tox_connected;
-extern char proxy_address[256]; /* Magic Number inside toxcore */
 
 void tox_after_load(Tox *tox);
 
