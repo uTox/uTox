@@ -20,14 +20,6 @@ typedef struct utox_settings {
 
     bool show_splash;
 
-    // Low level settings (network, profile, portable-mode)
-    bool     portable_mode;
-    bool     disableudp;
-    bool     enableipv6;
-    bool     proxyenable;
-    bool     force_proxy;
-    uint16_t proxy_port;
-
     // Tox level settings
     bool block_friend_requests;
     bool save_encryption;
@@ -76,6 +68,13 @@ typedef struct utox_settings {
     uint32_t window_baseline;
     bool     window_maximized;
 
+    // Low level settings (network, profile, portable-mode)
+    bool     portable_mode;
+    bool     disableudp;
+    bool     enableipv6;
+    bool     proxyenable;
+    bool     force_proxy;
+    uint16_t proxy_port;
     uint8_t proxy_ip[255]; /* coincides with TOX_MAX_HOSTNAME_LENGTH from toxcore */
 } SETTINGS;
 
