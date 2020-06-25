@@ -76,7 +76,7 @@ typedef struct utox_settings {
     uint32_t window_baseline;
     bool     window_maximized;
 
-    uint8_t proxy_ip[];
+    uint8_t proxy_ip[255]; /* coincides with TOX_MAX_HOSTNAME_LENGTH from toxcore */
 } SETTINGS;
 
 extern SETTINGS settings;
