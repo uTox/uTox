@@ -1244,12 +1244,6 @@ static void switchfxn_proxy(void) {
         switch_udp.panel.disabled         = false;
     }
 
-    memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
-    proxy_address[edit_proxy_ip.length] = 0;
-
-    edit_proxy_port.data[edit_proxy_port.length] = 0;
-    settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
-
     tox_settingschanged();
 }
 
@@ -1263,9 +1257,6 @@ static void switchfxn_proxy_force(void) {
     } else {
         switch_udp.panel.disabled = false;
     }
-
-    edit_proxy_port.data[edit_proxy_port.length] = 0;
-    settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
 
     tox_settingschanged();
 }
