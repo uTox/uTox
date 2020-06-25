@@ -1250,8 +1250,6 @@ static void switchfxn_proxy(void) {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
     settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
 
-    memcpy(settings.proxy_ip, proxy_address, edit_proxy_ip.length);
-
     tox_settingschanged();
 }
 
@@ -1590,7 +1588,7 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
     memset(proxy_address, 0, 256); /* Magic number from toxcore */
     memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
     proxy_address[edit_proxy_ip.length] = 0;
-
+    memcpy(settings.proxy_ip, proxy_address, edit_proxy_ip.length);
 
     if (settings.proxyenable) {
         tox_settingschanged();
