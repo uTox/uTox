@@ -60,13 +60,6 @@ SETTINGS settings = {
 
     .show_splash = false,
 
-    // Low level settings (network, profile, portable-mode)
-    .disableudp     = false,
-    .enableipv6     = true,
-    .proxyenable    = false,
-    .force_proxy    = false,
-    .proxy_port     = 0,
-
     // Tox level settings
     .block_friend_requests  = false,
     .save_encryption        = true,
@@ -111,6 +104,13 @@ SETTINGS settings = {
     .window_width     = MAIN_WIDTH,
     .window_baseline  = 0,
     .window_maximized = false,
+
+    // Low level settings (network, profile, portable-mode)
+    .disableudp     = false,
+    .enableipv6     = true,
+    .proxyenable    = false,
+    .force_proxy    = false,
+    .proxy_port     = 0,
 };
 
 static void write_config_value_int(const char *filename, const char *section,
