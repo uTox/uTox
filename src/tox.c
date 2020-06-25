@@ -42,7 +42,6 @@ TOX_MSG       tox_msg, audio_msg, toxav_msg;
 volatile bool tox_thread_msg, audio_thread_msg, video_thread_msg;
 
 bool tox_connected;
-char proxy_address[256]; /* Magic Number inside toxcore */
 
 static bool save_needed = true;
 
@@ -351,7 +350,7 @@ static int init_toxcore(Tox **tox) {
     tox_options_set_udp_enabled(&topt, !settings.disableudp);
 
     tox_options_set_proxy_type(&topt, TOX_PROXY_TYPE_NONE);
-    tox_options_set_proxy_host(&topt, proxy_address);
+    tox_options_set_proxy_host(&topt, (char *)settings.proxy_ip);
     tox_options_set_proxy_port(&topt, settings.proxy_port);
 
     #ifdef ENABLE_MULTIDEVICE
