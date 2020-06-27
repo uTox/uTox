@@ -24,8 +24,7 @@ set_target_properties( icon PROPERTIES LINKER_LANGUAGE C )
 #########################################
 add_library(utoxNATIVE STATIC
     audio.c
-    dbus.c
-    dbus.h
+    $<$<BOOL:${ENABLE_DBUS}>:dbus.c dbus.h>
     drawing.c
     event.c
     filesys.c
