@@ -1,3 +1,5 @@
+#include <tox/toxav.h>
+
 #include "utox_av.h"
 
 #include "audio.h"

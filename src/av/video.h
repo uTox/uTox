@@ -1,10 +1,3 @@
-#ifndef VIDEO_H
-#define VIDEO_H
-
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
-
 extern uint16_t video_width, video_height, max_video_width, max_video_height;
 
 extern bool utox_video_thread_init;
@@ -60,5 +53,3 @@ void bgrxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t 
 // TODO: Documentation.
 void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height, uint8_t *new_rgbx, uint16_t new_width,
                       uint16_t new_height);
-
-#endif

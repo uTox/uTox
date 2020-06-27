@@ -1,16 +1,3 @@
-#ifndef AUDIO_H
-#define AUDIO_H
-
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdbool.h>
-
-#ifdef __APPLE__
-#include <OpenAL/alc.h>
-#else
-#include <AL/alc.h>
-#endif
-
 extern bool utox_audio_thread_init;
 
 enum {
@@ -87,5 +74,3 @@ void sourceplaybuffer(unsigned int i, const int16_t *data, int samples, uint8_t 
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 void utox_audio_thread(void *args);
-
-#endif
