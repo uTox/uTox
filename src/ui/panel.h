@@ -1,8 +1,3 @@
-#ifndef UI_PANEL_H
-#define UI_PANEL_H
-
-#include <stdbool.h>
-
 typedef enum {
     PANEL_NONE,
     PANEL_MAIN,
@@ -36,5 +31,3 @@ struct panel {
 
     PANEL **child;
 };
-
-#endif // UI_PANEL_H

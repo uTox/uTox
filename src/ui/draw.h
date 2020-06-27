@@ -1,8 +1,3 @@
-#ifndef UI_DRAW_H
-#define UI_DRAW_H
-
-#include <stdint.h>
-
 extern int font_small_lineheight, font_msg_lineheight;
 
 void drawtext(int x, int y, const char *str, uint16_t length);
@@ -47,5 +42,3 @@ void enddraw(int x, int y, int width, int height);
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
-
-#endif

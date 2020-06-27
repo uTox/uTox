@@ -1,16 +1,3 @@
-#ifndef SWITCH_H
-#define SWITCH_H
-
-#include "panel.h"
-#include "svg.h"
-
-#include "../ui.h"
-
-
-
-#include <stdbool.h>
-#include <stdint.h>
-
 typedef struct uiswitch UISWITCH;
 struct uiswitch {
     PANEL panel;
@@ -48,5 +35,3 @@ bool switch_mwheel(UISWITCH *s, int height, double d, bool smooth);
 bool switch_mup(UISWITCH *s);
 bool switch_mleave(UISWITCH *s);
 void switch_update(UISWITCH *s);
-
-#endif

@@ -1,13 +1,3 @@
-#ifndef UI_BUTTON_H
-#define UI_BUTTON_H
-
-#include "panel.h"
-
-#include "../ui.h"
-
-#include <stdbool.h>
-#include <stdint.h>
-
 typedef struct button BUTTON;
 struct button {
     PANEL panel;
@@ -56,6 +46,3 @@ void button_setcolors_success(BUTTON *b);
 void button_setcolors_danger(BUTTON *b);
 void button_setcolors_warning(BUTTON *b);
 void button_setcolors_disabled(BUTTON *b);
-
-
-#endif // UI_BUTTON_H

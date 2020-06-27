@@ -1,14 +1,4 @@
-#ifndef UI_EDIT_H
-#define UI_EDIT_H
-
-#include "panel.h"
-
-#include "../ui.h"
-
 /* TODO replace windows functions, multiline edits, add missing edit functions (ex: double click to select word)*/
-
-#include <stdbool.h>
-#include <stdint.h>
 
 typedef struct scrollable SCROLLABLE;
 
@@ -81,5 +71,3 @@ bool edit_getmark(uint16_t *outloc, uint16_t *outlen);
 void edit_setmark(uint16_t loc, uint16_t len);
 
 void edit_setselectedrange(uint16_t loc, uint16_t len);
-
-#endif // UI_EDIT_H

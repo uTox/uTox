@@ -1,8 +1,3 @@
-#ifndef TOOLTIP_H
-#define TOOLTIP_H
-
-#include <stdbool.h>
-
 typedef struct maybe_i18nal_string MAYBE_I18NAL_STRING;
 
 typedef struct tooltip {
@@ -26,5 +21,3 @@ bool tooltip_mup(void);
 
 void tooltip_show(void);
 void tooltip_new(MAYBE_I18NAL_STRING *text);
-
-#endif

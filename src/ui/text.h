@@ -1,11 +1,4 @@
-#ifndef UI_TEXT_H
-#define UI_TEXT_H
-
-#include <stdint.h>
-#include <stdbool.h>
-
 typedef struct scrollable SCROLLABLE;
-
 
 /** Used to draw text within a specified box, starting with the x, y, of the first line of the text.
     Followed by right, top, then bottom borders of the box we're allowed to draw within.
@@ -23,5 +16,3 @@ uint16_t text_lineup(int width, int height, uint16_t p, uint16_t lineheight, cha
                      SCROLLABLE *scroll);
 uint16_t text_linedown(int width, int height, uint16_t p, uint16_t lineheight, char *str, uint16_t length,
                        SCROLLABLE *scroll);
-
-#endif
