@@ -1,6 +1,3 @@
-#ifndef LAYOUT_GROUP_H
-#define LAYOUT_GROUP_H
-
 typedef struct scrollable SCROLLABLE;
 extern SCROLLABLE scrollbar_group;
 
@@ -26,5 +23,3 @@ extern UISWITCH switch_group_type;
 typedef struct edit EDIT;
 extern EDIT edit_chat_msg_group,
             edit_group_topic;
-
-#endif // LAYOUT_GROUP_H

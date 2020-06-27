@@ -1,8 +1,3 @@
-#ifndef LAYOUT_NOTIFY_H
-#define LAYOUT_NOTIFY_H
-
-#include <stdbool.h>
-
 typedef struct panel PANEL;
 extern PANEL panel_notify_generic;
 
@@ -16,6 +11,3 @@ extern BUTTON button_notify_one,
 
 // TODO, no good capin'
 extern bool btn_move_window_down;
-
-
-#endif // LAYOUT_NOTIFY_H

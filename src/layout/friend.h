@@ -1,6 +1,3 @@
-#ifndef LAYOUT_FRIEND_H
-#define LAYOUT_FRIEND_H
-
 typedef struct scrollable SCROLLABLE;
 extern SCROLLABLE scrollbar_friend;
 
@@ -49,5 +46,3 @@ extern EDIT edit_add_new_friend_id,
             edit_chat_msg_friend,
             edit_friend_pubkey,
             edit_friend_alias;
-
-#endif // LAYOUT_FRIEND_H
