@@ -34,8 +34,7 @@ add_library(utoxNATIVE STATIC
     keysym2ucs.h
     main.c
     main.h
-    mmenu.c
-    mmenu.h
+    $<$<BOOL:${ENABLE_UNITY_MMENU}>:mmenu.c>
     screen_grab.c
     tray.c
     v4l.c
