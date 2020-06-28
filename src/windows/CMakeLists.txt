@@ -15,7 +15,6 @@ add_library(utoxNATIVE STATIC
     events.c
     filesys.c
     main.c
-    main.h
     notify.c
     os_video.c
     screen_grab.c

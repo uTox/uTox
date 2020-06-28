@@ -3,14 +3,11 @@ project(utoxNATIVE LANGUAGES C)
 add_library(utoxNATIVE STATIC
     ../posix/filesys.c
 
-    cursor.h
     drawing.m
     grabdesktop.m
     interaction.m
-    main.h
     main.m
     MainMenu.xib
-    objc_main.h
     video.m
 
     window.c

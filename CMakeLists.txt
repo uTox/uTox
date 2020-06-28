@@ -352,7 +352,6 @@ add_executable(utox ${GUI_TYPE}
     src/screen_grab.c
     src/self.c
     src/settings.c
-    src/sized_string.h
     src/text.c
     src/theme.c
     src/theme_tables.c
