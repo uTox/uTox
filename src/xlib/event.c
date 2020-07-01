@@ -26,6 +26,8 @@
 #include "../ui/edit.h"
 #include "../ui/button.h"
 
+#include <inttypes.h>
+#include <X11/keysymdef.h>
 #include "keysym2ucs.h"
 
 #include <assert.h>

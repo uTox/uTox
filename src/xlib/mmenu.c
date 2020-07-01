@@ -1,9 +1,9 @@
-#ifdef UNITY
-
 #include "../self.h"
 
 #include <messaging-menu/messaging-menu.h>
 #include <unity.h>
+
+#include "xlib/mmenu.h"
 
 MessagingMenuApp *  mmapp;
 UnityLauncherEntry *launcher;
@@ -149,5 +149,3 @@ void mm_rm_entry(uint8_t *f_id) {
         g_idle_add(remove_source, NULL);
     }
 }
-
-#endif

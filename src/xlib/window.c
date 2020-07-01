@@ -1,3 +1,11 @@
+#include <X11/cursorfont.h>
+#include <X11/extensions/Xrender.h>
+#include <X11/extensions/XShm.h>
+#include <X11/X.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
 #include "window.h"
 
 #include "main.h"
@@ -20,6 +28,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "../window.h"
+#include "../native/window.h"
 
 Display *display;
 Screen  *default_screen;

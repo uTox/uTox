@@ -1,4 +1,3 @@
-#ifdef HAVE_DBUS
 #include "dbus.h"
 
 #include "../debug.h"
@@ -8,6 +7,7 @@
 
 #include <dbus/dbus.h>
 #include <signal.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 #define NOTIFY_OBJECT "/org/freedesktop/Notifications"
@@ -114,5 +114,3 @@ void dbus_notify(char *title, char *content, uint8_t *cid) {
 
     return;
 }
-
-#endif

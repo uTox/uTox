@@ -1,8 +1,3 @@
-#ifndef UTOX_GTK_H
-#define UTOX_GTK_H
-
-#include <stdint.h>
-
 typedef struct file_transfer FILE_TRANSFER;
 typedef struct msg_header MSG_HEADER;
 typedef struct file_transfer FILE_TRANSFER;
@@ -31,5 +26,3 @@ void ugtk_save_chatlog(uint32_t friend_number);
 void ugtk_file_save_image_png(FILE_IMAGE *file_image);
 
 void *ugtk_load(void);
-
-#endif // UTOX_GTK_H
