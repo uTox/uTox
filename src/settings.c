@@ -31,8 +31,6 @@
 
 static const char *config_file_name = "utox_save.ini";
 
-static const uint16_t proxy_address_size = 256; // Magic number inside Toxcore.
-
 /**
  * Config section names.
  */
@@ -59,13 +57,6 @@ SETTINGS settings = {
     .utox_last_version = UTOX_VERSION_NUMBER,
 
     .show_splash = false,
-
-    // Low level settings (network, profile, portable-mode)
-    .disableudp     = false,
-    .enableipv6     = true,
-    .proxyenable    = false,
-    .force_proxy    = false,
-    .proxy_port     = 0,
 
     // Tox level settings
     .block_friend_requests  = false,
@@ -111,6 +102,13 @@ SETTINGS settings = {
     .window_width     = MAIN_WIDTH,
     .window_baseline  = 0,
     .window_maximized = false,
+
+    // Low level settings (network, profile, portable-mode)
+    .disableudp     = false,
+    .enableipv6     = true,
+    .proxyenable    = false,
+    .force_proxy    = false,
+    .proxy_port     = 0,
 };
 
 static void write_config_value_int(const char *filename, const char *section,
@@ -478,11 +476,9 @@ void config_load(void) {
         = settings.group_notifications;
 
     /* Advanced */
-    if (strlen((char *)settings.proxy_ip) <= proxy_address_size) {
-        strcpy((char *)proxy_address, (char *)settings.proxy_ip);
-    }
-    edit_proxy_ip.length = strlen((char *)settings.proxy_ip);
-    strcpy((char *)edit_proxy_ip.data, (char *)settings.proxy_ip);
+    edit_proxy_ip.length = strnlen((char *)settings.proxy_ip, sizeof(settings.proxy_ip));
+    strncpy((char *)edit_proxy_ip.data, (char *)settings.proxy_ip, edit_proxy_ip.length);
+
     if (settings.proxy_port) {
         snprintf((char *)edit_proxy_port.data, edit_proxy_port.data_size, "%u",
             settings.proxy_port);

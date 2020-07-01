@@ -1244,14 +1244,6 @@ static void switchfxn_proxy(void) {
         switch_udp.panel.disabled         = false;
     }
 
-    memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
-    proxy_address[edit_proxy_ip.length] = 0;
-
-    edit_proxy_port.data[edit_proxy_port.length] = 0;
-    settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
-
-    memcpy(settings.proxy_ip, proxy_address, edit_proxy_ip.length);
-
     tox_settingschanged();
 }
 
@@ -1265,9 +1257,6 @@ static void switchfxn_proxy_force(void) {
     } else {
         switch_udp.panel.disabled = false;
     }
-
-    edit_proxy_port.data[edit_proxy_port.length] = 0;
-    settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
 
     tox_settingschanged();
 }
@@ -1580,17 +1569,10 @@ EDIT edit_status_msg = {
 
 static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
-
     settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
 
-    if (memcmp(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length) == 0 && proxy_address[edit_proxy_ip.length] == 0) {
-        return;
-    }
-
-    memset(proxy_address, 0, 256); /* Magic number from toxcore */
-    memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
-    proxy_address[edit_proxy_ip.length] = 0;
-
+    memcpy(settings.proxy_ip, edit_proxy_ip.data, edit_proxy_ip.length);
+    settings.proxy_ip[edit_proxy_ip.length] = '\0';
 
     if (settings.proxyenable) {
         tox_settingschanged();
