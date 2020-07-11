@@ -275,7 +275,6 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
                 }
             }
         }
-
         toxav_thread_msg = false;
 
         if (av) {
@@ -286,19 +285,17 @@ void utox_av_ctrl_thread(void *UNUSED(args)) {
         }
     }
 
-
     postmessage_audio(UTOXAUDIO_KILL, 0, 0, NULL);
     postmessage_video(UTOXVIDEO_KILL, 0, 0, NULL);
-
     // Wait for all a/v threads to return 0
     while (utox_audio_thread_init || utox_video_thread_init) {
         yieldcpu(1);
     }
 
-    toxav_thread_msg  = false;
+    toxav_kill(av);
+
     utox_av_ctrl_init = false;
 
-    toxav_kill(av);
     LOG_NOTE("UTOXAV", "Clean thread exit!");
     return;
 }

@@ -909,6 +909,7 @@ void utox_audio_thread(void *args) {
     }
 
     utox_filter_audio_kill(f_a);
+    f_a = NULL;
 
     // missing some cleanup ?
     alDeleteSources(1, &ringtone);

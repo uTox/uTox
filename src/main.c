@@ -270,9 +270,6 @@ void utox_init(void) {
         settings.show_splash = true;
         settings.utox_last_version = settings.last_version;
     }
-
-    // We likely want to start this on every system.
-    thread(utox_av_ctrl_thread, NULL);
 }
 
 void utox_raze(void) {

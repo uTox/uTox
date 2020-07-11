@@ -233,10 +233,8 @@ void tox_settingschanged(void) {
     dropdown_list_clear(&dropdown_audio_out);
     dropdown_list_clear(&dropdown_video);
 
-    // send the reconfig message!
-    postmessage_toxcore(0, 1, 0, NULL);
-
     LOG_NOTE("Toxcore", "Restarting Toxcore");
+    postmessage_toxcore(TOX_KILL, 1, 0, NULL); // send the reconfig message!
     while (!tox_thread_init) {
         yieldcpu(1);
     }
@@ -475,8 +473,8 @@ void toxcore_thread(void *UNUSED(args)) {
                 // avoid trying the creation of thousands of tox instances before user changes the settings
                 if (tox_thread_msg) {
                     TOX_MSG *msg = &tox_msg;
-                    // If msg->msg is 0, reconfig
-                    if (!msg->msg) {
+
+                    if (msg->msg == TOX_KILL) {
                         reconfig = (bool) msg->param1;
                         tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
                     }
@@ -512,6 +510,7 @@ void toxcore_thread(void *UNUSED(args)) {
             postmessage_utox(UPDATE_TRAY, 0, 0, NULL);
             postmessage_utox(PROFILE_DID_LOAD, 0, 0, NULL);
 
+            thread(utox_av_ctrl_thread, NULL);
             postmessage_utoxav(UTOXAV_NEW_TOX_INSTANCE, 0, 0, av);
         }
 
@@ -547,9 +546,9 @@ void toxcore_thread(void *UNUSED(args)) {
             // If there's a message, load it, and send to the tox message thread
             if (tox_thread_msg) {
                 TOX_MSG *msg = &tox_msg;
-                // If msg->msg is 0, reconfig if needed and break from tox_do
-                if (!msg->msg) {
-                    reconfig        = msg->param1;
+
+                if (msg->msg == TOX_KILL) {
+                    reconfig        = msg->param1; // reconfig if needed
                     tox_thread_msg  = 0;
                     tox_thread_init = UTOX_TOX_THREAD_INIT_NONE;
                     break;
@@ -573,7 +572,10 @@ void toxcore_thread(void *UNUSED(args)) {
         write_save(tox);
         edit_setstr(&edit_profile_password, (char *)"", 0);
 
-        // Stop toxcore.
+        postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
+        while (utox_av_ctrl_init) {
+            yieldcpu(1);
+        }
         LOG_TRACE("Toxcore", "tox thread ending");
         tox_kill(tox);
     }
