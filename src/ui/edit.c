@@ -358,10 +358,11 @@ void edit_do(EDIT *edit, uint16_t start, uint16_t length, bool remove) {
     if (!history) {
         LOG_FATAL_ERR(EXIT_MALLOC, "UI Edit", "Unable to realloc for edit history, this should never happen!");
     }
-    /* Note: if we access edit->history after reallocing it, we're using
-       potentially freed memory.
+    /* Note: if we access edit->history or edit->history_length
+    * after reallocing it, we're using potentially freed memory.
     */
     edit->history = history;
+    edit->history_length = edit->history_cur;
 
     new = calloc(1, sizeof(EDIT_CHANGE) + length);
     if (!new) {
@@ -383,7 +384,6 @@ void edit_do(EDIT *edit, uint16_t start, uint16_t length, bool remove) {
     history[edit->history_cur] = new;
 
     edit->history_cur++;
-    edit->history_length = edit->history_cur;
 }
 
 static uint16_t edit_undo(EDIT *edit) {
