@@ -8,10 +8,10 @@
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
 
-#define VERSION "0.17.2"
+#define VERSION "0.18.0"
 #define VER_MAJOR 0
-#define VER_MINOR 17
-#define VER_PATCH 2
+#define VER_MINOR 18
+#define VER_PATCH 0
 #define UTOX_VERSION_NUMBER (VER_MAJOR << 16 | VER_MINOR << 8 | VER_PATCH)
 
 // Assembly info
