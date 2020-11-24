@@ -1063,13 +1063,13 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             GROUPCHAT *g = get_group(g_num);
             if (!g) {
-                g = group_create(g_num, param2);
+                g = group_create(g_num, param2, NULL);
                 if (!g) {
                     LOG_ERR("Tox", "Failed creating group (number: %u type: %u)", g_num, param2);
                     break;
                 }
             } else {
-                group_init(g, g_num, param2);
+                group_init(g, g_num, param2, NULL);
             }
 
             postmessage_utox(GROUP_ADD, g_num, param2, NULL);
