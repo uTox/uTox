@@ -377,7 +377,7 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
     size_t title_length = strnlen(title, sizeof(title) - 1);
     notify(title, title_length, msg, msg_length, g, 1);
 
-    if (flist_get_sel_group() != g) {
+    if (flist_get_sel_group() != g || !have_focus) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }
 }
