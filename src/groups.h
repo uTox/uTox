@@ -10,11 +10,12 @@ typedef struct edit_change EDIT_CHANGE;
 
 #define UTOX_MAX_GROUP_PEERS 256
 
-/*  UTOX_SAVE limits 8 as the max */
+/* Group Notifications setting for audio and desktop notifications */
 typedef enum {
-    GNOTIFY_NEVER,      /* 0: never send notifications, */
-    GNOTIFY_HIGHLIGHTS, /* 1: only send when mentioned, */
-    GNOTIFY_ALWAYS,     /* 2: always send notifications */
+    GNOTIFY_OFF,
+    GNOTIFY_HIGHLIGHTS, /* only notify when mentioned */
+    GNOTIFY_ON,
+    /* UTOX_SAVE limits 8 as the max */
 } GNOTIFY_TYPE;
 
 typedef struct group_peer {
