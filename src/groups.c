@@ -341,7 +341,7 @@ void init_groups(Tox *tox) {
 
 
 void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
-    if (g->notify == GNOTIFY_NEVER) {
+    if (g->notify == GNOTIFY_OFF) {
         return;
     }
 
