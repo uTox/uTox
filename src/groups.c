@@ -367,13 +367,16 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
         return;
     }
 
-    if (g->notify == GNOTIFY_HIGHLIGHTS && strstr(msg, self.name) == NULL) {
-        return;
+    char title[g->name_length + 25];
+    if (g->notify == GNOTIFY_HIGHLIGHTS) {
+        if (strstr(msg, self.name) == NULL) {
+            return;
+        }
+        snprintf(title, sizeof(title), "uTox new mention in %.*s", g->name_length, g->name);
+    } else {
+        snprintf(title, sizeof(title), "uTox new message in %.*s", g->name_length, g->name);
     }
 
-    char title[g->name_length + 25];
-
-    snprintf(title, sizeof(title), "uTox new message in %.*s", g->name_length, g->name);
     size_t title_length = strnlen(title, sizeof(title) - 1);
     notify(title, title_length, msg, msg_length, g, 1);
 
