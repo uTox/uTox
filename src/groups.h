@@ -31,6 +31,7 @@ typedef struct groupchat {
     uint32_t our_peer_number;
 
     bool unread_msg;
+    bool has_mention;
 
     bool av_group;
     bool active_call;
