@@ -347,7 +347,7 @@ void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
 
     char title[g->name_length + 25];
     if (g->notify == GNOTIFY_HIGHLIGHTS) {
-        if (strstr(msg, self.name) == NULL) {
+        if (!g->has_mention) {
             return;
         }
         snprintf(title, sizeof(title), "uTox new mention in %.*s", g->name_length, g->name);

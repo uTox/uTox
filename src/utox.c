@@ -615,17 +615,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case GROUP_MESSAGE: {
-            GROUPCHAT *g = get_group(param1);
-            if (!g) {
-                return;
-            }
-
-            GROUPCHAT *selected = flist_get_sel_group();
-            if (selected != g) {
-                g->unread_msg = true;
-            }
             redraw(); // ui_drawmain();
-
             break;
         }
         case GROUP_PEER_DEL: {
