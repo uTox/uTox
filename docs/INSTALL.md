@@ -7,6 +7,7 @@ For any and all of the following, you'll need to have [toxcore](https://github.c
 - [Windows](#windows)
 - [Unix-like](#unix-like)
   - [Archlinux](#archlinux)
+  - [Debian](#debian)
   - [Slackware](#slackware)
   - [Other distributions](#other-distributions)
 - [OpenBSD](#openBSD)
@@ -53,6 +54,13 @@ Install by running:
 
 ```bash
 sudo pacman -S utox
+```
+
+### Debian
+
+Install by running:
+```bash
+sudo apt install utox
 ```
 
 ### Slackware
