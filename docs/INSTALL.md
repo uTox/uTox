@@ -55,6 +55,13 @@ Install by running:
 sudo pacman -S utox
 ```
 
+### Debian
+
+Install by running:
+```bash
+sudo apt install utox
+```
+
 ### Slackware
 
 If you use Slackware you can download the slack build from [here](https://slackbuilds.org/repository/14.2/network/uTox/).
