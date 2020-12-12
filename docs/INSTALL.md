@@ -1,6 +1,6 @@
 # Install
 
-The following steps install μTox on your computron/toaster/carrier pigeon. This guide gets you running ASAP. It mostly deals with precomplied binaries. If you're looking to contribute (you're the real MVP) you're probably looking for [Building](BUILD.md).
+The following steps install μTox on your computron/toaster/carrier pigeon. This guide gets you running ASAP. It mostly deals with precompiled binaries. If you're looking to contribute (you're the real MVP) you're probably looking for [Building](BUILD.md).
 
 For any and all of the following, you'll need to have [toxcore](https://github.com/TokTok/c-toxcore) installed first.
 
@@ -37,7 +37,7 @@ Please make sure you have all of the required [dependencies](DEPENDENCIES.md).
     sudo make install
     ```
 
-If make/install really isn't your thing, you can try some precomplied binaries:
+If make/install really isn't your thing, you can try some precompiled binaries:
 
 - [x86-64](https://build.tox.chat/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
 - [i686](https://build.tox.chat/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
