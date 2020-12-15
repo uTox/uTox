@@ -108,17 +108,17 @@ static void flist_draw_name(ITEM *i, int x, int y, int width, char *name, char *
     }
 }
 
-static void flist_draw_status_icon(uint8_t status, int x, int y, bool notify, bool has_mention) {
+static void flist_draw_status_icon(uint8_t status, int x, int y, MSG_TYPE notify) {
     y -= BM_STATUS_WIDTH / 2;
     x -= BM_STATUS_WIDTH / 2;
     drawalpha(BM_ONLINE + status, x, y, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 
-    if (notify || has_mention) {
+    if (notify != MSG_NONE) {
         y += BM_STATUS_WIDTH / 2;
         y -= BM_STATUS_NOTIFY_WIDTH / 2;
         x += BM_STATUS_WIDTH / 2;
         x -= BM_STATUS_NOTIFY_WIDTH / 2;
-        drawalpha(BM_STATUS_NOTIFY, x, y, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[has_mention ? TOX_USER_STATUS_BUSY : status]);
+        drawalpha(BM_STATUS_NOTIFY, x, y, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[(notify == MSG_MENTION) ? TOX_USER_STATUS_BUSY : status]);
     }
 }
 
@@ -172,7 +172,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
             flist_draw_name(i, name_x, name_y, width, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length,
                             0, 0);
 
-            flist_draw_status_icon(status, width - SCALE(15), y + box_height / 2, f->unread_msg, false);
+            flist_draw_status_icon(status, width - SCALE(15), y + box_height / 2, f->unread_msg);
             break;
         }
 
@@ -199,7 +199,7 @@ static void drawitem(ITEM *i, int x, int y, int width) {
 
             flist_draw_name(i, name_x, name_y, width, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
 
-            flist_draw_status_icon(0, SCALE(width - 15), y + box_height / 2, g->unread_msg, g->has_mention);
+            flist_draw_status_icon(0, SCALE(width - 15), y + box_height / 2, g->unread_msg);
             break;
         }
 
@@ -564,8 +564,7 @@ static void page_open(ITEM *i) {
 
             g->msg.width  = current_width;
             g->msg.id     = g->number;
-            g->unread_msg = 0;
-            g->has_mention = 0;
+            g->unread_msg = MSG_NONE;
             /* We use the MESSAGES struct from the group, but we need the info from the panel. */
             messages_group.object = &g->msg;
             messages_updateheight((MESSAGES *)messages_group.object, current_width);

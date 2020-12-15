@@ -18,6 +18,12 @@ typedef enum {
     /* UTOX_SAVE limits 8 as the max */
 } GNOTIFY_TYPE;
 
+typedef enum {
+    MSG_NONE,
+    MSG_REGULAR,
+    MSG_MENTION,
+} MSG_TYPE;
+
 typedef struct group_peer {
     uint32_t id;
     uint32_t name_color;
@@ -30,8 +36,7 @@ typedef struct groupchat {
     uint16_t number;
     uint32_t our_peer_number;
 
-    bool unread_msg;
-    bool has_mention;
+    MSG_TYPE unread_msg;
 
     bool av_group;
     bool active_call;

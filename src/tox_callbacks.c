@@ -211,9 +211,9 @@ static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid,
 
     GROUPCHAT *selected = flist_get_sel_group();
     if (selected != g) {
-        g->unread_msg = true;
+        g->unread_msg = MSG_REGULAR;
         if (strstr((const char *)message, self.name) != NULL) {
-            g->has_mention = true;
+            g->unread_msg = MSG_MENTION;
         }
     }
 
