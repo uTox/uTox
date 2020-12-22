@@ -256,7 +256,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             }
 
             if (control && wParam == 'C') {
-                copy(1);
+                copy(0);
                 return false;
             }
 
