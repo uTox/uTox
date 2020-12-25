@@ -9,25 +9,6 @@ export LDFLAGS="-L/workdir/cache/usr/lib -isysroot /usr/osxcross/bin/../SDK/MacO
 
 # brew install yasm
 
-# install libsodium, needed for crypto
-if ! [ -d libsodium ]; then
-  git clone --depth=1 --branch=stable https://github.com/jedisct1/libsodium.git
-fi
-cd libsodium
-git rev-parse HEAD > libsodium.sha
-if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libsodium.sha); then
-  ./autogen.sh
-  ./configure --prefix="$CACHE_DIR/usr" --host="x86_64-apple-darwin14" --quiet
-  # libtool is broken when it comes to spaces in vars, so we have to neuter them
-  # I live in backslash escapement hell...
-  find . -type f -exec sed -i 's/libsodium\\\\ 1.0.11/libnacl-str/g' {} +
-  make -j8
-  make install
-  mv libsodium.sha "$CACHE_DIR/libsodium.sha"
-fi
-cd ..
-# rm -rf libsodium
-
 # install libopus, needed for audio encoding/decoding
 if ! [ -f $CACHE_DIR/usr/lib/pkgconfig/opus.pc ]; then
   curl https://ftp.osuosl.org/pub/xiph/releases/opus/opus-1.2.1.tar.gz -o opus.tar.gz

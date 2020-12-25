@@ -5,7 +5,6 @@ set -eux
 
 export TARGET_TRGT="--enable-pic "
 export CFLAGS="${CFLAGS} -fPIC"
-. ./extra/common/build_nacl.sh
 . ./extra/common/build_opus.sh
 . ./extra/common/build_vpx.sh
 

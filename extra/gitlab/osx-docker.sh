@@ -27,28 +27,6 @@ export LDFLAGS="${LDFLAGS} -L${CACHE_DIR}/usr/lib "
 export LDFLAGS="${LDFLAGS} -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk "
 export LDFLAGS="${LDFLAGS} -mmacosx-version-min=10.10 -m64 -arch x86_64"
 
-# install libsodium, needed for crypto
-if ! [ -d libsodium ]; then
-  git clone --depth=1 --branch=stable https://github.com/jedisct1/libsodium.git
-fi
-cd libsodium
-git rev-parse HEAD > libsodium.sha
-if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libsodium.sha); then
-  ./autogen.sh
-  ./configure $TARGET_HOST \
-              --prefix="$CACHE_DIR/usr" \
-              --quiet
-  # libtool is broken when it comes to spaces in vars, so we have to neuter them
-  # I live in backslash escapement hell...
-  # This is also why we can't use ../common/*
-  find . -type f -exec sed -i 's/libsodium\\\\ 1.0.12/libnacl-str/g' {} +
-  make -j8
-  make install
-  mv libsodium.sha "$CACHE_DIR/libsodium.sha"
-fi
-cd ..
-# rm -rf libsodium
-
 . ./extra/common/build_opus.sh
 . ./extra/common/build_vpx.sh
 

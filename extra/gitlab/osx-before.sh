@@ -5,7 +5,6 @@ brew install yasm
 
 . ./extra/gitlab/env.sh
 
-. ./extra/common/build_nacl.sh
 . ./extra/common/build_opus.sh
 
 # install libvpx, needed for video encoding/decoding

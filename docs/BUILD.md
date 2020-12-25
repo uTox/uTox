@@ -70,15 +70,6 @@ Tested on Ubuntu 18.04
 ```bash
 sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libopus-dev libvpx-dev pkg-config libfontconfig1-dev libdbus-1-dev libv4l-dev libxrender-dev libopenal-dev libxext-dev cmake
 
-git clone git://github.com/jedisct1/libsodium.git
-cd libsodium
-git checkout tags/1.0.3
-./autogen.sh
-./configure && make check
-sudo checkinstall
-cd ..
-
-
 git clone git://github.com/irungentoo/filter_audio.git
 cd filter_audio
 make

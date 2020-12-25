@@ -28,7 +28,6 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | v4l          | yes                   |
 | xext         | yes                   |
 | xrender      | yes                   |
-| libsodium    | yes                   |
 
 <a name="freebsd-and-dragonflybsd"></a>
 ## FreeBSD and DragonFlyBSD
@@ -49,7 +48,6 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | toxcore      | yes                   |
 | xrender      | yes                   |
 | xext         | yes                   |
-| libsodium    | yes                   |
 
 <a name="openbsd-and-netbsd"></a>
 ## OpenBSD and NetBSD
@@ -68,7 +66,6 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | toxcore      | yes                   |
 | xrender      | yes                   |
 | xext         | yes                   |
-| libsodium    | yes                   |
 | libv4l       | yes                   |
 
 <a name="windows"></a>
@@ -96,4 +93,3 @@ Before trying to compile uTox make sure you have all of the required dependencie
 | opus         | yes                   |
 | toxcore      | yes                   |
 | check        | no (needed for tests) |
-| libsodium    | yes                   |

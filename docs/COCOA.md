@@ -32,14 +32,6 @@ brew install --only-dependencies --HEAD utox
 ### with Autotools
 
 ```bash
-git clone git://github.com/jedisct1/libsodium.git
-cd libsodium
-git checkout tags/1.0.3
-./autogen.sh
-./configure && make check
-make install
-cd ..
-
 git clone git://github.com/irungentoo/filter_audio.git
 cd filter_audio
 make
