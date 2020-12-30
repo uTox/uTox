@@ -20,6 +20,7 @@ build/*
 tox/*
 dist/*
 cache/*
+_[a-zA-Z]*/*
 
 # editor files
 *.swp

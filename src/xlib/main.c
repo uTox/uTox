@@ -587,14 +587,6 @@ void setscale(void) {
         XFree(xsh);
     }
 
-    // TODO, fork this to a function
-    xsh             = XAllocSizeHints();
-    xsh->flags      = PMinSize;
-    xsh->min_width  = SCALE(MAIN_WIDTH);
-    xsh->min_height = SCALE(MAIN_HEIGHT);
-
-    XSetWMNormalHints(display, main_window.window, xsh);
-
     if (settings.window_width > (uint32_t)SCALE(MAIN_WIDTH) &&
         settings.window_height > (uint32_t)SCALE(MAIN_HEIGHT)) {
         /* won't get a resize event, call this manually */
