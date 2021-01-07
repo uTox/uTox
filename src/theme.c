@@ -118,7 +118,7 @@ uint32_t status_color[4];
  * Returns NULL on failure
  */
 static uint8_t *utox_data_load_custom_theme(size_t *out);
-static void read_custom_theme(const uint8_t *data, size_t length);
+static void read_custom_theme(uint8_t *data, size_t length);
 static uint32_t try_parse_hex_colour(char *color, bool *error);
 
 void theme_load(const THEME loadtheme) {
@@ -712,40 +712,48 @@ static uint32_t try_parse_hex_colour(char *color, bool *error) {
     return RGB(red, green, blue);
 }
 
-static void read_custom_theme(const uint8_t *data, size_t length) {
-    while (length) {
-        char *line = (char *)data;
-        while (*line != 0) {
-            if (*line == '#') {
-                *line = 0;
-                break;
-            }
-            ++line;
-            --length;
+static void read_custom_theme(uint8_t *data, size_t length) {
+    char *line = (char *)data;
+
+    for (size_t i=0; i < length; ++i) {
+        if (data[i] == '\n') {
+            data[i] = '\0';
+        }
+    }
+
+    while ((uint8_t *)line < data + length) {
+        if (*line == '#') {
+            LOG_NOTE("Theme", "Note: Skipping comment: \"%s\"", line);
+            goto nextline;
         }
 
         char *color = strpbrk(line, "=");
-
         if (!color || color == line) {
-            continue;
+            LOG_ERR("Theme", "Error: Line has invalid format: \"%s\"", line);
+            goto nextline;
         }
-
         *color++ = 0;
 
         uint32_t *colorp = find_colour_pointer(line);
         if (!colorp) {
-            continue;
+            LOG_ERR("Theme", "Error: Couldn't find color pointer: \"%s\"", line);
+            goto nextline;
         }
 
         bool err = false;
         const uint32_t col = try_parse_hex_colour(color, &err);
-
         if (err) {
-            LOG_ERR("Theme", "Error: Parsing hex color failed.");
-            continue;
-        } else {
-            *colorp = COLOR_PROC(col);
+            LOG_ERR("Theme", "Error: Parsing hex color failed: \"%s\"", color);
+            goto nextline;
         }
+
+        *colorp = COLOR_PROC(col);
+
+nextline:
+        while ((uint8_t *)line < data + length && *line != '\0') {
+            ++line;
+        }
+        ++line;
     }
 }
 
