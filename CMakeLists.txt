@@ -114,6 +114,7 @@ endif()
 # CMake Settings
 #######################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # make version available in C files
 configure_file(${uTox_SOURCE_DIR}/src/branding.h.in

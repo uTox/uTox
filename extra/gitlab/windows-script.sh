@@ -11,6 +11,7 @@ cmake .. \
     -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-win64.cmake \
     -DCMAKE_INCLUDE_PATH="$CACHE_DIR/usr/include" \
     -DCMAKE_LIBRARY_PATH="$CACHE_DIR/usr/lib" \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
     -DENABLE_TESTS=OFF \
     -DENABLE_WERROR=ON
 make || make VERBOSE=1

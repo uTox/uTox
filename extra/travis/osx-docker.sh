@@ -46,7 +46,7 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
   if [ -d _build ]; then
     rm -rf _build
   fi
-  cmake -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DCMAKE_SYSTEM_NAME=Darwin -DBUILD_TOXAV=ON
+  cmake -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr -DENABLE_STATIC=ON -DENABLE_SHARED=OFF -DCMAKE_SYSTEM_NAME=Darwin -DBUILD_TOXAV=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
   # mkdir _build
   # autoreconf -fi
   # (cd _build && ../configure --prefix=$CACHE_DIR/usr)
@@ -60,6 +60,7 @@ cd ..
 ls -la $CACHE_DIR
 
 cmake . -DCMAKE_SYSTEM_NAME=Darwin \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
         -DENABLE_ASAN=OFF \
         -DENABLE_FILTERAUDIO=OFF \
         -DSTATIC_ALL=OFF \

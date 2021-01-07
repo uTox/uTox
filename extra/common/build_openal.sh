@@ -23,6 +23,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)" > ./Toolchain-i686-w64-mingw32.cmak
   cmake ..  -DCMAKE_TOOLCHAIN_FILE=./Toolchain-i686-w64-mingw32.cmake \
             -DCMAKE_PREFIX_PATH="$CACHE_DIR/usr" \
             -DCMAKE_INSTALL_PREFIX="$CACHE_DIR/usr" \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
             -DLIBTYPE="STATIC" \
             -DCMAKE_BUILD_TYPE=Debug \
             -DDSOUND_INCLUDE_DIR=/usr/i686-w64-mingw32/include \

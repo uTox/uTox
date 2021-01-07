@@ -18,6 +18,7 @@ git rev-parse HEAD > toxcore.sha
 if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.sha); then
   mkdir _build
   cmake -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
         -B_build \
         -H. \
         -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr \
@@ -52,6 +53,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)" > ./Toolchain-x86_64-w64-mingw32.cm
             -DCMAKE_INSTALL_PREFIX="$CACHE_DIR/usr" \
             -DLIBTYPE="STATIC" \
             -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
             -DDSOUND_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include \
             -DDSOUND_LIBRARY=/usr/x86_64-w64-mingw32/lib/libdsound.a
   make

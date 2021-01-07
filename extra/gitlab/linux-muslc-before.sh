@@ -16,6 +16,7 @@ git rev-parse HEAD > toxcore.sha
 if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.sha); then
   mkdir _build
   cmake -B_build -H. \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
         -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr \
         -DENABLE_STATIC=ON \
         -DENABLE_SHARED=OFF \

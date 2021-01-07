@@ -35,7 +35,7 @@ cd toxcore
 git rev-parse HEAD > toxcore.sha
 if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.sha); then
   mkdir _build
-  cmake -DENABLE_SHARED=OFF -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH="$CACHE_DIR/usr"
+  cmake -DENABLE_SHARED=OFF -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH="$CACHE_DIR/usr" -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF
   make -C_build -j`sysctl -n hw.ncpu`
   make -C_build install
   mv toxcore.sha "$CACHE_DIR/toxcore.sha"

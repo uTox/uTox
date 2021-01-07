@@ -45,6 +45,7 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
   # We can't use a common build_toxcore.sh because we need to
   # be able to set our own PKG_CONFIG_EXE
   cmake -B_build -H. \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
         -DCMAKE_INSTALL_PREFIX:PATH=$CACHE_DIR/usr \
         -DENABLE_STATIC=ON \
         -DENABLE_SHARED=OFF \
@@ -64,6 +65,7 @@ cd ..
 ls -la $CACHE_DIR
 
 cmake . -DCMAKE_SYSTEM_NAME=Darwin \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
         -DENABLE_ASAN=OFF \
         -DENABLE_FILTERAUDIO=OFF \
         -DSTATIC_ALL=OFF \

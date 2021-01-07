@@ -6,6 +6,7 @@ set -e -u -x
 mkdir build
 cd build
 cmake .. -DCMAKE_INCLUDE_PATH=$CACHE_DIR/usr/lib \
+         -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
          -DSTATIC_ALL=ON \
          -DSTATIC_TOXCORE=ON \
          -DCMAKE_COLOR_MAKEFILE=ON \

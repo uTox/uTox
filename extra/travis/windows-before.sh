@@ -21,6 +21,7 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
   mkdir _build
   cmake -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
         -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
         -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres \
         -DCMAKE_SYSTEM_NAME=Windows \
         -DCMAKE_FIND_ROOT_PATH="$CACHE_DIR" \
@@ -59,6 +60,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)" > ./Toolchain-x86_64-w64-mingw32.cm
   cmake ..  -DCMAKE_TOOLCHAIN_FILE=./Toolchain-x86_64-w64-mingw32.cmake \
             -DCMAKE_PREFIX_PATH="$CACHE_DIR/usr" \
             -DCMAKE_INSTALL_PREFIX="$CACHE_DIR/usr" \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF \
             -DLIBTYPE="STATIC" \
             -DCMAKE_BUILD_TYPE=Debug \
             -DDSOUND_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include \
