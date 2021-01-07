@@ -878,7 +878,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     if (f->ft_incoming_active_count >= MAX_INCOMING_COUNT) {
         LOG_ERR("FileTransfer", "Too many incoming file transfers from friend %u", friend_number);
         /* ft_local_control is preferred, but in this case it can't access the ft struct. */
-        tox_file_control(tox, friend_number, file_number, TOX_FILE_CANCEL, NULL);
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return;
     }
 
@@ -1028,13 +1028,13 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         file_unlock(ft->via.file, position, length);
         if (write_size != length) {
             LOG_ERR("FileTransfer", "\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
-            ft_local_control(tox, friend_number, file_number, TOX_FILE_CANCEL);
+            ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
             return;
         }
         calculate_speed(ft);
     } else {
         LOG_TRACE("FileTransfer", "File Handle failed!");
-        ft_local_control(tox, friend_number, file_number, TOX_FILE_CANCEL);
+        ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
     }
 
