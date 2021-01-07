@@ -452,7 +452,7 @@ static int init_toxcore(Tox **tox) {
  *
  * Accepts and returns nothing.
  */
-void toxcore_thread(void *UNUSED(args)) {
+void *toxcore_thread(void *UNUSED(args)) {
     ToxAV *av               = NULL;
     bool   reconfig         = 1;
     int    toxcore_init_err = 0;
@@ -584,6 +584,7 @@ void toxcore_thread(void *UNUSED(args)) {
     free_friends();
     raze_groups();
     LOG_TRACE("Toxcore", "Tox thread:\tClean exit!");
+    return NULL;
 }
 
 /** General recommendations for working with threads in uTox

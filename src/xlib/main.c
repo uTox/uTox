@@ -212,12 +212,12 @@ void image_set_filter(NATIVE_IMAGE *image, uint8_t filter) {
     }
 }
 
-void thread(void func(void *), void *args) {
+void thread(void *func(void *), void *args) {
     pthread_t      thread_temp;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, 1 << 20);
-    pthread_create(&thread_temp, &attr, (void *(*)(void *))func, args);
+    pthread_create(&thread_temp, &attr, func, args);
     pthread_attr_destroy(&attr);
 }
 
