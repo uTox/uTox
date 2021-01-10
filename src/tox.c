@@ -452,10 +452,11 @@ static int init_toxcore(Tox **tox) {
  *
  * Accepts and returns nothing.
  */
-void toxcore_thread(void *UNUSED(args)) {
+void toxcore_thread(void *args) {
     ToxAV *av               = NULL;
     bool   reconfig         = 1;
     int    toxcore_init_err = 0;
+    bool  *window_inited    = args;
 
     while (reconfig) {
         reconfig = 0;
@@ -494,6 +495,13 @@ void toxcore_thread(void *UNUSED(args)) {
             reconfig = 1;
             continue;
         } else {
+            // waiting until main window is inited
+            if (window_inited) {
+                while (!*window_inited) {
+                    yieldcpu(1);
+                }
+                yieldcpu(10); // extra time to draw inited window
+            }
             init_self(tox);
 
             TOXAV_ERR_NEW toxav_error;

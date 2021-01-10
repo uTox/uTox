@@ -1027,7 +1027,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     dnd_init(main_window.window);
 
     // start tox thread (main_window.window needs to be set first)
-    thread(toxcore_thread, NULL);
+    bool window_inited = false;
+    thread(toxcore_thread, &window_inited);
 
     // wait for tox_thread init
     while (!tox_thread_init && !settings.save_encryption) {
@@ -1057,6 +1058,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     } else {
         ShowWindow(main_window.window, nCmdShow);
     }
+    window_inited = true;
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0)) {
