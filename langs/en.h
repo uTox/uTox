@@ -101,10 +101,10 @@ msgstr(
 "    Fix implicit fallthrough warnings in Windows (Thanks, robinlinden!)\n"
 "\n")
 
+
 /******************************************************************************
  *** MISC & UNSORTED                                                        ***
  ******************************************************************************/
-
 msgid(REQ_SENT)
 msgstr("Friend request sent. Your friend will appear online after the request is accepted.")
 
@@ -291,6 +291,7 @@ msgstr("Off")
 msgid(GROUP_TOPIC)
 msgstr("Set Group's Topic")
 
+
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
@@ -341,8 +342,6 @@ msgstr("Number of linked devices")
 
 /******************************************************************************
  *** UNSORTED STRINGS                                                       ***
- *** TODO:                                                                  ***
- *** FIXME:                                                                 ***
  ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Add New Contact")

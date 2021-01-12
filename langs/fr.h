@@ -23,8 +23,9 @@ msgstr("Bienvenue sur le nouveau uTox !")
 //msgid(CHANGE_LOG_TEXT)
 //msgstr(<Changelog in English>)
 
+
 /******************************************************************************
- *** Splash Message & Change Log                                            ***
+ *** MISC & UNSORTED                                                        ***
  ******************************************************************************/
 msgid(REQ_SENT)
 msgstr("Demande envoyée. Votre ami apparaîtra en ligne quand il acceptera votre demande.")
@@ -194,8 +195,6 @@ msgstr("Il n'y a aucun moyen de retrouver un mot de passe oublié.")
 
 /******************************************************************************
  *** NON CLASSÉ                                                             ***
- *** TODO:                                                                  ***
- *** FIXME:                                                                 ***
  ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Ajouter un ami")
@@ -310,12 +309,6 @@ msgstr("Langue")
 
 msgid(NETWORK)
 msgstr("Réseau")
-
-msgid(IPV6)
-msgstr("IPv6 :")
-
-msgid(UDP)
-msgstr("UDP :")
 
 //msgid(PROXY)
 //msgstr("Proxy (SOCKS 5)")

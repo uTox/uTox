@@ -188,6 +188,7 @@ msgstr("Aus")
 msgid(GROUP_TOPIC)
 msgstr("Thema der Gruppe festlegen")
 
+
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
@@ -196,7 +197,6 @@ msgstr("Profil")
 
 msgid(DEVICES_BUTTON)
 msgstr("Geräte")
-
 
 msgid(USER_INTERFACE_BUTTON)
 msgstr("Benutzeroberfläche")

@@ -124,12 +124,6 @@ msgstr("Sprog")
 msgid(NETWORK)
 msgstr("Netværk")
 
-//msgid(IPV6)
-//msgstr("IPv6:")
-
-//msgid(UDP)
-//msgstr("UDP:")
-
 //msgid(PROXY)
 //msgstr("Proxy (SOCKS 5)")
 

@@ -220,12 +220,6 @@ msgstr("語言")
 msgid(NETWORK)
 msgstr("網絡")
 
-//msgid(IPV6)
-//msgstr("IPv6:")
-
-//msgid(UDP)
-//msgstr("UDP:")
-
 msgid(PROXY)
 msgstr("代理 (SOCKS 5)")
 

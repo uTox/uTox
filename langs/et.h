@@ -24,7 +24,6 @@ msgstr("Muutused v0.16.1 versioonis (Vaadake meie uut veebilehte, utox.io)")
 /******************************************************************************
  *** MISC & UNSORTED                                                        ***
  ******************************************************************************/
-
 msgid(REQ_SENT)
 msgstr("Sõbra kutse saadetud. Sinu sõber ilmub nähtavale kui ta võtab sõbrataotluse vastu.")
 
@@ -208,6 +207,7 @@ msgstr("Väljas")
 msgid(GROUP_TOPIC)
 msgstr("Sisesta grupi teema")
 
+
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
@@ -258,8 +258,6 @@ msgstr("Ühendatud seadmete arv")
 
 /******************************************************************************
  *** UNSORTED STRINGS                                                       ***
- *** TODO:                                                                  ***
- *** FIXME:                                                                 ***
  ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Lisa uusi kontakte")
@@ -403,12 +401,6 @@ msgstr("Keel")
 
 msgid(NETWORK)
 msgstr("Võrk")
-
-msgid(IPV6)
-msgstr("IPv6:")
-
-msgid(UDP)
-msgstr("UDP:")
 
 msgid(PROXY)
 msgstr("Puhverserver (SOCKS 5)")

@@ -11,7 +11,6 @@ msgstr("Swedish")
 /******************************************************************************
  *** Splash Message & Change Log                                            ***
  ******************************************************************************/
-
 // msgid(SPLASH_TITLE)
 // Don't translate this.
 
@@ -24,10 +23,10 @@ msgstr("Swedish")
 // msgid(CHANGE_LOG_TEXT)
 // Don't translate this.
 
+
 /******************************************************************************
  *** MISC & UNSORTED                                                        ***
  ******************************************************************************/
-
 msgid(REQ_SENT)
 msgstr("Vänskapsbegäran skickad. Din vän kommer att visas som online efter att din begäran har accepterats.")
 
@@ -205,6 +204,7 @@ msgstr("Av")
 msgid(GROUP_TOPIC)
 msgstr("Ställ in gruppens tema")
 
+
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
@@ -255,8 +255,6 @@ msgstr("Antal länkade apparater")
 
 /******************************************************************************
  *** UNSORTED STRINGS                                                       ***
- *** TODO:                                                                  ***
- *** FIXME:                                                                 ***
  ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Lägg till vän")
@@ -386,12 +384,6 @@ msgstr("Språk")
 
 msgid(NETWORK)
 msgstr("Nätverk")
-
-msgid(IPV6)
-msgstr("IPv6:")
-
-msgid(UDP)
-msgstr("UDP:")
 
 msgid(PROXY)
 msgstr("Proxy (SOCKS 5)")

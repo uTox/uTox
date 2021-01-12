@@ -197,6 +197,7 @@ msgstr("No")
 msgid(GROUP_TOPIC)
 msgstr("Establecer asunto del grupo")
 
+
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
@@ -238,8 +239,6 @@ msgstr("Número de dispositivos enlazados")
 
 /******************************************************************************
  *** UNSORTED STRINGS                                                       ***
- *** TODO:                                                                  ***
- *** FIXME:                                                                 ***
  ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Añadir Amigos")
@@ -386,12 +385,6 @@ msgstr("Idioma")
 
 msgid(NETWORK)
 msgstr("Red")
-
-msgid(IPV6)
-msgstr("IPv6")
-
-msgid(UDP)
-msgstr("UDP")
 
 msgid(PROXY)
 msgstr("Proxy (SOCKS 5)")

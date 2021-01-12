@@ -20,45 +20,10 @@ msgstr("Ön a 0.17.0 verzióra frissített! A kiadás neve: bork bork")
 msgid(CHANGE_LOG_TITLE)
 msgstr("Változások a 0.17.0 verzióban")
 
-msgid(CHANGE_LOG_TEXT)
-msgstr(
-"\n  FONTOS MEGJEGYZÉS WINDOWS FELHASZNÁLÓKNAK\n"
-"    There is currently an issue with the updater where it won't work with some .exe names.\n"
-"    To be sure that it works and autoupdates, you have to rename the .exe to \"uTox.exe\"\n"
-"    and enable it in the settings.\n"
-"\n"
-"  Tulajdonságok:\n"
-"    Toxcore 0.2.x. support!\n"
-"    Settings are now stored in a human-readable .ini file.\n"
-"    We now support Tox URIs.\n"
-"    Dropdowns now stay open after being clicked.\n"
-"    You can now get a QR code representing your ToxID.\n"
-"    Estonian language support\n"
-"  Javítások:\n"
-"    The zenburn colour scheme now works.\n"
-"    Calls are now added to the chatlogs.\n"
-"    Saving inline images now works to paths with non-ascii characters.\n"
-"    GTK should work on more platforms now.\n"
-"    Exporting chatlogs on macOS doesn't crash anymore.\n"
-"    File transfers are now supported on macOS.\n"
-"    The force proxy setting is now saved.\n"
-"    The tray icon should maybe now probably work on most (maybe) Linux systems.\n"
-"    Lots of UI fixes involving the bounding boxes of things.\n"
-"    We now handle signals on Linux systems.\n"
-"    Filter audio can now be enabled again.\n"
-"    The Windows tray icon will be reloaded if Windows explorer crashes.\n"
-"    You no longer end up with invalid fps data when loading an older save.\n"
-"    Datetime format is now saved.\n"
-"    Non-ASCII should work better now.\n"
-"    Tooltips will now always be drawn within the window boundaries.\n"
-"  Fejlesztés:\n"
-"    You can now set the library locations with CMAKE_PREFIX_PATH.\n"
-"\n")
 
 /******************************************************************************
  *** MISC & UNSORTED                                                        ***
  ******************************************************************************/
-
 msgid(REQ_SENT)
 msgstr("Partnerkérelem elküldve. A partner elérhető lesz, miután a kérelmet elfogadta.")
 
@@ -245,6 +210,7 @@ msgstr("Ki")
 msgid(GROUP_TOPIC)
 msgstr("Csoporttéma beállítása")
 
+
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
@@ -295,8 +261,6 @@ msgstr("Csatlakoztatott eszközök száma")
 
 /******************************************************************************
  *** UNSORTED STRINGS                                                       ***
- *** TODO:                                                                  ***
- *** FIXME:                                                                 ***
  ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Új partner hozzáadása")
@@ -443,12 +407,6 @@ msgstr("Nyelv")
 
 msgid(NETWORK)
 msgstr("Hálózat")
-
-msgid(IPV6)
-msgstr("IPv6")
-
-msgid(UDP)
-msgstr("UDP")
 
 msgid(PROXY)
 msgstr("Proxy (SOCKS 5)")

@@ -20,159 +20,12 @@ msgstr("Вече сте с версия 0.16.1! Кодово име: без ша
 msgid(CHANGE_LOG_TITLE)
 msgstr("Промени в 0.16.1 (моля проверете нашият уебсайт, utox.io)")
 
-msgid(CHANGE_LOG_TEXT)
-msgstr(
-"\n  ВАЖНО съобщение за WINDOWS потребителите\n"
-"    Съществува проблем с актуализатора, при което той не работи с някои имена на .exe файла.\n"
-"    За да сте сигурни, че ще работи автоматичното актуализиране преименувайте .exe файла на \"uTox.exe\"\n"
-"    и активирайте функцията в настройките.\n"
-"\n"
-"  Нововъведения:\n"
-"    Вече се запазва езика.\n"
-"    Добавени са групови аудио разговори.\n"
-"    Потребителски зададени РВС във видео разговорите.\n"
-"  Поправки:\n"
-"    OS X подобрения в стабилността.\n"
-"    Видеото отново работи под Linuх.\n"
-"    Поправки и подобрения в потребителския изглед. (Благодарности на @redmanmale!)\n"
-"    Поправено е заглавието на видео прозореца под Windows. (Благодарности на @thorpelawrence!)\n"
-"    Поправени са причините за сриване при групов чат.\n"
-"    Натискането със среден бутон и двоен клик вече работят коректно в X11. (Благодарности на @dkmoz!)\n"
-"    Уникод линковете вече работят под Windows.\n"
-"    Имената на прехвърляните файлове вече се запазват под Windows.\n"
-"    Автоматичното приемане на прехвърлянията на файлове вече пак се запаметяват.\n"
-"    Вече аудиоизвестията се изпълняват, когато uTox не е на фокус.\n"
-"    Съобщенията не се маркират като непрочетени, ако чата е отворен, в момента на получаване.\n"
-"    Избирачът на файлове пад GTK вече работи и за OpenBSD и NetBSD.\n"
-"    Поправена опция за автостарт.\n"
-"    Поправени известия при писане.\n"
-"    Добавени времеви точки при изнасяне на дискусията.\n"
-"  В разработка:\n"
-"    Отхвърлена поддръжка на ToxDNS.\n"
-"    Инструкции за компилиране под OS X вече съществуват. (Благодарности на @publicarray!)\n"
-"    Тестовете вече се извършват за OS X както и под Linux.\n"
-"    Добавен скрипт на Python за откриване на липсващи преводи.\n"
-"    Намален размер на MinSizeRel компилации.\n"
-"    Обновени множество преводи.\n"
-"\n"
-"  Знаете ли друг език? Желаете ли да четете промените по версията на друг език?\n"
-"    Помогнете ни да преведем uTox!\n"
-"\nv0.15.0\n"
-"  Fixes:\n"
-"    Video now works on Windows again.\n"
-"    Autoaccepting files in portable mode now saves to the portable folder.\n"
-"    Updated Ukrainian translation. (Thanks v2e!)\n"
-"    Dbus notifications should now work on more different setups.\n"
-"  Development\n"
-"    Added support for NetBSD, OpenBSD, and FreeBSD.\n"
-"    Refactored the UI.\n"
-"\n  Do you know another language? Rather read the changelog in your language?\n"
-"    Help us translate uTox!\n"
-"\nv0.14.0\n"
-"  Features:\n"
-"    Real Updater.\n"
-"       -- uTox now has an updater built in. Currently Windows only.\n"
-"       -- But can be adapted to any platform if there's any interest.\n"
-"    Added musl libc support.\n"
-"    uTox is now compiled with stronger exploit protection.\n"
-"    Significant reduction in memory usage for friend list.\n"
-"  Fixes:\n"
-"    New Nospams no longer start with 0000 on window.\n"
-"    Fixed button alignment with Language selection.\n"
-"    The tox save is no longer truncated at exit.\n"
-"    The tray icon now always displays a square\n"
-"       -- Even on broken display managers (uTox looks at gnome...)\n"
-"    Bootstrap nodes list updated.\n"
-"    Avatars can now be deleted.\n"
-"    Notifications are no longer ignored when uTox is minimized.\n"
-"    A few more file transfer fixes.\n"
-"       -- Especially the last remaining one that would occasionally miss updates.\n"
-"  Development\n"
-"    All remaining warnings we fixed, -Werror was added\n"
-"    Tests added:\n"
-"                uTox Updater\n"
-"                Chatlog reading and writing\n"
-"    Refactored the UI a bit more. Which cleared out a few more of the UI glitches.\n"
-"\nv0.13.0\n"
-"  Features:\n"
-"    You can now paste UTF8 characters in uTox.\n"
-"    You can now manually set your nospam!\n"
-"\n  Fixes:\n"
-"    Mostly fix groupchats. (At least they no longer crash uTox instantly..)\n"
-"    Chatlogs can now be saved on Windows again.\n"
-"    Clearing chat backlog no longer crashes uTox.\n"
-"    Plug a lot of memory leaks.\n"
-"    Scrolling with pgup/pgdn now redraws the chat window.\n"
-"    Avatars now load again.\n"
-"    Custom themes now work and won't crash uTox if you try to switch to it when it doesn't exist.\n"
-"    Lots of build system improvements.\n"
-"    Lots of file transfer fixes.\n"
-"\n  Development\n"
-"    uTox now has a unit test implemented! (Hopefully this means we'll never have a bug ever again.)\n"
-"    UI files separated into UI components and layout.\n"
-"    We now have our own build server!\n"
-"\nv0.12.2\n"
-"    Fixed a Windows UI hang during file transfers.\n"
-"    Fixed a Windows Crash during file transfers.\n"
-"\nv0.11.1\n"
-"    Fixed crash with some transfers.\n"
-"    Bug Fixes\n"
-"    Fixed building on Windows XP\n"
-"    Friend request improvements\n"
-"    Added the ability to change nospam\n"
-"    Added notifications and advanced tab to settings\n"
-"    New updater\n"
-"    Started seperating the core and the UI\n"
-"\nv0.11.1\n"
-"    Feature: Export chatlog\n"
-"    Feature: Added ability to decline an incoming call\n"
-"    Various security fixes\n"
-"    Fixed icon issues\n"
-"    Better build system\n"
-"    Switched to TokTok/c-toxcore\n"
-"    Improvements to development process to allow for easier contribution of code\n"
-"    New themes: Solarized light and Solarized dark\n"
-"    Updated translations\n"
-"    filter_audio optimisations\n"
-"    Started using clang-format\n"
-"    Stopped using clang-format\n"
-"    New, shinier toggle buttons (thanks, tsudoko!)\n"
-"    Better support for auto-accepting file transfers\n"
-"    Fixed UI issues with the lock screen\n"
-"\nv0.11.0\n"
-"    Were sorry, but the changelog for this version of uTox\n"
-"    is only available to uTox GOLD Members.\n"
-"\nv0.9.8\n"
-"    Fixed a crash when trying to create a new profile\n"
-"\nv0.9.7\n"
-"    Some minor GUI fixes\n"
-"    Replaced all Yes/No dropdowns with Switches\n"
-"    Fixed saving proxy host & port across restarts.\n"
-"\nv0.9.5\n"
-"    Inline video for OSX\n"
-"    Fixed a logging bug\n"
-"\nv0.9.3\n"
-"    Fixed a message bug causing sporatic crashes in Windows\n"
-"    Limited the number of Messages to resend at once\n"
-"\nv0.9.2\n"
-"    Source Cleanups/Dir changes\n"
-"\nv0.9.1\n"
-"    Fixed a crash when sending a message to a new fiend\n"
-"\nv0.9.0\n"
-"   Message queuing\n"
-"   Better, and colorized groupchats\n"
-"   Experimental Inline Video support\n"
-"   Mini Contact list\n"
-"   Refactored message handling\n"
-"\n")
 
 /******************************************************************************
  *** MISC & UNSORTED                                                        ***
  ******************************************************************************/
-
 msgid(REQ_SENT)
 msgstr("Поканата за приятелство е изпратена! Приятелят Ви ще се появи онлайн, когато поканата бъде приета.")
-
 
 msgid(REQ_INVALID_ID)
 msgstr("Грешка: Невалиден Tox идентификатор")
@@ -354,6 +207,7 @@ msgstr("Изкл.")
 msgid(GROUP_TOPIC)
 msgstr("Задай тема на чата")
 
+
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
@@ -404,8 +258,6 @@ msgstr("Брой на свързаните устройства")
 
 /******************************************************************************
  *** UNSORTED STRINGS                                                       ***
- *** TODO:                                                                  ***
- *** FIXME:                                                                 ***
  ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Добави нов контакт")
@@ -552,12 +404,6 @@ msgstr("Език")
 
 msgid(NETWORK)
 msgstr("Мрежа")
-
-msgid(IPV6)
-msgstr("IPv6:")
-
-msgid(UDP)
-msgstr("UDP:")
 
 msgid(PROXY)
 msgstr("Прокси (SOCKS 5)")

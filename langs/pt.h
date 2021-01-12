@@ -142,12 +142,6 @@ msgstr("Linguagem")
 msgid(NETWORK)
 msgstr("Rede")
 
-msgid(IPV6)
-msgstr("IPv6:")
-
-msgid(UDP)
-msgstr("UDP:")
-
 msgid(PROXY)
 msgstr("Proxy (SOCKS 5)")
 

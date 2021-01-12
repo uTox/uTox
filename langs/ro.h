@@ -125,14 +125,6 @@ msgid(NETWORK)
 msgstr("Internet")
 
 //TODO: Same as in English? Localize or remove.
-//msgid(IPV6)
-//msgstr("IPv6:")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(UDP)
-//msgstr("UDP:")
-
-//TODO: Same as in English? Localize or remove.
 //msgid(PROXY)
 //msgstr("Proxy (SOCKS 5)")
 

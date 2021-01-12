@@ -208,12 +208,6 @@ msgstr("Lingvo")
 msgid(NETWORK)
 msgstr("Reto")
 
-msgid(IPV6)
-msgstr("IPv6:")
-
-msgid(UDP)
-msgstr("UDP:")
-
 msgid(PROXY)
 msgstr("Prokurilo (SOCKS 5)")
 
