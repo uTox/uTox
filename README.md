@@ -8,7 +8,7 @@ Tox is a peer-to-peer, end-to-end encrypted, instant messaging protocol, with en
 
 µTox is **cross-platform**: Primary support for Windows 7+ and Linux, secondary support for OpenBSD, FreeBSD, NetBSD, and DragonFlyBSD. MacOS is unmaintained (needs your contributions).
 
-µTox is **multi-lingual**: Complete translations for German, Russian, Swedish, Polish, Hungarian, Estonian, Ukrainian, and Bulgarian. Partial translations to many more languages.
+µTox is **multi-lingual**: Complete translations for German, Russian, Swedish, Polish, Spanish, Hungarian, Estonian, Ukrainian, and Bulgarian. Partial translations to many more languages.
 
 ## Features
 - Themes
