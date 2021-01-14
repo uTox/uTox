@@ -297,7 +297,7 @@ static ITEM *newitem(void) {
         LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Could not allocate memory for friend list.");
     }
     if (item_pos>=0){
- //       selected_item = &(item[item_pos]);
+        selected_item = &(item[item_pos]);
     }
 
     unsigned int index = itemcount - 1;
