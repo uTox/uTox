@@ -283,9 +283,9 @@ void flist_update_shown_list(void) {
 
 /* returns address of item at current index and appends the group create entry */
 static ITEM *newitem(void) {
-    int old_selected = -1;
+    int64_t old_selected = -1;
 
-    for (unsigned int i = 0; i < itemcount; ++i) {
+    for (int64_t i = 0; i < itemcount; ++i) {
         if (selected_item == &(item[i])) {
             old_selected = i;
             break;
