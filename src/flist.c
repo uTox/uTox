@@ -285,8 +285,8 @@ void flist_update_shown_list(void) {
 static ITEM *newitem(void) {
     int item_pos = -1;
     // check if the selected_item is in the item list to realloc it in that case
-    for (unsigned int i=0;i<itemcount;i++){
-        if (selected_item==&(item[i])){
+    for (unsigned int i = 0; i < itemcount; i++){
+        if (selected_item == &(item[i])){
             item_pos = i;
             break;
         }
@@ -297,7 +297,7 @@ static ITEM *newitem(void) {
         LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Could not allocate memory for friend list.");
     }
     if (item_pos>=0){
-        selected_item = &(item[item_pos]);
+ //       selected_item = &(item[item_pos]);
     }
 
     unsigned int index = itemcount - 1;
