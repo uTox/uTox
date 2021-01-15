@@ -281,7 +281,9 @@ void flist_update_shown_list(void) {
     flist_re_scale();
 }
 
-/* returns address of item at current index and appends the group create entry */
+/* returns the address of the item at the currently last index, and appends a
+ * new group create entry (current 'group create' item becomes the free slot)
+ */
 static ITEM *newitem(void) {
     int64_t old_selected_index = -1;
 
