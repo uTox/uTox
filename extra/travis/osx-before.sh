@@ -5,7 +5,6 @@ set -eux
 . ./extra/travis/env.sh
 
 export HOMEBREW_NO_INSTALL_CLEANUP=1
-brew update
 brew install yasm
 brew install check
 
