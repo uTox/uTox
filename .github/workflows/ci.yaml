@@ -30,8 +30,9 @@ jobs:
           set -ex
           if [ $BUILD = linux ]; then
             sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
-              cmake cmake-data yasm check libdbus-1-dev libopenal-dev \
-              libopenal-data libopenal1 libv4l-dev
+              cmake cmake-data check libdbus-1-dev \
+              libsodium-dev libopus-dev libvpx-dev \
+              libopenal-dev libopenal-data libv4l-dev
           elif [ $BUILD = windows ]; then
             sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
               gcc mingw-w64 gcc-mingw-w64 mingw-w64-common binutils-mingw-w64 \
