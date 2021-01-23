@@ -17,7 +17,7 @@ For any and all of the following, you'll need to have [toxcore](https://github.c
 
 ## Windows
 
-Installing on Windows isn't really a thing yet... just download and run the latest version: [x64](https://github.com/uTox/uTox/releases/download/v0.17.2/utox_x86_64.exe).
+Installing on Windows isn't really a thing yet... just download and run the latest version: [x64](https://github.com/uTox/uTox/releases/download/v0.18.1/utox_x86_64.exe).
 
 ## Unix-like
 

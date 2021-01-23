@@ -12,10 +12,10 @@ msgid(SPLASH_TITLE)
 msgstr("Witaj w nowym uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("uTox został zaktualizowany do wersji 0.9.8! Nazwa kodowa wersji: Srsly v3")
+msgstr("uTox został zaktualizowany do wersji 0.18.1! Nazwa kodowa wersji: 👑🎉.1")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Zmiany w v0.9.8")
+msgstr("Zmiany w v0.18.1")
 
 
 /******************************************************************************

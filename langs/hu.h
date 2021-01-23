@@ -15,10 +15,10 @@ msgid(SPLASH_TITLE)
 msgstr("Üdvözöljük az újabb uToxban!")
 
 msgid(SPLASH_TEXT)
-msgstr("Ön a 0.17.0 verzióra frissített! A kiadás neve: bork bork")
+msgstr("Ön a 0.18.1 verzióra frissített! A kiadás neve: 👑🎉.1")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Változások a 0.17.0 verzióban")
+msgstr("Változások a 0.18.1 verzióban")
 
 
 /******************************************************************************

@@ -15,10 +15,10 @@ msgid(SPLASH_TITLE)
 msgstr("Tere tulemast uuemasse uTox-i!")
 
 msgid(SPLASH_TEXT)
-msgstr("Te olete uuendanud versioonile 0.16.1! Väljalaske nimi: No capes!")
+msgstr("Te olete uuendanud versioonile 0.18.1! Väljalaske nimi: 👑🎉.1")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Muutused v0.16.1 versioonis (Vaadake meie uut veebilehte, utox.io)")
+msgstr("Muutused v0.18.1 versioonis")
 
 
 /******************************************************************************
