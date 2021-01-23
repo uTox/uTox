@@ -4,28 +4,11 @@ set -eux
 
 . ./extra/travis/env.sh
 
-brew update
-
-brew install yasm
+export HOMEBREW_NO_INSTALL_CLEANUP=1
 brew install check
-
-. ./extra/common/build_nacl.sh
-. ./extra/common/build_opus.sh
-
-# install libvpx, needed for video encoding/decoding
-if ! [ -d libvpx ]; then
-  git clone --depth=1 --branch=v1.6.0 https://chromium.googlesource.com/webm/libvpx
-fi
-cd libvpx
-git rev-parse HEAD > libvpx.sha
-if ! ([ -f "$CACHE_DIR/libvpx.sha" ] && diff "$CACHE_DIR/libvpx.sha" libvpx.sha); then
-  ./configure --prefix="$CACHE_DIR/usr"
-  make -j`sysctl -n hw.ncpu`
-  make install
-  mv libvpx.sha "$CACHE_DIR/libvpx.sha"
-fi
-cd ..
-rm -rf libvpx
+brew install libsodium
+brew install libvpx
+brew install opus
 
 # install toxcore
 if ! [ -d toxcore ]; then
