@@ -820,6 +820,11 @@ void flist_delete_rmouse_item(void) {
 }
 
 void flist_freeall(void) {
+    if (!item) {
+        LOG_ERR("F-List", "Friend list is already NULL!");
+        return;
+    }
+
     for (ITEM *i = item; i != item + itemcount; i++) {
         switch (i->type) {
             case ITEM_FRIEND: {
@@ -845,7 +850,9 @@ void flist_freeall(void) {
     itemcount  = 0;
     showncount = 0;
     free(item);
+    item = NULL;
     free(shown_list);
+    shown_list = NULL;
 }
 
 void flist_selectchat(int index) {
