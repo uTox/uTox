@@ -7,7 +7,7 @@ If you're looking for it to "just work" you're going to want [these instructions
 
 ## Instructions
 
-- [Unix Like](#unix-like)
+- [Unix-like](#unix-like)
   * [Linux](#linux)
   * [Ubuntu](#ubuntu)
   * [OpenBSD](#openbsd)
@@ -17,7 +17,7 @@ If you're looking for it to "just work" you're going to want [these instructions
 - [macOS](#macos)
 - [Android](#android)
 
-## Unix Like
+## Unix-like
 
 ### Linux
 

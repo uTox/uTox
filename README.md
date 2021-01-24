@@ -30,8 +30,7 @@ If you do not have a GitHub account, you may also [send an email](#team) directl
 - **Windows**
   - [x64](https://github.com/uTox/uTox/releases/download/v0.18.1/utox_x86_64.exe)
 - **Linux/Posix**
-  - [static x86-64](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
-  - [static x86](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
+  - [Install](docs/INSTALL.md) via your package manager, or [build](docs/BUILD.md).
 - **macOS**
   - [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.16.1/uTox-0.16.1.dmg) (out of date)
 - **Android**

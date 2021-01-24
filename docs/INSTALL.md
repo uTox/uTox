@@ -5,7 +5,7 @@ The following steps install μTox on your computron/toaster/carrier pigeon. This
 For any and all of the following, you'll need to have [toxcore](https://github.com/TokTok/c-toxcore) installed first.
 
 - [Windows](#windows)
-- [Unix-like](#unix-like)
+- [Linux](#linux)
   - [Archlinux](#archlinux)
   - [Debian](#debian)
   - [Slackware](#slackware)
@@ -19,29 +19,11 @@ For any and all of the following, you'll need to have [toxcore](https://github.c
 
 Installing on Windows isn't really a thing yet... just download and run the latest version: [x64](https://github.com/uTox/uTox/releases/download/v0.18.1/utox_x86_64.exe).
 
-## Unix-like
+## Linux
 
-Please make sure you have all of the required [dependencies](DEPENDENCIES.md).
+If you find that uTox isn't packaged for your distribution, you will want to [build](BUILD.md) it yourself.
 
-1. First compile:
-
-    ```bash
-    mkdir build
-    cd build
-    cmake ..
-    make
-    ```
-
-2. Then install:
-
-    ```bash
-    sudo make install
-    ```
-
-If make/install really isn't your thing, you can try some precompiled binaries:
-
-- [x86-64](https://build.tox.chat/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
-- [i686](https://build.tox.chat/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
+(The following is not a complete list of distributions for which uTox has been packaged.)
 
 ### Archlinux
 
@@ -98,7 +80,6 @@ Install using homebrew cask:
 ```bash
 brew cask install utox
 ```
-
 
 ## Android
 
