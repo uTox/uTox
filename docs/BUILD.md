@@ -52,8 +52,6 @@ make install
 
 For the build to pass you need to install the following from sources: [filteraudio](https://github.com/irungentoo/filter_audio) [libtoxcore](https://github.com/TokTok/c-toxcore)
 
-For base emoji ids support you need: [base_emoji](https://github.com/irungentoo/base_emoji)
-
 #### musl + clang
 
 If you use clang on a musl system, you may need to disable link-time optimizations, in case you get linking errors like the following:
