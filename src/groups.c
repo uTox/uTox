@@ -359,6 +359,8 @@ void init_groups(Tox *tox) {
         free(title);
     }
     LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
+
+    free(group);
 }
 
 
