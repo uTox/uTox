@@ -500,6 +500,7 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
         memcpy(data, id, TOX_PUBLIC_KEY_SIZE);
         postmessage_toxcore(TOX_FRIEND_NEW_NO_REQ, TOX_PUBLIC_KEY_SIZE, 0, data);
         addfriend_status = ADDF_NOFREQUESTSENT;
+        free(data);
     } else {
         addfriend_status = ADDF_BADNAME;
     }
