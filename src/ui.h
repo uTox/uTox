@@ -64,6 +64,8 @@ enum {
     FONT_LIST_NAME,
     FONT_MISC,
 
+    FONT_MONO,
+
     FONT_END,
 };
 

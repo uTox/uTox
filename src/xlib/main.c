@@ -603,7 +603,7 @@ void setscale(void) {
 }
 
 void setscale_fonts(void) {
-    freefonts();
+    freefonts(); 
     loadfonts();
 
     font_small_lineheight = (font[FONT_TEXT].info[0].face->size->metrics.height + (1 << 5)) >> 6;

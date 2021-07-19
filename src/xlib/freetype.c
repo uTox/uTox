@@ -7,7 +7,8 @@
 #include "../macros.h"
 #include "../ui.h"
 
-#define UTOX_FONT_XLIB "Roboto"
+#define UTOX_FONT_XLIB_STD  "Roboto"
+#define UTOX_FONT_XLIB_MONO "Source Code Pro"
 
 FT_Library ftlib;
 FONT       font[16], *sfont;
@@ -277,7 +278,7 @@ void initfonts(void) {
 
     FcResult result;
     FcPattern *pat = FcPatternCreate();
-    FcPatternAddString(pat, FC_FAMILY, (uint8_t *)UTOX_FONT_XLIB);
+    FcPatternAddString(pat, FC_FAMILY, (uint8_t *)UTOX_FONT_XLIB_STD);
     FcConfigSubstitute(0, pat, FcMatchPattern);
     FcDefaultSubstitute(pat);
     fs = FcFontSort(NULL, pat, 0, &charset, &result);
@@ -402,28 +403,20 @@ void loadfonts(void) {
         LOG_TRACE("Freetype", "ft_vert" );
     }
 
-    font_open(&font[FONT_TEXT], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
+    font_open(&font[FONT_TEXT], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB_STD, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
               FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
-
-    font_open(&font[FONT_TITLE], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
+    font_open(&font[FONT_TITLE], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB_STD, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
               FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD, NULL);
-
-    font_open(&font[FONT_SELF_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(14.0),
+    font_open(&font[FONT_SELF_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB_STD, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(14.0),
               FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD, NULL);
-    font_open(&font[FONT_STATUS], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(11.0),
+    font_open(&font[FONT_STATUS], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB_STD, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(11.0),
               FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
-
-    font_open(&font[FONT_LIST_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
+    font_open(&font[FONT_LIST_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB_STD, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
               FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
-
-    // font_open(&font[FONT_MSG],      FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(11.0),
-    //           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
-    // font_open(&font[FONT_MSG_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(10.0),
-    // FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
-    font_open(&font[FONT_MISC], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(10.0),
+    font_open(&font[FONT_MISC], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB_STD, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(10.0),
               FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
-    // font_open(&font[FONT_MSG_LINK], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(11.0),
-    //           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
+    font_open(&font[FONT_MONO], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB_MONO, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
+              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 }
 
 void freefonts(void) {

@@ -3,8 +3,11 @@
 #include "draw.h"
 #include "scrollable.h"
 
+
+#include "../ui.h"
 #include "../text.h"
 #include "../theme.h"
+#include "../native/ui.h"
 
 #include <limits.h>
 #include <string.h>
@@ -82,13 +85,15 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
                                         uint16_t length, /* text, and length of the text*/
                                         uint16_t h, uint16_t hlen, uint16_t mark, uint16_t marklen, bool multiline) {
     uint32_t c1, c2;
+    uint32_t prev_font = FONT_TEXT;
 
-    bool greentext = 0, link = 0, draw = y + lineheight >= top;
+    bool greentext = 0, link = 0, draw = y + lineheight >= top, mono = 0;
     int  xc = x;
 
     const char *a_mark = data, *b_mark = a_mark, *end = a_mark + length;
     while (1) {
         if (a_mark != end) {
+            // Green text for quotes
             if (*a_mark == '>' && (a_mark == data || *(a_mark - 1) == '\n')) {
                 c1        = setcolor(COLOR_MAIN_TEXT_QUOTE);
                 greentext = 1;
@@ -109,6 +114,7 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
                     r++;
                 }
                 if (r != data && *(r - 1) == '<') {
+                    // Or, maybe red text for the lulz
                     if (greentext) {
                         setcolor(COLOR_MAIN_TEXT_RED);
                     } else {
@@ -117,9 +123,22 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
                     }
                 }
             }
+
+            // Monowidth for the codes
+            if (*a_mark == '`' && a_mark != end) {
+                if (mono) {
+                    // setfont(prev_font);
+                    // mono = 0;
+                } else {
+                    setfont(FONT_MONO);
+                    mono = 1;
+                }
+            }
         }
 
+
         if (a_mark == end || *a_mark == ' ' || *a_mark == '\n') {
+
             int count = a_mark - b_mark, w = textwidth(b_mark, count);
             while (x + w > right) {
                 if (multiline && x == xc) {
@@ -158,6 +177,11 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
             x += w;
             b_mark = a_mark;
 
+            if (mono && *(a_mark - 1) == '`') {
+                setfont(prev_font);
+                mono = 0;
+            }
+
             if (link) {
                 setcolor(c2);
                 link = 0;
@@ -182,6 +206,7 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
                 x = xc;
             }
         }
+
         a_mark += utf8_len(a_mark);
     }
 
