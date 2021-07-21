@@ -1,4 +1,4 @@
-# μTox [![IRC: #utox on freenode](https://img.shields.io/badge/freenode-%23utox-brightgreen.svg)](https://webchat.freenode.net/?channels=#utox) ![Actions Build Status](https://github.com/uTox/uTox/workflows/.github/workflows/ci.yaml/badge.svg) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/utox/utox?branch=develop&svg=true)](https://ci.appveyor.com/project/utox/utox)
+# μTox [![IRC: #utox on libera.chat](https://img.shields.io/badge/libera.chat-%23utox-brightgreen.svg)](https://web.libera.chat/?channels=#utox) ![Actions Build Status](https://github.com/uTox/uTox/workflows/.github/workflows/ci.yaml/badge.svg) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/utox/utox?branch=develop&svg=true)](https://ci.appveyor.com/project/utox/utox)
 
 The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
