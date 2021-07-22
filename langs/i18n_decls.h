@@ -222,6 +222,7 @@ typedef enum {
     STR_COPY_WITH_NAMES,
     STR_CUT,
     STR_PASTE,
+    STR_PASTE_AS_QUOTE,
     STR_DELETE,
     STR_SELECTALL,
 

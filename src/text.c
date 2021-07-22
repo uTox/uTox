@@ -279,6 +279,44 @@ void to_hex(char *out, uint8_t *in, int size) {
     }
 }
 
+char *to_quote(const char *str, size_t str_len)
+{
+	size_t i, j;
+	size_t newlines;
+	char *ret;
+	size_t ret_len;
+
+	if (!str || !str_len) {
+		return NULL;
+	}
+
+	newlines = 0;
+	for (i=0; i < str_len; ++i) {
+		if (str[i] == '\n')
+			++newlines;
+	}
+	++newlines; /* an '>' for each '\n', + one for the first line */
+
+	ret_len = str_len + newlines + 1;
+	ret = calloc(ret_len, 1);
+	if (!ret) {
+		return NULL;
+	}
+
+	i = str_len - 1;
+	j = ret_len - 1 - 1;
+	while (i + 1) { /* loop one more time for i==0 */
+		if (str[i] == '\n') {
+			ret[j--] = '>';
+		}
+		ret[j--] = str[i];
+		--i;
+	}
+	ret[j] = '>'; /* j should be 0 now*/
+
+	return ret;
+}
+
 bool strstr_case(const char *a, const char *b) {
     const char *c = b;
     while (*a) {

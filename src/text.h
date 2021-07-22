@@ -41,6 +41,13 @@ char *tohtml(const char *str, uint16_t len);
 
 void to_hex(char *out, uint8_t *in, int size);
 
+/*
+ * Prepends '>' to every line
+ * returns a new \0-terminated string on success
+ * returns NULL on failure
+ */
+char *to_quote(const char *str, size_t str_len)
+
 /* returns non-zero if substring is found */
 bool strstr_case(const char *a, const char *b);
 

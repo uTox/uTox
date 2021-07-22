@@ -604,6 +604,11 @@ void paste(void) {
     CloseClipboard();
 }
 
+void paste_as_quote(void) {
+	LOG_NOTE("WinMain", "paste_as_quote(): unimplemented");
+	return;
+}
+
 NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     int      width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);

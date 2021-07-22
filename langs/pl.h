@@ -430,6 +430,9 @@ msgstr("Wytnij")
 msgid(PASTE)
 msgstr("Wklej")
 
+msgid(PASTE_AS_QUOTE)
+msgstr("Wklej jako cytat")
+
 msgid(DELETE)
 msgstr("Usuń")
 
