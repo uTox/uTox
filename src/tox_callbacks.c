@@ -2,10 +2,12 @@
 
 #include "avatar.h"
 #include "file_transfers.h"
+#include "flist.h"
 #include "friend.h"
 #include "groups.h"
 #include "debug.h"
 #include "macros.h"
+#include "self.h"
 #include "settings.h"
 #include "text.h"
 #include "utox.h"
@@ -206,6 +208,15 @@ static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid,
             break;
         }
     }
+
+    GROUPCHAT *selected = flist_get_sel_group();
+    if (selected != g) {
+        g->unread_msg = MSG_REGULAR;
+        if (strstr((const char *)message, self.name) != NULL) {
+            g->unread_msg = MSG_MENTION;
+        }
+    }
+
     group_notify_msg(g, (const char *)message, length);
     postmessage_utox(GROUP_MESSAGE, gid, pid, NULL);
 }

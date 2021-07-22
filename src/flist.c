@@ -108,17 +108,17 @@ static void flist_draw_name(ITEM *i, int x, int y, int width, char *name, char *
     }
 }
 
-static void flist_draw_status_icon(uint8_t status, int x, int y, bool notify) {
+static void flist_draw_status_icon(uint8_t status, int x, int y, MSG_TYPE notify) {
     y -= BM_STATUS_WIDTH / 2;
     x -= BM_STATUS_WIDTH / 2;
     drawalpha(BM_ONLINE + status, x, y, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 
-    if (notify) {
+    if (notify != MSG_NONE) {
         y += BM_STATUS_WIDTH / 2;
         y -= BM_STATUS_NOTIFY_WIDTH / 2;
         x += BM_STATUS_WIDTH / 2;
         x -= BM_STATUS_NOTIFY_WIDTH / 2;
-        drawalpha(BM_STATUS_NOTIFY, x, y, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
+        drawalpha(BM_STATUS_NOTIFY, x, y, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[(notify == MSG_MENTION) ? TOX_USER_STATUS_BUSY : status]);
     }
 }
 
@@ -564,7 +564,7 @@ static void page_open(ITEM *i) {
 
             g->msg.width  = current_width;
             g->msg.id     = g->number;
-            g->unread_msg = 0;
+            g->unread_msg = MSG_NONE;
             /* We use the MESSAGES struct from the group, but we need the info from the panel. */
             messages_group.object = &g->msg;
             messages_updateheight((MESSAGES *)messages_group.object, current_width);

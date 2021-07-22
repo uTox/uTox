@@ -84,7 +84,7 @@ SETTINGS settings = {
     // Notifications / Alerts
     .audible_notifications_enabled = true,
     .status_notifications          = true,
-    .group_notifications           = GNOTIFY_ALWAYS,
+    .group_notifications           = GNOTIFY_ON,
 
     .audio_device_out = 0,
     .audio_device_in  = 0,
