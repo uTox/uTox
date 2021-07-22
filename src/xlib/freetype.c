@@ -1,3 +1,13 @@
+#include <X11/extensions/Xrender.h>
+#include <inttypes.h>
+#include <stdbool.h>
+
+#include <ft2build.h>
+#include FT_LCD_FILTER_H
+#include <fontconfig/fontconfig.h>
+// fontconfig.h must be before fcfreetype.h
+#include <fontconfig/fcfreetype.h>
+
 #include "freetype.h"
 
 #include "main.h"

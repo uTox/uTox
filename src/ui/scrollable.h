@@ -1,10 +1,3 @@
-#ifndef SCROLLABLE_H
-#define SCROLLABLE_H
-
-#include "panel.h"
-
-#include <stdint.h>
-
 struct scrollable {
     PANEL panel;
 
@@ -26,5 +19,3 @@ bool scroll_mright(SCROLLABLE *s);
 bool scroll_mwheel(SCROLLABLE *s, int height, double delta, bool smooth);
 bool scroll_mup(SCROLLABLE *s);
 bool scroll_mleave(SCROLLABLE *s);
-
-#endif

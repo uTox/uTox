@@ -1,6 +1,15 @@
+#include <stdint.h>
+
+#include <X11/cursorfont.h>
+#include <X11/extensions/Xrender.h>
+#include <X11/extensions/XShm.h>
+#include <X11/X.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
 #include "main.h"
 
-#include "dbus.h"
 #include "freetype.h"
 #include "gtk.h"
 #include "tray.h"
@@ -41,6 +50,12 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+
+#ifdef HAVE_DBUS
+#include "dbus.h"
+#endif
+
+#include "../ui/svg.h"
 
 Atom wm_protocols, wm_delete_window;
 Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;

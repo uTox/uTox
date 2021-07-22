@@ -1,6 +1,3 @@
-#ifndef LAYOUT_SETTINGS_H
-#define LAYOUT_SETTINGS_H
-
 typedef struct scrollable SCROLLABLE;
 extern SCROLLABLE scrollbar_settings;
 
@@ -92,5 +89,3 @@ extern EDIT /* Profile */
             edit_add_new_device_to_self;
 
 void reset_settings_controls(void);
-
-#endif // LAYOUT_SETTINGS_H

@@ -1,16 +1,3 @@
-#ifndef XLIB_FREETYPE_H
-#define XLIB_FREETYPE_H
-
-#include <X11/extensions/Xrender.h>
-#include <inttypes.h>
-#include <stdbool.h>
-
-#include <ft2build.h>
-#include FT_LCD_FILTER_H
-#include <fontconfig/fontconfig.h>
-// fontconfig.h must be before fcfreetype.h
-#include <fontconfig/fcfreetype.h>
-
 #define PIXELS(x) (((x) + 32) / 64)
 
 typedef struct {
@@ -44,5 +31,3 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch);
 void initfonts(void);
 void loadfonts(void);
 void freefonts(void);
-
-#endif

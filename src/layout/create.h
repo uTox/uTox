@@ -1,6 +1,3 @@
-#ifndef LAYOUT_CREATE_H
-#define LAYOUT_CREATE_H
-
 /* Space keeping file for the macros I want to create to make changing/creating
  * layouts easier and/of faster. */
 
@@ -68,5 +65,3 @@
     dropdown_##n.panel.y      = b;              \
     dropdown_##n.panel.height = h;              \
     dropdown_##n.panel.width  = w;
-
-#endif // LAYOUT_CREATE_H

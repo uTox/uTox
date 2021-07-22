@@ -1,10 +1,4 @@
 /* toxav thread messages (sent from the client thread to the audio or video thread) */
-#ifndef UTOX_AV_H
-#define UTOX_AV_H
-
-#include <tox/toxav.h> // if it weren't for TOXAV_CALL_CONTROL we could move this to the .c
-
-#include <stdint.h>
 
 extern bool utox_av_ctrl_init;
 
@@ -74,5 +68,3 @@ void callback_av_group_audio(void *tox, uint32_t groupnumber, uint32_t peernumbe
 
 void group_av_peer_add(GROUPCHAT *g, int peernumber);
 void group_av_peer_remove(GROUPCHAT *g, int peernumber);
-
-#endif

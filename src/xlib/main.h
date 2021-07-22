@@ -1,27 +1,3 @@
-#if defined(MAIN_H) && !defined(XLIB_MAIN_H)
-#error "We should never include main from different platforms."
-#endif
-
-#ifndef XLIB_MAIN_H
-#define XLIB_MAIN_H
-#define MAIN_H
-
-#ifdef HAVE_DBUS
-#include "dbus.h"
-#endif
-
-#include "../ui/svg.h"
-
-#include <stdint.h>
-
-#include <X11/cursorfont.h>
-#include <X11/extensions/Xrender.h>
-#include <X11/extensions/XShm.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
 typedef struct native_image NATIVE_IMAGE;
 struct native_image {
     // This is really a Picture, but it is just a typedef for XID, and I didn't
@@ -90,5 +66,3 @@ void v4l_close(void);
 bool v4l_startread(void);
 bool v4l_endread(void);
 int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
-
-#endif
