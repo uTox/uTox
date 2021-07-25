@@ -80,6 +80,20 @@ static void drawtextmark(int x, int y, const char *str, uint16_t length, int d, 
     drawhline(x + width, y + lineheight - 1, x + width + w, COLOR_MAIN_TEXT);
 }
 
+
+bool _mkdn_is_valid(const char *str, size_t s_len, int type)
+{
+    if (!type) {
+        type = *str;
+        str++;
+        s_len--;
+    }
+
+    return strnchr(str, s_len, type) != 0;
+}
+
+
+
 int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left corner of the box */
                                         int right, int top, int bottom, uint16_t lineheight, const char *data,
                                         uint16_t length, /* text, and length of the text*/
