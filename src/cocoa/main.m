@@ -409,8 +409,6 @@ void launch_at_startup(bool should) {
     settings.window_width  = self.utox_window.frame.size.width;
     settings.window_height = self.utox_window.frame.size.height;
 
-    config_save();
-
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 

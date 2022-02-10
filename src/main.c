@@ -274,6 +274,7 @@ void utox_init(void) {
 
 void utox_raze(void) {
     LOG_WARN("uTox", "Clean exit.");
+    config_save();
     if (settings.debug_file != stdout) {
         fclose(settings.debug_file);
     }

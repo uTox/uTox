@@ -1072,8 +1072,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     settings.window_width  = (wndrect.right - wndrect.left);
     settings.window_height = (wndrect.bottom - wndrect.top);
 
-    config_save();
-
     /* kill threads */
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);
