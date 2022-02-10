@@ -879,8 +879,6 @@ int main(int argc, char *argv[]) {
     settings.window_width  = width_return;
     settings.window_height = height_return;
 
-    config_save();
-
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
