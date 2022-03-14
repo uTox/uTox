@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tox/tox.h>
 
 static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length,
                                     void *UNUSED(userdata)) {
@@ -166,7 +167,7 @@ static void callback_group_invite(Tox *tox, uint32_t fid, const uint8_t *invite_
     LOG_NOTE("Tox Callbacks", "Group Invite (friend %i)", fid);
 
     // TODO: Show the user a prompt for them to enter a password
-    TOX_ERR_GROUP_INVITE_ACCEPT err;
+    Tox_Err_Group_Invite_Accept err;
     uint32_t gid = tox_group_invite_accept(tox, fid, invite_data, length, (const uint8_t *)self.name, self.name_length, NULL, 0, &err);
 
     if (gid == UINT32_MAX) {
@@ -174,7 +175,7 @@ static void callback_group_invite(Tox *tox, uint32_t fid, const uint8_t *invite_
         return;
     }
 
-    TOX_ERR_GROUP_STATE_QUERIES query_err;
+    Tox_Err_Group_State_Queries query_err;
     uint8_t id[TOX_GROUP_CHAT_ID_SIZE];
     tox_group_get_chat_id(tox, gid, id, &query_err);
     if (err != TOX_ERR_GROUP_STATE_QUERIES_OK) {
@@ -256,7 +257,7 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
     LOG_TRACE("Tox Callbacks", "Group Title (%u, %u): %.*s" , gid, pid, (int)length, title);
 }
 
-static void callback_group_join_fail(Tox *tox, uint32_t group_number, TOX_GROUP_JOIN_FAIL type, void *UNUSED(userdata)) {
+static void callback_group_join_fail(Tox *tox, uint32_t group_number, Tox_Group_Join_Fail type, void *UNUSED(userdata)) {
     //TODO: Tell the user the join failed
     LOG_INFO("Tox Callbacks", "Join failed for group: %u fail type: %u", group_number, type);
 }
@@ -264,6 +265,7 @@ static void callback_group_join_fail(Tox *tox, uint32_t group_number, TOX_GROUP_
 static void callback_self_join(Tox *tox, uint32_t group_number, void *userdata) {
     LOG_INFO("Tox Callbacks", "Joining groupchat (%u)", group_number);
 }
+
 
 void utox_set_callbacks_groups(Tox *tox) {
     tox_callback_group_invite(tox, callback_group_invite);
