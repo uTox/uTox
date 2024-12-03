@@ -47,7 +47,9 @@ extern bool     _redraw;
 
 extern XImage *screen_image;
 
+#ifndef __APPLE__
 extern int utox_v4l_fd;
+#endif
 
 /* dynamically load libgtk */
 extern void *libgtk;
@@ -83,12 +85,13 @@ void pastedata(void *data, Atom type, size_t len, bool select);
 // Brute Force, the video window we got a close command on (xlib/video.c)
 uint16_t find_video_windows(Window w);
 
-
+#ifndef __APPLE__
 // video4linux
 bool v4l_init(char *dev_name);
 void v4l_close(void);
 bool v4l_startread(void);
 bool v4l_endread(void);
 int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
+#endif
 
 #endif
