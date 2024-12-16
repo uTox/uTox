@@ -830,7 +830,7 @@ void utox_audio_thread(void *args) {
                 bool voice = true;
                 #ifdef AUDIO_FILTERING
                 if (f_a) {
-                    const int ret = filter_audio(f_a, (int16_t *)buf, perframe);
+                    const int ret = filter_audio(f_a, (uint8_t *)buf, perframe);
 
                     if (ret == -1) {
                         LOG_TRACE("uTox Audio", "filter audio error" );

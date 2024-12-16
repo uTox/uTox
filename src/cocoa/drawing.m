@@ -148,11 +148,14 @@ int drawtext_want_width(int x, int y, char *str, uint16_t length, BOOL wants_wid
     // Set text position and draw the line into the graphics context
     CGContextSetTextPosition(context, x, y);
     CTLineDraw(line, context);
+    
+    
+    int  result = wants_width ?
+    round(CTLineGetTypographicBounds(line, NULL, NULL, NULL) + CTLineGetTrailingWhitespaceWidth(line)) : 0;
     CFRelease(line);
     CFRelease(attrString);
-    return wants_width ?
-               round(CTLineGetTypographicBounds(line, NULL, NULL, NULL) + CTLineGetTrailingWhitespaceWidth(line)) :
-               0;
+    
+    return result;
 }
 
 void drawtext(int x, int y, const char *str, uint16_t length) {

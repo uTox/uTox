@@ -33,6 +33,11 @@ static struct {
 static bool edit_select;
 
 static void setactive(EDIT *edit) {
+    if(!active_edit){
+        active_edit = edit;
+        return;
+    }
+
     if (edit != active_edit) {
         edit_will_deactivate();
 

@@ -45,5 +45,11 @@
             </array>
         </dict>
     </array>
+	<key>NSCameraUsageDescription</key>
+	<string>uTox require access your camera</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>uTox require access your microphone</string>
+
+	
 </dict>
 </plist>
