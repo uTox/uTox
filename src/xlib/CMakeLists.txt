@@ -2,6 +2,9 @@ project(utoxNATIVE LANGUAGES C)
 
 option(ENABLE_DBUS "Compile with dbus notification support" ON)
 
+if(APPLE)
+    set(ENABLE_XLIB_VIDEO 0)
+endif()
 
 if(ENABLE_DBUS)
     find_package(DBus REQUIRED)
@@ -12,12 +15,14 @@ endif()
 #########################################
 ## Native Icon data
 #########################################
-add_custom_command(OUTPUT icon.o
-    COMMAND cd ${uTox_SOURCE_DIR}/ && ld -r -b binary -o ${utoxNATIVE_BINARY_DIR}/icon.o icons/utox-128x128.png
-    DEPENDS ../../icons/utox-128x128.png )
-set_source_files_properties( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
-add_library(icon STATIC icon.o)
-set_target_properties( icon PROPERTIES LINKER_LANGUAGE C )
+if(NOT APPLE)
+    add_custom_command(OUTPUT icon.o
+        COMMAND cd ${uTox_SOURCE_DIR}/ && ld -r -b binary -o ${utoxNATIVE_BINARY_DIR}/icon.o icons/utox.png
+        DEPENDS ../../icons/utox.png)
+    set_source_files_properties(icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true)
+    add_library(icon STATIC icon.o)
+    set_target_properties(icon PROPERTIES LINKER_LANGUAGE C)
+endif()
 
 #########################################
 ## Native Interface
@@ -34,7 +39,7 @@ add_library(utoxNATIVE STATIC
     $<$<BOOL:${ENABLE_UNITY_MMENU}>:mmenu.c>
     screen_grab.c
     tray.c
-    v4l.c
+    $<$<BOOL:${ENABLE_XLIB_VIDEO}>:v4l.c>
     video.c
     window.c
 
@@ -57,10 +62,12 @@ message("X library:         ${X11_LIBRARIES}")
 message("Xrender include:   ${X11_Xrender_INCLUDE_PATH}")
 message("Xrender library:   ${X11_Xrender_LIB}")
 
-find_package(libv4lconvert REQUIRED)
-include_directories("${LIBV4LCONVERT_INCLUDE_DIRS}")
-message("V4Lconvert include: ${LIBV4LCONVERT_INCLUDE_DIRS}")
-message("V4Lconvert library: ${LIBV4LCONVERT_LIBRARIES}")
+if(NOT APPLE)
+    find_package(libv4lconvert REQUIRED)
+    include_directories("${LIBV4LCONVERT_INCLUDE_DIRS}")
+    message("V4Lconvert include: ${LIBV4LCONVERT_INCLUDE_DIRS}")
+    message("V4Lconvert library: ${LIBV4LCONVERT_LIBRARIES}")
+endif()
 
 if(ENABLE_DBUS AND DBUS_LIBRARIES)
     message("DBus include:  ${DBUS_INCLUDE_DIRS}")
@@ -71,7 +78,6 @@ endif()
 
 target_link_libraries(utoxNATIVE
     PUBLIC
-        icon
         ${LIBV4LCONVERT_LIBRARIES}
         ${LIBFONTCONFIG_LIBRARIES}
         ${X11_LIBRARIES}
@@ -81,6 +87,13 @@ target_link_libraries(utoxNATIVE
     PRIVATE
         stb
 )
+
+if(NOT APPLE)
+    target_link_libraries(utoxNATIVE
+        PUBLIC
+            icon
+    )
+endif()
 
 if(LINUX OR NETBSD)
     target_link_libraries(utoxNATIVE
@@ -93,6 +106,13 @@ if(LINUX)
     target_link_libraries(utoxNATIVE
         PUBLIC
             dl
+    )
+endif()
+
+if(APPLE)
+    target_link_libraries(utoxNATIVE
+        PUBLIC
+            "-framework OpenAL"
     )
 endif()
 

@@ -14,9 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Converted to a binary and linked at build time
-extern uint8_t _binary_icons_utox_128x128_png_start;
-extern uint8_t _binary_icons_utox_128x128_png_end;
+/* Converted to a binary and linked at build time */
+EXTLD(icons_utox_png)
 
 static void send_message(Display *dpy, /* display */
                   Window w, /* sender (tray window) */
@@ -93,8 +92,8 @@ static void draw_tray_icon(void) {
     LOG_NOTE("XLib Tray", "Draw Tray");
 
     uint16_t width, height;
-    uint8_t *icon_data = &_binary_icons_utox_128x128_png_start;
-    size_t   icon_size = &_binary_icons_utox_128x128_png_end - &_binary_icons_utox_128x128_png_start;
+    uint8_t *icon_data = LDVAR(icons_utox_png);
+    size_t   icon_size = LDLEN(icons_utox_png);
 
     NATIVE_IMAGE *icon = utox_image_to_native(icon_data, icon_size, &width, &height, 0);
     if (NATIVE_IMAGE_IS_VALID(icon)) {

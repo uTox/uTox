@@ -92,6 +92,8 @@ option(ENABLE_TESTS       "Whether to build test binaries (currently Unix-like O
 option(ENABLE_WERROR      "Error on Warning, whether to put -Werror flag to the compiler"       OFF)
 option(ENABLE_FILTERAUDIO "Enable Filter Audio"                                                 ON )
 option(ENABLE_LTO         "Enable link time optimizations"                                      ON )
+# This needs to be optional, since existing implementation does not build on < 10.7.
+option(ENABLE_COCOA       "Enable native Cocoa GUI on macOS"                                    ON )
 
 
 #################################
@@ -105,7 +107,7 @@ if(WINDOWS AND NOT CROSS_COMPILING)
         # Helping Cygwin out again..
         set(WIN64 TRUE)
     endif()
-elseif(APPLE)
+elseif(APPLE AND ENABLE_COCOA)
     include(cmake/macOS.cmake)
 endif()
 
@@ -298,7 +300,7 @@ if(WIN32)
     set(WINDOWS_ICON src/windows/utox.rc)
 
     add_subdirectory(src/windows)
-elseif(APPLE)
+elseif(APPLE AND ENABLE_COCOA)
     set(GUI_TYPE MACOSX_BUNDLE)
 
     add_definitions("-x objective-c")
@@ -380,9 +382,16 @@ target_link_libraries(utox
     qrcodegen
 )
 
+if(APPLE AND NOT ENABLE_COCOA)
+    target_link_options(utox
+        PRIVATE
+        -sectcreate __DATA __icons_utox_png ${CMAKE_SOURCE_DIR}/icons/utox.png
+    )
+endif()
+
 set_property(TARGET utox PROPERTY C_STANDARD 11)
 
-if(APPLE)
+if(APPLE AND ENABLE_COCOA)
     set_target_properties(utox PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${uTox_SOURCE_DIR}/src/cocoa/Info.plist")
     # check that the app is valid and when the app is static
     # also check that it does not depend on external libs (system libs excepted)

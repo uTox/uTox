@@ -211,6 +211,7 @@ uint16_t native_video_detect(void) {
 static uint16_t video_x, video_y;
 
 bool native_video_init(void *handle) {
+#ifndef __APPLE__
     if (isdesktop(handle)) {
         utox_v4l_fd = -1;
 
@@ -258,34 +259,42 @@ bool native_video_init(void *handle) {
     }
 
     return v4l_init(handle);
+#endif
 }
 
 void native_video_close(void *handle) {
+#ifndef __APPLE__
     if (isdesktop(handle)) {
         XShmDetach(deskdisplay, &shminfo);
         return;
     }
 
     v4l_close();
+#endif
 }
 
 bool native_video_startread(void) {
+#ifndef __APPLE__
     if (utox_v4l_fd == -1) {
         return true;
     }
 
     return v4l_startread();
+#endif
 }
 
 bool native_video_endread(void) {
+#ifndef __APPLE__
     if (utox_v4l_fd == -1) {
         return true;
     }
 
     return v4l_endread();
+#endif
 }
 
 int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
+#ifndef __APPLE__
     if (utox_v4l_fd == -1) {
         static uint64_t lasttime;
         uint64_t        t = get_time();
@@ -305,4 +314,5 @@ int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, ui
     }
 
     return v4l_getframe(y, u, v, width, height);
+#endif
 }
