@@ -32,6 +32,7 @@
 #define WM_NOTIFYICON (WM_APP + 0)
 #define WM_TOX (WM_APP + 1)
 
+/* Declared here; defined in -lstrmiids when INITGUID is not set before qedit.h */
 extern const CLSID CLSID_SampleGrabber;
 extern const CLSID CLSID_NullRenderer;
 

@@ -12,6 +12,9 @@ UNSET(CMAKE_C_FLAGS_RELWITHDEBINFO CACHE)
 # Windows only compiles statically.
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAL_LIBTYPE_STATIC")
 
+# Fully static CRT/pthread (avoid libwinpthread-1.dll).
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -Wl,-Bstatic -lpthread -lwinpthread")
+
 # Required for line numbers in gdb on Windows.
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3" CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3" CACHE STRING "" FORCE)

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 project(uTox LANGUAGES C)
 
 #####################
@@ -10,7 +10,7 @@ set(PROJECT_VERSION_MINOR "18")
 set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
-set(PROJECT_COPYRIGHT "Copyleft 2021 uTox contributors. Some rights reserved.")
+set(PROJECT_COPYRIGHT "Copyleft 2026 uTox contributors. Some rights reserved.")
 
 string(TIMESTAMP BUILD_YEAR "%Y" UTC)
 string(TIMESTAMP BUILD_MONTH "%B" UTC)
@@ -171,6 +171,10 @@ add_cflag("-Werror=implicit-function-declaration")
 ## Warnings we don't care about
 add_cflag("-Wformat=0")
 add_cflag("-Wno-misleading-indentation")
+# Newer GCC/Clang treat these as errors; legacy uTox/filter_audio/cocoa code trips them.
+add_cflag("-Wno-incompatible-pointer-types")
+add_cflag("-Wno-incompatible-function-pointer-types")
+add_cflag("-Wno-int-conversion")
 
 ## Everything Else
 add_cflag("-fno-strict-aliasing")
@@ -385,7 +389,7 @@ target_link_libraries(utox
 if(APPLE AND NOT ENABLE_COCOA)
     target_link_options(utox
         PRIVATE
-        -sectcreate __DATA __icons_utox_png ${CMAKE_SOURCE_DIR}/icons/utox.png
+        -sectcreate __DATA __icons_utox_128x128_png ${CMAKE_SOURCE_DIR}/icons/utox-128x128.png
     )
 endif()
 

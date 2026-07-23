@@ -1,9 +1,10 @@
 project(utoxNATIVE LANGUAGES C)
 
 option(ENABLE_DBUS "Compile with dbus notification support" ON)
+option(ENABLE_XLIB_VIDEO "Compile with V4L camera support" ON)
 
 if(APPLE)
-    set(ENABLE_XLIB_VIDEO 0)
+    set(ENABLE_XLIB_VIDEO OFF)
 endif()
 
 if(ENABLE_DBUS)
@@ -17,8 +18,8 @@ endif()
 #########################################
 if(NOT APPLE)
     add_custom_command(OUTPUT icon.o
-        COMMAND cd ${uTox_SOURCE_DIR}/ && ld -r -b binary -o ${utoxNATIVE_BINARY_DIR}/icon.o icons/utox.png
-        DEPENDS ../../icons/utox.png)
+        COMMAND cd ${uTox_SOURCE_DIR}/ && ld -r -b binary -o ${utoxNATIVE_BINARY_DIR}/icon.o icons/utox-128x128.png
+        DEPENDS ../../icons/utox-128x128.png)
     set_source_files_properties(icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true)
     add_library(icon STATIC icon.o)
     set_target_properties(icon PROPERTIES LINKER_LANGUAGE C)

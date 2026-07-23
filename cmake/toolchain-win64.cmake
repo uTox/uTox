@@ -20,6 +20,9 @@ UNSET(CMAKE_C_FLAGS_RELWITHDEBINFO CACHE)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAL_LIBTYPE_STATIC" CACHE STRING "" FORCE)
 set(STATIC_ALL ON CACHE STRING "" FORCE)
 
+# Fully static CRT/pthread: CMake may emit -Wl,-Bdynamic -lpthread and pull in libwinpthread-1.dll.
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -Wl,-Bstatic -lpthread -lwinpthread" CACHE STRING "" FORCE)
+
 # Fix handling large files.
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FILE_OFFSET_BITS=64")
 
