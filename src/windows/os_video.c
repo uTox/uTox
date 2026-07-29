@@ -21,6 +21,17 @@
 #include <dshow.h>
 #endif
 
+/* main.h includes initguid.h, which sets INITGUID and expands DEFINE_GUID
+ * into definitions. Undefining INITGUID alone is not enough: guiddef.h is
+ * include-guarded, so DEFINE_GUID stays in definition mode. Newer mingw
+ * qedit.h then defines CLSID_SampleGrabber here while -lstrmiids also
+ * provides it → multiple definition. Force DECLARE mode before qedit.h. */
+#ifdef INITGUID
+#undef INITGUID
+#endif
+#undef DEFINE_GUID
+#define DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+    EXTERN_C const GUID name
 #include <qedit.h>
 // amvideo.h must be included after dshow
 #include <amvideo.h>

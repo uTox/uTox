@@ -27,7 +27,11 @@
 #define MAIN_HEIGHT 500
 
 #ifndef __OBJC__
+/* Intentionally a no-op helper; must not redefine on Windows — MinGW headers
+ * use __asm__ __volatile__(...) and break with a function-like volatile macro. */
+#if !defined(_WIN32)
 #define volatile(x)(x)
+#endif
 #endif
 
 /* Support for large files. */

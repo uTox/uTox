@@ -20,6 +20,9 @@ UNSET(CMAKE_C_FLAGS_RELWITHDEBINFO CACHE)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAL_LIBTYPE_STATIC" CACHE STRING "" FORCE)
 set(STATIC_ALL ON CACHE STRING "" FORCE)
 
+# Fully static CRT/pthread (avoid libwinpthread-1.dll).
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -Wl,-Bstatic -lpthread -lwinpthread" CACHE STRING "" FORCE)
+
 # Required for line numbers in gdb on Windows.
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3" CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3" CACHE STRING "" FORCE)

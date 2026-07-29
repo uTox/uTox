@@ -2,18 +2,20 @@ on: [push, pull_request]
 
 jobs:
   ci:
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: "Linux Clang"
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             build: linux
             compiler: clang
 
-          - name: "Windows x64"
-            os: ubuntu-20.04
+          - name: "Windows x64 (cross)"
+            os: ubuntu-24.04
             build: windows
             compiler: x86_64-w64-mingw32-gcc
 
@@ -22,7 +24,7 @@ jobs:
             build: osx
             compiler: clang
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
         with:
           submodules: true
           fetch-depth: 5
@@ -30,18 +32,67 @@ jobs:
           set -ex
           if [ $BUILD = linux ]; then
             sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
-              cmake cmake-data check libdbus-1-dev \
+              cmake cmake-data check libdbus-1-dev libx11-dev libfreetype6-dev \
+              libfontconfig1-dev libxrender-dev libxext-dev \
               libsodium-dev libopus-dev libvpx-dev \
               libopenal-dev libopenal-data libv4l-dev
           elif [ $BUILD = windows ]; then
             sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
-              gcc mingw-w64 gcc-mingw-w64 mingw-w64-common binutils-mingw-w64 \
-              yasm
+              cmake make gcc mingw-w64 gcc-mingw-w64 mingw-w64-common binutils-mingw-w64 \
+              yasm nasm autoconf automake libtool pkg-config curl
           fi
 
-          ./extra/travis/${BUILD}-before.sh &&
-          ./extra/travis/filter_audio.sh &&
-          ./extra/travis/${BUILD}-script.sh ||
-          ./extra/travis/debug_failure.sh
+          if [ $BUILD = windows ]; then
+            sh ./extra/travis/windows.sh || ./extra/travis/debug_failure.sh
+          else
+            ./extra/travis/${BUILD}-before.sh &&
+            ./extra/travis/filter_audio.sh &&
+            ./extra/travis/${BUILD}-script.sh ||
+            ./extra/travis/debug_failure.sh
+          fi
         env:
           BUILD: ${{ matrix.build }}
+
+  windows-cygwin:
+    name: Windows x64 (Cygwin)
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - name: Configure git line endings
+        run: git config --global core.autocrlf input
+
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+          fetch-depth: 5
+
+      - name: Install Cygwin
+        uses: cygwin/cygwin-install-action@v6
+        with:
+          add-to-path: false
+          packages: >
+            mingw64-x86_64-gcc-core
+            mingw64-x86_64-gcc-g++
+            mingw64-x86_64-headers
+            mingw64-x86_64-windows-default-manifest
+            cmake
+            make
+            git
+            curl
+            autoconf
+            automake
+            libtool
+            pkg-config
+            yasm
+            nasm
+            patch
+            perl
+            file
+
+      - name: Build µTox
+        shell: D:\cygwin\bin\bash.exe --login -eo pipefail -o igncr '{0}'
+        env:
+          CHERE_INVOKING: 1
+        run: |
+          cd "$(cygpath -u "$GITHUB_WORKSPACE")"
+          sh ./extra/travis/windows.sh

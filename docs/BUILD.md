@@ -176,59 +176,51 @@ sudo make install
 
 ## Windows
 
-Tested on Windows 10.
+Tested on Windows 10/11 with Cygwin. Dependencies are built from source (no prebuilt zips).
 
-You will need a working Cygwin environment.
+### Prerequisites
 
-- Download Cygwin ([x86](https://cygwin.com/setup-x86.exe)/[x64](https://cygwin.com/setup-x86_64.exe))
-- Search and select exactly these packages in Devel category:
-  - mingw64-i686-gcc-core (x86) / mingw64-x86_64-gcc-core (x64)
-  - make
-  - cmake
+1. Install [Cygwin](https://cygwin.com/setup-x86_64.exe) (64-bit).
+2. In the installer, select at least these packages:
 
-All following commands should be executed in Cygwin Terminal.
+| Category | Packages |
+| --- | --- |
+| Devel | `mingw64-x86_64-gcc-core`, `mingw64-x86_64-gcc-g++`, `mingw64-x86_64-headers`, `cmake`, `make`, `autoconf`, `automake`, `libtool`, `pkg-config`, `git`, `yasm`, `nasm` |
+| Net | `curl` |
+| Interpreters | `perl` |
+
+### Build (x64)
+
+All commands below are run in the **Cygwin Terminal**, from the uTox repository root:
 
 ```bash
-cd /cygdrive/c
-mkdir projects
-cd projects/
-git clone --recursive git://github.com/uTox/uTox.git
-cd uTox/
-mkdir libs
-cd libs/
+git clone --recursive https://github.com/uTox/uTox.git
+cd uTox
+./extra/travis/windows.sh
 ```
 
-`mkdir windows-x32` or `mkdir windows-x64`
+That single script:
 
+1. Builds static dependencies into `$HOME/cache` (libsodium, opus, libvpx, toxcore, OpenAL Soft, filter_audio)
+2. Builds `build_win/utox.exe` with MinGW (`cmake/toolchain-win64.cmake`)
+
+Re-running `./extra/travis/windows.sh` reuses the dependency cache when versions are unchanged. To rebuild only µTox after deps are cached:
+
+```bash
+./extra/travis/windows-script.sh
 ```
-cd ../uTox/
-mkdir build
-cd build
+
+Portable smoke test:
+
+```bash
+./build_win/utox.exe -p
 ```
 
-Download .zip files and place them into `windows-x32` or `windows-x64` folder.
-Extract here with your archiver and merge when it'll ask for replacement:
+### Notes
 
-- toxcore ([x86](https://build.tox.chat/view/libtoxcore/job/libtoxcore-toktok_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libtoxcore-toktok_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libtoxcore/job/libtoxcore-toktok_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libtoxcore-toktok_build_windows_x86-64_static_release.zip))
-- openal ([x86](https://build.tox.chat/view/libopenal/job/libopenal_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libopenal_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libopenal/job/libopenal_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libopenal_build_windows_x86-64_static_release.zip))
-- sodium ([x86](https://build.tox.chat/view/libsodium/job/libsodium_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libsodium_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libsodium/job/libsodium_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libsodium_build_windows_x86-64_static_release.zip))
-- libvpx ([x86](https://build.tox.chat/view/libvpx/job/libvpx_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libvpx_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libvpx/job/libvpx_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libvpx_build_windows_x86-64_static_release.zip))
-- opus ([x86](https://build.tox.chat/view/libopus/job/libopus_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libopus_build_windows_x86_static_release.zip)/[x64](https://build.tox.chat/view/libopus/job/libopus_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libopus_build_windows_x86-64_static_release.zip))
-- filter_audio ([x86](https://build.tox.chat/view/libfilteraudio/job/libfilteraudio_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libfilteraudio.zip)/[x64](https://build.tox.chat/view/libfilteraudio/job/libfilteraudio_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libfilteraudio.zip))
-
-And go back to terminal (make sure you're still in `build` folder):
-
-- For x86:
-    ```bash
-    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win32.cmake" -DSTATIC_TOXCORE=ON -DCMAKE_BUILD_TYPE=Release ..
-    make
-    ```
-
-- For x64:
-    ```bash
-    cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/toolchain-win64.cmake" -DSTATIC_TOXCORE=ON -DCMAKE_BUILD_TYPE=Release ..
-    make
-    ```
+- Use LF line endings for Autotools sources; the build scripts set `core.autocrlf=false` / `core.eol=lf` for Cygwin/MinGW hosts when cloning deps.
+- The binary is linked statically against MinGW pthread so it should not need `libwinpthread-1.dll` at runtime.
+- Linux→Windows cross-compiles can use the same scripts (`./extra/travis/windows.sh`) with a MinGW-w64 toolchain installed on the host.
 
 ## macOS
 
