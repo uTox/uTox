@@ -185,6 +185,7 @@ extern double ui_scale;
 
 /* Global UI size settings... */
 #define SCROLL_WIDTH 8 // must be divisible by 2
+#define SCROLL_THUMB_MIN_HEIGHT 60
 #define FILE_TRANSFER_BOX_HEIGHT 28
 
 

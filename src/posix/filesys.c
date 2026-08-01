@@ -12,6 +12,16 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#ifdef _WIN32
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+#else
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+#endif
+
 bool native_create_dir_tree(const char *path) {
     size_t size = strlen(path);
     if (size < 2) { // memory bounds check
@@ -70,7 +80,11 @@ char *native_get_filepath(const char *name) {
 }
 
 bool native_create_dir(const uint8_t *filepath) {
+#ifdef _WIN32
+    const int status = mkdir((char *)filepath);
+#else
     const int status = mkdir((char *)filepath, S_IRWXU);
+#endif
     if (status == 0 || errno == EEXIST) {
         return true;
     }
@@ -107,7 +121,7 @@ FILE *native_get_file_simple(const char *path, UTOX_FILE_OPTS opts) {
         LOG_WARN("POSIX", "Unable to simple open, falling back to fd" );
         // read won't create a file if it doesn't already exist. If we're allowed to write, let's try
         // to create the file, then reopen it.
-        int fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        int fd = open(path, O_RDWR | O_CREAT | O_BINARY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         fp = fdopen(fd, mode);
     }
 

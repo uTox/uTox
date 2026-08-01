@@ -37,6 +37,14 @@ typedef struct msg_header MSG_HEADER;
  */
 size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length);
 
+/** Count complete records in the chat log. Returns 0 on error or empty log. */
+size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
+
+/** Count our outgoing messages that have not yet received a delivery receipt.
+ *  These are always the oldest records in the log and must be loaded on startup
+ *  so that messages_send_from_queue() can find them. */
+size_t utox_count_unsent_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
+
 // This one actually does the work of reading the logfile information.
 MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uint32_t count, uint32_t skip);
 

@@ -199,7 +199,7 @@ void ui_rescale(uint8_t scale) {
     scrollbar_friend.panel.y      = MAIN_TOP;
     scrollbar_friend.panel.height = CHAT_BOX_TOP;
     messages_friend.y             = MAIN_TOP;
-    messages_friend.height        = CHAT_BOX_TOP - 10;
+    messages_friend.height        = CHAT_BOX_TOP;
     messages_friend.width         = -SCROLL_WIDTH;
 
     scrollbar_group.panel.y      = MAIN_TOP;
@@ -385,7 +385,26 @@ void ui_mouseleave(void) {
 static void panel_draw_core(PANEL *p, int x, int y, int width, int height) {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
+    PANEL **pp_load = p->child;
+    if (pp_load) {
+        PANEL *subp;
+        while ((subp = *pp_load++)) {
+            if (subp->disabled || subp->type != PANEL_MESSAGES || !subp->object || !subp->content_scroll) {
+                continue;
+            }
+
+            int rely = (subp->y < 0) ? height + SCALE(subp->y) : SCALE(subp->y);
+            int sub_h =
+                (subp->height <= 0) ? height + SCALE(subp->height) - rely : SCALE(subp->height);
+            messages_try_load_older_chatlog(subp->object, sub_h);
+        }
+    }
+
     if (p->content_scroll) {
+        if (p->type == PANEL_MESSAGES && p->object) {
+            messages_try_load_older_chatlog(p->object, height);
+        }
+
         pushclip(x, y, width, height);
         y -= scroll_gety(p->content_scroll, height);
     }

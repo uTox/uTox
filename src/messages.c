@@ -34,8 +34,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define UTOX_MAX_BACKLOG_MESSAGES 256
-
 pthread_mutex_t messages_lock;
 
 /** Appends a messages from self or friend to the message list;
@@ -208,42 +206,12 @@ static uint32_t message_add(MESSAGES *m, MSG_HEADER *msg) {
 }
 
 static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
-    /* The tm struct is shared, we have to do it this way */
-    int ltime_year = 0, ltime_mon = 0, ltime_day = 0;
-
-    struct tm *msg_time = localtime(&last);
-
-    ltime_year = msg_time->tm_year;
-    ltime_mon  = msg_time->tm_mon;
-    ltime_day  = msg_time->tm_mday;
-    msg_time   = localtime(&next);
-
-    if (ltime_year >= msg_time->tm_year
-        && (ltime_year != msg_time->tm_year || ltime_mon >= msg_time->tm_mon)
-        && (ltime_year != msg_time->tm_year || ltime_mon != msg_time->tm_mon || ltime_day >= msg_time->tm_mday))
-    {
+    if (!messages_day_changed(last, next)) {
         return false;
     }
 
-    MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    MSG_HEADER *msg = messages_create_day_notice(next);
     if (!msg) {
-        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for day notice.");
-    }
-
-    time(&msg->time);
-    msg->our_msg       = 0;
-    msg->msg_type      = MSG_TYPE_NOTICE_DAY_CHANGE;
-
-    msg->via.notice_day.msg    = calloc(1, 256);
-    if (!msg->via.notice_day.msg) {
-        LOG_FATAL_ERR(EXIT_MALLOC, "Messages", "Couldn't allocate memory for day notice.");
-    }
-    msg->via.notice_day.length = strftime((char *)msg->via.notice_day.msg, 256,
-                                   "Day has changed to %A %B %d %Y", msg_time);
-    if (0 == msg->via.notice_day.length) {
-        LOG_ERR("Messages", "Couldn't compose day notice message.");
-        free(msg->via.notice_day.msg);
-        free(msg);
         return false;
     }
 
@@ -502,6 +470,10 @@ bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg) {
             msg->disk_offset = utox_save_chatlog(f->id_str, data, length);
 
             free(data);
+            /* New disk record at the end is already in the in-memory window. */
+            if (!m->chatlog_exhausted) {
+                m->chatlog_skip++;
+            }
             return true;
         }
         default: {
@@ -520,18 +492,28 @@ bool messages_read_from_log(uint32_t friend_number) {
         return false;
     }
 
-    MSG_HEADER **data = utox_load_chatlog(f->id_str, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+    /* Unsent messages live at the oldest end of the log.  If there are more
+     * unsent messages than one page we must load enough records to cover all
+     * of them so that messages_send_from_queue() can find and re-send them. */
+    const size_t unsent = utox_count_unsent_chatlog(f->id_str);
+    const uint32_t load_count = (unsent > UTOX_CHATLOG_PAGE_SIZE)
+                                ? (uint32_t)(unsent + UTOX_CHATLOG_PAGE_SIZE)
+                                : UTOX_CHATLOG_PAGE_SIZE;
+    MSG_HEADER **data = utox_load_chatlog(f->id_str, &actual_count, load_count, 0);
     if (!data) {
         if (actual_count > 0) {
             LOG_ERR("Messages", "uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
         }
+        f->msg.chatlog_skip      = 0;
+        f->msg.chatlog_exhausted = true;
         return false;
     }
 
     MSG_HEADER **p = data;
     MSG_HEADER *msg;
     time_t last = 0;
-    while (actual_count--) {
+    size_t remaining = actual_count;
+    while (remaining--) {
         msg = *p++;
         if (!msg) {
             continue;
@@ -543,56 +525,73 @@ bool messages_read_from_log(uint32_t friend_number) {
         message_add(&f->msg, msg);
     }
 
+    f->msg.chatlog_skip      = (uint32_t)actual_count;
+    f->msg.chatlog_exhausted = (actual_count < load_count)
+                               || (f->msg.chatlog_skip >= utox_count_chatlog(f->id_str));
+
     free(data);
     return true;
 }
 
+bool messages_try_load_older_chatlog(MESSAGES *m, int viewport) {
+    if (!m || m->is_groupchat || m->chatlog_exhausted || m->chatlog_loading || viewport <= 0) {
+        return false;
+    }
+
+    SCROLLABLE *scroll = m->panel.content_scroll;
+    if (!scroll) {
+        return false;
+    }
+
+    scroll->viewport_height = viewport;
+
+    FRIEND *f = get_friend(m->id);
+    if (!f) {
+        return false;
+    }
+
+    /* Short messages may not fill the viewport after one page; without a scrollbar
+     * scroll_gety stays at 0 and the user cannot reach the top to trigger paging. */
+    if (scroll->content_height > 0 && scroll->content_height <= viewport) {
+        return messages_load_older_chatlog(m, f->id_str);
+    }
+
+    if (scroll_gety(scroll, viewport) > UTOX_CHATLOG_LOAD_NEAR_TOP) {
+        return false;
+    }
+
+    return messages_load_older_chatlog(m, f->id_str);
+}
+
 void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
-    uint32_t start    = m->number;
-    uint8_t  seek_num = 3; /* this magic number is the number of messages we'll skip looking for the first unsent */
+    MSG_HEADER *pending[UTOX_MAX_BACKLOG_MESSAGES];
+    int         pending_count = 0;
 
     pthread_mutex_lock(&messages_lock);
 
-    int queue_count = 0;
-    /* seek back to find first queued message
-     * I hate this nest too, but it's readable */
-    while (start) {
-        --start;
-
-        if (++queue_count > 25) {
-            break;
+    /* Collect all unsent outgoing messages in order.  Do not call into
+     * toxcore while holding messages_lock — postmessage_toxcore blocks
+     * until the tox thread picks up the message, and the tox thread may
+     * call messages_clear_receipt which also needs this lock → deadlock. */
+    for (uint32_t i = 0; i < m->number; i++) {
+        MSG_HEADER *msg = m->data[i];
+        if (!msg) {
+            continue;
         }
-
-        if (m->data[start]) {
-            MSG_HEADER *msg = m->data[start];
-            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-                if (msg->our_msg) {
-                    if (msg->receipt_time) {
-                        if (!seek_num--) {
-                            break;
-                        }
-                    }
-                }
-            }
+        if ((msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT)
+            && msg->our_msg && !msg->receipt_time)
+        {
+            pending[pending_count++] = msg;
         }
     }
 
-    int sent_count = 0;
-    /* start sending messages, hopefully in order */
-    while (start < m->number && sent_count <= 25) {
-        if (m->data[start]) {
-            MSG_HEADER *msg = m->data[start];
-            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-                if (msg->our_msg && !msg->receipt_time) {
-                    postmessage_toxcore((msg->msg_type == MSG_TYPE_TEXT ? TOX_SEND_MESSAGE : TOX_SEND_ACTION),
-                                        friend_number, msg->via.txt.length, msg);
-                    ++sent_count;
-                }
-            }
-        }
-        ++start;
-    }
     pthread_mutex_unlock(&messages_lock);
+
+    for (int i = 0; i < pending_count; i++) {
+        MSG_HEADER *msg = pending[i];
+        postmessage_toxcore((msg->msg_type == MSG_TYPE_TEXT ? TOX_SEND_MESSAGE : TOX_SEND_ACTION),
+                            friend_number, msg->via.txt.length, msg);
+    }
 }
 
 void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
@@ -635,26 +634,33 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
         }
         memcpy(data, &header, length);
 
-        char *hex = get_friend(m->id)->id_str;
-        if (msg->disk_offset) {
-            LOG_TRACE("Messages", "Updating message -> disk_offset is %lu" , msg->disk_offset);
-            utox_update_chatlog(hex, msg->disk_offset, data, length);
-        } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
-            /* This could get messy if receipt is 1, msg position is 0, and the offset is actually wrong,
-             * But I couldn't come up with any other way to verify the rare case of a bad offset
-             * start <= 1 to offset for the day change notification                                    */
-            LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , msg->disk_offset);
-            utox_update_chatlog(hex, msg->disk_offset, data, length);
-        } else {
-            LOG_ERR("Messages",
-                    "Messages:\tUnable to update this message...\n"
-                    "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
-                    msg->disk_offset, m->number, receipt_number);
+        const uint64_t disk_offset = msg->disk_offset;
+        const uint32_t msg_index   = start;
+        FRIEND *f = get_friend(m->id);
+        char *hex = f ? f->id_str : NULL;
+
+        pthread_mutex_unlock(&messages_lock);
+
+        if (hex) {
+            if (disk_offset) {
+                LOG_TRACE("Messages", "Updating message -> disk_offset is %lu" , disk_offset);
+                utox_update_chatlog(hex, disk_offset, data, length);
+            } else if (disk_offset == 0 && msg_index <= 1 && receipt_number == 1) {
+                /* This could get messy if receipt is 1, msg position is 0, and the offset is actually wrong,
+                 * But I couldn't come up with any other way to verify the rare case of a bad offset
+                 * start <= 1 to offset for the day change notification                                    */
+                LOG_TRACE("Messages", "Updating first message -> disk_offset is %lu" , disk_offset);
+                utox_update_chatlog(hex, disk_offset, data, length);
+            } else {
+                LOG_ERR("Messages",
+                        "Messages:\tUnable to update this message...\n"
+                        "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
+                        disk_offset, m->number, receipt_number);
+            }
         }
         free(data);
 
         postmessage_utox(FRIEND_MESSAGE_UPDATE, 0, 0, NULL); /* Used to redraw the screen */
-        pthread_mutex_unlock(&messages_lock);
         return;
     }
 
@@ -1313,7 +1319,7 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
         }
     }
 
-    if (mx < 0 || my < 0 || my > m->height) {
+    if (mx < 0 || mx >= width || my < 0 || my > m->height) {
         if (m->cursor_over_msg != UINT32_MAX) {
             m->cursor_over_msg = UINT32_MAX;
             return true;
@@ -1816,7 +1822,7 @@ bool messages_char(uint32_t ch) {
             if (scroll->d < 0.0) {
                 scroll->d = 0.0;
             }
-
+            messages_try_load_older_chatlog(m, m->panel.content_scroll->viewport_height);
             return true;
         }
 
@@ -1832,6 +1838,7 @@ bool messages_char(uint32_t ch) {
 
         case KEY_HOME: {
             m->panel.content_scroll->d = 0.0;
+            messages_try_load_older_chatlog(m, m->panel.content_scroll->viewport_height);
             return true;
         }
 
