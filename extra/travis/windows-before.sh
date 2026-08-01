@@ -84,8 +84,23 @@ cd ..
 rm -rf openal
 
 # uTox includes <OpenAL/...>; OpenAL Soft installs headers under AL/
-if [ -d "$CACHE_DIR/usr/include/AL" ] && [ ! -e "$CACHE_DIR/usr/include/OpenAL" ]; then
-  ln -s AL "$CACHE_DIR/usr/include/OpenAL"
+# On Cygwin/MSYS, use a real directory copy: AppVeyor cache CRC cannot read symlinks.
+if [ -d "$CACHE_DIR/usr/include/AL" ]; then
+  case "$(uname -s 2>/dev/null)" in
+    CYGWIN*|MSYS*|MINGW*)
+      if [ -L "$CACHE_DIR/usr/include/OpenAL" ]; then
+        rm -f "$CACHE_DIR/usr/include/OpenAL"
+      fi
+      if [ ! -e "$CACHE_DIR/usr/include/OpenAL" ]; then
+        cp -a "$CACHE_DIR/usr/include/AL" "$CACHE_DIR/usr/include/OpenAL"
+      fi
+      ;;
+    *)
+      if [ ! -e "$CACHE_DIR/usr/include/OpenAL" ]; then
+        ln -s AL "$CACHE_DIR/usr/include/OpenAL"
+      fi
+      ;;
+  esac
 fi
 
 export CC=x86_64-w64-mingw32-gcc
