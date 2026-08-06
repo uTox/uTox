@@ -1,15 +1,10 @@
 project(utoxTESTS LANGUAGES C)
 include(CTest)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-
-find_package(Check REQUIRED)
-link_directories(${CHECK_LIBRARY_DIRS})
-
 function(make_test name)
     add_executable(test_${name} test_${name}.c)
     set_target_properties(test_${name} PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
-    target_link_libraries(test_${name} utox-test-mock ${CHECK_LIBRARIES})
+    target_link_libraries(test_${name} utox-test-mock pthread)
     add_test(NAME test_${name} COMMAND test_${name})
 endfunction()
 
@@ -34,7 +29,7 @@ target_link_libraries(utox-test-mock pthread)
 #
 # tests
 #
-# TODO add a cmake macro for adding tests, this will be too verbose if we add more.
 make_test(chatlog)
-
 make_test(chrono)
+make_test(messages_chatlog)
+make_test(scrollable)

@@ -88,7 +88,7 @@ option(STATIC_OPUS        "Link opus statically"                                
 option(STATIC_SODIUM      "Link sodium statically"                               ${STATIC_DEFAULT} )
 option(STATIC_VPX         "Link vpx statically"                                  ${STATIC_DEFAULT} )
 option(ENABLE_ASAN        "Enable Address Sanitizer on debug builds"               ${ASAN_DEFAULT} )
-option(ENABLE_TESTS       "Whether to build test binaries (currently Unix-like OSes only)"      ON )
+option(ENABLE_TESTS       "Whether to build test binaries (skipped when cross-compiling)"         ON )
 option(ENABLE_WERROR      "Error on Warning, whether to put -Werror flag to the compiler"       OFF)
 option(ENABLE_FILTERAUDIO "Enable Filter Audio"                                                 ON )
 option(ENABLE_LTO         "Enable link time optimizations"                                      ON )
@@ -355,6 +355,7 @@ add_executable(utox ${GUI_TYPE}
     src/logging.c
     src/main.c
     src/messages.c
+    src/messages_chatlog.c
     src/notify.c
     src/qr.c
     src/screen_grab.c
@@ -422,12 +423,9 @@ include(CPack)
 # Testing #
 ###########
 
-if(ENABLE_TESTS)
-  if(UNIX)
-    # Tests currently only run on Unix-like OSes.
-    enable_testing()
-    add_subdirectory(tests)
-  endif()
+if(ENABLE_TESTS AND NOT CROSS_COMPILING)
+  enable_testing()
+  add_subdirectory(tests)
 endif()
 
 

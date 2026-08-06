@@ -18,7 +18,8 @@ cmake .. \
     -DENABLE_FILTERAUDIO=ON \
     -DSTATIC_ALL=ON \
     -DSTATIC_TOXCORE=ON \
-    -DENABLE_TESTS=OFF \
+    -DENABLE_TESTS=ON \
     -DENABLE_WERROR=ON \
     -DCMAKE_BUILD_TYPE=Release
 make || make VERBOSE=1
+ctest -VV
