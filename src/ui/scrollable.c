@@ -7,18 +7,12 @@
 #include "../ui.h"
 
 static uint32_t scroll_thumb_height(uint32_t content_height, uint32_t viewport_height) {
-    if (content_height <= viewport_height) {
+    if (content_height == 0 || content_height <= viewport_height) {
         return viewport_height;
     }
 
     uint32_t m = (viewport_height * viewport_height) / content_height;
-    if (m < SCROLL_THUMB_MIN_HEIGHT) {
-        m = SCROLL_THUMB_MIN_HEIGHT;
-    }
-    if (m > viewport_height) {
-        m = viewport_height;
-    }
-    return m;
+    return MAX(MIN(m, viewport_height), SCROLL_THUMB_MIN_HEIGHT);
 }
 
 static void scroll_remember_viewport(SCROLLABLE *s, int height) {

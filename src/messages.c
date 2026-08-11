@@ -492,13 +492,11 @@ bool messages_read_from_log(uint32_t friend_number) {
         return false;
     }
 
-    /* Unsent messages live at the oldest end of the log.  If there are more
-     * unsent messages than one page we must load enough records to cover all
-     * of them so that messages_send_from_queue() can find and re-send them. */
+    /* Unsent messages live at the oldest end of the log.  Load enough records
+     * to cover all of them so that messages_send_from_queue() can re-send them,
+     * plus one extra page to give the user something to read immediately. */
     const size_t unsent = utox_count_unsent_chatlog(f->id_str);
-    const uint32_t load_count = (unsent > UTOX_CHATLOG_PAGE_SIZE)
-                                ? (uint32_t)(unsent + UTOX_CHATLOG_PAGE_SIZE)
-                                : UTOX_CHATLOG_PAGE_SIZE;
+    const uint32_t load_count = (uint32_t)(unsent + UTOX_CHATLOG_PAGE_SIZE);
     MSG_HEADER **data = utox_load_chatlog(f->id_str, &actual_count, load_count, 0);
     if (!data) {
         if (actual_count > 0) {
