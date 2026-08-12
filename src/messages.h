@@ -7,6 +7,16 @@
 #include <time.h>
 #include <pthread.h>
 
+#ifndef UTOX_MAX_BACKLOG_MESSAGES
+#define UTOX_MAX_BACKLOG_MESSAGES 4096
+#endif
+#ifndef UTOX_CHATLOG_PAGE_SIZE
+#define UTOX_CHATLOG_PAGE_SIZE 20
+#endif
+#ifndef UTOX_CHATLOG_LOAD_NEAR_TOP
+#define UTOX_CHATLOG_LOAD_NEAR_TOP 48
+#endif
+
 extern pthread_mutex_t messages_lock;
 
 typedef struct native_image NATIVE_IMAGE;
@@ -132,11 +142,16 @@ typedef struct messages {
     // Number of extra to speedup realloc.
     int8_t extra;
 
-    // Pointers at various message structs, at most MAX_BACKLOG_MESSAGES.
+    // Pointers at various message structs, at most UTOX_MAX_BACKLOG_MESSAGES.
     MSG_HEADER **data;
 
     // Field for preserving position of text scroll
     double scroll;
+
+    /* utox_load_chatlog skip for the next older page. */
+    uint32_t chatlog_skip;
+    bool     chatlog_loading;
+    bool     chatlog_exhausted;
 } MESSAGES;
 
 uint32_t message_add_group(MESSAGES *m, MSG_HEADER *msg);
@@ -152,6 +167,13 @@ MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incomi
 bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg);
 // Returns true if data was read from log.
 bool messages_read_from_log(uint32_t friend_number);
+
+size_t messages_prepend(MESSAGES *m, MSG_HEADER **batch, size_t n);
+bool messages_load_older_chatlog(MESSAGES *m, const char *hex);
+bool messages_try_load_older_chatlog(MESSAGES *m, int height);
+
+bool messages_day_changed(time_t last, time_t next);
+MSG_HEADER *messages_create_day_notice(time_t next);
 
 void messages_send_from_queue(MESSAGES *m, uint32_t friend_number);
 void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number);

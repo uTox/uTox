@@ -15,6 +15,8 @@ struct scrollable {
     double d;
     bool   left, mousedown, mouseover, mouseover2;
     int    content_height;
+    int    viewport_height;
+    double wheel_accum;
 };
 
 void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height);

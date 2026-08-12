@@ -30,6 +30,19 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     return file;
 }
 
+static void chatlog_free_messages(MSG_HEADER **data, size_t count) {
+    if (!data) {
+        return;
+    }
+
+    for (size_t i = 0; i < count; i++) {
+        if (data[i]) {
+            message_free(data[i]);
+        }
+    }
+    free(data);
+}
+
 size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
     FILE *fp = chatlog_get_file(hex, true);
     if (!fp) {
@@ -47,7 +60,7 @@ size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_
     return offset;
 }
 
-static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
+size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
     FILE *file = chatlog_get_file(hex, false);
 
     if (!file) {
@@ -75,6 +88,26 @@ static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
 
     fclose(file);
     return records_count;
+}
+
+size_t utox_count_unsent_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
+    FILE *file = chatlog_get_file(hex, false);
+    if (!file) {
+        return 0;
+    }
+
+    LOG_FILE_MSG_HEADER header;
+    size_t unsent = 0;
+
+    while (fread(&header, sizeof(header), 1, file) == 1) {
+        fseeko(file, header.author_length + header.msg_length + 1, SEEK_CUR);
+        if (header.author && !header.receipt) {
+            unsent++;
+        }
+    }
+
+    fclose(file);
+    return unsent;
 }
 
 /* TODO create fxn that will try to recover a corrupt chat history.
@@ -146,14 +179,15 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
                 }
 
                 fclose(file);
-                return start;
+                chatlog_free_messages(start, actual_count);
+                return NULL;
             }
 
             MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
             if (!msg) {
                 LOG_ERR("Chatlog", "Unable to malloc... sorry!");
-                free(start);
                 fclose(file);
+                chatlog_free_messages(start, actual_count);
                 return NULL;
             }
 
@@ -167,9 +201,9 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             msg->via.txt.msg = calloc(1, msg->via.txt.length);
             if (!msg->via.txt.msg) {
                 LOG_ERR("Chatlog", "Unable to malloc for via.txt.msg... sorry!");
-                free(start);
                 free(msg);
                 fclose(file);
+                chatlog_free_messages(start, actual_count);
                 return NULL;
             }
 

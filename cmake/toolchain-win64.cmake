@@ -42,7 +42,11 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(WIN32 TRUE) # This is for cmake
 set(WIN64 TRUE) # This is for uTox lib dirs
 set(UNIX FALSE)
-set(CROSS_COMPILING TRUE)
+# Cross-compiling when the host cannot run Windows .exe (e.g. Linux CI).
+# Cygwin reports CMAKE_HOST_SYSTEM_NAME=CYGWIN_NT-... and CMAKE_HOST_WIN32 is unset.
+if(NOT CMAKE_HOST_WIN32 AND NOT CMAKE_HOST_SYSTEM_NAME MATCHES "^CYGWIN")
+    set(CROSS_COMPILING TRUE)
+endif()
 
 if(NOT CMAKE_PREFIX_PATH)
     set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/libs/windows-x64)

@@ -6,9 +6,33 @@
 #include "../macros.h"
 #include "../ui.h"
 
+static uint32_t scroll_thumb_height(uint32_t content_height, uint32_t viewport_height) {
+    if (content_height == 0 || content_height <= viewport_height) {
+        return viewport_height;
+    }
+
+    uint32_t m = (viewport_height * viewport_height) / content_height;
+    return MAX(MIN(m, viewport_height), SCROLL_THUMB_MIN_HEIGHT);
+}
+
+static void scroll_remember_viewport(SCROLLABLE *s, int height) {
+    if (height > 0) {
+        s->viewport_height = height;
+    }
+}
+
+/* Prefer the content viewport (from scroll_gety) over the scrollbar chrome
+ * panel height — they can differ slightly and would skew wheel / drag math. */
+static int scroll_content_viewport(SCROLLABLE *s, int fallback_height) {
+    if (s->viewport_height > 0) {
+        return s->viewport_height;
+    }
+    return fallback_height;
+}
+
 void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height) {
     uint32_t c            = s->content_height;
-    uint32_t h            = height, m, dy;
+    uint32_t h            = (uint32_t)scroll_content_viewport(s, height), m, dy;
     uint32_t scroll_width = 0;
     if (s->small) {
         scroll_width = SCROLL_WIDTH / 2;
@@ -20,7 +44,7 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height) {
         // If h(eight) > c(ontent height), don't draw anything.
         return;
     } else {
-        m        = (h * h) / c;
+        m        = scroll_thumb_height(c, h);
         double d = (h - m);
         dy       = (s->d * d) + 0.5;
     }
@@ -45,6 +69,8 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height) {
 }
 
 int scroll_gety(SCROLLABLE *s, int height) {
+    scroll_remember_viewport(s, height);
+
     int c = s->content_height;
 
     if (c > height) {
@@ -68,21 +94,23 @@ bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int 
 
     if (s->mousedown) {
         uint32_t c = s->content_height;
-        uint32_t h = height;
+        uint32_t h = (uint32_t)scroll_content_viewport(s, height);
 
         if (c > h) {
-            uint32_t m = (h * h) / c;
+            uint32_t m = scroll_thumb_height(c, h);
             double   d = (h - m);
 
-            s->d = ((s->d * d) + (double)dy) / d;
+            if (d > 0.0) {
+                s->d = ((s->d * d) + (double)dy) / d;
 
-            if (s->d < 0.0) {
-                s->d = 0.0;
-            } else if (s->d >= 1.0) {
-                s->d = 1.0;
+                if (s->d < 0.0) {
+                    s->d = 0.0;
+                } else if (s->d >= 1.0) {
+                    s->d = 1.0;
+                }
+
+                draw = true;
             }
-
-            draw = true;
         }
     }
 
@@ -100,39 +128,53 @@ bool scroll_mdown(SCROLLABLE *s) {
 
 bool scroll_mright(SCROLLABLE *UNUSED(s)) { return false; }
 
-bool scroll_mwheel(SCROLLABLE *s, int height, double delta, bool smooth) {
+static int scroll_line_step(void) {
+    int line = font_small_lineheight;
+    const int design = SCALE(12);
+    if (line < design) {
+        line = design;
+    }
+    /* messages_draw advances by text height plus MESSAGES_SPACING between rows. */
+    line += MESSAGES_SPACING;
+    if (line < 1) {
+        line = 1;
+    }
+    return line;
+}
 
-    /* Variable which controls scroll speed. How much one scroll step
-     * moves viewport */
-    double scroll_speed_multip = 5.0;
-
-    if (s->mouseover2) {
-        uint32_t content_height = s->content_height;
-        uint32_t port_height    = height;
-
-        if (content_height > port_height) {
-            /* Scrolling is relative to amount of total content in component */
-            if (smooth) {
-                // this seems to be the magic equation that makes it scroll at the same speed
-                // regardless of how big the port is compared to the content.
-                s->d -= (delta * (32.0 * port_height / content_height) / content_height) * scroll_speed_multip;
-            } else {
-                uint32_t magic = (port_height * port_height) / content_height;
-                double   fred  = (port_height - magic);
-                s->d -= 16.0 * delta / fred;
-            }
-
-            if (s->d < 0.0) {
-                s->d = 0.0;
-            } else if (s->d >= 1.0) {
-                s->d = 1.0;
-            }
-
-            return true;
-        }
+bool scroll_mwheel(SCROLLABLE *s, int height, double delta, bool UNUSED(smooth)) {
+    if (!s->mouseover2) {
+        return false;
     }
 
-    return false;
+    const int port_height    = scroll_content_viewport(s, height);
+    const int content_height = s->content_height;
+    const int scroll_range   = content_height - port_height;
+    if (scroll_range <= 0) {
+        return false;
+    }
+
+    const int line = scroll_line_step();
+
+    /* Keep a fractional remainder so high-res wheel events still add up to
+     * whole lines instead of truncating short every notch. */
+    double move = delta * (double)line + s->wheel_accum;
+    int    step = (int)move;
+    s->wheel_accum = move - (double)step;
+    if (step == 0) {
+        return false;
+    }
+
+    int y = (int)(s->d * (double)scroll_range + 0.5);
+    y -= step;
+    if (y < 0) {
+        y = 0;
+    } else if (y > scroll_range) {
+        y = scroll_range;
+    }
+
+    s->d = (double)y / (double)scroll_range;
+    return true;
 }
 
 bool scroll_mup(SCROLLABLE *s) {
