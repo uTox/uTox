@@ -63,6 +63,10 @@ bool test_utf8_len_and_validate(void) {
         FAIL("continuation with 0x40 should stop");
     }
 
+    if (utf8_validate(NULL, 5) != 0 || utf8_validate(NULL, 0) != 0 || utf8_validate(valid, 0) != 0) {
+        FAIL("utf8_validate NULL/empty");
+    }
+
     const char *four = "\xF0\x9F\x98\x80";
     if (utf8_len(four) != 4) {
         FAIL("utf8_len 4-byte");

@@ -108,6 +108,10 @@ uint8_t utf8_unlen(char *data) {
  * enter an endless state, or segv on bad strings. Either way, that's bad and needs to be fixed.
  * TODO(grayhatter) TODO(anyone) */
 int utf8_validate(const uint8_t *data, int len) {
+    if (!data || len <= 0) {
+        return 0;
+    }
+
     // stops when an invalid character is reached
     const uint8_t *a = data, *end = data + len;
     while (a != end) {

@@ -111,14 +111,26 @@ uint16_t friend_request_new(const uint8_t *id, const uint8_t *msg, size_t length
         return UINT16_MAX;
     }
 
+    if (!id) {
+        LOG_ERR("Friend", "Friend request missing public key.");
+        return UINT16_MAX;
+    }
+
     r->number = curr_num;
-    memcpy(r->bin_id, id, TOX_ADDRESS_SIZE);
+    /* Tox friend-request events supply a public key, not a full address. */
+    memset(r->bin_id, 0, sizeof(r->bin_id));
+    memcpy(r->bin_id, id, TOX_PUBLIC_KEY_SIZE);
+    if (!msg) {
+        length = 0;
+    }
     r->msg = malloc(length + 1);
     if (!r->msg) {
         LOG_ERR("Friend", "Unable to get space for friend request message.");
         return UINT16_MAX;
     }
-    memcpy(r->msg, msg, length);
+    if (length) {
+        memcpy(r->msg, msg, length);
+    }
     r->msg[length] = 0; // Toxcore doesn't promise null term on strings
     r->length = length;
 

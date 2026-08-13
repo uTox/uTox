@@ -244,6 +244,21 @@ bool test_group_peer_del_null_list(void) {
     return true;
 }
 
+bool test_group_reinit_does_not_double_count(void) {
+    reset_groups();
+    GROUPCHAT *g = group_create(0, false, "Room");
+    if (!g) {
+        FAIL("create");
+    }
+    uint32_t counted = self.groups_list_count;
+    group_init(g, 0, false, "Room");
+    if (self.groups_list_count != counted) {
+        FAIL("re-init bumped groups_list_count");
+    }
+    raze_groups();
+    return true;
+}
+
 bool test_group_title_size_error(void) {
     reset_groups();
     mock_tox_conference_count     = 1;
@@ -267,6 +282,7 @@ int main(void) {
     RUN_TEST(test_group_create_peers_messages);
     RUN_TEST(test_group_reset_and_raze);
     RUN_TEST(test_group_peer_del_null_list);
+    RUN_TEST(test_group_reinit_does_not_double_count);
     RUN_TEST(test_group_title_size_error);
     raze_groups();
     return result;

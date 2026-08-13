@@ -61,6 +61,7 @@ int mock_tox_conference_title_err;
 UTOX_MSG mock_last_utox_msg;
 uint16_t mock_last_utox_p1;
 uint16_t mock_last_utox_p2;
+void *mock_last_utox_data;
 
 uint32_t mock_tox_file_send_next;
 uint32_t mock_last_file_kind;
@@ -81,6 +82,31 @@ tox_file_recv_cb *mock_cb_file_recv;
 tox_file_recv_control_cb *mock_cb_file_recv_control;
 tox_file_recv_chunk_cb *mock_cb_file_recv_chunk;
 tox_file_chunk_request_cb *mock_cb_file_chunk_request;
+
+tox_friend_request_cb *mock_cb_friend_request;
+tox_friend_message_cb *mock_cb_friend_message;
+tox_friend_name_cb *mock_cb_friend_name;
+tox_friend_status_message_cb *mock_cb_friend_status_message;
+tox_friend_status_cb *mock_cb_friend_status;
+tox_friend_typing_cb *mock_cb_friend_typing;
+tox_friend_read_receipt_cb *mock_cb_friend_read_receipt;
+tox_friend_connection_status_cb *mock_cb_friend_connection_status;
+
+tox_conference_invite_cb *mock_cb_conference_invite;
+tox_conference_message_cb *mock_cb_conference_message;
+tox_conference_peer_name_cb *mock_cb_conference_peer_name;
+tox_conference_title_cb *mock_cb_conference_title;
+tox_conference_peer_list_changed_cb *mock_cb_conference_peer_list_changed;
+tox_conference_connected_cb *mock_cb_conference_connected;
+
+uint32_t mock_tox_conference_join_result;
+bool mock_tox_conference_join_fail;
+int32_t mock_toxav_join_result;
+uint32_t mock_tox_conference_peer_count_n;
+char mock_tox_conference_peer_name[TOX_MAX_NAME_LENGTH];
+size_t mock_tox_conference_peer_name_len;
+size_t mock_tox_conference_peer_name_size_report;
+uint8_t mock_tox_conference_peer_pk[TOX_PUBLIC_KEY_SIZE];
 
 UTOX_TOX_THREAD_INIT tox_thread_init = UTOX_TOX_THREAD_INIT_SUCCESS;
 
@@ -188,9 +214,14 @@ void mock_domain_reset(void) {
     mock_tox_conference_count     = 0;
     mock_tox_conference_title[0]  = 0;
     mock_tox_conference_title_err = 0;
-    mock_last_utox_msg = 0;
-    mock_last_utox_p1  = 0;
-    mock_last_utox_p2  = 0;
+    if (mock_last_utox_msg == FRIEND_NAME || mock_last_utox_msg == FRIEND_STATUS_MESSAGE
+        || mock_last_utox_msg == GROUP_TOPIC) {
+        free(mock_last_utox_data);
+    }
+    mock_last_utox_msg  = 0;
+    mock_last_utox_p1   = 0;
+    mock_last_utox_p2   = 0;
+    mock_last_utox_data = NULL;
     mock_tox_file_send_next = 0;
     mock_last_file_kind = 0;
     mock_last_file_size = 0;
@@ -209,6 +240,29 @@ void mock_domain_reset(void) {
     mock_cb_file_recv_control = NULL;
     mock_cb_file_recv_chunk = NULL;
     mock_cb_file_chunk_request = NULL;
+    mock_cb_friend_request = NULL;
+    mock_cb_friend_message = NULL;
+    mock_cb_friend_name = NULL;
+    mock_cb_friend_status_message = NULL;
+    mock_cb_friend_status = NULL;
+    mock_cb_friend_typing = NULL;
+    mock_cb_friend_read_receipt = NULL;
+    mock_cb_friend_connection_status = NULL;
+    mock_cb_conference_invite = NULL;
+    mock_cb_conference_message = NULL;
+    mock_cb_conference_peer_name = NULL;
+    mock_cb_conference_title = NULL;
+    mock_cb_conference_peer_list_changed = NULL;
+    mock_cb_conference_connected = NULL;
+    mock_tox_conference_join_result = 0;
+    mock_tox_conference_join_fail = false;
+    mock_toxav_join_result = 0;
+    mock_tox_conference_peer_count_n = 0;
+    memset(mock_tox_conference_peer_name, 0, sizeof mock_tox_conference_peer_name);
+    memcpy(mock_tox_conference_peer_name, "Peer", 4);
+    mock_tox_conference_peer_name_len = 4;
+    mock_tox_conference_peer_name_size_report = 0;
+    memset(mock_tox_conference_peer_pk, 0x11, sizeof mock_tox_conference_peer_pk);
     mock_time_set(0);
     memset(edit_add_id_buf, 0, sizeof edit_add_id_buf);
     memset(edit_add_msg_buf, 0, sizeof edit_add_msg_buf);
@@ -245,15 +299,22 @@ void postmessage_toxcore(uint8_t msg, uint32_t param1, uint32_t param2, void *da
 }
 
 void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
-    mock_last_utox_msg = msg;
-    mock_last_utox_p1  = param1;
-    mock_last_utox_p2  = param2;
+    if (mock_last_utox_msg == FRIEND_NAME || mock_last_utox_msg == FRIEND_STATUS_MESSAGE
+        || mock_last_utox_msg == GROUP_TOPIC) {
+        free(mock_last_utox_data);
+    }
+
+    mock_last_utox_msg  = msg;
+    mock_last_utox_p1   = param1;
+    mock_last_utox_p2   = param2;
+    mock_last_utox_data = data;
 
     switch (msg) {
         case FILE_STATUS_UPDATE:
         case FILE_INCOMING_NEW:
         case FILE_SEND_NEW:
             free(data);
+            mock_last_utox_data = NULL;
             break;
         case FILE_INCOMING_NEW_INLINE: {
             if (data) {
@@ -261,6 +322,7 @@ void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data
                 memcpy(&img, (uint8_t *)data + sizeof(uint16_t) * 2, sizeof(NATIVE_IMAGE *));
                 image_free(img);
                 free(data);
+                mock_last_utox_data = NULL;
             }
             break;
         }
@@ -726,6 +788,169 @@ void tox_callback_file_recv_chunk(Tox *tox, tox_file_recv_chunk_cb *callback) {
 void tox_callback_file_chunk_request(Tox *tox, tox_file_chunk_request_cb *callback) {
     (void)tox;
     mock_cb_file_chunk_request = callback;
+}
+
+void tox_callback_friend_request(Tox *tox, tox_friend_request_cb *callback) {
+    (void)tox;
+    mock_cb_friend_request = callback;
+}
+
+void tox_callback_friend_message(Tox *tox, tox_friend_message_cb *callback) {
+    (void)tox;
+    mock_cb_friend_message = callback;
+}
+
+void tox_callback_friend_name(Tox *tox, tox_friend_name_cb *callback) {
+    (void)tox;
+    mock_cb_friend_name = callback;
+}
+
+void tox_callback_friend_status_message(Tox *tox, tox_friend_status_message_cb *callback) {
+    (void)tox;
+    mock_cb_friend_status_message = callback;
+}
+
+void tox_callback_friend_status(Tox *tox, tox_friend_status_cb *callback) {
+    (void)tox;
+    mock_cb_friend_status = callback;
+}
+
+void tox_callback_friend_typing(Tox *tox, tox_friend_typing_cb *callback) {
+    (void)tox;
+    mock_cb_friend_typing = callback;
+}
+
+void tox_callback_friend_read_receipt(Tox *tox, tox_friend_read_receipt_cb *callback) {
+    (void)tox;
+    mock_cb_friend_read_receipt = callback;
+}
+
+void tox_callback_friend_connection_status(Tox *tox, tox_friend_connection_status_cb *callback) {
+    (void)tox;
+    mock_cb_friend_connection_status = callback;
+}
+
+void tox_callback_conference_invite(Tox *tox, tox_conference_invite_cb *callback) {
+    (void)tox;
+    mock_cb_conference_invite = callback;
+}
+
+void tox_callback_conference_message(Tox *tox, tox_conference_message_cb *callback) {
+    (void)tox;
+    mock_cb_conference_message = callback;
+}
+
+void tox_callback_conference_peer_name(Tox *tox, tox_conference_peer_name_cb *callback) {
+    (void)tox;
+    mock_cb_conference_peer_name = callback;
+}
+
+void tox_callback_conference_title(Tox *tox, tox_conference_title_cb *callback) {
+    (void)tox;
+    mock_cb_conference_title = callback;
+}
+
+void tox_callback_conference_peer_list_changed(Tox *tox, tox_conference_peer_list_changed_cb *callback) {
+    (void)tox;
+    mock_cb_conference_peer_list_changed = callback;
+}
+
+void tox_callback_conference_connected(Tox *tox, tox_conference_connected_cb *callback) {
+    (void)tox;
+    mock_cb_conference_connected = callback;
+}
+
+uint32_t tox_conference_join(Tox *tox, uint32_t friend_number, const uint8_t cookie[], size_t length,
+                             TOX_ERR_CONFERENCE_JOIN *error) {
+    (void)tox;
+    (void)friend_number;
+    (void)cookie;
+    (void)length;
+    if (error) {
+        *error = mock_tox_conference_join_fail ? TOX_ERR_CONFERENCE_JOIN_INIT_FAIL : TOX_ERR_CONFERENCE_JOIN_OK;
+    }
+    if (mock_tox_conference_join_fail) {
+        return UINT32_MAX;
+    }
+    return mock_tox_conference_join_result;
+}
+
+int32_t toxav_join_av_groupchat(Tox *tox, uint32_t friend_number, const uint8_t data[], uint16_t length,
+                                toxav_audio_data_cb *audio_callback, void *userdata) {
+    (void)tox;
+    (void)friend_number;
+    (void)data;
+    (void)length;
+    (void)audio_callback;
+    (void)userdata;
+    return mock_toxav_join_result;
+}
+
+void callback_av_group_audio(void *tox, uint32_t groupnumber, uint32_t peernumber, const int16_t *pcm,
+                             unsigned int samples, uint8_t channels, unsigned int sample_rate, void *userdata) {
+    (void)tox;
+    (void)groupnumber;
+    (void)peernumber;
+    (void)pcm;
+    (void)samples;
+    (void)channels;
+    (void)sample_rate;
+    (void)userdata;
+}
+
+uint32_t tox_conference_peer_count(const Tox *tox, uint32_t conference_number, TOX_ERR_CONFERENCE_PEER_QUERY *error) {
+    (void)tox;
+    (void)conference_number;
+    if (error) {
+        *error = TOX_ERR_CONFERENCE_PEER_QUERY_OK;
+    }
+    return mock_tox_conference_peer_count_n;
+}
+
+size_t tox_conference_peer_get_name_size(const Tox *tox, uint32_t conference_number, uint32_t peer_number,
+                                         TOX_ERR_CONFERENCE_PEER_QUERY *error) {
+    (void)tox;
+    (void)conference_number;
+    (void)peer_number;
+    if (error) {
+        *error = TOX_ERR_CONFERENCE_PEER_QUERY_OK;
+    }
+    if (mock_tox_conference_peer_name_size_report) {
+        return mock_tox_conference_peer_name_size_report;
+    }
+    return mock_tox_conference_peer_name_len;
+}
+
+bool tox_conference_peer_get_name(const Tox *tox, uint32_t conference_number, uint32_t peer_number, uint8_t name[],
+                                  TOX_ERR_CONFERENCE_PEER_QUERY *error) {
+    (void)tox;
+    (void)conference_number;
+    (void)peer_number;
+    if (error) {
+        *error = TOX_ERR_CONFERENCE_PEER_QUERY_OK;
+    }
+    if (name && mock_tox_conference_peer_name_len) {
+        size_t n = mock_tox_conference_peer_name_len;
+        if (n > TOX_MAX_NAME_LENGTH) {
+            n = TOX_MAX_NAME_LENGTH;
+        }
+        memcpy(name, mock_tox_conference_peer_name, n);
+    }
+    return true;
+}
+
+bool tox_conference_peer_get_public_key(const Tox *tox, uint32_t conference_number, uint32_t peer_number,
+                                        Tox_Public_Key public_key, TOX_ERR_CONFERENCE_PEER_QUERY *error) {
+    (void)tox;
+    (void)conference_number;
+    if (error) {
+        *error = TOX_ERR_CONFERENCE_PEER_QUERY_OK;
+    }
+    if (public_key) {
+        memcpy(public_key, mock_tox_conference_peer_pk, TOX_PUBLIC_KEY_SIZE);
+        public_key[0] = (uint8_t)peer_number;
+    }
+    return true;
 }
 
 bool tox_hash(Tox_Hash hash, const uint8_t data[], size_t length) {

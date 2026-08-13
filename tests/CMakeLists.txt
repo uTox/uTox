@@ -37,7 +37,7 @@ add_library(utox-test-mock-no-settings
 set_target_properties(utox-test-mock-no-settings PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 target_link_libraries(utox-test-mock-no-settings pthread)
 
-# Stubs for domain tests that #include friend/groups/messages/commands/qr.
+# Stubs for domain tests that #include friend/groups/messages/commands/qr/tox_callbacks.
 add_library(utox-test-mock-domain mock/mock_domain.c)
 set_target_properties(utox-test-mock-domain PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 target_link_libraries(utox-test-mock-domain utox-test-mock pthread)
@@ -110,6 +110,7 @@ make_domain_test(groups)
 make_domain_test(messages)
 make_domain_test(commands)
 make_domain_test(file_transfers)
+make_domain_test(tox_callbacks)
 
 add_executable(test_flist test_flist.c)
 set_target_properties(test_flist PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")

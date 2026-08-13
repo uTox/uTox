@@ -67,6 +67,13 @@ GROUPCHAT *group_create(uint32_t group_number, bool av_group, const char *name) 
 }
 
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group, const char *name) {
+    if (!g) {
+        return;
+    }
+
+    /* Re-init of an existing slot (invite / tox.c create) must not bump the count. */
+    const bool already_counted = (g->peer != NULL || g->name_length != 0 || g->msg.data != NULL);
+
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(UTOX_MAX_GROUP_PEERS, sizeof(GROUP_PEER *));
@@ -99,13 +106,20 @@ void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group, const char *
     g->notify   = settings.group_notifications;
     g->av_group = av_group;
     pthread_mutex_unlock(&messages_lock);
-    self.groups_list_count++;
+    if (!already_counted) {
+        self.groups_list_count++;
+    }
 }
 
 uint32_t group_add_message(GROUPCHAT *g, uint32_t peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
+    if (!g) {
+        LOG_ERR("Groupchats", "Unable to add message to a NULL group.");
+        return UINT32_MAX;
+    }
+
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
 
-    if (peer_id >= UTOX_MAX_GROUP_PEERS) {
+    if (!g->peer || peer_id >= UTOX_MAX_GROUP_PEERS) {
         LOG_ERR("Groupchats", "Unable to add message from peer %u - peer id too large.", peer_id);
         pthread_mutex_unlock(&messages_lock);
         return UINT32_MAX;
@@ -220,11 +234,20 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
 }
 
 void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name, size_t length) {
+    if (!g) {
+        return;
+    }
+
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
-    if (!g->peer) {
+    if (!g->peer || peer_id >= UTOX_MAX_GROUP_PEERS) {
         LOG_TRACE("Groupchat", "Unable to add peer to NULL group");
         pthread_mutex_unlock(&messages_lock);
         return;
+    }
+
+    if (!name) {
+        length = 0;
+        name   = (const uint8_t *)"";
     }
 
     GROUP_PEER *peer = g->peer[peer_id];
@@ -362,12 +385,33 @@ void init_groups(Tox *tox) {
 
 
 void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
+    if (!g) {
+        return;
+    }
+
     if (g->notify == GNOTIFY_NEVER) {
         return;
     }
 
-    if (g->notify == GNOTIFY_HIGHLIGHTS && strstr(msg, self.name) == NULL) {
-        return;
+    if (g->notify == GNOTIFY_HIGHLIGHTS) {
+        /* Tox messages are not NUL-terminated; do not strstr(). */
+        bool mentioned = false;
+        if (msg && self.name_length && msg_length >= self.name_length) {
+            for (size_t i = 0; i + self.name_length <= msg_length; i++) {
+                if (memcmp(msg + i, self.name, self.name_length) == 0) {
+                    mentioned = true;
+                    break;
+                }
+            }
+        }
+        if (!mentioned) {
+            return;
+        }
+    }
+
+    if (!msg) {
+        msg        = "";
+        msg_length = 0;
     }
 
     char title[g->name_length + 25];
