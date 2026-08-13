@@ -47,6 +47,10 @@ void dropdown_drawactive(void) {
     int i, sign = 1;
 
     // Increase width if needed, so that all menu items fit.
+    if (!drop->ondisplay) {
+        return;
+    }
+
     for (i = 0; i != drop->dropcount; i++) {
         STRING *e        = drop->ondisplay(i, drop);
         int     needed_w = textwidth(e->str, e->length) + SCALE(8);
@@ -109,7 +113,7 @@ void dropdown_draw(DROPDOWN *d, int x, int y, int width, int height) {
         draw_rect_frame(x, y, width, height, (d->mouseover ? color_border_h : color_border));
         draw_rect_fill(x + 1, y + 1, width - 2, height - 2, color_bg);
 
-        if (d->dropcount) {
+        if (d->dropcount && d->ondisplay && d->selected < d->dropcount) {
             setfont(FONT_TEXT);
             setcolor(color_text);
             STRING *text = d->ondisplay(d->selected, d);
@@ -130,7 +134,7 @@ bool dropdown_mmove(DROPDOWN *d, int UNUSED(x), int y, int w, int h, int mx, int
         if (my > 0) {
             mouseover = inrect(mx, my, 0, 0, w, MIN(h * d->dropcount, (int)settings.window_height));
         } else {
-            mouseover = mx >= 0 && mx <= w && abs(my) <= h * d->selected;
+            mouseover = mx >= 0 && mx < w && abs(my) <= h * d->selected;
         }
 
         if (d->mouseover != mouseover) {
@@ -145,19 +149,23 @@ bool dropdown_mmove(DROPDOWN *d, int UNUSED(x), int y, int w, int h, int mx, int
             return true;
         }
 
-        int over = my / h + d->selected;
+        int over = 0;
+        if (h > 0) {
+            over = my / h + d->selected;
+        }
 
         if (y + h * d->dropcount > (int)settings.window_height) {
             // over = my > 0 ? 0 : ((-my) / h + 1);
         }
 
-        if (my < 0)
+        if (my < 0) {
             over--;
+        }
 
-        if (over < d->dropcount) {
+        if (over >= 0 && over < d->dropcount) {
             // over = index(d, over);
             if (over != d->over) {
-                d->over = over;
+                d->over = (uint16_t)over;
                 return true;
             }
         }
@@ -212,7 +220,9 @@ bool dropdown_mup(DROPDOWN *d) {
 
             if (d->over < d->dropcount) {
                 d->selected = d->over;
-                d->onselect(d->selected, d);
+                if (d->onselect) {
+                    d->onselect(d->selected, d);
+                }
             }
 
             return true;
@@ -239,6 +249,9 @@ bool dropdown_mleave(DROPDOWN *d) {
 
 // Appends localization-independent menu item.
 void dropdown_list_add_hardcoded(DROPDOWN *d, char *name, void *handle) {
+    if (!d || !name) {
+        return;
+    }
     void *p = realloc(d->userdata, (d->dropcount + 1) * sizeof(DROP_ELEMENT));
     if (!p) {
         return;
@@ -252,6 +265,9 @@ void dropdown_list_add_hardcoded(DROPDOWN *d, char *name, void *handle) {
 
 // Appends localized menu item.
 void dropdown_list_add_localized(DROPDOWN *d, UTOX_I18N_STR string_id, void *handle) {
+    if (!d) {
+        return;
+    }
     void *p = realloc(d->userdata, (d->dropcount + 1) * sizeof(DROP_ELEMENT));
     if (!p) {
         return;
@@ -265,6 +281,9 @@ void dropdown_list_add_localized(DROPDOWN *d, UTOX_I18N_STR string_id, void *han
 
 // Clears menu (removes all menu items of a list-based dropdown).
 void dropdown_list_clear(DROPDOWN *d) {
+    if (!d) {
+        return;
+    }
     free(d->userdata);
     d->userdata  = NULL;
     d->dropcount = 0;
@@ -275,6 +294,10 @@ void dropdown_list_clear(DROPDOWN *d) {
 // Generic display function for list-based dropdowns,
 // userdata of which is an array of DROP_ELEMENTs.
 STRING *dropdown_list_ondisplay(uint16_t i, const DROPDOWN *dm) {
+    static STRING empty = { .str = "", .length = 0 };
+    if (!dm || !dm->userdata || i >= dm->dropcount) {
+        return &empty;
+    }
     DROP_ELEMENT *e = &((DROP_ELEMENT *)dm->userdata)[i];
     return maybe_i18nal_string_get(&e->name);
 }
@@ -286,6 +309,10 @@ STRING *dropdown_list_ondisplay(uint16_t i, const DROPDOWN *dm) {
 // Generic display function for simple dropdowns,
 // userdata of which is a simple array of UI_STRING_IDs.
 STRING *simple_dropdown_ondisplay(uint16_t i, const DROPDOWN *dm) {
+    static STRING empty = { .str = "", .length = 0 };
+    if (!dm || !dm->userdata) {
+        return &empty;
+    }
     return SPTRFORLANG(settings.language, ((UTOX_I18N_STR *)dm->userdata)[i]);
 }
 

@@ -22,7 +22,7 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     *w = b->width;
 
     // Increase width if needed, so that tooltip text fits.
-    if (maybe_i18nal_string_is_valid(b->tt_text)) {
+    if (b->tt_text && maybe_i18nal_string_is_valid(b->tt_text)) {
         const STRING *s    = maybe_i18nal_string_get(b->tt_text);
         const int needed_w = textwidth(s->str, s->length) + SCALE(8);
         if (*w < needed_w) {
@@ -67,6 +67,10 @@ void tooltip_draw(void) {
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);
+
+    if (!b->tt_text || !maybe_i18nal_string_is_valid(b->tt_text)) {
+        return;
+    }
 
     draw_rect_fill(x, b->y, w, b->height, COLOR_BKGRND_MAIN);
 
@@ -128,7 +132,7 @@ void tooltip_show(void) {
 
     TOOLTIP *b = &tooltip;
 
-    if (!b->can_show) {
+    if (!b->can_show || b->mouse_down) {
         return;
     }
 
@@ -176,6 +180,10 @@ static void tooltip_thread(void *UNUSED(args)) {
 // This is being called every time the mouse is moving above a button
 void tooltip_new(MAYBE_I18NAL_STRING *text) {
     TOOLTIP *tip = &tooltip;
+
+    if (!text) {
+        return;
+    }
 
     tip->can_show = true;
     tip->tt_text  = text;

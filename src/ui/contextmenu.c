@@ -18,10 +18,20 @@ static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     *x = b->x;
     *w = b->width;
 
+    if (!b->ondisplay) {
+        if (*x + *w >= (int)settings.window_width) {
+            *x -= *w;
+        }
+        return;
+    }
+
     // Increase width if needed, so that all menu items fit.
     for (i = 0; i < b->count; i++) {
-        STRING *name     = b->ondisplay(i, b);
-        int     needed_w = textwidth(name->str, name->length) + SCALE(8);
+        STRING *name = b->ondisplay(i, b);
+        if (!name || !name->str) {
+            continue;
+        }
+        int needed_w = textwidth(name->str, name->length) + SCALE(8);
         if (*w < needed_w) {
             *w = needed_w;
         }
@@ -40,18 +50,24 @@ void contextmenu_draw(void) {
     }
     setfont(FONT_TEXT);
 
-    int x, w, active_h;
+    int x, w;
     calculate_pos_and_width(b, &x, &w);
 
     draw_rect_fill(x, b->y, w, b->height, COLOR_BKGRND_MAIN);
-    active_h = b->y + b->over * CONTEXT_HEIGHT;
-    draw_rect_fill(x, active_h, w, CONTEXT_HEIGHT, COLOR_ACTIVEOPTION_BKGRND);
+    if (b->over != 0xFF) {
+        draw_rect_fill(x, b->y + b->over * CONTEXT_HEIGHT, w, CONTEXT_HEIGHT, COLOR_ACTIVEOPTION_BKGRND);
+    }
 
     int i;
     for (i = 0; i != b->count; i++) {
-        // Ensure that font is set before calculating position and width.
+        if (!b->ondisplay) {
+            break;
+        }
         STRING *name = b->ondisplay(i, b);
-        setcolor((active_h == b->y + i * CONTEXT_HEIGHT) ? COLOR_ACTIVEOPTION_TEXT : COLOR_MAIN_TEXT);
+        if (!name || !name->str) {
+            continue;
+        }
+        setcolor((b->over == i) ? COLOR_ACTIVEOPTION_TEXT : COLOR_MAIN_TEXT);
         drawtext(x + SCALE(4), b->y + SCALE(4) + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
@@ -83,7 +99,12 @@ bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
         return 0;
     }
 
-    uint8_t over = (my - b->y) / CONTEXT_HEIGHT;
+    int row_h = CONTEXT_HEIGHT;
+    if (row_h <= 0) {
+        return 0;
+    }
+
+    uint8_t over = (uint8_t)((my - b->y) / row_h);
     if (over >= b->count) {
         over = 0xFF;
     }
@@ -118,8 +139,10 @@ bool contextmenu_mup(void) {
         return 0;
     }
 
-    if (b->over == b->down) {
-        b->onselect(b->over);
+    if (b->over == b->down && b->over != 0xFF) {
+        if (b->onselect) {
+            b->onselect(b->over);
+        }
         b->open = 0;
         return 1;
     }
@@ -157,6 +180,7 @@ void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t)
     b->open      = true;
     b->count     = count;
     b->over      = 0xFF;
+    b->down      = 0xFF;
     b->onselect  = onselect;
     b->ondisplay = ondisplay;
     b->userdata  = userdata;

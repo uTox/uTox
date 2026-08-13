@@ -47,6 +47,36 @@ add_library(utox-test-mock-flist mock/mock_flist.c)
 set_target_properties(utox-test-mock-flist PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 target_link_libraries(utox-test-mock-flist utox-test-mock-domain)
 
+add_library(utox-test-mock-nothread
+            mock/mock_filesys.c
+            mock/mock_settings.c
+            mock/mock_logging.c
+            mock/mock_system_calls.c
+)
+set_target_properties(utox-test-mock-nothread PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
+target_link_libraries(utox-test-mock-nothread pthread)
+
+# Draw/i18n/color stubs for ui widget tests (button/switch/dropdown/tooltip/contextmenu/edit/ui_text).
+# Provides thread() that does not spawn — tooltip_thread is an infinite loop.
+add_library(utox-test-mock-ui mock/mock_ui.c)
+set_target_properties(utox-test-mock-ui PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
+target_link_libraries(utox-test-mock-ui utox-test-mock-nothread pthread)
+
+function(make_ui_test name)
+    add_executable(test_${name} test_${name}.c)
+    set_target_properties(test_${name} PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
+    target_link_libraries(test_${name} utox-test-mock-ui utox-test-mock-nothread pthread)
+    add_test(NAME test_${name} COMMAND test_${name})
+endfunction()
+
+make_ui_test(button)
+make_ui_test(switch)
+make_ui_test(dropdown)
+make_ui_test(tooltip)
+make_ui_test(contextmenu)
+make_ui_test(ui_text)
+make_ui_test(edit)
+
 find_package(OpenAL QUIET)
 if(OPENAL_INCLUDE_DIR)
     include_directories(${OPENAL_INCLUDE_DIR})

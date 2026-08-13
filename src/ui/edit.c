@@ -93,6 +93,10 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
     int yy = y;
 
     if (edit->multiline) {
+        if (!edit->scroll) {
+            return;
+        }
+
         pushclip(x + 1, y + 1, width - 2, height - 2);
 
         SCROLLABLE *scroll = edit->scroll;
@@ -161,7 +165,7 @@ bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y,
         }
     }
 
-    if (edit->multiline) {
+    if (edit->multiline && edit->scroll) {
         need_redraw |= scroll_mmove(edit->scroll, px, py, width, height, x, y, dx, dy);
         y += scroll_gety(edit->scroll, height);
     }
@@ -207,7 +211,7 @@ bool edit_mdown(EDIT *edit) {
         edit->mouseover_char = edit->length;
     }
 
-    if (edit->multiline) {
+    if (edit->multiline && edit->scroll) {
         if (scroll_mdown(edit->scroll)) {
             return 1;
         }
@@ -301,19 +305,23 @@ bool edit_mright(EDIT *edit) {
 }
 
 void edit_press(void) {
+    if (!active_edit) {
+        return;
+    }
+
     edit_sel.start = edit_sel.p1 = edit_sel.p2 = active_edit->mouseover_char;
     edit_sel.length                            = 0;
 }
 
 bool edit_mwheel(EDIT *edit, int height, double d, bool smooth) {
-    if (edit->multiline) {
+    if (edit->multiline && edit->scroll) {
         return scroll_mwheel(edit->scroll, height - SCALE(8), d, smooth);
     }
     return false;
 }
 
 bool edit_mup(EDIT *edit) {
-    if (edit->multiline) {
+    if (edit->multiline && edit->scroll) {
         if (scroll_mup(edit->scroll)) {
             return true;
         }
@@ -358,6 +366,10 @@ static uint16_t edit_change_do(EDIT *edit, EDIT_CHANGE *c) {
 
 void edit_do(EDIT *edit, uint16_t start, uint16_t length, bool remove) {
     EDIT_CHANGE *new_change;
+
+    if (!edit || !edit->data) {
+        return;
+    }
 
     if (edit->history_cur != edit->history_length) {
         uint16_t i = edit->history_cur;
@@ -499,6 +511,10 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
             }
 
             case KEY_DEL: {
+                if (edit->readonly) {
+                    return;
+                }
+
                 edit_del(edit);
                 modified = true;
                 break;
@@ -566,7 +582,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
             }
 
             case KEY_UP: {
-                if (!edit->multiline) {
+                if (!edit->multiline || !edit->scroll) {
                     break;
                 }
 
@@ -581,7 +597,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
             }
 
             case KEY_DOWN: {
-                if (!edit->multiline) {
+                if (!edit->multiline || !edit->scroll) {
                     break;
                 }
 
@@ -596,7 +612,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
             }
 
             case KEY_PAGEUP: {
-                if (!edit->multiline) {
+                if (!edit->multiline || !edit->scroll) {
                     break;
                 }
 
@@ -605,7 +621,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
             }
 
             case KEY_PAGEDOWN: {
-                if (!edit->multiline) {
+                if (!edit->multiline || !edit->scroll) {
                     break;
                 }
 
@@ -777,6 +793,10 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
 }
 
 int edit_selection(EDIT *edit, char *data, int UNUSED(len)) {
+    if (!edit || !edit->data) {
+        return 0;
+    }
+
     if (data) {
         memcpy(data, edit->data + edit_sel.start, edit_sel.length);
     }
@@ -784,6 +804,10 @@ int edit_selection(EDIT *edit, char *data, int UNUSED(len)) {
 }
 
 int edit_copy(char *data, int len) {
+    if (!active_edit) {
+        return 0;
+    }
+
     return edit_selection(active_edit, data, len);
 }
 
@@ -864,6 +888,10 @@ void edit_resetfocus(void) {
 }
 
 void edit_setfocus(EDIT *edit) {
+    if (!edit) {
+        return;
+    }
+
     if (active_edit == edit) {
         return;
     }
@@ -884,15 +912,25 @@ EDIT *edit_get_active(void) {
 }
 
 void edit_setstr(EDIT *edit, char *str, uint16_t length) {
-	uint16_t maxlength;
+    uint16_t maxlength;
 
-	maxlength = edit->data_size - 1;
+    if (!edit || !edit->data || edit->data_size == 0) {
+        return;
+    }
+
+    maxlength = edit->data_size - 1;
     if (length >= maxlength) {
         length = maxlength;
     }
 
+    if (!str) {
+        length = 0;
+    }
+
     edit->length = length;
-    memcpy(edit->data, str, length);
+    if (length) {
+        memcpy(edit->data, str, length);
+    }
 
     if (edit->onchange) {
         edit->onchange(edit);
@@ -900,6 +938,10 @@ void edit_setstr(EDIT *edit, char *str, uint16_t length) {
 }
 
 void edit_setcursorpos(EDIT *edit, uint16_t pos) {
+    if (!edit) {
+        return;
+    }
+
     if (pos <= edit->length) {
         edit_sel.p1 = pos;
     } else {
