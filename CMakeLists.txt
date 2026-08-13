@@ -63,6 +63,11 @@ else()
     set(STATIC_DEFAULT OFF)
 endif()
 
+# Honor CMAKE_BUILD_TYPE from the environment (CI) when cmake was not given -D.
+if(NOT CMAKE_BUILD_TYPE AND DEFINED ENV{CMAKE_BUILD_TYPE} AND NOT "$ENV{CMAKE_BUILD_TYPE}" STREQUAL "")
+    set(CMAKE_BUILD_TYPE "$ENV{CMAKE_BUILD_TYPE}" CACHE STRING "Build type" FORCE)
+endif()
+
 # Disable ASAN for macOS due to "AddressSanitizer: odr-violation: global". see #957
 # Windows doesn't compile with asan enabled.
 if (APPLE OR WINDOWS)
@@ -92,8 +97,33 @@ option(ENABLE_TESTS       "Whether to build test binaries (skipped when cross-co
 option(ENABLE_WERROR      "Error on Warning, whether to put -Werror flag to the compiler"       OFF)
 option(ENABLE_FILTERAUDIO "Enable Filter Audio"                                                 ON )
 option(ENABLE_LTO         "Enable link time optimizations"                                      ON )
+option(ENABLE_COVERAGE    "Instrument binaries for gcov/gcovr (implies -O0, no LTO/ASAN)"       OFF)
 # This needs to be optional, since existing implementation does not build on < 10.7.
 option(ENABLE_COCOA       "Enable native Cocoa GUI on macOS"                                    ON )
+
+# CI can flip these without extra cmake -D (build scripts hardcode other flags).
+if(NOT ENABLE_COVERAGE AND DEFINED ENV{ENABLE_COVERAGE})
+    if("$ENV{ENABLE_COVERAGE}" MATCHES "^(1|ON|on|TRUE|true|YES|yes)$")
+        set(ENABLE_COVERAGE ON)
+    endif()
+endif()
+
+if(NOT ENABLE_WERROR AND DEFINED ENV{ENABLE_WERROR})
+    if("$ENV{ENABLE_WERROR}" MATCHES "^(1|ON|on|TRUE|true|YES|yes)$")
+        set(ENABLE_WERROR ON)
+    endif()
+endif()
+
+if(ENABLE_COVERAGE)
+    if(NOT CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+        message(WARNING "ENABLE_COVERAGE is only supported with GCC or Clang; disabling")
+        set(ENABLE_COVERAGE OFF)
+    else()
+        # LTO and ASAN both distort gcov data; force them off for this configure.
+        set(ENABLE_LTO OFF)
+        set(ENABLE_ASAN OFF)
+    endif()
+endif()
 
 
 #################################
@@ -215,6 +245,12 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
     if(ENABLE_LTO)
         ## -flto is a flag that needs to exist at link time as well,
         #  so we use some hacky save/restore to help cmake.
+        find_program(LLVM_AR NAMES llvm-ar llvm-ar-18 llvm-ar-17 llvm-ar-16)
+        find_program(LLVM_RANLIB NAMES llvm-ranlib llvm-ranlib-18 llvm-ranlib-17 llvm-ranlib-16)
+        if(LLVM_AR AND LLVM_RANLIB)
+            set(CMAKE_AR "${LLVM_AR}")
+            set(CMAKE_RANLIB "${LLVM_RANLIB}")
+        endif()
         set(SAVE_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
         set(CMAKE_REQUIRED_LIBRARIES "-flto")
         add_cflag("-flto")
@@ -255,6 +291,18 @@ if (ENABLE_ASAN)
     add_cflag("-fsanitize=address")
     add_cflag("-fno-omit-frame-pointer")
     set(CMAKE_REQUIRED_LIBRARIES "${SAVE_CMAKE_REQUIRED_LIBRARIES}")
+endif()
+
+if(ENABLE_COVERAGE)
+    # Do not use add_cflag(): check_c_compiler_flag("--coverage") often fails
+    # because the probe link does not pass -lgcov.
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -O0 -fno-inline -fno-omit-frame-pointer")
+    # Config-specific -O* come after CMAKE_C_FLAGS; keep -O0 for every type.
+    foreach(_cov_bt DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+        set(CMAKE_C_FLAGS_${_cov_bt} "${CMAKE_C_FLAGS_${_cov_bt}} -O0")
+    endforeach()
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
 endif()
 
 if(ENABLE_WERROR)
@@ -438,6 +486,7 @@ message("- CMake Module Path:        ${CMAKE_MODULE_PATH}")
 message("----------------------------------")
 message("- Add ASAN:                ${ENABLE_ASAN}")
 message("- Link-Time Optimization:  ${ENABLE_LTO}")
+message("- Coverage (gcov):         ${ENABLE_COVERAGE}")
 message("- Error on Warning:        ${ENABLE_WERROR}")
 message("- Filter Audio:            ${ENABLE_FILTERAUDIO}")
 message("- Static uTox:             ${STATIC_ALL}")

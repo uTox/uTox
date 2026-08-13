@@ -9,26 +9,36 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: "Linux GCC"
+            os: ubuntu-24.04
+            build: linux
+            compiler: gcc
+            werror: "ON"
+
           - name: "Linux Clang"
             os: ubuntu-24.04
             build: linux
             compiler: clang
+            werror: "ON"
 
           - name: "Windows x64 (cross)"
             os: ubuntu-24.04
             build: windows
             compiler: x86_64-w64-mingw32-gcc
+            werror: "OFF"
 
           - name: "macOS"
             os: macos-latest
             build: osx
             compiler: clang
+            werror: "OFF"
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: true
           fetch-depth: 5
-      - run: |
+      - name: Install dependencies
+        run: |
           set -ex
           if [ $BUILD = linux ]; then
             sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
@@ -36,20 +46,42 @@ jobs:
               libfontconfig1-dev libxrender-dev libxext-dev \
               libsodium-dev libopus-dev libvpx-dev \
               libopenal-dev libopenal-data libv4l-dev
+            if [ "$COMPILER" = clang ]; then
+              sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends clang llvm
+            fi
           elif [ $BUILD = windows ]; then
             sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
               cmake make gcc mingw-w64 gcc-mingw-w64 mingw-w64-common binutils-mingw-w64 \
               yasm nasm autoconf automake libtool pkg-config curl
           fi
-
-          if [ $BUILD = windows ]; then
-            sh ./extra/travis/windows.sh || ./extra/travis/debug_failure.sh
-          else
-            ./extra/travis/${BUILD}-before.sh &&
-            ./extra/travis/filter_audio.sh &&
-            ./extra/travis/${BUILD}-script.sh ||
-            ./extra/travis/debug_failure.sh
+        env:
+          BUILD: ${{ matrix.build }}
+          COMPILER: ${{ matrix.compiler }}
+      - name: Build and test
+        run: |
+          set -ex
+          if [ $BUILD = linux ]; then
+            export CC="$COMPILER"
+            if [ "$COMPILER" = clang ]; then
+              export CXX=clang++
+            else
+              export CXX=g++
+            fi
           fi
+          if [ $BUILD = windows ]; then
+            sh ./extra/travis/windows.sh
+          else
+            ./extra/travis/${BUILD}-before.sh
+            ./extra/travis/filter_audio.sh
+            ./extra/travis/${BUILD}-script.sh
+          fi
+        env:
+          BUILD: ${{ matrix.build }}
+          COMPILER: ${{ matrix.compiler }}
+          ENABLE_WERROR: ${{ matrix.werror }}
+      - name: Dump cache on failure
+        if: failure()
+        run: ./extra/travis/debug_failure.sh || true
         env:
           BUILD: ${{ matrix.build }}
 
@@ -96,3 +128,53 @@ jobs:
         run: |
           cd "$(cygpath -u "$GITHUB_WORKSPACE")"
           sh ./extra/travis/windows.sh
+
+  coverage:
+    name: Linux coverage
+    runs-on: ubuntu-24.04
+    env:
+      BUILD: linux
+      ENABLE_COVERAGE: "ON"
+      ENABLE_WERROR: "ON"
+      CMAKE_BUILD_TYPE: Debug
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+          fetch-depth: 5
+      - name: Install dependencies
+        run: |
+          sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
+            cmake cmake-data check libdbus-1-dev libx11-dev libfreetype6-dev \
+            libfontconfig1-dev libxrender-dev libxext-dev \
+            libsodium-dev libopus-dev libvpx-dev \
+            libopenal-dev libopenal-data libv4l-dev \
+            gcovr
+      - name: Build and test
+        run: |
+          set -ex
+          ./extra/travis/linux-before.sh
+          ./extra/travis/filter_audio.sh
+          ./extra/travis/linux-script.sh
+      - name: Coverage report
+        if: success() || failure()
+        run: |
+          mkdir -p coverage-html
+          gcovr --root . \
+            --filter 'src/' \
+            --exclude '.*/tests/.*' \
+            --exclude '.*/third_party/.*' \
+            --html-details coverage-html/index.html \
+            --lcov coverage.lcov \
+            --print-summary
+      - uses: coverallsapp/github-action@v2
+        if: success() || failure()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: coverage.lcov
+          format: lcov
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: coverage-html
+          path: coverage-html/
