@@ -14,10 +14,8 @@ int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
     char * str[]  = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     int    max_id = COUNTOF(str) - 1;
     int    i      = 0;
-    double f      = bytes;
     while ((bytes >= 1024) && (i < max_id)) {
         bytes /= 1024;
-        f /= 1024.0;
         i++;
     }
 

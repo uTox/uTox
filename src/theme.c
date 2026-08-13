@@ -684,8 +684,18 @@ uint32_t *find_colour_pointer(char *color) {
 }
 
 static uint32_t try_parse_hex_colour(char *color, bool *error) {
-    while (*color == 0 || *color == ' ' || *color == '\t') {
+    if (!color || !*color) {
+        *error = true;
+        return 0;
+    }
+
+    while (*color == ' ' || *color == '\t') {
         color++;
+    }
+
+    if (!*color) {
+        *error = true;
+        return 0;
     }
 
     for (int l = strlen(color) - 1; l > 0; --l) {
@@ -698,6 +708,11 @@ static uint32_t try_parse_hex_colour(char *color, bool *error) {
             }
             break;
         }
+    }
+
+    if (strlen(color) != 6) {
+        *error = true;
+        return 0;
     }
 
     char hex[3] = { 0 };
@@ -713,24 +728,42 @@ static uint32_t try_parse_hex_colour(char *color, bool *error) {
 }
 
 static void read_custom_theme(const uint8_t *data, size_t length) {
-    while (length) {
-        char *line = (char *)data;
-        while (*line != 0) {
-            if (*line == '#') {
-                *line = 0;
+    char *buf = (char *)data;
+    size_t pos = 0;
+
+    while (pos < length) {
+        size_t start = pos;
+
+        while (pos < length && buf[pos] != '\n' && buf[pos] != '\0') {
+            if (buf[pos] == '#') {
+                buf[pos] = '\0';
+                while (pos < length && buf[pos] != '\n' && buf[pos] != '\0') {
+                    ++pos;
+                }
                 break;
             }
+            ++pos;
+        }
+
+        if (pos < length && (buf[pos] == '\n' || buf[pos] == '\0')) {
+            buf[pos] = '\0';
+            ++pos;
+        }
+
+        char *line = buf + start;
+        while (*line == ' ' || *line == '\t' || *line == '\r') {
             ++line;
-            --length;
+        }
+        if (*line == '\0') {
+            continue;
         }
 
         char *color = strpbrk(line, "=");
-
         if (!color || color == line) {
             continue;
         }
 
-        *color++ = 0;
+        *color++ = '\0';
 
         uint32_t *colorp = find_colour_pointer(line);
         if (!colorp) {
@@ -743,9 +776,10 @@ static void read_custom_theme(const uint8_t *data, size_t length) {
         if (err) {
             LOG_ERR("Theme", "Error: Parsing hex color failed.");
             continue;
-        } else {
-            *colorp = COLOR_PROC(col);
         }
+
+        /* try_parse_hex_colour already returns a native RGB() value. */
+        *colorp = col;
     }
 }
 

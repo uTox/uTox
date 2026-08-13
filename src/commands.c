@@ -8,6 +8,7 @@
 #include "layout/friend.h" // TODO, we should try to remove this dependency
 #include "ui/edit.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 struct Command commands[MAX_NUM_CMDS] = {
@@ -26,10 +27,14 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
     }
 
     uint16_t cmd_length = 0, argument_length = 0;
+    if (argument) {
+        *argument = NULL;
+    }
 
     if (string[0] == '/') { /* Cool it's a command we support! */
         // LOG_TRACE("Commands", "command found!" );
         uint16_t i;
+        cmd_length = string_length;
         for (i = 0; i < string_length; ++i) {
             if (string[i] == ' ') {
                 cmd_length = i;
@@ -37,12 +42,14 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
             }
         }
 
-        ++i;
-        for (; i < string_length; ++i) {
-            if (string[i] != ' ') {
-                argument_length = string_length - i;
-                *argument       = string + i;
-                break;
+        if (i < string_length) {
+            ++i;
+            for (; i < string_length; ++i) {
+                if (string[i] != ' ') {
+                    argument_length = string_length - i;
+                    *argument       = string + i;
+                    break;
+                }
             }
         }
 
@@ -78,22 +85,35 @@ bool g_select_add_friend_later = 0;
 void do_tox_url(uint8_t *url_string, int len) {
     LOG_TRACE("Commands", "Command: %.*s" , len, url_string);
 
-    //! lacks max length checks, writes to inputs even on failure, no notice of failure
-    // doesn't reset unset inputs
-
-    // slashes are removed later
-    if (len > 4 && memcmp(url_string, "tox:", 4) == 0) {
-        url_string += 4;
-        len -= 4;
-    } else {
+    if (len <= 4 || memcmp(url_string, "tox:", 4) != 0) {
         return;
     }
 
-    // wtf??
-    uint8_t  *b = (uint8_t *)edit_add_new_friend_id.data, *a = url_string, *end = url_string + len;
-    uint16_t *l = &edit_add_new_friend_id.length;
-    *l          = 0;
-    while (a != end) {
+    url_string += 4;
+    len -= 4;
+
+    if (!edit_add_new_friend_id.data || !edit_add_new_friend_msg.data
+        || edit_add_new_friend_id.data_size == 0 || edit_add_new_friend_msg.data_size == 0) {
+        return;
+    }
+
+    char *id_buf  = calloc(1, edit_add_new_friend_id.data_size);
+    char *msg_buf = calloc(1, edit_add_new_friend_msg.data_size);
+    if (!id_buf || !msg_buf) {
+        free(id_buf);
+        free(msg_buf);
+        return;
+    }
+
+    uint8_t  *b = (uint8_t *)id_buf;
+    uint16_t  id_len = 0, msg_len = 0;
+    uint16_t *l = &id_len;
+    size_t    cap = edit_add_new_friend_id.data_size;
+    bool      writing_msg = false;
+    bool      ok = true;
+    uint8_t  *a = url_string, *end = url_string + len;
+
+    while (ok && a != end) {
         switch (*a) {
             case 'a' ... 'z':
             case 'A' ... 'Z':
@@ -101,12 +121,20 @@ void do_tox_url(uint8_t *url_string, int len) {
             case '@':
             case '.':
             case ' ': {
+                if ((size_t)*l + 1 >= cap) {
+                    ok = false;
+                    break;
+                }
                 *b++ = *a;
                 *l   = *l + 1;
                 break;
             }
 
             case '+': {
+                if ((size_t)*l + 1 >= cap) {
+                    ok = false;
+                    break;
+                }
                 *b++ = ' ';
                 *l   = *l + 1;
                 break;
@@ -116,16 +144,15 @@ void do_tox_url(uint8_t *url_string, int len) {
             case '&': {
                 a++;
                 if (end - a >= 8 && memcmp(a, "message=", 8) == 0) {
-                    b  = (uint8_t *)edit_add_new_friend_msg.data;
-                    l  = &edit_add_new_friend_msg.length;
-                    *l = 0;
+                    b           = (uint8_t *)msg_buf;
+                    l           = &msg_len;
+                    cap         = edit_add_new_friend_msg.data_size;
+                    writing_msg = true;
                     a += 7;
                 } else {
-                    // skip everythng up to the next &
                     while (*a != '&' && a != end) {
                         a++;
                     }
-                    // set the track back to the & so we can proceed normally
                     a--;
                 }
                 break;
@@ -136,17 +163,32 @@ void do_tox_url(uint8_t *url_string, int len) {
             }
 
             default: {
-                return;
+                ok = false;
+                break;
             }
         }
-        a++;
+        if (ok) {
+            a++;
+        }
     }
 
-    if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
-        // if we receive a URL event before the profile is loaded, save it for later.
-        // this usually happens when we are launched as the result of a URL click.
-        g_select_add_friend_later = 1;
-    } else {
-        flist_selectaddfriend();
+    if (ok) {
+        memcpy(edit_add_new_friend_id.data, id_buf, id_len);
+        edit_add_new_friend_id.length = id_len;
+        if (writing_msg) {
+            memcpy(edit_add_new_friend_msg.data, msg_buf, msg_len);
+            edit_add_new_friend_msg.length = msg_len;
+        } else {
+            edit_add_new_friend_msg.length = 0;
+        }
+
+        if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
+            g_select_add_friend_later = 1;
+        } else {
+            flist_selectaddfriend();
+        }
     }
+
+    free(id_buf);
+    free(msg_buf);
 }

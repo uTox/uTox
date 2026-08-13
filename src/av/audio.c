@@ -625,7 +625,6 @@ void utox_audio_thread(void *args) {
                 break;
             }
 
-            int call_ringing = 0;
             switch (m->msg) {
                 case UTOXAUDIO_CHANGE_MIC: {
                     while (audio_in_ignore()) { continue; }
@@ -714,12 +713,10 @@ void utox_audio_thread(void *args) {
                         alSourcei(ringtone, AL_BUFFER, RingBuffer);
 
                         alSourcePlay(ringtone);
-                        call_ringing++;
                     }
                     break;
                 }
                 case UTOXAUDIO_STOP_RINGTONE: {
-                    call_ringing--;
                     LOG_INFO("uTox Audio", "Going to stop ringtone!" );
                     alSourceStop(ringtone);
                     yieldcpu(5);
