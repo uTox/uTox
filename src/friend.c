@@ -27,6 +27,7 @@
 uint8_t addfriend_status;
 
 static FRIEND *friend = NULL;
+static bool string_to_id_n(uint8_t *w, char *a, size_t nbytes);
 
 FRIEND *get_friend(uint32_t friend_number) {
     if (friend_number >= self.friend_list_size) {
@@ -46,13 +47,12 @@ static FRIEND *friend_make(uint32_t friend_number) {
             return NULL;
         }
 
+        memset(tmp + self.friend_list_size, 0,
+               sizeof(FRIEND) * ((friend_number + 1) - self.friend_list_size));
         friend = tmp;
-
         self.friend_list_size = friend_number + 1;
-
     }
 
-    // TODO should we memset(0); before return?
     return &friend[friend_number];
 }
 
@@ -62,6 +62,10 @@ static uint16_t frequest_list_size = 0;
 FREQUEST *get_frequest(uint16_t frequest_number) {
     if (frequest_number >= frequest_list_size) {
         LOG_ERR("Friend", "Request number out of bounds.");
+        return NULL;
+    }
+
+    if (!frequests[frequest_number].msg) {
         return NULL;
     }
 
@@ -78,16 +82,30 @@ static FREQUEST *frequest_make(uint16_t frequest_number) {
         }
 
         frequests = tmp;
+        memset(&frequests[frequest_list_size], 0,
+               sizeof(FREQUEST) * ((frequest_number + 1) - frequest_list_size));
         frequest_list_size = frequest_number + 1;
     }
 
-    // TODO should we memset(0); before return?
     return &frequests[frequest_number];
 }
 
 uint16_t friend_request_new(const uint8_t *id, const uint8_t *msg, size_t length) {
-    uint16_t curr_num = frequest_list_size;
-    FREQUEST *r = frequest_make(frequest_list_size); // TODO search for empty request slots
+    uint16_t curr_num = UINT16_MAX;
+    for (uint16_t i = 0; i < frequest_list_size; i++) {
+        if (!frequests[i].msg) {
+            curr_num = i;
+            break;
+        }
+    }
+
+    FREQUEST *r;
+    if (curr_num == UINT16_MAX) {
+        curr_num = frequest_list_size;
+        r = frequest_make(frequest_list_size);
+    } else {
+        r = &frequests[curr_num];
+    }
     if (!r) {
         LOG_ERR("Friend", "Unable to get space for Friend Request.");
         return UINT16_MAX;
@@ -115,32 +133,46 @@ void friend_request_free(uint16_t number) {
     }
 
     free(r->msg);
+    r->msg    = NULL;
+    r->length = 0;
 
-    // TODO this needs a test
-    if (r->number >= frequest_list_size -1) {
-        FREQUEST *tmp = realloc(frequests, sizeof(FREQUEST) * (frequest_list_size - 1));
-        if (tmp) {
-            frequests = tmp;
-            --frequest_list_size;
+    while (frequest_list_size > 0 && !frequests[frequest_list_size - 1].msg) {
+        if (frequest_list_size == 1) {
+            free(frequests);
+            frequests          = NULL;
+            frequest_list_size = 0;
+            break;
         }
+
+        FREQUEST *tmp = realloc(frequests, sizeof(FREQUEST) * (frequest_list_size - 1));
+        if (!tmp) {
+            break;
+        }
+
+        frequests = tmp;
+        --frequest_list_size;
     }
 }
 
-/* TODO incoming friends "leaks" */
-
 void free_friends(void) {
-    for (uint32_t i = 0; i < self.friend_list_count; i++){
+    const uint32_t n = self.friend_list_size;
+    for (uint32_t i = 0; i < n; i++) {
         FRIEND *f = get_friend(i);
         if (!f) {
-            LOG_WARN("Friend", "Could not get friend %u. Skipping", i);
+            continue;
+        }
+        /* Sparse creates leave zeroed holes; friend_free would underflow count. */
+        if (!f->name && !f->alias && !f->avatar && !f->status_message
+            && !f->msg.data && !f->edit_history && !f->typed) {
             continue;
         }
         friend_free(f);
     }
 
-    if (friend) {
-        free(friend);
-    }
+    free(friend);
+    friend                 = NULL;
+    self.friend_list_size  = 0;
+    self.friend_list_count = 0;
 }
 
 void utox_write_metadata(FRIEND *f) {
@@ -228,7 +260,8 @@ static void friend_meta_data_read(FRIEND *f) {
         friend_set_alias(f, NULL, 0); /* uTox expects this to be 0/NULL if there's no alias. */
     }
 
-    f->ft_autoaccept = metadata->ft_autoaccept;
+    f->ft_autoaccept    = metadata->ft_autoaccept;
+    f->skip_msg_logging = metadata->skip_msg_logging;
 
     free(metadata);
     return;
@@ -490,7 +523,10 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     if (length_cleaned == TOX_ADDRESS_SIZE * 2 && string_to_id(id, (char *)name_cleaned)) {
         friend_addid(id, msg, msg_length);
     } else if (length_cleaned == TOX_PUBLIC_KEY_SIZE * 2) {
-        string_to_id(id, (char*)name_cleaned);
+        if (!string_to_id_n(id, (char *)name_cleaned, TOX_PUBLIC_KEY_SIZE)) {
+            addfriend_status = ADDF_BADNAME;
+            return;
+        }
         uint8_t *data = calloc(TOX_PUBLIC_KEY_SIZE, sizeof(uint8_t));
         if (!data) {
             LOG_ERR("Calloc", "Memory allocation failed!");
@@ -523,6 +559,7 @@ void friend_free(FRIEND *f) {
     free(f->edit_history);
 
     free(f->name);
+    free(f->alias);
     free(f->status_message);
     free(f->typed);
     free(f->avatar);
@@ -546,15 +583,26 @@ void friend_free(FRIEND *f) {
 }
 
 FRIEND *find_friend_by_name(uint8_t *name) {
-    for (size_t i = 0; i < self.friend_list_count; i++) {
+    if (!name) {
+        return NULL;
+    }
+
+    const size_t name_len = strlen((char *)name);
+    for (size_t i = 0; i < self.friend_list_size; i++) {
         FRIEND *f = get_friend(i);
         if (!f) {
-            LOG_ERR("Friend", "Could not get friend %u", i);
+            continue;
+        }
+        /* Sparse creates leave zeroed holes between friend numbers. */
+        if (!f->name && !f->alias && !f->avatar && !f->status_message
+            && !f->msg.data && !f->edit_history && !f->typed) {
             continue;
         }
 
-        if ((f->alias && memcmp(f->alias, name, MIN(f->alias_length, strlen((char *)name))) == 0)
-            || memcmp(f->name, name, MIN(f->name_length, strlen((char *)name))) == 0) {
+        if (f->alias && f->alias_length == name_len && memcmp(f->alias, name, name_len) == 0) {
+            return f;
+        }
+        if (f->name && f->name_length == name_len && memcmp(f->name, name, name_len) == 0) {
             return f;
         }
     }
@@ -562,10 +610,13 @@ FRIEND *find_friend_by_name(uint8_t *name) {
 }
 
 FRIEND *get_friend_by_id(const char *id_str) {
-    for (size_t i = 0; i < self.friend_list_count; i++) {
+    for (size_t i = 0; i < self.friend_list_size; i++) {
         FRIEND *f = get_friend(i);
         if (!f) {
-            LOG_ERR("Friend", "Could not get friend %u", i);
+            continue;
+        }
+        if (!f->name && !f->alias && !f->avatar && !f->status_message
+            && !f->msg.data && !f->edit_history && !f->typed) {
             continue;
         }
 
@@ -599,8 +650,8 @@ void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char
     }
 }
 
-bool string_to_id(uint8_t *w, char *a) {
-    uint8_t *end = w + TOX_ADDRESS_SIZE;
+static bool string_to_id_n(uint8_t *w, char *a, size_t nbytes) {
+    uint8_t *end = w + nbytes;
     while (w != end) {
         char c, v;
 
@@ -630,6 +681,10 @@ bool string_to_id(uint8_t *w, char *a) {
     }
 
     return true;
+}
+
+bool string_to_id(uint8_t *w, char *a) {
+    return string_to_id_n(w, a, TOX_ADDRESS_SIZE);
 }
 
 void cid_to_string(char *dest, uint8_t *src) {

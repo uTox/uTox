@@ -9,6 +9,7 @@
 
 #include "../src/macros.h"
 #include "../src/messages.h"
+#include "../src/ui/scrollable.h"
 #include "../src/chatlog.c"
 #include "../src/text.c"
 #include "../src/messages_chatlog.c"
@@ -23,8 +24,21 @@ void native_export_chatlog_init(uint32_t friend_number) {
 }
 
 void messages_updateheight(MESSAGES *m, int width) {
-    (void)m;
     (void)width;
+    if (!m) {
+        return;
+    }
+    int h = 0;
+    for (uint32_t i = 0; i < m->number; i++) {
+        if (!m->data[i]) {
+            continue;
+        }
+        if (m->data[i]->height == 0) {
+            m->data[i]->height = 20;
+        }
+        h += m->data[i]->height;
+    }
+    m->height = h;
 }
 
 void message_free(MSG_HEADER *msg) {
@@ -324,9 +338,17 @@ bool test_prepend_cap_drops_newest(void) {
         pad->via.txt.msg = strdup("pad");
         pad->via.txt.length = 3;
         pad->time = 1;
+        pad->height = 20;
         m.data[m.number++] = pad;
         m.extra--;
     }
+
+    m.width          = 200;
+    m.height         = (int)m.number * 20;
+    m.sel_start_msg  = m.number - 1;
+    m.sel_end_msg    = m.number - 1;
+    m.cursor_down_msg = m.number - 1;
+    m.cursor_over_msg = m.number - 1;
 
     const uint32_t before_skip = m.chatlog_skip;
     if (!messages_load_older_chatlog(&m, id)) {
@@ -443,6 +465,538 @@ bool test_short_messages_keep_paging(void) {
     return true;
 }
 
+static MSG_HEADER *make_text_msg(time_t t, const char *text) {
+    MSG_HEADER *msg = calloc(1, sizeof(MSG_HEADER));
+    if (!msg) {
+        FAIL_FATAL("calloc MSG_HEADER");
+    }
+    msg->time     = t;
+    msg->msg_type = MSG_TYPE_TEXT;
+    msg->via.txt.msg = strdup(text);
+    msg->via.txt.length = strlen(text);
+    return msg;
+}
+
+bool test_prepend_day_notice(void) {
+    MESSAGES m;
+    memset(&m, 0, sizeof(m));
+    m.data  = calloc(8, sizeof(MSG_HEADER *));
+    m.extra = 8;
+
+    /* Existing newest message on day 2. */
+    time_t day2 = 1700000000;
+    m.data[0] = make_text_msg(day2, "day2");
+    m.number  = 1;
+
+    /* Prepend older batch spanning day0 -> day1. */
+    time_t day0 = day2 - 3 * 24 * 60 * 60;
+    time_t day1 = day2 - 1 * 24 * 60 * 60;
+    MSG_HEADER *batch[2];
+    batch[0] = make_text_msg(day0, "day0");
+    batch[1] = make_text_msg(day1, "day1");
+
+    size_t out = messages_prepend(&m, batch, 2);
+    if (out < 3) {
+        messages_clear_test(&m);
+        FAIL("expected day notices inserted, prepended=%zu", out);
+    }
+
+    bool saw_notice = false;
+    for (uint32_t i = 0; i < m.number; i++) {
+        if (m.data[i] && m.data[i]->msg_type == MSG_TYPE_NOTICE_DAY_CHANGE) {
+            saw_notice = true;
+            break;
+        }
+    }
+    if (!saw_notice) {
+        messages_clear_test(&m);
+        FAIL("expected MSG_TYPE_NOTICE_DAY_CHANGE after cross-day prepend");
+    }
+
+    messages_clear_test(&m);
+    return true;
+}
+
+bool test_exhausted_idempotent(void) {
+    const char *id = MOCK_FRIEND_ID;
+    if (!write_numbered_log(id, 3)) {
+        return false;
+    }
+
+    size_t n = 0;
+    MSG_HEADER **data = utox_load_chatlog((char *)id, &n, UTOX_CHATLOG_PAGE_SIZE, 0);
+    if (!data || n != 3) {
+        free_message_list(data, n);
+        FAIL("short log load failed");
+    }
+
+    MESSAGES m;
+    memset(&m, 0, sizeof(m));
+    m.data              = calloc(16, sizeof(MSG_HEADER *));
+    m.extra             = 16;
+    m.chatlog_skip      = (uint32_t)n;
+    m.chatlog_exhausted = (n < UTOX_CHATLOG_PAGE_SIZE);
+    for (size_t i = 0; i < n; i++) {
+        m.data[m.number++] = data[i];
+    }
+    free(data);
+
+    if (!m.chatlog_exhausted) {
+        messages_clear_test(&m);
+        unlink_test_log(id);
+        FAIL("short log should mark chatlog exhausted");
+    }
+
+    if (messages_load_older_chatlog(&m, id)) {
+        messages_clear_test(&m);
+        unlink_test_log(id);
+        FAIL("load_older on exhausted should fail");
+    }
+    if (messages_load_older_chatlog(&m, id)) {
+        messages_clear_test(&m);
+        unlink_test_log(id);
+        FAIL("second load_older on exhausted should still fail");
+    }
+
+    messages_clear_test(&m);
+    unlink_test_log(id);
+    return true;
+}
+
+static uint8_t *create_message_flags(unsigned index, int author, int receipt, size_t *length) {
+    LOG_FILE_MSG_HEADER header;
+    memset(&header, 0, sizeof(header));
+
+    char *author_name = strdup("tox user");
+    size_t author_length = 9;
+
+    char msg_buf[64];
+    int written = snprintf(msg_buf, sizeof(msg_buf), "u-%03u", index);
+    if (written < 0) {
+        FAIL_FATAL("snprintf failed");
+    }
+    size_t msg_length = (size_t)written;
+    char *msg = strdup(msg_buf);
+
+    header.log_version   = LOGFILE_SAVE_VERSION;
+    header.time          = (time_t)(1000 + (int)index);
+    header.author_length = author_length;
+    header.msg_length    = msg_length;
+    header.author        = author ? 1 : 0;
+    header.receipt       = receipt ? 1 : 0;
+    header.msg_type      = MSG_TYPE_TEXT;
+
+    *length = sizeof(header) + msg_length + author_length + 1;
+    uint8_t *data = calloc(1, *length);
+    if (!data) {
+        FAIL_FATAL("calloc chatlog record");
+    }
+    memcpy(data, &header, sizeof(header));
+    memcpy(data + sizeof(header), author_name, author_length);
+    memcpy(data + sizeof(header) + author_length, msg, msg_length);
+    strcpy2(data + *length - 1, "\n");
+    free(author_name);
+    free(msg);
+    return data;
+}
+
+bool test_unsent_initial_window(void) {
+    const char *id = MOCK_FRIEND_ID;
+    unlink_test_log(id);
+
+    const unsigned unsent_n = UTOX_CHATLOG_PAGE_SIZE + 5;
+    const unsigned sent_n   = 10;
+    for (unsigned i = 0; i < unsent_n; i++) {
+        size_t length = 0;
+        uint8_t *data = create_message_flags(i, 1, 0, &length);
+        utox_save_chatlog((char *)id, data, length);
+        free(data);
+    }
+    for (unsigned i = 0; i < sent_n; i++) {
+        size_t length = 0;
+        uint8_t *data = create_message_flags(unsent_n + i, 1, 1, &length);
+        utox_save_chatlog((char *)id, data, length);
+        free(data);
+    }
+
+    size_t unsent = utox_count_unsent_chatlog((char *)id);
+    if (unsent != unsent_n) {
+        unlink_test_log(id);
+        FAIL("unsent count expected %u got %zu", unsent_n, unsent);
+    }
+
+    const uint32_t load_count = (unsent > UTOX_CHATLOG_PAGE_SIZE)
+                                    ? (uint32_t)(unsent + UTOX_CHATLOG_PAGE_SIZE)
+                                    : UTOX_CHATLOG_PAGE_SIZE;
+
+    size_t n = 0;
+    MSG_HEADER **data = utox_load_chatlog((char *)id, &n, load_count, 0);
+    if (!data || n < unsent_n) {
+        free_message_list(data, n);
+        unlink_test_log(id);
+        FAIL("initial window must cover all unsent (%u), got %zu (load_count=%u)",
+             unsent_n, n, load_count);
+    }
+
+    bool found_oldest_unsent = false;
+    for (size_t i = 0; i < n; i++) {
+        if (msg_text_is(data[i], "u-000")) {
+            found_oldest_unsent = true;
+            break;
+        }
+    }
+    if (!found_oldest_unsent) {
+        free_message_list(data, n);
+        unlink_test_log(id);
+        FAIL("oldest unsent u-000 missing from expanded initial window");
+    }
+
+    free_message_list(data, n);
+    unlink_test_log(id);
+    return true;
+}
+
+bool test_prepend_guards_and_day_changed(void) {
+    unlink_test_log(MOCK_FRIEND_ID);
+
+    if (messages_day_changed(0, 1000)) {
+        FAIL("last==0 is not a day change");
+    }
+    time_t t = 1700000000;
+    if (messages_day_changed(t, t)) {
+        FAIL("same timestamp is not a day change");
+    }
+    if (!messages_day_changed(t, t + 3 * 24 * 60 * 60)) {
+        FAIL("later day should be a day change");
+    }
+    if (!messages_day_changed(t, t + 40 * 24 * 60 * 60)) {
+        FAIL("later month should be a day change");
+    }
+    if (!messages_day_changed(t, t + 400 * 24 * 60 * 60)) {
+        FAIL("later year should be a day change");
+    }
+    if (!messages_day_changed(t, t + 24 * 60 * 60)) {
+        FAIL("next calendar day should be a day change");
+    }
+    if (messages_day_changed(t + 40 * 24 * 60 * 60, t)) {
+        FAIL("earlier month is not a day change");
+    }
+    if (messages_day_changed(t + 400 * 24 * 60 * 60, t)) {
+        FAIL("earlier year is not a day change");
+    }
+
+    MSG_HEADER *notice = messages_create_day_notice(t + 86400);
+    if (!notice || notice->msg_type != MSG_TYPE_NOTICE_DAY_CHANGE || !notice->via.notice_day.length) {
+        message_free(notice);
+        FAIL("messages_create_day_notice");
+    }
+    message_free(notice);
+
+    MESSAGES empty;
+    memset(&empty, 0, sizeof(empty));
+    if (messages_prepend(NULL, NULL, 1) != 0 || messages_prepend(&empty, NULL, 1) != 0) {
+        FAIL("prepend should reject NULL");
+    }
+
+    MESSAGES m;
+    memset(&m, 0, sizeof(m));
+    MSG_HEADER *empty_batch[1] = { NULL };
+    if (messages_prepend(&m, empty_batch, 1) != 0) {
+        FAIL("prepend of only NULL entries should return 0");
+    }
+
+    if (messages_load_older_chatlog(NULL, MOCK_FRIEND_ID)
+        || messages_load_older_chatlog(&m, NULL)) {
+        FAIL("load_older should reject NULL");
+    }
+    m.is_groupchat = true;
+    if (messages_load_older_chatlog(&m, MOCK_FRIEND_ID)) {
+        FAIL("load_older should skip group chats");
+    }
+    m.is_groupchat = false;
+    m.chatlog_skip = 0;
+    if (messages_load_older_chatlog(&m, MOCK_FRIEND_ID)) {
+        FAIL("load_older on missing log should fail");
+    }
+    if (!m.chatlog_exhausted) {
+        FAIL("missing log should mark exhausted");
+    }
+
+    m.chatlog_exhausted = false;
+    m.chatlog_loading   = true;
+    if (messages_load_older_chatlog(&m, MOCK_FRIEND_ID)) {
+        FAIL("load_older should refuse while already loading");
+    }
+    m.chatlog_loading = false;
+    return true;
+}
+
+bool test_prepend_adjusts_scroll(void) {
+    SCROLLABLE scroll;
+    memset(&scroll, 0, sizeof(scroll));
+    scroll.viewport_height = 40;
+    scroll.d               = 0.0;
+
+    MESSAGES m;
+    memset(&m, 0, sizeof(m));
+    m.data                 = calloc(8, sizeof(MSG_HEADER *));
+    m.extra                = 8;
+    m.width                = 200;
+    m.panel.content_scroll = &scroll;
+    m.data[0]              = make_text_msg(1700000100, "visible");
+    m.data[0]->height      = 20;
+    m.number               = 1;
+    m.height               = 20;
+
+    MSG_HEADER *batch[1];
+    batch[0]         = make_text_msg(1700000000, "older");
+    batch[0]->height = 20;
+
+    if (messages_prepend(&m, batch, 1) == 0) {
+        messages_clear_test(&m);
+        FAIL("prepend with scroll should succeed");
+    }
+    if (scroll.content_height != m.height || m.height < 40) {
+        messages_clear_test(&m);
+        FAIL("scroll content_height not updated (%d vs height %d)", scroll.content_height, m.height);
+    }
+
+    /* Content taller than viewport: keep relative position. */
+    scroll.viewport_height = 30;
+    scroll.d               = 0.5;
+    m.height               = 80;
+    for (uint32_t i = 0; i < m.number; i++) {
+        m.data[i]->height = 40;
+    }
+
+    MSG_HEADER *batch2[1];
+    batch2[0]         = make_text_msg(1699990000, "even-older");
+    batch2[0]->height = 40;
+    if (messages_prepend(&m, batch2, 1) == 0) {
+        messages_clear_test(&m);
+        FAIL("second prepend failed");
+    }
+    if (scroll.d < 0.0 || scroll.d > 1.0) {
+        messages_clear_test(&m);
+        FAIL("scroll.d out of range %g", scroll.d);
+    }
+
+    /* Near the top: reset to the inserted height. */
+    scroll.viewport_height = 100;
+    scroll.d               = 0.0;
+    m.height               = 200;
+    for (uint32_t i = 0; i < m.number; i++) {
+        if (m.data[i]) {
+            m.data[i]->height = 50;
+        }
+    }
+    MSG_HEADER *batch3[1];
+    batch3[0]         = make_text_msg(1699900000, "near-top");
+    batch3[0]->height = 20;
+    if (messages_prepend(&m, batch3, 1) == 0) {
+        messages_clear_test(&m);
+        FAIL("near-top prepend failed");
+    }
+
+    /* Viewport unset: use the height-delta / height branch. */
+    scroll.viewport_height = 0;
+    MSG_HEADER *batch4[1];
+    batch4[0]         = make_text_msg(1699800000, "no-viewport");
+    batch4[0]->height = 20;
+    if (messages_prepend(&m, batch4, 1) == 0) {
+        messages_clear_test(&m);
+        FAIL("viewport<=0 prepend failed");
+    }
+
+    /* UINT32_MAX indices stay put; real indices bump. */
+    m.sel_start_msg    = UINT32_MAX;
+    m.sel_end_msg      = 0;
+    m.cursor_down_msg  = UINT32_MAX;
+    m.cursor_over_msg  = 1;
+    MSG_HEADER *batch5[1];
+    batch5[0]         = make_text_msg(1699700000, "idx");
+    batch5[0]->height = 20;
+    size_t added = messages_prepend(&m, batch5, 1);
+    if (added == 0) {
+        messages_clear_test(&m);
+        FAIL("index bump prepend failed");
+    }
+    if (m.sel_start_msg != UINT32_MAX || m.cursor_down_msg != UINT32_MAX) {
+        messages_clear_test(&m);
+        FAIL("UINT32_MAX indices should not bump");
+    }
+    if (m.sel_end_msg < 1 || m.cursor_over_msg < 2) {
+        messages_clear_test(&m);
+        FAIL("finite indices should bump");
+    }
+
+    /* Existing slot 0 is NULL: skip the trailing day-notice. */
+    message_free(m.data[0]);
+    m.data[0] = NULL;
+    MSG_HEADER *batch6[1];
+    batch6[0]         = make_text_msg(1699600000, "null-head");
+    batch6[0]->height = 20;
+    if (messages_prepend(&m, batch6, 1) == 0) {
+        messages_clear_test(&m);
+        FAIL("NULL head prepend failed");
+    }
+
+    messages_clear_test(&m);
+    return true;
+}
+
+bool test_prepend_refuses_over_cap(void) {
+    const size_t n = UTOX_MAX_BACKLOG_MESSAGES;
+    MSG_HEADER **batch = calloc(n, sizeof(*batch));
+    if (!batch) {
+        FAIL_FATAL("calloc over-cap batch");
+    }
+    const time_t t0 = 1700000000;
+    const time_t t1 = t0 + 3 * 24 * 60 * 60;
+    for (size_t i = 0; i < n; i++) {
+        /* Last message on a later day inserts a notice → out = n+1 > cap. */
+        batch[i] = make_text_msg(i + 1 == n ? t1 : t0, "x");
+    }
+
+    MESSAGES m;
+    memset(&m, 0, sizeof(m));
+    if (messages_prepend(&m, batch, n) != 0) {
+        messages_clear_test(&m);
+        for (size_t i = 0; i < n; i++) {
+            message_free(batch[i]);
+        }
+        free(batch);
+        FAIL("batch larger than cap should be refused");
+    }
+
+    for (size_t i = 0; i < n; i++) {
+        message_free(batch[i]);
+    }
+    free(batch);
+    return true;
+}
+
+bool test_drop_last_clears_indices(void) {
+    MESSAGES m;
+    memset(&m, 0, sizeof(m));
+    m.data            = calloc(4, sizeof(MSG_HEADER *));
+    m.extra           = 4;
+    const time_t t     = 1700000000;
+    m.data[0]         = make_text_msg(t, "only");
+    m.number          = 1;
+    m.width           = 0;
+    m.sel_start_msg   = 0;
+    m.sel_end_msg     = 0;
+    m.cursor_down_msg = 0;
+    m.cursor_over_msg = 0;
+
+    const size_t n = UTOX_MAX_BACKLOG_MESSAGES;
+    MSG_HEADER **batch = calloc(n, sizeof(*batch));
+    if (!batch) {
+        messages_clear_test(&m);
+        FAIL_FATAL("calloc drop-last batch");
+    }
+    for (size_t i = 0; i < n; i++) {
+        batch[i] = make_text_msg(t, "p");
+    }
+
+    if (messages_prepend(&m, batch, n) == 0) {
+        for (size_t i = 0; i < n; i++) {
+            message_free(batch[i]);
+        }
+        free(batch);
+        messages_clear_test(&m);
+        FAIL("prepend of a full page should drop the lone newest");
+    }
+    free(batch);
+    if (m.sel_start_msg != UINT32_MAX || m.sel_end_msg != UINT32_MAX
+        || m.cursor_down_msg != UINT32_MAX || m.cursor_over_msg != UINT32_MAX) {
+        messages_clear_test(&m);
+        FAIL("dropping the last message should clear selection indices");
+    }
+
+    messages_clear_test(&m);
+    return true;
+}
+
+bool test_load_older_empty_batch(void) {
+    const char *id = MOCK_FRIEND_ID;
+    unlink_test_log(id);
+    native_create_dir((uint8_t *)"./tox/");
+
+    char path[UTOX_FILE_NAME_LENGTH];
+    snprintf(path, sizeof(path), "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id);
+    FILE *fp = fopen(path, "wb");
+    if (!fp) {
+        FAIL("open truncated-only log");
+    }
+    LOG_FILE_MSG_HEADER hdr;
+    memset(&hdr, 0, sizeof(hdr));
+    hdr.log_version   = LOGFILE_SAVE_VERSION;
+    hdr.time          = 1700000000;
+    hdr.author_length = 0;
+    hdr.msg_length    = 40;
+    hdr.author        = 1;
+    hdr.receipt       = 1;
+    hdr.msg_type      = MSG_TYPE_TEXT;
+    fwrite(&hdr, sizeof(hdr), 1, fp);
+    fwrite("xx", 1, 2, fp);
+    fclose(fp);
+
+    MESSAGES m;
+    memset(&m, 0, sizeof(m));
+    m.data  = calloc(8, sizeof(MSG_HEADER *));
+    m.extra = 8;
+    if (messages_load_older_chatlog(&m, id)) {
+        messages_clear_test(&m);
+        unlink_test_log(id);
+        FAIL("truncated-only log should yield empty batch");
+    }
+    if (!m.chatlog_exhausted) {
+        messages_clear_test(&m);
+        unlink_test_log(id);
+        FAIL("empty batch should mark exhausted");
+    }
+
+    messages_clear_test(&m);
+    unlink_test_log(id);
+    return true;
+}
+
+bool test_adjust_scroll_near_top_after_prepend(void) {
+    SCROLLABLE scroll;
+    memset(&scroll, 0, sizeof(scroll));
+    scroll.viewport_height = 90;
+    scroll.d               = 0.0;
+
+    MESSAGES m;
+    memset(&m, 0, sizeof(m));
+    m.data                 = calloc(8, sizeof(MSG_HEADER *));
+    m.extra                = 8;
+    m.width                = 200;
+    m.panel.content_scroll = &scroll;
+    m.data[0]              = make_text_msg(1700000100, "visible");
+    m.data[0]->height      = 100;
+    m.number               = 1;
+    m.height               = 100;
+
+    MSG_HEADER *batch[1];
+    batch[0]         = make_text_msg(1700000000, "older");
+    batch[0]->height = 80;
+
+    if (messages_prepend(&m, batch, 1) == 0) {
+        messages_clear_test(&m);
+        FAIL("prepend near top should succeed");
+    }
+    if (scroll.d < 0.0 || scroll.d > 1.0) {
+        messages_clear_test(&m);
+        FAIL("scroll.d should clamp to [0,1], got %f", scroll.d);
+    }
+
+    messages_clear_test(&m);
+    return true;
+}
+
 int main(void) {
     int result = 0;
     RUN_TEST(test_load_chatlog_skip_windows)
@@ -451,5 +1005,14 @@ int main(void) {
     RUN_TEST(test_short_log_exhausted)
     RUN_TEST(test_prepend_cap_drops_newest)
     RUN_TEST(test_short_messages_keep_paging)
+    RUN_TEST(test_prepend_day_notice)
+    RUN_TEST(test_exhausted_idempotent)
+    RUN_TEST(test_unsent_initial_window)
+    RUN_TEST(test_prepend_guards_and_day_changed)
+    RUN_TEST(test_prepend_adjusts_scroll)
+    RUN_TEST(test_prepend_refuses_over_cap)
+    RUN_TEST(test_drop_last_clears_indices)
+    RUN_TEST(test_load_older_empty_batch)
+    RUN_TEST(test_adjust_scroll_near_top_after_prepend)
     return result;
 }

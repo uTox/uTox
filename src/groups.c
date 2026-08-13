@@ -44,8 +44,10 @@ static GROUPCHAT *group_make(uint32_t group_number) {
             LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not reallocate groupchat array to %u.", group_number + 1);
         }
 
+        memset(tmp + self.groups_list_size, 0,
+               sizeof(GROUPCHAT) * ((group_number + 1) - self.groups_list_size));
         group = tmp;
-        self.groups_list_size++;
+        self.groups_list_size = group_number + 1;
     }
 
     memset(&group[group_number], 0, sizeof(GROUPCHAT));
@@ -272,13 +274,14 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
 }
 
 void group_reset_peerlist(GROUPCHAT *g) {
-    /* ARE YOU KIDDING... WHO THOUGHT THIS API WAS OKAY?! */
-    for (size_t i = 0; i < g->peer_count; ++i) {
-        if (g->peer[i]) {
+    if (g->peer) {
+        for (size_t i = 0; i < UTOX_MAX_GROUP_PEERS; ++i) {
             free(g->peer[i]);
         }
+        free(g->peer);
     }
-    free(g->peer);
+    g->peer       = NULL;
+    g->peer_count = 0;
 }
 
 void group_free(GROUPCHAT *g) {
@@ -292,12 +295,6 @@ void group_free(GROUPCHAT *g) {
     group_reset_peerlist(g);
 
     for (size_t i = 0; i < g->msg.number; ++i) {
-        free(g->msg.data[i]->via.grp.author);
-
-        // Freeing this here was causing a double free.
-        // TODO: Is it needed to prevent a memory leak in some cases?
-        // free(g->msg.data[i]->via.grp.msg);
-
         message_free(g->msg.data[i]);
     }
     free(g->msg.data);
@@ -309,17 +306,23 @@ void group_free(GROUPCHAT *g) {
 
 void raze_groups(void) {
     LOG_INFO("Groupchats", "Freeing groupchat array");
-    for (size_t i = 0; i < self.groups_list_count; i++) {
+    const uint32_t n = self.groups_list_size;
+    for (uint32_t i = 0; i < n; i++) {
         GROUPCHAT *g = get_group(i);
         if (!g) {
-            LOG_ERR("Groupchats", "Could not get group %u. Skipping...", i);
+            continue;
+        }
+        /* Sparse creates leave zeroed holes; group_free would underflow count. */
+        if (!g->peer && !g->name_length && !g->msg.data && !g->edit_history) {
             continue;
         }
         group_free(g);
     }
 
     free(group);
-    group = NULL;
+    group                  = NULL;
+    self.groups_list_size  = 0;
+    self.groups_list_count = 0;
 }
 
 static size_t group_get_title_size(const Tox *tox, uint32_t group_number) {
@@ -335,22 +338,18 @@ static size_t group_get_title_size(const Tox *tox, uint32_t group_number) {
 }
 
 void init_groups(Tox *tox) {
-    self.groups_list_size = tox_conference_get_chatlist_size(tox);
+    raze_groups();
 
-    if (self.groups_list_size == 0) {
+    const size_t n = tox_conference_get_chatlist_size(tox);
+    if (n == 0) {
         return;
     }
 
-    LOG_INFO("Groupchats", "Group list size: %u", self.groups_list_size);
-    group = calloc(self.groups_list_size, sizeof(GROUPCHAT));
-    if (!group) {
-        LOG_FATAL_ERR(EXIT_MALLOC, "Groupchats", "Could not allocate memory for groupchat array with size of: %u", self.groups_list_size);
-    }
-
-    uint32_t groups[self.groups_list_size];
+    LOG_INFO("Groupchats", "Group list size: %u", (unsigned)n);
+    uint32_t groups[n];
     tox_conference_get_chatlist(tox, groups);
 
-    for (size_t i = 0; i < self.groups_list_size; i++) {
+    for (size_t i = 0; i < n; i++) {
         TOX_ERR_CONFERENCE_TITLE err;
         size_t title_size = group_get_title_size(tox, groups[i]);
         uint8_t *title = (title_size) ? calloc(title_size + 1, 1) : NULL;
@@ -358,7 +357,7 @@ void init_groups(Tox *tox) {
         group_create(groups[i], false, (char *)title); //TODO: figure out if groupchats are text or audio
         free(title);
     }
-    LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", self.groups_list_size);
+    LOG_INFO("Groupchat", "Initialzied groupchat array with %u groups", (unsigned)n);
 }
 
 

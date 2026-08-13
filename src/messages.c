@@ -1894,16 +1894,19 @@ void message_free(MSG_HEADER *msg) {
         }
 
         case MSG_TYPE_TEXT: {
+            free(msg->via.txt.author);
             free(msg->via.txt.msg);
             break;
         }
 
         case MSG_TYPE_ACTION_TEXT: {
+            free(msg->via.action.author);
             free(msg->via.action.msg);
             break;
         }
 
         case MSG_TYPE_NOTICE: {
+            free(msg->via.notice.author);
             free(msg->via.notice.msg);
             break;
         }
