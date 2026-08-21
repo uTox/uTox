@@ -149,7 +149,10 @@ jobs:
             libfontconfig1-dev libxrender-dev libxext-dev \
             libsodium-dev libopus-dev libvpx-dev \
             libopenal-dev libopenal-data libv4l-dev \
-            gcovr
+            python3-pip
+          # Need gcovr >= 8.4 for --markdown (Job Summary); Ubuntu's apt package is older.
+          python3 -m pip install --user --break-system-packages 'gcovr>=8.4'
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Build and test
         run: |
           set -ex
@@ -159,20 +162,17 @@ jobs:
       - name: Coverage report
         if: success() || failure()
         run: |
+          set -ex
           mkdir -p coverage-html
+          # HTML details → artifact; Markdown → native Job Summary (GFM, not raw HTML).
           gcovr --root . \
             --filter 'src/' \
             --exclude '.*/tests/.*' \
             --exclude '.*/third_party/.*' \
             --html-details coverage-html/index.html \
-            --lcov coverage.lcov \
+            --html-theme github.green \
+            --markdown "$GITHUB_STEP_SUMMARY" \
             --print-summary
-      - uses: coverallsapp/github-action@v2
-        if: success() || failure()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          file: coverage.lcov
-          format: lcov
       - uses: actions/upload-artifact@v6
         if: always()
         with:
