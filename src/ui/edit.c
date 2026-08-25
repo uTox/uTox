@@ -368,7 +368,7 @@ void edit_do(EDIT *edit, uint16_t start, uint16_t length, bool remove) {
     EDIT_CHANGE *new_change;
 
     if (!edit || !edit->data) {
-        return;
+        LOG_FATAL_ERR(1, "UI Edit", "edit_do requires a valid edit buffer");
     }
 
     if (edit->history_cur != edit->history_length) {
@@ -460,6 +460,10 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
 
     EDIT *edit = active_edit; // TODO this is bad
 
+    if (edit->readonly && (ch == KEY_BACK || ch == KEY_DEL)) {
+        return;
+    }
+
     // shift:   flags & 1
     // control: flags & 4
 
@@ -468,10 +472,6 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
 
         switch (ch) {
             case KEY_BACK: {
-                if (edit->readonly) {
-                    return;
-                }
-
                 if (edit_sel.length == 0) {
                     uint16_t p = edit_sel.start;
                     if (p == 0) {
@@ -511,10 +511,6 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
             }
 
             case KEY_DEL: {
-                if (edit->readonly) {
-                    return;
-                }
-
                 edit_del(edit);
                 modified = true;
                 break;

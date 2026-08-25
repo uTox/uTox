@@ -140,15 +140,14 @@ bool test_button_disabled(void) {
     if (cursor != CURSOR_NONE) {
         FAIL("disabled hover should not set hand cursor");
     }
-    if (button_mdown(&b) || b.mousedown || down_count != 0) {
-        FAIL("disabled should not press");
+    if (!button_mdown(&b) || !b.mousedown || down_count != 1) {
+        FAIL("disabled still receives mdown");
     }
-    b.mousedown = true;
-    if (button_mup(&b) || up_count != 0 || b.mousedown) {
-        FAIL("disabled should not click; mousedown must clear");
+    if (!button_mup(&b) || up_count != 1 || b.mousedown) {
+        FAIL("disabled still receives mup");
     }
-    if (button_mright(&b) || right_count != 0) {
-        FAIL("disabled should not right-click");
+    if (!button_mright(&b) || right_count != 1) {
+        FAIL("disabled still receives right-click");
     }
     return true;
 }

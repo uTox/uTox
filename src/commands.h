@@ -14,8 +14,10 @@ struct Command {
 
 /** utox_run_command()
  *
- * takes data string and parses it for a command, if that command is supported, acts on that command, else it simply
- * results the processed command and argv.
+ * Parse `string` for a slash-command. If it is supported, run it; otherwise
+ * return the command name and argument.
+ *
+ * `cmd` and `argument` are required out-parameters and must not be NULL.
  *
  * Returns the remaining string length.
  */

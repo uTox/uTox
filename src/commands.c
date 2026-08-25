@@ -27,9 +27,7 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
     }
 
     uint16_t cmd_length = 0, argument_length = 0;
-    if (argument) {
-        *argument = NULL;
-    }
+    *argument = NULL;
 
     if (string[0] == '/') { /* Cool it's a command we support! */
         // LOG_TRACE("Commands", "command found!" );

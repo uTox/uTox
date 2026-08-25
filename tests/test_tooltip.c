@@ -79,7 +79,7 @@ bool test_tooltip_mdown_blocks_show(void) {
     return true;
 }
 
-bool test_tooltip_reset_and_null(void) {
+bool test_tooltip_reset(void) {
     mock_ui_reset();
     tooltip_reset();
     set_tip("hello");
@@ -90,13 +90,6 @@ bool test_tooltip_reset_and_null(void) {
     tooltip_draw();
     if (mock_draw_fill_count != 0) {
         FAIL("reset should hide");
-    }
-
-    tooltip_new(NULL);
-    tooltip_show();
-    tooltip_draw();
-    if (mock_draw_fill_count != 0) {
-        FAIL("NULL tooltip_new should not show");
     }
     return true;
 }
@@ -127,7 +120,7 @@ int main(void) {
     int result = 0;
     RUN_TEST(test_tooltip_new_show_hide)
     RUN_TEST(test_tooltip_mdown_blocks_show)
-    RUN_TEST(test_tooltip_reset_and_null)
+    RUN_TEST(test_tooltip_reset)
     RUN_TEST(test_tooltip_clamps_to_window)
     return result;
 }

@@ -292,9 +292,10 @@ bool test_friend_message_and_meta(void) {
         FAIL("missing friend");
     }
 
-    mock_cb_friend_message(TOX_DUMMY, 0, TOX_MESSAGE_TYPE_NORMAL, NULL, 4, NULL);
-    if (text_count != texts + 1 || last_text_len != 0) {
-        FAIL("NULL message body");
+    /* length 0 + NULL is ignored; non-zero length would LOG_FATAL_ERR (toxcore bug). */
+    mock_cb_friend_message(TOX_DUMMY, 0, TOX_MESSAGE_TYPE_NORMAL, NULL, 0, NULL);
+    if (text_count != texts) {
+        FAIL("NULL message body should not insert a line");
     }
 
     mock_cb_friend_name(TOX_DUMMY, 0, (const uint8_t *)"Bob", 3, NULL);
@@ -464,6 +465,11 @@ bool test_group_message_peers_connected(void) {
     mock_cb_conference_message(TOX_DUMMY, 9, 0, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)"x", 1, NULL);
     if (group_msg_count != before || mock_last_utox_msg != 0) {
         FAIL("missing group message must not post");
+    }
+
+    mock_cb_conference_message(TOX_DUMMY, 0, 0, TOX_MESSAGE_TYPE_NORMAL, NULL, 0, NULL);
+    if (group_msg_count != before || mock_last_utox_msg != 0) {
+        FAIL("NULL group payload should not insert a line");
     }
 
     mock_cb_conference_peer_name(TOX_DUMMY, 0, 0, (const uint8_t *)"Ann", 3, NULL);

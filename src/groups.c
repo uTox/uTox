@@ -386,7 +386,7 @@ void init_groups(Tox *tox) {
 
 void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
     if (!g) {
-        return;
+        LOG_FATAL_ERR(1, "Groupchats", "group_notify_msg requires a group");
     }
 
     if (g->notify == GNOTIFY_NEVER) {

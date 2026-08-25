@@ -2,6 +2,7 @@
 
 #include "draw.h"
 
+#include "../debug.h"
 #include "../macros.h"
 #include "../settings.h"
 #include "../theme.h"
@@ -22,7 +23,7 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     *w = b->width;
 
     // Increase width if needed, so that tooltip text fits.
-    if (b->tt_text && maybe_i18nal_string_is_valid(b->tt_text)) {
+    if (maybe_i18nal_string_is_valid(b->tt_text)) {
         const STRING *s    = maybe_i18nal_string_get(b->tt_text);
         const int needed_w = textwidth(s->str, s->length) + SCALE(8);
         if (*w < needed_w) {
@@ -68,7 +69,7 @@ void tooltip_draw(void) {
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
-    if (!b->tt_text || !maybe_i18nal_string_is_valid(b->tt_text)) {
+    if (!maybe_i18nal_string_is_valid(b->tt_text)) {
         return;
     }
 
@@ -182,7 +183,7 @@ void tooltip_new(MAYBE_I18NAL_STRING *text) {
     TOOLTIP *tip = &tooltip;
 
     if (!text) {
-        return;
+        LOG_FATAL_ERR(1, "UI Tooltip", "tooltip_new requires a string");
     }
 
     tip->can_show = true;
