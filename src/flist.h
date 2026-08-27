@@ -73,6 +73,8 @@ FREQUEST *flist_get_sel_frequest(void);
 GROUPCHAT *flist_get_sel_group(void);
 ITEM_TYPE flist_get_sel_item_type(void);
 
+bool friend_matches_search_string(FRIEND *f, char *str);
+
 bool try_open_tox_uri(const char *str);
 
 /* UI functions */

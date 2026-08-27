@@ -14,14 +14,34 @@
 #ifdef _WIN32
 
 #include <direct.h>
+#include <sys/stat.h>
 
 #include "../../src/debug.h"
 #include "../../src/settings.h"
 
 bool native_create_dir(const uint8_t *filepath) {
-    const int status = _mkdir((const char *)filepath);
-    if (status == 0 || errno == EEXIST) {
+    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
+    snprintf(path, sizeof path, "%s", (const char *)filepath);
+    for (size_t i = 0; path[i]; ++i) {
+        if (path[i] == '/') {
+            path[i] = '\\';
+        }
+    }
+    size_t n = strlen(path);
+    while (n > 1 && path[n - 1] == '\\') {
+        path[--n] = 0;
+    }
+
+    const int status = _mkdir(path);
+    if (status == 0) {
         return true;
+    }
+    /* _mkdir also sets EEXIST when a regular file already occupies the path. */
+    if (errno == EEXIST) {
+        struct stat st;
+        if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+            return true;
+        }
     }
     LOG_WARN("Filesys", "Unable to create directory %s. Error: %d", filepath, errno);
     return false;
@@ -43,6 +63,10 @@ static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
     }
 
     mode[3] = 0;
+}
+
+FILE *utox_get_file_simple(const char *path, UTOX_FILE_OPTS opts) {
+    return native_get_file_simple(path, opts);
 }
 
 FILE *native_get_file_simple(const char *path, UTOX_FILE_OPTS opts) {
@@ -121,8 +145,38 @@ FILE *utox_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
     return native_get_file((uint8_t *)name, size, opts, settings.portable_mode);
 }
 
+char *utox_get_filepath(const char *name) {
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (!path) {
+        return NULL;
+    }
+
+    if (settings.portable_mode) {
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/%s", name);
+    } else {
+        const char *home = getenv("HOME");
+        if (!home) {
+            home = ".";
+        }
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/%s", home, name);
+    }
+
+    return path;
+}
+
 bool utox_remove_file(const uint8_t *full_name, size_t length) {
     return native_remove_file(full_name, length, settings.portable_mode);
+}
+
+bool native_move_file(const uint8_t *current_name, const uint8_t *new_name) {
+    if (!current_name || !new_name) {
+        return false;
+    }
+    return rename((const char *)current_name, (const char *)new_name) == 0;
+}
+
+bool utox_move_file(const uint8_t *current_name, const uint8_t *new_name) {
+    return native_move_file(current_name, new_name);
 }
 
 #else /* !_WIN32 */

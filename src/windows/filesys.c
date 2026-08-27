@@ -209,16 +209,22 @@ bool native_create_dir(const uint8_t *filepath) {
     switch(error) {
         case ERROR_SUCCESS:
             LOG_NOTE("WinFilesys", "Created path: `%s` - %d" , filepath, error);
-            // fallthrough
-        case ERROR_FILE_EXISTS:
-        case ERROR_ALREADY_EXISTS:
             return true;
-            break;
+
+        case ERROR_FILE_EXISTS:
+        case ERROR_ALREADY_EXISTS: {
+            /* These codes can mean a directory or a file already occupies the path. */
+            const DWORD attrs = GetFileAttributesA((char *)path);
+            if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY)) {
+                return true;
+            }
+            LOG_WARN("WinFilesys", "Unable to create path: `%s` - not a directory (%d).", filepath, error);
+            return false;
+        }
 
         case ERROR_BAD_PATHNAME:
             LOG_WARN("WinFilesys", "Unable to create path: `%s` - bad path name." , filepath);
             return false;
-            break;
 
         case ERROR_FILENAME_EXCED_RANGE:
         case ERROR_PATH_NOT_FOUND:
@@ -226,7 +232,6 @@ bool native_create_dir(const uint8_t *filepath) {
         default:
             LOG_ERR("WinFilesys", "Unable to create path: `%s` - error %d" , filepath, error);
             return false;
-            break;
     }
 }
 

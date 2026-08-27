@@ -224,11 +224,11 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
 }
 
 bool native_move_file(const uint8_t *current_name, const uint8_t *new_name) {
-    if(!current_name || !new_name) {
+    if (!current_name || !new_name) {
         return false;
     }
 
-    return rename((char *)current_name, (char *)new_name);
+    return rename((char *)current_name, (char *)new_name) == 0;
 }
 
 void native_select_dir_ft(uint32_t fid, void *file) {
@@ -252,8 +252,15 @@ void native_autoselect_dir_ft(uint32_t fid, void *file) {
 
 bool native_create_dir(const uint8_t *filepath) {
     const int status = mkdir((char *)filepath, S_IRWXU);
-    if (status == 0 || errno == EEXIST) {
+    if (status == 0) {
         return true;
+    }
+    /* mkdir also sets EEXIST when a regular file already occupies the path. */
+    if (errno == EEXIST) {
+        struct stat st;
+        if (stat((const char *)filepath, &st) == 0 && S_ISDIR(st.st_mode)) {
+            return true;
+        }
     }
     return false;
 }

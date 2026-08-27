@@ -24,7 +24,7 @@ typedef struct avatar {
 /* Whether user's avatar is set. */
 #define self_has_avatar() (self.avatar && self.avatar->format != UTOX_AVATAR_FORMAT_NONE)
 /* Whether friend f's avatar is set, where f is a pointer to a friend struct */
-#define friend_has_avatar(f) (f) && (f->avatar->format != UTOX_AVATAR_FORMAT_NONE)
+#define friend_has_avatar(f) ((f) && (f)->avatar && (f)->avatar->format != UTOX_AVATAR_FORMAT_NONE)
 
 /** tries to load avatar from disk for given client id string and set avatar based on saved png data
  * avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large,

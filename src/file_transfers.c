@@ -46,10 +46,10 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
 
     if (is_incoming_ft(file_number)) {
         file_number = detox_incoming_file_number(file_number);
-        if (f->ft_incoming_size && f->ft_incoming_size >= file_number) {
+        if (file_number < f->ft_incoming_size) {
             return &f->ft_incoming[file_number];
         }
-    } else if (f->ft_outgoing_size && f->ft_outgoing_size >= file_number) {
+    } else if (file_number < f->ft_outgoing_size) {
         return &f->ft_outgoing[file_number];
     }
 
@@ -73,6 +73,8 @@ static FILE_TRANSFER *make_file_transfer(uint32_t friend_number, uint32_t file_n
                 return NULL;
             }
 
+            memset(new_ftlist + f->ft_incoming_size, 0,
+                   sizeof(FILE_TRANSFER) * ((file_number + 1) - f->ft_incoming_size));
             f->ft_incoming = new_ftlist;
             f->ft_incoming_size = file_number + 1;
         }
@@ -89,6 +91,8 @@ static FILE_TRANSFER *make_file_transfer(uint32_t friend_number, uint32_t file_n
             return NULL;
         }
 
+        memset(new_ftlist + f->ft_outgoing_size, 0,
+               sizeof(FILE_TRANSFER) * ((file_number + 1) - f->ft_outgoing_size));
         f->ft_outgoing = new_ftlist;
         f->ft_outgoing_size = file_number + 1;
     }
@@ -153,16 +157,42 @@ static void ft_decon(uint32_t friend_number, uint32_t file_number) {
             free(ft->name);
         }
 
-        if (ft->in_memory) {
-            // free(ft->via.memory)?
-        } else if (ft->avatar) {
-            // free(ft->via.avatar)?
-        } else if (ft->via.file) {
+        if (ft->resume_file) {
+            fclose(ft->resume_file);
+            ft->resume_file = NULL;
+        }
+
+        /* Incoming calloc'd buffers: UI takes them on COMPLETE. Outgoing borrows. */
+        if (ft->incoming && ft->status != FILE_TRANSFER_STATUS_COMPLETED) {
+            if (ft->in_memory) {
+                free(ft->via.memory);
+            } else if (ft->avatar) {
+                free(ft->via.avatar);
+            }
+        }
+
+        if (!ft->in_memory && !ft->avatar && ft->via.file) {
             fclose(ft->via.file);
         }
     }
     /* When decon is called we always want to reset the struct. */
     memset(ft, 0, sizeof(FILE_TRANSFER));
+}
+
+static const uint8_t *path_basename(const uint8_t *path, size_t path_length, size_t *name_length) {
+    if (!path || path_length == 0) {
+        *name_length = 0;
+        return path;
+    }
+
+    const uint8_t *end  = path + path_length;
+    const uint8_t *name = end;
+    while (name > path && name[-1] != '/' && name[-1] != '\\') {
+        --name;
+    }
+
+    *name_length = (size_t)(end - name);
+    return name;
 }
 
 static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
@@ -181,8 +211,13 @@ static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
             return false;
         }
     } else {
+        FRIEND *f = get_friend(ft->friend_number);
+        if (!f) {
+            LOG_ERR("FileTransfer", "Unable to build resume name, friend %u missing.", ft->friend_number);
+            return false;
+        }
         snprintf(name, UTOX_FILE_NAME_LENGTH, "%.*s%02i.ftoutfo",
-                 TOX_PUBLIC_KEY_SIZE * 2, get_friend(ft->friend_number)->id_str,
+                 TOX_PUBLIC_KEY_SIZE * 2, f->id_str,
                     ft->file_number % 100);
     }
 
@@ -287,22 +322,23 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
         return false;
     }
 
+    /* Incoming request already allocated ft->name; the blob overwrites the pointer. */
+    free(ft->name);
+    ft->name = NULL;
+
     memcpy(ft, &resume_file, sizeof(FILE_TRANSFER));
 
-    ft->name_length = 0;
-    uint8_t *p = ft->path + strlen((char *)ft->path);
-    while (*--p != '/' && *p != '\\') {
-        ++ft->name_length;
-    }
-    ++p;
-    ++ft->name_length;
+    size_t path_len = strlen((char *)ft->path);
+    size_t name_length = 0;
+    const uint8_t *p = path_basename(ft->path, path_len, &name_length);
+    ft->name_length = name_length;
 
     ft->name = calloc(1, ft->name_length + 1);
     if (!ft->name) {
         LOG_FATAL_ERR(EXIT_MALLOC, "FileTransfer", "Could not alloc for file name (%uB)",
                       ft->name_length + 1);
     }
-    snprintf((char *)ft->name, ft->name_length + 1, "%s", p);
+    snprintf((char *)ft->name, ft->name_length + 1, "%s", (const char *)p);
 
     ft->via.file = NULL;
     ft->resume_file = NULL;
@@ -587,6 +623,11 @@ static void utox_complete_file(FILE_TRANSFER *file) {
 
 /* Friend has come online, restart our outgoing transfers to this friend. */
 void ft_friend_online(Tox *tox, uint32_t friend_number) {
+    if (!get_friend(friend_number)) {
+        LOG_ERR("FileTransfer", "Unable to get friend %u to resume transfers.", friend_number);
+        return;
+    }
+
     for (uint16_t i = 0; i < MAX_FILE_TRANSFERS; i++) {
         FILE_TRANSFER *file = calloc(1, sizeof(FILE_TRANSFER));
         if (!file) {
@@ -608,6 +649,7 @@ void ft_friend_online(Tox *tox, uint32_t friend_number) {
             utox_get_file(name, NULL, UTOX_FILE_OPTS_DELETE);
         }
 
+        free(file->name);
         free(file);
     }
 }
@@ -781,7 +823,7 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
     tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);
 
     /* Verify this is a new avatar */
-    if (f->avatar->format && memcmp(f->avatar->hash, file_id, TOX_HASH_LENGTH) == 0) {
+    if (f->avatar && f->avatar->format && memcmp(f->avatar->hash, file_id, TOX_HASH_LENGTH) == 0) {
         LOG_TRACE("FileTransfer", "Avatar from friend (%u) rejected: Same as Current" , friend_number);
         ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
@@ -875,6 +917,12 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     LOG_NOTE("FileTransfer", "New incoming file transfer request from friend %u" , friend_number);
 
     FRIEND *f = get_friend(friend_number);
+    if (!f) {
+        LOG_ERR("FileTransfer", "New incoming file from unknown friend %u", friend_number);
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
+        return;
+    }
+
     if (f->ft_incoming_active_count >= MAX_INCOMING_COUNT) {
         LOG_ERR("FileTransfer", "Too many incoming file transfers from friend %u", friend_number);
         /* ft_local_control is preferred, but in this case it can't access the ft struct. */
@@ -1064,7 +1112,7 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
         return UINT32_MAX;
     }
 
-    if (f->ft_outgoing_active_count > MAX_FILE_TRANSFERS) {
+    if (f->ft_outgoing_active_count >= MAX_FILE_TRANSFERS) {
         LOG_ERR("FileTransfer", "Can't send this avatar too many in progress...");
         return UINT32_MAX;
     }
@@ -1121,7 +1169,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
         return UINT32_MAX;
     }
 
-    if (f->ft_outgoing_active_count > MAX_FILE_TRANSFERS) {
+    if (f->ft_outgoing_active_count >= MAX_FILE_TRANSFERS) {
         LOG_ERR("FileTransfer", "Can't send this file too many in progress...");
         return UINT32_MAX;
     }
@@ -1129,12 +1177,12 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
     fseeko(file, 0, SEEK_END);
     size_t size = ftello(file);
 
-    const uint8_t *name = path + path_length;
     size_t name_length = 0;
-    while (*--name != '/' && *name != '\\') { // TODO remove widows style path support from uTox.
-        ++name_length;
+    const uint8_t *name = path_basename(path, path_length, &name_length);
+    if (!name_length) {
+        LOG_ERR("FileTransfer", "Can't send a file without a name");
+        return UINT32_MAX;
     }
-    ++name;
 
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, hash, name, name_length, &error);

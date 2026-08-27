@@ -253,8 +253,11 @@ void flist_re_scale(void) {
 }
 
 bool friend_matches_search_string(FRIEND *f, char *str) {
+    if (!f) {
+        return false;
+    }
     return !str
-           || strstr_case(f->name, str)
+           || (f->name && strstr_case(f->name, str))
            || (f->alias && strstr_case(f->alias, str))
            || strstr_case(f->id_str, str);
 }
@@ -268,6 +271,9 @@ void flist_update_shown_list(void) {
             continue;
         }
         FRIEND *f = get_friend(it->id_number);
+        if (!f) {
+            continue;
+        }
         if (search_string) {
             if (friend_matches_search_string(f, search_string)) {
                 shown_list[j++] = i;
@@ -285,6 +291,17 @@ void flist_update_shown_list(void) {
  * new group create entry (current 'group create' item becomes the free slot)
  */
 static ITEM *newitem(void) {
+    if (!item || itemcount == 0) {
+        itemcount  = 1;
+        item       = realloc(item, sizeof(ITEM));
+        shown_list = realloc(shown_list, sizeof(uint32_t));
+        if (!item || !shown_list) {
+            LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Could not allocate memory for friend list.");
+        }
+        item[0].type      = ITEM_GROUP_CREATE;
+        item[0].id_number = UINT32_MAX;
+    }
+
     int64_t old_selected_index = -1;
 
     for (int64_t i = 0; i < itemcount; ++i) {
@@ -399,20 +416,29 @@ static void page_close(ITEM *i) {
     switch (i->type) {
         case ITEM_FRIEND: {
             FRIEND *f = get_friend(i->id_number);
+            if (!f) {
+                LOG_ERR("Flist", "Could not get friend data from item");
+                break;
+            }
 
             current_width = f->msg.width;
 
             free(f->typed);
+            f->typed = NULL;
             f->typed_length = edit_chat_msg_friend.length;
-            f->typed = calloc(1, f->typed_length);
-            if (!f->typed) {
-                LOG_ERR("flist", "Unable to calloc for f->typed.");
-                return;
+            if (f->typed_length) {
+                f->typed = calloc(1, f->typed_length);
+                if (!f->typed) {
+                    LOG_ERR("flist", "Unable to calloc for f->typed.");
+                    f->typed_length = 0;
+                    return;
+                }
+                if (edit_chat_msg_friend.data) {
+                    memcpy(f->typed, edit_chat_msg_friend.data, f->typed_length);
+                }
             }
 
-            memcpy(f->typed, edit_chat_msg_friend.data, f->typed_length);
-
-            f->msg.scroll = messages_friend.content_scroll->d;
+            f->msg.scroll = messages_friend.content_scroll ? messages_friend.content_scroll->d : 0;
 
             f->edit_history        = edit_chat_msg_friend.history;
             f->edit_history_cur    = edit_chat_msg_friend.history_cur;
@@ -442,16 +468,21 @@ static void page_close(ITEM *i) {
                 current_width = g->msg.width;
 
                 free(g->typed);
+                g->typed = NULL;
                 g->typed_length = edit_chat_msg_group.length;
-                g->typed = calloc(1, g->typed_length);
-                if (!g->typed) {
-                    LOG_ERR("F-List", "Unable to calloc for g->typed.");
-                    return;
+                if (g->typed_length) {
+                    g->typed = calloc(1, g->typed_length);
+                    if (!g->typed) {
+                        LOG_ERR("F-List", "Unable to calloc for g->typed.");
+                        g->typed_length = 0;
+                        return;
+                    }
+                    if (edit_chat_msg_group.data) {
+                        memcpy(g->typed, edit_chat_msg_group.data, g->typed_length);
+                    }
                 }
 
-                memcpy(g->typed, edit_chat_msg_group.data, g->typed_length);
-
-                g->msg.scroll = messages_group.content_scroll->d;
+                g->msg.scroll = messages_group.content_scroll ? messages_group.content_scroll->d : 0;
 
                 g->edit_history        = edit_chat_msg_group.history;
                 g->edit_history_cur    = edit_chat_msg_group.history_cur;
@@ -521,7 +552,9 @@ static void page_open(ITEM *i) {
             }
             #endif
 
-            memcpy(edit_chat_msg_friend.data, f->typed, f->typed_length);
+            if (f->typed && f->typed_length && edit_chat_msg_friend.data) {
+                memcpy(edit_chat_msg_friend.data, f->typed, f->typed_length);
+            }
             edit_chat_msg_friend.length = f->typed_length;
 
             f->msg.width  = current_width;
@@ -537,8 +570,10 @@ static void page_open(ITEM *i) {
             ((MESSAGES *)messages_friend.object)->cursor_down_position = UINT32_MAX;
             ((MESSAGES *)messages_friend.object)->cursor_over_uri      = UINT32_MAX;
 
-            scrollbar_friend.content_height   = f->msg.height;
-            messages_friend.content_scroll->d = f->msg.scroll;
+            scrollbar_friend.content_height = f->msg.height;
+            if (messages_friend.content_scroll) {
+                messages_friend.content_scroll->d = f->msg.scroll;
+            }
 
             edit_chat_msg_friend.history        = f->edit_history;
             edit_chat_msg_friend.history_cur    = f->edit_history_cur;
@@ -559,7 +594,9 @@ static void page_open(ITEM *i) {
                 LOG_FATAL_ERR(EXIT_FAILURE, "F-List", "Selected group no longer exists. Group number: %u", i->id_number);
             }
 
-            memcpy(edit_chat_msg_group.data, g->typed, g->typed_length);
+            if (g->typed && g->typed_length && edit_chat_msg_group.data) {
+                memcpy(edit_chat_msg_group.data, g->typed, g->typed_length);
+            }
             edit_chat_msg_group.length = g->typed_length;
 
             g->msg.width  = current_width;
@@ -648,18 +685,39 @@ void flist_start(void) {
     item_add.type      = ITEM_ADD;
     item_settings.type = ITEM_SETTINGS;
 
-    itemcount = self.friend_list_count + self.groups_list_count;
-    itemcount += 1; /* for ITEM_GROUP_CREATE */
+    /* Rebuild the roster arrays. Do not friend_free / group_free: those
+     * objects are owned by friend.c / groups.c. */
+    free(item);
+    item = NULL;
+    free(shown_list);
+    shown_list = NULL;
+    itemcount  = 0;
+    showncount = 0;
 
-    item       = calloc(itemcount, sizeof(ITEM));
-    shown_list = calloc(itemcount, sizeof(uint32_t));
+    uint32_t cap = 1; /* ITEM_GROUP_CREATE */
+    if (self.friend_list_size > UINT32_MAX - cap) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Friend list size overflow.");
+    }
+    cap += (uint32_t)self.friend_list_size;
+    if (self.groups_list_size > UINT32_MAX - cap) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Group list size overflow.");
+    }
+    cap += (uint32_t)self.groups_list_size;
+
+    item       = calloc(cap, sizeof(ITEM));
+    shown_list = calloc(cap, sizeof(uint32_t));
     if (!item || !shown_list) {
         LOG_FATAL_ERR(EXIT_MALLOC, "flist", "Could not allocate memory for friend list.");
     }
     ITEM *i = item;
-    for (uint32_t num = 0; num < self.friend_list_count; ++num) {
+    for (uint32_t num = 0; num < self.friend_list_size; ++num) {
         const FRIEND *f = get_friend(num);
         if (!f) {
+            continue;
+        }
+        /* Sparse creates leave zeroed holes between friend numbers. */
+        if (!f->name && !f->alias && !f->avatar && !f->status_message
+            && !f->msg.data && !f->edit_history && !f->typed) {
             continue;
         }
 
@@ -668,9 +726,12 @@ void flist_start(void) {
         i++;
     }
 
-    for (uint32_t num = 0; num < self.groups_list_count; num++) {
+    for (uint32_t num = 0; num < self.groups_list_size; num++) {
         const GROUPCHAT *g = get_group(num);
         if (!g) {
+            continue;
+        }
+        if (g->name_length == 0 && !g->peer) {
             continue;
         }
 
@@ -681,12 +742,17 @@ void flist_start(void) {
 
     i->type = ITEM_GROUP_CREATE;
     i->id_number = UINT32_MAX;
+    itemcount = (uint32_t)(i - item) + 1;
 
     search_string = NULL;
     flist_update_shown_list();
 }
 
 void flist_add_friend(FRIEND *f, const char *msg, const int msg_length) {
+    if (!f) {
+        return;
+    }
+
     ITEM *i = newitem();
     if (!i) {
         LOG_ERR("Flist", "Failed to create an item in the friend list for a friend.");
@@ -702,6 +768,10 @@ void flist_add_friend(FRIEND *f, const char *msg, const int msg_length) {
 }
 
 void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
+    if (!f || !req) {
+        return;
+    }
+
     for (uint32_t i = 0; i < itemcount; ++i) {
         if (item[i].type == ITEM_FREQUEST && item[i].id_number == req->number) {
             LOG_INFO("FList", "Friend found and accepted.");
@@ -730,6 +800,10 @@ void flist_add_friend_accepted(FRIEND *f, FREQUEST *req) {
 }
 
 void flist_add_group(GROUPCHAT *g) {
+    if (!g) {
+        return;
+    }
+
     ITEM *i = newitem();
     if (!i) {
         LOG_ERR("Flist", "Failed to create an item in the friend list for a groupchat.");
@@ -741,6 +815,10 @@ void flist_add_group(GROUPCHAT *g) {
 }
 
 void flist_add_frequest(FREQUEST *r) {
+    if (!r) {
+        return;
+    }
+
     ITEM *i = newitem();
     if (!i) {
         LOG_ERR("Flist", "Failed to create an item in the friend list for a friend request.");
@@ -773,14 +851,18 @@ static void deleteitem(ITEM *i) {
     switch (i->type) {
         case ITEM_FRIEND: {
             FRIEND *f = get_friend(i->id_number);
-            postmessage_toxcore(TOX_FRIEND_DELETE, f->number, 0, f);
+            if (f) {
+                postmessage_toxcore(TOX_FRIEND_DELETE, f->number, 0, f);
+            }
             break;
         }
 
         case ITEM_GROUP: {
             GROUPCHAT *g = get_group(i->id_number);
-            postmessage_toxcore(TOX_GROUP_PART, g->number, 0, NULL);
-            group_free(g);
+            if (g) {
+                postmessage_toxcore(TOX_GROUP_PART, g->number, 0, NULL);
+                group_free(g);
+            }
             break;
         }
 
@@ -796,8 +878,10 @@ static void deleteitem(ITEM *i) {
 
     itemcount--;
 
-    int size = (&item[itemcount] - i) * sizeof(ITEM);
-    memmove(i, i + 1, size);
+    if (i < item + itemcount) {
+        size_t size = (size_t)((item + itemcount) - i) * sizeof(ITEM);
+        memmove(i, i + 1, size);
+    }
 
     if (i != selected_item && selected_item > i && selected_item >= item && selected_item < item + countof_item) {
         selected_item--;
@@ -828,12 +912,18 @@ void flist_freeall(void) {
     for (ITEM *i = item; i != item + itemcount; i++) {
         switch (i->type) {
             case ITEM_FRIEND: {
-                friend_free(get_friend(i->id_number));
+                FRIEND *f = get_friend(i->id_number);
+                if (f) {
+                    friend_free(f);
+                }
                 break;
             }
 
             case ITEM_GROUP: {
-                group_free(get_group(i->id_number));
+                GROUPCHAT *g = get_group(i->id_number);
+                if (g) {
+                    group_free(g);
+                }
                 break;
             }
 
@@ -903,6 +993,9 @@ static void push_selected(void) {
                 LOG_ERR("Flist", "id_number is out of sync with friend_list"); // TODO should this be an exit code?
                                                                                // It's a critical error that could do
                                                                                // a lot of damage
+                free(push_pop.data);
+                push_pop.data = NULL;
+                push_pop.type = ITEM_NONE;
                 return;
             }
             memcpy(push_pop.data, &f->id_bin, TOX_PUBLIC_KEY_SIZE);
@@ -921,25 +1014,32 @@ static void pop_selected(void) {
         case ITEM_NONE:
         case ITEM_SETTINGS: {
             show_page(&item_settings);
-            return;
+            break;
         }
 
         case ITEM_ADD: {
             show_page(&item_add);
-            return;
+            break;
         }
 
         case ITEM_FRIEND: {
-            for (uint16_t i = 0; i < itemcount; ++i) {
-                if (item[i].type == ITEM_FRIEND) {
-                    FRIEND *f = get_friend(item[i].id_number);
-                    if (memcmp(push_pop.data, &f->id_bin, TOX_PUBLIC_KEY_SIZE) == 0) {
-                        show_page(&item[i]);
-                        return;
+            if (push_pop.data) {
+                for (uint16_t i = 0; i < itemcount; ++i) {
+                    if (item[i].type == ITEM_FRIEND) {
+                        FRIEND *f = get_friend(item[i].id_number);
+                        if (!f) {
+                            continue;
+                        }
+                        if (memcmp(push_pop.data, &f->id_bin, TOX_PUBLIC_KEY_SIZE) == 0) {
+                            show_page(&item[i]);
+                            break;
+                        }
                     }
                 }
             }
-            show_page(&item_settings);
+            if (flist_get_sel_item_type() != ITEM_FRIEND) {
+                show_page(&item_settings);
+            }
             break;
         }
 
@@ -947,13 +1047,19 @@ static void pop_selected(void) {
         case ITEM_GROUP:
         case ITEM_GROUP_CREATE: {
             show_page(&item_settings);
-            return;
+            break;
         }
     }
+
+    free(push_pop.data);
+    push_pop.data = NULL;
 }
 
 void flist_select_last(void) {
     /* -2 should be the last, -1 is the create group */
+    if (itemcount < 2) {
+        return;
+    }
     show_page(&item[itemcount - 2]);
 }
 
@@ -1026,7 +1132,20 @@ bool try_open_tox_uri(const char *str) {
     FRIEND *friend = get_friend_by_id(tox_id);
 
     if (friend) {
-        flist_selectchat(friend->number);
+        /* flist_selectchat takes a shown_list index, not a friend number. */
+        for (uint32_t n = 0; n < showncount; n++) {
+            ITEM *it = &item[shown_list[n]];
+            if (it->type == ITEM_FRIEND && it->id_number == friend->number) {
+                flist_selectchat((int)n);
+                return true;
+            }
+        }
+        for (uint32_t n = 0; n < itemcount; n++) {
+            if (item[n].type == ITEM_FRIEND && item[n].id_number == friend->number) {
+                show_page(&item[n]);
+                return true;
+            }
+        }
     } else if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         edit_setstr(&edit_add_new_friend_id, tox_id, TOX_ADDRESS_SIZE * 2);
         edit_setstr(&edit_search, (char *)"", 0);

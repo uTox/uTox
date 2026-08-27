@@ -54,9 +54,72 @@ bool test_chrono_callback(void) {
     return true;
 }
 
+bool test_chrono_null_and_end(void) {
+    settings.verbose = LOG_LVL_TRACE;
+    if (chrono_start(NULL)) {
+        FAIL("chrono_start(NULL) should fail");
+    }
+    if (chrono_end(NULL)) {
+        FAIL("chrono_end(NULL) should fail");
+    }
+
+    /* Quiet run so LOG_INFO in the worker takes the VERB() false side. */
+    settings.verbose = LOG_LVL_OFF;
+    CHRONO_INFO quiet;
+    quiet.ptr         = 0;
+    quiet.step        = 1;
+    quiet.interval_ms = 1;
+    quiet.finished    = false;
+    quiet.target      = (uint8_t *)2;
+    quiet.callback    = NULL;
+    quiet.cb_data     = NULL;
+    if (!chrono_start(&quiet)) {
+        FAIL("quiet chrono_start");
+    }
+    int qspins = 0;
+    while (!chrono_thread_init && (intptr_t)quiet.ptr == 0 && qspins++ < 1000) {
+        yieldcpu(1);
+    }
+    if (!chrono_end(&quiet)) {
+        FAIL("quiet chrono_end");
+    }
+
+    settings.verbose = LOG_LVL_TRACE;
+
+    CHRONO_INFO info;
+    info.ptr         = 0;
+    info.step        = 1;
+    info.interval_ms = 1;
+    info.finished    = false;
+    info.target      = (uint8_t *)8;
+    info.callback    = NULL;
+    info.cb_data     = NULL;
+
+    if (!chrono_start(&info)) {
+        FAIL("chrono_start should succeed");
+    }
+    /* Don't call chrono_end before the worker sets chrono_thread_init — otherwise
+     * we return while the thread still owns this stack frame. */
+    int spins = 0;
+    while (!chrono_thread_init && (intptr_t)info.ptr == 0 && spins++ < 1000) {
+        yieldcpu(1);
+    }
+    if (!chrono_end(&info)) {
+        FAIL("chrono_end while running should succeed");
+    }
+    if (!info.finished) {
+        FAIL("chrono_end should set finished");
+    }
+    if ((intptr_t)info.ptr != 8) {
+        FAIL("thread should still reach target, got %d", (int)(intptr_t)info.ptr);
+    }
+    return true;
+}
+
 int main(void) {
     int result = 0;
     RUN_TEST(test_chrono_target)
     RUN_TEST(test_chrono_callback)
+    RUN_TEST(test_chrono_null_and_end)
     return result;
 }

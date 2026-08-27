@@ -2,6 +2,7 @@
 
 #include "draw.h"
 
+#include "../debug.h"
 #include "../macros.h"
 #include "../settings.h"
 #include "../theme.h"
@@ -68,6 +69,10 @@ void tooltip_draw(void) {
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
+    if (!maybe_i18nal_string_is_valid(b->tt_text)) {
+        return;
+    }
+
     draw_rect_fill(x, b->y, w, b->height, COLOR_BKGRND_MAIN);
 
     STRING *s = maybe_i18nal_string_get(b->tt_text);
@@ -128,7 +133,7 @@ void tooltip_show(void) {
 
     TOOLTIP *b = &tooltip;
 
-    if (!b->can_show) {
+    if (!b->can_show || b->mouse_down) {
         return;
     }
 
@@ -176,6 +181,10 @@ static void tooltip_thread(void *UNUSED(args)) {
 // This is being called every time the mouse is moving above a button
 void tooltip_new(MAYBE_I18NAL_STRING *text) {
     TOOLTIP *tip = &tooltip;
+
+    if (!text) {
+        LOG_FATAL_ERR(1, "UI Tooltip", "tooltip_new requires a string");
+    }
 
     tip->can_show = true;
     tip->tt_text  = text;

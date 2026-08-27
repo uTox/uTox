@@ -41,6 +41,12 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file);
  */
 char *native_get_filepath(const char *name);
 
+/**
+ * Create each directory component of a path ending in `/` (e.g. `a/b/c/`).
+ * Returns false if the path is too short or any mkdir fails.
+ */
+bool native_create_dir_tree(const char *path);
+
 // OS interface replacements
 void flush_file(FILE *file);
 int ch_mod(uint8_t *file);

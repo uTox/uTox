@@ -98,7 +98,7 @@ void utox_video_append_device(void *device, bool localized, void *name, bool def
     if (localized) {
         // Device name is localized with name containing UTOX_I18N_STR.
         // device is device handle pointer.
-        dropdown_list_add_localized(&dropdown_video, (UTOX_I18N_STR)name, device);
+        dropdown_list_add_localized(&dropdown_video, (UTOX_I18N_STR)(uintptr_t)name, device);
     } else {
         // Device name is a hardcoded string.
         // device is a pointer to a buffer, that contains device handle pointer,

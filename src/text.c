@@ -14,10 +14,8 @@ int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
     char * str[]  = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     int    max_id = COUNTOF(str) - 1;
     int    i      = 0;
-    double f      = bytes;
     while ((bytes >= 1024) && (i < max_id)) {
         bytes /= 1024;
-        f /= 1024.0;
         i++;
     }
 
@@ -110,6 +108,10 @@ uint8_t utf8_unlen(char *data) {
  * enter an endless state, or segv on bad strings. Either way, that's bad and needs to be fixed.
  * TODO(grayhatter) TODO(anyone) */
 int utf8_validate(const uint8_t *data, int len) {
+    if (!data || len <= 0) {
+        return 0;
+    }
+
     // stops when an invalid character is reached
     const uint8_t *a = data, *end = data + len;
     while (a != end) {

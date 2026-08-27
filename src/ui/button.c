@@ -107,8 +107,8 @@ bool button_mmove(BUTTON *b, int UNUSED(x), int UNUSED(y), int width, int height
 }
 
 bool button_mdown(BUTTON *b) {
-    if (b->mouseover) {
-        if (!b->mousedown && b->on_mdn) {
+    if (b->mouseover && !b->mousedown) {
+        if (b->on_mdn) {
             b->on_mdn();
         }
 
@@ -129,6 +129,7 @@ bool button_mup(BUTTON *b) {
         return 1;
     }
 
+    b->mousedown = 0;
     return 0;
 }
 
