@@ -6,7 +6,7 @@
 #include <stdarg.h>
 
 int utox_verbosity() {
-    return settings.verbose;
+    return settings.log_level;
 }
 
 #ifndef __ANDROID__ // Android needs to provide it's own logging functions

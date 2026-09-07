@@ -90,8 +90,9 @@ SETTINGS settings = {
     .audio_device_in  = 0,
     .video_fps        = DEFAULT_FPS,
 
-    .verbose    = LOG_LVL_ERROR,
-    .debug_file = NULL,
+    .log_level     = LOG_LVL_ERROR,
+    .log_level_cli = false,
+    .debug_file    = NULL,
 
     .theme = UINT32_MAX,
 
@@ -258,6 +259,17 @@ static void parse_advanced_section(SETTINGS *config, const char *key,
         config->force_proxy = STR_TO_BOOL(value);
     } else if (MATCH(NAMEOF(config->block_friend_requests), key)) {
         config->block_friend_requests = STR_TO_BOOL(value);
+    } else if (MATCH(NAMEOF(config->log_level), key)) {
+        /* Allow -v / --silent to override the saved level for this session. */
+        if (!config->log_level_cli) {
+            int v = atoi(value);
+            if (v < (int)LOG_LVL_OFF) {
+                v = (int)LOG_LVL_OFF;
+            } else if (v > (int)LOG_LVL_NET_TRACE) {
+                v = (int)LOG_LVL_NET_TRACE;
+            }
+            config->log_level = (LOG_LVL)v;
+        }
     }
 }
 
@@ -391,6 +403,7 @@ static bool utox_save_config(void) {
     WRITE_CONFIG_VALUE_STR(ADVANCED_SECTION, config->proxy_ip);
     WRITE_CONFIG_VALUE_BOOL(ADVANCED_SECTION, config->force_proxy);
     WRITE_CONFIG_VALUE_BOOL(ADVANCED_SECTION, config->block_friend_requests);
+    WRITE_CONFIG_VALUE_INT(ADVANCED_SECTION, config->log_level);
 
     free(config_path);
 
@@ -484,6 +497,12 @@ void config_load(void) {
             settings.proxy_port);
         edit_proxy_port.length = strnlen((char *)edit_proxy_port.data,
             edit_proxy_port.data_size - 1);
+    }
+
+    dropdown_logging.selected = dropdown_logging.over = (uint16_t)settings.log_level;
+    if (settings.log_level > LOG_LVL_NET_TRACE) {
+        settings.log_level = LOG_LVL_NET_TRACE;
+        dropdown_logging.selected = dropdown_logging.over = (uint16_t)settings.log_level;
     }
 
     ui_set_scale(settings.scale);

@@ -54,7 +54,8 @@ typedef struct utox_settings {
     uint16_t audio_device_in;
     uint8_t  video_fps;
 
-    LOG_LVL verbose;
+    LOG_LVL log_level;
+    bool    log_level_cli; /* -v / --silent: do not overwrite from INI */
     FILE *  debug_file;
 
     uint32_t theme;

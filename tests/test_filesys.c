@@ -295,7 +295,7 @@ bool test_native_ft_filename_safe(void) {
 int main(void) {
     int result = 0;
     settings.portable_mode = true;
-    settings.verbose       = LOG_LVL_ERROR;
+    settings.log_level     = LOG_LVL_ERROR;
     RUN_TEST(test_filesys_append_delete_and_move);
     RUN_TEST(test_filesys_long_name_and_dir_tree);
     RUN_TEST(test_filesys_non_portable_home);

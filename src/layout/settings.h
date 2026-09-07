@@ -74,7 +74,9 @@ extern DROPDOWN /* Profile */
                 dropdown_audio_out,
                 dropdown_video,
                 /* Notifications */
-                dropdown_global_group_notifications;
+                dropdown_global_group_notifications,
+                /* Advanced */
+                dropdown_logging;
 
 typedef struct edit EDIT;
 extern EDIT /* Profile */

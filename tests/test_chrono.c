@@ -55,7 +55,7 @@ bool test_chrono_callback(void) {
 }
 
 bool test_chrono_null_and_end(void) {
-    settings.verbose = LOG_LVL_TRACE;
+    settings.log_level = LOG_LVL_TRACE;
     if (chrono_start(NULL)) {
         FAIL("chrono_start(NULL) should fail");
     }
@@ -64,7 +64,7 @@ bool test_chrono_null_and_end(void) {
     }
 
     /* Quiet run so LOG_INFO in the worker takes the VERB() false side. */
-    settings.verbose = LOG_LVL_OFF;
+    settings.log_level = LOG_LVL_OFF;
     CHRONO_INFO quiet;
     quiet.ptr         = 0;
     quiet.step        = 1;
@@ -84,7 +84,7 @@ bool test_chrono_null_and_end(void) {
         FAIL("quiet chrono_end");
     }
 
-    settings.verbose = LOG_LVL_TRACE;
+    settings.log_level = LOG_LVL_TRACE;
 
     CHRONO_INFO info;
     info.ptr         = 0;

@@ -185,23 +185,23 @@ static void draw_settings_text_devices(int x, int y, int UNUSED(w), int UNUSED(h
 static void draw_settings_text_password(int x, int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), y + SCALE(215), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), y + SCALE(245), PROFILE_PASSWORD);
 
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(10), y + SCALE(289), PROFILE_PW_WARNING);
-    drawstr(x + SCALE(10), y + SCALE(301), PROFILE_PW_NO_RECOVER);
+    drawstr(x + SCALE(10), y + SCALE(319), PROFILE_PW_WARNING);
+    drawstr(x + SCALE(10), y + SCALE(331), PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_nospam_settings(int x, int y, int UNUSED(w), int UNUSED(h)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(x + SCALE(95), y + SCALE(218), NOSPAM_WARNING);
+    drawstr(x + SCALE(95), y + SCALE(248), NOSPAM_WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(x + SCALE(10), y + SCALE(215), NOSPAM);
+    drawstr(x + SCALE(10), y + SCALE(245), NOSPAM);
 }
 
 // UI settings page
@@ -277,6 +277,9 @@ static void draw_settings_text_adv(int x, int y, int UNUSED(w), int UNUSED(heigh
     drawtext(x + SCALE(353), y + SCALE(89), ":", 1); // Little addr port separator
 
     drawstr(x + SCALE(20)+ BM_SWITCH_WIDTH, y + SCALE(150), BLOCK_FRIEND_REQUESTS);
+
+    drawtext(x + SCALE(20) + BM_SWITCH_WIDTH, y + SCALE(180), "Logging level",
+             sizeof("Logging level") - 1);
 }
 
 
@@ -464,9 +467,10 @@ panel_settings_master = {
             (PANEL*)&switch_proxy_force,
             (PANEL*)&switch_ipv6,
             (PANEL*)&switch_udp,
+            (PANEL*)&switch_block_friend_requests,
+            (PANEL*)&dropdown_logging,
             (PANEL*)&button_show_password_settings,
             &panel_profile_password_settings,
-            (PANEL*)&switch_block_friend_requests,
             (PANEL*)&button_show_nospam,
             &panel_nospam_settings,
             NULL,
@@ -590,7 +594,7 @@ static void button_settings_sub_av_on_mup(void) {
 }
 
 static void button_settings_sub_adv_on_mup(void) {
-    scrollbar_settings.content_height = SCALE(300);
+    scrollbar_settings.content_height = SCALE(360);
     disable_all_setting_sub();
     panel_settings_adv.disabled = false;
 }
@@ -870,7 +874,7 @@ BUTTON button_lock_uTox = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      =  10,
-        .y      = 265,
+        .y      = 295,
         .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT,
     },
@@ -885,7 +889,7 @@ BUTTON button_show_password_settings = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      =  10,
-        .y      = 177,
+        .y      = 210,
         .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT,
     },
@@ -916,7 +920,7 @@ BUTTON button_change_nospam = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      =  10,
-        .y      = 265,
+        .y      = 295,
         .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT,
     },
@@ -1478,6 +1482,52 @@ DROPDOWN dropdown_global_group_notifications = {
     .userdata  = notifydrops
 };
 
+/* Names match LOG_LVL order in debug.h (index == enum value). */
+static const char *const logging_level_names[] = {
+    "Off",
+    "Fatal",
+    "Error",
+    "Warning",
+    "Notice",
+    "Info",
+    "Debug",
+    "Trace",
+    "Net Trace",
+};
+
+static STRING *dropdown_logging_ondisplay(uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    static STRING s;
+    if (i >= COUNTOF(logging_level_names)) {
+        s.str    = "";
+        s.length = 0;
+        return &s;
+    }
+    s.str    = (char *)logging_level_names[i];
+    s.length = (uint16_t)strlen(logging_level_names[i]);
+    return &s;
+}
+
+static void dropdown_logging_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    if (i > (uint16_t)LOG_LVL_NET_TRACE) {
+        i = (uint16_t)LOG_LVL_NET_TRACE;
+    }
+    settings.log_level = (LOG_LVL)i;
+    LOG_NORM("Logging level set to %s (%u)\n", logging_level_names[i], (unsigned)i);
+}
+
+DROPDOWN dropdown_logging = {
+    .panel = {
+        .type   = PANEL_DROPDOWN,
+        .x      =  10,
+        .y      = 177,
+        .width  = _BM_SWITCH_WIDTH,
+        .height =  24,
+    },
+    .ondisplay = dropdown_logging_ondisplay,
+    .onselect  = dropdown_logging_onselect,
+    .dropcount = COUNTOF(logging_level_names),
+};
+
 static char edit_name_data[128],
             edit_status_msg_data[128],
             edit_proxy_ip_data[256],
@@ -1690,7 +1740,7 @@ EDIT edit_nospam = {
     .panel = {
         .type   = PANEL_EDIT,
         .x      =  10,
-        .y      = 235,
+        .y      = 265,
         .width  = -10,
         .height =  24,
     },
