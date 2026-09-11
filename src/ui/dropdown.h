@@ -17,6 +17,7 @@ typedef struct dropdown {
     PANEL    panel;
     bool     mouseover, open, skip_mup;
     uint16_t dropcount, selected, over;
+    uint16_t scroll; /* first visible row while open */
 
     void (*onselect)(uint16_t, const struct dropdown *);
     STRING *(*ondisplay)(uint16_t, const struct dropdown *);
