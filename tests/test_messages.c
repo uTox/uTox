@@ -761,6 +761,52 @@ bool test_messages_uri_click_https_tox(void) {
     return true;
 }
 
+bool test_messages_uri_skips_timestamp(void) {
+    reset_messages();
+    MESSAGES m;
+    memset(&m, 0, sizeof m);
+    messages_init(&m, 0);
+    SCROLLABLE scroll;
+    attach_scroll(&m, &scroll);
+    mock_sel_friend = &test_friend;
+
+    const char *url = "https://example.org/very/long/path/that/fills/the/line";
+    message_add_type_text(&m, false, url, (uint16_t)strlen(url), false, false);
+    messages_updateheight(&m, 400);
+
+    const int time_x = 400 - SCALE(TIME_WIDTH_LONG) + 8;
+    cursor = CURSOR_NONE;
+    mock_last_openurl[0] = 0;
+    messages_mmove(&m.panel, 0, 0, 400, 300, time_x, 2, 0, 0);
+    if (m.cursor_over_uri != UINT32_MAX) {
+        FAIL("timestamp must not be part of the URL, uri=%u", m.cursor_over_uri);
+    }
+    if (cursor == CURSOR_HAND) {
+        FAIL("timestamp hover must not use the link cursor");
+    }
+    if (!m.cursor_over_time) {
+        FAIL("hover should still land on the timestamp column");
+    }
+
+    messages_mdown(&m.panel);
+    m.selecting_text = false;
+    messages_mup(&m.panel);
+    if (mock_last_openurl[0] != 0) {
+        FAIL("timestamp click must not open the URL, got '%s'", mock_last_openurl);
+    }
+
+    messages_mmove(&m.panel, 0, 0, 400, 300, SCALE(MESSAGES_X) + 4, 2, 0, 0);
+    if (m.cursor_over_uri == UINT32_MAX) {
+        FAIL("the same URL should still be a link over its text");
+    }
+    if (cursor != CURSOR_HAND) {
+        FAIL("link text should use the hand cursor");
+    }
+
+    messages_clear_all(&m);
+    return true;
+}
+
 bool test_messages_try_load_older_branches(void) {
     reset_messages();
     MESSAGES m;
@@ -962,6 +1008,7 @@ int main(void) {
     RUN_TEST(test_messages_group_draw_visible);
     RUN_TEST(test_messages_mmove_image_and_file_hitboxes);
     RUN_TEST(test_messages_uri_click_https_tox);
+    RUN_TEST(test_messages_uri_skips_timestamp);
     RUN_TEST(test_messages_try_load_older_branches);
     RUN_TEST(test_messages_receipt_updates_disk);
     RUN_TEST(test_messages_char_scroll_clamps);
