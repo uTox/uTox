@@ -102,12 +102,14 @@ jobs:
         uses: cygwin/cygwin-install-action@v6
         with:
           add-to-path: false
+          # libuv 1.53 hangs CMake inside try_compile before it starts the compiler.
           packages: >
             mingw64-x86_64-gcc-core
             mingw64-x86_64-gcc-g++
             mingw64-x86_64-headers
             mingw64-x86_64-windows-default-manifest
             cmake
+            libuv1=1.52.1-1
             make
             git
             curl
