@@ -81,7 +81,8 @@ for:
       - git submodule update --init --recursive
       - ps: New-Item -ItemType Directory -Force -Path $env:CYG_ROOT, $env:CYG_CACHE | Out-Null
       - curl -L https://cygwin.com/setup-x86_64.exe -o %CYG_ROOT%\setup-x86_64.exe
-      - '%CYG_ROOT%\setup-x86_64.exe -qgnNdO -l %CYG_CACHE% -R %CYG_ROOT% -s %CYG_MIRROR% -P mingw64-x86_64-gcc-core,mingw64-x86_64-gcc-g++,mingw64-x86_64-headers,mingw64-x86_64-windows-default-manifest,cmake,make,git,curl,autoconf,automake,libtool,pkg-config,yasm,nasm,patch,perl,file'
+      # libuv 1.53 hangs CMake inside try_compile. -g ignores package=version.
+      - '%CYG_ROOT%\setup-x86_64.exe -qnNdO -l %CYG_CACHE% -R %CYG_ROOT% -s %CYG_MIRROR% -P mingw64-x86_64-gcc-core,mingw64-x86_64-gcc-g++,mingw64-x86_64-headers,mingw64-x86_64-windows-default-manifest,cmake,libuv1=1.52.1-1,make,git,curl,autoconf,automake,libtool,pkg-config,yasm,nasm,patch,perl,file'
 
     build_script:
       - set CHERE_INVOKING=1
