@@ -229,6 +229,11 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
                 w = textwidth(b, count);
             }
 
+            /* A word that does not fit is drawn on the next line. The gap after
+             * the previous word on this line is not part of that word. */
+            if (my >= 0 && my < lineheight && x + w > right && x != 0 && mx >= x) {
+                return (uint16_t)(b - str);
+            }
             if (a == end) {
                 if (my >= lineheight) {
                     return length;
