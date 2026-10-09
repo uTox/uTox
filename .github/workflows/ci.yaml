@@ -41,6 +41,7 @@ jobs:
         run: |
           set -ex
           if [ $BUILD = linux ]; then
+            sudo apt update
             sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
               cmake cmake-data check libdbus-1-dev libx11-dev libfreetype6-dev \
               libfontconfig1-dev libxrender-dev libxext-dev \
@@ -144,6 +145,7 @@ jobs:
           fetch-depth: 5
       - name: Install dependencies
         run: |
+          sudo apt update
           sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
             cmake cmake-data check libdbus-1-dev libx11-dev libfreetype6-dev \
             libfontconfig1-dev libxrender-dev libxext-dev \
