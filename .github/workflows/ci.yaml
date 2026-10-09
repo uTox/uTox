@@ -41,6 +41,8 @@ jobs:
         run: |
           set -ex
           if [ $BUILD = linux ]; then
+            # The image apt cache 404s once Ubuntu replaces a package build.
+            sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
             sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
               cmake cmake-data check libdbus-1-dev libx11-dev libfreetype6-dev \
               libfontconfig1-dev libxrender-dev libxext-dev \
@@ -50,6 +52,7 @@ jobs:
               sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends clang llvm
             fi
           elif [ $BUILD = windows ]; then
+            sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
             sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
               cmake make gcc mingw-w64 gcc-mingw-w64 mingw-w64-common binutils-mingw-w64 \
               yasm nasm autoconf automake libtool pkg-config curl
@@ -102,12 +105,14 @@ jobs:
         uses: cygwin/cygwin-install-action@v6
         with:
           add-to-path: false
+          # libuv 1.53 hangs CMake inside try_compile before it starts the compiler.
           packages: >
             mingw64-x86_64-gcc-core
             mingw64-x86_64-gcc-g++
             mingw64-x86_64-headers
             mingw64-x86_64-windows-default-manifest
             cmake
+            libuv1=1.52.1-1
             make
             git
             curl
@@ -144,6 +149,7 @@ jobs:
           fetch-depth: 5
       - name: Install dependencies
         run: |
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
             cmake cmake-data check libdbus-1-dev libx11-dev libfreetype6-dev \
             libfontconfig1-dev libxrender-dev libxext-dev \

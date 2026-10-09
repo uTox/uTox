@@ -1207,14 +1207,18 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 static bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, char *message, uint32_t msg_height,
                                 uint16_t msg_length)
 {
-    if (mx < width - get_time_width()) {
+    /* Text wraps before the timestamp. hittextmultiline still snaps mx past that
+     * edge onto the last visible glyph, so a full-width URL would cover the time. */
+    const bool over_time = mx >= width - get_time_width();
+
+    if (!over_time) {
         cursor = CURSOR_TEXT;
     }
 
     m->cursor_over_position = hittextmultiline(mx - SCALE(MESSAGES_X), width - SCALE(MESSAGES_X) - get_time_width(), (my < 0 ? 0 : my),
                                                msg_height, font_small_lineheight, message, msg_length, 1);
 
-    if (my < 0 || my >= dy || mx < SCALE(MESSAGES_X) || m->cursor_over_position == msg_length) {
+    if (over_time || my < 0 || my >= dy || mx < SCALE(MESSAGES_X) || m->cursor_over_position == msg_length) {
         m->cursor_over_uri = UINT32_MAX;
         return 0;
     }
@@ -1630,6 +1634,7 @@ bool messages_mup(PANEL *panel) {
         MSG_HEADER *msg = m->data[m->cursor_over_msg];
         if (msg->msg_type == MSG_TYPE_TEXT) {
             if (m->cursor_over_uri != UINT32_MAX
+                && !m->cursor_over_time
                 && m->cursor_down_uri == m->cursor_over_uri
                 && m->cursor_over_position >= m->cursor_over_uri
                 && m->cursor_over_position <= m->cursor_over_uri + m->urllen - 1 /* - 1 Don't open on white space */
