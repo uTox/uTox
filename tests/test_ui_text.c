@@ -56,6 +56,17 @@ bool test_ui_text_height_and_hit(void) {
     if (second != 3) {
         FAIL("start of second line should be 3, got %u", second);
     }
+
+    /* "0000" fits in width 6. The URL wraps, so the gap on the first line is empty. */
+    char gap[] = "0000 http://abcdefghij";
+    uint16_t gap_hit = hittextmultiline(5, 6, 0, 100, lh, gap, (uint16_t)strlen(gap), true);
+    if (gap_hit > 4) {
+        FAIL("gap after text must not hit the wrapped URL, got %u", gap_hit);
+    }
+    uint16_t url_hit = hittextmultiline(1, 6, lh, 100, lh, gap, (uint16_t)strlen(gap), true);
+    if (url_hit < 5) {
+        FAIL("wrapped URL text should still hit, got %u", url_hit);
+    }
     return true;
 }
 
