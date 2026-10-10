@@ -13,7 +13,6 @@ For any and all of the following, you'll need to have [toxcore](https://github.c
 - [OpenBSD](#openBSD)
 - [FreeBSD](#freeBSD)
 - [macOS](#macOS)
-- [Android](#android)
 
 ## Windows
 
@@ -80,7 +79,3 @@ Install using homebrew cask:
 ```bash
 brew cask install utox
 ```
-
-## Android
-
-Install uTox from [Google Play](https://play.google.com/apps/testing/tox.client.utox) or download the [APK](https://build.tox.chat/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk).

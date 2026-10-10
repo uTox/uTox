@@ -15,7 +15,6 @@ If you're looking for it to "just work" you're going to want [these instructions
   * [NetBSD](#netbsd)
 - [Windows](#windows)
 - [macOS](#macos)
-- [Android](#android)
 
 ## Unix-like
 
@@ -230,32 +229,3 @@ brew install --HEAD utox
 ```
 
 For details see [COCOA.md](COCOA.md).
-
-## Android
-
-Requires Android SDK+NDK
-
-From uTox root folder, using prebuilt static toxcore + freetype libraries (includes in ../include and libs in ../lib), resulting apk is ./tmp/tmp2.apk:
-
-### Setup:
-
-```bash
-mkdir ./tmp
-mkdir ./tmp/java
-mkdir ./tmp/libs
-mkdir ./tmp/libs/armeabi
-keytool -genkey -v -keystore ./tmp/debug.keystore -alias $ALIAS -keyalg RSA -keysize 2048 -validity 20000
-```
-
-### Compile + Pack APK
-
-```bash
-arm-linux-androideabi-gcc --sysroot=$NDK_PATH/platforms/android-9/arch-arm/ -I../include/freetype2/ -I../include/ ./*.c ./png/png.c -llog -landroid -lEGL -lGLESv2 -lOpenSLES ../lib/libtoxcore.a ../lib/libtoxav.a ../lib/libsodium.a ../lib/libopus.a ../lib/libvpx.a ../lib/libfreetype.a -lm -lz -ldl -shared -o ./tmp/libs/armeabi/libn.so
-/aapt package -f -M ./android/AndroidManifest.xml -S ./android/res -I $SDK_PATH/platforms/android-10/android.jar -F ./tmp/tmp1.apk -J ./tmp/java
-javac -d ./tmp/java ./tmp/java/R.java
-dx --dex --output=./tmp/classes.dex ./tmp/java
-java -classpath $SDK_PATH/tools/lib/sdklib.jar com.android.sdklib.build.ApkBuilderMain ./tmp/tmp2.apk -u -z ./tmp/tmp1.apk -f ./tmp/classes.dex -nf ./tmp/libs
-jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore ./tmp/debug.keystore -storepass $PASSWORD ./tmp/tmp2.apk $ALIAS
-```
-
-Come to think of it, this section is woefully out of date. The android build script in tools/ is likely to be more helpful at this point. Or come to [#utox on libera.chat](https://web.libera.chat/?channels=#utox) and ask for grayhatter. If you're interested in working on android. He'll get you a build environment set up!

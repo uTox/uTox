@@ -23,11 +23,7 @@ int utox_verbosity();
 
 // define debugging macros in a platform specific way
 
-#ifdef __ANDROID__
-#include "android/logging.h"
-#else
 void debug(const char *fmt, ...);
-#endif
 
 #define VERB(x) (utox_verbosity() >= LOG_LVL_##x)
 
