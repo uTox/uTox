@@ -5,9 +5,6 @@
 // OS X only.
 void edit_will_deactivate(void);
 
-// Android only.
-void showkeyboard(bool show);
-
 // Linux, OS X, and Windows.
 void openurl(char *str);
 

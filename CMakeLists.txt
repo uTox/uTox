@@ -152,8 +152,6 @@ configure_file(${uTox_SOURCE_DIR}/src/branding.h.in
                ${uTox_SOURCE_DIR}/src/branding.h)
 configure_file(${uTox_SOURCE_DIR}/src/cocoa/Info.plist.in
                ${uTox_SOURCE_DIR}/src/cocoa/Info.plist)
-configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
-               ${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml)
 configure_file(${uTox_SOURCE_DIR}/man/utox.1.in
                ${uTox_SOURCE_DIR}/man/utox.1)
 

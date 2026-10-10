@@ -22,7 +22,6 @@ int mock_redraw_count;
 int mock_copy_count;
 int mock_paste_os_count;
 int mock_setselection_count;
-int mock_keyboard_count;
 int mock_contextmenu_count;
 int change_count;
 int enter_count;
@@ -50,11 +49,6 @@ void setselection(char *data, uint16_t length) {
 }
 
 void edit_will_deactivate(void) {}
-
-void showkeyboard(bool show) {
-    (void)show;
-    mock_keyboard_count++;
-}
 
 void contextmenu_new(uint8_t count, UTOX_I18N_STR *menu_string_ids, void (*onselect)(uint8_t)) {
     (void)count;
@@ -102,7 +96,6 @@ static void reset_edit_counts(void) {
     mock_copy_count        = 0;
     mock_paste_os_count    = 0;
     mock_setselection_count = 0;
-    mock_keyboard_count    = 0;
     mock_contextmenu_count = 0;
     change_count           = 0;
     enter_count            = 0;
@@ -401,8 +394,8 @@ bool test_edit_multiline_and_mouse(void) {
     if (!e.mouseover) {
         FAIL("mmove hover");
     }
-    if (!edit_mdown(&e) || mock_keyboard_count < 1) {
-        FAIL("mdown focuses and shows keyboard");
+    if (!edit_mdown(&e)) {
+        FAIL("mdown");
     }
     edit_mup(&e);
     if (!edit_mleave(&e) || e.mouseover) {
