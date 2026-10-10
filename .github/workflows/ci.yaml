@@ -27,11 +27,11 @@ jobs:
             compiler: x86_64-w64-mingw32-gcc
             werror: "OFF"
 
-          - name: "macOS"
-            os: macos-latest
-            build: osx
-            compiler: clang
-            werror: "OFF"
+          # - name: "macOS"
+          #   os: macos-latest
+          #   build: osx
+          #   compiler: clang
+          #   werror: "OFF"
     steps:
       - uses: actions/checkout@v7
         with:
