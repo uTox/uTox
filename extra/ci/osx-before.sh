@@ -2,7 +2,7 @@
 
 set -eux
 
-. ./extra/travis/env.sh
+. ./extra/ci/env.sh
 
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 # GitHub macOS runners pre-tap aws/tap (and sometimes azure/bicep); Homebrew 6+

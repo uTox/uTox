@@ -2,7 +2,7 @@
 
 set -eux
 
-. ./extra/travis/env.sh
+. ./extra/ci/common/env.sh
 
 FILTER_AUDIO_TAG=${FILTER_AUDIO_TAG:-"v0.0.1"}
 
@@ -13,6 +13,7 @@ cd filter_audio
 git rev-parse HEAD > filter_audio.sha
 if ! ([ -f "$CACHE_DIR/filter_audio.sha" ] && diff "$CACHE_DIR/filter_audio.sha" filter_audio.sha); then
     make
+    # Upstream skips .a when uname is Cygwin/MinGW; archive objects for static uTox.
     if [ ! -f libfilteraudio.a ]; then
         AR_BIN="${AR:-ar}"
         case "$CC" in

@@ -2,7 +2,7 @@
 
 set -eux
 
-. ./extra/travis/env.sh
+. ./extra/ci/env.sh
 
 # install toxcore
 if ! [ -d toxcore ]; then

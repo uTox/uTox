@@ -71,11 +71,11 @@ jobs:
             fi
           fi
           if [ $BUILD = windows ]; then
-            sh ./extra/travis/windows.sh
+            sh ./extra/ci/windows.sh
           else
-            ./extra/travis/${BUILD}-before.sh
-            ./extra/travis/filter_audio.sh
-            ./extra/travis/${BUILD}-script.sh
+            ./extra/ci/${BUILD}-before.sh
+            ./extra/ci/filter_audio.sh
+            ./extra/ci/${BUILD}-script.sh
           fi
         env:
           BUILD: ${{ matrix.build }}
@@ -83,7 +83,7 @@ jobs:
           ENABLE_WERROR: ${{ matrix.werror }}
       - name: Dump cache on failure
         if: failure()
-        run: ./extra/travis/debug_failure.sh || true
+        run: ./extra/ci/debug_failure.sh || true
         env:
           BUILD: ${{ matrix.build }}
 
@@ -131,7 +131,7 @@ jobs:
           CHERE_INVOKING: 1
         run: |
           cd "$(cygpath -u "$GITHUB_WORKSPACE")"
-          sh ./extra/travis/windows.sh
+          sh ./extra/ci/windows.sh
 
   coverage:
     name: Linux coverage
@@ -161,9 +161,9 @@ jobs:
       - name: Build and test
         run: |
           set -ex
-          ./extra/travis/linux-before.sh
-          ./extra/travis/filter_audio.sh
-          ./extra/travis/linux-script.sh
+          ./extra/ci/linux-before.sh
+          ./extra/ci/filter_audio.sh
+          ./extra/ci/linux-script.sh
       - name: Coverage report
         if: success() || failure()
         run: |

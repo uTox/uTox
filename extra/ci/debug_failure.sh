@@ -2,7 +2,7 @@
 
 set -eux
 
-. ./extra/gitlab/env.sh
+. ./extra/ci/env.sh
 
 echo "======================================================"
 echo "== DEBUGGING FAILURE "

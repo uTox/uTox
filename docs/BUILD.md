@@ -196,7 +196,7 @@ All commands below are run in the **Cygwin Terminal**, from the uTox repository 
 ```bash
 git clone --recursive https://github.com/uTox/uTox.git
 cd uTox
-./extra/travis/windows.sh
+./extra/ci/windows.sh
 ```
 
 That single script:
@@ -204,10 +204,10 @@ That single script:
 1. Builds static dependencies into `$HOME/cache` (libsodium, opus, libvpx, toxcore, OpenAL Soft, filter_audio)
 2. Builds `build_win/utox.exe` with MinGW (`cmake/toolchain-win64.cmake`)
 
-Re-running `./extra/travis/windows.sh` reuses the dependency cache when versions are unchanged. To rebuild only µTox after deps are cached:
+Re-running `./extra/ci/windows.sh` reuses the dependency cache when versions are unchanged. To rebuild only µTox after deps are cached:
 
 ```bash
-./extra/travis/windows-script.sh
+./extra/ci/windows-script.sh
 ```
 
 Portable smoke test:
@@ -220,7 +220,7 @@ Portable smoke test:
 
 - Use LF line endings for Autotools sources; the build scripts set `core.autocrlf=false` / `core.eol=lf` for Cygwin/MinGW hosts when cloning deps.
 - The binary is linked statically against MinGW pthread so it should not need `libwinpthread-1.dll` at runtime.
-- Linux→Windows cross-compiles can use the same scripts (`./extra/travis/windows.sh`) with a MinGW-w64 toolchain installed on the host.
+- Linux→Windows cross-compiles can use the same scripts (`./extra/ci/windows.sh`) with a MinGW-w64 toolchain installed on the host.
 
 ## macOS
 

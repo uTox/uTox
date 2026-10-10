@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eux
 
-. ./extra/travis/env.sh
+. ./extra/ci/env.sh
 
 cmake . \
   -DCMAKE_INCLUDE_PATH="$CACHE_DIR/usr/include" \
