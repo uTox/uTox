@@ -51,6 +51,7 @@ jobs:
               sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends clang llvm
             fi
           elif [ $BUILD = windows ]; then
+            sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
             sudo DEBIAN_FRONTEND=noninteractive apt -yq install --no-install-recommends \
               cmake make gcc mingw-w64 gcc-mingw-w64 mingw-w64-common binutils-mingw-w64 \
               yasm nasm autoconf automake libtool pkg-config curl
