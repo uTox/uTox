@@ -224,7 +224,6 @@ bool edit_mdown(EDIT *edit) {
 
         setactive(edit);
 
-        showkeyboard(1);
         return 1;
     } else if (edit == active_edit) {
         edit_resetfocus();

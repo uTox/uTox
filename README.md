@@ -33,10 +33,6 @@ If you do not have a GitHub account, you may also [send an email](#team) directl
   - [Install](docs/INSTALL.md) via your package manager, or [build](docs/BUILD.md).
 - **macOS**
   - [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.16.1/uTox-0.16.1.dmg) (out of date)
-- **Android**
-  - [uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox) ** uTox isn't designed to work well on Android,
-    you should use [aTox](https://github.com/evilcorpltd/aTox/) instead!
-  - [Direct apk](https://build.tox.chat/view/uTox/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk) (You may need to uninstall the previous version.)
 
 ## Team
 GitHub | IRC | Email | Fingerprint

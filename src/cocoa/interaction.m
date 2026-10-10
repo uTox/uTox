@@ -817,8 +817,6 @@ void paste(void) {
     }
 }
 
-void showkeyboard(bool show) {}
-
 void edit_will_deactivate(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApplication sharedApplication].delegate;
     [ad.mainView.inputContext discardMarkedText];

@@ -647,8 +647,6 @@ void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_
 #endif
 }
 
-void showkeyboard(bool UNUSED(show)) {}
-
 void edit_will_deactivate(void) {}
 
 void update_tray(void) {}

@@ -42,8 +42,6 @@ void image_free(NATIVE_IMAGE *image);
 
 #if defined __WIN32__ || defined _WIN32 || defined __CYGWIN__
 #include "win/image.h"
-#elif defined __ANDROID__
-#include "android/image.h"
 #elif defined __OBJC__
 // TODO: OS X uses functions instead of macros.
 #include "main.h"

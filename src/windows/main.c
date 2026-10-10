@@ -701,8 +701,6 @@ int file_unlock(FILE *file, uint64_t start, size_t length) {
     return UnlockFileEx(file, 0, start, start + length, &lock_overlap);
 }
 
-void showkeyboard(bool UNUSED(show)) {} /* Added for android support. */
-
 void edit_will_deactivate(void) {}
 
 /* Redraws the main UI window */
