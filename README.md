@@ -6,7 +6,7 @@ The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
 Tox is a peer-to-peer, end-to-end encrypted, instant messaging protocol, with end-to-end encryption as its default and *only* mode.
 
-µTox is **cross-platform**: Primary support for Windows 7+ and Linux, secondary support for OpenBSD, FreeBSD, NetBSD, and DragonFlyBSD. MacOS is unmaintained (needs your contributions).
+µTox is **cross-platform**: Primary support for Windows 7+ and Linux, secondary support for OpenBSD, FreeBSD, NetBSD, and DragonFlyBSD. MacOS is currently broken and unmaintained, if you have a Mac and are interested in contributing contact someone from the [team](#team).
 
 µTox is **multi-lingual**: Complete translations for German, Russian, Swedish, Polish, Spanish, Hungarian, Estonian, Ukrainian, and Bulgarian. Partial translations to many more languages.
 
@@ -24,7 +24,7 @@ Tox is a peer-to-peer, end-to-end encrypted, instant messaging protocol, with en
 - Tox URI support (clickable Tox links)
 
 Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help, if you do encounter any bugs or problems please [open an issue](https://github.com/uTox/uTox/issues/new).
-If you do not have a GitHub account, you may also [send an email](#team) directly to avoidr.
+If you do not have a GitHub account, you may also [send an email](#team).
 
 ## Downloads
 - **Windows**
