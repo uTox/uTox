@@ -41,10 +41,13 @@ If you do not have a GitHub account, you may also [send an email](#team) directl
 ## Team
 GitHub | IRC | Email | Fingerprint
 --- | --- | --- | ---
-[cebe](https://github.com/cebe) | CeBe | mail@cebe.cc | `E592 6050 AE9C 234A FF84 96FE BE4F 41DE 1DEE EED0`
 [e0ff](https://github.com/e0ff) | e0f | e0f@e0f.io | `38EA 8E33 79C4 016C CBDA  97D6 867A C129 3142 D475`
 [GrayHatter](https://github.com/GrayHatter) | grayhatter | greg@grayhatter.com | `9D1D 5990 88E2 23DD 9900 7DE2 AEA1 0D4E A053 0876`
 [robinlinden](https://github.com/robinlinden) | robinli | dev@robinlinden.eu | `B700 8FF1 2C07 9BF6 E6EA 19D1 601A 604B 7E60 5776`
-[dkmoz](https://github.com/dkmoz) | dkmoz | dkmoz@airmail.cc | `E28E 7252 B1E7 FCFE D358  CF8E 3763 B3A7 93AA FA0F`
 [redmanmale](https://github.com/redmanmale) | redmanmale | redmanmale@gmail.com | `BCEE 99DC A339 ABF9 CC36  428D 61A9 B9AF D2E5 3885`
-[avoidr](https://github.com/avoidr) | avoidr | avoidr@posteo.de | `A251 56FC 7AFB 5C03 65A0  407E 6F5D D1C5 371D E665`
+
+# Former Maintainers
+
+* cebe
+* dkmoz
+* avoidr
