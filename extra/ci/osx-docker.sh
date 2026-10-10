@@ -2,7 +2,7 @@
 
 set -eux
 
-. ./extra/travis/env.sh
+. ./extra/ci/env.sh
 
 export CFLAGS=" -m64 -I/workdir/cache/usr/include -isystem /workdir/cache/usr/include -isystem /workdir/cache/usr/include/opus -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk -mmacosx-version-min=10.10 -m64 -arch x86_64 -DNDEBUG -O3 -Wall"
 export LDFLAGS="-L/workdir/cache/usr/lib -isysroot /usr/osxcross/bin/../SDK/MacOSX10.10.sdk -mmacosx-version-min=10.10 -m64 -arch x86_64"

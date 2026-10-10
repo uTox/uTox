@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eux
 
-. ./extra/travis/env.sh
+. ./extra/ci/env.sh
 
 export CFLAGS="-I$CACHE_DIR/usr/include -I/usr/share/mingw-w64/include/ "
 export PKG_CONFIG_PATH="$CACHE_DIR/usr/lib/pkgconfig"

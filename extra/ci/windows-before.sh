@@ -1,15 +1,15 @@
 #!/bin/sh
 set -eux
 
-. ./extra/travis/env.sh
+. ./extra/ci/env.sh
 
 export TARGET_HOST="--host=x86_64-w64-mingw32"
 export TARGET_TRGT="--target=x86_64-win64-gcc"
 export CROSS="x86_64-w64-mingw32-"
 
-. ./extra/common/build_nacl.sh
-. ./extra/common/build_opus.sh
-. ./extra/common/build_vpx.sh
+. ./extra/ci/common/build_nacl.sh
+. ./extra/ci/common/build_opus.sh
+. ./extra/ci/common/build_vpx.sh
 
 # install toxcore
 if ! [ -d toxcore ]; then
@@ -104,7 +104,7 @@ if [ -d "$CACHE_DIR/usr/include/AL" ]; then
 fi
 
 export CC=x86_64-w64-mingw32-gcc
-. ./extra/common/filter_audio.sh
+. ./extra/ci/common/filter_audio.sh
 x86_64-w64-mingw32-ranlib "$CACHE_DIR/usr/lib/libfilteraudio.a"
 unset CC
 

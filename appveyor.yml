@@ -43,9 +43,9 @@ for:
     build_script:
       - sh: |
           set -eux
-          ./extra/travis/linux-before.sh
-          ./extra/travis/filter_audio.sh
-          ./extra/travis/linux-script.sh
+          ./extra/ci/linux-before.sh
+          ./extra/ci/filter_audio.sh
+          ./extra/ci/linux-script.sh
 
   - matrix:
       only:
@@ -66,7 +66,7 @@ for:
     build_script:
       - sh: |
           set -eux
-          sh ./extra/travis/windows.sh
+          sh ./extra/ci/windows.sh
 
   - matrix:
       only:
@@ -86,4 +86,4 @@ for:
 
     build_script:
       - set CHERE_INVOKING=1
-      - '%CYG_ROOT%\bin\bash.exe --login -eo pipefail -o igncr -c "cd \"$(cygpath -u \"$APPVEYOR_BUILD_FOLDER\")\" && sh ./extra/travis/windows.sh"'
+      - '%CYG_ROOT%\bin\bash.exe --login -eo pipefail -o igncr -c "cd \"$(cygpath -u \"$APPVEYOR_BUILD_FOLDER\")\" && sh ./extra/ci/windows.sh"'
