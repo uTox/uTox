@@ -21,7 +21,7 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
     }
 
     if (resize) {
-        RECT r = {.left = 0, .top = 0, .right = width, .bottom = height };
+        RECT r = { .left = 0, .top = 0, .right = width, .bottom = height };
         AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
 
         int w, h;
@@ -38,15 +38,14 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
         SetWindowPos(*hwin, 0, 0, 0, w, h, SWP_NOZORDER | SWP_NOMOVE);
     }
 
-    BITMAPINFO bmi = {.bmiHeader = {
-                          .biSize        = sizeof(BITMAPINFOHEADER),
-                          .biWidth       = width,
-                          .biHeight      = -height,
-                          .biPlanes      = 1,
-                          .biBitCount    = 32,
-                          .biCompression = BI_RGB,
-                      } };
-
+    BITMAPINFO bmi = { .bmiHeader = {
+                           .biSize        = sizeof(BITMAPINFOHEADER),
+                           .biWidth       = width,
+                           .biHeight      = -height,
+                           .biPlanes      = 1,
+                           .biBitCount    = 32,
+                           .biCompression = BI_RGB,
+                       } };
 
     RECT r = { 0, 0, 0, 0 };
     GetClientRect(*hwin, &r);

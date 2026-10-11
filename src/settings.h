@@ -13,7 +13,7 @@
 #define DEFAULT_FPS 25
 
 typedef struct utox_settings {
-    uint8_t  save_version;
+    uint8_t save_version;
 
     uint32_t last_version;
     uint32_t utox_last_version;
@@ -55,7 +55,7 @@ typedef struct utox_settings {
     uint8_t  video_fps;
 
     LOG_LVL verbose;
-    FILE *  debug_file;
+    FILE   *debug_file;
 
     uint32_t theme;
     uint8_t  scale;

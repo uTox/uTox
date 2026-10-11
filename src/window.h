@@ -2,7 +2,7 @@
 #define WINDOW_H
 
 typedef struct native_window UTOX_WINDOW;
-typedef struct panel PANEL;
+typedef struct panel         PANEL;
 
 /** window_raze()
  *

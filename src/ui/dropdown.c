@@ -155,8 +155,7 @@ void dropdown_draw(DROPDOWN *d, int x, int y, int width, int height) {
     }
 }
 
-bool dropdown_mmove(DROPDOWN *d, int UNUSED(x), int UNUSED(y), int w, int h, int mx, int my, int UNUSED(dx),
-                    int UNUSED(dy)) {
+bool dropdown_mmove(DROPDOWN *d, int UNUSED(x), int UNUSED(y), int w, int h, int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
     if (d->open) {
         int visible = dropdown_visible_rows(d, h);
         dropdown_clamp_scroll(d, visible);

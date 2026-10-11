@@ -25,4 +25,3 @@ void window_tween(UTOX_WINDOW *win) {
 void window_create_screen_select(void) {
     native_window_create_screen_select();
 }
-

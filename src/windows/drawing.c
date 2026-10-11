@@ -40,7 +40,6 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
     // create pointer to beginning and end of the alpha-channel-only bitmap
     uint8_t *alpha_pixel = bitmap[bm], *end = alpha_pixel + width * height;
 
-
     // create temporary bitmap we'll combine the alpha and colors on
     uint32_t *out_pixel;
     HBITMAP   temp = CreateDIBSection(curr->mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out_pixel, NULL, 0);
@@ -53,10 +52,10 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
     // NOTE: Input color is in the format 0BGR, output pixel is in the format BGRA
     while (alpha_pixel != end) {
         uint8_t alpha = *alpha_pixel++;
-        *out_pixel++  = (((color & 0xFF) * alpha / 255) << 16)         // red
-                       | ((((color >> 8) & 0xFF) * alpha / 255) << 8)  // green
-                       | ((((color >> 16) & 0xFF) * alpha / 255) << 0) // blue
-                       | (alpha << 24);                                // alpha
+        *out_pixel++  = (((color & 0xFF) * alpha / 255) << 16) // red
+                        | ((((color >> 8) & 0xFF) * alpha / 255) << 8) // green
+                        | ((((color >> 16) & 0xFF) * alpha / 255) << 0) // blue
+                        | (alpha << 24); // alpha
     }
 
     // draw temporary bitmap on screen
@@ -68,9 +67,15 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
 
 void image_set_filter(NATIVE_IMAGE *image, uint8_t filter) {
     switch (filter) {
-        case FILTER_NEAREST: image->stretch_mode  = COLORONCOLOR; break;
-        case FILTER_BILINEAR: image->stretch_mode = HALFTONE; break;
-        default: LOG_TRACE("Drawing", "Warning: Tried to set image to unrecognized filter(%u)." , filter); return;
+        case FILTER_NEAREST:
+            image->stretch_mode = COLORONCOLOR;
+            break;
+        case FILTER_BILINEAR:
+            image->stretch_mode = HALFTONE;
+            break;
+        default:
+            LOG_TRACE("Drawing", "Warning: Tried to set image to unrecognized filter(%u).", filter);
+            return;
     }
 }
 
@@ -87,7 +92,7 @@ static bool image_is_stretched(const NATIVE_IMAGE *image) {
 // the Win32 API is a lot more limited, so all scaling, clipping, and handling
 // transparency has to be done explicitly
 void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
-    HDC     drawdc;     // device context we'll do the eventual drawing with
+    HDC     drawdc; // device context we'll do the eventual drawing with
     HBITMAP tmp = NULL; // used when scaling
 
     if (!image_is_stretched(image)) {
@@ -110,11 +115,9 @@ void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_
 
         // stretch image onto temporary bitmap
         if (image->has_alpha) {
-            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, curr->mem_DC, 0, 0, image->width,
-                       image->height, blend_function);
+            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, curr->mem_DC, 0, 0, image->width, image->height, blend_function);
         } else {
-            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, curr->mem_DC, 0, 0, image->width,
-                       image->height, SRCCOPY);
+            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, curr->mem_DC, 0, 0, image->width, image->height, SRCCOPY);
         }
     }
 
@@ -141,8 +144,8 @@ void draw_inline_image(uint8_t *img_data, size_t UNUSED(size), uint16_t w, uint1
             .biPlanes      = 1,
             .biBitCount    = 32,
             .biCompression = BI_RGB,
-            }
-        };
+        }
+    };
 
     SetDIBitsToDevice(curr->draw_DC, x, y, w, h, 0, 0, 0, h, img_data, &bmi, DIB_RGB_COLORS);
 }

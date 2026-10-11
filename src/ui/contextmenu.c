@@ -165,8 +165,7 @@ bool contextmenu_mleave(void) {
     return 0;
 }
 
-void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t),
-                        STRING *(*ondisplay)(uint8_t, const CONTEXTMENU *)) {
+void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t), STRING *(*ondisplay)(uint8_t, const CONTEXTMENU *)) {
     CONTEXTMENU *b = &context_menu;
 
     b->y      = mouse.y;

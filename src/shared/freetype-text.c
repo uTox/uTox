@@ -24,7 +24,7 @@ int textwidth(const char *str, uint16_t length) {
     int x = 0;
 
     while (length) {
-        uint32_t ch;
+        uint32_t      ch;
         const uint8_t len = utf8_len_read(str, &ch);
         str += len;
         length -= len;
@@ -49,11 +49,11 @@ void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t leng
 
 // FIXME: The next two functions are identical. Delete one?
 int textfit(const char *str, uint16_t length, int width) {
-    int x = 0;
+    int      x = 0;
     uint16_t i = 0;
 
     while (i != length) {
-        uint32_t ch;
+        uint32_t      ch;
         const uint8_t len = utf8_len_read(str, &ch);
         str += len;
 

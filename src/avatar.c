@@ -15,17 +15,16 @@
 static void avatar_free_image(AVATAR *avatar) {
     if (avatar) {
         image_free(avatar->img);
-        avatar->img = NULL;
+        avatar->img  = NULL;
         avatar->size = 0;
     }
 }
 
 bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_t length) {
-    char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
+    char  name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
     FILE *fp;
 
-    snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
-             TOX_PUBLIC_KEY_SIZE * 2, hexid);
+    snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, hexid);
 
     fp = utox_get_file(name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
 
@@ -42,11 +41,10 @@ bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_
 static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_size) {
     char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
 
-    snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
-             TOX_PUBLIC_KEY_SIZE * 2, hexid);
+    snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, hexid);
 
     size_t size = 0;
-    FILE *fp = utox_get_file(name, &size, UTOX_FILE_OPTS_READ);
+    FILE  *fp   = utox_get_file(name, &size, UTOX_FILE_OPTS_READ);
     if (fp == NULL) {
         LOG_TRACE("Avatar", "Could not read: %s", name);
         return NULL;
@@ -87,15 +85,13 @@ static bool avatar_load(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar, siz
 
     uint8_t *img = load_img_data(hexid, &size);
     if (!img) {
-        LOG_DEBUG("Avatar", "Unable to get saved avatar from disk for friend %.*s" ,
-                    TOX_PUBLIC_KEY_SIZE * 2, hexid);
+        LOG_DEBUG("Avatar", "Unable to get saved avatar from disk for friend %.*s", TOX_PUBLIC_KEY_SIZE * 2, hexid);
         return false;
     }
 
     if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
         free(img);
-        LOG_WARN("Avatar", "Saved avatar file for friend (%.*s) too large for tox" ,
-                    TOX_PUBLIC_KEY_SIZE * 2, hexid);
+        LOG_WARN("Avatar", "Saved avatar file for friend (%.*s) too large for tox", TOX_PUBLIC_KEY_SIZE * 2, hexid);
         return false;
     }
 
@@ -154,7 +150,7 @@ bool avatar_set_self(const uint8_t *data, size_t size) {
 
 void avatar_unset(AVATAR *avatar) {
     if (avatar == NULL) {
-        LOG_TRACE("Avatar", " avatar is null" );
+        LOG_TRACE("Avatar", " avatar is null");
         return;
     }
 
@@ -212,12 +208,10 @@ bool avatar_on_friend_online(Tox *tox, uint32_t friend_number) {
 
 bool avatar_move(const uint8_t *source, const uint8_t *dest) {
     uint8_t current_name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
-    uint8_t new_name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
+    uint8_t new_name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")]     = { 0 };
 
-    snprintf((char *)current_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
-             TOX_PUBLIC_KEY_SIZE * 2, source);
-    snprintf((char *)new_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
-             TOX_PUBLIC_KEY_SIZE * 2, dest);
+    snprintf((char *)current_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, source);
+    snprintf((char *)new_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, dest);
 
     return utox_move_file(current_name, new_name);
 }

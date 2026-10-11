@@ -14,12 +14,12 @@
 
 #include "av/audio.h"
 
-#include "layout/friend.h"  // TODO, remove this and sent the name differently
+#include "layout/friend.h" // TODO, remove this and sent the name differently
 
 #include "native/image.h"
 #include "native/notify.h"
 
-#include "ui/edit.h"        // friend_set_name()
+#include "ui/edit.h" // friend_set_name()
 
 #include <stdlib.h>
 #include <string.h>
@@ -27,7 +27,7 @@
 uint8_t addfriend_status;
 
 static FRIEND *friend = NULL;
-static bool string_to_id_n(uint8_t *w, char *a, size_t nbytes);
+static bool    string_to_id_n(uint8_t *w, char *a, size_t nbytes);
 
 FRIEND *get_friend(uint32_t friend_number) {
     if (friend_number >= self.friend_list_size) {
@@ -47,17 +47,16 @@ static FRIEND *friend_make(uint32_t friend_number) {
             return NULL;
         }
 
-        memset(tmp + self.friend_list_size, 0,
-               sizeof(FRIEND) * ((friend_number + 1) - self.friend_list_size));
-        friend = tmp;
+        memset(tmp + self.friend_list_size, 0, sizeof(FRIEND) * ((friend_number + 1) - self.friend_list_size));
+        friend                = tmp;
         self.friend_list_size = friend_number + 1;
     }
 
     return &friend[friend_number];
 }
 
-static FREQUEST *frequests = NULL;
-static uint16_t frequest_list_size = 0;
+static FREQUEST *frequests          = NULL;
+static uint16_t  frequest_list_size = 0;
 
 FREQUEST *get_frequest(uint16_t frequest_number) {
     if (frequest_number >= frequest_list_size) {
@@ -82,8 +81,7 @@ static FREQUEST *frequest_make(uint16_t frequest_number) {
         }
 
         frequests = tmp;
-        memset(&frequests[frequest_list_size], 0,
-               sizeof(FREQUEST) * ((frequest_number + 1) - frequest_list_size));
+        memset(&frequests[frequest_list_size], 0, sizeof(FREQUEST) * ((frequest_number + 1) - frequest_list_size));
         frequest_list_size = frequest_number + 1;
     }
 
@@ -102,7 +100,7 @@ uint16_t friend_request_new(const uint8_t *id, const uint8_t *msg, size_t length
     FREQUEST *r;
     if (curr_num == UINT16_MAX) {
         curr_num = frequest_list_size;
-        r = frequest_make(frequest_list_size);
+        r        = frequest_make(frequest_list_size);
     } else {
         r = &frequests[curr_num];
     }
@@ -132,7 +130,7 @@ uint16_t friend_request_new(const uint8_t *id, const uint8_t *msg, size_t length
         memcpy(r->msg, msg, length);
     }
     r->msg[length] = 0; // Toxcore doesn't promise null term on strings
-    r->length = length;
+    r->length      = length;
 
     return curr_num;
 }
@@ -174,8 +172,7 @@ void free_friends(void) {
             continue;
         }
         /* Sparse creates leave zeroed holes; friend_free would underflow count. */
-        if (!f->name && !f->alias && !f->avatar && !f->status_message
-            && !f->msg.data && !f->edit_history && !f->typed) {
+        if (!f->name && !f->alias && !f->avatar && !f->status_message && !f->msg.data && !f->edit_history && !f->typed) {
             continue;
         }
         friend_free(f);
@@ -198,8 +195,8 @@ void utox_write_metadata(FRIEND *f) {
         return;
     }
 
-    FRIEND_META_DATA metadata = { 0 };
-    size_t total_size = sizeof(metadata);
+    FRIEND_META_DATA metadata   = { 0 };
+    size_t           total_size = sizeof(metadata);
 
     metadata.version          = METADATA_VERSION;
     metadata.ft_autoaccept    = f->ft_autoaccept;
@@ -228,10 +225,10 @@ static void friend_meta_data_read(FRIEND *f) {
     /* Will need to be rewritten if anything is added to friend's meta data */
     char path[UTOX_FILE_NAME_LENGTH];
 
-    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2,  f->id_str);
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
 
     size_t size = 0;
-    FILE *file = utox_get_file(path, &size, UTOX_FILE_OPTS_READ);
+    FILE  *file = utox_get_file(path, &size, UTOX_FILE_OPTS_READ);
 
     if (!file) {
         LOG_TRACE("Friend", "Meta Data not found %s", path);
@@ -246,7 +243,7 @@ static void friend_meta_data_read(FRIEND *f) {
 
     FRIEND_META_DATA *metadata = calloc(1, size);
     if (!metadata) {
-        LOG_ERR("Metadata", "Could not allocate memory for metadata." );
+        LOG_ERR("Metadata", "Could not allocate memory for metadata.");
         fclose(file);
         return;
     }
@@ -261,7 +258,7 @@ static void friend_meta_data_read(FRIEND *f) {
     }
 
     if (metadata->version != 0) {
-        LOG_ERR("Metadata", "WARNING! This version of utox does not support this metadata file version." );
+        LOG_ERR("Metadata", "WARNING! This version of utox does not support this metadata file version.");
         free(metadata);
         return;
     }
@@ -305,7 +302,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     friend_setname(f, name, size);
 
     // Get and set the status message
-    size = tox_friend_get_status_message_size(tox, friend_number, 0);
+    size              = tox_friend_get_status_message_size(tox, friend_number, 0);
     f->status_message = calloc(1, size);
     if (!f->status_message) {
         LOG_FATAL_ERR(EXIT_MALLOC, "Friend", "Could not alloc for status message (%uB)", size);
@@ -358,7 +355,7 @@ void utox_friend_list_init(Tox *tox) {
 
 void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     if (f->name && f->name_length) {
-        char *p;
+        char  *p;
         size_t p_size = sizeof(" is now known as ") + f->name_length + length;
 
         p = calloc(1, p_size);
@@ -392,7 +389,7 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     f->name[f->name_length] = '\0';
 
     if (!f->alias_length) {
-        if (flist_get_sel_item_type()== ITEM_FRIEND) {
+        if (flist_get_sel_item_type() == ITEM_FRIEND) {
             FRIEND *selected = flist_get_sel_friend();
             if (!selected) {
                 LOG_ERR("Friend", "Unable to get selected friend.");
@@ -414,9 +411,9 @@ void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
             return;
         }
 
-        LOG_TRACE("Friend", "New Alias set for friend %s." , f->name);
+        LOG_TRACE("Friend", "New Alias set for friend %s.", f->name);
     } else {
-        LOG_TRACE("Friend", "Alias for friend %s unset." , f->name);
+        LOG_TRACE("Friend", "Alias for friend %s unset.", f->name);
     }
 
     free(f->alias);
@@ -435,8 +432,7 @@ void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
     }
 }
 
-void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
-                      size_t png_size) {
+void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image, size_t png_size) {
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
     if (!tsim) {
         LOG_ERR("Friend", "Unable to malloc for inline image.");
@@ -461,8 +457,7 @@ void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uin
 void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
     char title[sizeof("uTox new message from ") + UTOX_FRIEND_NAME_LENGTH(f)];
 
-    snprintf((char *)title, sizeof(title), "uTox new message from %.*s",
-             (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    snprintf((char *)title, sizeof(title), "uTox new message from %.*s", (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
     size_t title_length = strnlen(title, sizeof(title) - 1);
 
     postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
@@ -491,7 +486,6 @@ bool friend_set_online(FRIEND *f, bool online) {
 
     return true;
 }
-
 
 void friend_set_typing(FRIEND *f, int typing) {
     f->typing = typing;
@@ -606,8 +600,7 @@ FRIEND *find_friend_by_name(uint8_t *name) {
             continue;
         }
         /* Sparse creates leave zeroed holes between friend numbers. */
-        if (!f->name && !f->alias && !f->avatar && !f->status_message
-            && !f->msg.data && !f->edit_history && !f->typed) {
+        if (!f->name && !f->alias && !f->avatar && !f->status_message && !f->msg.data && !f->edit_history && !f->typed) {
             continue;
         }
 
@@ -627,8 +620,7 @@ FRIEND *get_friend_by_id(const char *id_str) {
         if (!f) {
             continue;
         }
-        if (!f->name && !f->alias && !f->avatar && !f->status_message
-            && !f->msg.data && !f->edit_history && !f->typed) {
+        if (!f->name && !f->alias && !f->avatar && !f->status_message && !f->msg.data && !f->edit_history && !f->typed) {
             continue;
         }
 
@@ -647,8 +639,7 @@ void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char
 
     char title[UTOX_FRIEND_NAME_LENGTH(f) + SLEN(STATUS_MESSAGE) + strlen(state)];
 
-    snprintf(title, sizeof(title), S(STATUS_MESSAGE),
-             (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
+    snprintf(title, sizeof(title), S(STATUS_MESSAGE), (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
     size_t title_length = strnlen(title, sizeof(title) - 1);
 
     notify(title, title_length, (char *)msg, msg_length, f, 0);

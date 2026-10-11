@@ -103,9 +103,9 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             /* param1: connection status (1 = connected, 0 = disconnected) */
             tox_connected = param1;
             if (tox_connected) {
-                LOG_NOTE("uTox", "Connected to DHT!" );
+                LOG_NOTE("uTox", "Connected to DHT!");
             } else {
-                LOG_NOTE("uTox", "Disconnected from DHT!" );
+                LOG_NOTE("uTox", "Disconnected from DHT!");
             }
             redraw();
             break;
@@ -183,7 +183,6 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
 
-
         /* File transfer messages */
 
         // data:   FILE_TRANSFER *file
@@ -202,9 +201,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             FILE_TRANSFER *file = data;
 
-            MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
-                                                  file->name, file->name_length,
-                                                  file->target_size, file->current_size);
+            MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status, file->name, file->name_length, file->target_size, file->current_size);
             file_notify(f, m);
             ft_set_ui_data(file->friend_number, file->file_number, m);
 
@@ -227,13 +224,11 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FILE_TRANSFER *file = data;
 
             if (f->ft_autoaccept) {
-                LOG_TRACE("Toxcore", "Auto Accept enabled for this friend: sending accept to system" );
+                LOG_TRACE("Toxcore", "Auto Accept enabled for this friend: sending accept to system");
                 native_autoselect_dir_ft(param1, file);
             }
 
-            MSG_HEADER *m = message_add_type_file(&f->msg, (param2 + 1) << 16, file->incoming, file->inline_img,
-                                                  file->status, file->name, file->name_length,
-                                                  file->target_size, file->current_size);
+            MSG_HEADER *m = message_add_type_file(&f->msg, (param2 + 1) << 16, file->incoming, file->inline_img, file->status, file->name, file->name_length, file->target_size, file->current_size);
             file_notify(f, m);
             ft_set_ui_data(file->friend_number, file->file_number, m);
 
@@ -282,9 +277,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             FILE_TRANSFER *file = data;
 
             // Add file transfer message so user can save the inline.
-            MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
-                                                  file->name, file->name_length,
-                                                  file->target_size, file->current_size);
+            MSG_HEADER *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status, file->name, file->name_length, file->target_size, file->current_size);
             file_notify(f, m);
             ft_set_ui_data(file->friend_number, file->file_number, m);
 
@@ -325,7 +318,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             if (file->ui_data) {
                 if (param1 == FILE_TRANSFER_STATUS_COMPLETED) {
                     if (file->in_memory) {
-                        file->ui_data->via.ft.data = file->via.memory;
+                        file->ui_data->via.ft.data      = file->via.memory;
                         file->ui_data->via.ft.data_size = file->current_size;
                     } else {
                         memcpy(file->ui_data->via.ft.path, file->path, UTOX_FILE_NAME_LENGTH);
@@ -334,7 +327,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             }
 
             file->decon_wait = false;
-            LOG_NOTE("uTox", "FT data was saved" );
+            LOG_NOTE("uTox", "FT data was saved");
             redraw();
             break;
         }
@@ -349,7 +342,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                 break;
             }
 
-            MSG_HEADER *msg = data;
+            MSG_HEADER *msg         = data;
             msg->via.ft.file_status = param1;
 
             redraw();
@@ -395,7 +388,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             /* param1: friend id
              * param2: png size
              * data: png data    */
-            FRIEND *f = get_friend(param1);
+            FRIEND  *f      = get_friend(param1);
             uint8_t *avatar = data;
             size_t   size   = param2;
 
@@ -424,7 +417,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
         }
         case FRIEND_MESSAGE: {
             // TODO implement notification
-            //notify_new(NULL, NULL);
+            // notify_new(NULL, NULL);
             redraw();
             break;
         }
@@ -581,7 +574,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
                data: packaged frame data */
 
             UTOX_FRAME_PKG *frame = data;
-            STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
+            STRING         *s     = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
             // TODO: Don't try to start a new video session every frame.
             video_begin(param1, s->str, s->length, frame->w, frame->h);
             video_frame(param1, frame->img, frame->w, frame->h, 0);
@@ -595,7 +588,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case AV_CLOSE_WINDOW: {
-            LOG_INFO("uTox", "Closing video feed" );
+            LOG_INFO("uTox", "Closing video feed");
             video_end(param1);
             redraw();
             break;

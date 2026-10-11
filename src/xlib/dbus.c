@@ -17,12 +17,12 @@ static sig_atomic_t done;
 
 static int notify_build_message(DBusMessage *notify_msg, char *title, char *content, uint8_t *UNUSED(cid)) {
     DBusMessageIter args[4];
-    char *          app_name    = "uTox";
+    char           *app_name    = "uTox";
     uint32_t        replaces_id = -1;
-    char *          app_icon    = "";
+    char           *app_icon    = "";
     int32_t         timeout     = 5000;
     dbus_bool_t     m           = 0;
-    char *          key         = "foo";
+    char           *key         = "foo";
     int             value       = 42;
 
     /* TODO we can use dbus to show the notifying users avatar, we don't do so anymore because the directory/save
@@ -40,8 +40,7 @@ static int notify_build_message(DBusMessage *notify_msg, char *title, char *cont
            m |= dbus_message_iter_append_basic(&args[1], DBUS_TYPE_STRING, &array[i]);*/
     m |= dbus_message_iter_close_container(&args[0], &args[1]);
 
-    m |= dbus_message_iter_open_container(&args[0], DBUS_TYPE_ARRAY, "{sv}",
-                                          &args[1]); /* usually {sv} for dictionaries */
+    m |= dbus_message_iter_open_container(&args[0], DBUS_TYPE_ARRAY, "{sv}", &args[1]); /* usually {sv} for dictionaries */
     m |= dbus_message_iter_open_container(&args[1], DBUS_TYPE_DICT_ENTRY, NULL, &args[2]);
     m |= dbus_message_iter_append_basic(&args[2], DBUS_TYPE_STRING, &key);
     m |= dbus_message_iter_open_container(&args[2], DBUS_TYPE_VARIANT, DBUS_TYPE_INT32_AS_STRING, &args[3]);
@@ -57,8 +56,8 @@ static int notify_build_message(DBusMessage *notify_msg, char *title, char *cont
 static void notify_callback(DBusPendingCall *UNUSED(pending), void *UNUSED(user_data)) { done = 1; }
 
 void dbus_notify(char *title, char *content, uint8_t *cid) {
-    DBusMessage *    msg;
-    DBusConnection * conn;
+    DBusMessage     *msg;
+    DBusConnection  *conn;
     DBusError        err;
     DBusPendingCall *pending;
 

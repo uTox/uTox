@@ -8,17 +8,17 @@
 struct native_window {
     struct utox_window _;
 
-    HWND    window;
+    HWND window;
 
-    HDC     window_DC;
+    HDC window_DC;
 
-    HDC     draw_DC;
-    HDC     mem_DC;
+    HDC draw_DC;
+    HDC mem_DC;
 
     HBITMAP draw_BM;
 };
 
 extern UTOX_WINDOW main_window;
-extern HINSTANCE curr_instance;
+extern HINSTANCE   curr_instance;
 
 #endif

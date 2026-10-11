@@ -24,10 +24,8 @@ void force_redraw(void) {
             .window       = curr->window,
             .message_type = XRedraw,
             .format       = 8,
-            .data = {
-                .s = { 0, 0 }
-            }
-        }
+            .data         = {
+                .s = { 0, 0 } } }
     };
 
     _redraw = 1;
@@ -36,9 +34,7 @@ void force_redraw(void) {
 }
 
 void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
-    XRenderComposite(display, PictOpOver, image->rgb, image->alpha, curr->renderpic, imgx, imgy, imgx, imgy, x, y, width,
-                     height);
-
+    XRenderComposite(display, PictOpOver, image->rgb, image->alpha, curr->renderpic, imgx, imgy, imgx, imgy, x, y, width, height);
 }
 
 void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
@@ -83,10 +79,10 @@ void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, i
 }
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
-    XRenderColor xrcolor = {.red   = ((color >> 8) & 0xFF00) | 0x80,
-                            .green = ((color)&0xFF00) | 0x80,
-                            .blue  = ((color << 8) & 0xFF00) | 0x80,
-                            .alpha = 0xFFFF };
+    XRenderColor xrcolor = { .red   = ((color >> 8) & 0xFF00) | 0x80,
+                             .green = ((color) & 0xFF00) | 0x80,
+                             .blue  = ((color << 8) & 0xFF00) | 0x80,
+                             .alpha = 0xFFFF };
 
     Picture src = XRenderCreateSolidFill(display, &xrcolor);
 
@@ -96,7 +92,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
 }
 
 static int _drawtext(int x, int xmax, int y, const char *str, uint16_t length) {
-    GLYPH *  g;
+    GLYPH   *g;
     uint8_t  len;
     uint32_t ch;
     while (length) {
@@ -111,8 +107,7 @@ static int _drawtext(int x, int xmax, int y, const char *str, uint16_t length) {
             }
 
             if (g->pic) {
-                XRenderComposite(display, PictOpOver, curr->colorpic, g->pic, curr->renderpic, 0, 0, 0, 0, x + g->x, y + g->y,
-                                 g->width, g->height);
+                XRenderComposite(display, PictOpOver, curr->colorpic, g->pic, curr->renderpic, 0, 0, 0, 0, x + g->x, y + g->y, g->width, g->height);
             }
             x += g->xadvance;
         }
@@ -152,7 +147,7 @@ void drawvline(int x, int y, int y2, uint32_t color) {
 uint32_t setcolor(uint32_t color) {
     XRenderColor xrcolor;
     xrcolor.red   = ((color >> 8) & 0xFF00) | 0x80;
-    xrcolor.green = ((color)&0xFF00) | 0x80;
+    xrcolor.green = ((color) & 0xFF00) | 0x80;
     xrcolor.blue  = ((color << 8) & 0xFF00) | 0x80;
     xrcolor.alpha = 0xFFFF;
 

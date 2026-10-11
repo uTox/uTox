@@ -7,7 +7,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct inline_vid { PANEL panel; } INLINE_VID;
+typedef struct inline_vid {
+    PANEL panel;
+} INLINE_VID;
 
 bool inline_set_frame(uint16_t w, uint16_t h, size_t size, void *img);
 

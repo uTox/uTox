@@ -41,13 +41,13 @@
 #include <io.h>
 #include <libgen.h>
 
-HFONT font[32];
+HFONT   font[32];
 HCURSOR cursors[8];
-HICON black_icon, unread_messages_icon;
-HBRUSH hdc_brush;
-HWND video_hwnd[128]; // todo fixme
-HWND preview_hwnd;    // todo fixme
-char portable_mode_save_path[MAX_PATH];
+HICON   black_icon, unread_messages_icon;
+HBRUSH  hdc_brush;
+HWND    video_hwnd[128]; // todo fixme
+HWND    preview_hwnd; // todo fixme
+char    portable_mode_save_path[MAX_PATH];
 
 /**
  * A null-terminated string that specifies the text for a standard tooltip.
@@ -58,7 +58,7 @@ char portable_mode_save_path[MAX_PATH];
 static const uint8_t MAX_TIP_LENGTH = 128 - 1;
 
 bool flashing = false;
-bool hidden = false;
+bool hidden   = false;
 
 void native_export_chatlog_init(uint32_t friend_number) {
     FRIEND *f = get_friend(friend_number);
@@ -145,7 +145,9 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
         autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH * sizeof(wchar_t));
         utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path) * 2);
     } else if (SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads,
-                                    KF_FLAG_CREATE, NULL, &autoaccept_folder) != S_OK) {
+                                    KF_FLAG_CREATE,
+                                    NULL,
+                                    &autoaccept_folder) != S_OK) {
         LOG_ERR("Windows", "Unable to get auto accept file folder.");
         return;
     }
@@ -188,9 +190,9 @@ void launch_at_startup(bool should) {
     if (should) {
         HKEY hKey;
         if (RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey) == ERROR_SUCCESS) {
-            wchar_t path[UTOX_FILE_NAME_LENGTH * 2];
-            uint16_t path_length = GetModuleFileNameW(NULL, path + 1, UTOX_FILE_NAME_LENGTH * 2);
-            path[0] = '\"';
+            wchar_t  path[UTOX_FILE_NAME_LENGTH * 2];
+            uint16_t path_length  = GetModuleFileNameW(NULL, path + 1, UTOX_FILE_NAME_LENGTH * 2);
+            path[0]               = '\"';
             path[path_length + 1] = '\"';
             path[path_length + 2] = '\0';
             path_length += 2;
@@ -294,10 +296,10 @@ void openfileavatar(void) {
                        "PNG Files\0*.PNG\0"
                        "JPG Files\0*.JPG;*.JPEG\0"
                        "\0",
-        .hwndOwner = main_window.window,
-        .lpstrFile = filepath,
-        .nMaxFile  = UTOX_FILE_NAME_LENGTH,
-        .Flags     = OFN_EXPLORER | OFN_FILEMUSTEXIST,
+        .hwndOwner   = main_window.window,
+        .lpstrFile   = filepath,
+        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
+        .Flags       = OFN_EXPLORER | OFN_FILEMUSTEXIST,
     };
 
     while (1) { // loop until we have a good file or the user closed the dialog
@@ -306,9 +308,9 @@ void openfileavatar(void) {
             break;
         }
 
-        int width, height, bpp, size;
+        int      width, height, bpp, size;
         uint8_t *file_data = stbi_load(filepath, &width, &height, &bpp, 0);
-        uint8_t *img = stbi_write_png_to_mem(file_data, 0, width, height, bpp, &size);
+        uint8_t *img       = stbi_write_png_to_mem(file_data, 0, width, height, bpp, &size);
         free(file_data);
 
         if (!img) {
@@ -320,14 +322,12 @@ void openfileavatar(void) {
             free(img);
             char message[1024];
             if (sizeof(message) < (unsigned)SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
-                LOG_ERR("Windows", "AVATAR_TOO_LARGE message is larger than allocated buffer(%llu bytes)\n",
-                        sizeof(message));
+                LOG_ERR("Windows", "AVATAR_TOO_LARGE message is larger than allocated buffer(%llu bytes)\n", sizeof(message));
                 break;
             }
 
             // create message containing text that selected avatar is too large and what the max size is
-            int len = sprintf(message, "%.*s", SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS),
-                              S(AVATAR_TOO_LARGE_MAX_SIZE_IS));
+            int len = sprintf(message, "%.*s", SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), S(AVATAR_TOO_LARGE_MAX_SIZE_IS));
             len += sprint_humanread_bytes(message + len, sizeof(message) - len, UTOX_AVATAR_MAX_DATA_LENGTH);
             message[len++] = '\0';
 
@@ -348,13 +348,13 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
     utf8_to_nativestr((char *)msg->via.ft.name, filepath, msg->via.ft.name_length * 2);
 
     OPENFILENAMEW ofn = {
-        .lStructSize    = sizeof(OPENFILENAMEW),
-        .hwndOwner      = main_window.window,
-        .lpstrFile      = filepath,
-        .nMaxFile       = UTOX_FILE_NAME_LENGTH,
-        .lpstrDefExt    = L"png",
-        .lpstrFilter    = L"PNG Files\0*.png\0",
-        .Flags          = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST,
+        .lStructSize = sizeof(OPENFILENAMEW),
+        .hwndOwner   = main_window.window,
+        .lpstrFile   = filepath,
+        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
+        .lpstrDefExt = L"png",
+        .lpstrFilter = L"PNG Files\0*.png\0",
+        .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST,
     };
 
     if (GetSaveFileNameW(&ofn)) {
@@ -378,8 +378,8 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
                 return;
             }
 
-            msg->via.ft.path = (uint8_t *)strdup(path);
-            msg->via.ft.name = basename(strdup(path));
+            msg->via.ft.path        = (uint8_t *)strdup(path);
+            msg->via.ft.name        = basename(strdup(path));
             msg->via.ft.name_length = strlen((char *)msg->via.ft.name);
 
             msg->via.ft.inline_png = false;
@@ -395,17 +395,17 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
 
 bool native_save_image_png(const char *name, const uint8_t *image, const int image_size) {
     wchar_t filepath[UTOX_FILE_NAME_LENGTH] = { 0 };
-    size_t length = strlen(name);
+    size_t  length                          = strlen(name);
     utf8_to_nativestr(name, filepath, length * 2);
 
     OPENFILENAMEW ofn = {
-        .lStructSize    = sizeof(OPENFILENAMEW),
-        .hwndOwner      = main_window.window,
-        .lpstrFile      = filepath,
-        .nMaxFile       = UTOX_FILE_NAME_LENGTH,
-        .lpstrDefExt    = L"png",
-        .lpstrFilter    = L"PNG Files\0*.png\0",
-        .Flags          = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST,
+        .lStructSize = sizeof(OPENFILENAMEW),
+        .hwndOwner   = main_window.window,
+        .lpstrFile   = filepath,
+        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
+        .lpstrDefExt = L"png",
+        .lpstrFilter = L"PNG Files\0*.png\0",
+        .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST,
     };
 
     if (GetSaveFileNameW(&ofn)) {
@@ -476,12 +476,12 @@ void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {
 
 void copy(int value) {
     const uint32_t max_size = UINT16_MAX + 1;
-    char data[max_size]; //! TODO: De-hardcode this value.
+    char           data[max_size]; //! TODO: De-hardcode this value.
     memset(data, 0, sizeof(data));
     int len = 0;
 
     if (edit_active()) {
-        len = edit_copy(data, max_size - 1);
+        len       = edit_copy(data, max_size - 1);
         data[len] = 0;
     } else if (flist_get_sel_friend()) {
         len = messages_selection(&messages_friend, data, max_size, value);
@@ -541,10 +541,10 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
 
     GetDIBits(mem, hbm, 0, height, bits, &info, DIB_RGB_COLORS);
 
-    uint8_t pbytes = width & 3;
-    uint8_t *p = bits;
-    uint8_t *pp = bits;
-    uint8_t *end = p + width * height * 3;
+    uint8_t  pbytes = width & 3;
+    uint8_t *p      = bits;
+    uint8_t *pp     = bits;
+    uint8_t *end    = p + width * height * 3;
 
     while (p != end) {
         for (int i = 0; i != width; i++) {
@@ -577,7 +577,7 @@ void paste(void) {
                 return;
             }
 
-            BITMAP  bm;
+            BITMAP bm;
             GetObject(h, sizeof(bm), &bm);
 
             HDC tempdc = CreateCompatibleDC(NULL);
@@ -593,8 +593,8 @@ void paste(void) {
         }
     } else {
         wchar_t *d = GlobalLock(h);
-        char data[65536]; // TODO: De-hardcode this value.
-        int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, data, sizeof(data), NULL, NULL);
+        char     data[65536]; // TODO: De-hardcode this value.
+        int      len = WideCharToMultiByte(CP_UTF8, 0, d, -1, data, sizeof(data), NULL, NULL);
         if (edit_active()) {
             edit_paste(data, len, false);
         }
@@ -626,7 +626,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
     // create device independent bitmap, we can write the bytes to out
     // to put them in the bitmap
     uint8_t *out;
-    HBITMAP bmp = CreateDIBSection(main_window.mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out, NULL, 0);
+    HBITMAP  bmp = CreateDIBSection(main_window.mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out, NULL, 0);
 
     // convert RGBA data to internal format
     // pre-applying the alpha if we're keeping the alpha channel,
@@ -657,7 +657,6 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
     }
 
     free(rgba_data);
-
 
     NATIVE_IMAGE *image = create_utox_image(bmp, keep_alpha, width, height);
 
@@ -723,13 +722,11 @@ void update_tray(void) {
     char tip[length];
     memset(tip, 0, length);
 
-    length = snprintf(tip, length, "%.*s : %.*s",
-                      self.name_length, self.name,
-                      self.statusmsg_length, self.statusmsg);
+    length = snprintf(tip, length, "%.*s : %.*s", self.name_length, self.name, self.statusmsg_length, self.statusmsg);
 
     NOTIFYICONDATAW nid = {
         .uFlags = NIF_TIP,
-        .hWnd = main_window.window,
+        .hWnd   = main_window.window,
         .cbSize = sizeof(nid),
     };
 
@@ -814,20 +811,20 @@ void setscale(void) {
  * Credit: http://alter.org.ua/docs/win/args
  */
 static PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
-    ULONG len = strlen(CmdLine);
-    ULONG i = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
-    PCHAR *argv = (PCHAR *)GlobalAlloc(GMEM_FIXED, i + (len + 2) * sizeof(CHAR));
-    PCHAR _argv = (PCHAR)(((PUCHAR)argv) + i);
+    ULONG  len   = strlen(CmdLine);
+    ULONG  i     = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
+    PCHAR *argv  = (PCHAR *)GlobalAlloc(GMEM_FIXED, i + (len + 2) * sizeof(CHAR));
+    PCHAR  _argv = (PCHAR)(((PUCHAR)argv) + i);
 
     ULONG argc = 0;
     argv[argc] = _argv;
-    i = 0;
+    i          = 0;
 
     BOOLEAN in_QM    = FALSE;
     BOOLEAN in_TEXT  = FALSE;
     BOOLEAN in_SPACE = TRUE;
 
-    CHAR a;
+    CHAR  a;
     ULONG j = 0;
     while ((a = CmdLine[i])) {
         if (in_QM) {
@@ -945,7 +942,7 @@ static bool win_init_mutex(HANDLE *mutex, HINSTANCE hInstance, PSTR cmd, const c
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cmd, int nCmdShow) {
     pthread_mutex_init(&messages_lock, NULL);
 
-    int argc;
+    int    argc;
     PCHAR *argv = CommandLineToArgvA(GetCommandLineA(), &argc);
     if (!argv) {
         printf("Init error -- CommandLineToArgvA failed.");
@@ -962,7 +959,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
         const HMODULE hModule = GetModuleHandle(NULL);
         GetModuleFileName(hModule, instance_id, MAX_PATH);
 
-        char *utox_path = strdup(instance_id);
+        char *utox_path   = strdup(instance_id);
         char *utox_folder = dirname(utox_path);
 
         SetCurrentDirectory(utox_folder);
@@ -979,9 +976,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     LOG_WARN("WinMain", "Normal windows build");
 
-    #ifdef GIT_VERSION
-        LOG_NOTE("WinMain", "uTox version %s \n", GIT_VERSION);
-    #endif
+#ifdef GIT_VERSION
+    LOG_NOTE("WinMain", "uTox version %s \n", GIT_VERSION);
+#endif
 
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     HANDLE utox_mutex;

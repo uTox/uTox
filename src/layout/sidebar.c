@@ -23,7 +23,9 @@
 
 // Scrollbar or friend list
 SCROLLABLE scrollbar_flist = {
-    .panel = { .type = PANEL_SCROLLABLE, },
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+    },
     .color = C_SCROLL,
     .x     = 2,
     .left  = 1,
@@ -45,20 +47,15 @@ static void draw_user_badge(int x, int y, int width, int UNUSED(height)) {
         x += SCALE(SIDEBAR_PADDING);
         y += SCALE(SIDEBAR_PADDING);
         if (self_has_avatar()) {
-            draw_avatar_image(self.avatar->img, x, y, self.avatar->width,
-                              self.avatar->height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+            draw_avatar_image(self.avatar->img, x, y, self.avatar->width, self.avatar->height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
         } else {
-            drawalpha(BM_CONTACT, x, y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
-                      COLOR_MENU_TEXT);
+            drawalpha(BM_CONTACT, x, y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
         }
 
         /* Draw online/all friends filter text. */
         setcolor(!button_filter_friends.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
         setfont(FONT_STATUS);
-        drawtextrange(x, width - SCALE(SIDEBAR_PADDING),
-                      y + SCALE(SIDEBAR_PADDING) + BM_CONTACT_WIDTH,
-                      flist_get_filter() ? S(FILTER_ONLINE) : S(FILTER_ALL),
-                      flist_get_filter() ? SLEN(FILTER_ONLINE) : SLEN(FILTER_ALL));
+        drawtextrange(x, width - SCALE(SIDEBAR_PADDING), y + SCALE(SIDEBAR_PADDING) + BM_CONTACT_WIDTH, flist_get_filter() ? S(FILTER_ONLINE) : S(FILTER_ALL), flist_get_filter() ? SLEN(FILTER_ONLINE) : SLEN(FILTER_ALL));
 
         x += SCALE(SIDEBAR_PADDING) + BM_CONTACT_WIDTH;
 
@@ -71,24 +68,25 @@ static void draw_user_badge(int x, int y, int width, int UNUSED(height)) {
         @TODO: separate these colors if needed (COLOR_MAIN_TEXT_HINT) */
         setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
         setfont(FONT_STATUS);
-        drawtextrange(x, width - SCALE(SIDEBAR_PADDING * 5), y + SCALE(SIDEBAR_PADDING * 4), self.statusmsg,
-                      self.statusmsg_length);
+        drawtextrange(x, width - SCALE(SIDEBAR_PADDING * 5), y + SCALE(SIDEBAR_PADDING * 4), self.statusmsg, self.statusmsg_length);
 
         /* Draw status button icon */
         drawalpha(BM_STATUSAREA,
                   width - BM_STATUSAREA_WIDTH - SCALE(SIDEBAR_PADDING),
                   y + SCALE(SIDEBAR_PADDING),
-                  BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
+                  BM_STATUSAREA_WIDTH,
+                  BM_STATUSAREA_HEIGHT,
                   button_usr_state.mouseover ? COLOR_BKGRND_LIST_HOVER : COLOR_BKGRND_LIST);
         uint8_t status = tox_connected ? self.status : 3;
         drawalpha(BM_ONLINE + status,
                   width - BM_STATUS_WIDTH - BM_STATUSAREA_WIDTH / 2 - SCALE(1),
                   y + SCALE(SIDEBAR_PADDING) + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2,
-                  BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+                  BM_STATUS_WIDTH,
+                  BM_STATUS_WIDTH,
+                  status_color[status]);
 
     } else {
-        drawalpha(BM_CONTACT, SCALE(SIDEBAR_PADDING), SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
-                  COLOR_MENU_TEXT);
+        drawalpha(BM_CONTACT, SCALE(SIDEBAR_PADDING), SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
 
         setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
         setfont(FONT_SELF_NAME);
@@ -106,60 +104,37 @@ static void draw_user_badge(int x, int y, int width, int UNUSED(height)) {
 PANEL
 
 panel_side_bar = {
-    .type = PANEL_NONE,
+    .type     = PANEL_NONE,
     .disabled = 0,
     .drawfunc = draw_background_sidebar,
-    .width = 230,
-    .child = (PANEL*[]) {
+    .width    = 230,
+    .child    = (PANEL *[]){
         &panel_self,
         &panel_quick_buttons,
         &panel_flist,
-        NULL
-    }
+        NULL }
 },
-/* The user badge and buttons */
-panel_self = {
-    .type     = PANEL_NONE,
-    .disabled = 0,
-    .drawfunc = draw_user_badge,
-    .child    = (PANEL*[]) {
-        (PANEL*)&button_avatar, (PANEL*)&button_name,       (PANEL*)&button_usr_state,
-                                (PANEL*)&button_status_msg,
-        NULL
-    }
-},
-/* Left sided toggles */
-panel_quick_buttons = {
-    .type     = PANEL_NONE,
-    .disabled = 0,
-    .child    = (PANEL*[]) {
-        (PANEL*)&button_filter_friends, /* Top of roster */
-        (PANEL*)&edit_search,           /* Bottom of roster*/
-        (PANEL*)&button_settings,
-        (PANEL*)&button_add_new_contact,
-        NULL
-    }
-},
-/* The friends and group was called list */
-panel_flist = {
-    .type     = PANEL_NONE,
-    .disabled = 0,
-    .child    = (PANEL*[]) {
-        // TODO rename these
-        &panel_flist_list,
-        (PANEL*)&scrollbar_flist,
-        NULL
-    }
-},
+    /* The user badge and buttons */
+    panel_self = { .type = PANEL_NONE, .disabled = 0, .drawfunc = draw_user_badge, .child = (PANEL *[]){ (PANEL *)&button_avatar, (PANEL *)&button_name, (PANEL *)&button_usr_state, (PANEL *)&button_status_msg, NULL } },
+    /* Left sided toggles */
+    panel_quick_buttons = { .type = PANEL_NONE, .disabled = 0, .child = (PANEL *[]){ (PANEL *)&button_filter_friends, /* Top of roster */
+                                                                                     (PANEL *)&edit_search, /* Bottom of roster*/
+                                                                                     (PANEL *)&button_settings,
+                                                                                     (PANEL *)&button_add_new_contact,
+                                                                                     NULL } },
+    /* The friends and group was called list */
+    panel_flist      = { .type = PANEL_NONE, .disabled = 0, .child = (PANEL *[]){ // TODO rename these
+                                                                                  &panel_flist_list,
+                                                                                  (PANEL *)&scrollbar_flist,
+                                                                                  NULL } },
     panel_flist_list = {
         .type           = PANEL_LIST,
         .content_scroll = &scrollbar_flist,
     };
 
-
 #include "../friend.h"
 static void e_search_onchange(EDIT *edit) {
-    char *data = edit->data;
+    char    *data   = edit->data;
     uint16_t length = edit->length > sizeof search_data ? sizeof search_data - 1 : edit->length;
 
     if (length) {
@@ -182,11 +157,11 @@ static void e_search_onchange(EDIT *edit) {
 }
 
 static void e_search_onenter(EDIT *edit) {
-    char *   data   = edit->data;
+    char    *data   = edit->data;
     uint16_t length = edit->length;
 
     if (length == 76) { // FIXME, this should be error checked!
-                        // No, srsly... this is lucky, not right.
+        // No, srsly... this is lucky, not right.
         friend_add(data, length, (char *)"", 0);
         edit_setstr(&edit_search, (char *)"", 0);
     } else {
@@ -202,7 +177,7 @@ static void e_search_onenter(EDIT *edit) {
 }
 
 static char e_search_data[1024];
-EDIT edit_search = {
+EDIT        edit_search = {
     .panel = {
         .type   = PANEL_EDIT,
         .x      = SIDEBAR_SEARCH_LEFT,

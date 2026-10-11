@@ -24,8 +24,8 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
 
     // Increase width if needed, so that tooltip text fits.
     if (maybe_i18nal_string_is_valid(b->tt_text)) {
-        const STRING *s    = maybe_i18nal_string_get(b->tt_text);
-        const int needed_w = textwidth(s->str, s->length) + SCALE(8);
+        const STRING *s        = maybe_i18nal_string_get(b->tt_text);
+        const int     needed_w = textwidth(s->str, s->length) + SCALE(8);
         if (*w < needed_w) {
             *w = needed_w;
         }

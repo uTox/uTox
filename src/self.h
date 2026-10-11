@@ -26,20 +26,20 @@ extern struct utox_self {
     size_t id_str_length;
 
     NATIVE_IMAGE *qr_image;
-    int qr_image_size;
+    int           qr_image_size;
 
     uint8_t *qr_data;
-    int qr_data_size;
+    int      qr_data_size;
 
     uint8_t id_binary[TOX_ADDRESS_SIZE];
 
     uint32_t nospam;
     uint32_t old_nospam;
-    char nospam_str[(sizeof(uint32_t) * 2) + 1];
+    char     nospam_str[(sizeof(uint32_t) * 2) + 1];
 
-    AVATAR *avatar;
+    AVATAR  *avatar;
     uint8_t *png_data;
-    size_t png_size;
+    size_t   png_size;
 } self;
 
 void init_self(Tox *tox);

@@ -51,8 +51,7 @@ void switch_draw(UISWITCH *s, int x, int y, int w, int h) {
     }
 }
 
-bool switch_mmove(UISWITCH *s, int UNUSED(x), int UNUSED(y), int width, int height, int mx, int my, int UNUSED(dx),
-                  int UNUSED(dy)) {
+bool switch_mmove(UISWITCH *s, int UNUSED(x), int UNUSED(y), int width, int height, int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
     // Ensure that font is set before calculating position and width.
     setfont(FONT_SELF_NAME);
 

@@ -6,8 +6,6 @@
 
 #include "../ui.h"
 
-
-
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -24,10 +22,10 @@ struct uiswitch {
     int toggle_w, toggle_h, icon_off_w, icon_off_h, icon_on_w, icon_on_h;
 
     // Background RGB color, when Idle/Hovered/Pressed respectively.
-    uint32_t bg_color,  // Switch normal background color
-        sw_color,       // Switch 'toggle' color
-        hover_color,    // Switch mouse over color
-        press_color,    // Switch mouse down color
+    uint32_t bg_color, // Switch normal background color
+        sw_color, // Switch 'toggle' color
+        hover_color, // Switch mouse over color
+        press_color, // Switch mouse down color
         disabled_color; // Switch disabled bg color
 
     MAYBE_I18NAL_STRING tooltip_text;

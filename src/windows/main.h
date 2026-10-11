@@ -41,14 +41,14 @@ enum {
     MENU_MESSAGES  = 102,
 };
 
-extern HFONT font[32];
+extern HFONT   font[32];
 extern HCURSOR cursors[8];
-extern HICON black_icon, unread_messages_icon;
+extern HICON   black_icon, unread_messages_icon;
 
 extern HBRUSH hdc_brush;
 
 extern HWND video_hwnd[128]; // todo fixme
-extern HWND preview_hwnd;    // todo fixme
+extern HWND preview_hwnd; // todo fixme
 
 extern bool flashing;
 extern bool hidden;
@@ -56,7 +56,7 @@ extern bool hidden;
 // internal representation of an image
 typedef struct native_image {
     HBITMAP bitmap; // 32 bit bitmap containing
-                    // red, green, blue and alpha
+    // red, green, blue and alpha
 
     bool has_alpha; // whether bitmap has an alpha channel
 

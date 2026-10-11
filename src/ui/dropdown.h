@@ -10,7 +10,7 @@
 // userdata of list-based dropdown consists of these records
 typedef struct {
     MAYBE_I18NAL_STRING name;
-    void *              handle;
+    void               *handle;
 } DROP_ELEMENT;
 
 typedef struct dropdown {
@@ -41,8 +41,8 @@ bool dropdown_close(DROPDOWN *b);
 STRING *simple_dropdown_ondisplay(uint16_t, const DROPDOWN *);
 
 STRING *dropdown_list_ondisplay(uint16_t i, const DROPDOWN *dm);
-void dropdown_list_add_hardcoded(DROPDOWN *d, char *name, void *handle);
-void dropdown_list_add_localized(DROPDOWN *d, UTOX_I18N_STR string_id, void *handle);
-void dropdown_list_clear(DROPDOWN *);
+void    dropdown_list_add_hardcoded(DROPDOWN *d, char *name, void *handle);
+void    dropdown_list_add_localized(DROPDOWN *d, UTOX_I18N_STR string_id, void *handle);
+void    dropdown_list_clear(DROPDOWN *);
 
 #endif // UI_DROPDOWN_H

@@ -19,7 +19,7 @@
 #include <errno.h>
 
 typedef struct native_image NATIVE_IMAGE;
-int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img);
+int                         NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img);
 
 #ifdef __OBJC__
 #include "objc_main.h"

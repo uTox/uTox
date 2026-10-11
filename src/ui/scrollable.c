@@ -80,8 +80,7 @@ int scroll_gety(SCROLLABLE *s, int height) {
     return 0;
 }
 
-bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int height, int x, int y, int UNUSED(dx),
-                  int dy) {
+bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int height, int x, int y, int UNUSED(dx), int dy) {
     bool draw = false;
 
     bool hit = inrect(x, y, s->left ? 0 : (width - SCROLL_WIDTH), 0, SCROLL_WIDTH, height);
@@ -129,7 +128,7 @@ bool scroll_mdown(SCROLLABLE *s) {
 bool scroll_mright(SCROLLABLE *UNUSED(s)) { return false; }
 
 static int scroll_line_step(void) {
-    int line = font_small_lineheight;
+    int       line   = font_small_lineheight;
     const int design = SCALE(12);
     if (line < design) {
         line = design;
@@ -158,8 +157,8 @@ bool scroll_mwheel(SCROLLABLE *s, int height, double delta, bool UNUSED(smooth))
 
     /* Keep a fractional remainder so high-res wheel events still add up to
      * whole lines instead of truncating short every notch. */
-    double move = delta * (double)line + s->wheel_accum;
-    int    step = (int)move;
+    double move    = delta * (double)line + s->wheel_accum;
+    int    step    = (int)move;
     s->wheel_accum = move - (double)step;
     if (step == 0) {
         return false;

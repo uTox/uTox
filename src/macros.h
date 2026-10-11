@@ -2,13 +2,13 @@
 #define MACROS_H
 
 #ifndef MIN // Windows or muslc likes to be broken
-#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MIN(a, b) (((a)<(b))?(a):(b))
 #else
 #include <sys/param.h> // Provides MAX/MIN
 #endif
 
 #ifndef MAX // Windows or muslc likes to be broken
-#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MAX(a, b) (((a)>(b))?(a):(b))
 #else
 #include <sys/param.h> // Provides MAX/MIN
 #endif
@@ -24,7 +24,6 @@
 #define isdesktop(x) ((size_t)(x) == 1)
 
 #define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
-
 
 // Wrap var in UNUSED(var) to correctly suppress warnings
 #ifdef UNUSED

@@ -65,12 +65,9 @@ static void ShowContextMenu(void) {
 
         InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
 
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_NONE) ? MF_CHECKED : 0),
-                   TRAY_STATUS_AVAILABLE, "Available");
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_AWAY) ? MF_CHECKED : 0),
-                   TRAY_STATUS_AWAY, "Away");
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_BUSY) ? MF_CHECKED : 0),
-                   TRAY_STATUS_BUSY, "Busy");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_NONE) ? MF_CHECKED : 0), TRAY_STATUS_AVAILABLE, "Available");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_AWAY) ? MF_CHECKED : 0), TRAY_STATUS_AWAY, "Away");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_BUSY) ? MF_CHECKED : 0), TRAY_STATUS_BUSY, "Busy");
 
         InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
 
@@ -86,11 +83,10 @@ static void ShowContextMenu(void) {
 }
 
 /* TODO should this be moved to window.c? */
-static void move_window(int x, int y){
+static void move_window(int x, int y) {
     LOG_TRACE("Win events", "delta x == %i\n", x);
     LOG_TRACE("Win events", "delta y == %i\n", y);
-    SetWindowPos(main_window.window, 0, main_window._.x + x, main_window._.y + y, 0, 0,
-                          SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
+    SetWindowPos(main_window.window, 0, main_window._.x + x, main_window._.y + y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
     main_window._.x += x;
     main_window._.y += y;
 }
@@ -107,9 +103,9 @@ static void move_window(int x, int y){
  * handles the window functions internally, and ships off the tox calls to tox
  */
 LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
-    static int mx, my;
-    static bool mdown = false;
-    static int mdown_x, mdown_y;
+    static int      mx, my;
+    static bool     mdown = false;
+    static int      mdown_x, mdown_y;
     static uint32_t taskbar_created;
 
     if (main_window.window && window != main_window.window) {
@@ -141,7 +137,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_CLOSE:
         case WM_DESTROY: {
             if (settings.close_to_tray) {
-                LOG_INFO("Events", "Closing to tray." );
+                LOG_INFO("Events", "Closing to tray.");
                 togglehide(0);
                 return true;
             } else {
@@ -151,7 +147,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         case WM_GETMINMAXINFO: {
-            POINT min = { SCALE(MAIN_WIDTH), SCALE(MAIN_HEIGHT) };
+            POINT min                              = { SCALE(MAIN_WIDTH), SCALE(MAIN_HEIGHT) };
             ((MINMAXINFO *)lParam)->ptMinTrackSize = min;
 
             break;
@@ -195,8 +191,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                     DeleteObject(main_window.draw_BM);
                 }
 
-                main_window.draw_BM = CreateCompatibleBitmap(main_window.window_DC, settings.window_width,
-                                                             settings.window_height);
+                main_window.draw_BM = CreateCompatibleBitmap(main_window.window_DC, settings.window_width, settings.window_height);
                 SelectObject(main_window.window_DC, main_window.draw_BM);
                 redraw();
             }
@@ -237,8 +232,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             BeginPaint(window, &ps);
 
             RECT r = ps.rcPaint;
-            BitBlt(main_window.window_DC, r.left, r.top, r.right - r.left, r.bottom - r.top,
-                   main_window.draw_DC, r.left, r.top, SRCCOPY);
+            BitBlt(main_window.window_DC, r.left, r.top, r.right - r.left, r.bottom - r.top, main_window.draw_DC, r.left, r.top, SRCCOPY);
 
             EndPaint(window, &ps);
             return false;
@@ -328,8 +322,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             mx           = GET_X_LPARAM(lParam);
             my           = GET_Y_LPARAM(lParam);
 
-            panel_mwheel(&panel_root, mx, my, settings.window_width, settings.window_height,
-                         delta / (double)(WHEEL_DELTA), 1);
+            panel_mwheel(&panel_root, mx, my, settings.window_width, settings.window_height, delta / (double)(WHEEL_DELTA), 1);
             return false;
         }
 
@@ -343,7 +336,6 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             dy = y - my;
             mx = x;
             my = y;
-
 
             if (btn_move_window_down) {
                 move_window(x - mdown_x, y - mdown_y);
@@ -415,12 +407,11 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_MOUSELEAVE: {
             ui_mouseleave();
-            mouse_tracked = false;
+            mouse_tracked        = false;
             btn_move_window_down = false;
             LOG_TRACE("Win events", "mouse leave\n");
             break;
         }
-
 
         case WM_COMMAND: {
             int menu = LOWORD(wParam); //, msg = HIWORD(wParam);

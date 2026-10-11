@@ -31,7 +31,7 @@ struct edit {
     EDIT_CHANGE **history;
 
     SCROLLABLE *scroll;
-    char *      data;
+    char       *data;
     size_t      data_size;
 
     MAYBE_I18NAL_STRING empty_str;
@@ -60,17 +60,17 @@ void edit_press(void);
 
 void edit_char(uint32_t ch, bool control, uint8_t flags);
 
-int edit_selection(EDIT *edit, char *data, int len);
-int edit_copy(char *data, int len);
+int  edit_selection(EDIT *edit, char *data, int len);
+int  edit_copy(char *data, int len);
 void edit_paste(char *data, int len, bool select);
 
 bool  edit_active(void);
 EDIT *edit_get_active(void);
 
-void edit_resetfocus(void);
-void edit_setfocus(EDIT *edit);
-void edit_setstr(EDIT *edit, char *str, uint16_t length);
-void edit_setcursorpos(EDIT *edit, uint16_t pos);
+void     edit_resetfocus(void);
+void     edit_setfocus(EDIT *edit);
+void     edit_setstr(EDIT *edit, char *str, uint16_t length);
+void     edit_setcursorpos(EDIT *edit, uint16_t pos);
 uint16_t edit_getcursorpos(void);
 
 // set outloc and outlen to the mark range.

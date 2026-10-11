@@ -29,7 +29,7 @@ bool tray_window_event(XEvent *event);
 #define LDVAR(NAME) _section$__DATA__ ## NAME
 #define LDLEN(NAME) (getsectbyname("__DATA", "__" #NAME)->size)
 
-#elif (defined __WIN32__)  /* mingw */
+#elif (defined __WIN32__) /* mingw */
 
 #define EXTLD(NAME) \
     extern uint8_t binary_ ## NAME ## _start[]; \

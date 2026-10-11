@@ -69,20 +69,19 @@ static void drawrectrounded(uint8_t *data, int width, int height, int radius) {
 }
 
 static void drawrectroundedex(uint8_t *data, int width, int height, int radius, uint8_t flags) {
-    bool left =   ((flags & 1) != 0); /* 0001 */
-    bool right =  ((flags & 2) != 0); /* 0010 */
-    bool top =    ((flags & 4) != 0); /* 0100 */
+    bool left   = ((flags & 1) != 0); /* 0001 */
+    bool right  = ((flags & 2) != 0); /* 0010 */
+    bool top    = ((flags & 4) != 0); /* 0100 */
     bool bottom = ((flags & 8) != 0); /* 1000 */
 
     double hw = (double)radius - 0.5;
     for (int y = 0; y != height; y++) {
         for (int x = 0; x != width; x++) {
-            if (((left && x < radius) || (right && x >= width - radius))
-                && ((top && y < radius) || (bottom && y >= height - radius))) {
+            if (((left && x < radius) || (right && x >= width - radius)) && ((top && y < radius) || (bottom && y >= height - radius))) {
                 double dx = (x < radius) ? x - hw : x + hw - width + 1.0;
                 double dy = (y < radius) ? y - hw : y + hw - height + 1.0;
-                double d = sqrt(dx * dx + dy * dy) - hw;
-                *data++  = pixel(d);
+                double d  = sqrt(dx * dx + dy * dy) - hw;
+                *data++   = pixel(d);
             } else {
                 *data++ = 0xFF;
             }
@@ -101,8 +100,8 @@ static void drawrectroundedsub(uint8_t *p, int width, int UNUSED(height), int sx
             if ((x < radius || x >= sw - radius) && (y < radius || y >= sh - radius)) {
                 double dx = (x < radius) ? x - hw : x + hw - sw + 1.0;
                 double dy = (y < radius) ? y - hw : y + hw - sh + 1.0;
-                double d = sqrt(dx * dx + dy * dy) - hw;
-                *data    = pixel(d);
+                double d  = sqrt(dx * dx + dy * dy) - hw;
+                *data     = pixel(d);
             } else {
                 *data = 0xFF;
             }
@@ -124,8 +123,8 @@ static void drawrectroundedneg(uint8_t *p, int width, int UNUSED(height), int sx
             if ((x < radius || x >= sw - radius) && (y < radius || y >= sh - radius)) {
                 double dx = (x < radius) ? x - hw : x + hw - sw + 1.0;
                 double dy = (y < radius) ? y - hw : y + hw - sh + 1.0;
-                double d = sqrt(dx * dx + dy * dy) - hw;
-                *data    = 0xFF - pixel(d);
+                double d  = sqrt(dx * dx + dy * dy) - hw;
+                *data     = 0xFF - pixel(d);
             } else {
                 *data = 0;
             }
@@ -279,8 +278,7 @@ static void svgdraw_line_neg(uint8_t *data, int width, int height, double sx, do
     }
 }
 
-static void svgdraw_line_down_neg(uint8_t *data, int width, int height, double sx, double sy, double span,
-                                  double radius) {
+static void svgdraw_line_down_neg(uint8_t *data, int width, int height, double sx, double sy, double span, double radius) {
     double cx = sx - 0.5, cy = sy - 0.5;
     for (int y = 0; y != height; y++) {
         for (int x = 0; x != width; x++) {
@@ -325,14 +323,13 @@ static void drawtri(uint8_t *data, int width, int height, double sx, double sy, 
     }
 }
 
-static void drawlineround(uint8_t *data, int width, int height, double sx, double sy, double span, double radius,
-                          double subwidth, uint8_t flags) {
+static void drawlineround(uint8_t *data, int width, int height, double sx, double sy, double span, double radius, double subwidth, uint8_t flags) {
     double cx = sx - 0.5, cy = sy - 0.5, sw = (double)subwidth / 2.0;
     for (int y = 0; y != height; y++) {
         for (int x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
-            double d  = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
-            d         = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
+            double d = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
+            d        = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
 
             double ddx, ddy, d2;
 
@@ -356,14 +353,13 @@ static void drawlineround(uint8_t *data, int width, int height, double sx, doubl
     }
 }
 
-static void drawlineroundempty(uint8_t *data, int width, int height, double sx, double sy, double span, double radius,
-                               double subwidth) {
+static void drawlineroundempty(uint8_t *data, int width, int height, double sx, double sy, double span, double radius, double subwidth) {
     double cx = sx - 0.5, cy = sy - 0.5, sw = (double)subwidth / 2.0;
     for (int y = 0; y != height; y++) {
         for (int x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
-            double d  = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
-            d         = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
+            double d = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
+            d        = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
 
             double ddx = (double)x - cx - span * SQRT2, ddy = (double)y - cy + span * SQRT2;
             double d2 = sqrt(ddx * ddx + ddy * ddy) - sw;
@@ -381,7 +377,6 @@ static void drawlineroundempty(uint8_t *data, int width, int height, double sx, 
         }
     }
 }
-
 
 static void drawgroup(uint8_t *data, int width) {
     double s = (double)width / BM_CONTACT_WIDTH;
@@ -409,7 +404,7 @@ bool svg_draw(bool needmemory) {
      * This section uses unnamed shortcuts, so it really serves no purpose and makes it harder to debug, it needs to be
      * fixed, without shortcuts, and proper comments... TODO FIXME */
     // comments behind the lines match with the comments of the code below that fills the memory
-    int size = SCROLL_WIDTH * SCROLL_WIDTH +     /* Scroll bars top bottom halves */
+    int size = SCROLL_WIDTH * SCROLL_WIDTH + /* Scroll bars top bottom halves */
                SCROLL_WIDTH * SCROLL_WIDTH / 2 + /* Scroll bars top bottom halves (small)*/
 
                BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT + /* status area */
@@ -419,9 +414,9 @@ bool svg_draw(bool needmemory) {
                BM_ADD_WIDTH * BM_ADD_WIDTH + /* Draw panel Button: Transfer */
                BM_ADD_WIDTH * BM_ADD_WIDTH + /* Settings gear bitmap */
 
-               BM_CONTACT_WIDTH * BM_CONTACT_WIDTH +         /* Contact avatar default bitmap */
+               BM_CONTACT_WIDTH * BM_CONTACT_WIDTH + /* Contact avatar default bitmap */
                BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2 + /* Contact avatar default bitmap for mini roster */
-               BM_CONTACT_WIDTH * BM_CONTACT_WIDTH +         /* Group heads default bitmap */
+               BM_CONTACT_WIDTH * BM_CONTACT_WIDTH + /* Group heads default bitmap */
                BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2 + /* Group heads default bitmap for mini roster */
 
                BM_FILE_WIDTH * BM_FILE_HEIGHT + /* Draw button icon overlays: file paper clip */
@@ -440,13 +435,14 @@ bool svg_draw(bool needmemory) {
                BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT + /* Generic Large Button */
                BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT + /* Generic Small Button */
 
-               BM_SWITCH_WIDTH * BM_SWITCH_HEIGHT +               /* Switch */
+               BM_SWITCH_WIDTH * BM_SWITCH_HEIGHT + /* Switch */
                BM_SWITCH_TOGGLE_WIDTH * BM_SWITCH_TOGGLE_HEIGHT + /* Switch toggle */
 
                /* File transfer */
                BM_FT_CAP_WIDTH * BM_FTB_HEIGHT + BM_FT_WIDTH * BM_FT_HEIGHT + BM_FTM_WIDTH * BM_FT_HEIGHT +
                (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE(1)) +
-               BM_FTB_WIDTH * BM_FTB_HEIGHT) + BM_FB_WIDTH * BM_FB_HEIGHT * 4 +
+                BM_FTB_WIDTH * BM_FTB_HEIGHT) +
+               BM_FB_WIDTH * BM_FB_HEIGHT * 4 +
 
                /* Chat Buttons */
                BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT * 2 + // Chat button 1, 2
@@ -530,15 +526,11 @@ bool svg_draw(bool needmemory) {
     p += BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2;
 
     /* Draw button icon overlays. */
-    drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(10), UI_FSCALE(10), UI_FSCALE(2), UI_FSCALE(8.3),
-                  UI_FSCALE(14), 0);
-    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(10), UI_FSCALE(10), UI_FSCALE(2), UI_FSCALE(6.5),
-                       UI_FSCALE(11));
+    drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(10), UI_FSCALE(10), UI_FSCALE(2), UI_FSCALE(8.3), UI_FSCALE(14), 0);
+    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(10), UI_FSCALE(10), UI_FSCALE(2), UI_FSCALE(6.5), UI_FSCALE(11));
     drawsubcircle(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(11), UI_FSCALE(18), UI_FSCALE(6));
-    drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(12), UI_FSCALE(12), UI_FSCALE(1), UI_FSCALE(4.5),
-                  UI_FSCALE(7.5), 1);
-    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(13), UI_FSCALE(11), UI_FSCALE(1.5), UI_FSCALE(3),
-                       UI_FSCALE(5.5));
+    drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(12), UI_FSCALE(12), UI_FSCALE(1), UI_FSCALE(4.5), UI_FSCALE(7.5), 1);
+    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(13), UI_FSCALE(11), UI_FSCALE(1.5), UI_FSCALE(3), UI_FSCALE(5.5));
     loadalpha(BM_FILE, p, BM_FILE_WIDTH, BM_FILE_HEIGHT);
     p += BM_FILE_WIDTH * BM_FILE_HEIGHT;
 
@@ -598,8 +590,7 @@ bool svg_draw(bool needmemory) {
 
     /* user status: notification */
     drawcircle(p, BM_STATUS_NOTIFY_WIDTH);
-    drawsubcircle(p, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, 0.5 * BM_STATUS_NOTIFY_WIDTH,
-                  0.5 * BM_STATUS_NOTIFY_WIDTH, SCALE(10));
+    drawsubcircle(p, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, 0.5 * BM_STATUS_NOTIFY_WIDTH, 0.5 * BM_STATUS_NOTIFY_WIDTH, SCALE(10));
     loadalpha(BM_STATUS_NOTIFY, p, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH);
     p += BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH;
 
@@ -643,7 +634,6 @@ bool svg_draw(bool needmemory) {
     loadalpha(BM_FTB2, p, BM_FTB_WIDTH, BM_FTB_HEIGHT);
     p += BM_FTB_WIDTH * BM_FTB_HEIGHT;
 
-
     /* Used by the next few lines */
     s = BM_FB_WIDTH * BM_FB_HEIGHT;
 
@@ -677,7 +667,6 @@ bool svg_draw(bool needmemory) {
     loadalpha(BM_CHAT_BUTTON_RIGHT, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
     p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
 
-
     /* Draw chat send button */
     drawrectroundedex(p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT, SCALE(8), 14);
     loadalpha(BM_CHAT_SEND, p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
@@ -691,26 +680,21 @@ bool svg_draw(bool needmemory) {
 
     /* screen shot button overlay */
     /* Rounded frame */
-    drawrectroundedsub(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, SCALE(1), SCALE(1),
-                       BM_CHAT_BUTTON_OVERLAY_WIDTH - (SCALE(8)), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (SCALE(8)), SCALE(1));
+    drawrectroundedsub(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, SCALE(1), SCALE(1), BM_CHAT_BUTTON_OVERLAY_WIDTH - (SCALE(8)), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (SCALE(8)), SCALE(1));
     drawrectroundedneg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, /* width, height */
-                       SCALE(4), SCALE(4),                                             /* start x, y */
-                       BM_CHAT_BUTTON_OVERLAY_WIDTH - (SCALE(12)), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (SCALE(12)),
+                       SCALE(4),
+                       SCALE(4), /* start x, y */
+                       BM_CHAT_BUTTON_OVERLAY_WIDTH - (SCALE(12)),
+                       BM_CHAT_BUTTON_OVERLAY_HEIGHT - (SCALE(12)),
                        SCALE(1));
     /* camera shutter circle */
-    drawnewcircle(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75,
-                  BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75, SCALE(12));
-    drawsubcircle(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75,
-                  BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75, SCALE(4));
+    drawnewcircle(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75, SCALE(12));
+    drawsubcircle(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75, SCALE(4));
     /* shutter lines */
-    svgdraw_line_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-                     BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.80, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.65, SCALE(4), 0.1);
-    svgdraw_line_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-                     BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.73, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.87, SCALE(4), 0.1);
-    svgdraw_line_down_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-                          BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.65, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.70, SCALE(4), 0.1);
-    svgdraw_line_down_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-                          BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.85, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.81, SCALE(4), 0.1);
+    svgdraw_line_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.80, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.65, SCALE(4), 0.1);
+    svgdraw_line_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.73, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.87, SCALE(4), 0.1);
+    svgdraw_line_down_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.65, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.70, SCALE(4), 0.1);
+    svgdraw_line_down_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.85, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.81, SCALE(4), 0.1);
     loadalpha(BM_CHAT_BUTTON_OVERLAY_SCREENSHOT, p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT);
     p += BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 

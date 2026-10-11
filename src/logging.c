@@ -11,7 +11,7 @@ int utox_verbosity() {
 
 #ifndef __ANDROID__ // Android needs to provide it's own logging functions
 
-void debug(const char *fmt, ...){
+void debug(const char *fmt, ...) {
     if (!settings.debug_file) {
         return;
     }
@@ -22,9 +22,9 @@ void debug(const char *fmt, ...){
     vfprintf(settings.debug_file, fmt, list);
     va_end(list);
 
-    #ifdef __WIN32__
+#ifdef __WIN32__
     fflush(settings.debug_file);
-    #endif
+#endif
 }
 
 #endif

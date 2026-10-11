@@ -4,13 +4,13 @@
 #include <stdint.h>
 
 typedef struct file_transfer FILE_TRANSFER;
-typedef struct msg_header MSG_HEADER;
+typedef struct msg_header    MSG_HEADER;
 typedef struct file_transfer FILE_TRANSFER;
 
 typedef struct {
-    char *name;
+    char    *name;
     uint8_t *data;
-    int data_size;
+    int      data_size;
 } FILE_IMAGE;
 
 void ugtk_openfilesend(void);

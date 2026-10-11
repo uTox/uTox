@@ -12,12 +12,12 @@
 #include <string.h>
 
 struct Command commands[MAX_NUM_CMDS] = {
-    { "alias",    5, slash_alias     },
-    { "invite",   6, slash_invite    },
-    { "d",        1, slash_device    },
+    { "alias", 5, slash_alias },
+    { "invite", 6, slash_invite },
+    { "d", 1, slash_device },
     { "sendfile", 8, slash_send_file },
-    { "topic",    5, slash_topic     },
-    { NULL,       0, NULL            },
+    { "topic", 5, slash_topic },
+    { NULL, 0, NULL },
 };
 
 uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char **argument, int trusted) {
@@ -63,10 +63,10 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
     }
 
     int i = 0;
-    while(commands[i].cmd){
+    while (commands[i].cmd) {
         if (commands[i].cmd_length == cmd_length && memcmp(commands[i].cmd, *cmd, cmd_length) == 0) {
-            void* object = flist_get_sel_friend() ? (void*)flist_get_sel_friend() : (void*)flist_get_sel_group();
-            bool ret = commands[i].func(object, *argument, argument_length);
+            void *object = flist_get_sel_friend() ? (void *)flist_get_sel_friend() : (void *)flist_get_sel_group();
+            bool  ret    = commands[i].func(object, *argument, argument_length);
             if (ret) {
                 cmd_length = -1;
             }
@@ -81,7 +81,7 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
 bool g_select_add_friend_later = 0;
 
 void do_tox_url(uint8_t *url_string, int len) {
-    LOG_TRACE("Commands", "Command: %.*s" , len, url_string);
+    LOG_TRACE("Commands", "Command: %.*s", len, url_string);
 
     if (len <= 4 || memcmp(url_string, "tox:", 4) != 0) {
         return;
@@ -90,8 +90,7 @@ void do_tox_url(uint8_t *url_string, int len) {
     url_string += 4;
     len -= 4;
 
-    if (!edit_add_new_friend_id.data || !edit_add_new_friend_msg.data
-        || edit_add_new_friend_id.data_size == 0 || edit_add_new_friend_msg.data_size == 0) {
+    if (!edit_add_new_friend_id.data || !edit_add_new_friend_msg.data || edit_add_new_friend_id.data_size == 0 || edit_add_new_friend_msg.data_size == 0) {
         return;
     }
 
@@ -103,12 +102,12 @@ void do_tox_url(uint8_t *url_string, int len) {
         return;
     }
 
-    uint8_t  *b = (uint8_t *)id_buf;
+    uint8_t  *b      = (uint8_t *)id_buf;
     uint16_t  id_len = 0, msg_len = 0;
-    uint16_t *l = &id_len;
-    size_t    cap = edit_add_new_friend_id.data_size;
+    uint16_t *l           = &id_len;
+    size_t    cap         = edit_add_new_friend_id.data_size;
     bool      writing_msg = false;
-    bool      ok = true;
+    bool      ok          = true;
     uint8_t  *a = url_string, *end = url_string + len;
 
     while (ok && a != end) {

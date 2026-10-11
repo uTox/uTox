@@ -16,7 +16,7 @@ typedef enum {
     PANEL_SCROLLABLE,
 } PANEL_TYPE;
 
-typedef struct panel PANEL;
+typedef struct panel      PANEL;
 typedef struct scrollable SCROLLABLE;
 
 typedef void ui_draw_cb(int x, int y, int w, int h);
@@ -30,9 +30,9 @@ struct panel {
 
     SCROLLABLE *content_scroll;
 
-    ui_draw_cb *drawfunc;
+    ui_draw_cb   *drawfunc;
     ui_update_cb *update;
-    void *object;
+    void         *object;
 
     PANEL **child;
 };

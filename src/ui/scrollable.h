@@ -20,7 +20,7 @@ struct scrollable {
 };
 
 void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height);
-int scroll_gety(SCROLLABLE *s, int height);
+int  scroll_gety(SCROLLABLE *s, int height);
 
 bool scroll_mmove(SCROLLABLE *s, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 bool scroll_mdown(SCROLLABLE *s);

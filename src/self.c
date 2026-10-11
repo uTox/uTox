@@ -24,12 +24,12 @@ void init_self(Tox *tox) {
     tox_self_get_address(tox, self.id_binary);
     id_to_string(self.id_str, self.id_binary);
     self.id_str_length = TOX_ADDRESS_SIZE * 2;
-    LOG_TRACE("Self INIT", "Tox ID: %.*s" , (int)self.id_str_length, self.id_str);
+    LOG_TRACE("Self INIT", "Tox ID: %.*s", (int)self.id_str_length, self.id_str);
 
     qr_setup(self.id_str, &self.qr_data, &self.qr_data_size, &self.qr_image, &self.qr_image_size);
 
     /* Get nospam */
-    self.nospam = tox_self_get_nospam(tox);
+    self.nospam     = tox_self_get_nospam(tox);
     self.old_nospam = self.nospam;
     sprintf(self.nospam_str, "%08X", self.nospam);
     edit_setstr(&edit_nospam, self.nospam_str, sizeof(uint32_t) * 2);

@@ -46,18 +46,12 @@ bool have_focus = false;
 static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
     if (pointergrab) { // TODO super globals are bad mm'kay?
         GRAB_POS grab = grab_pos();
-        XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc,
-                       MIN(grab.dn_x, grab.up_x), MIN(grab.dn_y, grab.up_y),
-                       grab.dn_x < grab.up_x ? grab.up_x - grab.dn_x : grab.dn_x - grab.up_x,
-                       grab.dn_y < grab.up_y ? grab.up_y - grab.dn_y : grab.dn_y - grab.up_y);
+        XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, MIN(grab.dn_x, grab.up_x), MIN(grab.dn_y, grab.up_y), grab.dn_x < grab.up_x ? grab.up_x - grab.dn_x : grab.dn_x - grab.up_x, grab.dn_y < grab.up_y ? grab.up_y - grab.dn_y : grab.dn_y - grab.up_y);
 
         grab_up(event->x_root, event->y_root);
         grab = grab_pos();
 
-        XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc,
-                       MIN(grab.dn_x, grab.up_x), MIN(grab.dn_y, grab.up_y),
-                       grab.dn_x < grab.up_x ? grab.up_x - grab.dn_x : grab.dn_x - grab.up_x,
-                       grab.dn_y < grab.up_y ? grab.up_y - grab.dn_y : grab.dn_y - grab.up_y);
+        XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, MIN(grab.dn_x, grab.up_x), MIN(grab.dn_y, grab.up_y), grab.dn_x < grab.up_x ? grab.up_x - grab.dn_x : grab.dn_x - grab.up_x, grab.dn_y < grab.up_y ? grab.up_y - grab.dn_y : grab.dn_y - grab.up_y);
 
         return;
     }
@@ -76,7 +70,7 @@ static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
     XDefineCursor(display, window->window, cursors[cursor]);
 
     // uncomment this to log mouse movements. Commented because it spams too much
-    //LOG_TRACE("XLIB", "MotionEvent: (%u %u) %u", event->x, event->y, event->state);
+    // LOG_TRACE("XLIB", "MotionEvent: (%u %u) %u", event->x, event->y, event->state);
 }
 
 static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
@@ -145,16 +139,16 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
                 if (grab.dn_x < grab.up_x) {
                     grab.up_x -= grab.dn_x;
                 } else {
-                    int w  = grab.dn_x - grab.up_x;
-                    grab.dn_x  = grab.up_x;
+                    int w     = grab.dn_x - grab.up_x;
+                    grab.dn_x = grab.up_x;
                     grab.up_x = w;
                 }
 
                 if (grab.dn_y < grab.up_y) {
                     grab.up_y -= grab.dn_y;
                 } else {
-                    int w  = grab.dn_y - grab.up_y;
-                    grab.dn_y  = grab.up_y;
+                    int w     = grab.dn_y - grab.up_y;
+                    grab.dn_y = grab.up_y;
                     grab.up_y = w;
                 }
 
@@ -169,10 +163,9 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
                 if (pointergrab == 1) {
                     FRIEND *f = flist_get_sel_friend();
                     if (f && f->online) {
-                        XImage *img = XGetImage(display, RootWindow(display, def_screen_num), grab.dn_x, grab.dn_y, grab.up_x,
-                                                grab.up_y, XAllPlanes(), ZPixmap);
+                        XImage *img = XGetImage(display, RootWindow(display, def_screen_num), grab.dn_x, grab.dn_y, grab.up_x, grab.up_y, XAllPlanes(), ZPixmap);
                         if (img) {
-                            uint8_t * temp, *p;
+                            uint8_t  *temp, *p;
                             uint32_t *pp = (void *)img->data, *end = &pp[img->width * img->height];
                             p = temp = malloc(img->width * img->height * 3);
                             while (pp != end) {
@@ -207,14 +200,13 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
     LOG_TRACE("XLIB", "ButtonEvent: %u %u", event->state, event->button);
 }
 
-
 // Should return false if the result of the action should close/exit the window.
 static bool popup_event(XEvent *event, UTOX_WINDOW *win) {
     switch (event->type) {
         case Expose: {
             LOG_TRACE("XLIB", "Main window expose");
             native_window_set_target(win);
-            panel_draw(win->_.panel , 0, 0, win->_.w, win->_.h);
+            panel_draw(win->_.panel, 0, 0, win->_.w, win->_.h);
             XCopyArea(display, win->drawbuf, win->window, win->gc, 0, 0, win->_.w, win->_.h, 0, 0);
             break;
         }
@@ -257,7 +249,6 @@ static bool popup_event(XEvent *event, UTOX_WINDOW *win) {
             LOG_WARN("XLIB", "other event: %u", event->type);
             break;
         }
-
     }
 
     return true;
@@ -306,13 +297,13 @@ bool doevent(XEvent *event) {
                 XSetICFocus(xic);
             }
 
-            #ifdef UNITY
+#ifdef UNITY
             if (unity_running) {
                 mm_rm_entry(NULL);
             }
-            #endif
+#endif
 
-            have_focus = true;
+            have_focus     = true;
             XWMHints hints = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             XSetWMHints(display, main_window.window, &hints);
             break;
@@ -323,11 +314,11 @@ bool doevent(XEvent *event) {
                 XUnsetICFocus(xic);
             }
 
-            #ifdef UNITY
+#ifdef UNITY
             if (unity_running) {
                 mm_save_cid();
             }
-            #endif
+#endif
 
             have_focus = false;
             break;
@@ -335,21 +326,18 @@ bool doevent(XEvent *event) {
 
         case ConfigureNotify: {
             XConfigureEvent *ev = &event->xconfigure;
-            main_window._.x = ev->x;
-            main_window._.y = ev->y;
+            main_window._.x     = ev->x;
+            main_window._.y     = ev->y;
 
-            if (settings.window_width != (unsigned)ev->width
-                || settings.window_height != (unsigned)ev->height) {
+            if (settings.window_width != (unsigned)ev->width || settings.window_height != (unsigned)ev->height) {
                 // Resize
 
-                    XFreePixmap(display, main_window.drawbuf);
-                    main_window.drawbuf = XCreatePixmap(display, main_window.window,
-                                            ev->width + 10, ev->height + 10, default_depth);
-                    XRenderFreePicture(display, main_window.renderpic);
-                    main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf,
-                                                main_window.pictformat, 0, NULL);
+                XFreePixmap(display, main_window.drawbuf);
+                main_window.drawbuf = XCreatePixmap(display, main_window.window, ev->width + 10, ev->height + 10, default_depth);
+                XRenderFreePicture(display, main_window.renderpic);
+                main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf, main_window.pictformat, 0, NULL);
 
-                main_window._.w = settings.window_width  = ev->width;
+                main_window._.w = settings.window_width = ev->width;
                 main_window._.h = settings.window_height = ev->height;
 
                 ui_size(settings.window_width, settings.window_height);
@@ -445,7 +433,6 @@ bool doevent(XEvent *event) {
                 }
             }
 
-
             if (ev->state & ControlMask || ev->state & Mod1Mask) { // Mod1Mask == alt
                 if (sym >= XK_1 && sym <= XK_9) {
                     flist_selectchat(sym - XK_1);
@@ -493,10 +480,14 @@ bool doevent(XEvent *event) {
                 if (ev->state & ControlMask) {
                     switch (sym) {
                         case 'v':
-                        case 'V': paste(); return true;
+                        case 'V':
+                            paste();
+                            return true;
                         case 'c':
                         case 'C':
-                        case XK_Insert: copy(0); return true;
+                        case XK_Insert:
+                            copy(0);
+                            return true;
                         case 'x':
                         case 'X':
                             copy(0);
@@ -512,7 +503,9 @@ bool doevent(XEvent *event) {
 
                 if (ev->state & ShiftMask) {
                     switch (sym) {
-                        case XK_Insert: paste(); return true;
+                        case XK_Insert:
+                            paste();
+                            return true;
                         case XK_Delete:
                             copy(0);
                             edit_char(KEY_DEL, 1, 0);
@@ -558,7 +551,7 @@ bool doevent(XEvent *event) {
         }
 
         case SelectionNotify: {
-            LOG_NOTE("XLib Event", "SelectionNotify" );
+            LOG_NOTE("XLib Event", "SelectionNotify");
 
             XSelectionEvent *ev = &event->xselection;
 
@@ -566,20 +559,19 @@ bool doevent(XEvent *event) {
                 break;
             }
 
-            Atom type;
-            int  format;
-            void *data;
+            Atom              type;
+            int               format;
+            void             *data;
             long unsigned int len, bytes_left;
 
-            XGetWindowProperty(display, main_window.window, ev->property, 0, ~0L, True, AnyPropertyType, &type, &format, &len,
-                               &bytes_left, (unsigned char **)&data);
+            XGetWindowProperty(display, main_window.window, ev->property, 0, ~0L, True, AnyPropertyType, &type, &format, &len, &bytes_left, (unsigned char **)&data);
 
             if (!data) {
                 break;
             }
 
-            LOG_INFO("Event", "Type: %s" , XGetAtomName(ev->display, type));
-            LOG_INFO("Event", "Property: %s" , XGetAtomName(ev->display, ev->property));
+            LOG_INFO("Event", "Type: %s", XGetAtomName(ev->display, type));
+            LOG_INFO("Event", "Property: %s", XGetAtomName(ev->display, ev->property));
 
             if (ev->property == XA_ATOM) {
                 pastebestformat((Atom *)data, len, ev->selection);
@@ -623,22 +615,18 @@ bool doevent(XEvent *event) {
                     .requestor = ev->requestor,
                     .selection = ev->selection,
                     .target    = ev->target,
-                    .time      = ev->time
-                }
+                    .time      = ev->time }
             };
 
             if (ev->target == XA_UTF8_STRING || ev->target == XA_STRING) {
                 if (ev->selection == XA_PRIMARY) {
-                    XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace,
-                                    (const unsigned char *)primary.data, primary.len);
+                    XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, (const unsigned char *)primary.data, primary.len);
                 } else {
-                    XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace,
-                                    (const unsigned char *)clipboard.data, clipboard.len);
+                    XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, (const unsigned char *)clipboard.data, clipboard.len);
                 }
             } else if (ev->target == targets) {
                 Atom supported[] = { XA_STRING, XA_UTF8_STRING };
-                XChangeProperty(display, ev->requestor, ev->property, XA_ATOM, 32, PropModeReplace, (void *)&supported,
-                                COUNTOF(supported));
+                XChangeProperty(display, ev->requestor, ev->property, XA_ATOM, 32, PropModeReplace, (void *)&supported, COUNTOF(supported));
             } else {
                 LOG_NOTE("XLIB selection request", " unknown request");
                 resp.xselection.property = None;
@@ -652,18 +640,17 @@ bool doevent(XEvent *event) {
         case PropertyNotify: {
             XPropertyEvent *ev = &event->xproperty;
             if (ev->state == PropertyNewValue && ev->atom == targets && pastebuf.data) {
-                LOG_TRACE("Event", "Property changed: %s" , XGetAtomName(display, ev->atom));
+                LOG_TRACE("Event", "Property changed: %s", XGetAtomName(display, ev->atom));
 
                 Atom              type;
                 int               format;
                 unsigned long int len, bytes_left;
-                void *            data;
+                void             *data;
 
-                XGetWindowProperty(display, main_window.window, ev->atom, 0, ~0L, True, AnyPropertyType, &type, &format, &len,
-                                   &bytes_left, (unsigned char **)&data);
+                XGetWindowProperty(display, main_window.window, ev->atom, 0, ~0L, True, AnyPropertyType, &type, &format, &len, &bytes_left, (unsigned char **)&data);
 
                 if (len == 0) {
-                    LOG_TRACE("Event", "Got 0 length data, pasting" );
+                    LOG_TRACE("Event", "Got 0 length data, pasting");
                     pastedata(pastebuf.data, type, pastebuf.len, False);
                     pastebuf.data = NULL;
                     break;
@@ -695,7 +682,7 @@ bool doevent(XEvent *event) {
             if (ev->message_type == wm_protocols) {
                 if ((Atom)event->xclient.data.l[0] == wm_delete_window) {
                     if (settings.close_to_tray) {
-                        LOG_TRACE("Event", "Closing to tray." );
+                        LOG_TRACE("Event", "Closing to tray.");
                         togglehide();
                     } else {
                         return false;
@@ -705,27 +692,27 @@ bool doevent(XEvent *event) {
             }
 
             if (ev->message_type == XdndEnter) {
-                LOG_TRACE("Event", "enter" );
+                LOG_TRACE("Event", "enter");
             } else if (ev->message_type == XdndPosition) {
                 Window src         = ev->data.l[0];
-                XEvent reply_event = {.xclient = {.type         = ClientMessage,
-                                                  .display      = display,
-                                                  .window       = src,
-                                                  .message_type = XdndStatus,
-                                                  .format       = 32,
-                                                  .data = {.l = { main_window.window, 1, 0, 0, XdndActionCopy } } } };
+                XEvent reply_event = { .xclient = { .type         = ClientMessage,
+                                                    .display      = display,
+                                                    .window       = src,
+                                                    .message_type = XdndStatus,
+                                                    .format       = 32,
+                                                    .data         = { .l = { main_window.window, 1, 0, 0, XdndActionCopy } } } };
 
                 XSendEvent(display, src, 0, 0, &reply_event);
                 // LOG_TRACE("Event", "position (version=%u)" , ev->data.l[1] >> 24);
             } else if (ev->message_type == XdndStatus) {
-                LOG_TRACE("Event", "status" );
+                LOG_TRACE("Event", "status");
             } else if (ev->message_type == XdndDrop) {
                 XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, main_window.window, CurrentTime);
                 LOG_NOTE("XLIB", "Drag was dropped");
             } else if (ev->message_type == XdndLeave) {
-                LOG_TRACE("Event", "leave" );
+                LOG_TRACE("Event", "leave");
             } else {
-                LOG_TRACE("Event", "dragshit" );
+                LOG_TRACE("Event", "dragshit");
             }
             break;
         }

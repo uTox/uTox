@@ -43,7 +43,7 @@ typedef struct {
     uint16_t author_length;
 
     uint16_t length;
-    char     *msg;
+    char    *msg;
 } MSG_TEXT;
 
 typedef struct {
@@ -51,7 +51,7 @@ typedef struct {
     uint16_t author_length;
 
     uint16_t length;
-    char     *msg;
+    char    *msg;
 
     uint32_t author_id;
     uint32_t author_color;
@@ -65,11 +65,11 @@ typedef struct {
 } MSG_IMG;
 
 typedef struct msg_file {
-    uint8_t file_status;
+    uint8_t  file_status;
     uint32_t file_number;
 
-    char   *name;
-    size_t  name_length;
+    char  *name;
+    size_t name_length;
 
     // Location on disk
     uint8_t *path;
@@ -88,11 +88,10 @@ typedef struct msg_header {
     UTOX_MSG_TYPE msg_type;
 
     // true, if we're the author, false, if someone else.
-    bool    our_msg;
+    bool our_msg;
 
     uint32_t height;
     time_t   time;
-
 
     uint64_t disk_offset;
 
@@ -161,18 +160,17 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
 uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log);
 uint32_t message_add_type_image(MESSAGES *m, bool auth, NATIVE_IMAGE *img, uint16_t width, uint16_t height, bool log);
 
-MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incoming, bool image, uint8_t status,
-                                const uint8_t *name, size_t name_size, size_t target_size, size_t current_size);
+MSG_HEADER *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incoming, bool image, uint8_t status, const uint8_t *name, size_t name_size, size_t target_size, size_t current_size);
 // Returns true if data was logged.
 bool message_log_to_disk(MESSAGES *m, MSG_HEADER *msg);
 // Returns true if data was read from log.
 bool messages_read_from_log(uint32_t friend_number);
 
 size_t messages_prepend(MESSAGES *m, MSG_HEADER **batch, size_t n);
-bool messages_load_older_chatlog(MESSAGES *m, const char *hex);
-bool messages_try_load_older_chatlog(MESSAGES *m, int height);
+bool   messages_load_older_chatlog(MESSAGES *m, const char *hex);
+bool   messages_try_load_older_chatlog(MESSAGES *m, int height);
 
-bool messages_day_changed(time_t last, time_t next);
+bool        messages_day_changed(time_t last, time_t next);
 MSG_HEADER *messages_create_day_notice(time_t next);
 
 void messages_send_from_queue(MESSAGES *m, uint32_t friend_number);
@@ -196,10 +194,9 @@ bool messages_mleave(PANEL *m);
 // Relay keypress to message panel.
 // Returns bool indicating whether a redraw is needed or not.
 bool messages_char(uint32_t ch);
-int messages_selection(PANEL *panel, char *buffer, uint32_t len, bool names);
+int  messages_selection(PANEL *panel, char *buffer, uint32_t len, bool names);
 
 void messages_updateheight(MESSAGES *m, int width);
-
 
 void messages_init(MESSAGES *m, uint32_t friend_number);
 void message_free(MSG_HEADER *msg);

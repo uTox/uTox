@@ -52,17 +52,14 @@ void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int width, int heigh
         return;
     }
 
-    LOG_TRACE("Inline Video", "Drawing new frame." );
+    LOG_TRACE("Inline Video", "Drawing new frame.");
 
     if (current_frame.img && current_frame.size) {
-        draw_inline_image(current_frame.img, current_frame.size,
-                          MIN(current_frame.w, width), MIN(current_frame.h, height),
-                          x, y + MAIN_TOP_FRAME_THICK);
+        draw_inline_image(current_frame.img, current_frame.size, MIN(current_frame.w, width), MIN(current_frame.h, height), x, y + MAIN_TOP_FRAME_THICK);
     }
 }
 
-bool inline_video_mmove(INLINE_VID *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height),
-                        int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
+bool inline_video_mmove(INLINE_VID *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
     return 0;
 }
 

@@ -118,7 +118,7 @@ uint32_t status_color[4];
  * Returns NULL on failure
  */
 static uint8_t *utox_data_load_custom_theme(size_t *out);
-static void read_custom_theme(const uint8_t *data, size_t length);
+static void     read_custom_theme(const uint8_t *data, size_t length);
 static uint32_t try_parse_hex_colour(char *color, bool *error);
 
 void theme_load(const THEME loadtheme) {
@@ -400,10 +400,10 @@ void theme_load(const THEME loadtheme) {
             COLOR_MAIN_TEXT_URL     = COLOR_PROC(0x6ca0a3);
             COLOR_MAIN_TEXT_HINT    = COLOR_MAIN_TEXT;
 
-            COLOR_MSG_USER          = COLOR_MAIN_TEXT;
-            COLOR_MSG_USER_PEND     = COLOR_MAIN_TEXT_ACTION;
-            COLOR_MSG_USER_ERROR    = COLOR_MAIN_TEXT_RED;
-            COLOR_MSG_CONTACT       = COLOR_MAIN_TEXT;
+            COLOR_MSG_USER       = COLOR_MAIN_TEXT;
+            COLOR_MSG_USER_PEND  = COLOR_MAIN_TEXT_ACTION;
+            COLOR_MSG_USER_ERROR = COLOR_MAIN_TEXT_RED;
+            COLOR_MSG_CONTACT    = COLOR_MAIN_TEXT;
 
             COLOR_MENU_TEXT         = COLOR_MAIN_TEXT;
             COLOR_MENU_TEXT_SUBTEXT = COLOR_MAIN_TEXT;
@@ -519,20 +519,20 @@ void theme_load(const THEME loadtheme) {
             COLOR_STATUS_AWAY   = COLOR_PROC(SOLAR_YELLOW);
             COLOR_STATUS_BUSY   = COLOR_PROC(SOLAR_RED);
 
-            COLOR_BTN_SUCCESS_BKGRND        = COLOR_STATUS_ONLINE;
-            COLOR_BTN_SUCCESS_TEXT          = COLOR_MAIN_TEXT;
-            COLOR_BTN_SUCCESS_BKGRND_HOVER  = COLOR_PROC(SOLAR_CYAN);
-            COLOR_BTN_SUCCESS_TEXT_HOVER    = COLOR_BKGRND_MAIN;
+            COLOR_BTN_SUCCESS_BKGRND       = COLOR_STATUS_ONLINE;
+            COLOR_BTN_SUCCESS_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_BTN_SUCCESS_BKGRND_HOVER = COLOR_PROC(SOLAR_CYAN);
+            COLOR_BTN_SUCCESS_TEXT_HOVER   = COLOR_BKGRND_MAIN;
 
-            COLOR_BTN_WARNING_BKGRND        = COLOR_STATUS_AWAY;
-            COLOR_BTN_WARNING_TEXT          = COLOR_MAIN_TEXT;
-            COLOR_BTN_WARNING_BKGRND_HOVER  = COLOR_PROC(SOLAR_ORANGE);
-            COLOR_BTN_WARNING_TEXT_HOVER    = COLOR_BKGRND_MAIN;
+            COLOR_BTN_WARNING_BKGRND       = COLOR_STATUS_AWAY;
+            COLOR_BTN_WARNING_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_BTN_WARNING_BKGRND_HOVER = COLOR_PROC(SOLAR_ORANGE);
+            COLOR_BTN_WARNING_TEXT_HOVER   = COLOR_BKGRND_MAIN;
 
-            COLOR_BTN_DANGER_BACKGROUND     = COLOR_STATUS_BUSY;
-            COLOR_BTN_DANGER_TEXT           = COLOR_MAIN_TEXT;
-            COLOR_BTN_DANGER_BKGRND_HOVER   = COLOR_PROC(SOLAR_MAGENTA);
-            COLOR_BTN_DANGER_TEXT_HOVER     = COLOR_BKGRND_MAIN;
+            COLOR_BTN_DANGER_BACKGROUND   = COLOR_STATUS_BUSY;
+            COLOR_BTN_DANGER_TEXT         = COLOR_MAIN_TEXT;
+            COLOR_BTN_DANGER_BKGRND_HOVER = COLOR_PROC(SOLAR_MAGENTA);
+            COLOR_BTN_DANGER_TEXT_HOVER   = COLOR_BKGRND_MAIN;
 
             COLOR_BTN_DISABLED_BKGRND       = COLOR_PROC(SOLAR_BASE00);
             COLOR_BTN_DISABLED_TEXT         = COLOR_BKGRND_MAIN;
@@ -628,7 +628,7 @@ void theme_load(const THEME loadtheme) {
             break;
         }
         case THEME_CUSTOM: {
-            size_t size;
+            size_t   size;
             uint8_t *themedata = utox_data_load_custom_theme(&size);
             if (!themedata) {
                 return;
@@ -666,7 +666,7 @@ uint32_t *find_colour_pointer(char *color) {
         color += 6;
     }
 
-    LOG_INFO("Theme", "Color: %s" , color);
+    LOG_INFO("Theme", "Color: %s", color);
 
     for (int i = 0;; ++i) {
         const char *s = COLOUR_NAME_TABLE[i];
@@ -728,7 +728,7 @@ static uint32_t try_parse_hex_colour(char *color, bool *error) {
 }
 
 static void read_custom_theme(const uint8_t *data, size_t length) {
-    char *buf = (char *)data;
+    char  *buf = (char *)data;
     size_t pos = 0;
 
     while (pos < length) {
@@ -770,7 +770,7 @@ static void read_custom_theme(const uint8_t *data, size_t length) {
             continue;
         }
 
-        bool err = false;
+        bool           err = false;
         const uint32_t col = try_parse_hex_colour(color, &err);
 
         if (err) {

@@ -17,7 +17,7 @@ bool slash_send_file(void *UNUSED(object), char *filepath, int UNUSED(arg_length
         return false;
     }
 
-    LOG_TRACE("slash_send_file", "File path is: %s" , filepath);
+    LOG_TRACE("slash_send_file", "File path is: %s", filepath);
     postmessage_toxcore(TOX_FILE_SEND_NEW_SLASH, f->number, 0xFFFF, (void *)filepath);
     return true;
 }
@@ -42,7 +42,6 @@ bool slash_device(void *UNUSED(object), char *arg, int UNUSED(arg_length)) {
     LOG_ERR("slash_device", " Could not allocate memory.");
     return false;
 }
-
 
 bool slash_alias(void *UNUSED(object), char *arg, int arg_length) {
     FRIEND *f = flist_get_sel_friend();

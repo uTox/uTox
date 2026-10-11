@@ -17,11 +17,11 @@ static void tray_draw(int x, int y, int w, int h) {
 }
 
 PANEL panel_tray = {
-    .type = PANEL_NONE,
+    .type     = PANEL_NONE,
     .drawfunc = tray_draw,
     .disabled = 0,
-    .child = (PANEL*[]) {
-        (PANEL*) &btn_tray_exit,
+    .child    = (PANEL *[]){
+        (PANEL *)&btn_tray_exit,
         NULL,
     }
 };
@@ -43,6 +43,6 @@ BUTTON btn_tray_exit = {
     .on_mup = tray_exit,
     .nodraw = false,
 
-    .button_text  = {.i18nal = STR_EXIT },
-    .tooltip_text = {.i18nal = STR_EXIT },
+    .button_text  = { .i18nal = STR_EXIT },
+    .tooltip_text = { .i18nal = STR_EXIT },
 };

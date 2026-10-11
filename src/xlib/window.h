@@ -18,10 +18,9 @@
 
 extern Display *display;
 extern Screen  *default_screen;
-extern int     def_screen_num;
-extern Window  root_window;
+extern int      def_screen_num;
+extern Window   root_window;
 extern Visual  *default_visual;
-
 
 // TODO move
 extern UTOX_WINDOW *curr;
@@ -32,7 +31,7 @@ struct native_window {
     struct utox_window _; // Global struct shared across all platforms
 
     Window window;
-    GC gc;
+    GC     gc;
 
     Visual *visual;
 
@@ -42,7 +41,6 @@ struct native_window {
     Picture colorpic;
 
     XRenderPictFormat *pictformat;
-
 };
 
 extern struct native_window main_window;

@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
  * if you need to localize them to a specific platform, move them from here, to each
  * src/<platform>/main.x and change from utox_ to native_
@@ -98,11 +97,7 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
 }
 
 /* Shared function between all four platforms */
-void parse_args(int argc, char *argv[],
-                int8_t *should_launch_at_startup,
-                int8_t *set_show_window,
-                bool *allow_root
-                ) {
+void parse_args(int argc, char *argv[], int8_t *should_launch_at_startup, int8_t *set_show_window, bool *allow_root) {
     // set default options
     if (should_launch_at_startup) {
         *should_launch_at_startup = 0;
@@ -117,12 +112,7 @@ void parse_args(int argc, char *argv[],
     }
 
     static struct option long_options[] = {
-        { "theme", required_argument, NULL, 't' },      { "portable", no_argument, NULL, 'p' },
-        { "set", required_argument, NULL, 's' },        { "unset", required_argument, NULL, 'u' },
-        { "version", no_argument, NULL, 0 },            { "silent", no_argument, NULL, 'S' },
-        { "verbose", no_argument, NULL, 'v' },          { "help", no_argument, NULL, 'h' },
-        { "debug", required_argument, NULL, 1 },        { "allow-root", no_argument, NULL, 2 },
-        { 0, 0, 0, 0 }
+        { "theme", required_argument, NULL, 't' }, { "portable", no_argument, NULL, 'p' }, { "set", required_argument, NULL, 's' }, { "unset", required_argument, NULL, 'u' }, { "version", no_argument, NULL, 0 }, { "silent", no_argument, NULL, 'S' }, { "verbose", no_argument, NULL, 'v' }, { "help", no_argument, NULL, 'h' }, { "debug", required_argument, NULL, 1 }, { "allow-root", no_argument, NULL, 2 }, { 0, 0, 0, 0 }
     };
 
     settings.debug_file = stdout;
@@ -155,7 +145,7 @@ void parse_args(int argc, char *argv[],
 
             case 'p': {
                 LOG_INFO("uTox", "Launching uTox in portable mode: All data will be saved to the tox folder in the current "
-                         "working directory\n");
+                                 "working directory\n");
                 settings.portable_mode = 1;
                 break;
             }
@@ -194,9 +184,9 @@ void parse_args(int argc, char *argv[],
 
             case 0: {
                 LOG_NORM("uTox version: %s\n", VERSION);
-                #ifdef GIT_VERSION
+#ifdef GIT_VERSION
                 LOG_NORM("git version %s\n", GIT_VERSION);
-                #endif
+#endif
                 exit(EXIT_SUCCESS);
             }
 
@@ -230,13 +220,13 @@ void parse_args(int argc, char *argv[],
                 LOG_NORM("µTox - Lightweight Tox client version %s.\n\n", VERSION);
                 LOG_NORM("The following options are available:\n");
                 LOG_NORM("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, "
-                            "dark, light, highcontrast, zenburn, solarized-light, solarized-dark.\n");
+                         "dark, light, highcontrast, zenburn, solarized-light, solarized-dark.\n");
                 LOG_NORM("  -p --portable            Launch in portable mode: All data will be saved to the tox "
-                            "folder in the current working directory.\n");
+                         "folder in the current working directory.\n");
                 LOG_NORM("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
                 LOG_NORM("  -u --unset=<option>      Unset an option: start-on-boot.\n");
                 LOG_NORM("  -v --verbose             Increase the amount of output, use -v multiple times to get "
-                            "full debug output.\n");
+                         "full debug output.\n");
                 LOG_NORM("  -h --help                Shows this help text.\n");
                 LOG_NORM("  --version                Print the version and exit.\n");
                 LOG_NORM("  --silent                 Set the verbosity level to 0, disable all debugging output.\n");
@@ -267,7 +257,7 @@ void utox_init(void) {
     /* Called by the native main for every platform after loading utox setting,
      * before showing/drawing any windows. */
     if (settings.utox_last_version != settings.last_version) {
-        settings.show_splash = true;
+        settings.show_splash       = true;
         settings.utox_last_version = settings.last_version;
     }
 }

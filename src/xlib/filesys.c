@@ -81,7 +81,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     }
 
     if (strlen(path) + name_length >= UTOX_FILE_NAME_LENGTH) {
-        LOG_TRACE("Filesys", "Load directory name too long" );
+        LOG_TRACE("Filesys", "Load directory name too long");
         return 0;
     } else {
         snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
@@ -110,7 +110,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
         fseek(file, 0, SEEK_SET);
 
         if (fread(data, size, 1, file) != 1) {
-            LOG_TRACE("Filesys", "Read error on %s" , path);
+            LOG_TRACE("Filesys", "Read error on %s", path);
             fclose(file);
             free(data);
             if (out_size) {
@@ -132,14 +132,13 @@ void native_export_chatlog_init(uint32_t friend_number) {
     if (libgtk) {
         ugtk_save_chatlog(friend_number);
     } else {
-        char name[TOX_MAX_NAME_LENGTH + sizeof(".txt")];
+        char    name[TOX_MAX_NAME_LENGTH + sizeof(".txt")];
         FRIEND *f = get_friend(friend_number);
         if (!f) {
             LOG_ERR("Filesys", "Could not get friend with number: %u", friend_number);
             return;
         }
-        snprintf((char *)name, sizeof(name), "%.*s.txt", (int)f->name_length,
-                 f->name);
+        snprintf((char *)name, sizeof(name), "%.*s.txt", (int)f->name_length, f->name);
 
         FILE *file = fopen((char *)name, "wb");
         if (file) {
@@ -158,19 +157,18 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
     }
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
-        LOG_DEBUG("Filesys", "File/directory name too long, unable to remove" );
+        LOG_DEBUG("Filesys", "File/directory name too long, unable to remove");
         return false;
     } else {
-        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
-                 (int)length, (char *)name);
+        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s", (int)length, (char *)name);
     }
 
     if (remove((const char *)path)) {
-        LOG_ERR("NATIVE", "Unable to delete file!\n\t\t%s" , path);
+        LOG_ERR("NATIVE", "Unable to delete file!\n\t\t%s", path);
         return false;
     } else {
-        LOG_INFO("NATIVE", "File deleted!" );
-        LOG_DEBUG("Filesys", "\t%s" , path);
+        LOG_INFO("NATIVE", "File deleted!");
+        LOG_DEBUG("Filesys", "\t%s", path);
     }
     return true;
 }
@@ -189,8 +187,8 @@ void native_select_dir_ft(uint32_t fid, uint32_t file_number, FILE_TRANSFER *fil
 }
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
-    if (file == NULL){
-        LOG_TRACE("Native", " file is null." );
+    if (file == NULL) {
+        LOG_TRACE("Native", " file is null.");
         return;
     }
 
@@ -209,7 +207,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
         path[file->name_length] = 0;
     }
 
-    LOG_NOTE("Native", "Auto Accept Directory: \"%s\"" , path);
+    LOG_NOTE("Native", "Auto Accept Directory: \"%s\"", path);
     postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
 }
 
@@ -238,9 +236,9 @@ bool native_save_image_png(char *name, uint8_t *image, int image_size) {
             return false;
         }
 
-        file_image->name       = name;
-        file_image->data       = image;
-        file_image->data_size  = image_size;
+        file_image->name      = name;
+        file_image->data      = image;
+        file_image->data_size = image_size;
 
         ugtk_file_save_image_png(file_image);
         return true;

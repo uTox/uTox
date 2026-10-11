@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct groupchat GROUPCHAT;
-typedef struct utox_friend FRIEND;
+typedef struct groupchat           GROUPCHAT;
+typedef struct utox_friend         FRIEND;
 typedef struct utox_friend_request FREQUEST;
 
 // call to switch to previous or next friend in list
@@ -22,7 +22,7 @@ void flist_update_shown_list(void);
 
 // set or get current list filter. Updates list afterwards
 uint8_t flist_get_filter(void);
-void flist_set_filter(uint8_t filter);
+void    flist_set_filter(uint8_t filter);
 
 // set the search string in the list. Disable search by setting it to NULL. Updates list afterwards
 // warning: list will just remember the pointer, it will assume you won't deallocate the memory, and it
@@ -42,7 +42,7 @@ typedef enum {
 
 typedef struct {
     ITEM_TYPE type;
-    uint32_t id_number;
+    uint32_t  id_number;
 } ITEM;
 
 void flist_start(void);
@@ -68,10 +68,10 @@ void flist_select_last(void);
 void flist_dump_contacts(void);
 void flist_reload_contacts(void);
 
-FRIEND *flist_get_sel_friend(void);
-FREQUEST *flist_get_sel_frequest(void);
+FRIEND    *flist_get_sel_friend(void);
+FREQUEST  *flist_get_sel_frequest(void);
 GROUPCHAT *flist_get_sel_group(void);
-ITEM_TYPE flist_get_sel_item_type(void);
+ITEM_TYPE  flist_get_sel_item_type(void);
 
 bool friend_matches_search_string(FRIEND *f, char *str);
 

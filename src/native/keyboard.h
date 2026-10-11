@@ -18,7 +18,6 @@ bool get_ptt_key(void);
 // Unimplemented.
 bool set_ptt_key(void);
 
-
 // Native keycodes
 
 #if defined __WIN32__ || defined _WIN32 || defined __CYGWIN__

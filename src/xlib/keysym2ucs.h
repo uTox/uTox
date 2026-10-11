@@ -450,13 +450,13 @@ struct codepair {
     { 0x08ae, 0x23a0 }, /*              botrightparens ⎠ ??? */
     { 0x08af, 0x23a8 }, /*        leftmiddlecurlybrace ⎨ ??? */
     { 0x08b0, 0x23ac }, /*       rightmiddlecurlybrace ⎬ ??? */
-                        /*  0x08b1                          topleftsummation ? ??? */
-                        /*  0x08b2                          botleftsummation ? ??? */
-                        /*  0x08b3                 topvertsummationconnector ? ??? */
-                        /*  0x08b4                 botvertsummationconnector ? ??? */
-                        /*  0x08b5                         toprightsummation ? ??? */
-                        /*  0x08b6                         botrightsummation ? ??? */
-                        /*  0x08b7                      rightmiddlesummation ? ??? */
+    /*  0x08b1                          topleftsummation ? ??? */
+    /*  0x08b2                          botleftsummation ? ??? */
+    /*  0x08b3                 topvertsummationconnector ? ??? */
+    /*  0x08b4                 botvertsummationconnector ? ??? */
+    /*  0x08b5                         toprightsummation ? ??? */
+    /*  0x08b6                         botrightsummation ? ??? */
+    /*  0x08b7                      rightmiddlesummation ? ??? */
     { 0x08bc, 0x2264 }, /*               lessthanequal ≤ LESS-THAN OR EQUAL TO */
     { 0x08bd, 0x2260 }, /*                    notequal ≠ NOT EQUAL TO */
     { 0x08be, 0x2265 }, /*            greaterthanequal ≥ GREATER-THAN OR EQUAL TO */
@@ -483,7 +483,7 @@ struct codepair {
     { 0x08fc, 0x2191 }, /*                     uparrow ↑ UPWARDS ARROW */
     { 0x08fd, 0x2192 }, /*                  rightarrow → RIGHTWARDS ARROW */
     { 0x08fe, 0x2193 }, /*                   downarrow ↓ DOWNWARDS ARROW */
-                        /*  0x09df                                     blank ? ??? */
+    /*  0x09df                                     blank ? ??? */
     { 0x09e0, 0x25c6 }, /*                soliddiamond ◆ BLACK DIAMOND */
     { 0x09e1, 0x2592 }, /*                checkerboard ▒ MEDIUM SHADE */
     { 0x09e2, 0x2409 }, /*                          ht ␉ SYMBOL FOR HORIZONTAL TABULATION */
@@ -517,7 +517,7 @@ struct codepair {
     { 0x0aa8, 0x200a }, /*                   hairspace   HAIR SPACE */
     { 0x0aa9, 0x2014 }, /*                      emdash — EM DASH */
     { 0x0aaa, 0x2013 }, /*                      endash – EN DASH */
-                        /*  0x0aac                               signifblank ? ??? */
+    /*  0x0aac                               signifblank ? ??? */
     { 0x0aae, 0x2026 }, /*                    ellipsis … HORIZONTAL ELLIPSIS */
     { 0x0aaf, 0x2025 }, /*             doubbaselinedot ‥ TWO DOT LEADER */
     { 0x0ab0, 0x2153 }, /*                    onethird ⅓ VULGAR FRACTION ONE THIRD */
@@ -531,16 +531,16 @@ struct codepair {
     { 0x0ab8, 0x2105 }, /*                      careof ℅ CARE OF */
     { 0x0abb, 0x2012 }, /*                     figdash ‒ FIGURE DASH */
     { 0x0abc, 0x2329 }, /*            leftanglebracket 〈 LEFT-POINTING ANGLE BRACKET */
-                        /*  0x0abd                              decimalpoint ? ??? */
+    /*  0x0abd                              decimalpoint ? ??? */
     { 0x0abe, 0x232a }, /*           rightanglebracket 〉 RIGHT-POINTING ANGLE BRACKET */
-                        /*  0x0abf                                    marker ? ??? */
+    /*  0x0abf                                    marker ? ??? */
     { 0x0ac3, 0x215b }, /*                   oneeighth ⅛ VULGAR FRACTION ONE EIGHTH */
     { 0x0ac4, 0x215c }, /*                threeeighths ⅜ VULGAR FRACTION THREE EIGHTHS */
     { 0x0ac5, 0x215d }, /*                 fiveeighths ⅝ VULGAR FRACTION FIVE EIGHTHS */
     { 0x0ac6, 0x215e }, /*                seveneighths ⅞ VULGAR FRACTION SEVEN EIGHTHS */
     { 0x0ac9, 0x2122 }, /*                   trademark ™ TRADE MARK SIGN */
     { 0x0aca, 0x2613 }, /*               signaturemark ☓ SALTIRE */
-                        /*  0x0acb                         trademarkincircle ? ??? */
+    /*  0x0acb                         trademarkincircle ? ??? */
     { 0x0acc, 0x25c1 }, /*            leftopentriangle ◁ WHITE LEFT-POINTING TRIANGLE */
     { 0x0acd, 0x25b7 }, /*           rightopentriangle ▷ WHITE RIGHT-POINTING TRIANGLE */
     { 0x0ace, 0x25cb }, /*                emopencircle ○ WHITE CIRCLE */
@@ -553,7 +553,7 @@ struct codepair {
     { 0x0ad6, 0x2032 }, /*                     minutes ′ PRIME */
     { 0x0ad7, 0x2033 }, /*                     seconds ″ DOUBLE PRIME */
     { 0x0ad9, 0x271d }, /*                  latincross ✝ LATIN CROSS */
-                        /*  0x0ada                                  hexagram ? ??? */
+    /*  0x0ada                                  hexagram ? ??? */
     { 0x0adb, 0x25ac }, /*            filledrectbullet ▬ BLACK RECTANGLE */
     { 0x0adc, 0x25c0 }, /*         filledlefttribullet ◀ BLACK LEFT-POINTING TRIANGLE */
     { 0x0add, 0x25b6 }, /*        filledrighttribullet ▶ BLACK RIGHT-POINTING TRIANGLE */
@@ -589,7 +589,7 @@ struct codepair {
     { 0x0afc, 0x2038 }, /*                       caret ‸ CARET */
     { 0x0afd, 0x201a }, /*          singlelowquotemark ‚ SINGLE LOW-9 QUOTATION MARK */
     { 0x0afe, 0x201e }, /*          doublelowquotemark „ DOUBLE LOW-9 QUOTATION MARK */
-                        /*  0x0aff                                    cursor ? ??? */
+    /*  0x0aff                                    cursor ? ??? */
     { 0x0ba3, 0x003c }, /*                   leftcaret < LESS-THAN SIGN */
     { 0x0ba6, 0x003e }, /*                  rightcaret > GREATER-THAN SIGN */
     { 0x0ba8, 0x2228 }, /*                   downcaret ∨ LOGICAL OR */
@@ -695,7 +695,7 @@ struct codepair {
     { 0x0dd8, 0x0e38 }, /*                  Thai_sarau ุ THAI CHARACTER SARA U */
     { 0x0dd9, 0x0e39 }, /*                 Thai_sarauu ู THAI CHARACTER SARA UU */
     { 0x0dda, 0x0e3a }, /*                Thai_phinthu ฺ THAI CHARACTER PHINTHU */
-                        /*  0x0dde                    Thai_maihanakat_maitho ? ??? */
+    /*  0x0dde                    Thai_maihanakat_maitho ? ??? */
     { 0x0ddf, 0x0e3f }, /*                   Thai_baht ฿ THAI CURRENCY SYMBOL BAHT */
     { 0x0de0, 0x0e40 }, /*                  Thai_sarae เ THAI CHARACTER SARA E */
     { 0x0de1, 0x0e41 }, /*                 Thai_saraae แ THAI CHARACTER SARA AE */
@@ -831,19 +831,19 @@ static uint32_t keysym2ucs(KeySym keysym) {
 
     /* also check for directly encoded 24-bit UCS characters */
     if ((keysym & 0xff000000) == 0x01000000)
-  return keysym & 0x00ffffff;
+        return keysym & 0x00ffffff;
 
     /* binary search in table */
     while (max >= min) {
-  mid = (min + max) / 2;
-  if (keysymtab[mid].keysym < keysym)
-      min = mid + 1;
-  else if (keysymtab[mid].keysym > keysym)
-      max = mid - 1;
-  else {
-      /* found it */
-      return keysymtab[mid].ucs;
-  }
+        mid = (min + max) / 2;
+        if (keysymtab[mid].keysym < keysym)
+            min = mid + 1;
+        else if (keysymtab[mid].keysym > keysym)
+            max = mid - 1;
+        else {
+            /* found it */
+            return keysymtab[mid].ucs;
+        }
     }
 
     /* no matching Unicode value found */

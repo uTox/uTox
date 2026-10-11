@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <time.h>
 
-
 #define LOGFILE_SAVE_VERSION 3
 typedef struct {
     uint8_t log_version;
@@ -25,7 +24,6 @@ typedef struct {
 
     uint8_t zeroes[2];
 } LOG_FILE_MSG_HEADER;
-
 
 typedef struct msg_header MSG_HEADER;
 

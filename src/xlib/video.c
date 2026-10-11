@@ -21,15 +21,14 @@
 
 #define MAX_VID_WINDOWS 32 // TODO drop this for dynamic allocation
 static Window video_win[MAX_VID_WINDOWS]; // TODO we should allocate this dynamically but this'll work for now
-static Window preview;        // Video preview
+static Window preview; // Video preview
 
-uint16_t find_video_windows(Window w)
-{
+uint16_t find_video_windows(Window w) {
     if (w == preview) {
         return UINT16_MAX;
     }
 
-    for (unsigned i = 0; i < MAX_VID_WINDOWS; ++i ) {
+    for (unsigned i = 0; i < MAX_VID_WINDOWS; ++i) {
         if (w == video_win[i]) {
             return i;
         }
@@ -37,7 +36,6 @@ uint16_t find_video_windows(Window w)
 
     return UINT16_MAX;
 }
-
 
 void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     if (!img_data) {
@@ -54,13 +52,13 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
         return;
     }
 
-    if  (!*win) {
-        LOG_TRACE("Video", "frame for null window %u" , id);
+    if (!*win) {
+        LOG_TRACE("Video", "frame for null window %u", id);
         return;
     }
 
     if (resize) {
-        XWindowChanges changes = {.width = width, .height = height };
+        XWindowChanges changes = { .width = width, .height = height };
         XConfigureWindow(display, *win, CWWidth | CWHeight, &changes);
     }
 
@@ -85,7 +83,7 @@ void video_frame(uint16_t id, uint8_t *img_data, uint16_t width, uint16_t height
 
     /* scale image if needed */
     uint8_t *new_data = NULL;
-    if (attrs.width != width && attrs.height != height){
+    if (attrs.width != width && attrs.height != height) {
         new_data = malloc(attrs.width * attrs.height * 4);
         if (!new_data) {
             LOG_FATAL_ERR(EXIT_MALLOC, "Video", "Could not allocate memory for scaled image.");
@@ -120,8 +118,7 @@ void video_begin(uint16_t id, char *name, uint16_t name_length, uint16_t width, 
         return;
     }
 
-    *win = XCreateSimpleWindow(display, RootWindow(display, def_screen_num), 0, 0, width, height, 0,
-                               BlackPixel(display, def_screen_num), WhitePixel(display, def_screen_num));
+    *win = XCreateSimpleWindow(display, RootWindow(display, def_screen_num), 0, 0, width, height, 0, BlackPixel(display, def_screen_num), WhitePixel(display, def_screen_num));
 
     // Fallback name in ISO8859-1.
     XStoreName(display, *win, "Video Preview");
@@ -130,12 +127,12 @@ void video_begin(uint16_t id, char *name, uint16_t name_length, uint16_t width, 
     XSetWMProtocols(display, *win, &wm_delete_window, 1);
 
     /* set WM_CLASS */
-    XClassHint hint = {.res_name = "utoxvideo", .res_class = "utoxvideo" };
+    XClassHint hint = { .res_name = "utoxvideo", .res_class = "utoxvideo" };
 
     XSetClassHint(display, *win, &hint);
 
     XMapWindow(display, *win);
-    LOG_TRACE("Video", "new window %u" , id);
+    LOG_TRACE("Video", "new window %u", id);
 }
 
 void video_end(uint16_t id) {
@@ -150,7 +147,7 @@ void video_end(uint16_t id) {
 
     XDestroyWindow(display, *win);
     *win = None;
-    LOG_NOTE("Video", "killed window %u" , id);
+    LOG_NOTE("Video", "killed window %u", id);
 }
 
 static Display *deskdisplay;
@@ -161,7 +158,7 @@ XShmSegmentInfo shminfo;
 void initshm(void) {
     deskdisplay = XOpenDisplay(NULL);
     deskscreen  = DefaultScreen(deskdisplay);
-    LOG_TRACE("Video", "desktop: %u %u" , default_screen->width, default_screen->height);
+    LOG_TRACE("Video", "desktop: %u %u", default_screen->width, default_screen->height);
     max_video_width  = default_screen->width;
     max_video_height = default_screen->height;
 }
@@ -216,10 +213,10 @@ bool native_video_init(void *handle) {
         utox_v4l_fd = -1;
 
         GRAB_POS grab = grab_pos();
-        video_x      = MIN(grab.dn_x, grab.up_x);
-        video_y      = MIN(grab.dn_y, grab.up_y);
-        video_width  = MAX(grab.dn_x, grab.up_x) - MIN(grab.dn_x, grab.up_x);
-        video_height = MAX(grab.dn_y, grab.up_y) - MIN(grab.dn_y, grab.up_y);
+        video_x       = MIN(grab.dn_x, grab.up_x);
+        video_y       = MIN(grab.dn_y, grab.up_y);
+        video_width   = MAX(grab.dn_x, grab.up_x) - MIN(grab.dn_x, grab.up_x);
+        video_height  = MAX(grab.dn_y, grab.up_y) - MIN(grab.dn_y, grab.up_y);
 
         if (video_width & 1) {
             if (video_x & 1) {
@@ -235,14 +232,11 @@ bool native_video_init(void *handle) {
             video_height++;
         }
 
-        if (!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen),
-                                             DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo,
-                                             video_width, video_height))) {
+        if (!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen), DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo, video_width, video_height))) {
             return false;
         }
 
-        if ((shminfo.shmid = shmget(IPC_PRIVATE, screen_image->bytes_per_line * screen_image->height, IPC_CREAT | 0777))
-            < 0) {
+        if ((shminfo.shmid = shmget(IPC_PRIVATE, screen_image->bytes_per_line * screen_image->height, IPC_CREAT | 0777)) < 0) {
             return false;
         }
 
@@ -301,8 +295,7 @@ int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, ui
         if (t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {
             XShmGetImage(deskdisplay, RootWindow(deskdisplay, deskscreen), screen_image, video_x, video_y, AllPlanes);
             if (width != video_width || height != video_height) {
-                LOG_ERR("v4l", "width/height mismatch %u %u != %u %u", width, height, screen_image->width,
-                      screen_image->height);
+                LOG_ERR("v4l", "width/height mismatch %u %u != %u %u", width, height, screen_image->width, screen_image->height);
                 return 0;
             }
 

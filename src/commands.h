@@ -24,6 +24,6 @@ struct Command {
 uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char **argument, int trusted);
 
 extern bool g_select_add_friend_later;
-void do_tox_url(uint8_t *url_string, int len);
+void        do_tox_url(uint8_t *url_string, int len);
 
 #endif

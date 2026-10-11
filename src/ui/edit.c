@@ -33,7 +33,7 @@ static struct {
 static bool edit_select;
 
 static void setactive(EDIT *edit) {
-    if(!active_edit){
+    if (!active_edit) {
         active_edit = edit;
         return;
     }
@@ -82,8 +82,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
     }
 
     if (!edit->noborder) {
-        draw_rect_frame(x, y, width, height,
-                        (edit == active_edit) ? color_border_a : (edit->mouseover ? color_border_h : color_border));
+        draw_rect_frame(x, y, width, height, (edit == active_edit) ? color_border_a : (edit->mouseover ? color_border_h : color_border));
     }
     draw_rect_fill(x + 1, y + 1, width - SCALE(2), height - SCALE(2), color_bg);
 
@@ -99,9 +98,12 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
 
         pushclip(x + 1, y + 1, width - 2, height - 2);
 
-        SCROLLABLE *scroll = edit->scroll;
+        SCROLLABLE *scroll     = edit->scroll;
         scroll->content_height = text_height(width - SCALE(8) - SCALE(SCROLL_WIDTH),
-                                             font_small_lineheight, edit->data, edit->length) + SCALE(8);
+                                             font_small_lineheight,
+                                             edit->data,
+                                             edit->length) +
+                                 SCALE(8);
         scroll_draw(scroll, x, y, width, height);
         yy -= scroll_gety(scroll, height);
     }
@@ -116,11 +118,11 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
     if (!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING *empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
         setcolor(COLOR_MAIN_TEXT_HINT);
-        drawtext(x + SCALE(4), yy + SCALE(top_offset* 2), empty_str_text->str, empty_str_text->length);
+        drawtext(x + SCALE(4), yy + SCALE(top_offset * 2), empty_str_text->str, empty_str_text->length);
     }
 
-    bool is_active = (edit == active_edit);
-    char *star = NULL;
+    bool  is_active = (edit == active_edit);
+    char *star      = NULL;
     if (edit->password && edit->length) {
         star = malloc(edit->length);
         if (!star) {
@@ -130,15 +132,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
         memset(star, '*', edit->length);
     }
     utox_draw_text_multiline_within_box(
-            x + SCALE(4), yy + SCALE(top_offset * 2),
-            x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0),
-            y, y + height, font_small_lineheight,
-            star ? star : edit->data, edit->length,
-            is_active ? edit_sel.start : UINT16_MAX,
-            is_active ? edit_sel.length : UINT16_MAX,
-            is_active ? edit_sel.mark_start : 0,
-            is_active ? edit_sel.mark_length : 0,
-            edit->multiline);
+        x + SCALE(4), yy + SCALE(top_offset * 2), x + width - SCALE(4) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0), y, y + height, font_small_lineheight, star ? star : edit->data, edit->length, is_active ? edit_sel.start : UINT16_MAX, is_active ? edit_sel.length : UINT16_MAX, is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     free(star);
 
     if (edit->multiline) {
@@ -179,8 +173,7 @@ bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y,
 
         setfont(FONT_TEXT);
         edit_sel.p2 =
-            hittextmultiline(x - SCALE(4), width - SCALE(8) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0), y - SCALE(4),
-                             INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
+            hittextmultiline(x - SCALE(4), width - SCALE(8) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0), y - SCALE(4), INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 
         uint16_t start, length;
         if (edit_sel.p2 > edit_sel.p1) {
@@ -199,8 +192,7 @@ bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y,
     } else if (mouseover) {
         setfont(FONT_TEXT);
         edit->mouseover_char =
-            hittextmultiline(x - SCALE(4), width - SCALE(8) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0), y - SCALE(4),
-                             INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
+            hittextmultiline(x - SCALE(4), width - SCALE(8) - (edit->multiline ? SCALE(SCROLL_WIDTH) : 0), y - SCALE(4), INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
     }
 
     return need_redraw;
@@ -266,9 +258,15 @@ static void contextmenu_edit_onselect(uint8_t i) {
             copy(0);
             edit_char(KEY_DEL, 1, 0);
             break;
-        case 1: copy(0); break;
-        case 2: paste(); break;
-        case 3: edit_char(KEY_DEL, 1, 0); break;
+        case 1:
+            copy(0);
+            break;
+        case 2:
+            paste();
+            break;
+        case 3:
+            edit_char(KEY_DEL, 1, 0);
+            break;
         case 4:
             /* Send a ctrl + a to the active edit */
             edit_char('A', 1, 4);
@@ -297,7 +295,7 @@ bool edit_mright(EDIT *edit) {
         return true;
     } else if (active_edit == edit) {
         edit_resetfocus(); // lose focus if right mouse button is pressed somewhere else
-        return true;          // redraw
+        return true; // redraw
     }
 
     return false;
@@ -494,8 +492,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
 
                     uint16_t len = edit_sel.start - p;
                     edit_do(edit, edit_sel.start - len, len, 1);
-                    memmove(edit->data + edit_sel.start - len, edit->data + edit_sel.start,
-                            edit->length - edit_sel.start);
+                    memmove(edit->data + edit_sel.start - len, edit->data + edit_sel.start, edit->length - edit_sel.start);
                     edit->length -= len;
 
                     edit_sel.start -= len;
@@ -582,8 +579,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                 }
 
                 setfont(FONT_TEXT);
-                edit_sel.p2 = text_lineup(edit->width, edit->height, edit_sel.p2, font_small_lineheight, edit->data,
-                                          edit->length, edit->scroll);
+                edit_sel.p2 = text_lineup(edit->width, edit->height, edit_sel.p2, font_small_lineheight, edit->data, edit->length, edit->scroll);
                 if (!(flags & EMOD_SHIFT)) {
                     edit_sel.p1 = edit_sel.p2;
                 }
@@ -597,8 +593,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                 }
 
                 setfont(FONT_TEXT);
-                edit_sel.p2 = text_linedown(edit->width, edit->height, edit_sel.p2, font_small_lineheight, edit->data,
-                                            edit->length, edit->scroll);
+                edit_sel.p2 = text_linedown(edit->width, edit->height, edit_sel.p2, font_small_lineheight, edit->data, edit->length, edit->scroll);
                 if (!(flags & EMOD_SHIFT)) {
                     edit_sel.p1 = edit_sel.p2;
                 }
@@ -757,7 +752,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
         edit_redraw();
     } else if (!edit->readonly) {
         uint8_t len = unicode_to_utf8_len(ch);
-        char *p = edit->data + edit_sel.start;
+        char   *p   = edit->data + edit_sel.start;
 
         if ((size_t)edit->length - edit_sel.length + len >= edit->data_size) {
             return;
@@ -818,15 +813,15 @@ void edit_paste(char *data, int length, bool select) {
     length = utf8_validate((uint8_t *)data, length);
 
     const int maxlen = (active_edit->data_size - 1) - active_edit->length + edit_sel.length;
-    int newlen = 0, i = 0;
+    int       newlen = 0, i = 0;
     while (i < length) {
         const uint8_t len = utf8_len(data + i);
 
-        const bool not_linebreak = !active_edit->multiline || data[i] != '\n';
-        const bool is_multibyte = len > 1;
+        const bool not_linebreak   = !active_edit->multiline || data[i] != '\n';
+        const bool is_multibyte    = len > 1;
         const bool is_control_char = is_multibyte ? (uint8_t)data[i] == 0xC2 && (uint8_t)data[i + 1] <= 0x9F
                                                   : data[i] <= 0x1F && not_linebreak;
-        const bool is_delete = data[i] == 0x7F;
+        const bool is_delete       = data[i] == 0x7F;
 
         if (is_delete || is_control_char) {
             // Ignore these characters

@@ -15,7 +15,7 @@ typedef struct UTOX_DEVICE {
     uint8_t name[TOX_MAX_NAME_LENGTH];
     size_t  name_length;
 
-    //TOX_DEVICE_STATUS status;
+    // TOX_DEVICE_STATUS status;
     uint8_t status;
 } UTOX_DEVICE;
 

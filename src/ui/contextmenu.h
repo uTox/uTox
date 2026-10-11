@@ -22,7 +22,6 @@ bool contextmenu_mup(void);
 bool contextmenu_mleave(void);
 
 void contextmenu_new(uint8_t count, UTOX_I18N_STR *menu_string_ids, void (*onselect)(uint8_t));
-void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t),
-                        STRING *(*ondisplay)(uint8_t, const CONTEXTMENU *));
+void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t), STRING *(*ondisplay)(uint8_t, const CONTEXTMENU *));
 
 #endif

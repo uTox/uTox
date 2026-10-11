@@ -10,8 +10,8 @@
 #include <stdint.h>
 
 typedef struct native_image NATIVE_IMAGE;
-typedef struct panel PANEL;
-typedef struct scrollable SCROLLABLE;
+typedef struct panel        PANEL;
+typedef struct scrollable   SCROLLABLE;
 
 #define S(x) (ui_gettext(settings.language, (STR_##x))->str)
 #define SLEN(x) (ui_gettext(settings.language, (STR_##x))->length)
@@ -28,7 +28,7 @@ typedef struct scrollable SCROLLABLE;
 // This is to stop a circular dependency between svg.c and xlib/main.h.
 #if defined __WIN32__ || defined _WIN32 || defined __CYGWIN__
 // Windows supplies its own RGB function.
-#include <windows.h>  // TODO, don't do this
+#include <windows.h> // TODO, don't do this
 #elif defined __ANDROID__
 #define RGB(r, g, b) ((r) | ((g) << 8) | ((b) << 16))
 #elif defined __OBJC__
@@ -54,7 +54,7 @@ extern struct utox_mouse {
 } mouse;
 
 extern uint8_t cursor;
-extern bool mdown;
+extern bool    mdown;
 
 enum {
     FONT_TEXT,
@@ -68,7 +68,7 @@ enum {
 };
 
 typedef enum {
-    MAIN_STYLE,      // white style, used in right side
+    MAIN_STYLE, // white style, used in right side
     AUXILIARY_STYLE, // gray style, used on friends side
 } UI_ELEMENT_STYLE;
 
@@ -77,7 +77,7 @@ typedef struct maybe_i18nal_string {
     UTOX_I18N_STR i18nal;
 } MAYBE_I18NAL_STRING;
 
-void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *, char *str, uint16_t length);
+void    maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *, char *str, uint16_t length);
 void    maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *, UTOX_I18N_STR);
 STRING *maybe_i18nal_string_get(MAYBE_I18NAL_STRING *);
 bool    maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *);
@@ -90,8 +90,7 @@ bool    maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *);
  *
  * first argument is the image to draw, width and height are the width and height of the input image
  */
-void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
-                       uint32_t targetheight);
+void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth, uint32_t targetheight);
 
 void ui_set_scale(uint8_t scale);
 void ui_rescale(uint8_t scale);
@@ -135,7 +134,6 @@ extern double ui_scale;
  * _width/_height postfix, and should be used to replace the originals whenever possible.
  * If you're able to replace an original, replace all occurrences, and delete the define. */
 
-
 /* User badge */
 #define SIDEBAR_PADDING 6
 #define SIDEBAR_AVATAR_TOP 5
@@ -150,7 +148,6 @@ extern double ui_scale;
 #define SIDEBAR_STATUSMSG_LEFT 50
 #define SIDEBAR_STATUSMSG_WIDTH 145
 #define SIDEBAR_STATUSMSG_HEIGHT 18
-
 
 /* Sidebar buttons and settings */
 #define SIDEBAR_FILTER_FRIENDS_TOP 50
@@ -187,7 +184,6 @@ extern double ui_scale;
 #define SCROLL_WIDTH 8 // must be divisible by 2
 #define SCROLL_THUMB_MIN_HEIGHT 60
 #define FILE_TRANSFER_BOX_HEIGHT 28
-
 
 /* Main panel defines */
 #define MAIN_TOP 60

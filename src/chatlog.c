@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
+static FILE *chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
     snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
@@ -68,13 +68,12 @@ size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
     }
 
     LOG_FILE_MSG_HEADER header;
-    size_t records_count = 0;
+    size_t              records_count = 0;
 
     while (fread(&header, sizeof(header), 1, file) == 1) {
         fseeko(file, header.author_length + header.msg_length + 1, SEEK_CUR);
         records_count++;
     }
-
 
     if (ferror(file) || !feof(file)) {
         /* TODO: consider removing or truncating the log file.
@@ -97,7 +96,7 @@ size_t utox_count_unsent_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
     }
 
     LOG_FILE_MSG_HEADER header;
-    size_t unsent = 0;
+    size_t              unsent = 0;
 
     while (fread(&header, sizeof(header), 1, file) == 1) {
         fseeko(file, header.author_length + header.msg_length + 1, SEEK_CUR);
@@ -141,7 +140,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
         count = records_count - skip;
     }
 
-    MSG_HEADER **data = calloc(count + 1, sizeof(MSG_HEADER *));
+    MSG_HEADER **data  = calloc(count + 1, sizeof(MSG_HEADER *));
     MSG_HEADER **start = data;
 
     if (!data) {
@@ -150,7 +149,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
         return NULL;
     }
 
-    size_t start_at = records_count - count - skip;
+    size_t start_at     = records_count - count - skip;
     size_t actual_count = 0;
 
     size_t file_offset = 0;
@@ -159,8 +158,8 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
     while (fread(&header, sizeof(header), 1, file) == 1) {
         if (start_at) {
             fseeko(file, header.author_length, SEEK_CUR); /* Skip the recorded author */
-            fseeko(file, header.msg_length, SEEK_CUR);    /* Skip the message */
-            fseeko(file, 1, SEEK_CUR);                    /* Skip the newline char */
+            fseeko(file, header.msg_length, SEEK_CUR); /* Skip the message */
+            fseeko(file, 1, SEEK_CUR); /* Skip the newline char */
             start_at--;
             file_offset = ftello(file);
             continue;
@@ -171,9 +170,14 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             fseeko(file, header.author_length, SEEK_CUR);
             if (header.msg_length > 1 << 16) {
                 LOG_ERR("Chatlog", "Can't malloc that much, you'll probably have to move or delete your"
-                            " history for this peer.\n\t\tFriend number %.*s, count %u,"
-                            " actual_count %lu, start at %lu, error size %lu.\n",
-                            TOX_PUBLIC_KEY_SIZE * 2, hex, count, actual_count, start_at, header.msg_length);
+                                   " history for this peer.\n\t\tFriend number %.*s, count %u,"
+                                   " actual_count %lu, start at %lu, error size %lu.\n",
+                        TOX_PUBLIC_KEY_SIZE * 2,
+                        hex,
+                        count,
+                        actual_count,
+                        start_at,
+                        header.msg_length);
                 if (size) {
                     *size = 0;
                 }
@@ -191,14 +195,14 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
                 return NULL;
             }
 
-            msg->our_msg       = header.author;
-            msg->receipt_time  = header.receipt;
-            msg->time          = header.time;
-            msg->msg_type      = header.msg_type;
-            msg->disk_offset   = file_offset;
+            msg->our_msg      = header.author;
+            msg->receipt_time = header.receipt;
+            msg->time         = header.time;
+            msg->msg_type     = header.msg_type;
+            msg->disk_offset  = file_offset;
 
-            msg->via.txt.length        = header.msg_length;
-            msg->via.txt.msg = calloc(1, msg->via.txt.length);
+            msg->via.txt.length = header.msg_length;
+            msg->via.txt.msg    = calloc(1, msg->via.txt.length);
             if (!msg->via.txt.msg) {
                 LOG_ERR("Chatlog", "Unable to malloc for via.txt.msg... sorry!");
                 free(msg);
@@ -219,8 +223,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             // }
 
             if (fread(msg->via.txt.msg, msg->via.txt.length, 1, file) != 1) {
-                LOG_ERR("Chatlog", "Log read:\tError reading record %u of length %u at offset %lu: stopping.",
-                            count, msg->via.txt.length, msg->disk_offset);
+                LOG_ERR("Chatlog", "Log read:\tError reading record %u of length %u at offset %lu: stopping.", count, msg->via.txt.length, msg->disk_offset);
                 // free(msg->via.txt.author);
                 free(msg->via.txt.msg);
                 free(msg);
@@ -228,7 +231,7 @@ MSG_HEADER **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, 
             }
 
             msg->via.txt.length = utf8_validate((uint8_t *)msg->via.txt.msg, msg->via.txt.length);
-            *data++ = msg;
+            *data++             = msg;
             --count;
             ++actual_count;
             fseeko(file, 1, SEEK_CUR); /* seek an extra \n char */
@@ -270,7 +273,7 @@ bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
 
     snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
-    return utox_remove_file((uint8_t*)name, sizeof(name));
+    return utox_remove_file((uint8_t *)name, sizeof(name));
 }
 
 void utox_export_chatlog_init(uint32_t friend_number) {
@@ -283,31 +286,28 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
     }
 
     LOG_FILE_MSG_HEADER header;
-    FILE *file = chatlog_get_file(hex, false);
+    FILE               *file = chatlog_get_file(hex, false);
 
     struct tm *tm_curr;
     struct tm_tmp {
         int tm_year;
         int tm_mon;
         int tm_mday;
-    } tm_prev = { .tm_mday = 1};
+    } tm_prev = { .tm_mday = 1 };
 
     while (fread(&header, sizeof(header), 1, file) == 1) {
         tm_curr = localtime(&header.time);
 
-        if (tm_curr->tm_year > tm_prev.tm_year
-            || (tm_curr->tm_year == tm_prev.tm_year && tm_curr->tm_mon > tm_prev.tm_mon)
-            || (tm_curr->tm_year == tm_prev.tm_year && tm_curr->tm_mon == tm_prev.tm_mon && tm_curr->tm_mday > tm_prev.tm_mday))
-        {
-            char buffer[128];
-            size_t len = strftime(buffer, 128,  "Day has changed to %A %B %d %Y\n", tm_curr);
+        if (tm_curr->tm_year > tm_prev.tm_year || (tm_curr->tm_year == tm_prev.tm_year && tm_curr->tm_mon > tm_prev.tm_mon) || (tm_curr->tm_year == tm_prev.tm_year && tm_curr->tm_mon == tm_prev.tm_mon && tm_curr->tm_mday > tm_prev.tm_mday)) {
+            char   buffer[128];
+            size_t len = strftime(buffer, 128, "Day has changed to %A %B %d %Y\n", tm_curr);
             fwrite(buffer, len, 1, dest_file);
         }
 
         /* Write Timestamp */
         fprintf(dest_file, "[%02d:%02d]", tm_curr->tm_hour, tm_curr->tm_min);
         tm_prev.tm_year = tm_curr->tm_year;
-        tm_prev.tm_mon = tm_curr->tm_mon;
+        tm_prev.tm_mon  = tm_curr->tm_mon;
         tm_prev.tm_mday = tm_curr->tm_mday;
 
         int c;

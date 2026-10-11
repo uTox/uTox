@@ -26,21 +26,18 @@
         (punk) = NULL;                 \
     }
 
-IAudioClient *       pAudioClient   = NULL;
+IAudioClient        *pAudioClient   = NULL;
 IAudioCaptureClient *pCaptureClient = NULL;
-WAVEFORMATEX *       pwfx           = NULL;
-
+WAVEFORMATEX        *pwfx           = NULL;
 
 // const GUID IID_IMMDeviceEnumerator = {0xa95664d2, 0x9614, 0x4f35, {0xa7,0x46, 0xde,0x8d,0xb6,0x36,0x17,0xe6}};
 // const CLSID CLSID_MMDeviceEnumerator = {0xbcde0395, 0xe52f, 0x467c, {0x8e,0x3d, 0xc4,0x57,0x92,0x91,0x69,0x2e}};
 // const GUID IID_IAudioClient = {0x1cb9ad4c, 0xdbfa, 0x4c32, {0xb1,0x78, 0xc2,0xf5,0x68,0xa7,0x03,0xb2}};
 
-
 // const GUID KSDATAFORMAT_SUBTYPE_IEEE_FLOAT = {STATIC_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT};
 // const GUID KSDATAFORMAT_SUBTYPE_PCM = {STATIC_KSDATAFORMAT_SUBTYPE_PCM};
 
 const GUID IID_IAudioCaptureClient_utox = { 0xc8adbd64, 0xe71e, 0x48a0, { 0xa4, 0xde, 0x18, 0x5c, 0x39, 0x5c, 0xd3, 0x17 } };
-
 
 /* note: only works when loopback is 48khz 2 channel floating*/
 void audio_detect(void) {
@@ -49,7 +46,7 @@ void audio_detect(void) {
     // REFERENCE_TIME hnsActualDuration;
     UINT32               bufferFrameCount;
     IMMDeviceEnumerator *pEnumerator       = NULL;
-    IMMDevice *          pDevice           = NULL;
+    IMMDevice           *pDevice           = NULL;
     IMMDeviceCollection *pDeviceCollection = NULL;
     // BOOL bDone = FALSE;
     UINT count;
@@ -66,7 +63,7 @@ void audio_detect(void) {
     hr = pDeviceCollection->lpVtbl->GetCount(pDeviceCollection, &count);
     EXIT_ON_ERROR(hr)
 
-    LOG_TRACE("Windows", "Audio out devices %u" , count);
+    LOG_TRACE("Windows", "Audio out devices %u", count);
 
     hr = pEnumerator->lpVtbl->GetDefaultAudioEndpoint(pEnumerator, eRender, eConsole, &pDevice);
     EXIT_ON_ERROR(hr)
@@ -77,11 +74,10 @@ void audio_detect(void) {
     hr = pAudioClient->lpVtbl->GetMixFormat(pAudioClient, &pwfx);
     EXIT_ON_ERROR(hr)
 
-    LOG_INFO("Windows Audio", "default audio format: %u %u %u %lu %lu %u %u\n", WAVE_FORMAT_PCM, pwfx->wFormatTag,
-          pwfx->nChannels, pwfx->nSamplesPerSec, pwfx->nAvgBytesPerSec, pwfx->wBitsPerSample, pwfx->nBlockAlign);
+    LOG_INFO("Windows Audio", "default audio format: %u %u %u %lu %lu %u %u\n", WAVE_FORMAT_PCM, pwfx->wFormatTag, pwfx->nChannels, pwfx->nSamplesPerSec, pwfx->nAvgBytesPerSec, pwfx->wBitsPerSample, pwfx->nBlockAlign);
 
     if (pwfx->nSamplesPerSec != 48000 || pwfx->nChannels != 2 || pwfx->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
-        LOG_TRACE("Windows", "Audio - unsupported format for loopback" );
+        LOG_TRACE("Windows", "Audio - unsupported format for loopback");
         goto Exit;
     }
 
@@ -96,8 +92,7 @@ void audio_detect(void) {
         printf("unknown\n");
     }*/
 
-    hr = pAudioClient->lpVtbl->Initialize(pAudioClient, AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK,
-                                          hnsRequestedDuration, 0, pwfx, NULL);
+    hr = pAudioClient->lpVtbl->Initialize(pAudioClient, AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, hnsRequestedDuration, 0, pwfx, NULL);
     EXIT_ON_ERROR(hr)
 
     /*AUDCLNT_STREAMFLAGS_EVENTCALLBACK
@@ -118,7 +113,7 @@ void audio_detect(void) {
     hr = pAudioClient->lpVtbl->GetService(pAudioClient, &IID_IAudioCaptureClient_utox, (void **)&pCaptureClient);
     EXIT_ON_ERROR(hr)
 
-    LOG_TRACE("Windows", "Audio frame count %u && Samples/s %lu" , bufferFrameCount, pwfx->nSamplesPerSec);
+    LOG_TRACE("Windows", "Audio frame count %u && Samples/s %lu", bufferFrameCount, pwfx->nSamplesPerSec);
 
     // postmessage_utox(AUDIO_IN_DEVICE, STR_AUDIO_IN_DEFAULT_LOOPBACK, 0, (void*)(size_t)1);
     // this has no effect on my system, so I'm commenting it out, if you can't get audio, try enabling this again!
@@ -131,7 +126,7 @@ Exit:
     SAFE_RELEASE(pAudioClient)
     SAFE_RELEASE(pCaptureClient)
 
-    LOG_ERR("Windows", "Audio_init fail: %lu" , hr);
+    LOG_ERR("Windows", "Audio_init fail: %lu", hr);
 }
 
 bool audio_init(void *UNUSED(handle)) {
@@ -149,7 +144,7 @@ static void *convertsamples(int16_t *dest, float *src, uint16_t samples) {
     }
 
     for (uint16_t i = 0; i != samples; i++) {
-        float x = *src++;
+        float       x = *src++;
         const float y = *src++;
 
         x = (x + y) * INT16_MAX / 2.0;
@@ -170,7 +165,7 @@ bool audio_frame(int16_t *buffer) {
     // HRESULT hr;
     UINT32 numFramesAvailable;
     UINT32 packetLength = 0;
-    BYTE * pData;
+    BYTE  *pData;
     DWORD  flags;
 
     pCaptureClient->lpVtbl->GetNextPacketSize(pCaptureClient, &packetLength);
@@ -196,7 +191,6 @@ bool audio_frame(int16_t *buffer) {
         convertsamples(&buffer[frame ? 0 : 480], (void *)pData, 480);
 
         frame = !frame;
-
 
         // Copy the available capture data to the audio sink.
         // printf("%u\n", numFramesAvailable);

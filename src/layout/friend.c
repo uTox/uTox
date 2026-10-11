@@ -34,8 +34,7 @@ static void draw_friend(int x, int y, int w, int height) {
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        draw_avatar_image(f->avatar->img, x + SCALE(10), SCALE(10), f->avatar->width, f->avatar->height,
-                          BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        draw_avatar_image(f->avatar->img, x + SCALE(10), SCALE(10), f->avatar->width, f->avatar->height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
         drawalpha(BM_CONTACT, x + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
     }
@@ -51,8 +50,7 @@ static void draw_friend(int x, int y, int w, int height) {
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(x + SCALE(60), settings.window_width - SCALE(128), SCALE(32), f->status_message,
-                  f->status_length);
+    drawtextrange(x + SCALE(60), settings.window_width - SCALE(128), SCALE(32), f->status_message, f->status_length);
 
     if (f->typing) {
         int typing_y = ((y + height) + SCALE(CHAT_BOX_TOP - 14));
@@ -82,8 +80,7 @@ static void draw_friend_request(int x, int y, int w, int h) {
 
     if (req->msg && req->length) {
         setfont(FONT_TEXT);
-        utox_draw_text_multiline_within_box(x + SCALE(10), y + SCALE(70), w + x, y, y + h, font_small_lineheight,
-                                            req->msg, req->length, ~0, ~0, 0, 0, true);
+        utox_draw_text_multiline_within_box(x + SCALE(10), y + SCALE(70), w + x, y, y + h, font_small_lineheight, req->msg, req->length, ~0, ~0, 0, 0, true);
     }
 }
 
@@ -106,7 +103,7 @@ static void draw_friend_deletion(int x, int UNUSED(y), int UNUSED(w), int UNUSED
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    int length = f->name_length + 2;
+    int  length = f->name_length + 2;
     char str[length];
     snprintf(str, length, "%.*s?", (int)f->name_length, f->name);
 
@@ -171,107 +168,52 @@ static void draw_add_friend(int x, int UNUSED(y), int UNUSED(w), int height) {
             str = SPTR(REQ_ADDED_NO_FREQ_SENT);
             break;
         case ADDF_UNKNOWN: // for unknown error.
-        case ADDF_NONE:    // this case must never be rendered, but if it does, assume it's an error
+        case ADDF_NONE: // this case must never be rendered, but if it does, assume it's an error
         default:
             str = SPTR(REQ_UNKNOWN);
             break;
     }
 
-    utox_draw_text_multiline_within_box(x + SCALE(10), MAIN_TOP + SCALE(166),
-                                        settings.window_width - BM_SBUTTON_WIDTH - SCALE(10), 0, height,
-                                        font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
+    utox_draw_text_multiline_within_box(x + SCALE(10), MAIN_TOP + SCALE(166), settings.window_width - BM_SBUTTON_WIDTH - SCALE(10), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
 }
 
 SCROLLABLE scrollbar_friend = {
-    .panel = { .type = PANEL_SCROLLABLE, },
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+    },
     .color = C_SCROLL,
 };
 
 PANEL messages_friend = {
-    .type = PANEL_MESSAGES,
+    .type           = PANEL_MESSAGES,
     .content_scroll = &scrollbar_friend,
 };
 
 PANEL
 panel_friend = {
-    .type = PANEL_NONE,
+    .type     = PANEL_NONE,
     .disabled = 1,
-    .child = (PANEL*[]) {
+    .child    = (PANEL *[]){
         &panel_friend_chat,
         &panel_friend_video,
         &panel_friend_settings,
         &panel_friend_confirm_deletion,
-        NULL
-    }
+        NULL }
 },
-panel_friend_chat = {
-    .type = PANEL_NONE,
-    .disabled = 0,
-    .drawfunc = draw_friend,
-    .child = (PANEL*[]) {
-        (PANEL*)&scrollbar_friend,
-        (PANEL*)&edit_chat_msg_friend, // this needs to be one of the first, to get events before the others
-        (PANEL*)&messages_friend,
-        (PANEL*)&button_call_decline,
-        (PANEL*)&button_call_audio,
-        (PANEL*)&button_call_video,
-        (PANEL*)&button_send_file,
-        (PANEL*)&button_send_screenshot,
-        (PANEL*)&button_chat_send_friend,
-        NULL
-    }
-},
-panel_friend_video = {
-    .type = PANEL_INLINE_VIDEO,
-    .disabled = 1,
-    .child = (PANEL*[]) {
-        NULL
-    }
-},
-panel_friend_settings = {
-    .type = PANEL_NONE,
-    .disabled = 1,
-    .drawfunc = draw_friend_settings,
-    .child = (PANEL*[]) {
-        (PANEL*)&edit_friend_pubkey,
-        (PANEL*)&edit_friend_alias,
-        (PANEL*)&switch_friend_autoaccept_ft,
-        (PANEL*)&button_export_chatlog,
-        NULL
-    }
-},
-panel_friend_confirm_deletion = {
-    .type = PANEL_NONE,
-    .disabled = true,
-    .drawfunc = draw_friend_deletion,
-    .child = (PANEL*[]) {
-        (PANEL *)&button_confirm_deletion,
-        (PANEL *)&button_deny_deletion,
-        NULL
-    }
+    panel_friend_chat  = { .type = PANEL_NONE, .disabled = 0, .drawfunc = draw_friend, .child = (PANEL *[]){ (PANEL *)&scrollbar_friend,
+                                                                                                             (PANEL *)&edit_chat_msg_friend, // this needs to be one of the first, to get events before the others
+                                                                                                             (PANEL *)&messages_friend,
+                                                                                                             (PANEL *)&button_call_decline,
+                                                                                                             (PANEL *)&button_call_audio,
+                                                                                                             (PANEL *)&button_call_video,
+                                                                                                             (PANEL *)&button_send_file,
+                                                                                                             (PANEL *)&button_send_screenshot,
+                                                                                                             (PANEL *)&button_chat_send_friend,
+                                                                                                             NULL } },
+    panel_friend_video = { .type = PANEL_INLINE_VIDEO, .disabled = 1, .child = (PANEL *[]){ NULL } }, panel_friend_settings = { .type = PANEL_NONE, .disabled = 1, .drawfunc = draw_friend_settings, .child = (PANEL *[]){ (PANEL *)&edit_friend_pubkey, (PANEL *)&edit_friend_alias, (PANEL *)&switch_friend_autoaccept_ft, (PANEL *)&button_export_chatlog, NULL } }, panel_friend_confirm_deletion = { .type = PANEL_NONE, .disabled = true, .drawfunc = draw_friend_deletion, .child = (PANEL *[]){ (PANEL *)&button_confirm_deletion, (PANEL *)&button_deny_deletion, NULL }
 
-},
-panel_friend_request = {
-    .type = PANEL_NONE,
-    .disabled = 1,
-    .drawfunc = draw_friend_request,
-    .child = (PANEL*[]) {
-        (PANEL*)&button_accept_friend,
-        (PANEL*)&button_ignore_friend,
-        NULL
-    }
-},
-panel_add_friend = {
-    .type = PANEL_NONE,
-    .disabled = 1,
-    .drawfunc = draw_add_friend,
-    .child = (PANEL*[]) {
-        (PANEL*)&button_send_friend_request,
-        (PANEL*)&edit_add_new_friend_id,
-        (PANEL*)&edit_add_new_friend_msg,
-        NULL
-    }
-};
+    },
+    panel_friend_request = { .type = PANEL_NONE, .disabled = 1, .drawfunc = draw_friend_request, .child = (PANEL *[]){ (PANEL *)&button_accept_friend, (PANEL *)&button_ignore_friend, NULL } }, panel_add_friend = { .type = PANEL_NONE, .disabled = 1, .drawfunc = draw_add_friend, .child = (PANEL *[]){ (PANEL *)&button_send_friend_request, (PANEL *)&edit_add_new_friend_id, (PANEL *)&edit_add_new_friend_msg, NULL } };
 
 static void button_add_new_contact_on_mup(void) {
     if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
@@ -429,7 +371,7 @@ static void button_accept_friend_on_mup(void) {
     panel_friend_request.disabled = true;
 }
 
-static void button_ignore_friend_on_mup(void){
+static void button_ignore_friend_on_mup(void) {
     FREQUEST *req = flist_get_sel_frequest();
     if (!req) {
         LOG_ERR("Friend", "Could not get selected friend request");
@@ -468,7 +410,7 @@ BUTTON button_add_new_contact = {
     .on_mup       = button_add_new_contact_on_mup,
     .disabled     = true,
     .nodraw       = true,
-    .tooltip_text = {.i18nal = STR_ADDFRIENDS },
+    .tooltip_text = { .i18nal = STR_ADDFRIENDS },
 };
 
 BUTTON button_send_friend_request = {
@@ -479,8 +421,8 @@ BUTTON button_send_friend_request = {
         .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT,
     },
-    .bm_fill         = BM_SBUTTON,
-    .button_text = {.i18nal = STR_ADD },
+    .bm_fill     = BM_SBUTTON,
+    .button_text = { .i18nal = STR_ADD },
     .update      = button_setcolors_success,
     .on_mup      = button_send_friend_request_on_mup,
     .disabled    = false,
@@ -490,7 +432,7 @@ BUTTON button_call_decline = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      = -186,
-        .y      =   10,
+        .y      = 10,
         .width  = _BM_LBUTTON_WIDTH,
         .height = _BM_LBUTTON_HEIGHT,
     },
@@ -500,7 +442,7 @@ BUTTON button_call_decline = {
     .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_decline_on_mup,
     .update       = button_call_decline_update,
-    .tooltip_text = {.i18nal = STR_CALL_DECLINE },
+    .tooltip_text = { .i18nal = STR_CALL_DECLINE },
     .nodraw       = true,
     .disabled     = true,
 };
@@ -509,7 +451,7 @@ BUTTON button_call_audio = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      = -124,
-        .y      =   10,
+        .y      = 10,
         .width  = _BM_LBUTTON_WIDTH,
         .height = _BM_LBUTTON_HEIGHT,
     },
@@ -519,14 +461,14 @@ BUTTON button_call_audio = {
     .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_audio_on_mup,
     .update       = button_call_audio_update,
-    .tooltip_text = {.i18nal = STR_CALL_START_AUDIO },
+    .tooltip_text = { .i18nal = STR_CALL_START_AUDIO },
 };
 
 BUTTON button_call_video = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      = -62,
-        .y      =  10,
+        .y      = 10,
         .width  = _BM_LBUTTON_WIDTH,
         .height = _BM_LBUTTON_HEIGHT,
     },
@@ -536,7 +478,7 @@ BUTTON button_call_video = {
     .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_call_video_on_mup,
     .update       = button_call_video_update,
-    .tooltip_text = {.i18nal = STR_CALL_START_VIDEO },
+    .tooltip_text = { .i18nal = STR_CALL_START_VIDEO },
 };
 
 static void button_send_file_on_mup(void) {
@@ -570,7 +512,7 @@ static void button_send_file_update(BUTTON *b) {
 BUTTON button_send_file = {
     .panel = {
         .type   = PANEL_BUTTON,
-        .x      =   6,
+        .x      = 6,
         .y      = -46,
         .width  = _BM_CHAT_BUTTON_WIDTH,
         .height = _BM_CHAT_BUTTON_HEIGHT,
@@ -582,7 +524,7 @@ BUTTON button_send_file = {
     .on_mup       = button_send_file_on_mup,
     .update       = button_send_file_update,
     .disabled     = true,
-    .tooltip_text = {.i18nal = STR_SEND_FILE },
+    .tooltip_text = { .i18nal = STR_SEND_FILE },
 };
 
 #include "../screen_grab.h"
@@ -612,7 +554,7 @@ static void button_send_screenshot_update(BUTTON *b) {
 BUTTON button_send_screenshot = {
     .panel = {
         .type   = PANEL_BUTTON,
-        .x      =   8 + _BM_CHAT_BUTTON_WIDTH,
+        .x      = 8 + _BM_CHAT_BUTTON_WIDTH,
         .y      = -46,
         .width  = _BM_CHAT_BUTTON_WIDTH,
         .height = _BM_CHAT_BUTTON_HEIGHT,
@@ -623,35 +565,35 @@ BUTTON button_send_screenshot = {
     .icon_h       = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
     .update       = button_send_screenshot_update,
     .on_mup       = button_send_screenshot_on_mup,
-    .tooltip_text = {.i18nal = STR_SENDSCREENSHOT },
+    .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
 };
 
 BUTTON button_accept_friend = {
     .panel = {
-        .type = PANEL_BUTTON,
-        .x = -140,
-        .y = -80,
-        .width = _BM_SBUTTON_WIDTH,
+        .type   = PANEL_BUTTON,
+        .x      = -140,
+        .y      = -80,
+        .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT,
     },
-    .bm_fill         = BM_SBUTTON,
-    .button_text = {.i18nal = STR_ADD },
+    .bm_fill     = BM_SBUTTON,
+    .button_text = { .i18nal = STR_ADD },
     .update      = button_setcolors_success,
     .on_mup      = button_accept_friend_on_mup,
 };
 
 BUTTON button_ignore_friend = {
     .panel = {
-        .type = PANEL_BUTTON,
-        .x = -80,
-        .y = -80,
-        .width = _BM_SBUTTON_WIDTH,
+        .type   = PANEL_BUTTON,
+        .x      = -80,
+        .y      = -80,
+        .width  = _BM_SBUTTON_WIDTH,
         .height = _BM_SBUTTON_HEIGHT,
     },
     .bm_fill     = BM_SBUTTON,
-    .button_text = {.i18nal = STR_IGNORE},
-    .update     = button_setcolors_danger,
-    .on_mup     = button_ignore_friend_on_mup,
+    .button_text = { .i18nal = STR_IGNORE },
+    .update      = button_setcolors_danger,
+    .on_mup      = button_ignore_friend_on_mup,
 };
 
 static void switchfxn_autoaccept_ft(void) {
@@ -667,7 +609,7 @@ static void switchfxn_autoaccept_ft(void) {
 UISWITCH switch_friend_autoaccept_ft = {
     .panel = {
         .type   = PANEL_SWITCH,
-        .x      =  10,
+        .x      = 10,
         .y      = 168,
         .width  = _BM_SWITCH_WIDTH,
         .height = _BM_SWITCH_HEIGHT,
@@ -678,22 +620,21 @@ UISWITCH switch_friend_autoaccept_ft = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .on_mup         = switchfxn_autoaccept_ft,
-    .tooltip_text   = {.i18nal = STR_FRIEND_AUTOACCEPT },
+    .tooltip_text   = { .i18nal = STR_FRIEND_AUTOACCEPT },
 };
-
 
 static void edit_add_new_contact(EDIT *UNUSED(edit)) {
     friend_add(edit_add_new_friend_id.data, edit_add_new_friend_id.length, edit_add_new_friend_msg.data, edit_add_new_friend_msg.length);
 }
 
 static char e_friend_pubkey_str[TOX_PUBLIC_KEY_SIZE * 2];
-EDIT edit_friend_pubkey = {
+EDIT        edit_friend_pubkey = {
     .panel = {
         .type   = PANEL_EDIT,
-        .x      =  10,
-        .y      =  88,
+        .x      = 10,
+        .y      = 88,
         .width  = -10,
-        .height =  24,
+        .height = 24,
     },
     // .length == .data_size, because .data is not \0-terminated
     .length            = sizeof e_friend_pubkey_str,
@@ -703,7 +644,6 @@ EDIT edit_friend_pubkey = {
     .noborder          = false,
     .select_completely = true,
 };
-
 
 static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
     FRIEND *f = flist_get_sel_friend();
@@ -718,45 +658,45 @@ static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
 }
 
 static char e_friend_alias_str[128];
-EDIT edit_friend_alias = {
+EDIT        edit_friend_alias = {
     .panel = {
         .type   = PANEL_EDIT,
-        .x      =  10,
+        .x      = 10,
         .y      = 138,
         .width  = -10,
-        .height =  24,
+        .height = 24,
     },
     .data_size   = sizeof e_friend_alias_str,
     .data        = e_friend_alias_str,
     .onenter     = edit_friend_alias_onenter,
     .onlosefocus = edit_friend_alias_onenter,
-    .empty_str   = {.plain = STRING_INIT("") }, // set dynamically to the friend's name
+    .empty_str   = { .plain = STRING_INIT("") }, // set dynamically to the friend's name
 };
-
-
 
 static void edit_add_new_friend_id_ontab(EDIT *UNUSED(edit)) {
     edit_setfocus(&edit_add_new_friend_msg);
 }
 
 static char e_add_new_friend_id_data[TOX_ADDRESS_SIZE * 4];
-EDIT edit_add_new_friend_id = {
+EDIT        edit_add_new_friend_id = {
     .panel = {
         .type   = PANEL_EDIT,
-        .x      =  10,
-        .y      =  28 + MAIN_TOP,
+        .x      = 10,
+        .y      = 28 + MAIN_TOP,
         .width  = -10,
-        .height =  24,
+        .height = 24,
     },
-    .data_size = sizeof e_add_new_friend_id_data,
-    .data      = e_add_new_friend_id_data,
-    .onenter   = edit_add_new_contact,
+    .data_size  = sizeof e_add_new_friend_id_data,
+    .data       = e_add_new_friend_id_data,
+    .onenter    = edit_add_new_contact,
     .ontab      = edit_add_new_friend_id_ontab,
     .onshifttab = edit_add_new_friend_id_ontab,
 };
 
 SCROLLABLE e_add_new_friend_msg_scroll = {
-    .panel = { .type = PANEL_SCROLLABLE, },
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+    },
     .d     = 1.0,
     .color = C_SCROLL,
 };
@@ -766,26 +706,26 @@ static void edit_add_new_friend_msg_ontab(EDIT *UNUSED(edit)) {
 }
 
 static char e_add_new_friend_msg_data[1024];
-EDIT edit_add_new_friend_msg = {
+EDIT        edit_add_new_friend_msg = {
     .panel = {
         .type   = PANEL_EDIT,
-        .x      =  10,
-        .y      =  76 + MAIN_TOP,
+        .x      = 10,
+        .y      = 76 + MAIN_TOP,
         .width  = -10,
-        .height =  84,
+        .height = 84,
     },
-    .multiline = 1,
-    .scroll    = &e_add_new_friend_msg_scroll,
-    .data      = e_add_new_friend_msg_data,
-    .data_size = sizeof e_add_new_friend_msg_data,
-    .empty_str = {.i18nal = STR_DEFAULT_FRIEND_REQUEST_MESSAGE },
+    .multiline  = 1,
+    .scroll     = &e_add_new_friend_msg_scroll,
+    .data       = e_add_new_friend_msg_data,
+    .data_size  = sizeof e_add_new_friend_msg_data,
+    .empty_str  = { .i18nal = STR_DEFAULT_FRIEND_REQUEST_MESSAGE },
     .ontab      = edit_add_new_friend_msg_ontab,
     .onshifttab = edit_add_new_friend_msg_ontab,
 };
 
 #include "../commands.h"
 static void e_chat_msg_onenter(EDIT *edit) {
-    char *   text   = edit->data;
+    char    *text   = edit->data;
     uint16_t length = edit->length;
 
     if (length <= 0) {
@@ -793,7 +733,7 @@ static void e_chat_msg_onenter(EDIT *edit) {
     }
 
     uint16_t command_length = 0; //, argument_length = 0;
-    char *   command = NULL, *argument = NULL;
+    char    *command = NULL, *argument = NULL;
 
     command_length = utox_run_command(text, length, &command, &argument, 1);
 
@@ -831,7 +771,7 @@ static void e_chat_msg_onenter(EDIT *edit) {
             message_add_type_text(&f->msg, 1, text, length, 1, 1);
         }
     }
-    edit->length      = 0;
+    edit->length = 0;
 }
 
 static void e_chat_msg_onchange(EDIT *UNUSED(edit)) {
@@ -846,26 +786,28 @@ static void e_chat_msg_onchange(EDIT *UNUSED(edit)) {
 }
 
 SCROLLABLE e_chat_msg_friend_scroll = {
-    .panel = { .type = PANEL_SCROLLABLE, },
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+    },
     .d     = 1.0,
     .color = C_SCROLL,
 };
 
 static char e_chat_msg_friend_data[65535];
-EDIT edit_chat_msg_friend = {
+EDIT        edit_chat_msg_friend = {
     .panel = {
         .type   = PANEL_EDIT,
-        .x      =  10 + _BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button */
+        .x      = 10 + _BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button */
         .y      = -46,
         .width  = -64,
-        .height =  40, /* text is 8 high. 8 * 2.5 = 20. */
+        .height = 40, /* text is 8 high. 8 * 2.5 = 20. */
     },
-    .data        = e_chat_msg_friend_data,
-    .data_size   = sizeof e_chat_msg_friend_data,
-    .multiline   = true,
-    .onenter     = e_chat_msg_onenter,
-    .onchange    = e_chat_msg_onchange,
-    .scroll      = &e_chat_msg_friend_scroll,
+    .data      = e_chat_msg_friend_data,
+    .data_size = sizeof e_chat_msg_friend_data,
+    .multiline = true,
+    .onenter   = e_chat_msg_onenter,
+    .onchange  = e_chat_msg_onchange,
+    .scroll    = &e_chat_msg_friend_scroll,
 };
 
 /* Button to send chat message */
@@ -890,7 +832,7 @@ static void button_chat_send_friend_update(BUTTON *b) {
 BUTTON button_chat_send_friend = {
     .panel = {
         .type   = PANEL_BUTTON,
-        .x      =  -6 - _BM_CHAT_SEND_WIDTH,
+        .x      = -6 - _BM_CHAT_SEND_WIDTH,
         .y      = -46,
         .width  = _BM_CHAT_SEND_WIDTH,
         .height = _BM_CHAT_SEND_HEIGHT,
@@ -901,7 +843,7 @@ BUTTON button_chat_send_friend = {
     .icon_h       = _BM_CHAT_SEND_OVERLAY_HEIGHT,
     .on_mup       = button_chat_send_friend_on_mup,
     .update       = button_chat_send_friend_update,
-    .tooltip_text = {.i18nal = STR_SENDMESSAGE },
+    .tooltip_text = { .i18nal = STR_SENDMESSAGE },
 };
 
 static void button_confirm_deletion_on_mup(void) {
@@ -923,8 +865,8 @@ BUTTON button_confirm_deletion = {
     },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_danger,
-    .tooltip_text = {.i18nal = STR_DELETE},
-    .button_text  = {.i18nal = STR_DELETE},
+    .tooltip_text = { .i18nal = STR_DELETE },
+    .button_text  = { .i18nal = STR_DELETE },
     .on_mup       = button_confirm_deletion_on_mup,
 };
 
@@ -938,7 +880,7 @@ BUTTON button_deny_deletion = {
     },
     .bm_fill      = BM_SBUTTON,
     .update       = button_setcolors_success,
-    .tooltip_text = {.i18nal = STR_KEEP},
-    .button_text  = {.i18nal = STR_KEEP},
+    .tooltip_text = { .i18nal = STR_KEEP },
+    .button_text  = { .i18nal = STR_KEEP },
     .on_mup       = button_deny_deletion_on_mup,
 };

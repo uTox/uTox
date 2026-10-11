@@ -41,11 +41,11 @@ char *native_get_filepath(const char *name) {
     return path;
 }
 
-static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) {
+static FILE *get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) {
     // assert(UTOX_FILE_NAME_LENGTH <= (32,767 wide characters) );
-    DWORD rw  = 0;
-    char mode[4] = { 0 };
-    DWORD create = OPEN_EXISTING;
+    DWORD rw      = 0;
+    char  mode[4] = { 0 };
+    DWORD create  = OPEN_EXISTING;
 
     if (opts & UTOX_FILE_OPTS_READ) {
         rw |= GENERIC_READ;
@@ -57,11 +57,11 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
     } else if (opts & UTOX_FILE_OPTS_APPEND) {
         rw |= GENERIC_WRITE;
         mode[0] = 'a';
-        create = OPEN_ALWAYS;
+        create  = OPEN_ALWAYS;
     } else if (opts & UTOX_FILE_OPTS_WRITE) {
         rw |= GENERIC_WRITE;
         mode[0] = 'w';
-        create = CREATE_ALWAYS;
+        create  = CREATE_ALWAYS;
     } else {
         LOG_ERR("WinFilesys", "get_file called with invalid opts");
         return NULL;
@@ -72,8 +72,7 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
         mode[2] = '+';
     }
 
-    HANDLE WINAPI winFile = CreateFileW(path, rw, FILE_SHARE_READ, NULL,
-                                        create, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE WINAPI winFile = CreateFileW(path, rw, FILE_SHARE_READ, NULL, create, FILE_ATTRIBUTE_NORMAL, NULL);
 
     const int handle = _open_osfhandle((intptr_t)winFile, 0);
     if (handle == -1) {
@@ -84,7 +83,7 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
 }
 
 FILE *native_get_file_simple(const char *path, UTOX_FILE_OPTS opts) {
-    //TODO: Check for forbidden opts (only read, write and append allowed)
+    // TODO: Check for forbidden opts (only read, write and append allowed)
 
     wchar_t wide_path[UTOX_FILE_NAME_LENGTH] = { 0 };
     utf8_to_nativestr(path, wide_path, UTOX_FILE_NAME_LENGTH * 2);
@@ -127,8 +126,8 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
         return NULL;
     }
 
-    char *tmp_path = _strdup((char *)name); // free() doesn't work if I touch this pointer at all, so..
-    char *path_pointer = tmp_path;          // this pointer gets to hold the original location to free.
+    char *tmp_path     = _strdup((char *)name); // free() doesn't work if I touch this pointer at all, so..
+    char *path_pointer = tmp_path; // this pointer gets to hold the original location to free.
     if (!tmp_path) {
         LOG_FATAL_ERR(EXIT_MALLOC, "WinFilesys", "Unable to allocate memory for file path.");
     }
@@ -136,12 +135,11 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
     // Append the subfolder to the path and remove it from the name.
     for (char *folder_divider = strstr(tmp_path, "/");
          folder_divider != NULL;
-         folder_divider = strstr(tmp_path, "/"))
-    {
+         folder_divider = strstr(tmp_path, "/")) {
         ++folder_divider; // Skip over the / we're pointing to.
         snprintf(path + strlen(path), strlen(tmp_path) - strlen(folder_divider), tmp_path);
         char *new_path = tmp_path + strlen(tmp_path) - strlen(folder_divider);
-        tmp_path = new_path;
+        tmp_path       = new_path;
     }
 
     if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
@@ -162,12 +160,11 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
 
     if (opts == UTOX_FILE_OPTS_DELETE) {
         if (!DeleteFile(path)) {
-            LOG_ERR("WinFilesys", "Could not delete file: %s - Error: %d" , path, GetLastError());
+            LOG_ERR("WinFilesys", "Could not delete file: %s - Error: %d", path, GetLastError());
         }
 
         return NULL;
     }
-
 
     FILE *fp = native_get_file_simple(path, opts);
 
@@ -206,9 +203,9 @@ bool native_create_dir(const uint8_t *filepath) {
     }
 
     const int error = SHCreateDirectoryEx(NULL, (char *)path, NULL);
-    switch(error) {
+    switch (error) {
         case ERROR_SUCCESS:
-            LOG_NOTE("WinFilesys", "Created path: `%s` - %d" , filepath, error);
+            LOG_NOTE("WinFilesys", "Created path: `%s` - %d", filepath, error);
             return true;
 
         case ERROR_FILE_EXISTS:
@@ -223,14 +220,14 @@ bool native_create_dir(const uint8_t *filepath) {
         }
 
         case ERROR_BAD_PATHNAME:
-            LOG_WARN("WinFilesys", "Unable to create path: `%s` - bad path name." , filepath);
+            LOG_WARN("WinFilesys", "Unable to create path: `%s` - bad path name.", filepath);
             return false;
 
         case ERROR_FILENAME_EXCED_RANGE:
         case ERROR_PATH_NOT_FOUND:
         case ERROR_CANCELLED:
         default:
-            LOG_ERR("WinFilesys", "Unable to create path: `%s` - error %d" , filepath, error);
+            LOG_ERR("WinFilesys", "Unable to create path: `%s` - error %d", filepath, error);
             return false;
     }
 }
@@ -254,21 +251,19 @@ bool native_remove_file(const uint8_t *name, size_t length, bool portable_mode) 
         }
     }
 
-
     if (strlen(path) + length >= UTOX_FILE_NAME_LENGTH) {
-        LOG_TRACE("WinFilesys", "File/directory name too long, unable to remove" );
+        LOG_TRACE("WinFilesys", "File/directory name too long, unable to remove");
         return false;
     } else {
-        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path),
-                 "\\Tox\\%.*s", (int)length, (char *)name);
+        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "\\Tox\\%.*s", (int)length, (char *)name);
     }
 
     if (remove(path)) {
-        LOG_ERR("WinFilesys", "Unable to delete file!\n\t\t%s" , path);
+        LOG_ERR("WinFilesys", "Unable to delete file!\n\t\t%s", path);
         return false;
     } else {
-        LOG_INFO("WinFilesys", "File deleted!" );
-        LOG_TRACE("WinFilesys", "\t%s" , path);
+        LOG_INFO("WinFilesys", "File deleted!");
+        LOG_TRACE("WinFilesys", "\t%s", path);
     }
 
     return true;

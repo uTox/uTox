@@ -28,7 +28,7 @@ typedef struct {
 typedef struct {
     FcPattern *pattern;
     FONT_INFO *info;
-    GLYPH *    glyphs[128];
+    GLYPH     *glyphs[128];
 } FONT;
 
 extern FT_Library ftlib;
@@ -38,11 +38,10 @@ extern FcFontSet *fs;
 
 extern bool ft_vert, ft_swap_blue_red;
 
-Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_subpixel, bool vertical,
-                     bool swap_blue_red);
-GLYPH *font_getglyph(FONT *f, uint32_t ch);
-void initfonts(void);
-void loadfonts(void);
-void freefonts(void);
+Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_subpixel, bool vertical, bool swap_blue_red);
+GLYPH  *font_getglyph(FONT *f, uint32_t ch);
+void    initfonts(void);
+void    loadfonts(void);
+void    freefonts(void);
 
 #endif

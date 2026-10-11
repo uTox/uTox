@@ -38,7 +38,7 @@ LANG_PRIORITY(-1) // Ensure this lang gets chosen for unknown en locales.
 #define _LANG_ID LANG_ES
 LANG_POSIX_LOCALE("es_ES")
 LANG_WINDOWS_ID(0x040A)
-LANG_PRIORITY(-1)        // Ensure this lang gets chosen for unknown es locales.
+LANG_PRIORITY(-1) // Ensure this lang gets chosen for unknown es locales.
 #include "../langs/en.h" //fallback to English for untranslated things
 #include "../langs/es.h"
 #undef _LANG_ID
@@ -47,7 +47,7 @@ LANG_PRIORITY(-1)        // Ensure this lang gets chosen for unknown es locales.
 #define _LANG_ID LANG_FR
 LANG_POSIX_LOCALE("fr_FR")
 LANG_WINDOWS_ID(0x040C)
-LANG_PRIORITY(-1)        // Ensure this lang gets chosen for unknown fr locales.
+LANG_PRIORITY(-1) // Ensure this lang gets chosen for unknown fr locales.
 #include "../langs/en.h" //fallback to English for untranslated things
 #include "../langs/fr.h"
 #undef _LANG_ID

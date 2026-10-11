@@ -14,7 +14,7 @@
 
 static HWND l_main;
 
-HINSTANCE curr_instance;
+HINSTANCE   curr_instance;
 UTOX_WINDOW main_window;
 
 void native_window_init(HINSTANCE instance) {
@@ -22,7 +22,7 @@ void native_window_init(HINSTANCE instance) {
 
     curr_instance = instance;
 
-    black_icon = LoadIcon(curr_instance, MAKEINTRESOURCE(101));
+    black_icon           = LoadIcon(curr_instance, MAKEINTRESOURCE(101));
     unread_messages_icon = LoadIcon(curr_instance, MAKEINTRESOURCE(102));
 
     WNDCLASSW main_window_class = {
@@ -42,10 +42,10 @@ void native_window_raze(UTOX_WINDOW *UNUSED(window)) {
 static bool update_DC_BM(UTOX_WINDOW *win, int w, int h) {
     win->window_DC = GetDC(win->window);
 
-    win->draw_DC   = CreateCompatibleDC(win->window_DC);
-    win->mem_DC    = CreateCompatibleDC(win->draw_DC);
+    win->draw_DC = CreateCompatibleDC(win->window_DC);
+    win->mem_DC  = CreateCompatibleDC(win->draw_DC);
 
-    win->draw_BM   = CreateCompatibleBitmap(win->window_DC, w, h);
+    win->draw_BM = CreateCompatibleBitmap(win->window_DC, w, h);
 
     return true;
 }
@@ -59,9 +59,7 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h) {
     wchar_t title[title_size];
     mbstowcs(title, pretitle, title_size);
 
-
-    main_window.window = CreateWindowExW(0, class, title, WS_OVERLAPPEDWINDOW,
-                                         x, y, w, h, NULL, NULL, NULL, NULL);
+    main_window.window = CreateWindowExW(0, class, title, WS_OVERLAPPEDWINDOW, x, y, w, h, NULL, NULL, NULL, NULL);
 
     // We may need to do this after MW_CREATE is called
     update_DC_BM(&main_window, w, h);
@@ -76,8 +74,7 @@ HWND native_window_create_video(int x, int y, int w, int h) {
     // %S for single-byte char, non-standard behaviour
     swprintf(title, 128, L"%S", S(WINDOW_TITLE_VIDEO_PREVIEW));
 
-    HWND win = CreateWindowExW(0, L"uTox", title, WS_OVERLAPPEDWINDOW,
-                               x, y, w, h, NULL, NULL, curr_instance, NULL);
+    HWND win = CreateWindowExW(0, L"uTox", title, WS_OVERLAPPEDWINDOW, x, y, w, h, NULL, NULL, curr_instance, NULL);
 
     if (!win) {
         LOG_ERR("Windows WM", "ERROR trying to create video window");
@@ -92,8 +89,8 @@ UTOX_WINDOW *popup = NULL;
 UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *panel) {
     static uint16_t notification_number = 0;
 
-    static wchar_t class_name[] = L"uTox Notification";
-    HICON notify_black_icon  = LoadIcon(curr_instance, MAKEINTRESOURCE(101));
+    static wchar_t class_name[]      = L"uTox Notification";
+    HICON          notify_black_icon = LoadIcon(curr_instance, MAKEINTRESOURCE(101));
 
     WNDCLASSW notify_window_class = {
         .style         = CS_DBLCLKS,
@@ -111,8 +108,7 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, PANEL *pane
     wchar_t title[title_size];
     mbstowcs(title, pre, title_size);
 
-    HWND window = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, class_name, title, WS_POPUP,
-                           x, y, w, h, l_main, NULL, NULL, NULL);
+    HWND window = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, class_name, title, WS_POPUP, x, y, w, h, l_main, NULL, NULL, NULL);
 
     if (!popup) {
         popup = calloc(1, sizeof(UTOX_WINDOW)); // FIXME leaks
@@ -145,7 +141,6 @@ UTOX_WINDOW *native_window_find_notify(void *window) {
 
     return NULL;
 }
-
 
 void native_window_create_screen_select(void) {
     return;

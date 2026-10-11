@@ -18,14 +18,14 @@ int utf8tonative(const char *str, wchar_t *out, int length);
 int utf8_to_nativestr(const char *str, wchar_t *out, int length);
 
 /**
-* @brief Translate a null terminated OS native string to UTF-8 char*.
-* This function could compromise the security of application. Use it properly.
-*
-* @param str_in native array pointer.
-* @param str_out char pointer.
-* @param size of output buffer.
-*
-*/
+ * @brief Translate a null terminated OS native string to UTF-8 char*.
+ * This function could compromise the security of application. Use it properly.
+ *
+ * @param str_in native array pointer.
+ * @param str_out char pointer.
+ * @param size of output buffer.
+ *
+ */
 int native_to_utf8str(const wchar_t *str_in, char *str_out, uint32_t max_size);
 
 /**

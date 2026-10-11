@@ -27,7 +27,9 @@
 #include <tox/tox.h>
 
 SCROLLABLE scrollbar_group = {
-    .panel = { .type = PANEL_SCROLLABLE, },
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+    },
     .color = C_SCROLL,
 };
 
@@ -58,8 +60,7 @@ static void draw_group(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) 
         if (peer && peer->name_length) {
             char buf[TOX_MAX_NAME_LENGTH];
 
-            snprintf((char *)buf, sizeof(buf), "%.*s, ",
-                     (int)peer->name_length, peer->name);
+            snprintf((char *)buf, sizeof(buf), "%.*s, ", (int)peer->name_length, peer->name);
             int buf_len = strnlen(buf, sizeof(buf) - 1);
 
             unsigned w = textwidth(buf, buf_len);
@@ -117,59 +118,24 @@ static void switchfxn_group_type(void) {
 
 PANEL
 panel_group = {
-    .type = PANEL_NONE,
+    .type     = PANEL_NONE,
     .disabled = 1,
-    .child = (PANEL*[]) {
+    .child    = (PANEL *[]){
         &panel_group_chat,
         &panel_group_video,
         &panel_group_settings,
-        NULL
-    }
+        NULL }
 },
-panel_group_create = {
-    .type = PANEL_NONE,
-    .disabled = true,
-    .drawfunc = draw_group_create,
-    .child = (PANEL*[]) {
-        (PANEL*)&button_create_group,
-        (PANEL*)&switch_group_type,
-        NULL
-    }
-},
-panel_group_chat = {
-    .type = PANEL_NONE,
-    .disabled = 0,
-    .drawfunc = draw_group,
-    .child = (PANEL*[]) {
-        (PANEL*)&scrollbar_group,
-        (PANEL*)&edit_chat_msg_group, // this needs to be one of the first, to get events before the others
-        (PANEL*)&messages_group,
-        (PANEL*)&button_group_audio,
-        (PANEL*)&button_chat_send_group,
-        NULL
-    }
-},
-panel_group_video = {
-    .type = PANEL_NONE,
-    .disabled = 1,
-    .child = (PANEL*[]) {
-        NULL
-    }
-},
-panel_group_settings = {
-    .type = PANEL_NONE,
-    .disabled = 1,
-    .drawfunc = draw_group_settings,
-    .child = (PANEL*[]) {
-        (PANEL*)&edit_group_topic,
-        (PANEL*)&dropdown_notify_groupchats,
-        NULL
-    }
-},
-messages_group = {
-    .type = PANEL_MESSAGES,
-    .content_scroll = &scrollbar_group,
-};
+    panel_group_create = { .type = PANEL_NONE, .disabled = true, .drawfunc = draw_group_create, .child = (PANEL *[]){ (PANEL *)&button_create_group, (PANEL *)&switch_group_type, NULL } }, panel_group_chat = { .type = PANEL_NONE, .disabled = 0, .drawfunc = draw_group, .child = (PANEL *[]){ (PANEL *)&scrollbar_group,
+                                                                                                                                                                                                                                                                                                  (PANEL *)&edit_chat_msg_group, // this needs to be one of the first, to get events before the others
+                                                                                                                                                                                                                                                                                                  (PANEL *)&messages_group,
+                                                                                                                                                                                                                                                                                                  (PANEL *)&button_group_audio,
+                                                                                                                                                                                                                                                                                                  (PANEL *)&button_chat_send_group,
+                                                                                                                                                                                                                                                                                                  NULL } },
+    panel_group_video = { .type = PANEL_NONE, .disabled = 1, .child = (PANEL *[]){ NULL } }, panel_group_settings = { .type = PANEL_NONE, .disabled = 1, .drawfunc = draw_group_settings, .child = (PANEL *[]){ (PANEL *)&edit_group_topic, (PANEL *)&dropdown_notify_groupchats, NULL } }, messages_group = {
+        .type           = PANEL_MESSAGES,
+        .content_scroll = &scrollbar_group,
+    };
 
 static void button_group_audio_on_mup(void) {
     GROUPCHAT *g = flist_get_sel_group();
@@ -185,7 +151,6 @@ static void button_group_audio_on_mup(void) {
         postmessage_toxcore(TOX_GROUP_AUDIO_START, g->number, 0, NULL);
     }
 }
-
 
 static void button_group_audio_update(BUTTON *b) {
     GROUPCHAT *g = flist_get_sel_group();
@@ -211,7 +176,7 @@ BUTTON button_group_audio = {
     .panel = {
         .type   = PANEL_BUTTON,
         .x      = -62,
-        .y      =  10,
+        .y      = 10,
         .width  = _BM_LBUTTON_WIDTH,
         .height = _BM_LBUTTON_HEIGHT,
     },
@@ -221,9 +186,8 @@ BUTTON button_group_audio = {
     .icon_h       = _BM_LBICON_HEIGHT,
     .on_mup       = button_group_audio_on_mup,
     .update       = button_group_audio_update,
-    .tooltip_text = {.i18nal = STR_GROUPCHAT_JOIN_AUDIO },
+    .tooltip_text = { .i18nal = STR_GROUPCHAT_JOIN_AUDIO },
 };
-
 
 static uint32_t peers_deduplicate(char **dedup, size_t *dedup_size, GROUP_PEER **peers, uint32_t peer_count) {
     uint32_t count = 0;
@@ -234,8 +198,8 @@ static uint32_t peers_deduplicate(char **dedup, size_t *dedup_size, GROUP_PEER *
             continue;
         }
 
-        uint8_t *nick      = p->name;
-        size_t nick_len = p->name_length;
+        uint8_t *nick     = p->name;
+        size_t   nick_len = p->name_length;
 
         size_t i = 0;
         if (nick) {
@@ -268,14 +232,14 @@ static struct {
 } completion;
 
 static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int direction) {
-    char *        text = edit->data;
+    char         *text = edit->data;
     uint32_t      i, peers, prev_index, compsize = completion.length;
-    char *        nick     = NULL;
+    char         *nick     = NULL;
     size_t        nick_len = 0;
     bool          found    = 0;
-    static char * dedup[65536];      /* TODO magic numbers */
+    static char  *dedup[65536]; /* TODO magic numbers */
     static size_t dedup_size[65536]; /* TODO magic numbers */
-    GROUPCHAT *   g = flist_get_sel_group();
+    GROUPCHAT    *g = flist_get_sel_group();
     if (!g) {
         LOG_ERR("Group", "Could not get selected groupchat.");
         return 0;
@@ -291,8 +255,7 @@ static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int directio
         } else {
             nick     = dedup[i];
             nick_len = dedup_size[i];
-            if (nick_len == completion.end - completion.start - completion.spacing
-                && !memcmp(nick, text + completion.start, nick_len)) {
+            if (nick_len == completion.end - completion.start - completion.spacing && !memcmp(nick, text + completion.start, nick_len)) {
                 found = 1;
             } else {
                 i++;
@@ -329,7 +292,7 @@ static uint8_t nick_completion_search(EDIT *edit, char *found_nick, int directio
 }
 
 static void nick_completion_replace(EDIT *edit, char *nick, uint32_t size) {
-    char *   text      = edit->data;
+    char    *text      = edit->data;
     uint16_t length    = edit->length;
     uint16_t maxlength = edit->data_size - 1;
 
@@ -357,8 +320,7 @@ static void nick_completion_replace(EDIT *edit, char *nick, uint32_t size) {
 
     edit_do(edit, completion.start, completion.end - completion.start, 1);
 
-    memmove(text + completion.end - offset, text + completion.end,
-            length - offset > maxlength ? maxlength - completion.end + offset : length - completion.end);
+    memmove(text + completion.end - offset, text + completion.end, length - offset > maxlength ? maxlength - completion.end + offset : length - completion.end);
 
     memcpy(text + completion.start, nick, size);
 
@@ -373,7 +335,7 @@ static void nick_completion_replace(EDIT *edit, char *nick, uint32_t size) {
 }
 
 static void e_chat_msg_ontab(EDIT *edit) {
-    char *text = edit->data;
+    char    *text   = edit->data;
     uint16_t length = edit->length;
 
     if (flist_get_sel_item_type() == ITEM_FRIEND || flist_get_sel_item_type() == ITEM_GROUP) {
@@ -417,8 +379,7 @@ static void e_chat_msg_ontab(EDIT *edit) {
         nick_length = nick_completion_search(edit, nick, 1);
         if (nick_length) {
             completion.edited = 1;
-            if (!(nick_length == completion.end - completion.start - completion.spacing
-                  && !memcmp(nick, text + completion.start, nick_length))) {
+            if (!(nick_length == completion.end - completion.start - completion.spacing && !memcmp(nick, text + completion.start, nick_length))) {
                 nick_completion_replace(edit, nick, nick_length);
             }
             edit_setcursorpos(edit, completion.end);
@@ -430,7 +391,7 @@ static void e_chat_msg_ontab(EDIT *edit) {
 }
 
 void e_group_msg_onenter(EDIT *edit) {
-    char *text = edit->data;
+    char    *text   = edit->data;
     uint16_t length = edit->length;
 
     if (length <= 0) {
@@ -438,8 +399,8 @@ void e_group_msg_onenter(EDIT *edit) {
     }
 
     uint16_t command_length = 0; //, argument_length = 0;
-    char *command = NULL;
-    char *argument = NULL;
+    char    *command        = NULL;
+    char    *argument       = NULL;
 
     command_length = utox_run_command(text, length, &command, &argument, 1);
 
@@ -500,8 +461,7 @@ static void e_chat_msg_onshifttab(EDIT *edit) {
             nick_length = nick_completion_search(edit, nick, -1);
             if (nick_length) {
                 completion.edited = 1;
-                if (!(nick_length == completion.end - completion.start - completion.spacing
-                      && !memcmp(nick, text + completion.start, nick_length))) {
+                if (!(nick_length == completion.end - completion.start - completion.spacing && !memcmp(nick, text + completion.start, nick_length))) {
                     nick_completion_replace(edit, nick, nick_length);
                 }
                 edit_setcursorpos(edit, completion.end);
@@ -518,13 +478,15 @@ static void edit_msg_onlosefocus(EDIT *UNUSED(edit)) {
 }
 
 SCROLLABLE e_chat_msg_group_scroll = {
-    .panel = { .type = PANEL_SCROLLABLE, },
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+    },
     .d     = 1.0,
     .color = C_SCROLL,
 };
 
 static char e_chat_msg_group_data[65535];
-EDIT edit_chat_msg_group = {
+EDIT        edit_chat_msg_group = {
     .multiline   = true,
     .data_size   = sizeof e_chat_msg_group_data,
     .data        = e_chat_msg_group_data,
@@ -543,7 +505,7 @@ static void e_group_topic_onenter(EDIT *edit) {
     }
 
     void *d = malloc(edit->length);
-    if (!d){
+    if (!d) {
         LOG_ERR("Layout Groups", "Unable to change group topic.");
         return;
     }
@@ -552,20 +514,19 @@ static void e_group_topic_onenter(EDIT *edit) {
 }
 
 static char e_group_topic_data[1024];
-EDIT edit_group_topic = {
+EDIT        edit_group_topic = {
     .panel = {
         .type   = PANEL_EDIT,
         .x      = 10,
         .y      = 88,
         .width  = -10,
-        .height = 24
-    },
-    .data           = e_group_topic_data,
-    .data_size      = sizeof e_group_topic_data,
-    .onenter        = e_group_topic_onenter,
-    .onlosefocus    = e_group_topic_onenter,
-    .noborder       = false,
-    .empty_str      = {.plain = STRING_INIT("") },
+        .height = 24 },
+    .data        = e_group_topic_data,
+    .data_size   = sizeof e_group_topic_data,
+    .onenter     = e_group_topic_onenter,
+    .onlosefocus = e_group_topic_onenter,
+    .noborder    = false,
+    .empty_str   = { .plain = STRING_INIT("") },
 };
 
 static void button_chat_send_on_mup(void) {
@@ -584,19 +545,19 @@ static void button_chat_send_group_update(BUTTON *b) {
 BUTTON button_chat_send_group = {
     .panel = {
         .type   = PANEL_BUTTON,
-        .x      =  -6 - _BM_CHAT_SEND_WIDTH,
+        .x      = -6 - _BM_CHAT_SEND_WIDTH,
         .y      = -46,
         .width  = _BM_CHAT_SEND_WIDTH,
         .height = _BM_CHAT_SEND_HEIGHT,
     },
-    .bm_fill        = BM_CHAT_SEND,
-    .bm_icon        = BM_CHAT_SEND_OVERLAY,
-    .icon_w         = _BM_CHAT_SEND_OVERLAY_WIDTH,
-    .icon_h         = _BM_CHAT_SEND_OVERLAY_HEIGHT,
-    .on_mup         = button_chat_send_on_mup,
-    .update         = button_chat_send_group_update,
-    .tooltip_text   = {.i18nal = STR_SENDMESSAGE },
-    .nodraw         = false
+    .bm_fill      = BM_CHAT_SEND,
+    .bm_icon      = BM_CHAT_SEND_OVERLAY,
+    .icon_w       = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .icon_h       = _BM_CHAT_SEND_OVERLAY_HEIGHT,
+    .on_mup       = button_chat_send_on_mup,
+    .update       = button_chat_send_group_update,
+    .tooltip_text = { .i18nal = STR_SENDMESSAGE },
+    .nodraw       = false
 };
 
 BUTTON button_create_group = {
@@ -605,13 +566,12 @@ BUTTON button_create_group = {
         .x      = 10,
         .y      = MAIN_TOP + 67,
         .width  = _BM_SBUTTON_WIDTH,
-        .height = _BM_SBUTTON_HEIGHT
-    },
-    .bm_fill      = BM_SBUTTON,
-    .update       = button_setcolors_success,
-    .on_mup       = button_create_group_on_mup,
-    .disabled     = false,
-    .button_text  = {.i18nal = STR_GROUP_CREATE_TEXT },
+        .height = _BM_SBUTTON_HEIGHT },
+    .bm_fill     = BM_SBUTTON,
+    .update      = button_setcolors_success,
+    .on_mup      = button_create_group_on_mup,
+    .disabled    = false,
+    .button_text = { .i18nal = STR_GROUP_CREATE_TEXT },
 };
 
 UISWITCH switch_group_type = {
@@ -620,13 +580,12 @@ UISWITCH switch_group_type = {
         .x      = 10,
         .y      = MAIN_TOP + 35,
         .width  = _BM_SWITCH_WIDTH,
-        .height = _BM_SWITCH_HEIGHT
-    },
+        .height = _BM_SWITCH_HEIGHT },
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .on_mup         = switchfxn_group_type,
-    .tooltip_text   = {.i18nal = STR_GROUP_CREATE_VOICE },
+    .tooltip_text   = { .i18nal = STR_GROUP_CREATE_VOICE },
 };

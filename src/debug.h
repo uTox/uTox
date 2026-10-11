@@ -9,13 +9,13 @@
 typedef enum {
     LOG_LVL_OFF,
     LOG_LVL_FATAL,
-    LOG_LVL_ERROR,      // This is really bad
-    LOG_LVL_WARNING,    // This is kinda bad
-    LOG_LVL_NOTICE,     // This is just something we should know about
-    LOG_LVL_INFO,       // This is what's happening
-    LOG_LVL_DEBUG,      // Something is broken, whats' happening everywhere
-    LOG_LVL_TRACE,      // I'm not kidding anymore... WHAT IS BROKEN?
-    LOG_LVL_NET_TRACE,  // OH, it's Toxcore that's broken? Whew!
+    LOG_LVL_ERROR, // This is really bad
+    LOG_LVL_WARNING, // This is kinda bad
+    LOG_LVL_NOTICE, // This is just something we should know about
+    LOG_LVL_INFO, // This is what's happening
+    LOG_LVL_DEBUG, // Something is broken, whats' happening everywhere
+    LOG_LVL_TRACE, // I'm not kidding anymore... WHAT IS BROKEN?
+    LOG_LVL_NET_TRACE, // OH, it's Toxcore that's broken? Whew!
 } LOG_LVL;
 
 // returns current logging verbosity

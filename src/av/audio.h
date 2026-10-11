@@ -69,8 +69,8 @@ enum {
     (!!(get_friend(f_number)->call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) \
      && !!(get_friend(f_number)->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_A))
 
-bool utox_audio_in_device_set(ALCdevice *new_device);
-bool utox_audio_out_device_set(ALCdevice *new_device);
+bool       utox_audio_in_device_set(ALCdevice *new_device);
+bool       utox_audio_out_device_set(ALCdevice *new_device);
 ALCdevice *utox_audio_in_device_get(void);
 // utox_audio_out_device_get is unused. Delete?
 ALCdevice *utox_audio_out_device_get(void);

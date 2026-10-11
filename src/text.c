@@ -11,9 +11,9 @@
 /* returns the length of the string written to `dest`
  */
 int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
-    char * str[]  = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
-    int    max_id = COUNTOF(str) - 1;
-    int    i      = 0;
+    char *str[]  = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
+    int   max_id = COUNTOF(str) - 1;
+    int   i      = 0;
     while ((bytes >= 1024) && (i < max_id)) {
         bytes /= 1024;
         i++;
@@ -75,14 +75,12 @@ uint8_t utf8_len_read(const char *data, uint32_t *ch) {
     }
 
     if (!(a & 4)) {
-        *ch = ((data[0] & 0x3) << 24) | ((data[1] & 0x3F) << 18) | ((data[2] & 0x3F) << 12) | ((data[3] & 0x3F) << 6)
-              | (data[4] & 0x3F);
+        *ch = ((data[0] & 0x3) << 24) | ((data[1] & 0x3F) << 18) | ((data[2] & 0x3F) << 12) | ((data[3] & 0x3F) << 6) | (data[4] & 0x3F);
         return 5;
     }
 
     if (!(a & 2)) {
-        *ch = ((data[0] & 0x1) << 30) | ((data[1] & 0x3F) << 24) | ((data[2] & 0x3F) << 18) | ((data[3] & 0x3F) << 12)
-              | ((data[4] & 0x3F) << 6) | (data[5] & 0x3F);
+        *ch = ((data[0] & 0x1) << 30) | ((data[1] & 0x3F) << 24) | ((data[2] & 0x3F) << 18) | ((data[3] & 0x3F) << 12) | ((data[4] & 0x3F) << 6) | (data[5] & 0x3F);
         return 6;
     }
 

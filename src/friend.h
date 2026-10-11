@@ -5,26 +5,26 @@
 
 #include <tox/tox.h>
 
-typedef struct avatar AVATAR;
-typedef struct edit_change EDIT_CHANGE;
+typedef struct avatar        AVATAR;
+typedef struct edit_change   EDIT_CHANGE;
 typedef struct file_transfer FILE_TRANSFER;
-typedef uint8_t *UTOX_IMAGE;
-typedef unsigned int ALuint;
+typedef uint8_t             *UTOX_IMAGE;
+typedef unsigned int         ALuint;
 
 typedef enum {
     ADDF_NONE,
     ADDF_SENT,
     ADDF_DISCOVER,
-    ADDF_BADNAME,        // either invalid tox id or just friend's public key (missing nospam)
+    ADDF_BADNAME, // either invalid tox id or just friend's public key (missing nospam)
     ADDF_NONAME,
-    ADDF_TOOLONG,        // if message length is too long.
-    ADDF_NOMESSAGE,      // if no message (message length must be >= 1 byte).
-    ADDF_OWNKEY,         // if user's own key.
-    ADDF_ALREADYSENT,    // if friend request already sent or already a friend.
-    ADDF_UNKNOWN,        // for unknown error.
-    ADDF_BADCHECKSUM,    // if bad checksum in address.
-    ADDF_SETNEWNOSPAM,   // if the friend was already there but the nospam was different.
-    ADDF_NOMEM,          // if increasing the friend list size fails.
+    ADDF_TOOLONG, // if message length is too long.
+    ADDF_NOMESSAGE, // if no message (message length must be >= 1 byte).
+    ADDF_OWNKEY, // if user's own key.
+    ADDF_ALREADYSENT, // if friend request already sent or already a friend.
+    ADDF_UNKNOWN, // for unknown error.
+    ADDF_BADCHECKSUM, // if bad checksum in address.
+    ADDF_SETNEWNOSPAM, // if the friend was already there but the nospam was different.
+    ADDF_NOMEM, // if increasing the friend list size fails.
     ADDF_NOFREQUESTSENT, // friend added but no frequest sent
 } DNS_STATE;
 
@@ -45,13 +45,10 @@ typedef struct friend_meta_data {
 } FRIEND_META_DATA;
 #define METADATA_VERSION 0
 
-
 typedef struct friend_meta_data_old {
     size_t  alias_length;
     uint8_t data[];
 } FRIEND_META_DATA_OLD;
-
-
 
 #define TOX_FRIEND_ID_STR_SIZE TOX_PUBLIC_KEY_SIZE * 2
 typedef struct utox_friend {
@@ -89,25 +86,25 @@ typedef struct utox_friend {
     int32_t  call_state_self, call_state_friend;
     uint16_t video_width, video_height;
     ALuint   audio_dest;
-    time_t call_started;
+    time_t   call_started;
 
     /* File transfers */
     bool ft_autoaccept;
 
-    FILE_TRANSFER  *ft_incoming;
-    uint16_t        ft_incoming_size;
-    uint16_t        ft_incoming_active_count;
+    FILE_TRANSFER *ft_incoming;
+    uint16_t       ft_incoming_size;
+    uint16_t       ft_incoming_active_count;
 
-    FILE_TRANSFER  *ft_outgoing;
-    uint16_t        ft_outgoing_size;
-    uint16_t        ft_outgoing_active_count;
+    FILE_TRANSFER *ft_outgoing;
+    uint16_t       ft_outgoing_size;
+    uint16_t       ft_outgoing_active_count;
 } FRIEND;
 
 typedef struct utox_friend_request {
     uint16_t number;
     uint8_t  bin_id[TOX_ADDRESS_SIZE];
 
-    char *msg;
+    char  *msg;
     size_t length;
 } FREQUEST;
 
@@ -128,7 +125,7 @@ FREQUEST *get_frequest(uint16_t frequest_number);
 
 /* Add a new friend request */
 uint16_t friend_request_new(const uint8_t *id, const uint8_t *msg, size_t length);
-void friend_request_free(uint16_t number);
+void     friend_request_free(uint16_t number);
 
 /*
  * Frees all of your friends
@@ -141,8 +138,7 @@ void utox_friend_list_init(Tox *tox);
 
 void friend_setname(FRIEND *f, uint8_t *name, size_t length);
 void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length);
-void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
-                      size_t png_size);
+void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image, size_t png_size);
 void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height);
 
 void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length);

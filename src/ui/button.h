@@ -21,12 +21,12 @@ struct button {
     int icon_w, icon_h;
 
     // Background RGB color for bm picture, when Idle/Hovered/Pressed respectively.
-    uint32_t c1,  // Button normal background color
-             c2,  // Button hover background color
-             c3,  // Button active (press) background color
-             ct1, // Button contents (text or icon) color
-             ct2, // Button contents (text or icon) hover color
-             cd;
+    uint32_t c1, // Button normal background color
+        c2, // Button hover background color
+        c3, // Button active (press) background color
+        ct1, // Button contents (text or icon) color
+        ct2, // Button contents (text or icon) hover color
+        cd;
 
     MAYBE_I18NAL_STRING button_text;
     MAYBE_I18NAL_STRING tooltip_text;
@@ -50,12 +50,10 @@ bool button_mwheel(BUTTON *b, int height, double d, bool smooth);
 
 bool button_mleave(BUTTON *b);
 
-
 // TODO these may move
 void button_setcolors_success(BUTTON *b);
 void button_setcolors_danger(BUTTON *b);
 void button_setcolors_warning(BUTTON *b);
 void button_setcolors_disabled(BUTTON *b);
-
 
 #endif // UI_BUTTON_H

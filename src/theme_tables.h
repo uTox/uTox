@@ -4,6 +4,6 @@
 #include "theme.h"
 
 extern const char *COLOUR_NAME_TABLE[];
-extern uint32_t *COLOUR_POINTER_TABLE[];
+extern uint32_t   *COLOUR_POINTER_TABLE[];
 
 #endif

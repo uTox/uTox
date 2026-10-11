@@ -13,7 +13,7 @@
 
 static HWND      grab_window;
 static HINSTANCE grab_instance;
-static bool desktopgrab_video = false;
+static bool      desktopgrab_video = false;
 
 // creates an UTOX_NATIVE image based on given arguments
 // image should be freed with image_free
@@ -69,8 +69,8 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
         pp += width * 3 + pbytes;
     }
 
-    int size = 0;
-    UTOX_IMAGE out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
+    int        size = 0;
+    UTOX_IMAGE out  = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
 
     free(bits);
 
@@ -79,7 +79,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
 }
 
 static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
-    POINT p = {.x = GET_X_LPARAM(lParam), .y = GET_Y_LPARAM(lParam) };
+    POINT p = { .x = GET_X_LPARAM(lParam), .y = GET_Y_LPARAM(lParam) };
 
     ClientToScreen(window, &p);
 
@@ -91,18 +91,16 @@ static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LP
             }
 
             HDC dc = GetDC(window);
-            BitBlt(dc, video_grab_x, video_grab_y, video_grab_w - video_grab_x, video_grab_h - video_grab_y, dc,
-                       video_grab_x, video_grab_y, BLACKNESS);
+            BitBlt(dc, video_grab_x, video_grab_y, video_grab_w - video_grab_x, video_grab_h - video_grab_y, dc, video_grab_x, video_grab_y, BLACKNESS);
             video_grab_w = p.x;
             video_grab_h = p.y;
-            BitBlt(dc, video_grab_x, video_grab_y, video_grab_w - video_grab_x, video_grab_h - video_grab_y, dc,
-                       video_grab_x, video_grab_y, WHITENESS);
+            BitBlt(dc, video_grab_x, video_grab_y, video_grab_w - video_grab_x, video_grab_h - video_grab_y, dc, video_grab_x, video_grab_y, WHITENESS);
             ReleaseDC(window, dc);
             return false;
         }
 
         case WM_LBUTTONDOWN: {
-            mdown = true;
+            mdown        = true;
             video_grab_x = video_grab_w = p.x;
             video_grab_y = video_grab_h = p.y;
             SetCapture(window);
@@ -160,8 +158,8 @@ static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LP
 }
 
 void screen_grab_init(HINSTANCE app_instance) {
-    HICON screengrab_black_icon  = LoadIcon(app_instance, MAKEINTRESOURCE(101));
-    wchar_t screen_grab_class[] = L"uToxgrab";
+    HICON   screengrab_black_icon = LoadIcon(app_instance, MAKEINTRESOURCE(101));
+    wchar_t screen_grab_class[]   = L"uToxgrab";
 
     WNDCLASSW grab_window_class = {
         .hInstance     = app_instance,
@@ -181,13 +179,11 @@ void native_screen_grab_desktop(bool video) {
     int w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     int h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-    LOG_TRACE("Native Screengrab", "result: %i %i %i %i" , x, y, w, h);
+    LOG_TRACE("Native Screengrab", "result: %i %i %i %i", x, y, w, h);
 
-    grab_window = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_LAYERED, L"uToxgrab", L"Tox", WS_POPUP,
-                                 x, y, w, h,
-                                 NULL, NULL, grab_instance, NULL);
+    grab_window = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_LAYERED, L"uToxgrab", L"Tox", WS_POPUP, x, y, w, h, NULL, NULL, grab_instance, NULL);
     if (!grab_window) {
-        LOG_TRACE("Native Screengrab", "CreateWindowExW() failed" );
+        LOG_TRACE("Native Screengrab", "CreateWindowExW() failed");
         return;
     }
 

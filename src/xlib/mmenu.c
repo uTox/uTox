@@ -5,9 +5,9 @@
 #include <messaging-menu/messaging-menu.h>
 #include <unity.h>
 
-MessagingMenuApp *  mmapp;
+MessagingMenuApp   *mmapp;
 UnityLauncherEntry *launcher;
-GMainLoop *         mmloop;
+GMainLoop          *mmloop;
 bool                unity_running;
 
 char          f_name_data[TOX_MAX_NAME_LENGTH]                   = "";
@@ -36,11 +36,17 @@ static void source_activated(MessagingMenuApp *mmapp_, const gchar *source_id, g
 void mm_set_status(int status) {
     switch (status) {
 
-        case 0: messaging_menu_app_set_status(mmapp, MESSAGING_MENU_STATUS_AVAILABLE); break;
+        case 0:
+            messaging_menu_app_set_status(mmapp, MESSAGING_MENU_STATUS_AVAILABLE);
+            break;
 
-        case 1: messaging_menu_app_set_status(mmapp, MESSAGING_MENU_STATUS_AWAY); break;
+        case 1:
+            messaging_menu_app_set_status(mmapp, MESSAGING_MENU_STATUS_AWAY);
+            break;
 
-        case 2: messaging_menu_app_set_status(mmapp, MESSAGING_MENU_STATUS_BUSY); break;
+        case 2:
+            messaging_menu_app_set_status(mmapp, MESSAGING_MENU_STATUS_BUSY);
+            break;
     }
 }
 
@@ -68,9 +74,7 @@ static void status_changed(MessagingMenuApp *mmapp_, gint status, gpointer user_
             break;
     }
 
-    drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
-              SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH,
-              status_color[status]);
+    drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 }
 
 // Registers the app in the Unity Messaging Menu

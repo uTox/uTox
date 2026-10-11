@@ -80,21 +80,18 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
         case WM_QUIT: {
             LOG_TRACE("Notify", "QUIT");
             break;
-
         }
         case WM_CLOSE: {
             LOG_TRACE("Notify", "CLOSE");
             break;
-
         }
         case WM_DESTROY: {
             LOG_TRACE("Notify", "DESTROY");
             break;
-
         }
         case WM_GETMINMAXINFO: {
             LOG_TRACE("Notify", "MINMAX_INFO");
-            POINT min = { SCALE(200), SCALE(200) };
+            POINT min                              = { SCALE(200), SCALE(200) };
             ((MINMAXINFO *)lParam)->ptMinTrackSize = min;
             break;
         }
@@ -185,13 +182,12 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
             LOG_TRACE("Notify", "R BTN UP");
             break;
         }
-
     }
 
     return DefWindowProcW(window, msg, wParam, lParam);
 }
 
 static HINSTANCE current_instance = NULL;
-void native_notify_init(HINSTANCE instance) {
+void             native_notify_init(HINSTANCE instance) {
     current_instance = instance;
 }

@@ -26,7 +26,7 @@ uint8_t utf8_unlen(char *data);
 int utf8_validate(const uint8_t *data, int len);
 
 uint8_t unicode_to_utf8_len(uint32_t ch);
-void unicode_to_utf8(uint32_t ch, char *dst);
+void    unicode_to_utf8(uint32_t ch, char *dst);
 
 /* compare first n bytes of s1 and s2, ignoring the case of alpha chars
  *  match: returns 0

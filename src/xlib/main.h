@@ -43,7 +43,7 @@ extern Cursor  cursors[8];
 /* Screen grab vars */
 extern uint8_t pointergrab;
 
-extern bool     _redraw;
+extern bool _redraw;
 
 extern XImage *screen_image;
 
@@ -91,7 +91,7 @@ bool v4l_init(char *dev_name);
 void v4l_close(void);
 bool v4l_startread(void);
 bool v4l_endread(void);
-int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
+int  v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
 #endif
 
 #endif

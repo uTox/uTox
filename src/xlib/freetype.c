@@ -18,8 +18,7 @@ bool ft_vert, ft_swap_blue_red;
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);
 
-Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_subpixel, bool vertical,
-                     bool swap_blue_red) {
+Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_subpixel, bool vertical, bool swap_blue_red) {
     if (!width || !height) {
         return None;
     }
@@ -59,8 +58,7 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_su
             do {
                 end = p + width;
                 while (p != end) {
-                    *p++ = swap_blue_red ? RGB(data[2 * pitch], data[1 * pitch], data[0]) :
-                                           RGB(data[0], data[1 * pitch], data[2 * pitch]);
+                    *p++ = swap_blue_red ? RGB(data[2 * pitch], data[1 * pitch], data[0]) : RGB(data[0], data[1 * pitch], data[2 * pitch]);
                     data += 1;
                 }
                 data += (pitch - width) + (pitch * 2);
@@ -72,9 +70,8 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_su
         legc   = XCreateGC(display, pixmap, 0, NULL);
         XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
 
-        XRenderPictureAttributes attr = {.component_alpha = 1 };
-        picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24),
-                                       CPComponentAlpha, &attr);
+        XRenderPictureAttributes attr = { .component_alpha = 1 };
+        picture                       = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), CPComponentAlpha, &attr);
 
         free(rgbx);
     }
@@ -87,7 +84,7 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_su
 
 GLYPH *font_getglyph(FONT *f, uint32_t ch) {
     uint32_t hash = ch % 128;
-    GLYPH *  g = f->glyphs[hash], *s = g;
+    GLYPH   *g = f->glyphs[hash], *s = g;
     if (g) {
         while (g->ucs4 != ~0u) {
             if (g->ucs4 == ch) {
@@ -163,7 +160,7 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
 
         if (!i->face) {
             // something went wrong
-            LOG_TRACE("Freetype", "???" );
+            LOG_TRACE("Freetype", "???");
             return NULL;
         }
     }
@@ -232,8 +229,8 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
 
     if (p->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
         unsigned int r, x;
-        uint8_t *    mybuf = malloc(p->bitmap.width * g->height);
-        uint8_t *    sline = p->bitmap.buffer, *dest = mybuf;
+        uint8_t     *mybuf = malloc(p->bitmap.width * g->height);
+        uint8_t     *sline = p->bitmap.buffer, *dest = mybuf;
 
         g->width = p->bitmap.width;
         for (r = 0; r < g->height; r++, sline += p->bitmap.pitch) {
@@ -275,7 +272,7 @@ void initfonts(void) {
 
     FT_Init_FreeType(&ftlib);
 
-    FcResult result;
+    FcResult   result;
     FcPattern *pat = FcPatternCreate();
     FcPatternAddString(pat, FC_FAMILY, (uint8_t *)UTOX_FONT_XLIB);
     FcConfigSubstitute(0, pat, FcMatchPattern);
@@ -327,7 +324,7 @@ XFT_FONT_MAX_GLYPH_MEMORY));
 }*/
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern) {
-    uint8_t * filename;
+    uint8_t  *filename;
     int       id = 0;
     double    size;
     FcMatrix *font_matrix;
@@ -342,7 +339,7 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern) {
     FcPatternGetInteger(pattern, FC_INDEX, 0, &id);
     FcPatternGetCharSet(pattern, FC_CHARSET, 0, &i->cs);
     if (FcPatternGetMatrix(pattern, FC_MATRIX, 0, &font_matrix) == FcResultMatch) {
-        LOG_TRACE("Freetype", "has a matrix" );
+        LOG_TRACE("Freetype", "has a matrix");
     }
 
     FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &size);
@@ -350,13 +347,13 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern) {
     int ft_error = FT_New_Face(ftlib, (char *)filename, id, &i->face);
 
     if (ft_error != 0) {
-        LOG_TRACE("Freetype", "Freetype error %u %s %i" , ft_error, filename, id);
+        LOG_TRACE("Freetype", "Freetype error %u %s %i", ft_error, filename, id);
         return;
     }
 
     ft_error = FT_Set_Char_Size(i->face, (size * 64.0 + 0.5), (size * 64.0 + 0.5), 0, 0);
     if (ft_error != 0) {
-        LOG_TRACE("Freetype", "Freetype error %u %lf" , ft_error, size);
+        LOG_TRACE("Freetype", "Freetype error %u %lf", ft_error, size);
         return;
     }
 
@@ -394,34 +391,28 @@ void loadfonts(void) {
     int render_order = XRenderQuerySubpixelOrder(display, def_screen_num);
     if (render_order == SubPixelHorizontalBGR || render_order == SubPixelVerticalBGR) {
         ft_swap_blue_red = 1;
-        LOG_TRACE("Freetype", "ft_swap_blue_red" );
+        LOG_TRACE("Freetype", "ft_swap_blue_red");
     }
 
     if (render_order == SubPixelVerticalBGR || render_order == SubPixelVerticalRGB) {
         ft_vert = 1;
-        LOG_TRACE("Freetype", "ft_vert" );
+        LOG_TRACE("Freetype", "ft_vert");
     }
 
-    font_open(&font[FONT_TEXT], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
-              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
+    font_open(&font[FONT_TEXT], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 
-    font_open(&font[FONT_TITLE], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
-              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD, NULL);
+    font_open(&font[FONT_TITLE], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD, NULL);
 
-    font_open(&font[FONT_SELF_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(14.0),
-              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD, NULL);
-    font_open(&font[FONT_STATUS], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(11.0),
-              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
+    font_open(&font[FONT_SELF_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(14.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD, NULL);
+    font_open(&font[FONT_STATUS], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(11.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 
-    font_open(&font[FONT_LIST_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0),
-              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
+    font_open(&font[FONT_LIST_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(12.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 
     // font_open(&font[FONT_MSG],      FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(11.0),
     //           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
     // font_open(&font[FONT_MSG_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(10.0),
     // FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
-    font_open(&font[FONT_MISC], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(10.0),
-              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
+    font_open(&font[FONT_MISC], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(10.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
     // font_open(&font[FONT_MSG_LINK], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, UI_FSCALE(11.0),
     //           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
 }

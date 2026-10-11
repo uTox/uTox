@@ -6,9 +6,9 @@
 
 struct chrono_info {
     uint8_t *ptr, *target;
-    int step;
+    int      step;
     uint32_t interval_ms;
-    bool finished;
+    bool     finished;
     void (*callback)(void *);
     void *cb_data;
 };

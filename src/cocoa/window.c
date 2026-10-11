@@ -7,10 +7,7 @@ bool native_window_init(void) {
     return true;
 }
 
-static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsigned int class,
-                                  int x, int y, int w, int h, int min_width, int min_height,
-                                  void *gui_panel, bool override)
-{
+static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsigned int class, int x, int y, int w, int h, int min_width, int min_height, void *gui_panel, bool override) {
     return NULL;
 }
 

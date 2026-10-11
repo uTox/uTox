@@ -14,7 +14,7 @@ bool messages_day_changed(time_t last, time_t next) {
         return false;
     }
 
-    int ltime_year = 0, ltime_mon = 0, ltime_day = 0;
+    int        ltime_year = 0, ltime_mon = 0, ltime_day = 0;
     struct tm *msg_time = localtime(&last);
 
     ltime_year = msg_time->tm_year;
@@ -22,10 +22,7 @@ bool messages_day_changed(time_t last, time_t next) {
     ltime_day  = msg_time->tm_mday;
     msg_time   = localtime(&next);
 
-    if (ltime_year >= msg_time->tm_year
-        && (ltime_year != msg_time->tm_year || ltime_mon >= msg_time->tm_mon)
-        && (ltime_year != msg_time->tm_year || ltime_mon != msg_time->tm_mon || ltime_day >= msg_time->tm_mday))
-    {
+    if (ltime_year >= msg_time->tm_year && (ltime_year != msg_time->tm_year || ltime_mon >= msg_time->tm_mon) && (ltime_year != msg_time->tm_year || ltime_mon != msg_time->tm_mon || ltime_day >= msg_time->tm_mday)) {
         return false;
     }
 
@@ -116,7 +113,7 @@ static void messages_adjust_scroll_after_prepend(MESSAGES *m, int old_height) {
         return;
     }
 
-    const int viewport = scroll->viewport_height;
+    const int viewport     = scroll->viewport_height;
     scroll->content_height = m->height;
 
     if (viewport <= 0 || m->height <= viewport) {
@@ -175,11 +172,10 @@ size_t messages_prepend(MESSAGES *m, MSG_HEADER **batch, size_t n) {
             }
         }
         expanded[out++] = msg;
-        last = msg->time;
+        last            = msg->time;
     }
 
-    if (out > 0 && m->number > 0 && m->data[0]
-        && messages_day_changed(last, m->data[0]->time)) {
+    if (out > 0 && m->number > 0 && m->data[0] && messages_day_changed(last, m->data[0]->time)) {
         MSG_HEADER *notice = messages_create_day_notice(m->data[0]->time);
         if (notice) {
             expanded[out++] = notice;

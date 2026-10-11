@@ -59,11 +59,11 @@ SETTINGS settings = {
     .show_splash = false,
 
     // Tox level settings
-    .block_friend_requests  = false,
-    .save_encryption        = true,
+    .block_friend_requests = false,
+    .save_encryption       = true,
 
     // User interface settings
-    .language               = LANG_EN,
+    .language = LANG_EN,
 
     .audio_filtering_enabled = true,
     .push_to_talk            = false,
@@ -104,15 +104,14 @@ SETTINGS settings = {
     .window_maximized = false,
 
     // Low level settings (network, profile, portable-mode)
-    .disableudp     = false,
-    .enableipv6     = true,
-    .proxyenable    = false,
-    .force_proxy    = false,
-    .proxy_port     = 0,
+    .disableudp  = false,
+    .enableipv6  = true,
+    .proxyenable = false,
+    .force_proxy = false,
+    .proxy_port  = 0,
 };
 
-static void write_config_value_int(const char *filename, const char *section,
-                                   const char *key, const long value) {
+static void write_config_value_int(const char *filename, const char *section, const char *key, const long value) {
     if (ini_putl(section, key, value, filename) != 1) {
         LOG_ERR("Settings", "Unable to save config value: %lu.", value);
     }
@@ -121,8 +120,7 @@ static void write_config_value_int(const char *filename, const char *section,
     write_config_value_int(config_path, config_sections[SECTION], \
         NAMEOF(VALUE), VALUE)
 
-static void write_config_value_str(const char *filename, const char *section,
-                                   const char *key, const char *value) {
+static void write_config_value_str(const char *filename, const char *section, const char *key, const char *value) {
     if (ini_puts(section, key, value, filename) != 1) {
         LOG_ERR("Settings", "Unable to save config value: %s.", value);
     }
@@ -131,8 +129,7 @@ static void write_config_value_str(const char *filename, const char *section,
     write_config_value_str(config_path, config_sections[SECTION], \
         NAMEOF(VALUE), (const char *)VALUE)
 
-static void write_config_value_bool(const char *filename, const char *section,
-                                    const char *key, const bool value) {
+static void write_config_value_bool(const char *filename, const char *section, const char *key, const bool value) {
     if (ini_puts(section, key, BOOL_TO_STR(value), filename) != 1) {
         LOG_ERR("Settings", "Unable to save config value: %s.", value);
     }
@@ -157,8 +154,7 @@ static CONFIG_SECTION get_section(const char *section) {
     }
 }
 
-static void parse_general_section(SETTINGS *config, const char *key,
-                                  const char *value) {
+static void parse_general_section(SETTINGS *config, const char *key, const char *value) {
     if (MATCH(NAMEOF(config->save_version), key)) {
         config->save_version = atoi(value);
     } else if (MATCH(NAMEOF(config->utox_last_version), key)) {
@@ -166,8 +162,7 @@ static void parse_general_section(SETTINGS *config, const char *key,
     }
 }
 
-static void parse_interface_section(SETTINGS *config, const char *key,
-                                    const char *value) {
+static void parse_interface_section(SETTINGS *config, const char *key, const char *value) {
     if (MATCH(NAMEOF(config->language), key)) {
         config->language = atoi(value);
     } else if (MATCH(NAMEOF(config->window_x), key)) {
@@ -204,8 +199,7 @@ static void parse_interface_section(SETTINGS *config, const char *key,
     }
 }
 
-static void parse_av_section(SETTINGS *config, const char *key,
-                             const char *value) {
+static void parse_av_section(SETTINGS *config, const char *key, const char *value) {
     if (MATCH(NAMEOF(config->push_to_talk), key)) {
         config->push_to_talk = STR_TO_BOOL(value);
     } else if (MATCH(NAMEOF(config->audio_filtering_enabled), key)) {
@@ -215,7 +209,7 @@ static void parse_av_section(SETTINGS *config, const char *key,
     } else if (MATCH(NAMEOF(config->audio_device_out), key)) {
         config->audio_device_out = atoi(value);
     } else if (MATCH(NAMEOF(config->video_fps), key)) {
-        char *temp;
+        char    *temp;
         uint16_t value_fps = strtol((char *)value, &temp, 0);
 
         if (*temp == '\0' && value_fps >= 1 && value_fps <= UINT8_MAX) {
@@ -224,13 +218,13 @@ static void parse_av_section(SETTINGS *config, const char *key,
         }
 
         LOG_WARN("Settings",
-            "Fps value (%s) is invalid. It must be integer in range of [1,%u].",
-            value, UINT8_MAX);
+                 "Fps value (%s) is invalid. It must be integer in range of [1,%u].",
+                 value,
+                 UINT8_MAX);
     }
 }
 
-static void parse_notifications_section(SETTINGS *config, const char *key,
-                                        const char *value) {
+static void parse_notifications_section(SETTINGS *config, const char *key, const char *value) {
     if (MATCH(NAMEOF(config->audible_notifications_enabled), key)) {
         config->audible_notifications_enabled = STR_TO_BOOL(value);
     } else if (MATCH(NAMEOF(config->status_notifications), key)) {
@@ -242,8 +236,7 @@ static void parse_notifications_section(SETTINGS *config, const char *key,
     }
 }
 
-static void parse_advanced_section(SETTINGS *config, const char *key,
-                                   const char *value) {
+static void parse_advanced_section(SETTINGS *config, const char *key, const char *value) {
     if (MATCH(NAMEOF(config->enableipv6), key)) {
         config->enableipv6 = STR_TO_BOOL(value);
     } else if (MATCH(NAMEOF(config->disableudp), key)) {
@@ -261,8 +254,7 @@ static void parse_advanced_section(SETTINGS *config, const char *key,
     }
 }
 
-static int config_parser(const char *section, const char *key,
-                         const char *value, void *config_v) {
+static int config_parser(const char *section, const char *key, const char *value, void *config_v) {
     SETTINGS *config = (SETTINGS *)config_v;
 
     switch (get_section(section)) {
@@ -320,7 +312,7 @@ static bool create_config_folder(char *config_path) {
         last_slash = strrchr(config_path, '\\');
     }
 
-    char *save_folder = strdup(config_path);
+    char *save_folder                         = strdup(config_path);
     save_folder[last_slash - config_path + 1] = '\0';
 
     if (!native_create_dir((uint8_t *)save_folder)) {
@@ -438,52 +430,47 @@ void config_load(void) {
     dropdown_dpi.selected = dropdown_dpi.over = settings.scale - 5;
 
     switch_save_chat_history.switch_on = settings.logging_enabled;
-    switch_close_to_tray.switch_on = settings.close_to_tray;
-    switch_start_in_tray.switch_on = settings.start_in_tray;
-    switch_auto_startup.switch_on = settings.auto_startup;
-    switch_mini_contacts.switch_on = settings.use_mini_flist;
+    switch_close_to_tray.switch_on     = settings.close_to_tray;
+    switch_start_in_tray.switch_on     = settings.start_in_tray;
+    switch_auto_startup.switch_on      = settings.auto_startup;
+    switch_mini_contacts.switch_on     = settings.use_mini_flist;
     flist_set_filter(settings.filter);
     switch_magic_sidebar.switch_on = settings.magic_flist_enabled;
 
     /* Network settings */
-    switch_ipv6.switch_on = settings.enableipv6;
-    switch_udp.switch_on = !settings.disableudp;
-    switch_udp.panel.disabled = settings.force_proxy;
-    switch_proxy.switch_on = settings.proxyenable != 0;
-    switch_proxy_force.switch_on = settings.force_proxy;
+    switch_ipv6.switch_on             = settings.enableipv6;
+    switch_udp.switch_on              = !settings.disableudp;
+    switch_udp.panel.disabled         = settings.force_proxy;
+    switch_proxy.switch_on            = settings.proxyenable != 0;
+    switch_proxy_force.switch_on      = settings.force_proxy;
     switch_proxy_force.panel.disabled = settings.proxyenable == 0;
 
     /* AV */
-    switch_push_to_talk.switch_on = settings.push_to_talk;
+    switch_push_to_talk.switch_on    = settings.push_to_talk;
     switch_audio_filtering.switch_on = settings.audio_filtering_enabled;
     if (settings.video_fps == 0) {
         settings.video_fps = DEFAULT_FPS;
     }
-    snprintf((char *)edit_video_fps.data, edit_video_fps.data_size, "%u",
-        settings.video_fps);
+    snprintf((char *)edit_video_fps.data, edit_video_fps.data_size, "%u", settings.video_fps);
     edit_video_fps.length = strnlen((char *)edit_video_fps.data,
-        edit_video_fps.data_size - 1);
+                                    edit_video_fps.data_size - 1);
 
     /* Notifications */
-    switch_audible_notifications.switch_on
-        = settings.audible_notifications_enabled;
+    switch_audible_notifications.switch_on = settings.audible_notifications_enabled;
 
     switch_status_notifications.switch_on = settings.status_notifications;
-    switch_typing_notes.switch_on = !settings.no_typing_notifications;
+    switch_typing_notes.switch_on         = !settings.no_typing_notifications;
 
-    settings.group_notifications = dropdown_global_group_notifications.selected
-        = dropdown_global_group_notifications.over
-        = settings.group_notifications;
+    settings.group_notifications = dropdown_global_group_notifications.selected = dropdown_global_group_notifications.over = settings.group_notifications;
 
     /* Advanced */
     edit_proxy_ip.length = strnlen((char *)settings.proxy_ip, sizeof(settings.proxy_ip));
     strncpy((char *)edit_proxy_ip.data, (char *)settings.proxy_ip, edit_proxy_ip.length);
 
     if (settings.proxy_port) {
-        snprintf((char *)edit_proxy_port.data, edit_proxy_port.data_size, "%u",
-            settings.proxy_port);
+        snprintf((char *)edit_proxy_port.data, edit_proxy_port.data_size, "%u", settings.proxy_port);
         edit_proxy_port.length = strnlen((char *)edit_proxy_port.data,
-            edit_proxy_port.data_size - 1);
+                                         edit_proxy_port.data_size - 1);
     }
 
     ui_set_scale(settings.scale);
@@ -498,9 +485,9 @@ void config_load(void) {
 }
 
 void config_save(void) {
-    settings.save_version = UTOX_SAVE_VERSION;
-    settings.filter = !!flist_get_filter();
-    settings.audio_device_in = dropdown_audio_in.selected;
+    settings.save_version     = UTOX_SAVE_VERSION;
+    settings.filter           = !!flist_get_filter();
+    settings.audio_device_in  = dropdown_audio_in.selected;
     settings.audio_device_out = dropdown_audio_out.selected;
 
     LOG_NOTE("uTox", "Saving uTox settings.");

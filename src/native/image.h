@@ -2,7 +2,7 @@
 #define NATIVE_IMAGE_H
 
 typedef struct native_image NATIVE_IMAGE;
-typedef uint8_t *UTOX_IMAGE;
+typedef uint8_t            *UTOX_IMAGE;
 
 enum {
     FILTER_NEAREST, // ugly and quick filtering
@@ -36,7 +36,6 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE, size_t size, uint16_t *w, u
 
 /* free an image created by utox_image_to_native */
 void image_free(NATIVE_IMAGE *image);
-
 
 // OS-dependent macros
 

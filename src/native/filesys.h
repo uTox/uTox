@@ -24,14 +24,14 @@ void native_export_chatlog_init(uint32_t friend_number);
 // TODO same as for chatlogs, this is mainly native because of the file selector thing
 
 typedef struct msg_header MSG_HEADER;
-void file_save_inline_image_png(MSG_HEADER *msg);
+void                      file_save_inline_image_png(MSG_HEADER *msg);
 // TODO same as for chatlogs, this is mainly native because of the file selector thing
 
 bool native_save_image_png(const char *name, const uint8_t *image, const int image_size);
 
 typedef struct file_transfer FILE_TRANSFER;
-void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
-void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file);
+void                         native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
+void                         native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file);
 
 /**
  * @brief Get full path of the file in the Tox profile folder.
@@ -49,8 +49,8 @@ bool native_create_dir_tree(const char *path);
 
 // OS interface replacements
 void flush_file(FILE *file);
-int ch_mod(uint8_t *file);
-int file_lock(FILE *file, uint64_t start, size_t length);
-int file_unlock(FILE *file, uint64_t start, size_t length);
+int  ch_mod(uint8_t *file);
+int  file_lock(FILE *file, uint64_t start, size_t length);
+int  file_unlock(FILE *file, uint64_t start, size_t length);
 
 #endif

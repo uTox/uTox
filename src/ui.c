@@ -31,7 +31,7 @@
 struct utox_mouse mouse;
 
 uint8_t cursor;
-bool mdown;
+bool    mdown;
 
 char search_data[1024]; // TODO this is NOT where this belongs
 
@@ -42,8 +42,7 @@ static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int 
     return;
 }
 
-static bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height),
-                      int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
+static bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
     return false;
 }
 
@@ -104,7 +103,7 @@ static void sidepanel_USERBADGE(void) {
 }
 
 static void sidepanel_FLIST(void) {
-    scrollbar_flist.panel.y      = 0;
+    scrollbar_flist.panel.y = 0;
     // scrollbar_flist.panel.width  = 230; // TODO remove?
     scrollbar_flist.panel.height = -1;
 
@@ -113,61 +112,51 @@ static void sidepanel_FLIST(void) {
     panel_flist.width  = 230; // TODO remove?
     panel_flist.height = ROSTER_BOTTOM;
 
-
     button_add_new_contact.panel.disabled = true;
 }
 
-
 static void settings_PROFILE(void) {
     panel_settings_profile.y = 32;
-
 }
 
 static void settings_UI(void) {
-    panel_settings_ui.y            = 32;
-
+    panel_settings_ui.y = 32;
 }
 
 static void settings_AV(void) {
     panel_settings_av.y = 32;
 
-
-    #ifndef AUDIO_FILTERING
-        const uint16_t start_draw_y = 30;
-        const uint16_t preview_button_pos_y = 245;
-    #else
-        const uint16_t start_draw_y = 60;
-        const uint16_t preview_button_pos_y = 275;
-        CREATE_SWITCH(audio_filtering, 10, 40, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
-    #endif
-
+#ifndef AUDIO_FILTERING
+    const uint16_t start_draw_y         = 30;
+    const uint16_t preview_button_pos_y = 245;
+#else
+    const uint16_t start_draw_y         = 60;
+    const uint16_t preview_button_pos_y = 275;
+    CREATE_SWITCH(audio_filtering, 10, 40, _BM_SWITCH_WIDTH, _BM_SWITCH_HEIGHT);
+#endif
 
     const uint16_t draw_y_vect = 30;
-    CREATE_DROPDOWN(audio_in,  10, (start_draw_y + draw_y_vect + 5), 24, 360);
+    CREATE_DROPDOWN(audio_in, 10, (start_draw_y + draw_y_vect + 5), 24, 360);
     CREATE_DROPDOWN(audio_out, 10, (start_draw_y + draw_y_vect + 57), 24, 360);
-    CREATE_EDIT(video_fps,     10, (start_draw_y + draw_y_vect + 110), 360, 24);
-    CREATE_DROPDOWN(video,     10, (start_draw_y + draw_y_vect + 162), 24, 360);
+    CREATE_EDIT(video_fps, 10, (start_draw_y + draw_y_vect + 110), 360, 24);
+    CREATE_DROPDOWN(video, 10, (start_draw_y + draw_y_vect + 162), 24, 360);
 
-    CREATE_BUTTON(callpreview,  10, (preview_button_pos_y + 35), _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(callpreview, 10, (preview_button_pos_y + 35), _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
     CREATE_BUTTON(videopreview, 70, (preview_button_pos_y + 35), _BM_LBUTTON_WIDTH, _BM_LBUTTON_HEIGHT);
 }
 
 static void settings_NOTIFY(void) {
     panel_settings_notifications.y = 32;
-
 }
 
 static void settings_ADV(void) {
     panel_settings_adv.y = 32;
 
-
     const int show_nospam_x = 30 + UN_SCALE(MAX(UTOX_STR_WIDTH(SHOW_UI_PASSWORD), UTOX_STR_WIDTH(HIDE_UI_PASSWORD)));
     CREATE_BUTTON(show_nospam, show_nospam_x, 177, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
 
-
     const int revert_nospam_x = 30 + UN_SCALE(UTOX_STR_WIDTH(RANDOMIZE_NOSPAM));
     CREATE_BUTTON(revert_nospam, revert_nospam_x, 265, _BM_SBUTTON_WIDTH, _BM_SBUTTON_HEIGHT);
-
 }
 
 void ui_set_scale(uint8_t scale) {
@@ -189,12 +178,12 @@ void ui_rescale(uint8_t scale) {
 
     panel_main.y = 0;
 
-    scrollbar_settings.panel.y        = 32;  /* TODO magic numbers are bad */
+    scrollbar_settings.panel.y        = 32; /* TODO magic numbers are bad */
     scrollbar_settings.content_height = 300; /* TODO magic numbers are bad */
 
-    panel_settings_master.y        = 0;
-    panel_settings_devices.y       = 32;
-    panel_settings_adv.y           = 32;
+    panel_settings_master.y  = 0;
+    panel_settings_devices.y = 32;
+    panel_settings_adv.y     = 32;
 
     scrollbar_friend.panel.y      = MAIN_TOP;
     scrollbar_friend.panel.height = CHAT_BOX_TOP;
@@ -227,41 +216,35 @@ void ui_rescale(uint8_t scale) {
 
     CREATE_BUTTON(move_notify, -40, -40, 40, 40);
 
-
     /* Setting pages */
     uint32_t settings_x = 4;
-    CREATE_BUTTON(settings_sub_profile,         settings_x, 0, 12, 28);
+    CREATE_BUTTON(settings_sub_profile, settings_x, 0, 12, 28);
     settings_x += 20 + UN_SCALE(UTOX_STR_WIDTH(PROFILE_BUTTON));
 
 #ifdef ENABLE_MULTIDEVICE
-    CREATE_BUTTON(settings_sub_devices,         settings_x, 0, 12, 28);
+    CREATE_BUTTON(settings_sub_devices, settings_x, 0, 12, 28);
     settings_x += 20 + UN_SCALE(UTOX_STR_WIDTH(DEVICES_BUTTON));
 #endif
 
-    CREATE_BUTTON(settings_sub_ui,              settings_x, 0, 12, 28);
+    CREATE_BUTTON(settings_sub_ui, settings_x, 0, 12, 28);
     settings_x += 20 + UN_SCALE(UTOX_STR_WIDTH(USER_INTERFACE_BUTTON));
 
-    CREATE_BUTTON(settings_sub_av,              settings_x, 0, 12, 28);
+    CREATE_BUTTON(settings_sub_av, settings_x, 0, 12, 28);
     settings_x += 20 + UN_SCALE(UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON));
 
-    CREATE_BUTTON(settings_sub_notifications,   settings_x, 0, 12, 28);
+    CREATE_BUTTON(settings_sub_notifications, settings_x, 0, 12, 28);
     settings_x += 20 + UN_SCALE(UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON));
 
-    CREATE_BUTTON(settings_sub_adv,             settings_x, 0, 12, 28);
-
+    CREATE_BUTTON(settings_sub_adv, settings_x, 0, 12, 28);
 
     /* Devices */
     CREATE_BUTTON(add_new_device_to_self, -10 - BM_SBUTTON_WIDTH, 28, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(add_new_device_to_self, 10, 27, 0 - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH, 24);
 
-
-
     setfont(FONT_TEXT);
 
-
     CREATE_EDIT(chat_msg_group, 6, -46, -10 - BM_CHAT_SEND_WIDTH, 40);
-
 
     setscale();
 }
@@ -269,7 +252,7 @@ void ui_rescale(uint8_t scale) {
 /* Use the preprocessor to build function prototypes for all user interactions
  * These are functions that are (must be) defined elsewhere. The preprocessor in this case creates the prototypes that
  * will then be used by panel_draw_core to call the correct function
-*/
+ */
 #define MAKE_FUNC(ret, x, ...)                                                                                          \
     static ret (*x##func[])(void *p, ##__VA_ARGS__) = {                                                                 \
         (void *)background_##x, (void *)messages_##x, (void *)inline_video_##x, (void *)flist_##x,  (void *)button_##x, \
@@ -308,9 +291,9 @@ static void panel_update(PANEL *p, int x, int y, int width, int height) {
     switch (p->type) {
         case PANEL_NONE: {
             if (p == &panel_settings_devices) {
-                #ifdef ENABLE_MULTIDEVICE
+#ifdef ENABLE_MULTIDEVICE
                 devices_update_ui();
-                #endif
+#endif
             }
             break;
         }
@@ -342,9 +325,7 @@ static void panel_update(PANEL *p, int x, int y, int width, int height) {
     }
 }
 
-void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
-                       uint32_t targetheight)
-{
+void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth, uint32_t targetheight) {
     /* get smallest of width or height */
     const double scale = (width > height) ? (double)targetheight / height : (double)targetwidth / width;
 
@@ -366,12 +347,12 @@ void ui_size(int width, int height) {
     tooltip_reset();
 
     panel_side_bar.disabled = false;
-    panel_main.x = panel_flist.width;
+    panel_main.x            = panel_flist.width;
 
     if (settings.magic_flist_enabled) {
         if (width <= panel_flist.width * 2 || height > width) {
             panel_side_bar.disabled = true;
-            panel_main.x = 0;
+            panel_main.x            = 0;
         }
     }
 }
@@ -569,8 +550,8 @@ bool panel_dclick(PANEL *p, bool triclick) {
 }
 
 bool panel_mright(PANEL *p) {
-    bool draw = p->type ? mrightfunc[p->type - 1](p) : false;
-    PANEL **pp = p->child;
+    bool    draw = p->type ? mrightfunc[p->type - 1](p) : false;
+    PANEL **pp   = p->child;
     if (pp) {
         PANEL *subp;
         while ((subp = *pp++)) {
@@ -590,8 +571,8 @@ bool panel_mright(PANEL *p) {
 bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool smooth) {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
-    bool draw = p->type ? mwheelfunc[p->type - 1](p, height, d) : false;
-    PANEL **pp = p->child;
+    bool    draw = p->type ? mwheelfunc[p->type - 1](p, height, d) : false;
+    PANEL **pp   = p->child;
     if (pp) {
         PANEL *subp;
         while ((subp = *pp++)) {
@@ -608,15 +589,15 @@ bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool 
     return draw;
 }
 
- bool panel_mup(PANEL *p) {
+bool panel_mup(PANEL *p) {
     if (p == &panel_root && contextmenu_mup()) {
         tooltip_mup();
         redraw();
         return true;
     }
 
-    bool draw = p->type ? mupfunc[p->type - 1](p) : false;
-    PANEL **pp = p->child;
+    bool    draw = p->type ? mupfunc[p->type - 1](p) : false;
+    PANEL **pp   = p->child;
     if (pp) {
         PANEL *subp;
         while ((subp = *pp++)) {

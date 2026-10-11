@@ -16,8 +16,8 @@ typedef struct avatar {
     NATIVE_IMAGE *img; /* converted avatar image to draw */
 
     size_t   size;
-    uint16_t width, height;         /* width and height of image (in pixels) */
-    uint8_t  format;                /* one of TOX_AVATAR_FORMAT */
+    uint16_t width, height; /* width and height of image (in pixels) */
+    uint8_t  format; /* one of TOX_AVATAR_FORMAT */
     uint8_t  hash[TOX_HASH_LENGTH]; /* tox_hash for the png data of this avatar */
 } AVATAR;
 

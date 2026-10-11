@@ -53,21 +53,21 @@ Cursor  cursors[8];
 
 uint8_t pointergrab;
 
-bool     _redraw;
+bool _redraw;
 
 XImage *screen_image;
 
 void *libgtk;
 
 struct utox_clipboard clipboard;
-struct utox_primary primary;
-struct utox_pastebuf pastebuf;
+struct utox_primary   primary;
+struct utox_pastebuf  pastebuf;
 
 static bool hidden = false;
 
-XIC xic = NULL;
-static XSizeHints *xsh = NULL;
-static bool shutdown = false;
+XIC                xic      = NULL;
+static XSizeHints *xsh      = NULL;
+static bool        shutdown = false;
 
 void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, main_window.window, CurrentTime);
@@ -76,17 +76,14 @@ void setclipboard(void) {
 void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
     XEvent event = {
         .xclient = {
-            .window = 0,
-            .type = ClientMessage,
+            .window       = 0,
+            .type         = ClientMessage,
             .message_type = msg,
-            .format = 8,
-            .data = {
+            .format       = 8,
+            .data         = {
                 .s = {
                     param1,
-                    param2
-                }
-            }
-        }
+                    param2 } } }
     };
 
     memcpy(&event.xclient.data.s[2], &data, sizeof(void *));
@@ -95,7 +92,7 @@ void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data
     XFlush(display);
 }
 
-static FILE *   ptt_keyboard_handle;
+static FILE    *ptt_keyboard_handle;
 static Display *ptt_display;
 
 void init_ptt(void) {
@@ -106,13 +103,11 @@ void init_ptt(void) {
 
     ptt_keyboard_handle = fopen((const char *)path, "r");
     if (!ptt_keyboard_handle) {
-        LOG_TRACE("XLIB", "Could not access ptt-kbd in data directory" );
+        LOG_TRACE("XLIB", "Could not access ptt-kbd in data directory");
         ptt_display = XOpenDisplay(0);
         XSynchronize(ptt_display, True);
     }
 }
-
-
 
 #if defined(__linux__) || defined(__DragonFly__) || defined(__FreeBSD__)
 #include <linux/input.h>
@@ -127,15 +122,15 @@ static bool linux_check_ptt(void) {
         char key_map[KEY_MAX / 8 + 1]; // Create a byte array the size of the number of keys
         memset(key_map, 0, sizeof(key_map));
         ioctl(fileno(ptt_keyboard_handle), EVIOCGKEY(sizeof(key_map)), key_map); // Fill the keymap with the current
-                                                                                 // keyboard state
+        // keyboard state
         int keyb = key_map[ptt_key / 8]; // The key we want (and the seven others around it)
-        int mask = 1 << (ptt_key % 8);   // Put 1 in the same column as our key state
+        int mask = 1 << (ptt_key % 8); // Put 1 in the same column as our key state
 
         if (keyb & mask) {
-            LOG_TRACE("XLIB", "PTT key is down" );
+            LOG_TRACE("XLIB", "PTT key is down");
             return true;
         } else {
-            LOG_TRACE("XLIB", "PTT key is up" );
+            LOG_TRACE("XLIB", "PTT key is up");
             return false;
         }
     }
@@ -147,16 +142,16 @@ static bool linux_check_ptt(void) {
     if (ptt_display) {
         XQueryKeymap(ptt_display, keys);
         if (keys[ptt_key / 8] & (0x1 << (ptt_key % 8))) {
-            LOG_TRACE("XLIB", "PTT key is down (according to XQueryKeymap" );
+            LOG_TRACE("XLIB", "PTT key is down (according to XQueryKeymap");
             return true;
         } else {
-            LOG_TRACE("XLIB", "PTT key is up (according to XQueryKeymap" );
+            LOG_TRACE("XLIB", "PTT key is up (according to XQueryKeymap");
             return false;
         }
     }
     /* Couldn't access the keyboard directly, and XQuery failed, this is really bad! */
     LOG_ERR("XLIB", "Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
-                "keyboard.\nDisable push to talk to suppress this message.\n");
+                    "keyboard.\nDisable push to talk to suppress this message.\n");
     return false;
 }
 #else
@@ -202,9 +197,15 @@ void image_set_scale(NATIVE_IMAGE *image, double scale) {
 void image_set_filter(NATIVE_IMAGE *image, uint8_t filter) {
     const char *xfilter;
     switch (filter) {
-        case FILTER_NEAREST: xfilter  = FilterNearest; break;
-        case FILTER_BILINEAR: xfilter = FilterBilinear; break;
-        default: LOG_TRACE("XLIB", "Warning: Tried to set image to unrecognized filter(%u)." , filter); return;
+        case FILTER_NEAREST:
+            xfilter = FilterNearest;
+            break;
+        case FILTER_BILINEAR:
+            xfilter = FilterBilinear;
+            break;
+        default:
+            LOG_TRACE("XLIB", "Warning: Tried to set image to unrecognized filter(%u).", filter);
+            return;
     }
     XRenderSetPictureFilter(display, image->rgb, xfilter, NULL, 0);
     if (image->alpha) {
@@ -271,7 +272,6 @@ void setselection(char *data, uint16_t length) {
     XSetSelectionOwner(display, XA_PRIMARY, main_window.window, CurrentTime);
 }
 
-
 /** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(void) {
     if (hidden) {
@@ -314,8 +314,7 @@ void copy(int value) {
 int hold_x11s_hand(Display *UNUSED(d), XErrorEvent *event) {
     LOG_ERR("XLIB", "X11 err:\tX11 tried to kill itself, so I hit him with a shovel.");
     LOG_ERR("XLIB", "    err:\tResource: %lu || Serial %lu", event->resourceid, event->serial);
-    LOG_ERR("XLIB", "    err:\tError code: %u || Request: %u || Minor: %u",
-        event->error_code, event->request_code, event->minor_code);
+    LOG_ERR("XLIB", "    err:\tError code: %u || Request: %u || Minor: %u", event->error_code, event->request_code, event->minor_code);
     LOG_ERR("uTox", "This would be a great time to submit a bug!");
 
     return 0;
@@ -336,8 +335,7 @@ void paste(void) {
                 .target     = targets,
                 .selection  = XA_CLIPBOARD,
                 .property   = XA_ATOM,
-                .time       = CurrentTime
-            }
+                .time       = CurrentTime }
         };
 
         XSendEvent(display, owner, 0, NoEventMask, &event);
@@ -348,13 +346,13 @@ void paste(void) {
 void pastebestformat(const Atom atoms[], size_t len, Atom selection) {
     XSetErrorHandler(hold_x11s_hand);
     const Atom supported[] = { XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING };
-    size_t i, j;
+    size_t     i, j;
     for (i = 0; i < len; i++) {
         char *name = XGetAtomName(display, atoms[i]);
         if (name) {
-            LOG_TRACE("XLIB", "Supported type: %s" , name);
+            LOG_TRACE("XLIB", "Supported type: %s", name);
         } else {
-            LOG_TRACE("XLIB", "Unsupported type!!: Likely a bug, please report!" );
+            LOG_TRACE("XLIB", "Unsupported type!!: Likely a bug, please report!");
         }
     }
 
@@ -420,7 +418,7 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
             LOG_INFO("XLIB MAIN", "Pasted image: %dx%d", width, height);
 
             UTOX_IMAGE png_image = malloc(size);
-            if (!png_image){
+            if (!png_image) {
                 LOG_ERR("XLIB", "Could not allocate memory for an image");
                 free(native_image);
                 return;
@@ -466,13 +464,12 @@ Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format) {
 }
 
 void loadalpha(int bm, void *data, int width, int height) {
-    if (bm < 0){
+    if (bm < 0) {
         LOG_ERR("XLIB", "Can not get object from array. Index %d", bm);
         return;
     }
 
     XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, data, width, height, 8, 0);
-
 
     // create picture that only holds alpha values
     // NOTE: the XImage made earlier should really be freed, but calling XDestroyImage on it will also
@@ -509,8 +506,8 @@ static void native_color_mask(uint8_t *data, uint32_t size, uint32_t mask_red, u
         red   = (data + i)[0] & 0xFF;
         green = (data + i)[1] & 0xFF;
         blue  = (data + i)[2] & 0xFF;
-        dest = (uint32_t*)(data + i);
-        *dest  = (red | (red << 8) | (red << 16) | (red << 24)) & mask_red;
+        dest  = (uint32_t *)(data + i);
+        *dest = (red | (red << 8) | (red << 16) | (red << 24)) & mask_red;
         *dest |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & mask_blue;
         *dest |= (green | (green << 8) | (green << 16) | (green << 24)) & mask_green;
     }
@@ -526,7 +523,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
     }
 
     uint32_t rgba_size = width * height * 4;
-    Picture alpha = (bpp == 4 && keep_alpha) ? generate_alpha_bitmask(rgba_data, width, height, rgba_size) : None;
+    Picture  alpha     = (bpp == 4 && keep_alpha) ? generate_alpha_bitmask(rgba_data, width, height, rgba_size) : None;
     native_color_mask(rgba_data, rgba_size, default_visual->red_mask, default_visual->blue_mask, default_visual->green_mask);
 
     XImage *img = XCreateImage(display, default_visual, default_depth, ZPixmap, 0, (char *)rgba_data, width, height, 32, width * 4);
@@ -538,7 +535,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
 
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        LOG_ERR("utox_image_to_native", "Could not allocate memory for image." );
+        LOG_ERR("utox_image_to_native", "Could not allocate memory for image.");
         return NULL;
     }
     image->rgb   = rgb;
@@ -546,7 +543,6 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
 
     return image;
 }
-
 
 void image_free(NATIVE_IMAGE *image) {
     if (!image) {
@@ -625,7 +621,7 @@ void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_
         }
     }
 
-    XWMHints hints = {.flags = 256 };
+    XWMHints hints = { .flags = 256 };
     XSetWMHints(display, main_window.window, &hints);
 
 #ifdef HAVE_DBUS
@@ -690,8 +686,7 @@ static void cursors_init(void) {
     cursors[CURSOR_ZOOM_OUT] = XCreateFontCursor(display, XC_target);
 }
 
-static void signal_handler(int signal)
-{
+static void signal_handler(int signal) {
     LOG_INFO("XLIB MAIN", "Got signal: %s (%i)", strsignal(signal), signal);
     shutdown = true;
 }
@@ -706,25 +701,21 @@ int main(int argc, char *argv[]) {
     }
     initfonts();
 
-    #ifdef HAVE_DBUS
+#ifdef HAVE_DBUS
     LOG_INFO("XLIB MAIN", "Compiled with dbus support!");
-    #endif
+#endif
 
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool allow_root;
-    parse_args(argc, argv,
-               &should_launch_at_startup,
-               &set_show_window,
-               &allow_root);
+    bool   allow_root;
+    parse_args(argc, argv, &should_launch_at_startup, &set_show_window, &allow_root);
 
-    if (getuid() == 0 && !allow_root){
+    if (getuid() == 0 && !allow_root) {
         LOG_FATAL_ERR(EXIT_FAILURE, "XLIB MAIN", "You can't run uTox as root unless --allow-root is set.");
     }
 
     // We need to parse_args before calling utox_init()
     utox_init();
-
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         LOG_NOTE("XLIB", "Start on boot not supported on this OS, please use your distro suggested method!\n");
@@ -745,7 +736,7 @@ int main(int argc, char *argv[]) {
     atom_init();
 
     native_window_create_main(settings.window_x, settings.window_y, settings.window_width, settings.window_height, argv, argc);
-    main_window.gc = DefaultGC(display, def_screen_num);
+    main_window.gc      = DefaultGC(display, def_screen_num);
     main_window.drawbuf = XCreatePixmap(display, main_window.window, settings.window_width, settings.window_height, default_depth);
 
     /* choose available libraries for optional UI stuff */
@@ -785,8 +776,7 @@ int main(int argc, char *argv[]) {
     gcval.subwindow_mode = IncludeInferiors;
 
     /* GC for the */
-    scr_grab_window.gc = XCreateGC(display, RootWindow(display, def_screen_num), GCFunction | GCForeground | GCBackground | GCSubwindowMode,
-                       &gcval);
+    scr_grab_window.gc = XCreateGC(display, RootWindow(display, def_screen_num), GCFunction | GCForeground | GCBackground | GCSubwindowMode, &gcval);
 
     XWindowAttributes attr;
     XGetWindowAttributes(display, root_window, &attr);
@@ -797,8 +787,7 @@ int main(int argc, char *argv[]) {
     /* Xft draw context/color */
     main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf, main_window.pictformat, 0, NULL);
 
-
-    XRenderColor xrcolor = { 0,0,0,0 };
+    XRenderColor xrcolor = { 0, 0, 0, 0 };
     main_window.colorpic = XRenderCreateSolidFill(display, &xrcolor);
 
     if (set_show_window) {
@@ -817,8 +806,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (xim) {
-        if ((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, main_window.window,
-                             XNFocusWindow, main_window.window, NULL))) {
+        if ((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, main_window.window, XNFocusWindow, main_window.window, NULL))) {
             XSetICFocus(xic);
         } else {
             LOG_ERR("XLIB", "Cannot open input method");
@@ -831,13 +819,13 @@ int main(int argc, char *argv[]) {
     ui_size(settings.window_width, settings.window_height);
 
     create_tray_icon();
-    /* Registers the app in the Unity MM */
-    #ifdef UNITY
+/* Registers the app in the Unity MM */
+#ifdef UNITY
     unity_running = is_unity_running();
     if (unity_running) {
         mm_register();
     }
-    #endif
+#endif
 
     /* draw */
     native_window_set_target(&main_window);

@@ -14,7 +14,7 @@ bool chrono_thread_init = false;
 static void chrono_thread(void *args) {
     LOG_INFO("Chono", "Thread starting");
 
-    CHRONO_INFO *info = args;
+    CHRONO_INFO *info  = args;
     chrono_thread_init = true;
     while (info->ptr != info->target) {
         info->ptr += info->step;
@@ -48,7 +48,7 @@ bool chrono_end(CHRONO_INFO *info) {
 
     (*info).finished = true;
 
-    while (chrono_thread_init) { //wait for thread to die
+    while (chrono_thread_init) { // wait for thread to die
         yieldcpu(1);
     }
 

@@ -18,7 +18,7 @@ static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
 
         if (*w < min_w) {
             *w = min_w + SCALE(12); // 12 seems like a perfectly fine number,
-                                    // eventually we should use logic here.
+            // eventually we should use logic here.
         }
     }
 
@@ -80,8 +80,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height) {
     }
 }
 
-bool button_mmove(BUTTON *b, int UNUSED(x), int UNUSED(y), int width, int height, int mx, int my, int UNUSED(dx),
-                  int UNUSED(dy)) {
+bool button_mmove(BUTTON *b, int UNUSED(x), int UNUSED(y), int width, int height, int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
     // Ensure that font is set before calculating position and width.
     setfont(FONT_SELF_NAME);
 
@@ -152,7 +151,6 @@ bool button_mleave(BUTTON *b) {
 
     return 0;
 }
-
 
 // Logic update functions
 // TODO should these live here?

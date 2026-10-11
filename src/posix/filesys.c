@@ -53,7 +53,7 @@ char *native_get_filepath(const char *name) {
     }
 
     if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
-        LOG_ERR("Filesys", "Load directory name too long" );
+        LOG_ERR("Filesys", "Load directory name too long");
         free(path);
         return NULL;
     }
@@ -111,11 +111,11 @@ FILE *native_get_file_simple(const char *path, UTOX_FILE_OPTS opts) {
     FILE *fp = fopen(path, mode);
 
     if (!fp && opts & UTOX_FILE_OPTS_READ && opts & UTOX_FILE_OPTS_WRITE) {
-        LOG_WARN("POSIX", "Unable to simple open, falling back to fd" );
+        LOG_WARN("POSIX", "Unable to simple open, falling back to fd");
         // read won't create a file if it doesn't already exist. If we're allowed to write, let's try
         // to create the file, then reopen it.
         int fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-        fp = fdopen(fd, mode);
+        fp     = fdopen(fd, mode);
     }
 
     return fp;
@@ -142,7 +142,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
     }
 
     if (strlen((char *)path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
-        LOG_ERR("Filesys", "Load directory name too long" );
+        LOG_ERR("Filesys", "Load directory name too long");
         return NULL;
     } else {
         snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "%s", name);
@@ -156,11 +156,12 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
 
     if (opts & UTOX_FILE_OPTS_MKDIR) {
         // remove file name from path
-        uint8_t push;
+        uint8_t  push;
         uint8_t *p = path + strlen((char *)path);
-        while (*--p != '/');
+        while (*--p != '/')
+            ;
         push = *++p;
-        *p = 0;
+        *p   = 0;
         native_create_dir(path);
         *p = push;
     }
@@ -168,7 +169,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
     FILE *fp = native_get_file_simple((char *)path, opts);
 
     if (fp == NULL) {
-        LOG_TRACE("Filesys", "Could not open %s" , path);
+        LOG_TRACE("Filesys", "Could not open %s", path);
         return NULL;
     }
 
