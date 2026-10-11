@@ -84,7 +84,7 @@ cd ..
 rm -rf openal
 
 # uTox includes <OpenAL/...>; OpenAL Soft installs headers under AL/
-# On Cygwin/MSYS, use a real directory copy: AppVeyor cache CRC cannot read symlinks.
+# On Cygwin/MSYS, use a real directory copy: native MinGW tools do not follow Cygwin symlinks.
 if [ -d "$CACHE_DIR/usr/include/AL" ]; then
   case "$(uname -s 2>/dev/null)" in
     CYGWIN*|MSYS*|MINGW*)
