@@ -1,4 +1,4 @@
-# μTox [![IRC: #utox on libera.chat](https://img.shields.io/badge/libera.chat-%23utox-brightgreen.svg)](https://web.libera.chat/?channels=#utox) ![Actions Build Status](https://github.com/uTox/uTox/workflows/.github/workflows/ci.yaml/badge.svg)
+# μTox [![IRC: #utox on libera.chat](https://img.shields.io/badge/libera.chat-%23utox-brightgreen.svg)](https://web.libera.chat/?channels=#utox) [![Actions Build Status](https://github.com/uTox/uTox/actions/workflows/ci.yaml/badge.svg?branch=develop)](https://github.com/uTox/uTox/actions/workflows/ci.yaml?query=branch%3Adevelop)
 
 The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
