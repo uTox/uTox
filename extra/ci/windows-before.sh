@@ -34,12 +34,6 @@ export TOXCORE_CMAKE_ARGS
 . ./extra/ci/common/build_openal.sh
 . ./extra/ci/common/fix_openal_headers.sh
 
-# MinGW OpenAL Soft installs as libOpenAL32.a; some find modules look for libopenal.a.
-cp "$CACHE_DIR/usr/lib/libOpenAL32.a" "$CACHE_DIR/usr/lib/libopenal.a" || true
-if [ ! -f "$CACHE_DIR/usr/lib/libOpenAL32.a" ] && [ -f "$CACHE_DIR/usr/lib/libopenal.a" ]; then
-  cp "$CACHE_DIR/usr/lib/libopenal.a" "$CACHE_DIR/usr/lib/libOpenAL32.a"
-fi
-
 export CC=x86_64-w64-mingw32-gcc
 . ./extra/ci/common/filter_audio.sh
 x86_64-w64-mingw32-ranlib "$CACHE_DIR/usr/lib/libfilteraudio.a"
