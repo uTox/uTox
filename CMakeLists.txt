@@ -165,7 +165,7 @@ endif()
 # C compiler flags
 #######################################################################
 
-set(CMAKE_C_STANDARD 11) # this requires at least cmake 3.1
+set(CMAKE_C_STANDARD 23) # this requires at least cmake 3.21
 
 include(CheckCCompilerFlag)
 
