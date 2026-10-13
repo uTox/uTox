@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 bool native_create_dir_tree(const char *path) {
     size_t size = strlen(path);
@@ -108,6 +109,12 @@ FILE *native_get_file_simple(const char *path, UTOX_FILE_OPTS opts) {
     char mode[4] = { 0 };
     opts_to_sysmode(opts, mode);
 
+    struct stat st;
+    if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+        /* Never open/create over a directory. */
+        return NULL;
+    }
+
     FILE *fp = fopen(path, mode);
 
     if (!fp && opts & UTOX_FILE_OPTS_READ && opts & UTOX_FILE_OPTS_WRITE) {
@@ -115,7 +122,13 @@ FILE *native_get_file_simple(const char *path, UTOX_FILE_OPTS opts) {
         // read won't create a file if it doesn't already exist. If we're allowed to write, let's try
         // to create the file, then reopen it.
         int fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        if (fd < 0) {
+            return NULL;
+        }
         fp = fdopen(fd, mode);
+        if (!fp) {
+            close(fd);
+        }
     }
 
     return fp;

@@ -37,6 +37,7 @@ static void unlink_log(const char *id) {
     char path[UTOX_FILE_NAME_LENGTH];
     snprintf(path, sizeof(path), "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id);
     remove(path);
+    rmdir(path); /* may be a directory after the negative save test */
     utox_remove_friend_chatlog((char *)id);
 }
 
@@ -544,7 +545,11 @@ bool test_export_calendar_and_eof(void) {
 
     /* Directory in place of the log: open for write/count/update must fail. */
     snprintf(path, sizeof(path), "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id_str);
-    native_create_dir((uint8_t *)path);
+    remove(path);
+    rmdir(path);
+    if (!native_create_dir((uint8_t *)path)) {
+        FAIL("could not create directory in place of log");
+    }
     if (utox_save_chatlog(id_str, (uint8_t *)&hdr, sizeof(hdr)) != 0) {
         rmdir(path);
         FAIL("save over a directory should fail");

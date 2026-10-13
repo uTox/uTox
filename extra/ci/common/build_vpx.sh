@@ -14,9 +14,11 @@ if ! ([ -f "${CACHE_DIR}/libvpx.sha" ] && diff "${CACHE_DIR}/libvpx.sha" libvpx.
     *win*) VPX_CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -fno-asynchronous-unwind-tables" ;;
   esac
   case "$(uname -s 2>/dev/null)" in CYGWIN*) set +e ;; esac
+  # ${TARGET_TRGT:+...} omits a blank argv when unset (native / musl builds).
+  # ${CROSS:-}: empty is fine for native (musl/linux); set -u otherwise aborts.
   CFLAGS="${CFLAGS:-} ${VPX_CFLAGS}" \
-  CROSS="${CROSS}" \
-  ./configure "$TARGET_TRGT" \
+  CROSS="${CROSS:-}" \
+  ./configure ${TARGET_TRGT:+"$TARGET_TRGT"} \
               --prefix="${CACHE_DIR}/usr" \
               --enable-static \
               --disable-examples \

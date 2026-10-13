@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
@@ -270,7 +271,7 @@ bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
 
     snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
-    return utox_remove_file((uint8_t*)name, sizeof(name));
+    return utox_remove_file((uint8_t *)name, strlen(name));
 }
 
 void utox_export_chatlog_init(uint32_t friend_number) {

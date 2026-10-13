@@ -11,7 +11,8 @@ if ! ([ -f "$CACHE_DIR/libsodium.sha" ] && diff "$CACHE_DIR/libsodium.sha" libso
   ./autogen.sh
   # Cygwin: inherited SHELLOPTS/errexit breaks autoconf compiler tests.
   case "$(uname -s 2>/dev/null)" in CYGWIN*) set +e ;; esac
-  ./configure "$TARGET_HOST" \
+  # ${TARGET_HOST:+...} omits a blank argv when unset (native / musl builds).
+  ./configure ${TARGET_HOST:+"$TARGET_HOST"} \
               --prefix="$CACHE_DIR/usr" \
               --disable-shared \
               --enable-static

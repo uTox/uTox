@@ -27,8 +27,9 @@ if ! [ -f "$CACHE_DIR/usr/lib/pkgconfig/opus.pc" ]; then
     *mingw*) OPUS_CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -fno-asynchronous-unwind-tables" ;;
   esac
   case "$(uname -s 2>/dev/null)" in CYGWIN*) set +e ;; esac
+  # ${TARGET_HOST:+...} omits a blank argv when unset (native / musl builds).
   CFLAGS="${CFLAGS:-} ${OPUS_CFLAGS}" \
-  ./configure "$TARGET_HOST" \
+  ./configure ${TARGET_HOST:+"$TARGET_HOST"} \
               --prefix="$CACHE_DIR/usr" \
               --disable-extra-programs \
               --disable-doc \

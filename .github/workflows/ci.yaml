@@ -27,11 +27,11 @@ jobs:
             compiler: x86_64-w64-mingw32-gcc
             werror: "OFF"
 
-          # - name: "macOS"
-          #   os: macos-latest
-          #   build: osx
-          #   compiler: clang
-          #   werror: "OFF"
+          - name: "macOS"
+            os: macos-latest
+            build: osx
+            compiler: clang
+            werror: "OFF"
     steps:
       - uses: actions/checkout@v7
         with:
@@ -86,6 +86,51 @@ jobs:
         run: ./extra/ci/debug_failure.sh || true
         env:
           BUILD: ${{ matrix.build }}
+
+  linux-musl:
+    name: Linux musl (Alpine)
+    runs-on: ubuntu-24.04
+    container:
+      image: alpine:3.21
+    env:
+      ENABLE_WERROR: "ON"
+      STATIC_ALL: "ON"
+      STATIC_TOXCORE: "ON"
+      ENABLE_DBUS: "OFF"
+      ENABLE_ASAN: "OFF"
+      ENABLE_FILTERAUDIO: "ON"
+      # Keep cache inside the workspace so debug_failure.sh can see it.
+      CACHE_DIR: ${{ github.workspace }}/cache/linux-musl
+    steps:
+      - name: Install Alpine packages
+        run: |
+          apk add --no-cache \
+            bash nodejs \
+            build-base cmake git curl pkgconf linux-headers \
+            autoconf automake libtool diffutils \
+            yasm nasm \
+            freetype-dev fontconfig-dev \
+            libx11-dev libxrender-dev libxext-dev \
+            openal-soft-dev \
+            v4l-utils-dev
+
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+          fetch-depth: 5
+
+      - name: Build and test
+        run: |
+          set -ex
+          mkdir -p "$CACHE_DIR"
+          ./extra/ci/linux-musl-before.sh
+          ./extra/ci/linux-script.sh
+
+      - name: Dump cache on failure
+        if: failure()
+        run: ./extra/ci/debug_failure.sh || true
+        env:
+          BUILD: linux-musl
 
   windows-cygwin:
     name: Windows x64 (Cygwin)
