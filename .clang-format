@@ -1,0 +1,19 @@
+---
+Language: C
+BasedOnStyle: LLVM
+ColumnLimit: 0
+IndentWidth: 4
+IndentCaseLabels: true
+AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveDeclarations: Consecutive
+AlignTrailingComments: false
+PointerAlignment: Right
+SortIncludes: false
+SpacesInContainerLiterals: true
+BreakAfterOpenBracketBracedList: true
+Cpp11BracedListStyle: false
+SkipMacroDefinitionBody: true
+InsertTrailingCommas: Wrapped
+ReflowComments: IndentOnly
+BinPackArguments: false
+BinPackParameters: false
