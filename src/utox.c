@@ -228,7 +228,19 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             if (f->ft_autoaccept) {
                 LOG_TRACE("Toxcore", "Auto Accept enabled for this friend: sending accept to system" );
-                native_autoselect_dir_ft(param1, file);
+
+                uint8_t *search = file->name;
+                uint8_t *end = file->name + file->name_length;
+                while (search != end && *search != 0 && *search != '/' && *search != '\\') {
+                    search++;
+                }
+                if (search != end) {
+                    LOG_ERR("Native", "invalid filename");
+                    f->ft_autoaccept = 0;
+                    postmessage_toxcore(TOX_FILE_CANCEL, param1, file->file_number, file);
+                } else {
+                    native_autoselect_dir_ft(param1, file);
+                }
             }
 
             MSG_HEADER *m = message_add_type_file(&f->msg, (param2 + 1) << 16, file->incoming, file->inline_img,
