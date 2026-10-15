@@ -78,12 +78,25 @@ static void incoming_ftinfo_name(char *out, size_t out_sz) {
     snprintf(out, out_sz, "%.*s.ftinfo", TOX_HASH_LENGTH * 2, hex);
 }
 
-static bool write_resume_blob(const char *name, FILE_TRANSFER *saved) {
+static bool write_resume_v1(const char *name, const FILE_TRANSFER *saved) {
+    FILE_TRANSFER_RESUME_V1 disk = { 0 };
+    disk.magic         = FT_RESUME_MAGIC;
+    disk.version       = FT_RESUME_VERSION;
+    disk.incoming      = saved->incoming ? 1 : 0;
+    disk.resumeable    = saved->resumeable ? 1 : 0;
+    disk.friend_number = saved->friend_number;
+    disk.file_number   = saved->file_number;
+    memcpy(disk.data_hash, saved->data_hash, TOX_HASH_LENGTH);
+    memcpy(disk.path, saved->path, UTOX_FILE_NAME_LENGTH);
+    disk.path[UTOX_FILE_NAME_LENGTH - 1] = 0;
+    disk.target_size  = (uint64_t)saved->target_size;
+    disk.current_size = (uint64_t)saved->current_size;
+
     FILE *fp = utox_get_file(name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
     if (!fp) {
         return false;
     }
-    bool ok = fwrite(saved, sizeof(FILE_TRANSFER), 1, fp) == 1;
+    bool ok = fwrite(&disk, sizeof(disk), 1, fp) == 1;
     fclose(fp);
     return ok;
 }
@@ -507,7 +520,7 @@ bool test_incoming_resume_from_disk(void) {
 
     char info[UTOX_FILE_NAME_LENGTH];
     incoming_ftinfo_name(info, sizeof info);
-    if (!write_resume_blob(info, &saved)) {
+    if (!write_resume_v1(info, &saved)) {
         FAIL("write .ftinfo");
     }
 
@@ -623,6 +636,214 @@ bool test_incoming_inline_not_png(void) {
     return true;
 }
 
+bool test_incoming_resume_legacy_blob_rejected(void) {
+    reset_ft();
+    char info[UTOX_FILE_NAME_LENGTH];
+    incoming_ftinfo_name(info, sizeof info);
+
+    FILE_TRANSFER legacy;
+    memset(&legacy, 0, sizeof legacy);
+    legacy.in_use = true;
+    legacy.incoming = true;
+    legacy.resumeable = true;
+    memcpy(legacy.data_hash, mock_incoming_file_id, TOX_HASH_LENGTH);
+    snprintf((char *)legacy.path, sizeof legacy.path, "%s", "./tox/legacy.bin");
+
+    FILE *fp = utox_get_file(info, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+    if (!fp) {
+        FAIL("write legacy .ftinfo");
+    }
+    fwrite(&legacy, sizeof(legacy), 1, fp);
+    fclose(fp);
+
+    const uint8_t name[] = "legacy.bin";
+    mock_cb_file_recv(TOX_DUMMY, 0, incoming_fileno(0), TOX_FILE_KIND_DATA, 4, name, sizeof name - 1, NULL);
+    if (mock_last_utox_msg != FILE_INCOMING_NEW) {
+        FAIL("legacy FILE_TRANSFER blob must fall back to new incoming");
+    }
+    cancel_open();
+    utox_get_file(info, NULL, UTOX_FILE_OPTS_DELETE);
+    return true;
+}
+
+bool test_incoming_resume_bad_path_rejected(void) {
+    reset_ft();
+    FILE_TRANSFER saved;
+    memset(&saved, 0, sizeof saved);
+    saved.in_use = true;
+    saved.incoming = true;
+    saved.resumeable = true;
+    memcpy(saved.data_hash, mock_incoming_file_id, TOX_HASH_LENGTH);
+    snprintf((char *)saved.path, sizeof saved.path, "%s", "../evil");
+
+    char info[UTOX_FILE_NAME_LENGTH];
+    incoming_ftinfo_name(info, sizeof info);
+    if (!write_resume_v1(info, &saved)) {
+        FAIL("write bad-path .ftinfo");
+    }
+
+    const uint8_t name[] = "evil";
+    mock_cb_file_recv(TOX_DUMMY, 0, incoming_fileno(0), TOX_FILE_KIND_DATA, 4, name, sizeof name - 1, NULL);
+    if (mock_last_utox_msg != FILE_INCOMING_NEW) {
+        FAIL("V1 with .. path must fall back to new incoming");
+    }
+    cancel_open();
+    return true;
+}
+
+static bool write_resume_v1_raw(const char *name, FILE_TRANSFER_RESUME_V1 *disk) {
+    FILE *fp = utox_get_file(name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
+    if (!fp) {
+        return false;
+    }
+    bool ok = fwrite(disk, sizeof(*disk), 1, fp) == 1;
+    fclose(fp);
+    return ok;
+}
+
+bool test_incoming_resume_bad_magic_rejected(void) {
+    reset_ft();
+    FILE_TRANSFER_RESUME_V1 disk = { 0 };
+    disk.magic         = 0xDEADBEEFu;
+    disk.version       = FT_RESUME_VERSION;
+    disk.incoming      = 1;
+    disk.resumeable    = 1;
+    memcpy(disk.data_hash, mock_incoming_file_id, TOX_HASH_LENGTH);
+    snprintf((char *)disk.path, sizeof disk.path, "%s", "./tox/x.bin");
+
+    char info[UTOX_FILE_NAME_LENGTH];
+    incoming_ftinfo_name(info, sizeof info);
+    if (!write_resume_v1_raw(info, &disk)) {
+        FAIL("write bad-magic .ftinfo");
+    }
+
+    const uint8_t name[] = "x.bin";
+    mock_cb_file_recv(TOX_DUMMY, 0, incoming_fileno(0), TOX_FILE_KIND_DATA, 4, name, sizeof name - 1, NULL);
+    if (mock_last_utox_msg != FILE_INCOMING_NEW) {
+        FAIL("bad magic must fall back to new incoming");
+    }
+    cancel_open();
+    return true;
+}
+
+bool test_incoming_resume_bad_version_rejected(void) {
+    reset_ft();
+    FILE_TRANSFER_RESUME_V1 disk = { 0 };
+    disk.magic         = FT_RESUME_MAGIC;
+    disk.version       = 99;
+    disk.incoming      = 1;
+    disk.resumeable    = 1;
+    memcpy(disk.data_hash, mock_incoming_file_id, TOX_HASH_LENGTH);
+    snprintf((char *)disk.path, sizeof disk.path, "%s", "./tox/x.bin");
+
+    char info[UTOX_FILE_NAME_LENGTH];
+    incoming_ftinfo_name(info, sizeof info);
+    if (!write_resume_v1_raw(info, &disk)) {
+        FAIL("write bad-version .ftinfo");
+    }
+
+    const uint8_t name[] = "x.bin";
+    mock_cb_file_recv(TOX_DUMMY, 0, incoming_fileno(0), TOX_FILE_KIND_DATA, 4, name, sizeof name - 1, NULL);
+    if (mock_last_utox_msg != FILE_INCOMING_NEW) {
+        FAIL("bad version must fall back to new incoming");
+    }
+    cancel_open();
+    return true;
+}
+
+bool test_incoming_resume_size_overflow_rejected(void) {
+    reset_ft();
+    FILE_TRANSFER saved;
+    memset(&saved, 0, sizeof saved);
+    saved.in_use = true;
+    saved.incoming = true;
+    saved.resumeable = true;
+    saved.current_size = 100;
+    saved.target_size = 8;
+    memcpy(saved.data_hash, mock_incoming_file_id, TOX_HASH_LENGTH);
+    snprintf((char *)saved.path, sizeof saved.path, "%s", "./tox/resume.bin");
+
+    char info[UTOX_FILE_NAME_LENGTH];
+    incoming_ftinfo_name(info, sizeof info);
+    if (!write_resume_v1(info, &saved)) {
+        FAIL("write overflow .ftinfo");
+    }
+
+    const uint8_t name[] = "resume.bin";
+    mock_cb_file_recv(TOX_DUMMY, 0, incoming_fileno(0), TOX_FILE_KIND_DATA, 8, name, sizeof name - 1, NULL);
+    if (mock_last_utox_msg != FILE_INCOMING_NEW) {
+        FAIL("current_size > target_size must fall back to new incoming");
+    }
+    cancel_open();
+    return true;
+}
+
+bool test_incoming_resume_offset_exceeds_offered_size(void) {
+    reset_ft();
+    FILE_TRANSFER saved;
+    memset(&saved, 0, sizeof saved);
+    saved.in_use = true;
+    saved.incoming = true;
+    saved.resumeable = true;
+    /* Valid on disk (current <= target), but larger than the Tox-offered size. */
+    saved.current_size = 6;
+    saved.target_size = 10;
+    memcpy(saved.data_hash, mock_incoming_file_id, TOX_HASH_LENGTH);
+    snprintf((char *)saved.path, sizeof saved.path, "%s", "./tox/resume-stale.bin");
+
+    char info[UTOX_FILE_NAME_LENGTH];
+    incoming_ftinfo_name(info, sizeof info);
+    if (!write_resume_v1(info, &saved)) {
+        FAIL("write stale-offset .ftinfo");
+    }
+
+    const uint8_t name[] = "offered.bin";
+    mock_cb_file_recv(TOX_DUMMY, 0, incoming_fileno(0), TOX_FILE_KIND_DATA, 4, name, sizeof name - 1, NULL);
+    if (mock_last_utox_msg != FILE_INCOMING_NEW) {
+        FAIL("offset > offered size must fall back to new incoming");
+    }
+
+    FILE_TRANSFER *ft = &test_friend.ft_incoming[0];
+    if (ft->current_size != 0) {
+        FAIL("abandoned resume must clear current_size, got %zu", ft->current_size);
+    }
+    if (ft->path[0] != '\0') {
+        FAIL("abandoned resume must clear path");
+    }
+    if (!ft->name || ft->name_length != sizeof name - 1
+        || memcmp(ft->name, name, sizeof name - 1) != 0) {
+        FAIL("abandoned resume must restore Tox-offered name");
+    }
+
+    cancel_open();
+    return true;
+}
+
+bool test_incoming_resume_dot_basename_rejected(void) {
+    reset_ft();
+    FILE_TRANSFER saved;
+    memset(&saved, 0, sizeof saved);
+    saved.in_use = true;
+    saved.incoming = true;
+    saved.resumeable = true;
+    memcpy(saved.data_hash, mock_incoming_file_id, TOX_HASH_LENGTH);
+    snprintf((char *)saved.path, sizeof saved.path, "%s", "./tox/.");
+
+    char info[UTOX_FILE_NAME_LENGTH];
+    incoming_ftinfo_name(info, sizeof info);
+    if (!write_resume_v1(info, &saved)) {
+        FAIL("write dot-basename .ftinfo");
+    }
+
+    const uint8_t name[] = "x.bin";
+    mock_cb_file_recv(TOX_DUMMY, 0, incoming_fileno(0), TOX_FILE_KIND_DATA, 4, name, sizeof name - 1, NULL);
+    if (mock_last_utox_msg != FILE_INCOMING_NEW) {
+        FAIL("basename . must fall back to new incoming");
+    }
+    cancel_open();
+    return true;
+}
+
 bool test_friend_online_outgoing_resume(void) {
     reset_ft();
     FILE *payload = make_payload("./tox/out.bin", "abcd");
@@ -640,7 +861,7 @@ bool test_friend_online_outgoing_resume(void) {
 
     char info[UTOX_FILE_NAME_LENGTH];
     snprintf(info, sizeof info, "%.*s%02i.ftoutfo", TOX_PUBLIC_KEY_SIZE * 2, test_friend.id_str, 0);
-    if (!write_resume_blob(info, &saved)) {
+    if (!write_resume_v1(info, &saved)) {
         FAIL("write .ftoutfo");
     }
 
@@ -674,6 +895,13 @@ int main(void) {
     RUN_TEST(test_friend_online_without_resume_files);
     RUN_TEST(test_incoming_resume_from_disk);
     RUN_TEST(test_incoming_resume_size_mismatch);
+    RUN_TEST(test_incoming_resume_legacy_blob_rejected);
+    RUN_TEST(test_incoming_resume_bad_path_rejected);
+    RUN_TEST(test_incoming_resume_bad_magic_rejected);
+    RUN_TEST(test_incoming_resume_bad_version_rejected);
+    RUN_TEST(test_incoming_resume_size_overflow_rejected);
+    RUN_TEST(test_incoming_resume_offset_exceeds_offered_size);
+    RUN_TEST(test_incoming_resume_dot_basename_rejected);
     RUN_TEST(test_start_write_unwritable);
     RUN_TEST(test_incoming_chunk_speed);
     RUN_TEST(test_incoming_inline_not_png);
