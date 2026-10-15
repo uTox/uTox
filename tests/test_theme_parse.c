@@ -152,9 +152,9 @@ bool test_theme_load_builtins(void) {
 
 bool test_theme_load_custom_file(void) {
     settings.portable_mode = true;
-    native_create_dir((uint8_t *)"./tox/");
+    native_create_dir((uint8_t *)TEST_TOX_DIR);
 
-    FILE *fp = fopen("./tox/utox_theme.ini", "wb");
+    FILE *fp = fopen(TEST_TOX_DIR "utox_theme.ini", "wb");
     if (!fp) {
         FAIL("write utox_theme.ini");
     }
@@ -164,10 +164,10 @@ bool test_theme_load_custom_file(void) {
     theme_load(THEME_LIGHT);
     theme_load(THEME_CUSTOM);
     if (COLOR_MAIN_TEXT != RGB(0x11, 0x22, 0x33)) {
-        remove("./tox/utox_theme.ini");
+        remove(TEST_TOX_DIR "utox_theme.ini");
         FAIL("custom file theme not applied, got %08x", COLOR_MAIN_TEXT);
     }
-    remove("./tox/utox_theme.ini");
+    remove(TEST_TOX_DIR "utox_theme.ini");
 
     theme_load(THEME_LIGHT);
     const uint32_t light = COLOR_MAIN_TEXT;
@@ -177,13 +177,13 @@ bool test_theme_load_custom_file(void) {
     }
 
     /* Empty file: fread(size=0) fails. */
-    fp = fopen("./tox/utox_theme.ini", "wb");
+    fp = fopen(TEST_TOX_DIR "utox_theme.ini", "wb");
     if (!fp) {
         FAIL("write empty utox_theme.ini");
     }
     fclose(fp);
     theme_load(THEME_CUSTOM);
-    remove("./tox/utox_theme.ini");
+    remove(TEST_TOX_DIR "utox_theme.ini");
     return true;
 }
 

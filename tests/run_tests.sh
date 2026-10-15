@@ -12,6 +12,6 @@ if [ -z "${LSAN_OPTIONS+x}" ]; then
     export LSAN_OPTIONS=print_suppressions=0
 fi
 
-# remove ./tox folder before each test to have clean environment
-rm -rf ./tox
+# remove portable save folders before each test to have a clean environment
+rm -rf ./tox ./Tox
 ctest -VV

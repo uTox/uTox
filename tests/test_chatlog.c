@@ -35,7 +35,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
 
 static void unlink_log(const char *id) {
     char path[UTOX_FILE_NAME_LENGTH];
-    snprintf(path, sizeof(path), "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id);
+    snprintf(path, sizeof(path), TEST_TOX_DIR "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id);
     remove(path);
     rmdir(path); /* may be a directory after the negative save test */
     utox_remove_friend_chatlog((char *)id);
@@ -265,7 +265,7 @@ bool test_corrupt_tail(void) {
 
     /* Append bytes shorter than a header ? not a complete record. */
     char path[UTOX_FILE_NAME_LENGTH];
-    snprintf(path, sizeof(path), "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id_str);
+    snprintf(path, sizeof(path), TEST_TOX_DIR "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id_str);
     FILE *fp = fopen(path, "ab");
     if (!fp) {
         unlink_log(id_str);
@@ -335,7 +335,7 @@ bool test_oversized_and_truncated_records(void) {
     free(ok);
 
     char path[UTOX_FILE_NAME_LENGTH];
-    snprintf(path, sizeof(path), "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id_str);
+    snprintf(path, sizeof(path), TEST_TOX_DIR "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id_str);
     FILE *fp = fopen(path, "ab");
     if (!fp) {
         unlink_log(id_str);
@@ -422,7 +422,7 @@ bool test_export_chatlog(void) {
     utox_save_chatlog(id_str, c, len);
     free(c);
 
-    const char *out_path = "./tox/chatlog_export_test.txt";
+    const char *out_path = TEST_TOX_DIR "chatlog_export_test.txt";
     remove(out_path);
     FILE *out = fopen(out_path, "wb");
     if (!out) {
@@ -480,7 +480,7 @@ bool test_export_calendar_and_eof(void) {
     utox_save_chatlog(id_str, c, len);
     free(c);
 
-    const char *out_path = "./tox/chatlog_export_cal.txt";
+    const char *out_path = TEST_TOX_DIR "chatlog_export_cal.txt";
     remove(out_path);
     FILE *out = fopen(out_path, "wb");
     if (!out) {
@@ -505,8 +505,18 @@ bool test_export_calendar_and_eof(void) {
     /* Truncated author so export hits EOF in fgetc loops. */
     unlink_log(id_str);
     char path[UTOX_FILE_NAME_LENGTH];
-    snprintf(path, sizeof(path), "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id_str);
-    native_create_dir((uint8_t *)"./tox/");
+    snprintf(path, sizeof(path), TEST_TOX_DIR "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id_str);
+#ifdef _WIN32
+    {
+        /* SHCreateDirectoryEx rejects the relative TEST_TOX_DIR. */
+        extern char portable_mode_save_path[];
+        char absdir[UTOX_FILE_NAME_LENGTH];
+        snprintf(absdir, sizeof absdir, "%s\\Tox", portable_mode_save_path);
+        native_create_dir((uint8_t *)absdir);
+    }
+#else
+    native_create_dir((uint8_t *)TEST_TOX_DIR);
+#endif
     FILE *fp = fopen(path, "wb");
     if (!fp) {
         FAIL("open truncated-author log");
@@ -544,12 +554,23 @@ bool test_export_calendar_and_eof(void) {
     unlink_log(id_str);
 
     /* Directory in place of the log: open for write/count/update must fail. */
-    snprintf(path, sizeof(path), "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id_str);
+    snprintf(path, sizeof(path), TEST_TOX_DIR "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id_str);
     remove(path);
     rmdir(path);
+#ifdef _WIN32
+    {
+        extern char portable_mode_save_path[];
+        char abs_path[UTOX_FILE_NAME_LENGTH];
+        snprintf(abs_path, sizeof abs_path, "%s\\%s", portable_mode_save_path, path + 2);
+        if (!native_create_dir((uint8_t *)abs_path)) {
+            FAIL("could not create directory in place of log");
+        }
+    }
+#else
     if (!native_create_dir((uint8_t *)path)) {
         FAIL("could not create directory in place of log");
     }
+#endif
     if (utox_save_chatlog(id_str, (uint8_t *)&hdr, sizeof(hdr)) != 0) {
         rmdir(path);
         FAIL("save over a directory should fail");

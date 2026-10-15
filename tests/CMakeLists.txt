@@ -25,6 +25,9 @@ add_library(utox-test-mock
 )
 set_target_properties(utox-test-mock PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 target_link_libraries(utox-test-mock pthread)
+if(WIN32)
+    target_link_libraries(utox-test-mock shell32 ole32)
+endif()
 
 # Settings INI test links production settings.c (via #include) and must not
 # pull mock_settings (which stubs config_load/save and owns SETTINGS settings).
@@ -36,6 +39,9 @@ add_library(utox-test-mock-no-settings
 )
 set_target_properties(utox-test-mock-no-settings PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 target_link_libraries(utox-test-mock-no-settings pthread)
+if(WIN32)
+    target_link_libraries(utox-test-mock-no-settings shell32 ole32)
+endif()
 
 # Stubs for domain tests that #include friend/groups/messages/commands/qr/tox_callbacks.
 add_library(utox-test-mock-domain mock/mock_domain.c)
@@ -55,6 +61,9 @@ add_library(utox-test-mock-nothread
 )
 set_target_properties(utox-test-mock-nothread PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 target_link_libraries(utox-test-mock-nothread pthread)
+if(WIN32)
+    target_link_libraries(utox-test-mock-nothread shell32 ole32)
+endif()
 
 # Draw/i18n/color stubs for ui widget tests (button/switch/dropdown/tooltip/contextmenu/edit/ui_text).
 # Provides thread() that does not spawn — tooltip_thread is an infinite loop.

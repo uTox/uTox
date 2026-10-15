@@ -122,7 +122,7 @@ static uint8_t *create_numbered_message(unsigned index, size_t *length) {
 
 static void unlink_test_log(const char *id) {
     char path[UTOX_FILE_NAME_LENGTH];
-    snprintf(path, sizeof(path), "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id);
+    snprintf(path, sizeof(path), TEST_TOX_DIR "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id);
     remove(path);
     utox_remove_friend_chatlog((char *)id);
 }
@@ -922,10 +922,10 @@ bool test_drop_last_clears_indices(void) {
 bool test_load_older_empty_batch(void) {
     const char *id = MOCK_FRIEND_ID;
     unlink_test_log(id);
-    native_create_dir((uint8_t *)"./tox/");
+    native_create_dir((uint8_t *)TEST_TOX_DIR);
 
     char path[UTOX_FILE_NAME_LENGTH];
-    snprintf(path, sizeof(path), "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id);
+    snprintf(path, sizeof(path), TEST_TOX_DIR "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, id);
     FILE *fp = fopen(path, "wb");
     if (!fp) {
         FAIL("open truncated-only log");

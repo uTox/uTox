@@ -2,13 +2,40 @@
 #include "utf8.h"
 
 #include "../debug.h"
-#include "../filesys.h"
+#include "../native/filesys.h"
 #include "../settings.h"
 
+#include <fcntl.h>
 #include <io.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+bool native_ft_filename_safe(uint8_t *name, size_t name_length) {
+    if (!name || name_length < UTOX_FT_FILENAME_MIN_LENGTH) {
+        return false;
+    }
+
+    if ((name_length == 1 && name[0] == '.')
+        || (name_length == 2 && name[0] == '.' && name[1] == '.')) {
+        return false;
+    }
+
+    for (size_t i = 0; i < name_length; i++) {
+        uint8_t c = name[i];
+        if (c == '\0' || c == '/' || c == '\\') {
+            return false;
+        }
+        if (c < 32) {
+            return false;
+        }
+        if (strchr("<>:\"|?*", c)) {
+            name[i] = '_';
+        }
+    }
+
+    return true;
+}
 
 char *native_get_filepath(const char *name) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
@@ -75,7 +102,12 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
     HANDLE WINAPI winFile = CreateFileW(path, rw, FILE_SHARE_READ, NULL,
                                         create, FILE_ATTRIBUTE_NORMAL, NULL);
 
-    const int handle = _open_osfhandle((intptr_t)winFile, 0);
+    /* Without _O_APPEND, MinGW writes "a" mode at offset 0 and overwrites the file. */
+    int oflag = 0;
+    if (opts & UTOX_FILE_OPTS_APPEND) {
+        oflag |= _O_APPEND;
+    }
+    const int handle = _open_osfhandle((intptr_t)winFile, oflag);
     if (handle == -1) {
         return NULL;
     }
@@ -133,15 +165,25 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
         LOG_FATAL_ERR(EXIT_MALLOC, "WinFilesys", "Unable to allocate memory for file path.");
     }
 
+    size_t used = strnlen(path, sizeof(path));
+
     // Append the subfolder to the path and remove it from the name.
     for (char *folder_divider = strstr(tmp_path, "/");
          folder_divider != NULL;
          folder_divider = strstr(tmp_path, "/"))
     {
         ++folder_divider; // Skip over the / we're pointing to.
-        snprintf(path + strlen(path), strlen(tmp_path) - strlen(folder_divider), tmp_path);
-        char *new_path = tmp_path + strlen(tmp_path) - strlen(folder_divider);
-        tmp_path = new_path;
+        /* Include the separator. snprintf's size counts the NUL, so the old bound dropped it. */
+        size_t seglen = (size_t)(folder_divider - tmp_path);
+        if (used + seglen >= UTOX_FILE_NAME_LENGTH) {
+            LOG_ERR("WinFilesys", "Load directory name too long");
+            free(path_pointer);
+            return NULL;
+        }
+        memcpy(path + used, tmp_path, seglen);
+        used += seglen;
+        path[used] = '\0';
+        tmp_path = folder_divider;
     }
 
     if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
@@ -150,7 +192,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts, bo
         }
     }
 
-    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", tmp_path);
+    snprintf(path + used, UTOX_FILE_NAME_LENGTH - used, "%s", tmp_path);
 
     free(path_pointer);
 

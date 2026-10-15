@@ -30,7 +30,15 @@ void file_save_inline_image_png(MSG_HEADER *msg);
 bool native_save_image_png(const char *name, const uint8_t *image, const int image_size);
 
 typedef struct file_transfer FILE_TRANSFER;
-void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
+
+/** Minimum accepted length of an auto-accept filename, excluding a terminator. */
+#define UTOX_FT_FILENAME_MIN_LENGTH 4
+
+/** @return true if the name is acceptable for auto-accept. */
+bool native_ft_filename_safe(uint8_t *name, size_t name_length);
+
+/** @return true if an accept was posted to toxcore; false if auto-accept could not start. */
+bool native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file);
 
 /**

@@ -67,8 +67,8 @@ void init_ptt(void) {
 }
 
 static void unlink_ini(void) {
-    unlink("./tox/utox_save.ini");
-    rmdir("./tox/utox_save.ini"); /* leftover dir from a previous failed run */
+    unlink(TEST_TOX_DIR "utox_save.ini");
+    rmdir(TEST_TOX_DIR "utox_save.ini"); /* leftover dir from a previous failed run */
 }
 
 bool test_settings_ini_roundtrip(void) {
@@ -145,11 +145,11 @@ bool test_settings_ini_unknown_keys(void) {
     settings.portable_mode = true;
     unlink_ini();
 
-    if (!native_create_dir((uint8_t *)"./tox/")) {
+    if (!native_create_dir((uint8_t *)TEST_TOX_DIR)) {
         /* may already exist */
     }
 
-    FILE *fp = fopen("./tox/utox_save.ini", "wb");
+    FILE *fp = fopen(TEST_TOX_DIR "utox_save.ini", "wb");
     if (!fp) {
         FAIL("unable to write utox_save.ini");
     }
@@ -228,9 +228,9 @@ bool test_config_load_defaults_and_clamps(void) {
 bool test_config_all_sections(void) {
     settings.portable_mode = true;
     unlink_ini();
-    native_create_dir((uint8_t *)"./tox/");
+    native_create_dir((uint8_t *)TEST_TOX_DIR);
 
-    FILE *fp = fopen("./tox/utox_save.ini", "wb");
+    FILE *fp = fopen(TEST_TOX_DIR "utox_save.ini", "wb");
     if (!fp) {
         FAIL("write full utox_save.ini");
     }
@@ -320,7 +320,7 @@ bool test_config_all_sections(void) {
     config_save();
 
     /* Invalid fps is ignored (keeps previous). */
-    fp = fopen("./tox/utox_save.ini", "ab");
+    fp = fopen(TEST_TOX_DIR "utox_save.ini", "ab");
     if (!fp) {
         unlink_ini();
         FAIL("append invalid fps");
@@ -346,9 +346,9 @@ bool test_config_edge_cases(void) {
     settings.portable_mode = true;
     settings.verbose       = LOG_LVL_TRACE;
     unlink_ini();
-    native_create_dir((uint8_t *)"./tox/");
+    native_create_dir((uint8_t *)TEST_TOX_DIR);
 
-    FILE *fp = fopen("./tox/utox_save.ini", "wb");
+    FILE *fp = fopen(TEST_TOX_DIR "utox_save.ini", "wb");
     if (!fp) {
         FAIL("write edge utox_save.ini");
     }
@@ -400,7 +400,7 @@ bool test_config_edge_cases(void) {
     }
 
     /* Valid upper scale bound. */
-    fp = fopen("./tox/utox_save.ini", "wb");
+    fp = fopen(TEST_TOX_DIR "utox_save.ini", "wb");
     if (!fp) {
         unlink_ini();
         FAIL("write scale 30");
@@ -422,15 +422,15 @@ bool test_config_edge_cases(void) {
 
 #ifndef _WIN32
     {
-        FILE *seed = fopen("./tox/utox_save.ini", "wb");
+        FILE *seed = fopen(TEST_TOX_DIR "utox_save.ini", "wb");
         if (!seed) {
             FAIL("seed ini for chmod");
         }
         fputs("[general]\nsave_version = 1\n", seed);
         fclose(seed);
-        if (chmod("./tox/utox_save.ini", 0444) == 0) {
+        if (chmod(TEST_TOX_DIR "utox_save.ini", 0444) == 0) {
             config_save(); /* ini_put* fail → LOG_ERR on each WRITE */
-            chmod("./tox/utox_save.ini", 0644);
+            chmod(TEST_TOX_DIR "utox_save.ini", 0644);
         }
         unlink_ini();
     }
@@ -442,10 +442,10 @@ int main(void) {
     int result = 0;
     settings.portable_mode = true;
     settings.verbose       = LOG_LVL_ERROR;
-    unlink("./tox"); /* leftover file from a crashed run; no-op if directory */
-    rename("./tox.bak", "./tox");
+    unlink(TEST_TOX_DIR_BARE); /* leftover file from a crashed run; no-op if directory */
+    rename(TEST_TOX_DIR_BARE ".bak", TEST_TOX_DIR_BARE);
     unlink_ini();
-    native_create_dir((uint8_t *)"./tox/");
+    native_create_dir((uint8_t *)TEST_TOX_DIR);
     RUN_TEST(test_settings_ini_roundtrip);
     RUN_TEST(test_settings_ini_unknown_keys);
     RUN_TEST(test_config_load_defaults_and_clamps);

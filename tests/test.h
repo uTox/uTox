@@ -6,6 +6,15 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+/* Directory uTox uses in portable mode. On Windows that is {cwd}\Tox\, and cwd is absolute. */
+#ifdef _WIN32
+#define TEST_TOX_DIR ".\\Tox\\"
+#define TEST_TOX_DIR_BARE ".\\Tox"
+#else
+#define TEST_TOX_DIR "./tox/"
+#define TEST_TOX_DIR_BARE "./tox"
+#endif
+
 //
 // define some testing helpers
 //
