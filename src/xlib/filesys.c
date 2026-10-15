@@ -10,6 +10,8 @@
 #include "../settings.h"
 #include "../tox.h"
 
+#include "../native/filesys.h"
+
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -188,29 +190,47 @@ void native_select_dir_ft(uint32_t fid, uint32_t file_number, FILE_TRANSFER *fil
     }
 }
 
-void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
-    if (file == NULL){
-        LOG_TRACE("Native", " file is null." );
-        return;
+bool native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+    if (file == NULL) {
+        LOG_TRACE("Native", " file is null.");
+        return false;
     }
 
-    uint8_t *path = malloc(file->name_length + 1);
+    uint8_t *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
         LOG_ERR("Native", "Could not allocate memory.");
-        return;
+        return false;
     }
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/");
-        native_create_dir(path);
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/%.*s", (int)file->name_length, file->name);
     } else {
-        memcpy(path, file->name, file->name_length);
-        path[file->name_length] = 0;
+        const char *xdg = getenv("XDG_DOWNLOAD_DIR");
+        const char *home = getenv("HOME");
+        if (xdg && xdg[0]) {
+            snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/Tox_Auto_Accept/", xdg);
+        } else if (home && home[0]) {
+            snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/Downloads/Tox_Auto_Accept/", home);
+        } else {
+            LOG_ERR("Native", "Neither XDG_DOWNLOAD_DIR nor HOME is set.");
+            free(path);
+            return false;
+        }
     }
 
-    LOG_NOTE("Native", "Auto Accept Directory: \"%s\"" , path);
+    if (!native_create_dir_tree((char *)path)) {
+        LOG_ERR("Native", "Could not create auto-accept directory: %s", path);
+        free(path);
+        return false;
+    }
+
+    size_t dir_len = strlen((char *)path);
+    snprintf((char *)path + dir_len, UTOX_FILE_NAME_LENGTH - dir_len, "%.*s",
+             (int)file->name_length, file->name);
+
+    LOG_NOTE("Native", "Auto Accept Directory: \"%s\"", path);
     postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
+    return true;
 }
 
 // TODO: This function has the worst name.
@@ -230,7 +250,7 @@ void file_save_inline_image_png(MSG_HEADER *msg) {
     }
 }
 
-bool native_save_image_png(char *name, uint8_t *image, int image_size) {
+bool native_save_image_png(const char *name, const uint8_t *image, const int image_size) {
     if (libgtk) {
         FILE_IMAGE *file_image = calloc(1, sizeof(FILE_IMAGE));
         if (!file_image) {
@@ -238,8 +258,9 @@ bool native_save_image_png(char *name, uint8_t *image, int image_size) {
             return false;
         }
 
-        file_image->name       = name;
-        file_image->data       = image;
+        /* GTK path only reads these; FILE_IMAGE keeps non-const fields. */
+        file_image->name       = (char *)name;
+        file_image->data       = (uint8_t *)image;
         file_image->data_size  = image_size;
 
         ugtk_file_save_image_png(file_image);
@@ -255,7 +276,7 @@ bool native_save_image_png(char *name, uint8_t *image, int image_size) {
         return false;
     }
 
-    fwrite(image, image_size, 1, file);
+    fwrite(image, (size_t)image_size, 1, file);
     fclose(file);
     return true;
 }

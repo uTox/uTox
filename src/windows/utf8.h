@@ -36,4 +36,7 @@ int native_to_utf8str(const wchar_t *str_in, char *str_out, uint32_t max_size);
  */
 bool sanitize_filename(uint8_t *filename);
 
+/** @see native_ft_filename_safe in native/filesys.h */
+bool native_ft_filename_safe(uint8_t *name, size_t name_length);
+
 #endif

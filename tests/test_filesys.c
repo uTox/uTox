@@ -196,6 +196,72 @@ bool test_filesys_non_portable_home(void) {
     return true;
 }
 
+bool test_native_ft_filename_safe(void) {
+    uint8_t plain[] = "photo.png";
+    if (!native_ft_filename_safe(plain, sizeof plain - 1)) {
+        FAIL("plain name should be ok");
+    }
+
+    uint8_t slash[] = "a/b";
+    if (native_ft_filename_safe(slash, sizeof slash - 1)) {
+        FAIL("slash should reject");
+    }
+
+    uint8_t bslash[] = "a\\b";
+    if (native_ft_filename_safe(bslash, sizeof bslash - 1)) {
+        FAIL("backslash should reject");
+    }
+
+    uint8_t dot[] = ".";
+    if (native_ft_filename_safe(dot, 1)) {
+        FAIL(". should reject");
+    }
+
+    uint8_t dotdot[] = "..";
+    if (native_ft_filename_safe(dotdot, 2)) {
+        FAIL(".. should reject");
+    }
+
+    if (native_ft_filename_safe((uint8_t *)"", 0) || native_ft_filename_safe(NULL, 0)) {
+        FAIL("empty/NULL should reject");
+    }
+
+    uint8_t embedded[] = { 'a', 0, 'b' };
+    if (native_ft_filename_safe(embedded, sizeof embedded)) {
+        FAIL("embedded NUL should reject");
+    }
+
+#ifdef _WIN32
+    uint8_t win[] = "file?.txt";
+    if (!native_ft_filename_safe(win, sizeof win - 1)) {
+        FAIL("Windows should accept and replace ?");
+    }
+    if (win[4] != '_') {
+        FAIL("Windows should replace ? with _");
+    }
+
+    uint8_t colon[] = "a:b.txt";
+    if (!native_ft_filename_safe(colon, sizeof colon - 1)) {
+        FAIL("Windows should accept and replace :");
+    }
+    if (colon[1] != '_') {
+        FAIL("Windows should replace : with _");
+    }
+
+    uint8_t ctrl[] = { 'a', 1, 'b', 0 };
+    if (native_ft_filename_safe(ctrl, 3)) {
+        FAIL("Windows should reject control chars");
+    }
+#else
+    uint8_t unix_ok[] = "file:name?.txt";
+    if (!native_ft_filename_safe(unix_ok, sizeof unix_ok - 1)) {
+        FAIL("Unix should allow : and ? in names");
+    }
+#endif
+
+    return true;
+}
+
 int main(void) {
     int result = 0;
     settings.portable_mode = true;
@@ -203,5 +269,6 @@ int main(void) {
     RUN_TEST(test_filesys_append_delete_and_move);
     RUN_TEST(test_filesys_long_name_and_dir_tree);
     RUN_TEST(test_filesys_non_portable_home);
+    RUN_TEST(test_native_ft_filename_safe);
     return result;
 }

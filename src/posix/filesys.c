@@ -8,9 +8,29 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+
+bool native_ft_filename_safe(uint8_t *name, size_t name_length) {
+    if (!name || name_length == 0) {
+        return false;
+    }
+
+    if ((name_length == 1 && name[0] == '.')
+        || (name_length == 2 && name[0] == '.' && name[1] == '.')) {
+        return false;
+    }
+
+    for (size_t i = 0; i < name_length; i++) {
+        if (name[i] == '\0' || name[i] == '/' || name[i] == '\\') {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 bool native_create_dir_tree(const char *path) {
     size_t size = strlen(path);
@@ -18,7 +38,8 @@ bool native_create_dir_tree(const char *path) {
         return false;
     }
 
-    char *buff = calloc(1, size);
+    /* +1 so every prefix copied below stays NUL-terminated for mkdir. */
+    char *buff = calloc(1, size + 1);
     if (!buff) {
         LOG_ERR("Filesys", "Unable to allocate memory for buffer.");
         return false;
@@ -27,6 +48,7 @@ bool native_create_dir_tree(const char *path) {
     for (size_t i = 1; i < size; ++i) { // i = 1 to skip root '/'
         if (path[i] == '/') {
             memcpy(buff, path, i + 1);
+            buff[i + 1] = '\0';
             if (!native_create_dir((uint8_t *)buff)) {
                 free(buff);
                 return false;

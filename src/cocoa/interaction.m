@@ -20,6 +20,7 @@
 #include "../av/utox_av.h"
 
 #include "../native/clipboard.h"
+#include "../native/filesys.h"
 #include "../native/keyboard.h"
 #include "../native/notify.h"
 #include "../native/ui.h"
@@ -941,19 +942,50 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     }
 }
 
-void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+bool native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     NSString *downloads =
         [NSSearchPathForDirectoriesInDomains(NSDownloadsDirectory, NSUserDomainMask, YES) firstObject];
-    NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name
-                                                     length:file->name_length
-                                                   encoding:NSUTF8StringEncoding
-                                               freeWhenDone:NO];
+    if (!downloads) {
+        LOG_ERR("Cocoa", "Could not locate Downloads directory for auto-accept.");
+        return false;
+    }
+    NSString *auto_dir = [downloads stringByAppendingPathComponent:@"Tox_Auto_Accept"];
+    NSError *dir_error = nil;
+    if (![[NSFileManager defaultManager] createDirectoryAtPath:auto_dir
+                                   withIntermediateDirectories:YES
+                                                    attributes:nil
+                                                         error:&dir_error]) {
+        LOG_ERR("Cocoa", "Could not create auto-accept directory: %s",
+                dir_error.localizedDescription.UTF8String ? dir_error.localizedDescription.UTF8String : "?");
+        return false;
+    }
 
-    NSString *dest = [downloads stringByAppendingPathComponent:fname];
+    NSString *fname = [[NSString alloc] initWithBytes:file->name
+                                               length:file->name_length
+                                             encoding:NSUTF8StringEncoding];
+    if (!fname) {
+        LOG_ERR("Cocoa", "Auto-accept filename is not valid UTF-8.");
+        return false;
+    }
+    NSString *dest = [auto_dir stringByAppendingPathComponent:fname];
     [fname release];
+    if (!dest) {
+        LOG_ERR("Cocoa", "Could not build auto-accept destination path.");
+        return false;
+    }
 
-    FILE *f = fopen(dest, "wb");
-    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, f);
+    const char *utf8 = dest.UTF8String;
+    if (!utf8) {
+        LOG_ERR("Cocoa", "Could not encode auto-accept path as UTF-8.");
+        return false;
+    }
+    char *path = strdup(utf8);
+    if (!path) {
+        LOG_ERR("Cocoa", "Could not allocate memory for auto-accept path.");
+        return false;
+    }
+    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, path);
+    return true;
 }
 
 //@"Where do you want to save \"%.*s\"?"

@@ -144,6 +144,9 @@ msgstr("File transfer canceled")
 msgid(TRANSFER_COMPLETE)
 msgstr("File transfer complete")
 
+msgid(TRANSFER_UNSAFE)
+msgstr("Blocked unsafe incoming file name; auto-accept disabled for this friend")
+
 
 /******************************************************************************
  *** Keyboard and Mouse Cursor Strings                                      ***
