@@ -224,7 +224,7 @@ bool native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
         return false;
     }
 
-    size_t dir_len = strlen((char *)path);
+    size_t dir_len = strnlen((char *)path, UTOX_FILE_NAME_LENGTH);
     snprintf((char *)path + dir_len, UTOX_FILE_NAME_LENGTH - dir_len, "%.*s",
              (int)file->name_length, file->name);
 

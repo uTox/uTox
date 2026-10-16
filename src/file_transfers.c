@@ -10,7 +10,6 @@
 #include "tox.h"
 #include "utox.h"
 
-#include "filesys.h"
 #include "native/filesys.h"
 #include "native/image.h"
 #include "native/thread.h"
@@ -243,25 +242,36 @@ static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
     return true;
 }
 
+/* Reject resume paths that contain a ".." directory component (any segment). */
+static bool resume_path_has_dotdot(const uint8_t *path) {
+    const uint8_t *seg = path;
+    while (*seg) {
+        const uint8_t *end = seg;
+        while (*end && *end != '/' && *end != '\\') {
+            end++;
+        }
+        size_t seg_len = (size_t)(end - seg);
+        if (seg_len == 2 && seg[0] == '.' && seg[1] == '.') {
+            return true;
+        }
+        seg = *end ? end + 1 : end;
+    }
+    return false;
+}
+
+/*
+ * Validate the save path stored in a resume blob.
+ * Absolute paths are allowed (normal save locations); ".." components and
+ * empty / "." / ".." basenames are not.
+ */
 static bool resume_path_ok(const uint8_t *path) {
     size_t len = strnlen((const char *)path, UTOX_FILE_NAME_LENGTH);
     if (len == 0 || len >= UTOX_FILE_NAME_LENGTH) {
         return false;
     }
 
-    const uint8_t *p = path;
-    while (*p) {
-        const uint8_t *start = p;
-        while (*p && *p != '/' && *p != '\\') {
-            p++;
-        }
-        size_t clen = (size_t)(p - start);
-        if (clen == 2 && start[0] == '.' && start[1] == '.') {
-            return false;
-        }
-        if (*p) {
-            p++;
-        }
+    if (resume_path_has_dotdot(path)) {
+        return false;
     }
 
     size_t name_length = 0;
@@ -304,7 +314,7 @@ static bool ft_update_resumable(FILE_TRANSFER *ft) {
     disk.current_size = (uint64_t)ft->current_size;
 
     fseeko(ft->resume_file, SEEK_SET, 0);
-    if (fwrite(&disk, sizeof(disk), 1, ft->resume_file) != 1) {
+    if (fwrite(&disk, sizeof(FILE_TRANSFER_RESUME_V1), 1, ft->resume_file) != 1) {
         LOG_ERR("FileTransfer", "Unable to save file info... uTox can't resume file %.*s",
                 (unsigned)ft->name_length, ft->name);
         return false;
@@ -351,10 +361,14 @@ static void ft_decon_resumable(FILE_TRANSFER *ft) {
 static void ft_reset_abandoned_resume(FILE_TRANSFER *ft, const uint8_t *name, size_t name_length) {
     ft_decon_resumable(ft);
 
+    if (ft->via.file) {
+        fclose(ft->via.file);
+        ft->via.file = NULL;
+    }
+
     ft->current_size = 0;
     memset(ft->path, 0, sizeof(ft->path));
     ft->resumeable   = false;
-    ft->via.file     = NULL;
 
     free(ft->name);
     ft->name = calloc(1, name_length + 1);
@@ -392,7 +406,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     }
 
     FILE_TRANSFER_RESUME_V1 disk;
-    bool read_ok = fread(&disk, sizeof(disk), 1, resume_disk) == 1;
+    bool read_ok = fread(&disk, sizeof(FILE_TRANSFER_RESUME_V1), 1, resume_disk) == 1;
     fclose(resume_disk);
 
     if (!read_ok) {
@@ -1099,6 +1113,9 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                 FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
                 if (!msg) {
                     LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+                    fclose(file);
+                    ft->via.file = NULL;
+                    ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
                     return;
                 }
                 *msg = *ft;

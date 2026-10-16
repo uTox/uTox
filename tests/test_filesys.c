@@ -257,6 +257,11 @@ bool test_native_ft_filename_safe(void) {
     if (!native_ft_filename_safe(unix_ok, sizeof unix_ok - 1)) {
         FAIL("Unix should allow : and ? in names");
     }
+
+    uint8_t ctrl[] = { 'a', 1, 'b', 0 };
+    if (native_ft_filename_safe(ctrl, 3)) {
+        FAIL("Unix should reject control chars");
+    }
 #endif
 
     return true;

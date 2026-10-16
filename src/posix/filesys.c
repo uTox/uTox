@@ -24,7 +24,8 @@ bool native_ft_filename_safe(uint8_t *name, size_t name_length) {
     }
 
     for (size_t i = 0; i < name_length; i++) {
-        if (name[i] == '\0' || name[i] == '/' || name[i] == '\\') {
+        uint8_t c = name[i];
+        if (c == '\0' || c == '/' || c == '\\' || c < 32) {
             return false;
         }
     }
