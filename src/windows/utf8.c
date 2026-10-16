@@ -1,4 +1,5 @@
 #include "utf8.h"
+#include <string.h>
 #include <windows.h>
 
 int utf8tonative(const char *str, wchar_t *out, int length) {
@@ -45,6 +46,32 @@ bool sanitize_filename(uint8_t *filename) {
 
         if (strchr("<>:\"/\\|?*", filename[i])) {
             filename[i] = '_';
+        }
+    }
+
+    return true;
+}
+
+bool native_ft_filename_safe(uint8_t *name, size_t name_length) {
+    if (!name || name_length == 0) {
+        return false;
+    }
+
+    if ((name_length == 1 && name[0] == '.')
+        || (name_length == 2 && name[0] == '.' && name[1] == '.')) {
+        return false;
+    }
+
+    for (size_t i = 0; i < name_length; i++) {
+        uint8_t c = name[i];
+        if (c == '\0' || c == '/' || c == '\\') {
+            return false;
+        }
+        if (c < 32) {
+            return false;
+        }
+        if (strchr("<>:\"|?*", c)) {
+            name[i] = '_';
         }
     }
 

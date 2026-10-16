@@ -15,6 +15,7 @@
 #include "native/thread.h"
 #include "native/time.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -22,6 +23,23 @@
 #define MAX_INCOMING_COUNT 32
 
 #define MAX_INLINE_FILESIZE (1024 * 1024 * 4)
+
+#define FT_RESUME_MAGIC   0x31544655u /* UFT1 */
+#define FT_RESUME_VERSION 1
+
+typedef struct {
+    uint32_t magic;
+    uint32_t version;
+    uint8_t  incoming;
+    uint8_t  resumeable;
+    uint8_t  reserved[2];
+    uint32_t friend_number;
+    uint32_t file_number;
+    uint8_t  data_hash[TOX_HASH_LENGTH];
+    uint8_t  path[UTOX_FILE_NAME_LENGTH];
+    uint64_t target_size;
+    uint64_t current_size;
+} FILE_TRANSFER_RESUME_V1;
 
 static void fid_to_string(char *dest, uint8_t *src) {
     to_hex(dest, src, TOX_FILE_ID_LENGTH);
@@ -224,6 +242,51 @@ static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
     return true;
 }
 
+/* Reject resume paths that contain a ".." directory component (any segment). */
+static bool resume_path_has_dotdot(const uint8_t *path) {
+    const uint8_t *seg = path;
+    while (*seg) {
+        const uint8_t *end = seg;
+        while (*end && *end != '/' && *end != '\\') {
+            end++;
+        }
+        size_t seg_len = (size_t)(end - seg);
+        if (seg_len == 2 && seg[0] == '.' && seg[1] == '.') {
+            return true;
+        }
+        seg = *end ? end + 1 : end;
+    }
+    return false;
+}
+
+/*
+ * Validate the save path stored in a resume blob.
+ * Absolute paths are allowed (normal save locations); ".." components and
+ * empty / "." / ".." basenames are not.
+ */
+static bool resume_path_ok(const uint8_t *path) {
+    size_t len = strnlen((const char *)path, UTOX_FILE_NAME_LENGTH);
+    if (len == 0 || len >= UTOX_FILE_NAME_LENGTH) {
+        return false;
+    }
+
+    if (resume_path_has_dotdot(path)) {
+        return false;
+    }
+
+    size_t name_length = 0;
+    const uint8_t *base = path_basename(path, len, &name_length);
+    if (!base || name_length == 0) {
+        return false;
+    }
+    if ((name_length == 1 && base[0] == '.')
+        || (name_length == 2 && base[0] == '.' && base[1] == '.')) {
+        return false;
+    }
+
+    return true;
+}
+
 static bool ft_update_resumable(FILE_TRANSFER *ft) {
     if (!ft->resume_file) {
         LOG_ERR("FileTransfer", "Unable to save filetransfer info. Got NULL file pointer.");
@@ -237,10 +300,23 @@ static bool ft_update_resumable(FILE_TRANSFER *ft) {
         return false;
     }
 
+    FILE_TRANSFER_RESUME_V1 disk = { 0 };
+    disk.magic         = FT_RESUME_MAGIC;
+    disk.version       = FT_RESUME_VERSION;
+    disk.incoming      = ft->incoming ? 1 : 0;
+    disk.resumeable    = ft->resumeable ? 1 : 0;
+    disk.friend_number = ft->friend_number;
+    disk.file_number   = ft->file_number;
+    memcpy(disk.data_hash, ft->data_hash, TOX_HASH_LENGTH);
+    memcpy(disk.path, ft->path, UTOX_FILE_NAME_LENGTH);
+    disk.path[UTOX_FILE_NAME_LENGTH - 1] = 0;
+    disk.target_size  = (uint64_t)ft->target_size;
+    disk.current_size = (uint64_t)ft->current_size;
+
     fseeko(ft->resume_file, SEEK_SET, 0);
-    if (fwrite(ft, sizeof(FILE_TRANSFER), 1, ft->resume_file) != 1) {
+    if (fwrite(&disk, sizeof(FILE_TRANSFER_RESUME_V1), 1, ft->resume_file) != 1) {
         LOG_ERR("FileTransfer", "Unable to save file info... uTox can't resume file %.*s",
-                ft->name_length, ft->name);
+                (unsigned)ft->name_length, ft->name);
         return false;
     }
 
@@ -281,6 +357,29 @@ static void ft_decon_resumable(FILE_TRANSFER *ft) {
     utox_get_file(name, NULL, UTOX_FILE_OPTS_DELETE);
 }
 
+/* Drop a loaded resume and restore the Tox-offered name for a fresh incoming FT. */
+static void ft_reset_abandoned_resume(FILE_TRANSFER *ft, const uint8_t *name, size_t name_length) {
+    ft_decon_resumable(ft);
+
+    if (ft->via.file) {
+        fclose(ft->via.file);
+        ft->via.file = NULL;
+    }
+
+    ft->current_size = 0;
+    memset(ft->path, 0, sizeof(ft->path));
+    ft->resumeable   = false;
+
+    free(ft->name);
+    ft->name = calloc(1, name_length + 1);
+    if (!ft->name) {
+        LOG_FATAL_ERR(EXIT_MALLOC, "FileTransfer", "Could not alloc for file name (%uB)",
+                      (unsigned)(name_length + 1));
+    }
+    snprintf((char *)ft->name, name_length + 1, "%.*s", (int)name_length, name);
+    ft->name_length = name_length;
+}
+
 static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     char resume_name[UTOX_FILE_NAME_LENGTH];
     if (!resumeable_name(ft, resume_name)) {
@@ -299,34 +398,58 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
         return false;
     }
 
-    if (size != sizeof(FILE_TRANSFER)) {
-        LOG_ERR("FileTransfer", "Unable to resume this file, size mismatch");
+    if (size != sizeof(FILE_TRANSFER_RESUME_V1)) {
+        LOG_ERR("FileTransfer", "Unable to resume this file, size mismatch (legacy or corrupt)");
         fclose(resume_disk);
+        utox_get_file(resume_name, NULL, UTOX_FILE_OPTS_DELETE);
         return false;
     }
 
-    FILE_TRANSFER resume_file;
-    bool read_resumeable = fread(&resume_file, size, 1, resume_disk);
+    FILE_TRANSFER_RESUME_V1 disk;
+    bool read_ok = fread(&disk, sizeof(FILE_TRANSFER_RESUME_V1), 1, resume_disk) == 1;
     fclose(resume_disk);
 
-    if (!read_resumeable) {
+    if (!read_ok) {
         LOG_ERR("FileTransfer", "Failed to read resumeable file.");
+        utox_get_file(resume_name, NULL, UTOX_FILE_OPTS_DELETE);
         return false;
     }
 
-    if (!resume_file.resumeable
-        || !resume_file.in_use
-        || resume_file.in_memory
-        || resume_file.avatar
-        || resume_file.inline_img) {
+    if (disk.magic != FT_RESUME_MAGIC || disk.version != FT_RESUME_VERSION) {
+        LOG_ERR("FileTransfer", "Unable to resume this file, bad magic/version");
+        utox_get_file(resume_name, NULL, UTOX_FILE_OPTS_DELETE);
         return false;
     }
 
-    /* Incoming request already allocated ft->name; the blob overwrites the pointer. */
+    if (!disk.resumeable || !resume_path_ok(disk.path)) {
+        LOG_ERR("FileTransfer", "Unable to resume this file, invalid resume data");
+        utox_get_file(resume_name, NULL, UTOX_FILE_OPTS_DELETE);
+        return false;
+    }
+
+    if (disk.current_size > disk.target_size) {
+        LOG_ERR("FileTransfer", "Unable to resume this file, current_size > target_size");
+        utox_get_file(resume_name, NULL, UTOX_FILE_OPTS_DELETE);
+        return false;
+    }
+
+    /* Incoming request already allocated ft->name. */
     free(ft->name);
     ft->name = NULL;
 
-    memcpy(ft, &resume_file, sizeof(FILE_TRANSFER));
+    ft->incoming      = disk.incoming != 0;
+    ft->resumeable    = true;
+    ft->in_use        = true;
+    ft->in_memory     = false;
+    ft->avatar        = false;
+    ft->inline_img    = false;
+    ft->friend_number = disk.friend_number;
+    ft->file_number   = disk.file_number;
+    memcpy(ft->data_hash, disk.data_hash, TOX_HASH_LENGTH);
+    memcpy(ft->path, disk.path, UTOX_FILE_NAME_LENGTH);
+    ft->path[UTOX_FILE_NAME_LENGTH - 1] = 0;
+    ft->target_size  = (size_t)disk.target_size;
+    ft->current_size = (size_t)disk.current_size;
 
     size_t path_len = strlen((char *)ft->path);
     size_t name_length = 0;
@@ -336,13 +459,13 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     ft->name = calloc(1, ft->name_length + 1);
     if (!ft->name) {
         LOG_FATAL_ERR(EXIT_MALLOC, "FileTransfer", "Could not alloc for file name (%uB)",
-                      ft->name_length + 1);
+                      (unsigned)(ft->name_length + 1));
     }
     snprintf((char *)ft->name, ft->name_length + 1, "%s", (const char *)p);
 
-    ft->via.file = NULL;
+    ft->via.file    = NULL;
     ft->resume_file = NULL;
-    ft->ui_data = NULL;
+    ft->ui_data     = NULL;
 
     return true;
 }
@@ -971,40 +1094,49 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     /* Load saved information about this file */
     if (ft_find_resumeable(ft)) {
         LOG_NOTE("FileTransfer", "Incoming Existing file from friend (%u) " , friend_number);
-        FILE *file = fopen((const char *)ft->path, "rb+");
-        if (file) {
-            LOG_INFO("FileTransfer", "Cool file exists, let try to restart it.");
-            ft->in_use        = true;
-            ft->in_memory     = false;
-            ft->avatar        = false;
-            ft->friend_number = friend_number;
-            ft->file_number   = file_number;
-            ft->target_size   = size;
-            ft->via.file      = file;
+        if (ft->current_size > size) {
+            LOG_ERR("FileTransfer", "Resume offset %zu exceeds offered size %zu; ignoring resume.",
+                    ft->current_size, (size_t)size);
+            ft_reset_abandoned_resume(ft, name, name_length);
+        } else {
+            FILE *file = fopen((const char *)ft->path, "rb+");
+            if (file) {
+                LOG_INFO("FileTransfer", "Cool file exists, let try to restart it.");
+                ft->in_use        = true;
+                ft->in_memory     = false;
+                ft->avatar        = false;
+                ft->friend_number = friend_number;
+                ft->file_number   = file_number;
+                ft->target_size   = size;
+                ft->via.file      = file;
 
-            FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
-            if (!msg) {
-                LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+                FILE_TRANSFER *msg = calloc(1, sizeof(FILE_TRANSFER));
+                if (!msg) {
+                    LOG_ERR("FileTransfer", "Unable to malloc for internal message. (This is bad!)");
+                    fclose(file);
+                    ft->via.file = NULL;
+                    ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+                    return;
+                }
+                *msg = *ft;
+                postmessage_utox(FILE_SEND_NEW, friend_number, file_number, msg);
+                TOX_ERR_FILE_SEEK error = 0;
+                tox_file_seek(tox, friend_number, file_number, ft->current_size, &error);
+                if (error) {
+                    LOG_ERR("FileTransfer", "seek error %i", error);
+                    // TODO UI error here as well;
+                    ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+                    return;
+                }
+                LOG_INFO("FileTransfer", "seek & resume");
+                ft->status = FILE_TRANSFER_STATUS_NONE;
+                ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+                ft->resumeable = ft_init_resumable(ft);
                 return;
             }
-            *msg = *ft;
-            postmessage_utox(FILE_SEND_NEW, friend_number, file_number, msg);
-            TOX_ERR_FILE_SEEK error = 0;
-            tox_file_seek(tox, friend_number, file_number, ft->current_size, &error);
-            if (error) {
-                LOG_ERR("FileTransfer", "seek error %i" , error);
-                // TODO UI error here as well;
-                ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-                return;
-            }
-            LOG_INFO("FileTransfer", "seek & resume");
-            ft->status = FILE_TRANSFER_STATUS_NONE;
-            ft_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
-            ft->resumeable = ft_init_resumable(ft);
-            return;
+            LOG_ERR("FileTransfer", "Unable to open file suggested by resume!");
+            ft_reset_abandoned_resume(ft, name, name_length);
         }
-        LOG_ERR("FileTransfer", "Unable to open file suggested by resume!");
-        // This is fine-ish, we'll just fallback to new incoming file.
     }
 
     ft->friend_number = friend_number;

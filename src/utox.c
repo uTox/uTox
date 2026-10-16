@@ -13,8 +13,10 @@
 
 #include "av/utox_av.h"
 #include "av/video.h"
+#include "ui.h"
 #include "ui/dropdown.h"
 #include "ui/edit.h"
+#include "ui/switch.h"
 #include "ui/tooltip.h"
 
 #include "layout/friend.h"
@@ -226,15 +228,38 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
 
             FILE_TRANSFER *file = data;
 
+            bool skip_new_notify = false;
             if (f->ft_autoaccept) {
-                LOG_TRACE("Toxcore", "Auto Accept enabled for this friend: sending accept to system" );
-                native_autoselect_dir_ft(param1, file);
+                if (!native_ft_filename_safe(file->name, file->name_length)) {
+                    LOG_ERR("uTox", "Unsafe incoming filename from friend %u; cancelling auto-accept",
+                            param1);
+                    postmessage_toxcore(TOX_FILE_CANCEL, param1, file->file_number, NULL);
+                    STRING *str = SPTR(TRANSFER_UNSAFE);
+                    friend_notify_msg(f, str->str, str->length);
+                    f->ft_autoaccept = false;
+                    utox_write_metadata(f);
+                    if (flist_get_sel_friend() == f) {
+                        switch_friend_autoaccept_ft.switch_on = false;
+                    }
+                    skip_new_notify = true;
+                } else {
+                    LOG_TRACE("Toxcore", "Auto Accept enabled for this friend: sending accept to system");
+                    if (!native_autoselect_dir_ft(param1, file)) {
+                        LOG_ERR("uTox", "Auto-accept failed for friend %u; cancelling transfer", param1);
+                        postmessage_toxcore(TOX_FILE_CANCEL, param1, file->file_number, NULL);
+                        STRING *str = SPTR(TRANSFER_BROKEN);
+                        friend_notify_msg(f, str->str, str->length);
+                        skip_new_notify = true;
+                    }
+                }
             }
 
             MSG_HEADER *m = message_add_type_file(&f->msg, (param2 + 1) << 16, file->incoming, file->inline_img,
                                                   file->status, file->name, file->name_length,
                                                   file->target_size, file->current_size);
-            file_notify(f, m);
+            if (!skip_new_notify) {
+                file_notify(f, m);
+            }
             ft_set_ui_data(file->friend_number, file->file_number, m);
 
             free(data);

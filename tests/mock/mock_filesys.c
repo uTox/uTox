@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -18,6 +19,34 @@
 
 #include "../../src/debug.h"
 #include "../../src/settings.h"
+
+/* Windows test builds do not link src/windows/utf8.c (WinAPI / utoxNATIVE).
+ * Keep this copy aligned with native_ft_filename_safe there. */
+bool native_ft_filename_safe(uint8_t *name, size_t name_length) {
+    if (!name || name_length == 0) {
+        return false;
+    }
+
+    if ((name_length == 1 && name[0] == '.')
+        || (name_length == 2 && name[0] == '.' && name[1] == '.')) {
+        return false;
+    }
+
+    for (size_t i = 0; i < name_length; i++) {
+        uint8_t c = name[i];
+        if (c == '\0' || c == '/' || c == '\\') {
+            return false;
+        }
+        if (c < 32) {
+            return false;
+        }
+        if (strchr("<>:\"|?*", c)) {
+            name[i] = '_';
+        }
+    }
+
+    return true;
+}
 
 bool native_create_dir(const uint8_t *filepath) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
@@ -45,6 +74,33 @@ bool native_create_dir(const uint8_t *filepath) {
     }
     LOG_WARN("Filesys", "Unable to create directory %s. Error: %d", filepath, errno);
     return false;
+}
+
+bool native_create_dir_tree(const char *path) {
+    size_t size = strlen(path);
+    if (size < 2) {
+        return false;
+    }
+
+    /* +1 so every prefix copied below stays NUL-terminated for mkdir. */
+    char *buff = calloc(1, size + 1);
+    if (!buff) {
+        LOG_ERR("Filesys", "Unable to allocate memory for buffer.");
+        return false;
+    }
+
+    for (size_t i = 1; i < size; ++i) {
+        if (path[i] == '/' || path[i] == '\\') {
+            memcpy(buff, path, i + 1);
+            buff[i + 1] = '\0';
+            if (!native_create_dir((uint8_t *)buff)) {
+                free(buff);
+                return false;
+            }
+        }
+    }
+    free(buff);
+    return true;
 }
 
 static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
