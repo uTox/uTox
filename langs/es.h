@@ -350,6 +350,12 @@ msgstr("Ajustes de Red")
 msgid(PROFILE_PASSWORD)
 msgstr("Contraseña de Perfil")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Desbloquear perfil")
+
+msgid(ENTER_PASSWORD)
+msgstr("Introducir contraseña")
+
 msgid(LOCK_UTOX)
 msgstr("Se desconecta de Tox y bloquea este perfil.")
 

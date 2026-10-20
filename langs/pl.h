@@ -346,6 +346,12 @@ msgstr("Ustawienia sieci")
 msgid(PROFILE_PASSWORD)
 msgstr("Hasło profilu")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Odblokuj profil")
+
+msgid(ENTER_PASSWORD)
+msgstr("Wprowadź hasło")
+
 msgid(LOCK_UTOX)
 msgstr("Rozłącza z siecią Tox i blokuje ten profil.")
 

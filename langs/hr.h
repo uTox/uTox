@@ -184,6 +184,12 @@ msgstr("Mrežne postavke")
 msgid(PROFILE_PASSWORD)
 msgstr("Zaporka")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Otključaj profil")
+
+msgid(ENTER_PASSWORD)
+msgstr("Unesi zaporku")
+
 msgid(LOCK_UTOX)
 msgstr("Odspoji Tox i zaključaj ovaj profil.")
 

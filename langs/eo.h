@@ -187,6 +187,12 @@ msgstr("Retaj Agordoj")
 msgid(PROFILE_PASSWORD)
 msgstr("Profila pasvorto")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Malŝlosi profilon")
+
+msgid(ENTER_PASSWORD)
+msgstr("Enigu pasvorton")
+
 msgid(LOCK_UTOX)
 msgstr("Malkonektas el Toxcore, kaj ŝlosas la profilon")
 

@@ -413,6 +413,12 @@ msgstr("Network Settings")
 msgid(PROFILE_PASSWORD)
 msgstr("Profile Password")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Unlock profile")
+
+msgid(ENTER_PASSWORD)
+msgstr("Enter password")
+
 msgid(LOCK_UTOX)
 msgstr("Disconnects from Tox and locks this profile.")
 

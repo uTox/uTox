@@ -369,6 +369,12 @@ msgstr("Налаштування мережі")
 msgid(PROFILE_PASSWORD)
 msgstr("Пароль профілю")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Розблокувати профіль")
+
+msgid(ENTER_PASSWORD)
+msgstr("Введіть пароль")
+
 msgid(LOCK_UTOX)
 msgstr("Від'єднатися від мережі Tox і заблокувати даний профіль")
 

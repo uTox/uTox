@@ -364,6 +364,12 @@ msgstr("Настройки сети")
 msgid(PROFILE_PASSWORD)
 msgstr("Пароль профиля")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Разблокировать профиль")
+
+msgid(ENTER_PASSWORD)
+msgstr("Введите пароль")
+
 msgid(LOCK_UTOX)
 msgstr("Отключиться от сети и заблокировать профиль")
 

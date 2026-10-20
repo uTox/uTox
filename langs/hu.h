@@ -372,6 +372,12 @@ msgstr("Hálózati beállítások")
 msgid(PROFILE_PASSWORD)
 msgstr("Profiljelszó")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Profil feloldása")
+
+msgid(ENTER_PASSWORD)
+msgstr("Jelszó megadása")
+
 msgid(LOCK_UTOX)
 msgstr("Lekapcsolódik a Toxról, és zárolja a profilt.")
 

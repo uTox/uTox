@@ -369,6 +369,12 @@ msgstr("Интернет настройки")
 msgid(PROFILE_PASSWORD)
 msgstr("Парола на профила")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Отключи профил")
+
+msgid(ENTER_PASSWORD)
+msgstr("Въведете парола")
+
 msgid(LOCK_UTOX)
 msgstr("Разкача се от Tox мрежата и се заключва профила.")
 

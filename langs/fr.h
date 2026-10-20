@@ -286,6 +286,12 @@ msgstr("Paramètres réseau")
 msgid(PROFILE_PASSWORD)
 msgstr("Mot de passe du profil")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Déverrouiller le profil")
+
+msgid(ENTER_PASSWORD)
+msgstr("Entrez le mot de passe")
+
 msgid(LOCK_UTOX)
 msgstr("Se déconnecte de Tox et verrouille ce profil.")
 

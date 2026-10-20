@@ -352,6 +352,12 @@ msgstr("Nätverksinställningar")
 msgid(PROFILE_PASSWORD)
 msgstr("Profillösenord")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Lås upp profil")
+
+msgid(ENTER_PASSWORD)
+msgstr("Ange lösenord")
+
 msgid(LOCK_UTOX)
 msgstr("Kopplar ifrån Tox och låser profilen.")
 

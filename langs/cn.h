@@ -196,6 +196,12 @@ msgstr("网络设置")
 msgid(PROFILE_PASSWORD)
 msgstr("用户密码")
 
+msgid(UNLOCK_PROFILE)
+msgstr("解锁用户")
+
+msgid(ENTER_PASSWORD)
+msgstr("输入密码")
+
 msgid(LOCK_UTOX)
 msgstr("断开 Tox 并锁定用户。")
 

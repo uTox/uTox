@@ -289,11 +289,11 @@ SCROLLABLE scrollbar_settings = {
 static void draw_profile_password(int x, int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(x + SCALE(10), SCALE(10), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), SCALE(10), UNLOCK_PROFILE);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(x + SCALE(10), SCALE(MAIN_TOP + 5), PROFILE_PASSWORD);
+    drawstr(x + SCALE(10), SCALE(MAIN_TOP + 5), ENTER_PASSWORD);
 }
 
 PANEL
@@ -307,7 +307,7 @@ boxfor_password_entry_login = {
 },
 boxfor_password_entry_change = {
     .type = PANEL_NONE,
-    .x = 0, .y = 180,
+    .x = 0, .y = MAIN_TOP + 90,
     .child = (PANEL*[]) {
         (PANEL*)&edit_profile_password,
         NULL
@@ -1636,7 +1636,7 @@ EDIT edit_profile_password = {
     .panel = {
         .type   = PANEL_EDIT,
         .x      =  10,
-        .y      =  55,
+        .y      = MAIN_TOP + 25,
         .width  = -10,
         .height =  24,
     },

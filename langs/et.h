@@ -369,6 +369,12 @@ msgstr("Võrgu sätted")
 msgid(PROFILE_PASSWORD)
 msgstr("Profiili parool")
 
+msgid(UNLOCK_PROFILE)
+msgstr("Ava profiil")
+
+msgid(ENTER_PASSWORD)
+msgstr("Sisesta parool")
+
 msgid(LOCK_UTOX)
 msgstr("Katkestab Tox-i võrgu ja lukustab profiili.")
 
