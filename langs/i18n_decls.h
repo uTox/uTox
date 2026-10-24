@@ -79,6 +79,7 @@ typedef enum {
     STR_TRANSFER_BROKEN,
     STR_TRANSFER_CANCELLED,
     STR_TRANSFER_COMPLETE,
+    STR_TRANSFER_UNSAFE,
 
     /* Cursor/Mouse strings */
     STR_CURSOR_CLICK_LEFT,

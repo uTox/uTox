@@ -180,7 +180,7 @@ bool test_send_data_slot_status_and_limit(void) {
 
 bool test_send_file_basename(void) {
     reset_ft();
-    FILE *fp = make_payload("./tox/ft_plain.txt", "hello");
+    FILE *fp = make_payload(TEST_TOX_DIR "ft_plain.txt", "hello");
     if (!fp) {
         FAIL("open payload");
     }
@@ -197,11 +197,11 @@ bool test_send_file_basename(void) {
     }
     ft_local_control(TOX_DUMMY, 0, n, TOX_FILE_CONTROL_CANCEL);
 
-    FILE *fp2 = make_payload("./tox/ft_dir.txt", "world");
+    FILE *fp2 = make_payload(TEST_TOX_DIR "ft_dir.txt", "world");
     if (!fp2) {
         FAIL("open payload 2");
     }
-    uint8_t withslash[] = "./tox/ft_dir.txt";
+    uint8_t withslash[] = TEST_TOX_DIR "ft_dir.txt";
     n = ft_send_file(TOX_DUMMY, 0, fp2, withslash, strlen((char *)withslash), NULL);
     if (n == UINT32_MAX) {
         fclose(fp2);
@@ -213,8 +213,8 @@ bool test_send_file_basename(void) {
     }
 
     cancel_open();
-    remove("./tox/ft_plain.txt");
-    remove("./tox/ft_dir.txt");
+    remove(TEST_TOX_DIR "ft_plain.txt");
+    remove(TEST_TOX_DIR "ft_dir.txt");
     return true;
 }
 
@@ -251,7 +251,7 @@ bool test_send_avatar_and_max(void) {
     if (ft_send_avatar(TOX_DUMMY, 0) != UINT32_MAX) {
         FAIL("avatar past MAX_FILE_TRANSFERS");
     }
-    FILE *overflow = make_payload("./tox/ft_over.bin", "x");
+    FILE *overflow = make_payload(TEST_TOX_DIR "ft_over.bin", "x");
     if (!overflow) {
         FAIL("overflow payload");
     }
@@ -260,7 +260,7 @@ bool test_send_avatar_and_max(void) {
         FAIL("file past MAX_FILE_TRANSFERS");
     }
     fclose(overflow);
-    remove("./tox/ft_over.bin");
+    remove(TEST_TOX_DIR "ft_over.bin");
 
     cancel_open();
     return true;
@@ -350,7 +350,7 @@ bool test_incoming_file_write(void) {
         FAIL("FILE_INCOMING_NEW posted");
     }
 
-    if (!utox_file_start_write(0, incoming_fileno(0), "./tox/photo.png")) {
+    if (!utox_file_start_write(0, incoming_fileno(0), TEST_TOX_DIR "photo.png")) {
         FAIL("start write");
     }
     ft_local_control(TOX_DUMMY, 0, incoming_fileno(0), TOX_FILE_CONTROL_RESUME);
@@ -365,14 +365,14 @@ bool test_incoming_file_write(void) {
         FAIL("incoming complete should decon");
     }
 
-    FILE *out = fopen("./tox/photo.png", "rb");
+    FILE *out = fopen(TEST_TOX_DIR "photo.png", "rb");
     if (!out) {
         FAIL("written file missing");
     }
     char buf[8] = { 0 };
     size_t got = fread(buf, 1, sizeof buf, out);
     fclose(out);
-    remove("./tox/photo.png");
+    remove(TEST_TOX_DIR "photo.png");
     if (got != 5 || memcmp(buf, "hello", 5) != 0) {
         FAIL("file contents");
     }
@@ -489,7 +489,7 @@ bool test_friend_online_without_resume_files(void) {
 
 bool test_incoming_resume_from_disk(void) {
     reset_ft();
-    FILE *payload = make_payload("./tox/resume.bin", "hello!!!");
+    FILE *payload = make_payload(TEST_TOX_DIR "resume.bin", "hello!!!");
     if (!payload) {
         FAIL("create resume payload");
     }
@@ -503,7 +503,7 @@ bool test_incoming_resume_from_disk(void) {
     saved.current_size = 3;
     saved.target_size = 8;
     memcpy(saved.data_hash, mock_incoming_file_id, TOX_HASH_LENGTH);
-    snprintf((char *)saved.path, sizeof saved.path, "%s", "./tox/resume.bin");
+    snprintf((char *)saved.path, sizeof saved.path, "%s", TEST_TOX_DIR "resume.bin");
 
     char info[UTOX_FILE_NAME_LENGTH];
     incoming_ftinfo_name(info, sizeof info);
@@ -529,14 +529,14 @@ bool test_incoming_resume_from_disk(void) {
         FAIL("resumed incoming complete should decon");
     }
 
-    FILE *out = fopen("./tox/resume.bin", "rb");
+    FILE *out = fopen(TEST_TOX_DIR "resume.bin", "rb");
     if (!out) {
         FAIL("resume payload missing");
     }
     char buf[16] = { 0 };
     size_t got = fread(buf, 1, sizeof buf, out);
     fclose(out);
-    remove("./tox/resume.bin");
+    remove(TEST_TOX_DIR "resume.bin");
     utox_get_file(info, NULL, UTOX_FILE_OPTS_DELETE);
     if (got < 8 || memcmp(buf, "hello!!!", 8) != 0) {
         FAIL("resumed contents");
@@ -573,7 +573,7 @@ bool test_start_write_unwritable(void) {
     if (utox_file_start_write(0, incoming_fileno(0), NULL)) {
         FAIL("NULL path must fail");
     }
-    if (!utox_file_start_write(0, incoming_fileno(0), "./tox")) {
+    if (!utox_file_start_write(0, incoming_fileno(0), TEST_TOX_DIR_BARE)) {
         /* directory is not a writable file; transfer is broken/decon'd */
         if (test_friend.ft_incoming[0].in_use) {
             FAIL("failed start_write must break the transfer");
@@ -588,7 +588,7 @@ bool test_incoming_chunk_speed(void) {
     mock_time_set(1);
     const uint8_t name[] = "s.bin";
     mock_cb_file_recv(TOX_DUMMY, 0, incoming_fileno(0), TOX_FILE_KIND_DATA, 10, name, sizeof name - 1, NULL);
-    if (!utox_file_start_write(0, incoming_fileno(0), "./tox/speed.bin")) {
+    if (!utox_file_start_write(0, incoming_fileno(0), TEST_TOX_DIR "speed.bin")) {
         FAIL("start write speed");
     }
     ft_local_control(TOX_DUMMY, 0, incoming_fileno(0), TOX_FILE_CONTROL_RESUME);
@@ -604,7 +604,7 @@ bool test_incoming_chunk_speed(void) {
         FAIL("calculate_speed must run after elapsed ticks, t=%llu", (unsigned long long)ft->last_check_time);
     }
     mock_cb_file_recv_chunk(TOX_DUMMY, 0, incoming_fileno(0), 10, NULL, 0, NULL);
-    remove("./tox/speed.bin");
+    remove(TEST_TOX_DIR "speed.bin");
     return true;
 }
 
@@ -625,7 +625,7 @@ bool test_incoming_inline_not_png(void) {
 
 bool test_friend_online_outgoing_resume(void) {
     reset_ft();
-    FILE *payload = make_payload("./tox/out.bin", "abcd");
+    FILE *payload = make_payload(TEST_TOX_DIR "out.bin", "abcd");
     if (!payload) {
         FAIL("outgoing resume payload");
     }
@@ -636,7 +636,7 @@ bool test_friend_online_outgoing_resume(void) {
     saved.in_use = true;
     saved.resumeable = true;
     saved.incoming = false;
-    snprintf((char *)saved.path, sizeof saved.path, "%s", "./tox/out.bin");
+    snprintf((char *)saved.path, sizeof saved.path, "%s", TEST_TOX_DIR "out.bin");
 
     char info[UTOX_FILE_NAME_LENGTH];
     snprintf(info, sizeof info, "%.*s%02i.ftoutfo", TOX_PUBLIC_KEY_SIZE * 2, test_friend.id_str, 0);
@@ -649,7 +649,7 @@ bool test_friend_online_outgoing_resume(void) {
         FAIL("online restores outgoing file");
     }
     cancel_open();
-    remove("./tox/out.bin");
+    remove(TEST_TOX_DIR "out.bin");
     utox_get_file(info, NULL, UTOX_FILE_OPTS_DELETE);
     return true;
 }
@@ -658,7 +658,7 @@ int main(void) {
     int result = 0;
     setvbuf(stdout, NULL, _IONBF, 0);
     settings.portable_mode = true;
-    native_create_dir((uint8_t *)"./tox");
+    native_create_dir((uint8_t *)TEST_TOX_DIR);
     RUN_TEST(test_unknown_transfer_and_ui_data);
     RUN_TEST(test_send_data_slot_status_and_limit);
     RUN_TEST(test_send_file_basename);

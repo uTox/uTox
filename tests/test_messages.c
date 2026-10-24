@@ -962,7 +962,7 @@ bool test_messages_reverse_selection_drag(void) {
 bool test_messages_read_from_log_page(void) {
     reset_messages();
     char logpath[UTOX_FILE_NAME_LENGTH];
-    snprintf(logpath, sizeof logpath, "./tox/%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, test_friend.id_str);
+    snprintf(logpath, sizeof logpath, TEST_TOX_DIR "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, test_friend.id_str);
     remove(logpath);
 
     MESSAGES m;

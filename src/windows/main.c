@@ -109,7 +109,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
 }
 
 void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
-    if (!sanitize_filename(file->name)) {
+    if (!native_ft_filename_safe(file->name, file->name_length)) {
         LOG_ERR("Windows", "Filename is invalid and could not be sanitized.");
         return;
     }
@@ -138,16 +138,20 @@ void native_select_dir_ft(uint32_t fid, uint32_t num, FILE_TRANSFER *file) {
     }
 }
 
-void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+bool native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     wchar_t *autoaccept_folder = NULL;
 
     if (settings.portable_mode) {
         autoaccept_folder = calloc(1, UTOX_FILE_NAME_LENGTH * sizeof(wchar_t));
+        if (!autoaccept_folder) {
+            LOG_ERR("Windows", "Could not allocate memory for portable auto-accept folder.");
+            return false;
+        }
         utf8_to_nativestr(portable_mode_save_path, autoaccept_folder, strlen(portable_mode_save_path) * 2);
     } else if (SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads,
                                     KF_FLAG_CREATE, NULL, &autoaccept_folder) != S_OK) {
         LOG_ERR("Windows", "Unable to get auto accept file folder.");
-        return;
+        return false;
     }
 
     wchar_t subpath[UTOX_FILE_NAME_LENGTH] = { 0 };
@@ -159,12 +163,18 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
         CoTaskMemFree(autoaccept_folder);
     }
 
-    CreateDirectoryW(subpath, NULL);
-
-    if (!sanitize_filename(file->name)) {
-        LOG_ERR("Windows", "Filename is invalid and could not be sanitized.");
-        return;
+    if (!CreateDirectoryW(subpath, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
+        LOG_ERR("Windows", "Unable to create auto-accept directory.");
+        return false;
     }
+
+    const DWORD attrs = GetFileAttributesW(subpath);
+    if (attrs == INVALID_FILE_ATTRIBUTES || !(attrs & FILE_ATTRIBUTE_DIRECTORY)) {
+        LOG_ERR("Windows", "Auto-accept path exists but is not a directory.");
+        return false;
+    }
+
+    /* Filename already validated by native_ft_filename_safe in FILE_INCOMING_NEW. */
 
     wchar_t filename[UTOX_FILE_NAME_LENGTH] = { 0 };
     utf8_to_nativestr((char *)file->name, filename, file->name_length * 2);
@@ -175,11 +185,12 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
     if (!path) {
         LOG_ERR("Windows", "Could not allocate memory for path.");
-        return;
+        return false;
     }
 
     native_to_utf8str(fullpath, path, UTOX_FILE_NAME_LENGTH);
     postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, path);
+    return true;
 }
 
 void launch_at_startup(bool should) {

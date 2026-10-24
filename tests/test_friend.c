@@ -684,20 +684,20 @@ bool test_friend_metadata_write_open_fail(void) {
     }
     friend_set_alias(f, (uint8_t *)"X", 1);
 
-    /* Block ./tox as a directory by replacing it with a regular file. */
-    rename("./tox", "./tox_bak_meta_test");
-    FILE *tox_file = fopen("./tox", "wb");
+    /* Block the portable save directory by replacing it with a regular file. */
+    rename(TEST_TOX_DIR_BARE, TEST_TOX_DIR_BARE "_bak_meta_test");
+    FILE *tox_file = fopen(TEST_TOX_DIR_BARE, "wb");
     if (!tox_file) {
-        rename("./tox_bak_meta_test", "./tox");
-        FAIL("could not create blocking file ./tox");
+        rename(TEST_TOX_DIR_BARE "_bak_meta_test", TEST_TOX_DIR_BARE);
+        FAIL("could not create blocking file %s", TEST_TOX_DIR_BARE);
     }
     fwrite("x", 1, 1, tox_file);
     fclose(tox_file);
 
     utox_write_metadata(f); /* should log and return without crashing */
 
-    remove("./tox");
-    rename("./tox_bak_meta_test", "./tox");
+    remove(TEST_TOX_DIR_BARE);
+    rename(TEST_TOX_DIR_BARE "_bak_meta_test", TEST_TOX_DIR_BARE);
 
     friend_slots_cleanup();
     return true;
